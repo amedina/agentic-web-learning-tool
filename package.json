@@ -1,0 +1,27 @@
+{
+  "name": "google-awlt",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "packageManager": "pnpm@10.15.1",
+  "engines": {
+    "pnpm": ">=10"
+  },
+  "scripts": {
+    "preinstall": "npx only-allow pnpm",
+    "lint": "pnpm --filter extension lint",
+    "format": "pnpm --filter extension format",
+    "dev": "pnpm --filter extension dev",
+    "check-types": "pnpm --filter extension check-types",
+    "build": "pnpm --filter extension build",
+    "serve": "pnpm --filter extension preview",
+    "preview-storybook": "pnpm --filter storybook-config preview-storybook",
+    "storybook": "pnpm --filter storybook-config storybook",
+    "test": "pnpm --filter extension test",
+    "test:e2e": "pnpm --filter extension test:e2e",
+    "test:e2e-ui": "pnpm --filter extension test:e2e-ui"
+  },
+  "workspaces": [
+    "packages/*"
+  ]
+}

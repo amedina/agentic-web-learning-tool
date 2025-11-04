@@ -1,0 +1,17 @@
+{
+	"extends": "@google-awlt/shared-config/typescript/react-library",
+	"compilerOptions": {
+		"jsx": "react-jsx",
+		"esModuleInterop": true,
+		"allowSyntheticDefaultImports": true,
+		"types": ["jest", "@testing-library/jest-dom"],
+		"tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+
+		/* Path aliasing */
+		"baseUrl": ".",
+		"paths": {
+			"@/*": ["./src/*"]
+		}
+	},
+	"include": ["src", "setupTests.d.ts"]
+}
