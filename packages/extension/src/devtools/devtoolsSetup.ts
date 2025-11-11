@@ -42,7 +42,7 @@ const callback = (panel: {
   });
 };
 chrome.devtools.panels.create(
-  'Privacy Sandbox',
+  'AWL Tool',
   'icons/icon.svg',
   'devtools/index.html',
   callback

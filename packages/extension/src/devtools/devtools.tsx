@@ -1,10 +1,14 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import reactLogo from '../assets/react.svg';
 import viteLogo from '../assets/vite.svg';
 import { Button } from '@google-awlt/design-system';
 
 function DevTools() {
 	const [count, setCount] = useState(0);
+	const openSidePanel = useCallback(async () => {
+    const tab = await chrome.tabs.get(chrome.devtools.inspectedWindow.tabId)
+    chrome.sidePanel.open({ windowId: tab.windowId });
+	}, [])
 
 	return (
 		<main className="max-w-7xl m-auto min-h-screen flex flex-col items-center justify-center gap-5">
@@ -23,6 +27,7 @@ function DevTools() {
 						/>
 					</a>
 				</Button>
+				<Button onClick={openSidePanel}>Open SidePanel</Button>
 			</div>
 			<h1 className="text-2xl">Vite + React</h1>
 			<div className="flex flex-col items-center justify-center">

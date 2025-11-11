@@ -22,7 +22,6 @@ const distDir = path.resolve(__dirname, '../../dist/extension');
 
 // eslint-disable-next-line turbo/no-undeclared-env-vars
 const isDev = process.env.NODE_ENV === 'development';
-console.log(resolve(__dirname, 'src/options/options.html'))
 
 // More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
 export default defineConfig({
@@ -49,13 +48,13 @@ export default defineConfig({
 			input: {
 				options: resolve(__dirname, 'src/options/options.html'),
 				devtools: resolve(__dirname, 'src/devtools/devtools.html'),
+				'devtools-index': resolve(__dirname, 'src/devtools/index.html'),
 				sidePanel: resolve(__dirname, 'src/sidepanel/sidePanel.html'),
 				popup: resolve(__dirname, 'src/popup/popup.html'),
+				serviceWorker: resolve(__dirname, 'src/serviceWorker/index.ts'),
 			},
 			output: {
 				entryFileNames: '[name]/[name].js',
-				chunkFileNames: '[name]/[name]-chunk.js',
-                assetFileNames: '[name]/[name]-assets.[ext]',
 			}
 		}
 	}
