@@ -5,10 +5,13 @@ import { Button } from '@google-awlt/design-system';
 
 function DevTools() {
 	const [count, setCount] = useState(0);
+
 	const openSidePanel = useCallback(async () => {
-    const tab = await chrome.tabs.get(chrome.devtools.inspectedWindow.tabId)
-    chrome.sidePanel.open({ windowId: tab.windowId });
-	}, [])
+		const tab = await chrome.tabs.get(
+			chrome.devtools.inspectedWindow.tabId
+		);
+		chrome.sidePanel.open({ windowId: tab.windowId });
+	}, []);
 
 	return (
 		<main className="max-w-7xl m-auto min-h-screen flex flex-col items-center justify-center gap-5">
@@ -27,8 +30,9 @@ function DevTools() {
 						/>
 					</a>
 				</Button>
-				<Button onClick={openSidePanel}>Open SidePanel</Button>
 			</div>
+			<Button variant="outline" onClick={openSidePanel}>Open SidePanel</Button>
+			<Button variant="outline" onClick={() => chrome.runtime.openOptionsPage()}>Open Options page</Button>
 			<h1 className="text-2xl">Vite + React</h1>
 			<div className="flex flex-col items-center justify-center">
 				<button onClick={() => setCount((count) => count + 1)}>
