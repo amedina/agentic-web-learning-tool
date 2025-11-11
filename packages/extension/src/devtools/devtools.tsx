@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import reactLogo from './assets/react.svg';
+import reactLogo from '../assets/react.svg';
 import viteLogo from '/vite.svg';
-import { Button } from '@google-awlt/design-system/button';
+import { Button } from '@google-awlt/design-system';
 
 function DevTools() {
 	const [count, setCount] = useState(0);

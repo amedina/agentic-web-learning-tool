@@ -2,9 +2,8 @@
 	"extends": "@google-awlt/shared-config/typescript/base",
 	"compilerOptions": {
 		"tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
-
-		/* Path aliasing */
 		"baseUrl": ".",
+		"types": ["chrome"],
 		"paths": {
 			"@/*": ["./src/*"]
 		}
