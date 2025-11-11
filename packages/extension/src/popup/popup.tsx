@@ -3,7 +3,7 @@ import reactLogo from '../assets/react.svg';
 import viteLogo from '../assets/vite.svg';
 import { Button } from '@google-awlt/design-system';
 
-function DevTools() {
+function Popup() {
 	const [count, setCount] = useState(0);
 
 	return (
@@ -40,4 +40,4 @@ function DevTools() {
 	);
 }
 
-export default DevTools;
+export default Popup;
