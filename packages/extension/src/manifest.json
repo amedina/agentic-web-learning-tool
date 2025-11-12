@@ -29,7 +29,7 @@
     "default_path": "sidePanel/sidePanel.html"
   },
   "background": {
-    "service_worker": "serviceWorker/serviceWorker.js",
+    "service_worker": "serviceWorker/index.js",
     "type": "module"
   },
   "content_scripts": [],
