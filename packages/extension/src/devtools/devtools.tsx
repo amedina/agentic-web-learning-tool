@@ -17,6 +17,11 @@ function DevTools() {
 		<main className="max-w-7xl m-auto min-h-screen flex flex-col items-center justify-center gap-5">
 			<div className="flex gap-5">
 				<Button variant="link" size="icon">
+					<a href="https://vite.dev" target="_blank">
+						<img src={viteLogo} className="logo" alt="Vite logo" />
+					</a>
+				</Button>
+				<Button variant="link" size="icon">
 					<a href="https://react.dev" target="_blank">
 						<img
 							src={reactLogo}
