@@ -11,24 +11,36 @@ import { lastAssistantMessageIsCompleteWithToolCalls } from 'ai';
 import { AssistantChatTransport, useChatRuntime } from '@assistant-ui/react-ai-sdk';
 import * as Avatar from "@radix-ui/react-avatar";
 import { ArrowUpIcon, ClipboardIcon, ReloadIcon } from "@radix-ui/react-icons";
-import type { FC } from "react";
+import { useMcpClient } from '@mcp-b/mcp-react-hooks';
+import { useEffect, type FC } from "react";
 import { MarkdownText } from "../assistant-ui/markdownText";
 
-export const Claude: FC = () => {
-  // // Example 1: Custom API URL while keeping system/tools forwarding
-  const runtime = useChatRuntime({
-    transport: new AssistantChatTransport({
-      api: 'https://ollama.gagan.pro',
-      headers: {
-        'x-model-provider': 'ollama',
-        'x-model-name': 'qwen3:14b',
-      },
-    }),
-    sendAutomaticallyWhen: (messages) => lastAssistantMessageIsCompleteWithToolCalls(messages),
-  });
+import { ExtensionClientTransport } from '@mcp-b/transports';
+import { Client } from '@modelcontextprotocol/sdk/client/index.js';
+import { useAssistantMCP } from "../hooks/useAssistantMCP";
+
+export const transport = new ExtensionClientTransport({
+  portName: "mcp",
+});
+
+// Create MCP client
+export const client = new Client({
+  name: "Extension Sidepanel",
+  version: "1.0.0",
+});
+
+export const Claude: FC = ({runtime}) => {
+  useEffect(() => {
+    (async() => client.connect(transport))();
+  }, []);
+
+  const { client, tools } = useMcpClient();
+  console.log('tools in claude container', tools);
+  globalThis.client = client
+  const threadId = useAssistantState(({threadListItem}) => threadListItem.id);
+  useAssistantMCP(tools, client, threadId, runtime);
 	
   return (
-	<AssistantRuntimeProvider runtime={runtime}>
     <ThreadPrimitive.Root className="flex h-full flex-col items-stretch bg-[#2b2a27] px-4 pt-16 font-serif">
       <ThreadPrimitive.Viewport className="no-scrollbar flex flex-grow flex-col overflow-y-scroll">
         <ThreadPrimitive.Messages components={{ Message: ChatMessage }} />
@@ -58,9 +70,27 @@ export const Claude: FC = () => {
         </div>
       </ComposerPrimitive.Root>
     </ThreadPrimitive.Root>
-	</AssistantRuntimeProvider>
   );
 };
+
+export const ClaudeContainer = () => {
+   const runtime = useChatRuntime({
+    transport: new AssistantChatTransport({
+      api: 'https://webmcp-backend-prod-v2.alexmnahas.workers.dev/api/chat',
+      headers: {
+        'x-model-provider': 'anthropic',
+        'x-model-name': 'claude-sonnet-4-5-20250929',
+      },
+    }),
+    sendAutomaticallyWhen: (messages) => lastAssistantMessageIsCompleteWithToolCalls(messages),
+  });
+
+  return (
+    <AssistantRuntimeProvider runtime={runtime}>
+      <Claude runtime={runtime} />
+    </AssistantRuntimeProvider>
+  )
+}
 
 const ChatMessage: FC = () => {
   const role = useAssistantState(({ message }) => message.role);

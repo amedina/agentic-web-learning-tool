@@ -1,9 +1,5 @@
 /// <reference types="vitest/config" />
 import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import tailwindcss from '@tailwindcss/vite';
-import svgr from 'vite-plugin-svgr';
-import { viteStaticCopy } from 'vite-plugin-static-copy';
 
 // https://vite.dev/config/
 import path, { resolve } from 'path';
@@ -25,14 +21,6 @@ const isDev = process.env.NODE_ENV === 'development';
 
 // More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
 export default defineConfig({
-	plugins: [react(), tailwindcss(), svgr(), 
-        viteStaticCopy({
-          targets: [
-            { src: 'manifest.json', dest: '' },
-            { src: 'icons', dest: '' },
-          ],
-        }),
-      ],
 	resolve: {
 		alias: aliases,
 	},
@@ -46,16 +34,12 @@ export default defineConfig({
 		outDir: distDir,
 		rollupOptions: {
 			input: {
-				options: resolve(__dirname, 'src/options/options.html'),
-				devtools: resolve(__dirname, 'src/devtools/devtools.html'),
-				'devtools-index': resolve(__dirname, 'src/devtools/index.html'),
-				sidePanel: resolve(__dirname, 'src/sidepanel/sidePanel.html'),
-				popup: resolve(__dirname, 'src/popup/popup.html'),
-				serviceWorker: resolve(__dirname, 'src/serviceWorker/index.ts'),
+				mcpBridge: resolve(__dirname, 'src/contentScript/mcpBridge.ts'),
 			},
 			output: {
+				format: 'iife',
 				entryFileNames: (chunk) => {
-					return chunk.name === 'devtools-index' ? 'devtools/[name].js' : '[name]/[name].js';
+					return chunk.name === 'mcpBridge' ? 'contentScript.js' : '[name]/[name].js';
 				},
 			}
 		}

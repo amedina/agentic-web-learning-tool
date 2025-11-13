@@ -1,10 +1,13 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';
-import { Claude } from './sidePanel';
+import { ClaudeContainer, client, transport } from './sidePanel';
+import { McpClientProvider } from '@mcp-b/mcp-react-hooks';
 
 createRoot(document.getElementById('root')!).render(
-	<StrictMode>
-		<Claude />
-	</StrictMode>
+	<McpClientProvider client={client} transport={transport} opts={{}}>
+		<StrictMode>
+			<ClaudeContainer />
+		</StrictMode>
+	</McpClientProvider>
 );
