@@ -34,12 +34,12 @@ export const Claude: FC = () => {
         <ThreadPrimitive.Messages components={{ Message: ChatMessage }} />
         <ThreadPrimitive.If empty={false}>
           <p className="mx-auto w-full max-w-screen-md p-2 text-right text-xs text-[#b8b5a9]">
-            Claude can make mistakes. Please double-check responses.
+            LLM can make mistakes. Please double-check responses.
           </p>
         </ThreadPrimitive.If>
       </ThreadPrimitive.Viewport>
 
-      <ComposerPrimitive.Root className="mx-auto flex w-full max-w-screen-md flex-col rounded-t-xl border border-[#6c6a6040] bg-[#393937] p-0.5">
+      <ComposerPrimitive.Root className="mx-auto flex w-full max-w-screen-md flex-col rounded-xl border border-[#6c6a6040] bg-[#393937] p-1.5 m-2">
         <div className="flex">
           <ComposerPrimitive.Input
             placeholder="Reply to Claude..."
@@ -56,9 +56,6 @@ export const Claude: FC = () => {
             />
           </ComposerPrimitive.Send>
         </div>
-        <p className="-mt-1 mb-3 px-3.5 text-sm text-white/70">
-          Claude 3 Sonnet
-        </p>
       </ComposerPrimitive.Root>
     </ThreadPrimitive.Root>
 	</AssistantRuntimeProvider>
