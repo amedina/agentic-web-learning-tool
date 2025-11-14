@@ -1,13 +1,20 @@
+/**
+ * External dependencies
+ */
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import './index.css';
-import { ClaudeContainer, client, transport } from './sidePanel';
 import { McpClientProvider } from '@mcp-b/mcp-react-hooks';
+/**
+ * Internal dependencies
+ */
+import './index.css';
+import SidePanel from './sidePanel';
+import { client, transport } from './components';
 
 createRoot(document.getElementById('root')!).render(
 	<McpClientProvider client={client} transport={transport} opts={{}}>
 		<StrictMode>
-			<ClaudeContainer />
+			<SidePanel />
 		</StrictMode>
 	</McpClientProvider>
 );

@@ -1,5 +1,3 @@
-"use client";
-
 import { type ComponentPropsWithRef, forwardRef } from "react";
 import { Slottable } from "@radix-ui/react-slot";
 
@@ -8,8 +6,8 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "./tooltip";
-import { Button } from "./button";
-import { cn } from "../utils";
+import { Button } from "../button";
+import { cn } from "../../lib/utils";
 
 export type TooltipIconButtonProps = ComponentPropsWithRef<typeof Button> & {
   tooltip: string;

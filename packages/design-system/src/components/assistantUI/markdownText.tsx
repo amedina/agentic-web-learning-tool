@@ -14,7 +14,7 @@ import { CheckIcon, CopyIcon } from "lucide-react";
 
 import { TooltipIconButton } from "./tooltipIconButton";
 import { SyntaxHighlighter } from "./shikiHighlighter";
-import { cn } from "../utils";
+import { cn } from "../../lib/utils";
 
 const MarkdownTextImpl = () => {
   return (

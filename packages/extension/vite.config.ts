@@ -5,7 +5,6 @@ import tailwindcss from '@tailwindcss/vite';
 import svgr from 'vite-plugin-svgr';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 
-// https://vite.dev/config/
 import path, { resolve } from 'path';
 import { readdirSync } from 'node:fs';
 import { fileURLToPath } from 'url';
@@ -46,11 +45,11 @@ export default defineConfig({
 		outDir: distDir,
 		rollupOptions: {
 			input: {
-				options: resolve(__dirname, 'src/options/options.html'),
-				devtools: resolve(__dirname, 'src/devtools/devtools.html'),
-				'devtools-index': resolve(__dirname, 'src/devtools/index.html'),
-				sidePanel: resolve(__dirname, 'src/sidepanel/sidePanel.html'),
-				popup: resolve(__dirname, 'src/popup/popup.html'),
+				options: resolve(__dirname, 'src/view/options/options.html'),
+				devtools: resolve(__dirname, 'src/view/devtools/devtools.html'),
+				'devtools-index': resolve(__dirname, 'src/view/devtools/index.html'),
+				sidePanel: resolve(__dirname, 'src/view/sidepanel/sidePanel.html'),
+				popup: resolve(__dirname, 'src/view/popup/popup.html'),
 				serviceWorker: resolve(__dirname, 'src/serviceWorker/index.ts'),
 			},
 			output: {

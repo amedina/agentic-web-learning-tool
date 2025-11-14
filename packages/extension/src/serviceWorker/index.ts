@@ -22,15 +22,6 @@ class McpHub {
   private activeTabId: number | null = null;
   private requestManager = new RequestManager();
   private registeredTools = new Map<string, ReturnType<typeof this.server.registerTool>>();
-  private pendingReopens = new Map<
-    number,
-    {
-      cachedDataId: string;
-      resolvePort: (port: chrome.runtime.Port) => void;
-      reject: (err: any) => void;
-      timeoutId: NodeJS.Timeout;
-    }
-  >(); // For awaiting reopen registration.
 
   constructor(server: McpServer) {
     this.server = server;
@@ -76,7 +67,9 @@ class McpHub {
   private handleContentScriptConnection(port: chrome.runtime.Port) {
     const tabId = port.sender?.tab?.id;
     const url = port.sender?.tab?.url || '';
-    if (!tabId) return;
+    if (!tabId) {
+      return;
+    }
 
     const domain = this.extractDomainFromUrl(url);
     const dataId = `tab-${tabId}`;
@@ -84,17 +77,6 @@ class McpHub {
     port.onMessage.addListener(async (message) => {
       if (message.type === 'register-tools' && message.tools) {
         await this.registerOrUpdateTools(domain, dataId, port, message.tools, true);
-        // Check if this is a reopen: Resolve pending if matching.
-        const pending = this.pendingReopens.get(tabId);
-        if (pending) {
-          clearTimeout(pending.timeoutId);
-          pending.resolvePort(port);
-          // Cleanup cached after reopen
-          const cachedDataId = pending.cachedDataId;
-          this.unregisterTools(domain, cachedDataId);
-          this.getDomainData(domain).delete(cachedDataId);
-          this.pendingReopens.delete(tabId);
-        }
       } else if (message.type === 'tools-updated' && message.tools) {
         await this.registerOrUpdateTools(domain, dataId, port, message.tools, false);
       } else if (message.type === 'tool-result' && message.requestId) {
@@ -180,66 +162,21 @@ class McpHub {
   private unregisterTab(domain: string, dataId: string) {
     const domainData = this.getDomainData(domain);
     const tabData = domainData.get(dataId);
-    if (!tabData) return;
+    if (!tabData) {
+      return;
+    }
 
     this.unregisterTools(domain, dataId);
 
-    const cacheable = tabData.tools.filter((t) => t.annotations?.cache);
-    if (cacheable.length > 0 && !tabData.isClosed) {
-      // Only cache if was open.
-      const cachedId = `cached-${Date.now()}`;
-      domainData.set(cachedId, {
-        ...tabData,
-        tools: cacheable,
-        isClosed: true,
-        tabId: undefined,
-        port: undefined,
-      });
-      this.registerCachedTools(domain, cachedId);
-    }
     domainData.delete(dataId);
-  }
-
-  private registerCachedTools(domain: string, dataId: string) {
-    const domainData = this.getDomainData(domain);
-    const tabData = domainData.get(dataId);
-    if (!tabData) return;
-
-    const cleanedDomain = sanitizeToolName(domain);
-    const namePrefix = dataId;
-
-    for (const tool of tabData.tools) {
-      const toolName = `website_tool_${cleanedDomain}_${namePrefix}_${sanitizeToolName(tool.name)}`;
-      const description = this.getSimpleTabDescription(domain, dataId, tool.description || '');
-
-      const inputSchema: Record<string, z.ZodAny> = {};
-      for (const key in tool.inputSchema.properties ?? {}) {
-        inputSchema[key] = z.any();
-      }
-
-      const outputSchema: Record<string, z.ZodAny> | undefined = tool.outputSchema?.properties
-        ? Object.fromEntries(Object.keys(tool.outputSchema.properties).map((key) => [key, z.any()]))
-        : undefined;
-
-      const config = {
-        title: tool.title,
-        description,
-        inputSchema: inputSchema as any,
-        outputSchema: outputSchema as any,
-        annotations: tool.annotations,
-      };
-
-      const mcpTool = this.server.registerTool(toolName, config, async (args: any) =>
-        this.executeTool(domain, dataId, tool.name, args)
-      );
-      this.registeredTools.set(toolName, mcpTool);
-    }
   }
 
   private unregisterTools(domain: string, dataId: string) {
     const domainData = this.getDomainData(domain);
     const tabData = domainData.get(dataId);
-    if (!tabData) return;
+    if (!tabData) {
+      return;
+    }
 
     const cleanedDomain = sanitizeToolName(domain);
     const namePrefix = dataId.startsWith('cached-') ? dataId : `tab${tabData.tabId ?? ''}`;
@@ -251,44 +188,25 @@ class McpHub {
     }
   }
 
-  private async getPortForDataId(domain: string, dataId: string): Promise<chrome.runtime.Port> {
+  private async getPortForDataId(domain: string, dataId: string): Promise<chrome.runtime.Port | null> {
     const domainData = this.getDomainData(domain);
     const tabData = domainData.get(dataId);
-    if (!tabData) throw new Error(`No data for ${dataId}`);
+    if (!tabData) {
+      return null;
+    }
 
     if (!tabData.isClosed) {
       if (tabData.tabId && tabData.tabId !== this.activeTabId) {
         await chrome.tabs.update(tabData.tabId, { active: true });
       }
-      if (!tabData.port) throw new Error('No port for open tab');
+
+      if (!tabData.port){
+        return null;
+      }
+
       return tabData.port;
     }
-
-    // Reopen cached tab.
-    return new Promise((resolve, reject) => {
-      const timeoutId = setTimeout(() => {
-        this.pendingReopens.forEach((p, id) => {
-          if (p.cachedDataId === dataId) {
-            this.pendingReopens.delete(id);
-          }
-        });
-        reject(new Error('Timeout reopening tab'));
-      }, 10000);
-
-      chrome.tabs.create({ url: tabData.url, active: true }, (newTab) => {
-        if (chrome.runtime.lastError || !newTab?.id) {
-          clearTimeout(timeoutId);
-          reject(new Error('Failed to create tab: ' + chrome.runtime.lastError?.message));
-          return;
-        }
-        this.pendingReopens.set(newTab.id, {
-          cachedDataId: dataId,
-          resolvePort: resolve,
-          reject,
-          timeoutId,
-        });
-      });
-    });
+    return null
   }
 
   private getSimpleTabDescription(domain: string, dataId: string, original: string): string {
@@ -297,7 +215,7 @@ class McpHub {
     if (!tabData) return `[${domain}] ${original}`;
 
     const isActive = !tabData.isClosed && tabData.tabId === this.activeTabId;
-    const status = isActive ? 'Active' : tabData.isClosed ? 'Cached' : '';
+    const status = isActive ? 'Active' : tabData.isClosed ? 'Closed' : '';
     return `[${domain} • ${status ? `${status} ` : ''}Tab] ${original}`;
   }
 
@@ -309,6 +227,17 @@ class McpHub {
   ): Promise<CallToolResult> {
     try {
       const port = await this.getPortForDataId(domain, dataId);
+      if(!port){
+        return {
+        content: [
+          {
+            type: 'text',
+            text: `Failed to execute tool`,
+          },
+        ],
+        isError: true,
+      };;
+      }
       return await this.requestManager.create(port, { type: 'execute-tool', toolName, args });
     } catch (error) {
       return {
@@ -390,13 +319,14 @@ class McpHub {
 const sharedServer = new McpServer({ name: 'Extension-Hub', version: '1.0.0' });
 new McpHub(sharedServer);
 
-  chrome.runtime.onConnect.addListener((port) => {
-    if (port.name !== 'mcp') return;
+chrome.runtime.onConnect.addListener((port) => {
+  if (port.name !== 'mcp') {
+    return;
+  }
 
-    console.log('[MCP Hub] UI client connected');
-    const transport = new ExtensionServerTransport(port, {
-      keepAlive: true,
-      keepAliveInterval: 25_000,
-    });
-    sharedServer.connect(transport);
+  const transport = new ExtensionServerTransport(port, {
+    keepAlive: true,
+    keepAliveInterval: 25_000,
   });
+  sharedServer.connect(transport);
+});

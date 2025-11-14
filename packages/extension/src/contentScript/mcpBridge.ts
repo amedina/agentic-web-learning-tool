@@ -29,7 +29,6 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 
     // Handle tool execution requests from background
     backgroundPort.onMessage.addListener(async (message) => {
-        console.log(message)
         if (message.type === "execute-tool") {
             const result = await client.callTool({
                 name: message.toolName,
