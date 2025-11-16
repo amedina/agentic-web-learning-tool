@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
-import reactLogo from '../assets/react.svg';
-import viteLogo from '../assets/vite.svg';
+import reactLogo from './../../assets/react.svg';
+import viteLogo from './../../assets/vite.svg';
 import { Button } from '@google-awlt/design-system';
 
 function DevTools() {
