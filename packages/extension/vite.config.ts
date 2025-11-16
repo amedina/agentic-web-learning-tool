@@ -27,8 +27,8 @@ export default defineConfig({
 	plugins: [react(), tailwindcss(), svgr(), 
         viteStaticCopy({
           targets: [
-            { src: 'manifest.json', dest: '' },
-            { src: 'icons', dest: '' },
+            { src: '../manifest.json', dest: '' },
+            { src: '../icons', dest: '' },
           ],
         }),
       ],
@@ -36,7 +36,7 @@ export default defineConfig({
 		alias: aliases,
 	},
 	base: '',
-	root: 'src',
+	root: 'src/view',
 	build: {
 		emptyOutDir: false,
 		watch: isDev ? {} : null,
