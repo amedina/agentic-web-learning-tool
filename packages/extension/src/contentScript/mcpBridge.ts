@@ -1,45 +1,56 @@
 import { TabClientTransport } from "@mcp-b/transports";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+try {
+    (async () => {
+        const transport = new TabClientTransport({
+            targetOrigin: window.location.origin,
+        });
 
-(async () => {
-    // Connect to the page's MCP server
-    const transport = new TabClientTransport({
-        targetOrigin: window.location.origin,
-    });
+        const client = new Client({
+            name: "ExtensionProxyClient",
+            version: "1.0.0",
+        });
 
-    const client = new Client({
-        name: "ExtensionProxyClient",
-        version: "1.0.0",
-    });
+        // Connect to extension background
+        const backgroundPort = chrome.runtime.connect({
+            name: "mcp-content-script-proxy",
+        });
 
-    // Connect to extension background
-    const backgroundPort = chrome.runtime.connect({
-        name: "mcp-content-script-proxy",
-    });
+        let connected = false;
+        const interval = setInterval(async () => {
+            try {
+                if (!connected) {
+                    await client.connect(transport);
+                    connected = true;
+                }
+                const pageTools = await client.listTools();
 
-    // Discover and connect to page server
-    await client.connect(transport);
-    const pageTools = await client.listTools();
+                backgroundPort.postMessage({
+                    type: "register-tools",
+                    tools: pageTools.tools,
+                });
+                clearInterval(interval)
+            } catch (error) {
+                //empty code block
+            }
+        })
 
-    // Register tools with background hub
-    backgroundPort.postMessage({
-        type: "register-tools",
-        tools: pageTools.tools,
-    });
+        backgroundPort.onMessage.addListener(async (message) => {
+            if (message.type === "execute-tool") {
+                const result = await client.callTool({
+                    name: message.toolName,
+                    arguments: message.args || {},
+                });
 
-    // Handle tool execution requests from background
-    backgroundPort.onMessage.addListener(async (message) => {
-        if (message.type === "execute-tool") {
-            const result = await client.callTool({
-                name: message.toolName,
-                arguments: message.args || {},
-            });
+                backgroundPort.postMessage({
+                    type: "tool-result",
+                    requestId: message.requestId,
+                    data: { success: true, payload: result },
+                });
+            }
+        });
+    })();
 
-            backgroundPort.postMessage({
-                type: "tool-result",
-                requestId: message.requestId,
-                data: { success: true, payload: result },
-            });
-        }
-    });
-})();
+} catch (error) {
+    //empty code block
+}
