@@ -1,5 +1,6 @@
 import { TabClientTransport } from "@mcp-b/transports";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+let connected = false;
 try {
     (async () => {
         const transport = new TabClientTransport({
@@ -16,7 +17,6 @@ try {
             name: "mcp-content-script-proxy",
         });
 
-        let connected = false;
         const interval = setInterval(async () => {
             try {
                 if (!connected) {
@@ -33,7 +33,7 @@ try {
             } catch (error) {
                 //empty code block
             }
-        })
+        }, 100);
 
         backgroundPort.onMessage.addListener(async (message) => {
             if (message.type === "execute-tool") {
@@ -48,6 +48,14 @@ try {
                     data: { success: true, payload: result },
                 });
             }
+        });
+
+        transport.onclose = () => {
+            backgroundPort.disconnect();
+        }
+
+        backgroundPort.onDisconnect.addListener(() => {
+            transport.close();
         });
     })();
 
