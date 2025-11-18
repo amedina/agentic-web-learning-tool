@@ -33,9 +33,9 @@ const ChatMessage: FC = () => {
             </Root>
           </MessagePrimitive.If>
 
-          <p className="text-[#eee]">
+          <span className="text-[#eee]">
             <MessagePrimitive.Parts components={{ Text: MarkdownText }} />
-          </p>
+          </span>
         </div>
       </div>
 

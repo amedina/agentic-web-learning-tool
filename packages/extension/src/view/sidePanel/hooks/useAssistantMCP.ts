@@ -2,7 +2,10 @@ import { tool, type AssistantRuntime } from '@assistant-ui/react';
 import type { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import type { Tool as McpTool } from '@modelcontextprotocol/sdk/types.js';
 import { useEffect, useMemo } from 'react';
-import { mcpToolToJSONSchema, getToolNameForUI, validateToolPreferences, } from '../utils';
+
+
+import { mcpToolToJSONSchema, validateToolPreferences, } from '../utils';
+import { getToolNameForUI } from '../transports/gemini/utils';
 
 /**
  * Hook that bridges MCP tools with the Assistant UI framework
@@ -66,22 +69,65 @@ export function useAssistantMCP(mcpTools: McpTool[], client: Client, threadId: s
           type: 'frontend',
           description: mcpT.description,
           parameters: mcpToolToJSONSchema(mcpT.inputSchema),
-          execute: async (args: Record<string, unknown>) => {
-            console.log(`[useAssistantMCP] Executing tool ${assistantToolName} with args:`, args);
+          execute: async (args, { abortSignal: signal }) => {
             try {
-              // Strip null/undefined so Chrome APIs receive only set values
               const cleanedArgs = Object.fromEntries(
                 Object.entries(args).filter(([, v]) => v !== null && v !== undefined)
               );
 
-              const result = await client.callTool({
-                name: mcpT.name, // Always use original name for execution
-                arguments: cleanedArgs,
+              const toolResult = await client.callTool({
+                name: mcpT.name,
+                arguments: cleanedArgs
+              }, undefined, {
+                signal: signal
               });
-              console.log(`[useAssistantMCP] Tool ${assistantToolName} succeeded`);
-              return result;
+
+              const toolContent = toolResult.content;
+
+              if (toolContent.some(part => part.type === "image")) {
+                const images = toolContent.filter(part => part.type === "image");
+                const imageCount = images.length;
+
+                if (imageCount === 1) {
+                  const imagePart = images[0];
+
+                  // Format result as a standard image content part
+                  const resultPart = {
+                    type: "image",
+                    data: imagePart.data,
+                    mimeType: imagePart.mimeType
+                  };
+                  return resultPart;
+                }
+
+                // Handle multiple images
+                const resultParts = images.map((imagePart, index) => {
+                  console.log(`[useAssistantMCP] Image ${index + 1}/${imageCount}: ${imagePart.mimeType}, ${imagePart.data.length} bytes (using placeholder)`);
+                  return {
+                    type: "image",
+                    data: imagePart.data,
+                    mimeType: imagePart.mimeType
+                  };
+                });
+                console.log(`[useAssistantMCP] Returning ${imageCount} image parts:`, resultParts);
+                return resultParts;
+              }
+
+              // Handle simple text results
+              if (toolContent.length === 1 && toolContent[0].type === "text") {
+                return toolContent[0].text;
+              }
+
+              // Handle generic or mixed results
+              const processedContent = toolContent.map(part =>
+                part.type === "text" ? { type: "text", text: part.text } : part
+              );
+
+              return processedContent.length === 1 && processedContent[0].type === "text" ? processedContent[0].text : processedContent;
+
             } catch (error) {
               console.error(`[useAssistantMCP] Tool ${assistantToolName} failed:`, error);
+              // Rethrow the error for the assistant runtime to handle
               throw error;
             }
           },

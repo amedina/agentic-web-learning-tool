@@ -29,6 +29,7 @@ const ChatBotUI = ({runtime}: ChatBotUIProps) => {
   const { client, tools } = useMcpClient();
 
   const threadId = useAssistantState(({threadListItem}) => threadListItem.id);
+  //@ts-expect-error -- Mismatch in versions being used by library
   useAssistantMCP(tools, client, threadId, runtime);
     
   return (
