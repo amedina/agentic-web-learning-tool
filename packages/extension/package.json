@@ -17,7 +17,9 @@
 	"dependencies": {
 		"@google-awlt/design-system": "workspace:*",
 		"@tailwindcss/vite": "^4.1.12",
+		"@xyflow/react": "^12.9.3",
 		"cross-env": "^10.1.0",
+		"lucide-react": "^0.542.0",
 		"react": "^19.1.1",
 		"react-dom": "^19.1.1",
 		"vite-plugin-static-copy": "^3.1.4"
