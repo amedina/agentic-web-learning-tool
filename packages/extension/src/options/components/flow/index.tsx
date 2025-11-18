@@ -1,52 +1,17 @@
-import {
-	addEdge,
-	applyEdgeChanges,
-	applyNodeChanges,
-	Controls,
-	MiniMap,
-	ReactFlow,
-	type Connection,
-	type EdgeChange,
-	type NodeChange,
-} from '@xyflow/react';
+import { useFlow } from '../../store';
+import { Controls, MiniMap, ReactFlow } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { FileOutput, Import, Save, Trash } from 'lucide-react';
-import { useCallback, useState } from 'react';
-
-type NodeType = {
-	id: string;
-	position: { x: number; y: number };
-	data: { label: string };
-};
-
-const initialNodes: NodeType[] = [
-	{ id: 'n1', position: { x: 0, y: 0 }, data: { label: 'Node 1' } },
-	{ id: 'n2', position: { x: 0, y: 100 }, data: { label: 'Node 2' } },
-];
-const initialEdges = [{ id: 'n1-n2', source: 'n1', target: 'n2' }];
 
 const Flow = () => {
-	const [nodes, setNodes] = useState(initialNodes);
-	const [edges, setEdges] = useState(initialEdges);
-
-	const onNodesChange = useCallback(
-		(changes: NodeChange<NodeType>[]) =>
-			setNodes((nodesSnapshot) =>
-				applyNodeChanges(changes, nodesSnapshot)
-			),
-		[]
-	);
-	const onEdgesChange = useCallback(
-		(changes: EdgeChange[]) =>
-			setEdges((edgesSnapshot) =>
-				applyEdgeChanges(changes, edgesSnapshot)
-			),
-		[]
-	);
-	const onConnect = useCallback(
-		(params: Connection) =>
-			setEdges((edgesSnapshot) => addEdge(params, edgesSnapshot)),
-		[]
+	const { nodes, edges, onNodesChange, onEdgesChange, onConnect } = useFlow(
+		({ state, actions }) => ({
+			nodes: state.nodes,
+			edges: state.edges,
+			onNodesChange: actions.onNodesChange,
+			onEdgesChange: actions.onEdgesChange,
+			onConnect: actions.onConnect,
+		})
 	);
 
 	return (
