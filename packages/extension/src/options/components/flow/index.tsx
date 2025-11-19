@@ -4,15 +4,15 @@ import '@xyflow/react/dist/style.css';
 import { FileOutput, Import, Save, Trash } from 'lucide-react';
 
 const Flow = () => {
-	const { nodes, edges, onNodesChange, onEdgesChange, onConnect } = useFlow(
-		({ state, actions }) => ({
+	const { nodes, edges, nodeTypes, onNodesChange, onEdgesChange, onConnect } =
+		useFlow(({ state, actions }) => ({
 			nodes: state.nodes,
 			edges: state.edges,
+			nodeTypes: state.nodeTypes,
 			onNodesChange: actions.onNodesChange,
 			onEdgesChange: actions.onEdgesChange,
 			onConnect: actions.onConnect,
-		})
-	);
+		}));
 
 	return (
 		<div className="h-full flex-1 flex flex-col bg-gray-100 p-4 rounded">
@@ -37,6 +37,7 @@ const Flow = () => {
 				<ReactFlow
 					nodes={nodes}
 					edges={edges}
+					nodeTypes={nodeTypes}
 					onNodesChange={onNodesChange}
 					onEdgesChange={onEdgesChange}
 					onConnect={onConnect}
