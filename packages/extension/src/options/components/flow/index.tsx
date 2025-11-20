@@ -4,15 +4,25 @@ import '@xyflow/react/dist/style.css';
 import { FileOutput, Import, Save, Trash } from 'lucide-react';
 
 const Flow = () => {
-	const { nodes, edges, nodeTypes, onNodesChange, onEdgesChange, onConnect } =
-		useFlow(({ state, actions }) => ({
-			nodes: state.nodes,
-			edges: state.edges,
-			nodeTypes: state.nodeTypes,
-			onNodesChange: actions.onNodesChange,
-			onEdgesChange: actions.onEdgesChange,
-			onConnect: actions.onConnect,
-		}));
+	const {
+		nodes,
+		edges,
+		nodeTypes,
+		onNodesChange,
+		onEdgesChange,
+		onNodesDelete,
+		onEdgesDelete,
+		onConnect,
+	} = useFlow(({ state, actions }) => ({
+		nodes: state.nodes,
+		edges: state.edges,
+		nodeTypes: state.nodeTypes,
+		onNodesChange: actions.onNodesChange,
+		onEdgesChange: actions.onEdgesChange,
+		onNodesDelete: actions.onNodesDelete,
+		onEdgesDelete: actions.onEdgesDelete,
+		onConnect: actions.onConnect,
+	}));
 
 	return (
 		<div className="h-full flex-1 flex flex-col bg-gray-100 p-4 rounded">
@@ -40,6 +50,8 @@ const Flow = () => {
 					nodeTypes={nodeTypes}
 					onNodesChange={onNodesChange}
 					onEdgesChange={onEdgesChange}
+					onNodesDelete={onNodesDelete}
+					onEdgesDelete={onEdgesDelete}
 					onConnect={onConnect}
 				>
 					<MiniMap nodeStrokeWidth={3} zoomable pannable />

@@ -26,8 +26,11 @@ export interface FlowStoreContext {
 	actions: {
 		onNodesChange: (changes: NodeChange<NodeType>[]) => void;
 		onEdgesChange: (changes: EdgeChange<EdgeType>[]) => void;
+		onNodesDelete: (deletedNodes: NodeType[]) => void;
+		onEdgesDelete: (deletedEdges: EdgeType[]) => void;
 		onConnect: (params: Connection | EdgeType) => void;
 		addNode: (node: NodeType) => void;
+		deleteNode: (id: string) => void;
 	};
 }
 
@@ -40,8 +43,11 @@ const initialState: FlowStoreContext = {
 	actions: {
 		onNodesChange: () => {},
 		onEdgesChange: () => {},
+		onNodesDelete: () => {},
+		onEdgesDelete: () => {},
 		onConnect: () => {},
 		addNode: () => {},
+		deleteNode: () => {},
 	},
 };
 

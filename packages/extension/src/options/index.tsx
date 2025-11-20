@@ -9,12 +9,12 @@ import { ApiProvider } from './store';
 
 createRoot(document.getElementById('root')!).render(
 	<StrictMode>
-		<FlowProvider>
-			<ApiProvider>
+		<ApiProvider>
+			<FlowProvider>
 				<ReactFlowProvider>
 					<OptionsPanel />
 				</ReactFlowProvider>
-			</ApiProvider>
-		</FlowProvider>
+			</FlowProvider>
+		</ApiProvider>
 	</StrictMode>
 );
