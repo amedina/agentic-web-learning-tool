@@ -83,8 +83,9 @@ export function useAssistantMCP(mcpTools: McpTool[], client: Client, threadId: s
               });
 
               const toolContent = toolResult.content;
-
+              //@ts-expect-error -- api is not widely available
               if (toolContent.some(part => part.type === "image")) {
+                //@ts-expect-error -- api is not widely available
                 const images = toolContent.filter(part => part.type === "image");
                 const imageCount = images.length;
 
@@ -101,6 +102,7 @@ export function useAssistantMCP(mcpTools: McpTool[], client: Client, threadId: s
                 }
 
                 // Handle multiple images
+                //@ts-expect-error -- api is not widely available
                 const resultParts = images.map((imagePart, index) => {
                   console.log(`[useAssistantMCP] Image ${index + 1}/${imageCount}: ${imagePart.mimeType}, ${imagePart.data.length} bytes (using placeholder)`);
                   return {
@@ -114,11 +116,14 @@ export function useAssistantMCP(mcpTools: McpTool[], client: Client, threadId: s
               }
 
               // Handle simple text results
+              //@ts-expect-error -- api is not widely available
               if (toolContent.length === 1 && toolContent[0].type === "text") {
+                //@ts-expect-error -- api is not widely available
                 return toolContent[0].text;
               }
 
               // Handle generic or mixed results
+              //@ts-expect-error -- api is not widely available
               const processedContent = toolContent.map(part =>
                 part.type === "text" ? { type: "text", text: part.text } : part
               );

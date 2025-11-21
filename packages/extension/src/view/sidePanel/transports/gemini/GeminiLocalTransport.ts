@@ -215,7 +215,7 @@ export class GeminiNanoChatTransport implements ChatTransport<UIMessage> {
         });
     }
 
-    reconnectToStream(options: { chatId: string; } & ChatRequestOptions) {
+    reconnectToStream(_options: { chatId: string; } & ChatRequestOptions) {
         return Promise.resolve(new ReadableStream());
     }
 }

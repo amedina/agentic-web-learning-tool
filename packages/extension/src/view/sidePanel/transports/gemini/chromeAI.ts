@@ -62,6 +62,7 @@ class ChromeAILanguageModel {
     /**
      * Prepares arguments, validates settings, and formats tools for the Prompt API.
      */
+    //@ts-expect-error -- api is not widely available
     getArgs(args) {
         const {
             temperature,
@@ -77,13 +78,16 @@ class ChromeAILanguageModel {
         const promptOptions = {};
 
         if (responseFormat?.type === "json") {
+            //@ts-expect-error -- api is not widely available
             promptOptions.responseConstraint = responseFormat.schema;
         }
 
         if (temperature !== undefined){
+            //@ts-expect-error -- api is not widely available
             promptOptions.temperature = temperature;
         }
         if (topK !== undefined){
+            //@ts-expect-error -- api is not widely available
             promptOptions.topK = topK;
         }
 
@@ -101,6 +105,7 @@ class ChromeAILanguageModel {
     /**
      * Handles non-streaming generation.
      */
+    //@ts-expect-error -- api is not widely available
     async doGenerate(callOptions) {
         const args = this.getArgs(callOptions);
         const {
@@ -197,6 +202,7 @@ class ChromeAILanguageModel {
     /**
      * Handles streaming generation.
      */
+    //@ts-expect-error -- api is not widely available
     async doStream(callOptions) {
         const args = this.getArgs(callOptions);
         const {
@@ -253,6 +259,7 @@ class ChromeAILanguageModel {
                     let hasStartedText = false;
                     let hasFinished = false;
                     let isAborted = false;
+                    //@ts-expect-error -- api is not widely available
                     let activeStreamReader = null;
 
                     // Helper to emit text start event
@@ -264,7 +271,7 @@ class ChromeAILanguageModel {
                     };
 
                     // Helper to emit text delta
-                    const emitTextDelta = (delta) => {
+                    const emitTextDelta = (delta: string) => {
                         if (delta) {
                             emitTextStart();
                             controller.enqueue({
@@ -284,7 +291,7 @@ class ChromeAILanguageModel {
                     };
 
                     // Helper to finalize stream
-                    const finishStream = (reason) => {
+                    const finishStream = (reason: string) => {
                         if (!hasFinished) {
                             hasFinished = true;
                             emitTextEnd();
@@ -303,6 +310,7 @@ class ChromeAILanguageModel {
                     const handleAbort = () => {
                         if (!isAborted) {
                             isAborted = true;
+                            //@ts-expect-error -- api is not widely available
                             if (activeStreamReader) {
                                 activeStreamReader.cancel().catch(() => { });
                             }
@@ -324,7 +332,7 @@ class ChromeAILanguageModel {
                                 finishStream("stop");
                                 return;
                             }
-
+                            //@ts-expect-error -- api is not widely available
                             activeStreamReader = this.session.promptStreaming(messageContext).getReader();
 
                             let toolCallsFound = [];

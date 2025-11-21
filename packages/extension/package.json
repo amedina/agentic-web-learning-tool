@@ -7,7 +7,7 @@
 		"dev": "concurrently \"pnpm run dev:contentScript\" \"pnpm run dev:extension\"",
 		"dev:contentScript": "cross-env NODE_ENV=development vite build --watch --config contentScript.config.ts",
 		"dev:extension": "cross-env NODE_ENV=development vite build --watch --config vite.config.ts",
-		"build": "cross-env NODE_ENV=production tsc -b && vite build",
+		"build": "cross-env NODE_ENV=production tsc -b && vite build && cp -r src/view/devtools/assets/ ../../dist/extension/assets && cp src/view/devtools/mcp-inspector.html ../../dist/extension/devtools",
 		"check-types": "tsc -b -noEmit",
 		"lint": "eslint .",
 		"lint:fix": "eslint . --fix",

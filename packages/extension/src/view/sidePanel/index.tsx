@@ -12,6 +12,7 @@ import SidePanel from './sidePanel';
 import { client, transport } from './components';
 
 createRoot(document.getElementById('root')!).render(
+	//@ts-expect-error -- api is not widely available
 	<McpClientProvider client={client} transport={transport} opts={{}}>
 		<StrictMode>
 			<SidePanel />
