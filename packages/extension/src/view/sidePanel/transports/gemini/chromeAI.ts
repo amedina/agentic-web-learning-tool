@@ -352,7 +352,6 @@ class ChromeAILanguageModel {
 
                                     let processedContent = false;
 
-                                    // 1. Just entered a fence (e.g. found ```tool_call)
                                     if (!wasInFence && scanResult.inFence) {
                                         if (scanResult.safeContent) {
                                             emitTextDelta(scanResult.safeContent);
@@ -487,8 +486,6 @@ class ChromeAILanguageModel {
                                             rawToolBuffer += scanResult.safeContent;
                                             processedContent = true;
 
-                                            // Try to parse tool name early
-                                            // 'Ere' -> extractToolNameFromJSON
                                             const extractedName = extractToolName(rawToolBuffer);
                                             if (extractedName && !hasEmittedToolStart && currentToolCallId) {
                                                 controller.enqueue({
@@ -517,7 +514,6 @@ class ChromeAILanguageModel {
                                         continue;
                                     }
 
-                                    // 4. Normal text content
                                     if (!isInFence && scanResult.safeContent) {
                                         emitTextDelta(scanResult.safeContent);
                                         processedContent = true;
@@ -538,29 +534,24 @@ class ChromeAILanguageModel {
                                 return;
                             }
 
-                            // Flush any remaining text in scanner buffer
                             if (!hasToolCalls && fenceScanner.hasContent()) {
                                 emitTextDelta(fenceScanner.getBuffer());
                                 fenceScanner.clearBuffer();
                             }
 
-                            // If no tools and no partial tool detected, we are done
                             if (!hasToolCalls || toolCallsFound.length === 0) {
                                 finishStream("stop");
                                 return;
                             }
 
-                            // Flush text after fence if it existed
                             if (textBuffer) {
                                 emitTextDelta(textBuffer);
                             }
 
-                            // We have tools, so finish reason is tool-calls
                             finishStream("tool-calls");
                             return;
                         }
 
-                        // Loop finished without clear exit condition
                         if (!hasFinished && !isAborted) {
                             finishStream("other");
                         }
