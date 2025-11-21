@@ -48,7 +48,7 @@ export default defineConfig({
 				options: resolve(__dirname, 'src/view/options/options.html'),
 				devtools: resolve(__dirname, 'src/view/devtools/devtools.html'),
 				'devtools-index': resolve(__dirname, 'src/view/devtools/index.html'),
-				sidePanel: resolve(__dirname, 'src/view/sidepanel/sidePanel.html'),
+				sidePanel: resolve(__dirname, 'src/view/sidePanel/sidePanel.html'),
 				popup: resolve(__dirname, 'src/view/popup/popup.html'),
 				serviceWorker: resolve(__dirname, 'src/serviceWorker/index.ts'),
 			},
