@@ -5,7 +5,7 @@ import {
 } from '@google-awlt/design-system';
 import { Learning } from './learning';
 import Settings from './settings';
-import { BookOpen, Inspect, SettingsIcon } from 'lucide-react';
+import { BookOpen, Inspect, PanelLeftDashed, SettingsIcon } from 'lucide-react';
 import Inspector from './inspector';
 
 const TABS: SidebarItems = {
@@ -70,6 +70,7 @@ const TABS: SidebarItems = {
 		addSpacer: false,
 		children: {},
 		containerClassName: 'h-6',
+		addDivider: true,
 	},
 	[SIDEBAR_ITEMS_KEYS.OPEN_SIDEPANEL_LLM]: {
 		title: () => 'Sidepanel LLM',
@@ -88,13 +89,13 @@ const TABS: SidebarItems = {
 			},
 		},
 		icon: {
-			Element: SettingsIcon as any,
+			Element: PanelLeftDashed as any,
 			props: {
 				className: 'fill-granite-gray w-4 h-4',
 			},
 		},
 		selectedIcon: {
-			Element: SettingsIcon as any,
+			Element: PanelLeftDashed as any,
 			props: {
 				className: 'fill-bright-gray w-4 h-4',
 			},
