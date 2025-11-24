@@ -70,7 +70,6 @@ const TABS: SidebarItems = {
 		addSpacer: false,
 		children: {},
 		containerClassName: 'h-6',
-		addDivider: true,
 	},
 };
 
