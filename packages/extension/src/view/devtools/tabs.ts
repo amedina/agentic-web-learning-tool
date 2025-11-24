@@ -10,7 +10,7 @@ import Inspector from './inspector';
 
 const TABS: SidebarItems = {
 	[SIDEBAR_ITEMS_KEYS.PRIVACY_SANDBOX]: {
-		title: () => 'Privacy Sandbox',
+		title: () => 'MCP Inspector',
 		panel: {
 			Element: Inspector,
 		},
