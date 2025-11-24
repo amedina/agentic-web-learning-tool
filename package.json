@@ -24,6 +24,10 @@
   "workspaces": [
     "packages/*"
   ],
+	"dependencies": {
+		"classnames": "^2.5.1",
+    "use-context-selector": "^2.0.0"
+	},
   "devDependencies": {
     "@types/react-syntax-highlighter": "^15.5.13"
   }

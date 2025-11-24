@@ -32,6 +32,7 @@
 		"cross-env": "^10.1.0",
 		"json-schema": "^0.4.0",
 		"lucide-react": "^0.542.0",
+		"re-resizable": "^6.11.2",
 		"react": "^19.1.1",
 		"react-dom": "^19.1.1",
 		"vite-plugin-static-copy": "^3.1.4",
