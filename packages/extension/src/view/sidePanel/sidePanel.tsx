@@ -6,6 +6,7 @@ import {
 } from "@assistant-ui/react";
 import { lastAssistantMessageIsCompleteWithToolCalls } from 'ai';
 import { useChatRuntime } from '@assistant-ui/react-ai-sdk';
+import { useEffect } from "react";
 /**
  * Internal dependencies
  */
@@ -20,8 +21,10 @@ const SidePanel = () => {
     sendAutomaticallyWhen: (messages) => lastAssistantMessageIsCompleteWithToolCalls(messages),
   });
 
-  geminiNanoTransport.setRuntime(runtime);
-  geminiNanoTransport.initializeSession();
+ useEffect(() => {
+    geminiNanoTransport.setRuntime(runtime);
+    geminiNanoTransport.initializeSession();
+  }, [runtime]);
 
   return (
     <AssistantRuntimeProvider runtime={runtime}>

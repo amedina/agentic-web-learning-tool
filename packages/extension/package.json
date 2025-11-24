@@ -4,10 +4,10 @@
 	"version": "0.0.0",
 	"type": "module",
 	"scripts": {
-		"dev": "concurrently \"pnpm run dev:contentScript\" \"pnpm run dev:extension\"",
+		"dev": "rm -rf ../../dist && concurrently \"pnpm run dev:contentScript\" \"pnpm run dev:extension\"",
 		"dev:contentScript": "cross-env NODE_ENV=development vite build --watch --config contentScript.config.ts",
 		"dev:extension": "cross-env NODE_ENV=development vite build --watch --config vite.config.ts",
-		"build": "cross-env NODE_ENV=production tsc -b && vite build",
+		"build": "rm -rf ../../dist && cross-env NODE_ENV=production tsc -b && vite build",
 		"check-types": "tsc -b -noEmit",
 		"lint": "eslint .",
 		"lint:fix": "eslint . --fix",

@@ -59,7 +59,7 @@ declare global {
  * the browser's built-in LanguageModel API directly.
  */
 export class GeminiNanoChatTransport implements ChatTransport<UIMessage> {
-    private session: LanguageModelSession | null = null;
+    private model: LanguageModelV2 | null = null;
     private isInitializing: boolean = false;
     private runtime: AssistantRuntime | null = null;
     formattedTools: any[] = [];
@@ -73,7 +73,9 @@ export class GeminiNanoChatTransport implements ChatTransport<UIMessage> {
      * This checks for API availability and creates a session.
      */
     async initializeSession(): Promise<void> {
-        if (this.session || this.isInitializing) return;
+        if (this.model || this.isInitializing) {
+            return;
+        }
 
         this.isInitializing = true;
         try {
@@ -87,9 +89,15 @@ export class GeminiNanoChatTransport implements ChatTransport<UIMessage> {
                 throw new Error("On-device Gemini Nano model is unavailable.");
             }
 
+            this.model = new ChromeAILanguageModel(crypto.randomUUID()) as unknown as LanguageModelV2;
+            if(this.model){
+                //@ts-expect-error -- Mismatch in versions being used by library
+                this.model.setRuntime(this.runtime);
+            }
+
         } catch (error) {
             console.error("Failed to initialize Gemini Nano session:", error);
-            this.session = null; // Ensure session is null on failure
+            this.model = null; // Ensure model is null on failure
         } finally {
             this.isInitializing = false;
         }
@@ -103,21 +111,11 @@ export class GeminiNanoChatTransport implements ChatTransport<UIMessage> {
         params: SendMessagesParams,
     ): Promise<ReadableStream<UIMessageChunk>> {
         const { messages } = params;
-        // Wait for initialization if it's in progress
-        if (this.isInitializing) {
-            await new Promise<void>((resolve) => {
-                const check = () => {
-                    if (!this.isInitializing) resolve();
-                    else setTimeout(check, 100);
-                };
-                check();
-            });
-        }
+
         if (!this.runtime) {
             return new ReadableStream();
         }
-        const model = new ChromeAILanguageModel(crypto.randomUUID());
-        model.setRuntime(this.runtime);
+
         const { tools } = this.runtime.thread.getModelContext();
 
         this.formattedTools = Object.entries(tools ?? []).map(([key, value]) => [key, {
@@ -130,7 +128,7 @@ export class GeminiNanoChatTransport implements ChatTransport<UIMessage> {
             execute: async ({ writer }) => {
                 try {
                     const result = streamText({
-                        model: model as unknown as LanguageModelV2,
+                        model: this.model as unknown as LanguageModelV2,
                         messages: convertToModelMessages(messages),
                         tools: Object.fromEntries(this.formattedTools),
                         providerOptions: {
@@ -138,6 +136,7 @@ export class GeminiNanoChatTransport implements ChatTransport<UIMessage> {
                                 "parallelToolExecution": false
                             }
                         },
+                        stopWhen: ({steps}) => steps.length === 100,
                         system: `You are the WebMCP Browsing Agent. Investigate pages, gather context, and guide the user through the browser using Model Context Protocol tools.\n\nBehavior\n• Operate entirely through the provided MCP tools—never assume page state without verifying.\n• Narrate intentions before acting and summarize findings after each tool call.\n• Prefer lightweight inspection (history, tabs, DOM extraction) before triggering heavier actions.\n\nWorkflow\n1. Confirm your objective and current tab context.\n2. Use tab & navigation tools to open or focus the right page.\n3. Extract structured information (dom_extract_*, screenshot, requestInput) instead of guessing.\n4. Record observations and recommend next steps; ask for confirmation before irreversible actions.\n\nSafety\n• Stay within the active browsing session; do not attempt filesystem access or userscript management.\n• Surface uncertainties clearly and request clarification when instructions conflict or lack detail.\n\nYou are a helpful AI assistant with access to tools.# Available Tools\n
                         ${JSON.stringify(this.formattedTools, null, 2)}
                         # Tool Calling Instructions
@@ -175,7 +174,6 @@ export class GeminiNanoChatTransport implements ChatTransport<UIMessage> {
                         }
                     });
                     try {
-                        // Pipe the AI SDK stream to the UI writer
                         writer.merge(result.toUIMessageStream());
                     } catch (mergeError) {
                         console.error(` Error merging stream [chatId=]:`, mergeError);
@@ -215,7 +213,7 @@ export class GeminiNanoChatTransport implements ChatTransport<UIMessage> {
         });
     }
 
-    reconnectToStream(options: { chatId: string; } & ChatRequestOptions) {
+    reconnectToStream(_options: { chatId: string; } & ChatRequestOptions) {
         return Promise.resolve(new ReadableStream());
     }
 }
