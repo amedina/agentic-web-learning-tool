@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- IIFE version - bundles all dependencies, auto-initializes -->
+  <script src="https://unpkg.com/@mcp-b/global@latest/dist/index.iife.js"></script>
+  <title>AWL test</title>
+</head>
+<body>
+  <h1>My AI-Powered App</h1>
+
+  <script>
+    // window.navigator.modelContext is already available!
+    // Register tools for AI agents (recommended approach)
+    window.navigator.modelContext.registerTool({
+      name: "get-page-title",
+      description: "Get the current page title",
+      inputSchema: {
+        type: "object",
+        properties: {}
+      },
+      async execute() {
+        return {
+          content: [{
+            type: "text",
+            text: document.title
+          }]
+        };
+      }
+    });
+  </script>
+</body>
+</html>

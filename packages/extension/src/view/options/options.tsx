@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import reactLogo from '../assets/react.svg';
-import viteLogo from '../assets/vite.svg';
+import reactLogo from './../../assets/react.svg';
+import viteLogo from './../../assets/vite.svg';
 import { Button } from '@google-awlt/design-system';
 
-function Popup() {
+function Options() {
 	const [count, setCount] = useState(0);
 
 	return (
@@ -40,4 +40,4 @@ function Popup() {
 	);
 }
 
-export default Popup;
+export default Options;
