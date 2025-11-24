@@ -1,10 +1,10 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';
-import Inspector from './inspector';
+import Devtools from './devtools';
 
 createRoot(document.getElementById('root')!).render(
 	<StrictMode>
-		<Inspector />
+		<Devtools />
 	</StrictMode>
 );

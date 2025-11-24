@@ -17,7 +17,7 @@
  * External dependencies.
  */
 import React, {
-  PropsWithChildren,
+  type PropsWithChildren,
   useCallback,
   useEffect,
   useMemo,

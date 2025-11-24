@@ -1,5 +1,6 @@
 export { Button } from './button';
 export { Tabs } from './tabs';
+export * from './assistantUI';
 export * from './sidebar';
 export { default as CardsPanel } from './landingPage/cardsPanel';
 export { default as FrameContent } from './frameContent';

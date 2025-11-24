@@ -6,18 +6,19 @@ import {
 import { Learning } from './learning';
 import Settings from './settings';
 import { BookOpen, Inspect, SettingsIcon } from 'lucide-react';
+import Inspector from './inspector';
 
 const TABS: SidebarItems = {
 	[SIDEBAR_ITEMS_KEYS.PRIVACY_SANDBOX]: {
 		title: () => 'Privacy Sandbox',
 		panel: {
-			Element: null,
+			Element: Inspector,
 		},
 		icon: {
-			Element: Inspect,
+			Element: Inspect as any,
 		},
 		selectedIcon: {
-			Element: Inspect,
+			Element: Inspect as any,
 			props: {
 				className: 'fill-bright-gray',
 			},
@@ -32,13 +33,13 @@ const TABS: SidebarItems = {
 			Element: Learning,
 		},
 		icon: {
-			Element: BookOpen,
+			Element: BookOpen as any,
 			props: {
 				className: 'fill-granite-gray',
 			},
 		},
 		selectedIcon: {
-			Element: BookOpen,
+			Element: BookOpen as any,
 			props: {
 				className: 'fill-bright-gray',
 			},
@@ -54,13 +55,13 @@ const TABS: SidebarItems = {
 			Element: Settings,
 		},
 		icon: {
-			Element: SettingsIcon,
+			Element: SettingsIcon as any,
 			props: {
 				className: 'fill-granite-gray w-4 h-4',
 			},
 		},
 		selectedIcon: {
-			Element: SettingsIcon,
+			Element: SettingsIcon as any,
 			props: {
 				className: 'fill-bright-gray w-4 h-4',
 			},

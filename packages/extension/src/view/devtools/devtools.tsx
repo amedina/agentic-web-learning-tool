@@ -27,7 +27,7 @@ const Devtools: React.FC = () => {
 	const contextInvalidatedRef = useRef(null);
 
 
-	const [defaultSelectedItemKey, setDefaultSelectedItemKey] = useState(
+	const [defaultSelectedItemKey] = useState(
 		SIDEBAR_ITEMS_KEYS.SETTINGS
 	);
 

@@ -7,16 +7,17 @@ settings:
 importers:
 
   .:
-    devDependencies:
-      '@types/react-syntax-highlighter':
-        specifier: ^15.5.13
-        version: 15.5.13
+    dependencies:
       classnames:
         specifier: ^2.5.1
         version: 2.5.1
       use-context-selector:
         specifier: ^2.0.0
         version: 2.0.0(react@19.1.1)(scheduler@0.26.0)
+    devDependencies:
+      '@types/react-syntax-highlighter':
+        specifier: ^15.5.13
+        version: 15.5.13
 
   packages/design-system:
     dependencies:

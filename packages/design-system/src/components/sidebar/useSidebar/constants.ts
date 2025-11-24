@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+// @ts-expect-error = == IGNORE ==
 export enum SIDEBAR_ITEMS_KEYS {
   DASHBOARD = 'dashboard',
   STORIES = 'stories',
