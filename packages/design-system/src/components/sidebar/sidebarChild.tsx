@@ -112,12 +112,12 @@ const SidebarChild = ({
 					setIsSidebarFocused(true);
 				}}
 				className={classNames(
-					'w-full flex items-center py-0.5 outline-0 text-xs dark:text-bright-gray cursor-pointer',
+					'w-full flex items-center py-1 outline-0 text-xs dark:text-bright-gray cursor-pointer',
 					{
 						// Selected state
 						'bg-blue-600 text-white dark:bg-medium-persian-blue dark:text-chinese-silver':
 							isKeySelected(itemKey) && isSidebarFocused,
-						'bg-gray-300 dark:bg-outer-space':
+						'bg-gray-400 text-white dark:bg-outer-space':
 							isKeySelected(itemKey) && !isSidebarFocused,
 
 						// Unselected state
@@ -161,7 +161,7 @@ const SidebarChild = ({
 					</button>
 				)}
 				{sidebarItem.icon && sidebarItem.selectedIcon && (
-					<div className="mr-1 pointer-events-none w-4 h-4">
+					<div className="mr-2 pointer-events-none w-4 h-4">
 						{isKeySelected(itemKey) && isSidebarFocused
 							? SelectedIcon && (
 									<SelectedIcon

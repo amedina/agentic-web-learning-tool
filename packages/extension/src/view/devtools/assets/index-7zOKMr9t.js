@@ -11203,7 +11203,7 @@ const ToastViewport = reactExports.forwardRef(({ className, ...props }, ref2) =>
 ));
 ToastViewport.displayName = Viewport$1.displayName;
 const toastVariants = cva(
-  "group pointer-events-auto relative flex w-full items-center justify-between space-x-2 overflow-hidden rounded-md border p-4 pr-6 shadow-lg transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-top-full data-[state=open]:sm:slide-in-from-bottom-full",
+  "group pointer-events-auto relative flex w-full items-center justify-between space-x-2 overflow-hidden rounded border p-4 pr-6 shadow-lg transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-top-full data-[state=open]:sm:slide-in-from-bottom-full",
   {
     variants: {
       variant: {
@@ -11232,7 +11232,7 @@ const ToastAction = reactExports.forwardRef(({ className, ...props }, ref2) => /
   {
     ref: ref2,
     className: cn(
-      "inline-flex h-8 shrink-0 items-center justify-center rounded-md border bg-transparent px-3 text-sm font-medium transition-colors hover:bg-secondary focus:outline-none focus:ring-1 focus:ring-ring disabled:pointer-events-none disabled:opacity-50 group-[.destructive]:border-muted/40 group-[.destructive]:hover:border-destructive/30 group-[.destructive]:hover:bg-destructive group-[.destructive]:hover:text-destructive-foreground group-[.destructive]:focus:ring-destructive",
+      "inline-flex h-8 shrink-0 items-center justify-center rounded border bg-transparent px-3 text-xs font-medium transition-colors hover:bg-secondary focus:outline-none focus:ring-1 focus:ring-ring disabled:pointer-events-none disabled:opacity-50 group-[.destructive]:border-muted/40 group-[.destructive]:hover:border-destructive/30 group-[.destructive]:hover:bg-destructive group-[.destructive]:hover:text-destructive-foreground group-[.destructive]:focus:ring-destructive",
       className
     ),
     ...props
@@ -11244,7 +11244,7 @@ const ToastClose = reactExports.forwardRef(({ className, ...props }, ref2) => /*
   {
     ref: ref2,
     className: cn(
-      "absolute right-1 top-1 rounded-md p-1 text-foreground/50 opacity-0 transition-opacity hover:text-foreground focus:opacity-100 focus:outline-none focus:ring-1 group-hover:opacity-100 group-[.destructive]:text-red-300 group-[.destructive]:hover:text-red-50 group-[.destructive]:focus:ring-red-400 group-[.destructive]:focus:ring-offset-red-600",
+      "absolute right-1 top-1 rounded p-1 text-foreground/50 opacity-0 transition-opacity hover:text-foreground focus:opacity-100 focus:outline-none focus:ring-1 group-hover:opacity-100 group-[.destructive]:text-red-300 group-[.destructive]:hover:text-red-50 group-[.destructive]:focus:ring-red-400 group-[.destructive]:focus:ring-offset-red-600",
       className
     ),
     "toast-close": "",
@@ -11257,7 +11257,7 @@ const ToastTitle = reactExports.forwardRef(({ className, ...props }, ref2) => /*
   Title$1,
   {
     ref: ref2,
-    className: cn("text-sm font-semibold [&+div]:text-xs", className),
+    className: cn("text-xs font-semibold [&+div]:text-xs", className),
     ...props
   }
 ));
@@ -11266,7 +11266,7 @@ const ToastDescription = reactExports.forwardRef(({ className, ...props }, ref2)
   Description$1,
   {
     ref: ref2,
-    className: cn("text-sm opacity-90", className),
+    className: cn("text-xs opacity-90", className),
     ...props
   }
 ));
@@ -16163,10 +16163,10 @@ objectType({
   token_type_hint: stringType().optional()
 }).strip();
 const name = "@modelcontextprotocol/inspector-client";
-const version$1 = "0.17.4";
+const version = "0.17.4";
 const packageJson = {
   name,
-  version: version$1
+  version
 };
 const CLIENT_IDENTITY = (() => {
   const [, name2 = packageJson.name] = packageJson.name.split("/");
@@ -16186,6 +16186,40 @@ const SESSION_KEYS = {
 const getServerSpecificKey = (baseKey, serverUrl) => {
   if (!serverUrl) return baseKey;
   return `[${serverUrl}] ${baseKey}`;
+};
+const DEFAULT_MCP_PROXY_LISTEN_PORT = "6277";
+const DEFAULT_INSPECTOR_CONFIG = {
+  MCP_SERVER_REQUEST_TIMEOUT: {
+    label: "Request Timeout",
+    description: "Client-side timeout (ms) - Inspector will cancel requests after this time",
+    value: 3e5,
+    // 5 minutes - increased to support elicitation and other long-running tools
+    is_session_item: false
+  },
+  MCP_REQUEST_TIMEOUT_RESET_ON_PROGRESS: {
+    label: "Reset Timeout on Progress",
+    description: "Reset timeout on progress notifications",
+    value: true,
+    is_session_item: false
+  },
+  MCP_REQUEST_MAX_TOTAL_TIMEOUT: {
+    label: "Maximum Total Timeout",
+    description: "Maximum total timeout for requests sent to the MCP server (ms) (Use with progress notifications)",
+    value: 6e4,
+    is_session_item: false
+  },
+  MCP_PROXY_FULL_ADDRESS: {
+    label: "Inspector Proxy Address",
+    description: "Set this if you are running the MCP Inspector Proxy on a non-default address. Example: http://10.1.1.22:5577",
+    value: "",
+    is_session_item: false
+  },
+  MCP_PROXY_AUTH_TOKEN: {
+    label: "Proxy Session Token",
+    description: "Session token for authenticating with the MCP Proxy Server (displayed in proxy console on startup)",
+    value: "",
+    is_session_item: true
+  }
 };
 const META_PREFIX_LABEL_REGEX = /^[a-z](?:[a-z\d-]*[a-z\d])?$/i;
 const META_NAME_REGEX = /^[a-z\d](?:[a-z\d._-]*[a-z\d])?$/i;
@@ -25022,7 +25056,8 @@ const getMCPProxyAddress = (config) => {
     proxyFullAddress = proxyFullAddress.replace(/\/+$/, "");
     return proxyFullAddress;
   }
-  return `http://135.181.163.148:6277`;
+  const proxyPort = getSearchParam("MCP_PROXY_PORT") || DEFAULT_MCP_PROXY_LISTEN_PORT;
+  return `${window.location.protocol}//${window.location.hostname}:${proxyPort}`;
 };
 const getMCPServerRequestTimeout = (config) => {
   return config.MCP_SERVER_REQUEST_TIMEOUT.value;
@@ -25060,6 +25095,52 @@ const getInitialArgs = () => {
   const param = getSearchParam("serverArgs");
   if (param) return param;
   return localStorage.getItem("lastArgs") || "";
+};
+const getConfigOverridesFromQueryParams = (defaultConfig) => {
+  const url = new URL(window.location.href);
+  const overrides = {};
+  for (const key of Object.keys(defaultConfig)) {
+    const param = url.searchParams.get(key);
+    if (param !== null) {
+      const defaultValue = defaultConfig[key].value;
+      let value = param;
+      if (typeof defaultValue === "number") {
+        value = Number(param);
+      } else if (typeof defaultValue === "boolean") {
+        value = param === "true";
+      }
+      overrides[key] = {
+        ...defaultConfig[key],
+        value
+      };
+    }
+  }
+  return overrides;
+};
+const initializeInspectorConfig = (localStorageKey) => {
+  const savedPersistentConfig = localStorage.getItem(localStorageKey);
+  const savedEphemeralConfig = sessionStorage.getItem(
+    `${localStorageKey}_ephemeral`
+  );
+  let baseConfig = { ...DEFAULT_INSPECTOR_CONFIG };
+  if (savedPersistentConfig) {
+    const parsedPersistentConfig = JSON.parse(savedPersistentConfig);
+    baseConfig = { ...baseConfig, ...parsedPersistentConfig };
+  }
+  if (savedEphemeralConfig) {
+    const parsedEphemeralConfig = JSON.parse(savedEphemeralConfig);
+    baseConfig = { ...baseConfig, ...parsedEphemeralConfig };
+  }
+  for (const [key, value] of Object.entries(baseConfig)) {
+    baseConfig[key] = {
+      ...value,
+      label: DEFAULT_INSPECTOR_CONFIG[key].label,
+      description: DEFAULT_INSPECTOR_CONFIG[key].description,
+      is_session_item: DEFAULT_INSPECTOR_CONFIG[key].is_session_item
+    };
+  }
+  const overrides = getConfigOverridesFromQueryParams(DEFAULT_INSPECTOR_CONFIG);
+  return { ...baseConfig, ...overrides };
 };
 const saveInspectorConfig = (localStorageKey, config) => {
   const persistentConfig = {};
@@ -26194,22 +26275,22 @@ const TabsContent = reactExports.forwardRef(({ className, ...props }, ref2) => /
 ));
 TabsContent.displayName = Content$2.displayName;
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center whitespace-nowrap rounded text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground shadow hover:bg-primary/90 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700",
-        destructive: "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
-        outline: "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
-        secondary: "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
+        default: "bg-blue-600 text-white shadow hover:bg-blue-700 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700",
+        destructive: "bg-red-600 text-white shadow-sm hover:bg-red-700",
+        outline: "border border-gray-300 bg-background shadow-sm hover:bg-gray-100",
+        secondary: "bg-gray-100 text-gray-700 shadow-sm hover:bg-gray-200",
+        ghost: "hover:bg-gray-100 hover:text-gray-700",
         link: "text-primary underline-offset-4 hover:underline"
       },
       size: {
-        default: "h-9 px-4 py-2",
-        sm: "h-8 rounded-md px-3 text-xs",
-        lg: "h-10 rounded-md px-8",
-        icon: "h-9 w-9"
+        default: "h-7 px-4 py-2",
+        sm: "h-8 rounded px-3 text-xs",
+        lg: "h-10 rounded px-8",
+        icon: "h-7 w-9"
       }
     },
     defaultVariants: {
@@ -26337,7 +26418,7 @@ const createLucideIcon = (iconName, iconNode) => {
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$z = [
+const __iconNode$x = [
   ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0", key: "vwvbt9" }],
   [
     "path",
@@ -26347,87 +26428,50 @@ const __iconNode$z = [
     }
   ]
 ];
-const Bell = createLucideIcon("bell", __iconNode$z);
+const Bell = createLucideIcon("bell", __iconNode$x);
 /**
  * @license lucide-react v0.523.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$y = [
-  ["path", { d: "m8 2 1.88 1.88", key: "fmnt4t" }],
-  ["path", { d: "M14.12 3.88 16 2", key: "qol33r" }],
-  ["path", { d: "M9 7.13v-1a3.003 3.003 0 1 1 6 0v1", key: "d7y7pr" }],
-  [
-    "path",
-    {
-      d: "M12 20c-3.3 0-6-2.7-6-6v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v3c0 3.3-2.7 6-6 6",
-      key: "xs1cw7"
-    }
-  ],
-  ["path", { d: "M12 20v-9", key: "1qisl0" }],
-  ["path", { d: "M6.53 9C4.6 8.8 3 7.1 3 5", key: "32zzws" }],
-  ["path", { d: "M6 13H2", key: "82j7cp" }],
-  ["path", { d: "M3 21c0-2.1 1.7-3.9 3.8-4", key: "4p0ekp" }],
-  ["path", { d: "M20.97 5c0 2.1-1.6 3.8-3.5 4", key: "18gb23" }],
-  ["path", { d: "M22 13h-4", key: "1jl80f" }],
-  ["path", { d: "M17.2 17c2.1.1 3.8 1.9 3.8 4", key: "k3fwyw" }]
-];
-const Bug = createLucideIcon("bug", __iconNode$y);
-/**
- * @license lucide-react v0.523.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$x = [
+const __iconNode$w = [
   ["path", { d: "M18 6 7 17l-5-5", key: "116fxf" }],
   ["path", { d: "m22 10-7.5 7.5L13 16", key: "ke71qq" }]
 ];
-const CheckCheck = createLucideIcon("check-check", __iconNode$x);
+const CheckCheck = createLucideIcon("check-check", __iconNode$w);
 /**
  * @license lucide-react v0.523.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$w = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
-const Check = createLucideIcon("check", __iconNode$w);
+const __iconNode$v = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
+const Check = createLucideIcon("check", __iconNode$v);
 /**
  * @license lucide-react v0.523.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$v = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
-const ChevronDown = createLucideIcon("chevron-down", __iconNode$v);
+const __iconNode$u = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
+const ChevronDown = createLucideIcon("chevron-down", __iconNode$u);
 /**
  * @license lucide-react v0.523.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$u = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
-const ChevronRight = createLucideIcon("chevron-right", __iconNode$u);
+const __iconNode$t = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
+const ChevronRight = createLucideIcon("chevron-right", __iconNode$t);
 /**
  * @license lucide-react v0.523.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$t = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
-const ChevronUp = createLucideIcon("chevron-up", __iconNode$t);
-/**
- * @license lucide-react v0.523.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$s = [
-  ["path", { d: "m7 15 5 5 5-5", key: "1hf1tw" }],
-  ["path", { d: "m7 9 5-5 5 5", key: "sgt6xg" }]
-];
-const ChevronsUpDown = createLucideIcon("chevrons-up-down", __iconNode$s);
+const __iconNode$s = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
+const ChevronUp = createLucideIcon("chevron-up", __iconNode$s);
 /**
  * @license lucide-react v0.523.0 - ISC
  *
@@ -26435,11 +26479,10 @@ const ChevronsUpDown = createLucideIcon("chevrons-up-down", __iconNode$s);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$r = [
-  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
-  ["line", { x1: "12", x2: "12", y1: "8", y2: "12", key: "1pkeuh" }],
-  ["line", { x1: "12", x2: "12.01", y1: "16", y2: "16", key: "4dfq90" }]
+  ["path", { d: "m7 15 5 5 5-5", key: "1hf1tw" }],
+  ["path", { d: "m7 9 5-5 5 5", key: "sgt6xg" }]
 ];
-const CircleAlert = createLucideIcon("circle-alert", __iconNode$r);
+const ChevronsUpDown = createLucideIcon("chevrons-up-down", __iconNode$r);
 /**
  * @license lucide-react v0.523.0 - ISC
  *
@@ -26448,9 +26491,10 @@ const CircleAlert = createLucideIcon("circle-alert", __iconNode$r);
  */
 const __iconNode$q = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
-  ["path", { d: "m9 12 2 2 4-4", key: "dzmm74" }]
+  ["line", { x1: "12", x2: "12", y1: "8", y2: "12", key: "1pkeuh" }],
+  ["line", { x1: "12", x2: "12.01", y1: "16", y2: "16", key: "4dfq90" }]
 ];
-const CircleCheck = createLucideIcon("circle-check", __iconNode$q);
+const CircleAlert = createLucideIcon("circle-alert", __iconNode$q);
 /**
  * @license lucide-react v0.523.0 - ISC
  *
@@ -26459,29 +26503,29 @@ const CircleCheck = createLucideIcon("circle-check", __iconNode$q);
  */
 const __iconNode$p = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
+  ["path", { d: "m9 12 2 2 4-4", key: "dzmm74" }]
+];
+const CircleCheck = createLucideIcon("circle-check", __iconNode$p);
+/**
+ * @license lucide-react v0.523.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$o = [
+  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3", key: "1u773s" }],
   ["path", { d: "M12 17h.01", key: "p32p05" }]
 ];
-const CircleQuestionMark = createLucideIcon("circle-question-mark", __iconNode$p);
+const CircleQuestionMark = createLucideIcon("circle-question-mark", __iconNode$o);
 /**
  * @license lucide-react v0.523.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$o = [["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }]];
-const Circle = createLucideIcon("circle", __iconNode$o);
-/**
- * @license lucide-react v0.523.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$n = [
-  ["rect", { width: "14", height: "14", x: "8", y: "8", rx: "2", ry: "2", key: "17jyea" }],
-  ["path", { d: "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2", key: "zix9uf" }]
-];
-const Copy = createLucideIcon("copy", __iconNode$n);
+const __iconNode$n = [["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }]];
+const Circle = createLucideIcon("circle", __iconNode$n);
 /**
  * @license lucide-react v0.523.0 - ISC
  *
@@ -26489,11 +26533,10 @@ const Copy = createLucideIcon("copy", __iconNode$n);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$m = [
-  ["path", { d: "M15 3h6v6", key: "1q9fwt" }],
-  ["path", { d: "M10 14 21 3", key: "gplh6r" }],
-  ["path", { d: "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6", key: "a6xqqp" }]
+  ["rect", { width: "14", height: "14", x: "8", y: "8", rx: "2", ry: "2", key: "17jyea" }],
+  ["path", { d: "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2", key: "zix9uf" }]
 ];
-const ExternalLink = createLucideIcon("external-link", __iconNode$m);
+const Copy = createLucideIcon("copy", __iconNode$m);
 /**
  * @license lucide-react v0.523.0 - ISC
  *
@@ -26501,6 +26544,18 @@ const ExternalLink = createLucideIcon("external-link", __iconNode$m);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$l = [
+  ["path", { d: "M15 3h6v6", key: "1q9fwt" }],
+  ["path", { d: "M10 14 21 3", key: "gplh6r" }],
+  ["path", { d: "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6", key: "a6xqqp" }]
+];
+const ExternalLink = createLucideIcon("external-link", __iconNode$l);
+/**
+ * @license lucide-react v0.523.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$k = [
   [
     "path",
     {
@@ -26518,14 +26573,14 @@ const __iconNode$l = [
   ],
   ["path", { d: "m2 2 20 20", key: "1ooewy" }]
 ];
-const EyeOff = createLucideIcon("eye-off", __iconNode$l);
+const EyeOff = createLucideIcon("eye-off", __iconNode$k);
 /**
  * @license lucide-react v0.523.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$k = [
+const __iconNode$j = [
   [
     "path",
     {
@@ -26535,21 +26590,7 @@ const __iconNode$k = [
   ],
   ["circle", { cx: "12", cy: "12", r: "3", key: "1v7zrd" }]
 ];
-const Eye = createLucideIcon("eye", __iconNode$k);
-/**
- * @license lucide-react v0.523.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$j = [
-  ["path", { d: "M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z", key: "1rqfz7" }],
-  ["path", { d: "M14 2v4a2 2 0 0 0 2 2h4", key: "tnqrlb" }],
-  ["path", { d: "M10 9H8", key: "b1mrlr" }],
-  ["path", { d: "M16 13H8", key: "t4e002" }],
-  ["path", { d: "M16 17H8", key: "z1uh3a" }]
-];
-const FileText = createLucideIcon("file-text", __iconNode$j);
+const Eye = createLucideIcon("eye", __iconNode$j);
 /**
  * @license lucide-react v0.523.0 - ISC
  *
@@ -26557,11 +26598,13 @@ const FileText = createLucideIcon("file-text", __iconNode$j);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$i = [
-  ["path", { d: "M20 7h-3a2 2 0 0 1-2-2V2", key: "x099mo" }],
-  ["path", { d: "M9 18a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h7l4 4v10a2 2 0 0 1-2 2Z", key: "18t6ie" }],
-  ["path", { d: "M3 7.6v12.8A1.6 1.6 0 0 0 4.6 22h9.8", key: "1nja0z" }]
+  ["path", { d: "M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z", key: "1rqfz7" }],
+  ["path", { d: "M14 2v4a2 2 0 0 0 2 2h4", key: "tnqrlb" }],
+  ["path", { d: "M10 9H8", key: "b1mrlr" }],
+  ["path", { d: "M16 13H8", key: "t4e002" }],
+  ["path", { d: "M16 17H8", key: "z1uh3a" }]
 ];
-const Files = createLucideIcon("files", __iconNode$i);
+const FileText = createLucideIcon("file-text", __iconNode$i);
 /**
  * @license lucide-react v0.523.0 - ISC
  *
@@ -26569,6 +26612,18 @@ const Files = createLucideIcon("files", __iconNode$i);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$h = [
+  ["path", { d: "M20 7h-3a2 2 0 0 1-2-2V2", key: "x099mo" }],
+  ["path", { d: "M9 18a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h7l4 4v10a2 2 0 0 1-2 2Z", key: "18t6ie" }],
+  ["path", { d: "M3 7.6v12.8A1.6 1.6 0 0 0 4.6 22h9.8", key: "1nja0z" }]
+];
+const Files = createLucideIcon("files", __iconNode$h);
+/**
+ * @license lucide-react v0.523.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$g = [
   [
     "path",
     {
@@ -26586,24 +26641,7 @@ const __iconNode$h = [
   ["path", { d: "M3 5a2 2 0 0 0 2 2h3", key: "f2jnh7" }],
   ["path", { d: "M3 3v13a2 2 0 0 0 2 2h3", key: "k8epm1" }]
 ];
-const FolderTree = createLucideIcon("folder-tree", __iconNode$h);
-/**
- * @license lucide-react v0.523.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$g = [
-  [
-    "path",
-    {
-      d: "M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4",
-      key: "tonef"
-    }
-  ],
-  ["path", { d: "M9 18c-4.51 2-5-2-7-2", key: "9comsn" }]
-];
-const Github = createLucideIcon("github", __iconNode$g);
+const FolderTree = createLucideIcon("folder-tree", __iconNode$g);
 /**
  * @license lucide-react v0.523.0 - ISC
  *
@@ -26820,7 +26858,7 @@ const OAuthStepDetails = ({
     /* @__PURE__ */ jsxRuntimeExports.jsxs(
       "div",
       {
-        className: `flex items-center p-2 rounded-md ${isCurrent ? "bg-accent" : ""}`,
+        className: `flex items-center p-2 rounded ${isCurrent ? "bg-accent" : ""}`,
         children: [
           isComplete ? /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: "h-5 w-5 text-green-500 mr-2" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Circle, { className: "h-5 w-5 text-muted-foreground mr-2" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `${isCurrent ? "font-medium" : ""}`, children: label })
@@ -26828,8 +26866,8 @@ const OAuthStepDetails = ({
       }
     ),
     (isCurrent || isComplete) && children && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ml-7 mt-1", children }),
-    isCurrent && error && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "ml-7 mt-2 p-3 border border-red-300 bg-red-50 rounded-md", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm font-medium text-red-700", children: "Error:" }),
+    isCurrent && error && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "ml-7 mt-2 p-3 border border-red-300 bg-red-50 rounded", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs font-medium text-red-700", children: "Error:" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-red-600 mt-1", children: error.message })
     ] })
   ] });
@@ -26887,9 +26925,9 @@ const OAuthFlowProgress = ({
     isCurrent: authState.oauthStep === stepName,
     error: authState.oauthStep === stepName ? authState.latestError : null
   });
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-md border p-6 space-y-4 mt-4", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded border p-6 space-y-4 mt-4", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-lg font-medium", children: "OAuth Flow Progress" }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: "Follow these steps to complete OAuth authentication with the server." }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: "Follow these steps to complete OAuth authentication with the server." }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(
         OAuthStepDetails,
@@ -26911,10 +26949,10 @@ const OAuthFlowProgress = ({
                   serverUrl
                 ).href
               ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { className: "mt-2 p-2 bg-muted rounded-md overflow-auto max-h-[300px]", children: JSON.stringify(authState.resourceMetadata, null, 2) })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { className: "mt-2 p-2 bg-muted rounded overflow-auto max-h-[300px]", children: JSON.stringify(authState.resourceMetadata, null, 2) })
             ] }),
-            authState.resourceMetadataError && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-2 p-3 border border-blue-300 bg-blue-50 rounded-md", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-sm font-medium text-blue-700", children: [
+            authState.resourceMetadataError && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-2 p-3 border border-blue-300 bg-blue-50 rounded", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs font-medium text-blue-700", children: [
                 "ℹ️ Problem with resource metadata from",
                 " ",
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -26953,7 +26991,7 @@ const OAuthFlowProgress = ({
                   authState.authServerUrl
                 ).href
               ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { className: "mt-2 p-2 bg-muted rounded-md overflow-auto max-h-[300px]", children: JSON.stringify(authState.oauthMetadata, null, 2) })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { className: "mt-2 p-2 bg-muted rounded overflow-auto max-h-[300px]", children: JSON.stringify(authState.oauthMetadata, null, 2) })
             ] })
           ] })
         }
@@ -26965,7 +27003,7 @@ const OAuthFlowProgress = ({
           ...getStepProps("client_registration"),
           children: clientInfo && /* @__PURE__ */ jsxRuntimeExports.jsxs("details", { className: "text-xs mt-2", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("summary", { className: "cursor-pointer text-muted-foreground font-medium", children: "Registered Client Information" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { className: "mt-2 p-2 bg-muted rounded-md overflow-auto max-h-[300px]", children: JSON.stringify(clientInfo, null, 2) })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { className: "mt-2 p-2 bg-muted rounded overflow-auto max-h-[300px]", children: JSON.stringify(clientInfo, null, 2) })
           ] })
         }
       ),
@@ -26974,8 +27012,8 @@ const OAuthFlowProgress = ({
         {
           label: "Preparing Authorization",
           ...getStepProps("authorization_redirect"),
-          children: authState.authorizationUrl && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-2 p-3 border rounded-md bg-muted", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-medium mb-2 text-sm", children: "Authorization URL:" }),
+          children: authState.authorizationUrl && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-2 p-3 border rounded bg-muted", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-medium mb-2 text-xs", children: "Authorization URL:" }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs break-all", children: String(authState.authorizationUrl) }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -27018,7 +27056,7 @@ const OAuthFlowProgress = ({
               "label",
               {
                 htmlFor: "authCode",
-                className: "block text-sm font-medium mb-1",
+                className: "block text-xs font-medium mb-1",
                 children: "Authorization Code"
               }
             ),
@@ -27034,7 +27072,7 @@ const OAuthFlowProgress = ({
                   });
                 },
                 placeholder: "Enter the code from the authorization server",
-                className: `flex h-9 w-full rounded-md border bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${authState.validationError ? "border-red-500" : "border-input"}`
+                className: `flex h-7 w-full rounded border bg-background px-3 py-2 text-xs ring-offset-background file:border-0 file:bg-transparent file:text-xs file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${authState.validationError ? "border-red-500" : "border-input"}`
               }
             ) }),
             authState.validationError && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-red-600 mt-1", children: authState.validationError }),
@@ -27049,7 +27087,7 @@ const OAuthFlowProgress = ({
           ...getStepProps("token_request"),
           children: authState.oauthMetadata && /* @__PURE__ */ jsxRuntimeExports.jsxs("details", { className: "text-xs mt-2", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("summary", { className: "cursor-pointer text-muted-foreground font-medium", children: "Token Request Details" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-2 p-2 bg-muted rounded-md", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-2 p-2 bg-muted rounded", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-medium", children: "Token Endpoint:" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("code", { className: "block mt-1 text-xs overflow-x-auto", children: authState.oauthMetadata.token_endpoint })
             ] })
@@ -27063,8 +27101,8 @@ const OAuthFlowProgress = ({
           ...getStepProps("complete"),
           children: authState.oauthTokens && /* @__PURE__ */ jsxRuntimeExports.jsxs("details", { className: "text-xs mt-2", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("summary", { className: "cursor-pointer text-muted-foreground font-medium", children: "Access Tokens" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-1 text-sm", children: "Authentication successful! You can now use the authenticated connection. These tokens will be used automatically for server requests." }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { className: "mt-2 p-2 bg-muted rounded-md overflow-auto max-h-[300px]", children: JSON.stringify(authState.oauthTokens, null, 2) })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-1 text-xs", children: "Authentication successful! You can now use the authenticated connection. These tokens will be used automatically for server requests." }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { className: "mt-2 p-2 bg-muted rounded overflow-auto max-h-[300px]", children: JSON.stringify(authState.oauthTokens, null, 2) })
           ] })
         }
       )
@@ -27125,10 +27163,10 @@ const StatusMessage = ({ message }) => {
   return /* @__PURE__ */ jsxRuntimeExports.jsx(
     "div",
     {
-      className: `p-3 rounded-md border ${bgColor} ${borderColor} ${textColor} mb-4`,
+      className: `p-3 rounded border ${bgColor} ${borderColor} ${textColor} mb-4`,
       children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { className: "h-4 w-4" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm", children: message.message })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", children: message.message })
       ] })
     }
   );
@@ -27287,14 +27325,14 @@ const AuthDebugger = ({
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-full space-y-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-col gap-6", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid w-full gap-2", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted-foreground mb-4", children: "Configure authentication settings for your MCP server connection." }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-md border p-6 space-y-6", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded border p-6 space-y-6", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-lg font-medium", children: "OAuth Authentication" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground mb-2", children: "Use OAuth to securely authenticate with the MCP server." }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground mb-2", children: "Use OAuth to securely authenticate with the MCP server." }),
         authState.statusMessage && /* @__PURE__ */ jsxRuntimeExports.jsx(StatusMessage, { message: authState.statusMessage }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
           authState.oauthTokens && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm font-medium", children: "Access Token:" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-muted p-2 rounded-md text-xs overflow-x-auto", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs font-medium", children: "Access Token:" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-muted p-2 rounded text-xs overflow-x-auto", children: [
               authState.oauthTokens.access_token.substring(0, 25),
               "..."
             ] })
@@ -27334,7 +27372,7 @@ const AuthDebugger = ({
     ] }) }) })
   ] });
 };
-const ConsoleTab = () => /* @__PURE__ */ jsxRuntimeExports.jsx(TabsContent, { value: "console", className: "h-96", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-gray-900 text-gray-100 p-4 rounded-lg h-full font-mono text-sm overflow-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "opacity-50", children: "Welcome to MCP Client Console" }) }) });
+const ConsoleTab = () => /* @__PURE__ */ jsxRuntimeExports.jsx(TabsContent, { value: "console", className: "h-96", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-gray-900 text-gray-100 p-4 rounded-lg h-full font-mono text-xs overflow-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "opacity-50", children: "Welcome to MCP Client Console" }) }) });
 function getDataType(value) {
   if (Array.isArray(value)) return "array";
   if (value === null) return "null";
@@ -27474,7 +27512,7 @@ const JsonView = reactExports.memo(
           children: copied ? /* @__PURE__ */ jsxRuntimeExports.jsx(CheckCheck, { className: "size-4 dark:text-green-700 text-green-600" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "size-4 text-foreground" })
         }
       ),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-mono text-sm transition-all duration-300", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-mono text-xs transition-all duration-300", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
         JsonNode,
         {
           data: normalizedData,
@@ -27748,10 +27786,10 @@ const HistoryAndNotifications = ({
           }
         )
       ] }),
-      requestHistory.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-gray-500 dark:text-gray-400 italic", children: "No history yet" }) : /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "space-y-3", children: requestHistory.slice().reverse().map((request, index2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      requestHistory.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-gray-500 dark:text-gray-400 italic", children: "No history yet" }) : /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "space-y-3", children: requestHistory.slice().reverse().map((request, index2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
         "li",
         {
-          className: "text-sm text-foreground bg-secondary py-2 px-3 rounded",
+          className: "text-xs text-foreground bg-secondary py-2 px-3 rounded",
           children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs(
               "div",
@@ -27810,10 +27848,10 @@ const HistoryAndNotifications = ({
           }
         )
       ] }),
-      serverNotifications.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-gray-500 dark:text-gray-400 italic", children: "No notifications yet" }) : /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "space-y-3", children: serverNotifications.slice().reverse().map((notification, index2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      serverNotifications.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-gray-500 dark:text-gray-400 italic", children: "No notifications yet" }) : /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "space-y-3", children: serverNotifications.slice().reverse().map((notification, index2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
         "li",
         {
-          className: "text-sm text-foreground bg-secondary py-2 px-3 rounded",
+          className: "text-xs text-foreground bg-secondary py-2 px-3 rounded",
           children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs(
               "div",
@@ -27861,7 +27899,7 @@ const PingTab = ({ onPingClick }) => {
   ) }) }) });
 };
 const alertVariants = cva(
-  "relative w-full rounded-lg border px-4 py-3 text-sm [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground [&>svg~*]:pl-7",
+  "relative w-full rounded-lg border px-4 py-3 text-xs [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground [&>svg~*]:pl-7",
   {
     variants: {
       variant: {
@@ -27897,7 +27935,7 @@ const AlertDescription = reactExports.forwardRef(({ className, ...props }, ref2)
   "div",
   {
     ref: ref2,
-    className: cn("text-sm [&_p]:leading-relaxed", className),
+    className: cn("text-xs [&_p]:leading-relaxed", className),
     ...props
   }
 ));
@@ -29558,7 +29596,7 @@ const DialogDescription = reactExports.forwardRef(({ className, ...props }, ref2
   Description,
   {
     ref: ref2,
-    className: cn("text-sm text-muted-foreground", className),
+    className: cn("text-xs text-muted-foreground", className),
     ...props
   }
 ));
@@ -29568,7 +29606,7 @@ const Command = reactExports.forwardRef(({ className, ...props }, ref2) => /* @_
   {
     ref: ref2,
     className: cn(
-      "flex h-full w-full flex-col overflow-hidden rounded-md bg-popover text-popover-foreground",
+      "flex h-full w-full flex-col overflow-hidden rounded bg-popover text-popover-foreground",
       className
     ),
     ...props
@@ -29582,7 +29620,7 @@ const CommandInput = reactExports.forwardRef(({ className, ...props }, ref2) => 
     {
       ref: ref2,
       className: cn(
-        "flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50",
+        "flex h-10 w-full rounded bg-transparent py-3 text-xs outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50",
         className
       ),
       ...props
@@ -29603,7 +29641,7 @@ const CommandEmpty = reactExports.forwardRef((props, ref2) => /* @__PURE__ */ js
   _e.Empty,
   {
     ref: ref2,
-    className: "py-6 text-center text-sm",
+    className: "py-6 text-center text-xs",
     ...props
   }
 ));
@@ -29634,7 +29672,7 @@ const CommandItem = reactExports.forwardRef(({ className, ...props }, ref2) => /
   {
     ref: ref2,
     className: cn(
-      "relative flex cursor-default gap-2 select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none data-[disabled=true]:pointer-events-none data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground data-[disabled=true]:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+      "relative flex cursor-default gap-2 select-none items-center rounded-sm px-2 py-1.5 text-xs outline-none data-[disabled=true]:pointer-events-none data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground data-[disabled=true]:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
       className
     ),
     ...props
@@ -32100,7 +32138,7 @@ const PopoverContent = reactExports.forwardRef(({ className, align = "center", s
     align,
     sideOffset,
     className: cn(
-      "z-50 w-72 rounded-md border bg-popover p-4 text-popover-foreground shadow-md outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
+      "z-50 w-72 rounded border bg-popover p-4 text-popover-foreground shadow-md outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
       className
     ),
     ...props
@@ -32207,7 +32245,7 @@ var Label$2 = reactExports.forwardRef((props, forwardedRef) => {
 Label$2.displayName = NAME;
 var Root$1 = Label$2;
 const labelVariants = cva(
-  "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+  "text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
 );
 const Label$1 = reactExports.forwardRef(({ className, ...props }, ref2) => /* @__PURE__ */ jsxRuntimeExports.jsx(
   Root$1,
@@ -32225,7 +32263,7 @@ const Input = reactExports.forwardRef(
       {
         type: type2,
         className: cn(
-          "flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
+          "flex h-7 w-full rounded border border-input bg-transparent px-3 py-1 text-xs shadow-sm transition-colors file:border-0 file:bg-transparent file:text-xs file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
           className
         ),
         ref: ref2,
@@ -32269,16 +32307,16 @@ const ListPane = ({
       setIsSearchExpanded(false);
     }
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-card border border-border rounded-lg shadow", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-card border border-border rounded", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-4 border-b border-gray-200 dark:border-border", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-4", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-semibold dark:text-white flex-shrink-0", children: title2 }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-bold text-base dark:text-white flex-shrink-0", children: title2 }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-end min-w-0 flex-1", children: !isSearchExpanded ? /* @__PURE__ */ jsxRuntimeExports.jsx(
         "button",
         {
           name: "search",
           "aria-label": "Search",
           onClick: handleSearchClick,
-          className: "p-2 hover:bg-gray-100 dark:hover:bg-secondary rounded-md transition-all duration-300 ease-in-out",
+          className: "p-2 hover:bg-gray-100 dark:hover:bg-secondary rounded transition-all duration-300 ease-in-out",
           children: /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { className: "w-4 h-4 text-muted-foreground" })
         }
       ) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center w-full max-w-xs", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative w-full", children: [
@@ -32302,7 +32340,7 @@ const ListPane = ({
       /* @__PURE__ */ jsxRuntimeExports.jsx(
         Button,
         {
-          variant: "outline",
+          variant: "default",
           className: "w-full mb-4",
           onClick: listItems,
           disabled: isButtonDisabled,
@@ -32489,21 +32527,21 @@ const PromptsTab = ({
         },
         renderItem: (prompt) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col items-start", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "flex-1", children: prompt.name }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm text-gray-500 text-left", children: prompt.description })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-gray-500 text-left", children: prompt.description })
         ] }),
         title: "Prompts",
         buttonText: nextCursor ? "List More Prompts" : "List Prompts",
         isButtonDisabled: !nextCursor && prompts.length > 0
       }
     ),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-card border border-border rounded-lg shadow", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-4 border-b border-gray-200 dark:border-border", children: /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-semibold", children: selectedPrompt ? selectedPrompt.name : "Select a prompt" }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-card border border-border rounded shadow", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-4 border-b border-gray-200 dark:border-border", children: /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-semibold text-base", children: selectedPrompt ? selectedPrompt.name : "Select a prompt" }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-4", children: error ? /* @__PURE__ */ jsxRuntimeExports.jsxs(Alert, { variant: "destructive", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { className: "h-4 w-4" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(AlertTitle, { children: "Error" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDescription, { className: "break-all", children: error })
       ] }) : selectedPrompt ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
-        selectedPrompt.description && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-gray-600 dark:text-gray-400", children: selectedPrompt.description }),
+        selectedPrompt.description && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-gray-600 dark:text-gray-400", children: selectedPrompt.description }),
         selectedPrompt.arguments?.map((arg) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: arg.name, children: arg.name }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -32856,12 +32894,12 @@ const ResourcesTab = ({
         isButtonDisabled: !nextTemplateCursor && resourceTemplates.length > 0
       }
     ),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-card border border-border rounded-lg shadow", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-card border border-border rounded shadow", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 border-b border-gray-200 dark:border-border flex justify-between items-center", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "h3",
           {
-            className: "font-semibold truncate",
+            className: "font-semibold truncate text-base",
             title: selectedResource?.name || selectedTemplate?.name,
             children: selectedResource ? selectedResource.name : selectedTemplate ? selectedTemplate.name : "Select a resource or template"
           }
@@ -32907,10 +32945,10 @@ const ResourcesTab = ({
         JsonView,
         {
           data: resourceContent,
-          className: "bg-gray-50 dark:bg-gray-800 p-4 rounded text-sm overflow-auto max-h-96 text-gray-900 dark:text-gray-100"
+          className: "bg-gray-50 dark:bg-gray-800 p-4 rounded text-xs overflow-auto max-h-96 text-gray-900 dark:text-gray-100"
         }
       ) : selectedTemplate ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-gray-600 dark:text-gray-400", children: selectedTemplate.description }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-gray-600 dark:text-gray-400", children: selectedTemplate.description }),
         new UriTemplate(
           selectedTemplate.uriTemplate
         ).variableNames?.map((key) => {
@@ -34907,7 +34945,7 @@ const JsonEditor = ({
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       "div",
       {
-        className: `border rounded-md ${displayError ? "border-red-500" : "border-gray-200 dark:border-gray-800"}`,
+        className: `border rounded ${displayError ? "border-red-500" : "border-gray-200 dark:border-gray-800"}`,
         children: /* @__PURE__ */ jsxRuntimeExports.jsx(
           Editor,
           {
@@ -34926,7 +34964,7 @@ const JsonEditor = ({
         )
       }
     ),
-    displayError && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-red-500 mt-1", children: displayError })
+    displayError && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-red-500 mt-1", children: displayError })
   ] });
 };
 const isTypeSupported = (type2, supportedTypes) => {
@@ -35130,7 +35168,7 @@ const DynamicJsonForm = reactExports.forwardRef(
                   }
                 },
                 required: isRequired,
-                className: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800",
+                className: "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800",
                 children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: "Select an option..." }),
                   propSchema.oneOf.map((option) => /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -35159,7 +35197,7 @@ const DynamicJsonForm = reactExports.forwardRef(
                   }
                 },
                 required: isRequired,
-                className: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800",
+                className: "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800",
                 children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: "Select an option..." }),
                   propSchema.enum.map((option) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: option, children: option }, option))
@@ -35284,7 +35322,7 @@ const DynamicJsonForm = reactExports.forwardRef(
             );
           }
           return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2 border rounded p-3", children: Object.entries(propSchema.properties).map(([key, subSchema]) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "block text-sm font-medium mb-1", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "block text-xs font-medium mb-1", children: [
               key,
               propSchema.required?.includes(key) && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-red-500 ml-1", children: "*" })
             ] }),
@@ -35302,8 +35340,8 @@ const DynamicJsonForm = reactExports.forwardRef(
           if (!propSchema.items) return null;
           if (isSimpleObject(propSchema.items)) {
             return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
-              propSchema.description && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-gray-600", children: propSchema.description }),
-              propSchema.items?.description && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-sm text-gray-500", children: [
+              propSchema.description && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-gray-600", children: propSchema.description }),
+              propSchema.items?.description && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs text-gray-500", children: [
                 "Items: ",
                 propSchema.items.description
               ] }),
@@ -35439,10 +35477,10 @@ const DynamicJsonForm = reactExports.forwardRef(
       ) : (
         // If schema type is object but value is not an object or is empty, and we have actual JSON data,
         // render a simple representation of the JSON data
-        schema.type === "object" && (typeof value !== "object" || value === null || Object.keys(value).length === 0) && rawJsonValue && rawJsonValue !== "{}" ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4 border rounded-md p-4", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-gray-500", children: "Form view not available for this JSON structure. Using simplified view:" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { className: "bg-gray-50 dark:bg-gray-800 dark:text-gray-100 p-4 rounded text-sm overflow-auto", children: rawJsonValue }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-gray-500", children: "Use JSON mode for full editing capabilities." })
+        schema.type === "object" && (typeof value !== "object" || value === null || Object.keys(value).length === 0) && rawJsonValue && rawJsonValue !== "{}" ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4 border rounded p-4", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-gray-500", children: "Form view not available for this JSON structure. Using simplified view:" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { className: "bg-gray-50 dark:bg-gray-800 dark:text-gray-100 p-4 rounded text-xs overflow-auto", children: rawJsonValue }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-gray-500", children: "Use JSON mode for full editing capabilities." })
         ] }) : renderFormFields(schema, value)
       )
     ] });
@@ -36750,7 +36788,7 @@ const SelectTrigger = reactExports.forwardRef(({ className, children, ...props }
   {
     ref: ref2,
     className: cn(
-      "flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1 hover:border-[#646cff] hover:border-1",
+      "flex h-7 w-full items-center justify-between whitespace-nowrap rounded border border-input bg-transparent px-3 py-2 text-xs shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1 hover:border-[#646cff] hover:border-1",
       className
     ),
     ...props,
@@ -36792,7 +36830,7 @@ const SelectContent = reactExports.forwardRef(({ className, children, position =
   {
     ref: ref2,
     className: cn(
-      "relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
+      "relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded border bg-popover text-popover-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
       position === "popper" && "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1",
       className
     ),
@@ -36819,7 +36857,7 @@ const SelectLabel = reactExports.forwardRef(({ className, ...props }, ref2) => /
   Label,
   {
     ref: ref2,
-    className: cn("px-2 py-1.5 text-sm font-semibold", className),
+    className: cn("px-2 py-1.5 text-xs font-semibold", className),
     ...props
   }
 ));
@@ -36829,7 +36867,7 @@ const SelectItem = reactExports.forwardRef(({ className, children, ...props }, r
   {
     ref: ref2,
     className: cn(
-      "relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-2 pr-8 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-2 pr-8 text-xs outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className
     ),
     ...props,
@@ -36849,46 +36887,6 @@ const SelectSeparator = reactExports.forwardRef(({ className, ...props }, ref2) 
   }
 ));
 SelectSeparator.displayName = Separator.displayName;
-const useTheme = () => {
-  const [theme, setTheme] = reactExports.useState(() => {
-    const savedTheme = localStorage.getItem("theme");
-    return savedTheme || "system";
-  });
-  reactExports.useEffect(() => {
-    const darkModeMediaQuery = window.matchMedia(
-      "(prefers-color-scheme: dark)"
-    );
-    const handleDarkModeChange = (e) => {
-      if (theme === "system") {
-        updateDocumentTheme(e.matches ? "dark" : "light");
-      }
-    };
-    const updateDocumentTheme = (newTheme) => {
-      document.documentElement.classList.toggle("dark", newTheme === "dark");
-    };
-    if (theme === "system") {
-      updateDocumentTheme(darkModeMediaQuery.matches ? "dark" : "light");
-    } else {
-      updateDocumentTheme(theme);
-    }
-    darkModeMediaQuery.addEventListener("change", handleDarkModeChange);
-    return () => {
-      darkModeMediaQuery.removeEventListener("change", handleDarkModeChange);
-    };
-  }, [theme]);
-  const setThemeWithSideEffect = reactExports.useCallback((newTheme) => {
-    setTheme(newTheme);
-    localStorage.setItem("theme", newTheme);
-    if (newTheme !== "system") {
-      document.documentElement.classList.toggle("dark", newTheme === "dark");
-    }
-  }, []);
-  return reactExports.useMemo(
-    () => [theme, setThemeWithSideEffect],
-    [theme, setThemeWithSideEffect]
-  );
-};
-const version = "0.17.4";
 var [createTooltipContext] = createContextScope("Tooltip", [
   createPopperScope
 ]);
@@ -37364,7 +37362,7 @@ const TooltipContent = reactExports.forwardRef(({ className, sideOffset = 4, ...
     ref: ref2,
     sideOffset,
     className: cn(
-      "z-50 overflow-hidden rounded-md border bg-popover px-3 py-1.5 text-sm text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 origin-[--radix-tooltip-content-transform-origin]",
+      "z-50 overflow-hidden rounded border bg-popover px-3 py-1.5 text-xs text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 origin-[--radix-tooltip-content-transform-origin]",
       className
     ),
     ...props
@@ -37377,7 +37375,7 @@ const Textarea = reactExports.forwardRef(
       "textarea",
       {
         className: cn(
-          "flex min-h-[60px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
+          "flex min-h-[60px] w-full rounded border border-input bg-transparent px-3 py-2 text-xs shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
           className
         ),
         ref: ref2,
@@ -37637,7 +37635,7 @@ const CustomHeaders = ({
   if (isJsonMode) {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `space-y-3 ${className}`, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center gap-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-sm font-semibold flex-shrink-0", children: "Custom Headers (JSON)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-xs font-semibold flex-shrink-0", children: "Custom Headers (JSON)" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           Button,
           {
@@ -37657,17 +37655,17 @@ const CustomHeaders = ({
             value: jsonValue,
             onChange: (e) => handleJsonChange(e.target.value),
             placeholder: '{\\n  "Authorization": "Bearer token123",\\n  "X-Tenant-ID": "acme-inc",\\n  "X-Environment": "staging"\\n}',
-            className: "font-mono text-sm min-h-[100px] resize-none"
+            className: "font-mono text-xs min-h-[100px] resize-none"
           }
         ),
-        jsonError && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-red-600", children: jsonError }),
+        jsonError && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-red-600", children: jsonError }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: "Enter headers as a JSON object with string key-value pairs." })
       ] })
     ] });
   }
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `space-y-3 ${className}`, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center gap-2", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-sm font-semibold flex-shrink-0", children: "Custom Headers" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-xs font-semibold flex-shrink-0", children: "Custom Headers" }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-1 flex-shrink-0", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           Button,
@@ -37698,12 +37696,12 @@ const CustomHeaders = ({
       ] })
     ] }),
     headers.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center py-4 text-muted-foreground", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm", children: "No custom headers configured" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", children: "No custom headers configured" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-1", children: 'Click "Add" to get started' })
     ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2 max-h-[300px] overflow-y-auto", children: headers.map((header, index2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
       "div",
       {
-        className: "flex items-start gap-2 p-2 border rounded-md",
+        className: "flex items-start gap-2 p-2 border rounded",
         children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             Switch,
@@ -37797,7 +37795,6 @@ const Sidebar = ({
   connectionType,
   setConnectionType
 }) => {
-  const [theme, setTheme] = useTheme();
   const [showEnvVars, setShowEnvVars] = reactExports.useState(false);
   const [showAuthConfig, setShowAuthConfig] = reactExports.useState(false);
   const [showConfig, setShowConfig] = reactExports.useState(false);
@@ -37894,76 +37891,99 @@ const Sidebar = ({
     }
   }, [generateMCPServerFile, toast2, reportError2]);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-card border-r border-border flex flex-col h-full", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-between p-4 border-b border-gray-200 dark:border-border", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "ml-2 text-lg font-semibold", children: [
-      "MCP Inspector v",
-      version
-    ] }) }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-4 flex-1 overflow-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "label",
-          {
-            className: "text-sm font-medium",
-            htmlFor: "transport-type-select",
-            children: "Transport Type"
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          Select,
-          {
-            value: transportType,
-            onValueChange: (value) => setTransportType(value),
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { id: "transport-type-select", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select transport type" }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "stdio", children: "STDIO" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "sse", children: "SSE" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "streamable-http", children: "Streamable HTTP" })
-              ] })
-            ]
-          }
-        )
-      ] }),
-      transportType === "stdio" ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "text-sm font-medium", htmlFor: "command-input", children: "Command" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            Input,
-            {
-              id: "command-input",
-              placeholder: "Command",
-              value: command,
-              onChange: (e) => setCommand(e.target.value),
-              onBlur: (e) => setCommand(e.target.value.trim()),
-              className: "font-mono"
-            }
-          )
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-between p-4 border-b border-gray-200 dark:border-border", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "ml-2 text-2xl font-bold", children: "MCP Inspector" }) }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-auto h-full", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "divide-y divide-border h-full flex flex-col justify-between", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 divide-y divide-border", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2 pb-4", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "label",
             {
-              className: "text-sm font-medium",
-              htmlFor: "arguments-input",
-              children: "Arguments"
+              className: "text-base font-medium",
+              htmlFor: "transport-type-select",
+              children: "Transport Type"
             }
           ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            Input,
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            Select,
             {
-              id: "arguments-input",
-              placeholder: "Arguments (space-separated)",
-              value: args,
-              onChange: (e) => setArgs(e.target.value),
-              className: "font-mono"
+              value: transportType,
+              onValueChange: (value) => setTransportType(value),
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { id: "transport-type-select", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select transport type" }) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "stdio", children: "STDIO" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "sse", children: "SSE" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "streamable-http", children: "Streamable HTTP" })
+                ] })
+              ]
             }
           )
-        ] })
-      ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "text-sm font-medium", htmlFor: "sse-url-input", children: "URL" }),
-          sseUrl ? /* @__PURE__ */ jsxRuntimeExports.jsxs(Tooltip, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(TooltipTrigger, { asChild: true, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        ] }),
+        transportType === "stdio" ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2 py-2", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "label",
+              {
+                className: "text-base font-medium",
+                htmlFor: "command-input",
+                children: "Command"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              Input,
+              {
+                id: "command-input",
+                placeholder: "Command",
+                value: command,
+                onChange: (e) => setCommand(e.target.value),
+                onBlur: (e) => setCommand(e.target.value.trim()),
+                className: "font-mono"
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2 py-2", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "label",
+              {
+                className: "text-base font-medium",
+                htmlFor: "arguments-input",
+                children: "Arguments"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              Input,
+              {
+                id: "arguments-input",
+                placeholder: "Arguments (space-separated)",
+                value: args,
+                onChange: (e) => setArgs(e.target.value),
+                className: "font-mono"
+              }
+            )
+          ] })
+        ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2 py-2", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "label",
+              {
+                className: "text-base font-medium",
+                htmlFor: "sse-url-input",
+                children: "URL"
+              }
+            ),
+            sseUrl ? /* @__PURE__ */ jsxRuntimeExports.jsxs(Tooltip, { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(TooltipTrigger, { asChild: true, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                Input,
+                {
+                  id: "sse-url-input",
+                  placeholder: "URL",
+                  value: sseUrl,
+                  onChange: (e) => setSseUrl(e.target.value),
+                  className: "font-mono"
+                }
+              ) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(TooltipContent, { children: sseUrl })
+            ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx(
               Input,
               {
                 id: "sse-url-input",
@@ -37972,250 +37992,115 @@ const Sidebar = ({
                 onChange: (e) => setSseUrl(e.target.value),
                 className: "font-mono"
               }
-            ) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(TooltipContent, { children: sseUrl })
-          ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx(
-            Input,
-            {
-              id: "sse-url-input",
-              placeholder: "URL",
-              value: sseUrl,
-              onChange: (e) => setSseUrl(e.target.value),
-              className: "font-mono"
-            }
-          )
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Tooltip, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TooltipTrigger, { asChild: true, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "label",
-              {
-                className: "text-sm font-medium",
-                htmlFor: "connection-type-select",
-                children: "Connection Type"
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              Select,
-              {
-                value: connectionType,
-                onValueChange: (value) => setConnectionType(value),
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { id: "connection-type-select", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select connection type" }) }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "proxy", children: "Via Proxy" }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "direct", children: "Direct" })
-                  ] })
-                ]
-              }
             )
-          ] }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TooltipContent, { children: connectionTypeTip })
-        ] })
-      ] }),
-      transportType === "stdio" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          Button,
-          {
-            variant: "outline",
-            onClick: () => setShowEnvVars(!showEnvVars),
-            className: "flex items-center w-full",
-            "data-testid": "env-vars-button",
-            "aria-expanded": showEnvVars,
-            children: [
-              showEnvVars ? /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: "w-4 h-4 mr-2" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "w-4 h-4 mr-2" }),
-              "Environment Variables"
-            ]
-          }
-        ),
-        showEnvVars && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-          Object.entries(env).map(([key, value], idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2 pb-4", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Tooltip, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(TooltipTrigger, { asChild: true, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2 py-2", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(
-                Input,
+                "label",
                 {
-                  "aria-label": `Environment variable key ${idx + 1}`,
-                  placeholder: "Key",
-                  value: key,
-                  onChange: (e) => {
-                    const newKey = e.target.value;
-                    const newEnv = Object.entries(env).reduce(
-                      (acc, [k2, v]) => {
-                        if (k2 === key) {
-                          acc[newKey] = value;
-                        } else {
-                          acc[k2] = v;
-                        }
-                        return acc;
-                      },
-                      {}
-                    );
-                    setEnv(newEnv);
-                    setShownEnvVars((prev) => {
-                      const next = new Set(prev);
-                      if (next.has(key)) {
-                        next.delete(key);
-                        next.add(newKey);
-                      }
-                      return next;
-                    });
-                  },
-                  className: "font-mono"
+                  className: "text-base font-medium",
+                  htmlFor: "connection-type-select",
+                  children: "Connection Type"
                 }
               ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                Button,
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                Select,
                 {
-                  variant: "destructive",
-                  size: "icon",
-                  className: "h-9 w-9 p-0 shrink-0",
-                  onClick: () => {
-                    const { [key]: _removed, ...rest } = env;
-                    setEnv(rest);
-                  },
-                  children: "×"
+                  value: connectionType,
+                  onValueChange: (value) => setConnectionType(value),
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { id: "connection-type-select", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select connection type" }) }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "proxy", children: "Via Proxy" }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "direct", children: "Direct" })
+                    ] })
+                  ]
                 }
               )
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                Input,
-                {
-                  "aria-label": `Environment variable value ${idx + 1}`,
-                  type: shownEnvVars.has(key) ? "text" : "password",
-                  placeholder: "Value",
-                  value,
-                  onChange: (e) => {
-                    const newEnv = { ...env };
-                    newEnv[key] = e.target.value;
-                    setEnv(newEnv);
-                  },
-                  className: "font-mono"
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                Button,
-                {
-                  variant: "outline",
-                  size: "icon",
-                  className: "h-9 w-9 p-0 shrink-0",
-                  onClick: () => {
-                    setShownEnvVars((prev) => {
-                      const next = new Set(prev);
-                      if (next.has(key)) {
-                        next.delete(key);
-                      } else {
-                        next.add(key);
-                      }
-                      return next;
-                    });
-                  },
-                  "aria-label": shownEnvVars.has(key) ? "Hide value" : "Show value",
-                  "aria-pressed": shownEnvVars.has(key),
-                  title: shownEnvVars.has(key) ? "Hide value" : "Show value",
-                  children: shownEnvVars.has(key) ? /* @__PURE__ */ jsxRuntimeExports.jsx(Eye, { className: "h-4 w-4", "aria-hidden": "true" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(EyeOff, { className: "h-4 w-4", "aria-hidden": "true" })
-                }
-              )
-            ] })
-          ] }, idx)),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            Button,
-            {
-              variant: "outline",
-              className: "w-full mt-2",
-              onClick: () => {
-                const key = "";
-                const newEnv = { ...env };
-                newEnv[key] = "";
-                setEnv(newEnv);
-              },
-              children: "Add Environment Variable"
-            }
-          )
+            ] }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(TooltipContent, { children: connectionTypeTip })
+          ] })
         ] })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-2 mt-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Tooltip, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TooltipTrigger, { asChild: true, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4", children: [
+        transportType === "stdio" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
             Button,
             {
               variant: "outline",
-              size: "sm",
-              onClick: handleCopyServerEntry,
-              className: "w-full",
+              onClick: () => setShowEnvVars(!showEnvVars),
+              className: "flex items-center w-full",
+              "data-testid": "env-vars-button",
+              "aria-expanded": showEnvVars,
               children: [
-                copiedServerEntry ? /* @__PURE__ */ jsxRuntimeExports.jsx(CheckCheck, { className: "h-4 w-4 mr-2" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "h-4 w-4 mr-2" }),
-                "Server Entry"
+                showEnvVars ? /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: "w-4 h-4 mr-2" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "w-4 h-4 mr-2" }),
+                "Environment Variables"
               ]
             }
-          ) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TooltipContent, { children: "Copy Server Entry" })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Tooltip, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TooltipTrigger, { asChild: true, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            Button,
-            {
-              variant: "outline",
-              size: "sm",
-              onClick: handleCopyServerFile,
-              className: "w-full",
-              children: [
-                copiedServerFile ? /* @__PURE__ */ jsxRuntimeExports.jsx(CheckCheck, { className: "h-4 w-4 mr-2" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "h-4 w-4 mr-2" }),
-                "Servers File"
-              ]
-            }
-          ) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TooltipContent, { children: "Copy Servers File" })
-        ] })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          Button,
-          {
-            variant: "outline",
-            onClick: () => setShowAuthConfig(!showAuthConfig),
-            className: "flex items-center w-full",
-            "data-testid": "auth-button",
-            "aria-expanded": showAuthConfig,
-            children: [
-              showAuthConfig ? /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: "w-4 h-4 mr-2" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "w-4 h-4 mr-2" }),
-              "Authentication"
-            ]
-          }
-        ),
-        showAuthConfig && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-3 rounded border overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-            CustomHeaders,
-            {
-              headers: customHeaders,
-              onChange: setCustomHeaders
-            }
-          ) }),
-          transportType !== "stdio" && // OAuth Configuration
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2 p-3  rounded border", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-sm font-semibold flex items-center", children: "OAuth 2.0 Flow" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "text-sm font-medium", children: "Client ID" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                Input,
-                {
-                  placeholder: "Client ID",
-                  onChange: (e) => setOauthClientId(e.target.value),
-                  value: oauthClientId,
-                  "data-testid": "oauth-client-id-input",
-                  className: "font-mono"
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "text-sm font-medium", children: "Client Secret" }),
+          ),
+          showEnvVars && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
+            Object.entries(env).map(([key, value], idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2 pb-4", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
                   Input,
                   {
-                    type: showClientSecret ? "text" : "password",
-                    placeholder: "Client Secret (optional)",
-                    onChange: (e) => setOauthClientSecret(e.target.value),
-                    value: oauthClientSecret,
-                    "data-testid": "oauth-client-secret-input",
+                    "aria-label": `Environment variable key ${idx + 1}`,
+                    placeholder: "Key",
+                    value: key,
+                    onChange: (e) => {
+                      const newKey = e.target.value;
+                      const newEnv = Object.entries(env).reduce(
+                        (acc, [k2, v]) => {
+                          if (k2 === key) {
+                            acc[newKey] = value;
+                          } else {
+                            acc[k2] = v;
+                          }
+                          return acc;
+                        },
+                        {}
+                      );
+                      setEnv(newEnv);
+                      setShownEnvVars((prev) => {
+                        const next = new Set(prev);
+                        if (next.has(key)) {
+                          next.delete(key);
+                          next.add(newKey);
+                        }
+                        return next;
+                      });
+                    },
+                    className: "font-mono"
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  Button,
+                  {
+                    variant: "destructive",
+                    size: "icon",
+                    className: "h-7 w-9 p-0 shrink-0",
+                    onClick: () => {
+                      const { [key]: _removed, ...rest } = env;
+                      setEnv(rest);
+                    },
+                    children: "×"
+                  }
+                )
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  Input,
+                  {
+                    "aria-label": `Environment variable value ${idx + 1}`,
+                    type: shownEnvVars.has(key) ? "text" : "password",
+                    placeholder: "Value",
+                    value,
+                    onChange: (e) => {
+                      const newEnv = { ...env };
+                      newEnv[key] = e.target.value;
+                      setEnv(newEnv);
+                    },
                     className: "font-mono"
                   }
                 ),
@@ -38224,267 +38109,340 @@ const Sidebar = ({
                   {
                     variant: "outline",
                     size: "icon",
-                    className: "h-9 w-9 p-0 shrink-0",
-                    onClick: () => setShowClientSecret(!showClientSecret),
-                    "aria-label": showClientSecret ? "Hide secret" : "Show secret",
-                    "aria-pressed": showClientSecret,
-                    title: showClientSecret ? "Hide secret" : "Show secret",
-                    children: showClientSecret ? /* @__PURE__ */ jsxRuntimeExports.jsx(Eye, { className: "h-4 w-4", "aria-hidden": "true" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(EyeOff, { className: "h-4 w-4", "aria-hidden": "true" })
+                    className: "h-7 w-9 p-0 shrink-0",
+                    onClick: () => {
+                      setShownEnvVars((prev) => {
+                        const next = new Set(prev);
+                        if (next.has(key)) {
+                          next.delete(key);
+                        } else {
+                          next.add(key);
+                        }
+                        return next;
+                      });
+                    },
+                    "aria-label": shownEnvVars.has(key) ? "Hide value" : "Show value",
+                    "aria-pressed": shownEnvVars.has(key),
+                    title: shownEnvVars.has(key) ? "Hide value" : "Show value",
+                    children: shownEnvVars.has(key) ? /* @__PURE__ */ jsxRuntimeExports.jsx(Eye, { className: "h-4 w-4", "aria-hidden": "true" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(EyeOff, { className: "h-4 w-4", "aria-hidden": "true" })
                   }
                 )
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "text-sm font-medium", children: "Redirect URL" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                Input,
-                {
-                  readOnly: true,
-                  placeholder: "Redirect URL",
-                  value: window.location.origin + "/oauth/callback",
-                  className: "font-mono"
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "text-sm font-medium", children: "Scope" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                Input,
-                {
-                  placeholder: "Scope (space-separated)",
-                  onChange: (e) => setOauthScope(e.target.value),
-                  value: oauthScope,
-                  "data-testid": "oauth-scope-input",
-                  className: "font-mono"
-                }
-              )
-            ] })
-          ] })
-        ] })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          Button,
-          {
-            variant: "outline",
-            onClick: () => setShowConfig(!showConfig),
-            className: "flex items-center w-full",
-            "data-testid": "config-button",
-            "aria-expanded": showConfig,
-            children: [
-              showConfig ? /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: "w-4 h-4 mr-2" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "w-4 h-4 mr-2" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Settings, { className: "w-4 h-4 mr-2" }),
-              "Configuration"
-            ]
-          }
-        ),
-        showConfig && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2", children: Object.entries(config).map(([key, configItem]) => {
-          const configKey = key;
-          return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "label",
-                {
-                  className: "text-sm font-medium text-green-600 break-all",
-                  htmlFor: `${configKey}-input`,
-                  children: configItem.label
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(Tooltip, { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(TooltipTrigger, { asChild: true, children: /* @__PURE__ */ jsxRuntimeExports.jsx(CircleQuestionMark, { className: "h-4 w-4 text-muted-foreground" }) }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(TooltipContent, { children: configItem.description })
               ] })
-            ] }),
-            typeof configItem.value === "number" ? /* @__PURE__ */ jsxRuntimeExports.jsx(
-              Input,
+            ] }, idx)),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              Button,
               {
-                id: `${configKey}-input`,
-                type: "number",
-                "data-testid": `${configKey}-input`,
-                value: configItem.value,
-                onChange: (e) => {
-                  const newConfig = { ...config };
-                  newConfig[configKey] = {
-                    ...configItem,
-                    value: Number(e.target.value)
-                  };
-                  setConfig(newConfig);
+                variant: "outline",
+                className: "w-full mt-2",
+                onClick: () => {
+                  const key = "";
+                  const newEnv = { ...env };
+                  newEnv[key] = "";
+                  setEnv(newEnv);
                 },
-                className: "font-mono"
-              }
-            ) : typeof configItem.value === "boolean" ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              Select,
-              {
-                "data-testid": `${configKey}-select`,
-                value: configItem.value.toString(),
-                onValueChange: (val) => {
-                  const newConfig = { ...config };
-                  newConfig[configKey] = {
-                    ...configItem,
-                    value: val === "true"
-                  };
-                  setConfig(newConfig);
-                },
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { id: `${configKey}-input`, children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "true", children: "True" }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "false", children: "False" })
-                  ] })
-                ]
-              }
-            ) : /* @__PURE__ */ jsxRuntimeExports.jsx(
-              Input,
-              {
-                id: `${configKey}-input`,
-                "data-testid": `${configKey}-input`,
-                value: configItem.value,
-                onChange: (e) => {
-                  const newConfig = { ...config };
-                  newConfig[configKey] = {
-                    ...configItem,
-                    value: e.target.value
-                  };
-                  setConfig(newConfig);
-                },
-                className: "font-mono"
+                children: "Add Environment Variable"
               }
             )
-          ] }, key);
-        }) })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-        connectionStatus === "connected" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-4", children: [
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-2 pt-4", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Tooltip, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(TooltipTrigger, { asChild: true, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              Button,
+              {
+                variant: "outline",
+                size: "sm",
+                onClick: handleCopyServerEntry,
+                className: "w-full",
+                children: [
+                  copiedServerEntry ? /* @__PURE__ */ jsxRuntimeExports.jsx(CheckCheck, { className: "h-4 w-4 mr-2" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "h-4 w-4 mr-2" }),
+                  "Server Entry"
+                ]
+              }
+            ) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(TooltipContent, { children: "Copy Server Entry" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Tooltip, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(TooltipTrigger, { asChild: true, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              Button,
+              {
+                variant: "outline",
+                size: "sm",
+                onClick: handleCopyServerFile,
+                className: "w-full",
+                children: [
+                  copiedServerFile ? /* @__PURE__ */ jsxRuntimeExports.jsx(CheckCheck, { className: "h-4 w-4 mr-2" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "h-4 w-4 mr-2" }),
+                  "Servers File"
+                ]
+              }
+            ) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(TooltipContent, { children: "Copy Servers File" })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2 pt-4", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs(
             Button,
             {
-              "data-testid": "connect-button",
-              onClick: () => {
-                onDisconnect();
-                onConnect();
-              },
+              variant: "outline",
+              onClick: () => setShowAuthConfig(!showAuthConfig),
+              className: "flex items-center w-full",
+              "data-testid": "auth-button",
+              "aria-expanded": showAuthConfig,
               children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(RotateCcw, { className: "w-4 h-4 mr-2" }),
-                transportType === "stdio" ? "Restart" : "Reconnect"
+                showAuthConfig ? /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: "w-4 h-4 mr-2" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "w-4 h-4 mr-2" }),
+                "Authentication"
               ]
             }
           ),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { onClick: onDisconnect, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCwOff, { className: "w-4 h-4 mr-2" }),
-            "Disconnect"
+          showAuthConfig && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-3 rounded border overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+              CustomHeaders,
+              {
+                headers: customHeaders,
+                onChange: setCustomHeaders
+              }
+            ) }),
+            transportType !== "stdio" && // OAuth Configuration
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2 p-3  rounded border", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-xs font-semibold flex items-center", children: "OAuth 2.0 Flow" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "text-xs font-medium", children: "Client ID" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  Input,
+                  {
+                    placeholder: "Client ID",
+                    onChange: (e) => setOauthClientId(e.target.value),
+                    value: oauthClientId,
+                    "data-testid": "oauth-client-id-input",
+                    className: "font-mono"
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "text-xs font-medium", children: "Client Secret" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    Input,
+                    {
+                      type: showClientSecret ? "text" : "password",
+                      placeholder: "Client Secret (optional)",
+                      onChange: (e) => setOauthClientSecret(e.target.value),
+                      value: oauthClientSecret,
+                      "data-testid": "oauth-client-secret-input",
+                      className: "font-mono"
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    Button,
+                    {
+                      variant: "outline",
+                      size: "icon",
+                      className: "h-7 w-9 p-0 shrink-0",
+                      onClick: () => setShowClientSecret(!showClientSecret),
+                      "aria-label": showClientSecret ? "Hide secret" : "Show secret",
+                      "aria-pressed": showClientSecret,
+                      title: showClientSecret ? "Hide secret" : "Show secret",
+                      children: showClientSecret ? /* @__PURE__ */ jsxRuntimeExports.jsx(Eye, { className: "h-4 w-4", "aria-hidden": "true" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(EyeOff, { className: "h-4 w-4", "aria-hidden": "true" })
+                    }
+                  )
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "text-xs font-medium", children: "Redirect URL" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  Input,
+                  {
+                    readOnly: true,
+                    placeholder: "Redirect URL",
+                    value: window.location.origin + "/oauth/callback",
+                    className: "font-mono"
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "text-xs font-medium", children: "Scope" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  Input,
+                  {
+                    placeholder: "Scope (space-separated)",
+                    onChange: (e) => setOauthScope(e.target.value),
+                    value: oauthScope,
+                    "data-testid": "oauth-scope-input",
+                    className: "font-mono"
+                  }
+                )
+              ] })
+            ] })
           ] })
         ] }),
-        connectionStatus !== "connected" && /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { className: "w-full", onClick: onConnect, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Play, { className: "w-4 h-4 mr-2" }),
-          "Connect"
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center space-x-2 mb-4", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "div",
-            {
-              className: `w-2 h-2 rounded-full ${(() => {
-                switch (connectionStatus) {
-                  case "connected":
-                    return "bg-green-500";
-                  case "error":
-                    return "bg-red-500";
-                  case "error-connecting-to-proxy":
-                    return "bg-red-500";
-                  default:
-                    return "bg-gray-500";
-                }
-              })()}`
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm text-gray-600 dark:text-gray-400", children: (() => {
-            switch (connectionStatus) {
-              case "connected":
-                return "Connected";
-              case "error": {
-                const hasProxyToken = config.MCP_PROXY_AUTH_TOKEN?.value;
-                if (!hasProxyToken) {
-                  return "Connection Error - Did you add the proxy session token in Configuration?";
-                }
-                return "Connection Error - Check if your MCP server is running and proxy token is correct";
-              }
-              case "error-connecting-to-proxy":
-                return "Error Connecting to MCP Inspector Proxy - Check Console logs";
-              default:
-                return "Disconnected";
-            }
-          })() })
-        ] }),
-        loggingSupported && connectionStatus === "connected" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "label",
-            {
-              className: "text-sm font-medium",
-              htmlFor: "logging-level-select",
-              children: "Logging Level"
-            }
-          ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2 pt-4", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            Select,
+            Button,
             {
-              value: logLevel,
-              onValueChange: (value) => sendLogLevelRequest(value),
+              variant: "outline",
+              onClick: () => setShowConfig(!showConfig),
+              className: "flex items-center w-full",
+              "data-testid": "config-button",
+              "aria-expanded": showConfig,
               children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { id: "logging-level-select", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select logging level" }) }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: Object.values(LoggingLevelSchema.enum).map((level) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: level, children: level }, level)) })
+                showConfig ? /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: "w-4 h-4 mr-2" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "w-4 h-4 mr-2" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Settings, { className: "w-4 h-4 mr-2" }),
+                "Configuration"
               ]
             }
-          )
-        ] })
-      ] })
-    ] }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-4 border-t", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(
-        Select,
-        {
-          value: theme,
-          onValueChange: (value) => setTheme(value),
-          children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { className: "w-[100px]", id: "theme-select", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "system", children: "System" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "light", children: "Light" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "dark", children: "Dark" })
-            ] })
-          ]
-        }
-      ),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center space-x-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "ghost", title: "Inspector Documentation", asChild: true, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "a",
-          {
-            href: "https://modelcontextprotocol.io/docs/tools/inspector",
-            target: "_blank",
-            rel: "noopener noreferrer",
-            children: /* @__PURE__ */ jsxRuntimeExports.jsx(CircleQuestionMark, { className: "w-4 h-4 text-foreground" })
-          }
-        ) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "ghost", title: "Debugging Guide", asChild: true, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "a",
-          {
-            href: "https://modelcontextprotocol.io/docs/tools/debugging",
-            target: "_blank",
-            rel: "noopener noreferrer",
-            children: /* @__PURE__ */ jsxRuntimeExports.jsx(Bug, { className: "w-4 h-4 text-foreground" })
-          }
-        ) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          Button,
-          {
-            variant: "ghost",
-            title: "Report bugs or contribute on GitHub",
-            asChild: true,
-            children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "a",
+          ),
+          showConfig && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2", children: Object.entries(config).map(([key, configItem]) => {
+            const configKey = key;
+            return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "label",
+                  {
+                    className: "text-xs font-medium text-green-600 break-all",
+                    htmlFor: `${configKey}-input`,
+                    children: configItem.label
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(Tooltip, { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(TooltipTrigger, { asChild: true, children: /* @__PURE__ */ jsxRuntimeExports.jsx(CircleQuestionMark, { className: "h-4 w-4 text-muted-foreground" }) }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(TooltipContent, { children: configItem.description })
+                ] })
+              ] }),
+              typeof configItem.value === "number" ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+                Input,
+                {
+                  id: `${configKey}-input`,
+                  type: "number",
+                  "data-testid": `${configKey}-input`,
+                  value: configItem.value,
+                  onChange: (e) => {
+                    const newConfig = { ...config };
+                    newConfig[configKey] = {
+                      ...configItem,
+                      value: Number(e.target.value)
+                    };
+                    setConfig(newConfig);
+                  },
+                  className: "font-mono"
+                }
+              ) : typeof configItem.value === "boolean" ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                Select,
+                {
+                  "data-testid": `${configKey}-select`,
+                  value: configItem.value.toString(),
+                  onValueChange: (val) => {
+                    const newConfig = { ...config };
+                    newConfig[configKey] = {
+                      ...configItem,
+                      value: val === "true"
+                    };
+                    setConfig(newConfig);
+                  },
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { id: `${configKey}-input`, children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, {}) }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "true", children: "True" }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "false", children: "False" })
+                    ] })
+                  ]
+                }
+              ) : /* @__PURE__ */ jsxRuntimeExports.jsx(
+                Input,
+                {
+                  id: `${configKey}-input`,
+                  "data-testid": `${configKey}-input`,
+                  value: configItem.value,
+                  onChange: (e) => {
+                    const newConfig = { ...config };
+                    newConfig[configKey] = {
+                      ...configItem,
+                      value: e.target.value
+                    };
+                    setConfig(newConfig);
+                  },
+                  className: "font-mono"
+                }
+              )
+            ] }, key);
+          }) })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2 pt-4", children: [
+          connectionStatus === "connected" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-4", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              Button,
               {
-                href: "https://github.com/modelcontextprotocol/inspector",
-                target: "_blank",
-                rel: "noopener noreferrer",
-                children: /* @__PURE__ */ jsxRuntimeExports.jsx(Github, { className: "w-4 h-4 text-foreground" })
+                "data-testid": "connect-button",
+                onClick: () => {
+                  onDisconnect();
+                  onConnect();
+                },
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(RotateCcw, { className: "w-4 h-4 mr-2" }),
+                  transportType === "stdio" ? "Restart" : "Reconnect"
+                ]
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { onClick: onDisconnect, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCwOff, { className: "w-4 h-4 mr-2" }),
+              "Disconnect"
+            ] })
+          ] }),
+          connectionStatus !== "connected" && /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { className: "w-full", onClick: onConnect, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Play, { className: "w-4 h-4 mr-2" }),
+            "Connect"
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center space-x-2 mb-4", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "div",
+              {
+                className: `w-2 h-2 rounded-full ${(() => {
+                  switch (connectionStatus) {
+                    case "connected":
+                      return "bg-green-500";
+                    case "error":
+                      return "bg-red-500";
+                    case "error-connecting-to-proxy":
+                      return "bg-red-500";
+                    default:
+                      return "bg-gray-500";
+                  }
+                })()}`
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-gray-600 dark:text-gray-400", children: (() => {
+              switch (connectionStatus) {
+                case "connected":
+                  return "Connected";
+                case "error": {
+                  const hasProxyToken = config.MCP_PROXY_AUTH_TOKEN?.value;
+                  if (!hasProxyToken) {
+                    return "Connection Error - Did you add the proxy session token in Configuration?";
+                  }
+                  return "Connection Error - Check if your MCP server is running and proxy token is correct";
+                }
+                case "error-connecting-to-proxy":
+                  return "Error Connecting to MCP Inspector Proxy - Check Console logs";
+                default:
+                  return "Disconnected";
+              }
+            })() })
+          ] }),
+          loggingSupported && connectionStatus === "connected" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "label",
+              {
+                className: "text-xs font-medium",
+                htmlFor: "logging-level-select",
+                children: "Logging Level"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              Select,
+              {
+                value: logLevel,
+                onValueChange: (value) => sendLogLevelRequest(value),
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { id: "logging-level-select", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: "Select logging level" }) }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: Object.values(LoggingLevelSchema.enum).map((level) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: level, children: level }, level)) })
+                ]
               }
             )
-          }
-        )
+          ] })
+        ] })
       ] })
     ] }) })
   ] });
@@ -38804,7 +38762,7 @@ const ResourceLinkView = reactExports.memo(
       },
       [handleClick, onReadResource]
     );
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-sm text-foreground bg-secondary py-2 px-3 rounded", children: [
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs text-foreground bg-secondary py-2 px-3 rounded", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(
         "div",
         {
@@ -38817,14 +38775,14 @@ const ResourceLinkView = reactExports.memo(
           "aria-label": `${expanded ? "Collapse" : "Expand"} resource ${uri}`,
           children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start justify-between gap-2 mb-1", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline px-1 py-0.5 break-all font-mono flex-1 min-w-0", children: uri }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline px-1 py-0.5 break-all font-mono flex-1 min-w-0", children: uri }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 flex-shrink-0", children: [
                 mimeType && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200", children: mimeType }),
                 onReadResource && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-2 flex-shrink-0", "aria-hidden": "true", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: expanded ? "▼" : "▶" }) })
               ] })
             ] }),
-            name2 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-semibold text-sm text-gray-900 dark:text-gray-100 mb-1", children: name2 }),
-            description2 && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-gray-600 dark:text-gray-300 leading-relaxed", children: description2 })
+            name2 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-semibold text-xs text-gray-900 dark:text-gray-100 mb-1", children: name2 }),
+            description2 && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-gray-600 dark:text-gray-300 leading-relaxed", children: description2 })
           ] })
         }
       ),
@@ -38913,13 +38871,13 @@ const ToolResults = ({
         isError ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-red-600 font-semibold", children: "Error" }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-green-600 font-semibold", children: "Success" })
       ] }),
       structuredResult.structuredContent && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-4", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h5", { className: "font-semibold mb-2 text-sm", children: "Structured Content:" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h5", { className: "font-semibold mb-2 text-xs", children: "Structured Content:" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-gray-50 dark:bg-gray-900 p-3 rounded-lg", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(JsonView, { data: structuredResult.structuredContent }),
           validationResult && /* @__PURE__ */ jsxRuntimeExports.jsx(
             "div",
             {
-              className: `mt-2 p-2 rounded text-sm ${validationResult.isValid ? "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200" : "bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200"}`,
+              className: `mt-2 p-2 rounded text-xs ${validationResult.isValid ? "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200" : "bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200"}`,
               children: validationResult.isValid ? "✓ Valid according to output schema" : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
                 "✗ Validation Error: ",
                 validationResult.error
@@ -38929,20 +38887,20 @@ const ToolResults = ({
         ] })
       ] }),
       structuredResult._meta && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-4", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h5", { className: "font-semibold mb-2 text-sm", children: "Meta:" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h5", { className: "font-semibold mb-2 text-xs", children: "Meta:" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-gray-50 dark:bg-gray-900 p-3 rounded-lg", children: /* @__PURE__ */ jsxRuntimeExports.jsx(JsonView, { data: structuredResult._meta }) })
       ] }),
-      !structuredResult.structuredContent && validationResult && !validationResult.isValid && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 p-2 rounded text-sm", children: [
+      !structuredResult.structuredContent && validationResult && !validationResult.isValid && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 p-2 rounded text-xs", children: [
         "✗ Validation Error: ",
         validationResult.error
       ] }) }),
       structuredResult.content.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-4", children: [
         structuredResult.structuredContent && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h5", { className: "font-semibold mb-2 text-sm", children: "Unstructured Content:" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h5", { className: "font-semibold mb-2 text-xs", children: "Unstructured Content:" }),
           compatibilityResult && /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "div",
             {
-              className: `mb-2 p-2 rounded text-sm ${compatibilityResult.isCompatible ? "bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200" : "bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200"}`,
+              className: `mb-2 p-2 rounded text-xs ${compatibilityResult.isCompatible ? "bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200" : "bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200"}`,
               children: [
                 compatibilityResult.isCompatible ? "✓" : "⚠",
                 " ",
@@ -39068,22 +39026,22 @@ const ToolsTab = ({
         setSelectedItem: setSelectedTool,
         renderItem: (tool) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col items-start", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "flex-1", children: tool.name }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm text-gray-500 text-left line-clamp-3", children: tool.description })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-gray-500 text-left line-clamp-3", children: tool.description })
         ] }),
         title: "Tools",
         buttonText: nextCursor ? "List More Tools" : "List Tools",
         isButtonDisabled: !nextCursor && tools.length > 0
       }
     ),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-card border border-border rounded-lg shadow", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-4 border-b border-gray-200 dark:border-border", children: /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-semibold", children: selectedTool ? selectedTool.name : "Select a tool" }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-card border border-border rounded shadow", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-4 border-b border-gray-200 dark:border-border", children: /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-semibold text-base", children: selectedTool ? selectedTool.name : "Select a tool" }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-4", children: selectedTool ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
         error && /* @__PURE__ */ jsxRuntimeExports.jsxs(Alert, { variant: "destructive", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { className: "h-4 w-4" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(AlertTitle, { children: "Error" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDescription, { className: "break-all", children: error })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-gray-600 dark:text-gray-400 whitespace-pre-wrap max-h-48 overflow-y-auto", children: selectedTool.description }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-gray-600 dark:text-gray-400 whitespace-pre-wrap max-h-48 overflow-y-auto", children: selectedTool.description }),
         Object.entries(selectedTool.inputSchema.properties ?? []).map(
           ([key, value]) => {
             const resolvedValue = resolveRef(
@@ -39099,7 +39057,7 @@ const ToolsTab = ({
                   Label$1,
                   {
                     htmlFor: key,
-                    className: "block text-sm font-medium text-gray-700 dark:text-gray-300",
+                    className: "block text-xs font-medium text-gray-700 dark:text-gray-300",
                     children: [
                       key,
                       required2 && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-red-500 ml-1", children: "*" })
@@ -39123,7 +39081,7 @@ const ToolsTab = ({
                     "label",
                     {
                       htmlFor: key,
-                      className: "text-sm font-medium text-gray-700 dark:text-gray-300",
+                      className: "text-xs font-medium text-gray-700 dark:text-gray-300",
                       children: "null"
                     }
                   )
@@ -39151,7 +39109,7 @@ const ToolsTab = ({
                       "label",
                       {
                         htmlFor: key,
-                        className: "text-sm font-medium text-gray-700 dark:text-gray-300",
+                        className: "text-xs font-medium text-gray-700 dark:text-gray-300",
                         children: prop.description || "Toggle this option"
                       }
                     )
@@ -39283,7 +39241,7 @@ const ToolsTab = ({
         ),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pb-4", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mb-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-sm font-semibold", children: "Tool-specific Metadata:" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-xs font-semibold", children: "Tool-specific Metadata:" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               Button,
               {
@@ -39386,7 +39344,7 @@ const ToolsTab = ({
         ] }),
         selectedTool.outputSchema && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-gray-50 dark:bg-gray-900 p-3 rounded-lg", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mb-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-sm font-semibold", children: "Output Schema:" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-xs font-semibold", children: "Output Schema:" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               Button,
               {
@@ -39414,7 +39372,7 @@ const ToolsTab = ({
         ] }),
         selectedTool && hasMeta(selectedTool) && selectedTool._meta && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-gray-50 dark:bg-gray-900 p-3 rounded-lg", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mb-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-sm font-semibold", children: "Meta:" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-xs font-semibold", children: "Meta:" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               Button,
               {
@@ -39587,7 +39545,7 @@ const ElicitationRequest = ({
       children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 bg-gray-50 dark:bg-gray-800 dark:text-gray-100 p-2 rounded", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "font-semibold", children: schemaTitle }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm", children: request.request.message }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", children: request.request.message }),
           schemaDescription && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: schemaDescription }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-2", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("h5", { className: "text-xs font-medium mb-1", children: "Request Schema:" }),
@@ -39613,7 +39571,7 @@ const ElicitationRequest = ({
                 }
               }
             ),
-            validationError && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-sm text-red-600 dark:text-red-400", children: [
+            validationError && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs text-red-600 dark:text-red-400", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Validation Error:" }),
               " ",
               validationError
@@ -39681,7 +39639,7 @@ const MetadataTab = ({
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-lg font-semibold", children: "Metadata" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-gray-600 dark:text-gray-400", children: "Key-value pairs that will be included in all MCP requests" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-gray-600 dark:text-gray-400", children: "Key-value pairs that will be included in all MCP requests" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { onClick: addEntry, size: "sm", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-4 h-4 mr-2" }),
@@ -39742,38 +39700,6 @@ const MetadataTab = ({
   ] }) });
 };
 const CONFIG_LOCAL_STORAGE_KEY = "inspectorConfig_v1";
-const LOCALSTORAGEMOCK = {
-  "MCP_SERVER_REQUEST_TIMEOUT": {
-    "label": "Request Timeout",
-    "description": "Client-side timeout (ms) - Inspector will cancel requests after this time",
-    "value": 3e5,
-    "is_session_item": false
-  },
-  "MCP_REQUEST_TIMEOUT_RESET_ON_PROGRESS": {
-    "label": "Reset Timeout on Progress",
-    "description": "Reset timeout on progress notifications",
-    "value": true,
-    "is_session_item": false
-  },
-  "MCP_REQUEST_MAX_TOTAL_TIMEOUT": {
-    "label": "Maximum Total Timeout",
-    "description": "Maximum total timeout for requests sent to the MCP server (ms) (Use with progress notifications)",
-    "value": 6e4,
-    "is_session_item": false
-  },
-  "MCP_PROXY_FULL_ADDRESS": {
-    "label": "Inspector Proxy Address",
-    "description": "Set this if you are running the MCP Inspector Proxy on a non-default address. Example: http://10.1.1.22:5577",
-    "value": "",
-    "is_session_item": false
-  },
-  "MCP_PROXY_AUTH_TOKEN": {
-    "label": "Maximum Total Timeout",
-    "description": "Maximum total timeout for requests sent to the MCP server (ms) (Use with progress notifications)",
-    "value": "43aa583a587846f3b731c3ba921a98d6a7855b013baeff00b81f6187a5d74997",
-    "is_session_item": false
-  }
-};
 const filterReservedMetadata = (metadata) => {
   return Object.entries(metadata).reduce(
     (acc, [key, value]) => {
@@ -39812,7 +39738,9 @@ const App = () => {
   const [notifications, setNotifications] = reactExports.useState([]);
   const [roots, setRoots] = reactExports.useState([]);
   const [env, setEnv] = reactExports.useState({});
-  const [config, setConfig] = reactExports.useState(LOCALSTORAGEMOCK);
+  const [config, setConfig] = reactExports.useState(
+    () => initializeInspectorConfig(CONFIG_LOCAL_STORAGE_KEY)
+  );
   const [bearerToken, setBearerToken] = reactExports.useState(() => {
     return localStorage.getItem("lastBearerToken") || "";
   });
@@ -40136,7 +40064,6 @@ const App = () => {
     if (proxyAuthToken) {
       headers[proxyAuthTokenHeader] = `Bearer ${proxyAuthToken}`;
     }
-    console.log(`${getMCPProxyAddress(config)}/config`);
     fetch(`${getMCPProxyAddress(config)}/config`, { headers }).then((response) => response.json()).then((data2) => {
       setEnv(data2.defaultEnvironment);
       if (data2.defaultCommand) {
@@ -40424,13 +40351,13 @@ const App = () => {
   ) });
   if (window.location.pathname === "/oauth/callback") {
     const OAuthCallback = React.lazy(
-      () => __vitePreload(() => import("./OAuthCallback-ClDR09ZA.js"), true ? [] : void 0)
+      () => __vitePreload(() => import("./OAuthCallback-CDb9by20.js"), true ? [] : void 0)
     );
     return /* @__PURE__ */ jsxRuntimeExports.jsx(reactExports.Suspense, { fallback: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: "Loading..." }), children: /* @__PURE__ */ jsxRuntimeExports.jsx(OAuthCallback, { onConnect: onOAuthConnect }) });
   }
   if (window.location.pathname === "/oauth/callback/debug") {
     const OAuthDebugCallback = React.lazy(
-      () => __vitePreload(() => import("./OAuthDebugCallback-CHeIVaQi.js"), true ? [] : void 0)
+      () => __vitePreload(() => import("./OAuthDebugCallback-Dh4T1meU.js"), true ? [] : void 0)
     );
     return /* @__PURE__ */ jsxRuntimeExports.jsx(reactExports.Suspense, { fallback: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: "Loading..." }), children: /* @__PURE__ */ jsxRuntimeExports.jsx(OAuthDebugCallback, { onConnect: onOAuthDebugConnect }) });
   }
@@ -40501,7 +40428,7 @@ const App = () => {
       }
     ),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 flex flex-col overflow-hidden", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-auto", children: mcpClient ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-auto divide-y divide-border", children: mcpClient ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
         Tabs,
         {
           value: activeTab,
@@ -40758,7 +40685,7 @@ const App = () => {
       ) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col items-center justify-center h-full gap-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-lg text-gray-500 dark:text-gray-400", children: "Connect to an MCP server to start inspecting" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: "Need to configure authentication?" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: "Need to configure authentication?" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             Button,
             {
