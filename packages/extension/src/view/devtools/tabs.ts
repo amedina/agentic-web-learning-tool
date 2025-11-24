@@ -71,6 +71,39 @@ const TABS: SidebarItems = {
 		children: {},
 		containerClassName: 'h-6',
 	},
+	[SIDEBAR_ITEMS_KEYS.OPEN_SIDEPANEL_LLM]: {
+		title: () => 'Sidepanel LLM',
+		panel: {
+			skipPanelDisplay: true,
+			cta: async () => {
+				const tab = await chrome.tabs.get(
+					chrome.devtools.inspectedWindow.tabId
+				);
+				if (tab === undefined) {
+					return;
+				}
+				chrome.sidePanel.open({
+					windowId: tab.windowId,
+				});
+			},
+		},
+		icon: {
+			Element: SettingsIcon as any,
+			props: {
+				className: 'fill-granite-gray w-4 h-4',
+			},
+		},
+		selectedIcon: {
+			Element: SettingsIcon as any,
+			props: {
+				className: 'fill-bright-gray w-4 h-4',
+			},
+		},
+		dropdownOpen: false,
+		addSpacer: true,
+		children: {},
+		containerClassName: 'h-6',
+	},
 };
 
 export default TABS;
