@@ -7,8 +7,11 @@
 		"dev": "concurrently \"pnpm run dev:contentScript\" \"pnpm run dev:extension\"",
 		"dev:contentScript": "cross-env NODE_ENV=development vite build --watch --config contentScript.config.ts",
 		"dev:extension": "cross-env NODE_ENV=development vite build --watch --config vite.config.ts",
-		"build": "cross-env NODE_ENV=production tsc -b && vite build && cp -r src/view/devtools/assets/ ../../dist/extension/assets && cp src/view/devtools/mcp-inspector.html ../../dist/extension/devtools",
+		"build": "cross-env NODE_ENV=production tsc -b && pnpm run build:contentScript && pnpm run build:extension",
+		"build:contentScript": "cross-env NODE_ENV=production vite build --config contentScript.config.ts",
+		"build:extension": "cross-env NODE_ENV=production vite build --config vite.config.ts",
 		"check-types": "tsc -b -noEmit",
+		"type-check": "tsc -b -noEmit",
 		"lint": "eslint .",
 		"lint:fix": "eslint . --fix",
 		"format": "prettier . --write",
@@ -35,7 +38,6 @@
 		"re-resizable": "^6.11.2",
 		"react": "^19.1.1",
 		"react-dom": "^19.1.1",
-		"vite-plugin-static-copy": "^3.1.4",
 		"zod": "^4.1.12",
 		"zod-from-json-schema": "^0.5.2"
 	},
@@ -77,6 +79,7 @@
 		"typescript": "~5.8.3",
 		"typescript-eslint": "^8.39.1",
 		"vite": "^7.1.5",
+		"vite-plugin-static-copy": "^3.1.4",
 		"vite-plugin-svgr": "^4.5.0",
 		"vitest": "^3.2.4"
 	}
