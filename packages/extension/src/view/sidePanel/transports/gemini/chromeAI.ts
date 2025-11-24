@@ -41,7 +41,7 @@ class ChromeAILanguageModel {
     }
 
     async getSession() {
-        if (!this.runtime) {
+        if (!this.runtime || this.session) {
             return;
         }
 
@@ -113,10 +113,8 @@ class ChromeAILanguageModel {
             messages
         } = args;
 
-        await this.getSession();
-
         if (!this.session) {
-            return;
+            await this.getSession();
         }
 
         const systemMessage = `
@@ -210,9 +208,11 @@ class ChromeAILanguageModel {
             promptOptions,
         } = args;
 
-        await this.getSession();
-
         if (!this.session) {
+            await this.getSession();
+        }
+
+        if (this.formattedTools.length === 0) {
             return;
         }
 

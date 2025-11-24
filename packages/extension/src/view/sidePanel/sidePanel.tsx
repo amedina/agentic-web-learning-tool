@@ -11,6 +11,7 @@ import { useChatRuntime } from '@assistant-ui/react-ai-sdk';
  */
 import { ChatBotUI } from "./components";
 import { GeminiNanoChatTransport } from "./transports/gemini/GeminiLocalTransport";
+import { useEffect } from "react";
 
 const geminiNanoTransport = new GeminiNanoChatTransport();
 
@@ -20,8 +21,10 @@ const SidePanel = () => {
     sendAutomaticallyWhen: (messages) => lastAssistantMessageIsCompleteWithToolCalls(messages),
   });
 
-  geminiNanoTransport.setRuntime(runtime);
-  geminiNanoTransport.initializeSession();
+  useEffect(() => {
+    geminiNanoTransport.setRuntime(runtime);
+    geminiNanoTransport.initializeSession();
+  }, [runtime]);
 
   return (
     <AssistantRuntimeProvider runtime={runtime}>
