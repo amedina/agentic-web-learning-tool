@@ -28,7 +28,7 @@ const Devtools: React.FC = () => {
 
 
 	const [defaultSelectedItemKey] = useState(
-		SIDEBAR_ITEMS_KEYS.SETTINGS
+		SIDEBAR_ITEMS_KEYS.PRIVACY_SANDBOX
 	);
 
 
