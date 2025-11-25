@@ -4,7 +4,6 @@ import path from 'path'
 
 const config: StorybookConfig = {
     stories: [
-	    // Look for stories inside design-system components
 	    '../../design-system/src/components/**/*.stories.@(js|jsx|ts|tsx)',
     ],
     addons: [

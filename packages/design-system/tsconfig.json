@@ -1,17 +1,19 @@
 {
 	"extends": "@google-awlt/shared-config/typescript/react-library",
 	"compilerOptions": {
+		"allowJs": true,
+    	"checkJs": true,
 		"outDir": "./dist",
 		"lib": ["dom", "ES2015"],
 		"sourceMap": true,
 		"noEmit": false,
 		"allowImportingTsExtensions": false,
-		/* Path aliasing */
+		"jsx": "react-jsx",
 		"baseUrl": ".",
 		"paths": {
 			"@/*": ["./src/*"]
 		}
 	},
 	"include": ["src", "storybook.d.ts"],
-	"exclude": ["dist", "build", "node_modules"]
+	"exclude": ["dist", "build", "node_modules", "tests"]
 }
