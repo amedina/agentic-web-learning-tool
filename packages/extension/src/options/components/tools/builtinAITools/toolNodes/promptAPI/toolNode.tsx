@@ -5,23 +5,32 @@ import ToolNodeContainer from '../../../toolNodeContainer';
 
 const PromptAPINode = () => {
 	const nodeId = useNodeId();
-	const { getNode } = useApi(({ actions }) => ({
+	const { getNode, setSelectedNode } = useApi(({ actions }) => ({
 		getNode: actions.getNode,
+		setSelectedNode: actions.setSelectedNode,
 	}));
 
 	const config = useMemo(() => {
 		if (!nodeId) return {};
 
 		const node = getNode(nodeId);
+		console.log('PromptAPINode config:', node);
 		return {
 			title: node?.config.title,
 			type: node?.type,
 			context: node?.config.context,
 		};
-	}, []);
+	}, [getNode, nodeId]);
 
 	return (
-		<ToolNodeContainer title={config.title} type={config.type || ''}>
+		<ToolNodeContainer
+			title={config.title}
+			type={config.type || ''}
+			onEdit={() => {
+				console.log('Selecting node:', nodeId);
+				setSelectedNode(nodeId);
+			}}
+		>
 			<div className="flex flex-col gap-4 h-40">
 				<p className="text-base">{config.context}</p>
 				<Handle

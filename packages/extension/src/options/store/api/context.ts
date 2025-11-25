@@ -11,24 +11,28 @@ export interface ApiStoreContext {
 		nodes: {
 			[id: string]: NodeConfig;
 		};
+		selectedNode: string | null;
 	};
 	actions: {
 		getNode: (id: string) => NodeConfig | undefined;
 		addNode: (node: NodeConfig & { id: string }) => void;
 		updateNode: (id: string, updates: NodeConfig) => void;
 		removeNode: (id: string) => void;
+		setSelectedNode: (id: string | null) => void;
 	};
 }
 
 const initialState: ApiStoreContext = {
 	state: {
 		nodes: {},
+		selectedNode: null,
 	},
 	actions: {
 		getNode: () => undefined,
 		addNode: () => {},
 		updateNode: () => {},
 		removeNode: () => {},
+		setSelectedNode: () => {},
 	},
 };
 

@@ -6,6 +6,8 @@ const ApiProvider = ({ children }: PropsWithChildren) => {
 		[id: string]: NodeConfig;
 	}>({});
 
+	const [selectedNode, setSelectedNode] = useState<string | null>(null);
+
 	const getNode = useCallback(
 		(id: string) => {
 			return nodes[id];
@@ -34,6 +36,7 @@ const ApiProvider = ({ children }: PropsWithChildren) => {
 		(
 			id: string,
 			updates: {
+				type: string;
 				config?: { [key: string]: any };
 			}
 		) => {
@@ -67,12 +70,14 @@ const ApiProvider = ({ children }: PropsWithChildren) => {
 			value={{
 				state: {
 					nodes,
+					selectedNode,
 				},
 				actions: {
 					getNode,
 					addNode,
 					updateNode,
 					removeNode,
+					setSelectedNode,
 				},
 			}}
 		>
