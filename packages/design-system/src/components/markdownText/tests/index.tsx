@@ -9,6 +9,7 @@ import {
 import '@testing-library/jest-dom';
 
 import { MarkdownText } from '../markdownText';
+import { MockAssistantProvider } from './mockAssistantProvider';
 
 Object.assign(navigator, {
 	clipboard: {
@@ -26,33 +27,9 @@ jest.mock('../../shikiHighlighter', () => ({
 describe('MarkdownText', () => {
 	it('renders basic markdown elements', () => {
 		const content = '#Hello World\n\nThis is a **bold** statement.';
-		const runtime = renderHook(() =>
-			useLocalRuntime(
-				{
-					run: () =>
-						Promise.resolve({
-							content: [{ type: 'text', text: content }],
-						}),
-				},
-				{
-					initialMessages: [
-						{
-							id: 'welcome',
-							role: 'assistant',
-							content: [
-								{
-									type: 'text',
-									text: content,
-								},
-							],
-						},
-					],
-				}
-			)
-		).result.current;
 
 		render(
-			<AssistantRuntimeProvider runtime={runtime}>
+			<MockAssistantProvider welcomeMessage={content}>
 				<ThreadPrimitive.Messages
 					components={{
 						Message: () => (
@@ -62,7 +39,7 @@ describe('MarkdownText', () => {
 						),
 					}}
 				/>
-			</AssistantRuntimeProvider>
+			</MockAssistantProvider>
 		);
 
 		expect(screen.getByRole('body')).toHaveTextContent(
@@ -73,31 +50,6 @@ describe('MarkdownText', () => {
 	it('renders code blocks with copy button', async () => {
 		const code = 'console.log("test")';
 		const content = `\`\`\`js\n${code}\n\`\`\``;
-
-				const runtime = renderHook(() =>
-			useLocalRuntime(
-				{
-					run: () =>
-						Promise.resolve({
-							content: [{ type: 'text', text: content }],
-						}),
-				},
-				{
-					initialMessages: [
-						{
-							id: 'welcome',
-							role: 'assistant',
-							content: [
-								{
-									type: 'text',
-									text: content,
-								},
-							],
-						},
-					],
-				}
-			)
-		).result.current;
 
 		render(
 			<AssistantRuntimeProvider runtime={runtime}>
