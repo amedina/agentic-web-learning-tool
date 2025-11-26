@@ -143,6 +143,10 @@ class ChromeAILanguageModel {
         const finalMessages = mergeSystemAndMessages(messages, systemMessage);
 
         // Execute prompt
+        // Ensure session is initialized before use; getSession may early-return if runtime is absent
+        if (!this.session) {
+            throw new Error("ChromeAI session is not available. Ensure runtime is set and the browser supports the Prompt API.");
+        }
         const responseText = await this.session.prompt([...finalMessages], promptOptions);
 
         const { toolCall: toolCalls, textPrefix: textContent } = extractToolCall(responseText);
