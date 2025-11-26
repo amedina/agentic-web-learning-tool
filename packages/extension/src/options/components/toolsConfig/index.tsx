@@ -16,14 +16,26 @@ const ToolsConfig = () => {
 	);
 
 	const [node, setNode] = useState<ReturnType<typeof getNode>>();
+	const [title, setTitle] = useState<string>(node?.config.title || '');
+	const [context, setContext] = useState<string>(node?.config.context || '');
 
 	const toolNodeRef = useRef<{
-		submit: (formData: FormData, nodeId: string) => void;
+		getConfig: (formData: FormData) => void;
 	}>(null);
 
 	useEffect(() => {
-		if (selectedNode) setNode(getNode(selectedNode));
+		if (selectedNode) {
+			const _node = getNode(selectedNode);
+			setNode(_node);
+		} else {
+			setNode(undefined);
+		}
 	}, [selectedNode, getNode]);
+
+	useEffect(() => {
+		setTitle(node?.config.title || '');
+		setContext(node?.config.context || '');
+	}, [node]);
 
 	const handleSubmit = useCallback(
 		(e: React.FormEvent<HTMLFormElement>) => {
@@ -41,10 +53,11 @@ const ToolsConfig = () => {
 					...node.config,
 					title,
 					context,
+					...(toolNodeRef.current
+						? toolNodeRef.current.getConfig(formData)
+						: {}),
 				},
 			});
-
-			toolNodeRef.current?.submit(formData, selectedNode);
 		},
 		[node, selectedNode, updateNode]
 	);
@@ -52,8 +65,8 @@ const ToolsConfig = () => {
 	const Tool = node?.type && tools[node?.type] ? tools[node?.type] : null;
 
 	return (
-		<div className="h-full min-w-1/7">
-			<h2 className="text-xl font-bold mb-4">{node?.config.title}</h2>
+		<div className="h-full min-w-1/7 overflow-auto">
+			<h2 className="text-xl font-bold mb-4">{title}</h2>
 			<form onSubmit={handleSubmit}>
 				<label className="block mb-2" htmlFor="title">
 					<span className="text-gray-700">Node Title:</span>
@@ -62,7 +75,8 @@ const ToolsConfig = () => {
 					type="text"
 					className="w-full p-2 border border-gray-300 rounded"
 					placeholder="Enter node title"
-					defaultValue={node?.config.title}
+					value={title}
+					onChange={(e) => setTitle(e.target.value)}
 					name="title"
 				/>
 				<label className="block mb-2 mt-4" htmlFor="context">
@@ -71,10 +85,11 @@ const ToolsConfig = () => {
 				<textarea
 					className="w-full p-2 border border-gray-300 rounded"
 					placeholder="Enter node Context"
-					defaultValue={node?.config.context}
+					value={context}
+					onChange={(e) => setContext(e.target.value)}
 					name="context"
 				></textarea>
-				{Tool && <Tool ref={toolNodeRef} />}
+				<div>{Tool && <Tool ref={toolNodeRef} node={node} />}</div>
 				<button
 					type="submit"
 					className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"

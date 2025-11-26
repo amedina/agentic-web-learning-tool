@@ -65,6 +65,8 @@ const ApiProvider = ({ children }: PropsWithChildren) => {
 
 			const updated = { ...prev };
 			delete updated[id];
+			setSelectedNode((current) => (current === id ? null : current));
+
 			return updated;
 		});
 	}, []);

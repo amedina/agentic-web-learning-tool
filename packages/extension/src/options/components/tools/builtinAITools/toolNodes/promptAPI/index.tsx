@@ -14,12 +14,8 @@ const createConfig = () => {
 			},
 		],
 		expectedOutputs: [{ type: 'text', languages: ['ja'] }],
-		intialPrompts: [
-			{
-				role: 'system',
-				content: 'You are a helpful assistant.',
-			},
-		],
+		initialPrompts:
+			"[{role: 'system', content: 'You are a helpful assistant.',},]",
 	};
 };
 

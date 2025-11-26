@@ -5,10 +5,13 @@ import ToolNodeContainer from '../../../toolNodeContainer';
 
 const PromptAPINode = () => {
 	const nodeId = useNodeId();
-	const { getNode, setSelectedNode } = useApi(({ actions }) => ({
-		getNode: actions.getNode,
-		setSelectedNode: actions.setSelectedNode,
-	}));
+	const { getNode, selectedNode, setSelectedNode } = useApi(
+		({ state, actions }) => ({
+			selectedNode: state.selectedNode,
+			getNode: actions.getNode,
+			setSelectedNode: actions.setSelectedNode,
+		})
+	);
 
 	const config = useMemo(() => {
 		if (!nodeId) return {};
@@ -25,8 +28,8 @@ const PromptAPINode = () => {
 		<ToolNodeContainer
 			title={config.title}
 			type={config.type || ''}
+			selected={selectedNode === nodeId}
 			onEdit={() => {
-				console.log('Selecting node:', nodeId);
 				setSelectedNode(nodeId);
 			}}
 		>
