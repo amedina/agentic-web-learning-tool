@@ -25,14 +25,17 @@ const isDev = process.env.NODE_ENV === 'development';
 
 // More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
 export default defineConfig({
-	plugins: [react(), tailwindcss(), svgr(), 
-        viteStaticCopy({
-          targets: [
-            { src: 'manifest.json', dest: '' },
-            { src: 'icons', dest: '' },
-          ],
-        }),
-      ],
+	plugins: [
+		react(),
+		tailwindcss(),
+		svgr(),
+ 	viteStaticCopy({
+			targets: [
+				{ src: resolve(__dirname, 'src/manifest.json'), dest: '' },
+				{ src: resolve(__dirname, 'src/icons'), dest: '' },
+			],
+		}),
+	],
 	resolve: {
 		alias: aliases,
 	},
@@ -49,7 +52,7 @@ export default defineConfig({
 				options: resolve(__dirname, 'src/options/options.html'),
 				devtools: resolve(__dirname, 'src/devtools/devtools.html'),
 				'devtools-index': resolve(__dirname, 'src/devtools/index.html'),
-				sidePanel: resolve(__dirname, 'src/sidepanel/sidePanel.html'),
+				sidePanel: resolve(__dirname, 'src/sidePanel/sidePanel.html'),
 				popup: resolve(__dirname, 'src/popup/popup.html'),
 				serviceWorker: resolve(__dirname, 'src/serviceWorker/index.ts'),
 			},
