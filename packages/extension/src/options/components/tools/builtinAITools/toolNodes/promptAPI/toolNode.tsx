@@ -14,7 +14,6 @@ const PromptAPINode = () => {
 		if (!nodeId) return {};
 
 		const node = getNode(nodeId);
-		console.log('PromptAPINode config:', node);
 		return {
 			title: node?.config.title,
 			type: node?.type,

@@ -47,10 +47,10 @@ const PromptAPI = () => {
 
 		addApiNode({
 			id,
-			type: 'Prompt API',
+			type: 'promptApi',
 			config,
 		});
-	}, []);
+	}, [addApiNode, addFlowNode]);
 
 	return (
 		<div className="p-2 border rounded" onClick={addPromptAPINode}>

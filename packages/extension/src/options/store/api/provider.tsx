@@ -36,7 +36,7 @@ const ApiProvider = ({ children }: PropsWithChildren) => {
 		(
 			id: string,
 			updates: {
-				type: string;
+				type?: string;
 				config?: { [key: string]: any };
 			}
 		) => {
@@ -48,6 +48,10 @@ const ApiProvider = ({ children }: PropsWithChildren) => {
 					[id]: {
 						...prev[id],
 						...updates,
+						config: {
+							...prev[id].config,
+							...updates.config,
+						}
 					},
 				};
 			});

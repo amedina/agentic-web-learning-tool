@@ -1,5 +1,10 @@
 import { useApi } from '../../store';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import ToolConfig from '../tools/builtinAITools/toolNodes/promptAPI/toolConfig';
+
+const tools = {
+	promptApi: ToolConfig,
+};
 
 const ToolsConfig = () => {
 	const { selectedNode, getNode, updateNode } = useApi(
@@ -10,32 +15,41 @@ const ToolsConfig = () => {
 		})
 	);
 
-const [node, setNode] = useState<ReturnType<typeof getNode>>();
+	const [node, setNode] = useState<ReturnType<typeof getNode>>();
+
+	const toolNodeRef = useRef<{
+		submit: (formData: FormData, nodeId: string) => void;
+	}>(null);
 
 	useEffect(() => {
-		console.log(selectedNode)
 		if (selectedNode) setNode(getNode(selectedNode));
 	}, [selectedNode, getNode]);
 
-	const handleSubmit = useCallback((e: React.FormEvent<HTMLFormElement>) => {
-		const formData = new FormData(e.currentTarget);
-		e.preventDefault();
+	const handleSubmit = useCallback(
+		(e: React.FormEvent<HTMLFormElement>) => {
+			const formData = new FormData(e.currentTarget);
+			e.preventDefault();
 
-		if (!node || !selectedNode) return;
+			if (!node || !selectedNode) return;
 
-		const title = formData.get('title') as string;
-		const context = formData.get('context') as string;
-		console.log('Submitting:', { title, context });
+			const title = formData.get('title') as string;
+			const context = formData.get('context') as string;
 
-		updateNode(selectedNode, {
-			...node,
-			config: {
-				...node.config,
-				title,
-				context,
-			},
-		});
-	}, [node, selectedNode, updateNode]);
+			updateNode(selectedNode, {
+				...node,
+				config: {
+					...node.config,
+					title,
+					context,
+				},
+			});
+
+			toolNodeRef.current?.submit(formData, selectedNode);
+		},
+		[node, selectedNode, updateNode]
+	);
+
+	const Tool = node?.type && tools[node?.type] ? tools[node?.type] : null;
 
 	return (
 		<div className="h-full min-w-1/7">
@@ -60,6 +74,7 @@ const [node, setNode] = useState<ReturnType<typeof getNode>>();
 					defaultValue={node?.config.context}
 					name="context"
 				></textarea>
+				{Tool && <Tool ref={toolNodeRef} />}
 				<button
 					type="submit"
 					className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"

@@ -16,7 +16,13 @@ export interface ApiStoreContext {
 	actions: {
 		getNode: (id: string) => NodeConfig | undefined;
 		addNode: (node: NodeConfig & { id: string }) => void;
-		updateNode: (id: string, updates: NodeConfig) => void;
+		updateNode: (
+			id: string,
+			updates: {
+				type?: string;
+				config?: { [key: string]: any };
+			}
+		) => void;
 		removeNode: (id: string) => void;
 		setSelectedNode: (id: string | null) => void;
 	};

@@ -9,7 +9,6 @@ import {
 } from '@xyflow/react';
 import Context, { FlowCleaner, type EdgeType, type NodeType } from './context';
 import { PromptAPINode } from '../../components/tools/builtinAITools/toolNodes';
-import { useApi } from '../api';
 
 const initialNodes: NodeType[] = [
 	{ id: 'n1', position: { x: 0, y: 0 }, data: { label: 'Node 1' } },
@@ -42,31 +41,6 @@ const FlowProvider = ({ children }: PropsWithChildren) => {
 		[]
 	);
 
-	const onNodesDelete = useCallback(
-		(deletedNodes: NodeType[]) => {
-			deletedNodes.forEach((node) => {
-				deleteNode(node.id);
-			});
-		},
-		[setNodes, setEdges]
-	);
-
-	const onEdgesDelete = useCallback((deletedEdges: EdgeType[]) => {
-		deletedEdges.forEach((edge) => {
-			deleteEdge(edge.id);
-		});
-	}, []);
-
-	const onConnect = useCallback(
-		(params: Connection | EdgeType) =>
-			setEdges((edgesSnapshot) => addEdge(params, edgesSnapshot)),
-		[]
-	);
-
-	const addNode = useCallback((node: NodeType) => {
-		setNodes((prev) => [...prev, node]);
-	}, []);
-
 	const deleteNode = useCallback((id: string) => {
 		setNodes((prev) => prev.filter((node) => node.id !== id));
 
@@ -77,6 +51,31 @@ const FlowProvider = ({ children }: PropsWithChildren) => {
 
 	const deleteEdge = useCallback((id: string) => {
 		setEdges((prev) => prev.filter((edge) => edge.id !== id));
+	}, []);
+
+	const onNodesDelete = useCallback(
+		(deletedNodes: NodeType[]) => {
+			deletedNodes.forEach((node) => {
+				deleteNode(node.id);
+			});
+		},
+		[deleteNode]
+	);
+
+	const onEdgesDelete = useCallback((deletedEdges: EdgeType[]) => {
+		deletedEdges.forEach((edge) => {
+			deleteEdge(edge.id);
+		});
+	}, [deleteEdge]);
+
+	const onConnect = useCallback(
+		(params: Connection | EdgeType) =>
+			setEdges((edgesSnapshot) => addEdge(params, edgesSnapshot)),
+		[]
+	);
+
+	const addNode = useCallback((node: NodeType) => {
+		setNodes((prev) => [...prev, node]);
 	}, []);
 
 	return (
