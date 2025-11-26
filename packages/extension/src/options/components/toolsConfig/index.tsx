@@ -1,9 +1,9 @@
-import { useApi } from '../../store';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import ToolConfig from '../tools/builtinAITools/toolNodes/promptAPI/toolConfig';
+import { useApi } from '../../store';
+import { PromptAPINodeConfig } from '../tools/builtinAITools/toolNodes';
 
 const tools = {
-	promptApi: ToolConfig,
+	promptApi: PromptAPINodeConfig,
 };
 
 const ToolsConfig = () => {
