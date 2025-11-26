@@ -219,7 +219,7 @@ const defaultComponents = memoizeMarkdownComponents({
       <code
         className={cn(
           !isCodeBlock &&
-            "aui-md-inline-code rounded border bg-muted font-semibold",
+            "aui-md-inline-code font-semibold rounded text-amber-600",
           className,
         )}
         {...props}

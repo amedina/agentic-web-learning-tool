@@ -45,4 +45,5 @@ export enum SIDEBAR_ITEMS_KEYS {
   SCRIPT_BLOCKING = 'script-blocking',
   PRIVATE_STATE_TOKENS = 'private-state-tokens',
   OPEN_INCOGNITO_TAB = 'open-incognito-tab',
+  OPEN_SIDEPANEL_LLM = 'open-sidepanel-llm',
 }
