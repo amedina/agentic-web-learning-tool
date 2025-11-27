@@ -3,7 +3,7 @@ import {
 	AssistantRuntimeProvider,
 	MessagePrimitive,
 	useLocalRuntime,
-  ThreadPrimitive
+	ThreadPrimitive,
 } from '@assistant-ui/react';
 
 import { MarkdownText } from './markdownText';
@@ -38,20 +38,23 @@ console.log(hello);
 
 export const Default: Story = {
 	render: (args) => {
-		const runtime = useLocalRuntime({run: () => Promise.resolve({content: args.content})},{
-			initialMessages: [
-				{
-					id: 'welcome',
-					role: 'assistant',
-					content: [
-						{
-							type: 'text',
-							text: args.content,
-						},
-					],
-				},
-			],
-		});
+		const runtime = useLocalRuntime(
+			{ run: () => Promise.resolve({ content: args.content }) },
+			{
+				initialMessages: [
+					{
+						id: 'welcome',
+						role: 'assistant',
+						content: [
+							{
+								type: 'text',
+								text: args.content,
+							},
+						],
+					},
+				],
+			}
+		);
 		return (
 			<AssistantRuntimeProvider runtime={runtime}>
 				<ThreadPrimitive.Messages
@@ -72,21 +75,24 @@ export const Default: Story = {
 };
 
 export const ComplexDocument: Story = {
-  	render: (args) => {
-		const runtime = useLocalRuntime({run: () => Promise.resolve({content: args.content})},{
-			initialMessages: [
-				{
-					id: 'welcome',
-					role: 'assistant',
-					content: [
-						{
-							type: 'text',
-							text: args.content,
-						},
-					],
-				},
-			],
-		});
+	render: (args) => {
+		const runtime = useLocalRuntime(
+			{ run: () => Promise.resolve({ content: args.content }) },
+			{
+				initialMessages: [
+					{
+						id: 'welcome',
+						role: 'assistant',
+						content: [
+							{
+								type: 'text',
+								text: args.content,
+							},
+						],
+					},
+				],
+			}
+		);
 		return (
 			<AssistantRuntimeProvider runtime={runtime}>
 				<ThreadPrimitive.Messages
@@ -107,21 +113,24 @@ export const ComplexDocument: Story = {
 };
 
 export const PythonCode: Story = {
-  	render: (args) => {
-		const runtime = useLocalRuntime({run: () => Promise.resolve({content: args.content})},{
-			initialMessages: [
-				{
-					id: 'welcome',
-					role: 'assistant',
-					content: [
-						{
-							type: 'text',
-							text: args.content,
-						},
-					],
-				},
-			],
-		});
+	render: (args) => {
+		const runtime = useLocalRuntime(
+			{ run: () => Promise.resolve({ content: args.content }) },
+			{
+				initialMessages: [
+					{
+						id: 'welcome',
+						role: 'assistant',
+						content: [
+							{
+								type: 'text',
+								text: args.content,
+							},
+						],
+					},
+				],
+			}
+		);
 		return (
 			<AssistantRuntimeProvider runtime={runtime}>
 				<ThreadPrimitive.Messages
