@@ -1,13 +1,40 @@
 import BuiltInAITools from './builtinAITools';
-import JSTools from './jsTools';
 
 const Tools = () => {
 	return (
-		<div className="h-full min-w-1/7">
-			<h1 className="text-xl font-bold mb-6clear">Workflow Composer</h1>
-			<div className="flex flex-col gap-4">
-				<BuiltInAITools />
-				<JSTools />
+		<div className="w-64 bg-slate-50 border-r border-slate-200 h-full flex flex-col overflow-y-auto">
+			<div className="p-4 border-b border-slate-200 bg-white">
+				<h1 className="font-bold text-slate-800 text-lg">
+					AWL Workflow Composer
+				</h1>
+				<p className="text-xs text-slate-500">AI-Powered Workflows</p>
+			</div>
+
+			<div className="p-4 space-y-6">
+				<div>
+					<h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
+						Gemini Nano APIs
+					</h3>
+					<BuiltInAITools />
+				</div>
+
+				<div>
+					<h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
+						Web Elements
+					</h3>
+				</div>
+
+				<div>
+					<h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
+						Logic
+					</h3>
+				</div>
+
+				<div>
+					<h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
+						Output
+					</h3>
+				</div>
 			</div>
 		</div>
 	);

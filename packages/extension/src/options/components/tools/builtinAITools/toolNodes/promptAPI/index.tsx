@@ -1,5 +1,7 @@
 import { useCallback } from 'react';
+import { NotebookTextIcon } from 'lucide-react';
 import { useApi, useFlow } from '../../../../../store';
+import ToolItem from '../../../ui/toolItem';
 
 const createConfig = () => {
 	return {
@@ -49,9 +51,11 @@ const PromptAPI = () => {
 	}, [addApiNode, addFlowNode]);
 
 	return (
-		<div className="p-2 border rounded" onClick={addPromptAPINode}>
-			Prompt API Tool
-		</div>
+		<ToolItem
+			label="Prompt API"
+			onClick={addPromptAPINode}
+			Icon={NotebookTextIcon}
+		/>
 	);
 };
 

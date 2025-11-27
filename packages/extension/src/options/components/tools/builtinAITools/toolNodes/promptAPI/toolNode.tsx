@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { Handle, Position, useNodeId } from '@xyflow/react';
-import { useApi } from '../../../../../store';
-import ToolNodeContainer from '../../../toolNodeContainer';
+import { useApi, useFlow } from '../../../../../store';
+import ToolNodeContainer from '../../../ui/toolNodeContainer';
 
 const PromptAPINode = () => {
 	const nodeId = useNodeId();
@@ -12,6 +12,10 @@ const PromptAPINode = () => {
 			setSelectedNode: actions.setSelectedNode,
 		})
 	);
+
+	const { deleteNode } = useFlow(({ actions }) => ({
+		deleteNode: actions.deleteNode,
+	}));
 
 	const config = useMemo(() => {
 		if (!nodeId) return {};
@@ -32,43 +36,63 @@ const PromptAPINode = () => {
 			onEdit={() => {
 				setSelectedNode(nodeId);
 			}}
+			onRemove={() => {
+				if (nodeId) {
+					deleteNode(nodeId);
+				}
+			}}
 		>
-			<div className="flex flex-col gap-4 h-40">
-				<p className="text-base">{config.context}</p>
+			<div className="h-full min-h-[120px]">
+				<div className="bg-linear-to-br from-blue-50 to-indigo-50 rounded-md p-3 mb-4 border border-blue-100">
+					<p className="text-sm text-slate-700 leading-relaxed">
+						{config.context}
+					</p>
+				</div>
 				<Handle
 					type="target"
 					position={Position.Left}
 					style={{
 						background: 'none',
 						border: 'none',
-						top: '160px',
+						top: '145px',
 					}}
 				>
-					<div className="absolute -top-1/2 -left-1/2 w-3 h-3 bg-blue-500 rounded-full" />
-					<p className="absolute left-4 -top-3 flex items-center gap-1">
-						<span className="text-base">Input</span>
-						<span className="text-xs text-gray-400 italic">
-							(string)
-						</span>
-					</p>
+					<div className="relative">
+						<div className="flex items-center gap-2 w-fit absolute translate-y-[-50%] top-[2.5px]">
+							<div className="min-w-3 h-3 bg-blue-500 rounded-full shadow-sm"></div>
+							<div className="flex flex-col">
+								<span className="text-xs font-semibold text-slate-600">
+									Input
+								</span>
+								<span className="text-xs text-gray-500 italic">
+									(string)
+								</span>
+							</div>
+						</div>
+					</div>
 				</Handle>
-
 				<Handle
 					type="source"
 					position={Position.Right}
 					style={{
 						background: 'none',
 						border: 'none',
-						top: '200px',
+						top: '170px',
 					}}
 				>
-					<div className="absolute -top-1/2 -left-1/2 w-3 h-3 bg-green-600 rounded-full" />
-					<p className="absolute -left-26 -top-3 flex items-center gap-1">
-						<span className="text-base">Output</span>
-						<span className="text-xs text-gray-400 italic">
-							(string)
-						</span>
-					</p>
+					<div className="relative">
+						<div className="flex items-center gap-2 w-fit absolute translate-y-[-50%] translate-x-[-90%] top-[2.5px]">
+							<div className="flex flex-col items-end">
+								<span className="text-xs font-semibold text-slate-600">
+									Output
+								</span>
+								<span className="text-xs text-gray-500 italic">
+									(string)
+								</span>
+							</div>
+							<div className="min-w-3 h-3 bg-green-600 rounded-full shadow-sm"></div>
+						</div>
+					</div>
 				</Handle>
 			</div>
 		</ToolNodeContainer>

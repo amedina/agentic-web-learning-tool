@@ -1,10 +1,10 @@
 import Flow from './components/flow';
 import Tools from './components/tools';
-import ToolsConfig from './components/toolsConfig';
+import ToolsConfig from './components/tools/ui/toolsConfig';
 
 function OptionsPanel() {
 	return (
-		<div className="h-dvh w-dvw px-8 py-6 flex gap-8">
+		<div className="h-dvh w-dvw flex">
 			<Tools />
 			<Flow />
 			<ToolsConfig />
