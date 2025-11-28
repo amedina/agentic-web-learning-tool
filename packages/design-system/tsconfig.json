@@ -15,6 +15,6 @@
 		},
 		"types": ["jest", "jest-extended", "@testing-library/jest-dom"]
 	},
-	"include": ["src", "storybook.d.ts"],
+	"include": ["src", "storybook.d.ts", "node_modules/jest-extended/types/index.d.ts"],
 	"exclude": ["dist", "build", "node_modules", "tests"]
 }
