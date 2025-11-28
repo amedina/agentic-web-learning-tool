@@ -28,7 +28,7 @@ const MarkdownTextImpl = () => {
 	);
 };
 
-export const MarkdownText = memo(MarkdownTextImpl);
+const MarkdownText = memo(MarkdownTextImpl);
 
 const CodeHeader: FC<CodeHeaderProps> = ({ language, code }) => {
 	const { isCopied, copyToClipboard } = useCopyToClipboard();
@@ -278,3 +278,5 @@ const defaultComponents = memoizeMarkdownComponents({
 	},
 	CodeHeader,
 });
+
+export default MarkdownText;

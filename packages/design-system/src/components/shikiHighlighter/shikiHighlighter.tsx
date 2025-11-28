@@ -13,7 +13,7 @@ PrismAsyncLight.registerLanguage("ts", tsx);
 PrismAsyncLight.registerLanguage("tsx", tsx);
 PrismAsyncLight.registerLanguage("python", python);
 
-export const SyntaxHighlighter = makePrismAsyncLightSyntaxHighlighter({
+const SyntaxHighlighter = makePrismAsyncLightSyntaxHighlighter({
   style: coldarkDark,
   customStyle: {
     margin: 0,
@@ -22,3 +22,5 @@ export const SyntaxHighlighter = makePrismAsyncLightSyntaxHighlighter({
     padding: "1.5rem 1rem",
   },
 });
+
+export default SyntaxHighlighter;

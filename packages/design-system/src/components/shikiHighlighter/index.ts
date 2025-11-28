@@ -1,1 +1,1 @@
-export * from './shikiHighlighter';
+export { default as SyntaxHighlighter } from './shikiHighlighter';

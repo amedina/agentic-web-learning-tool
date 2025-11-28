@@ -19,7 +19,7 @@ export type TooltipIconButtonProps = ComponentPropsWithRef<typeof Button> & {
   side?: "top" | "bottom" | "left" | "right";
 };
 
-export const TooltipIconButton = forwardRef<
+const TooltipIconButton = forwardRef<
   HTMLButtonElement,
   TooltipIconButtonProps
 >(({ children, tooltip, side = "bottom", className, ...rest }, ref) => {
@@ -43,3 +43,5 @@ export const TooltipIconButton = forwardRef<
 });
 
 TooltipIconButton.displayName = "TooltipIconButton";
+
+export default TooltipIconButton;
