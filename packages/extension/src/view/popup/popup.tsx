@@ -7,7 +7,7 @@ function Popup() {
 	const [count, setCount] = useState(0);
 
 	return (
-		<main className="max-w-7xl m-auto min-h-screen flex flex-col items-center justify-center gap-5">
+		<main className="max-w-7xl w-96 m-auto min-h-screen flex flex-col items-center justify-center gap-5">
 			<div className="flex gap-5">
 				<Button variant="link" size="icon">
 					<a href="https://vite.dev" target="_blank">
