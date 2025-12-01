@@ -1,4 +1,3 @@
-/// <reference types="vitest/config" />
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
@@ -10,17 +9,15 @@ import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
 const packagesDir = resolve(__dirname, '../');
 const aliases = readdirSync(packagesDir).filter(name => name !== 'shared-config').map((name) => ({
 	find: `@google-awlt/${name}`,
 	replacement: resolve(packagesDir, name, 'src'),
 }));
 const distDir = path.resolve(__dirname, '../../dist/extension');
-
 // eslint-disable-next-line turbo/no-undeclared-env-vars
 const isDev = process.env.NODE_ENV === 'development';
-
+// More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
 export default defineConfig({
 	plugins: [react(), tailwindcss(), svgr(), 
         viteStaticCopy({
