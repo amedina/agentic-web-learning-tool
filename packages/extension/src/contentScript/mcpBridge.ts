@@ -6,6 +6,8 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 let connected = false;
 try {
     (async () => {
+        //This connects to the page context since content scripts have a separate JS context
+        //TabClientTransport uses window.postMessage under the hood. The TabServerTransport is implemented from the MCP-B polyfill
         const transport = new TabClientTransport({
             targetOrigin: window.location.origin,
         });
@@ -15,11 +17,11 @@ try {
             version: "1.0.0",
         });
 
-        // Connect to extension background
         const backgroundPort = chrome.runtime.connect({
             name: "mcp-content-script-proxy",
         });
 
+        //Need to set interval because the TabServerTransport might not be ready to accept connections yet
         const interval = setInterval(async () => {
             try {
                 if (!connected) {
@@ -27,14 +29,13 @@ try {
                     connected = true;
                 }
                 const pageTools = await client.listTools();
-
+                //Send initial list of tools to service worker
                 backgroundPort.postMessage({
                     type: "register-tools",
                     tools: pageTools.tools,
                 });
                 clearInterval(interval)
             } catch (error) {
-                //empty code block
                 console.error("Error connecting to MCP background:", error);
             }
         }, 100);
