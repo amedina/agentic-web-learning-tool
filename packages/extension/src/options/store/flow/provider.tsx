@@ -11,6 +11,7 @@ import Context, { FlowCleaner, type EdgeType, type NodeType } from './context';
 import { useApi } from '../api';
 import {
 	PromptApiToolNode,
+	RewriterApi,
 	WriterApiToolNode,
 } from '../../components/tools/builtinAITools/tools';
 
@@ -27,6 +28,7 @@ const FlowProvider = ({ children }: PropsWithChildren) => {
 		() => ({
 			promptApi: PromptApiToolNode,
 			writerApi: WriterApiToolNode,
+			rewriterApi: RewriterApi,
 		}),
 		[]
 	);

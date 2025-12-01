@@ -3,12 +3,14 @@ import { Save, Settings, X } from 'lucide-react';
 import { useApi } from '../../store';
 import {
 	PromptApiToolConfig,
+	RewriterApi,
 	WriterApiToolConfig,
 } from '../tools/builtinAITools/tools';
 
 const TOOLS = {
 	promptApi: PromptApiToolConfig,
 	writerApi: WriterApiToolConfig,
+	rewriterApi: RewriterApi,
 };
 
 const ToolsConfig = () => {
