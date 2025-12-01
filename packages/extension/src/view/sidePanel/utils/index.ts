@@ -6,3 +6,4 @@ export * from "./convertMessages";
 export * from "./toolCallParser";
 export * from './mcpToolToJSONSchema';
 export * from './toolPreferences';
+export * from './systemPromptTemplate';    

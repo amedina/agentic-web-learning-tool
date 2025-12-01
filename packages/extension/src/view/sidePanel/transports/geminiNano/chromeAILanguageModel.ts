@@ -6,36 +6,82 @@ import type { AssistantRuntime } from "@assistant-ui/react";
 /**
  * Internal dependencies
  */
-import { ToolCallParser, extractArguments, convertMessages, extractToolCall, extractToolCalls, extractToolName, mergeSystemAndMessages } from "../../utils";
+import {
+    ToolCallParser,
+    extractArguments,
+    convertMessages,
+    extractToolCall,
+    extractToolCalls,
+    extractToolName,
+    mergeSystemAndMessages,
+    systemPromptTemplate
+} from "../../utils";
 import type { ToolCallRequest } from "../../types";
+
+interface PromptOptions {
+    temperature?: number;
+    topK?: number;
+    responseConstraint?: any;
+}
+
+interface LanguageModelSession {
+    promptStreaming(prompt: {
+        role: string;
+        content: any;
+    }[]): AsyncIterable<string>;
+    prompt(prompt: {
+        role: string;
+        content: any;
+    }[], promptOptions: Record<string, any>): Promise<string>;
+    destroy: () => void;
+}
+
+interface LanguageModelFactory {
+    availability(): Promise<"available" | "readily" | "after-download" | "unavailable">;
+    create(args: Record<string, any>): Promise<LanguageModelSession>;
+}
+
+declare global {
+    interface Window {
+        // Current experimental API shape
+        LanguageModel: LanguageModelFactory;
+    }
+}
+interface LanguageModelV1CallOptions {
+    temperature?: number;
+    topK?: number;
+    responseFormat?: { type: "json"; schema?: any };
+    tools?: ToolCallRequest[];
+    prompt: any; // Standard AI SDK message format
+    abortSignal?: AbortSignal;
+}
 
 /**
  * Implementation of the LanguageModelV1 interface for Chrome's built-in Prompt API.
+ * * This class handles:
+ * 1. Session management with window.LanguageModel
+ * 2. Polyfilling "Tool Calling" by instructing the model to output Markdown Fences
+ * 3. Streaming parsing to detect those fences and emit structured tool events instead of raw text
  */
 class ChromeAILanguageModel {
     private session: LanguageModelSession | null = null;
     private runtime: AssistantRuntime | null = null;
     private formattedTools: any[] = [];
-    specificationVersion;
-    provider;
-    supportedUrls;
-    modelId;
-    config;
 
-    setRuntime(runtime: AssistantRuntime) {
-        this.runtime = runtime
-    }
+    // LanguageModelV1 required properties
+    public readonly specificationVersion = "v1";
+    public readonly provider = "browser-ai";
+    public readonly modelId: string;
+
+    // Defines supported media types (images/audio) via URL patterns
+    public readonly supportedUrls = {
+        "image/*": [/^https?:\/\/.+$/],
+        "audio/*": [/^https?:\/\/.+$/]
+    };
+
+    private config: any;
 
     constructor(modelId: string, options = {}) {
-        this.specificationVersion = "v2";
-        this.provider = "browser-ai";
-
-        // Defines supported media types (images/audio) via URL patterns
-        this.supportedUrls = {
-            "image/*": [/^https?:\/\/.+$/],
-            "audio/*": [/^https?:\/\/.+$/]
-        };
-
         this.modelId = modelId;
         this.config = {
             provider: this.provider,
@@ -44,29 +90,43 @@ class ChromeAILanguageModel {
         };
     }
 
-    async getSession() {
-        if (!this.runtime) {
-            return;
+    public setRuntime(runtime: AssistantRuntime) {
+        this.runtime = runtime;
+    }
+
+    /**
+     * Initializes or retrieves the Chrome AI session.
+     * Converts AssistantUI tools into a JSON schema format understandable by the model.
+     */
+    private async getSession() {
+        if (!this.runtime) return;
+
+        // Use global window object for Chrome AI
+        const lm = window.LanguageModel;
+        if (!lm) {
+            throw new Error("Chrome LanguageModel API is not available in this browser.");
         }
 
-        const lm = window.LanguageModel;
         const { tools } = this.runtime.thread.getModelContext();
 
+        // Transform tools into OpenAI-like JSON schema for the system prompt
         this.formattedTools = Object.entries(tools ?? []).map(([key, value]) => [key, {
+            name: key,
             description: value.description,
             inputSchema: value.parameters,
             execute: value.execute,
-            name: key,
             type: "function"
         }]);
-        //@ts-expect-error -- already checked in initialize session
+
+        // Create session if it doesn't exist
+        // Note: In a real app, you might want to manage session lifecycle more aggressively (destroying old ones)
         this.session = await lm.create({});
     }
 
     /**
-     * Prepares arguments, validates settings, and formats tools for the Prompt API.
+     * Prepares arguments, validates settings, and formats system prompts.
      */
-    getArgs(args) {
+    private getArgs(args: LanguageModelV1CallOptions) {
         const {
             temperature,
             topK,
@@ -75,90 +135,52 @@ class ChromeAILanguageModel {
             prompt
         } = args;
 
-        // Filter tools: 'mx' checks if it is a function tool
-        const functionTools = (tools ?? []).filter((tool: ToolCallRequest) => tool.type === 'function');
-
-        const promptOptions = {};
+        const functionTools = (tools ?? []).filter((tool) => tool.type === 'function');
+        const promptOptions: PromptOptions = {};
 
         if (responseFormat?.type === "json") {
             promptOptions.responseConstraint = responseFormat.schema;
         }
 
-        if (temperature !== undefined){
-            promptOptions.temperature = temperature;
-        }
-        if (topK !== undefined){
-            promptOptions.topK = topK;
-        }
+        if (temperature !== undefined) promptOptions.temperature = temperature;
+        if (topK !== undefined) promptOptions.topK = topK;
 
-        const { systemMessage, messages } = convertMessages(prompt);
+        const { messages } = convertMessages(prompt);
 
+        // Provide the transformed messages and options
         return {
             promptOptions,
-            expectedInputs: undefined,
             functionTools,
-            systemMessage,
             messages
         };
     }
 
     /**
-     * Handles non-streaming generation.
+     * Handles non-streaming generation (Unary call).
      */
-    async doGenerate(callOptions) {
-        const args = this.getArgs(callOptions);
-        const {
-            promptOptions,
-            messages
-        } = args;
+    async doGenerate(callOptions: LanguageModelV1CallOptions) {
+        const { promptOptions, messages } = this.getArgs(callOptions);
 
         await this.getSession();
+        if (!this.session) return;
 
-        if (!this.session) {
-            return;
-        }
-
-        const systemMessage = `
-            You are the WebMCP Browsing Agent. Investigate pages, gather context, and guide the user through the browser using Model Context Protocol tools.\n\nBehavior\n• Operate entirely through the provided MCP tools—never assume page state without verifying.\n• Narrate intentions before acting and summarize findings after each tool call.\n• Prefer lightweight inspection (history, tabs, DOM extraction) before triggering heavier actions.\n\nWorkflow\n1. Confirm your objective and current tab context.\n2. Use tab & navigation tools to open or focus the right page.\n3. Extract structured information (dom_extract_*, screenshot, requestInput) instead of guessing.\n4. Record observations and recommend next steps; ask for confirmation before irreversible actions.\n\nSafety\n• Stay within the active browsing session; do not attempt filesystem access or userscript management.\n• Surface uncertainties clearly and request clarification when instructions conflict or lack detail.\n\nYou are a helpful AI assistant with access to tools.# Available Tools\n
-            ${JSON.stringify(this.formattedTools, null, 2)}
-            # Tool Calling Instructions
-            Only request one tool call at a time. Wait for tool results before asking for another tool.
-            To call a tool, output JSON in this exact format inside a \`\`\`tool_call code fence:
-        
-            \`\`\`tool_call
-            {"name": "tool_name", "arguments": {"param1": "value1", "param2": "value2"}}
-            \`\`\`
-        
-            Tool responses will be provided in \`\`\`tool_result fences. Each line contains JSON like:
-            \`\`\`tool_result
-            {"id": "call_123", "name": "tool_name", "result": {...}, "error": false}
-            \`\`\`
-            Use the \`result\` payload (and treat \`error\` as a boolean flag) when continuing the conversation.
-            Important:
-            - Use exact tool and parameter names from the schema above
-            - Arguments must be a valid JSON object matching the tool's parameters
-            - You can include brief reasoning before or after the tool call
-            - If no tool is needed, respond directly without tool_call fences
-            `
-
+        // Merge the System Prompt (with tool definitions) into the message history
+        const systemMessage = systemPromptTemplate(JSON.stringify(this.formattedTools, null, 2));
         const finalMessages = mergeSystemAndMessages(messages, systemMessage);
 
         // Execute prompt
         const responseText = await this.session.prompt([...finalMessages], promptOptions);
 
+        // Parse the full response to check for ```tool_call blocks
         const { toolCall: toolCalls, textPrefix: textContent } = extractToolCall(responseText);
 
-        // If tool calls were found
+        // 1. Handle Tool Calls Found in response
         if (toolCalls && toolCalls.length > 0) {
-
-            const firstBatch = toolCalls.slice(0, 1);
+            const firstBatch = toolCalls.slice(0, 1); // Logic currently only handles one batch/tool at a time
             const content = [];
 
             if (textContent) {
-                content.push({
-                    type: "text",
-                    text: textContent
-                });
+                content.push({ type: "text", text: textContent });
             }
 
             for (const call of firstBatch) {
@@ -173,93 +195,51 @@ class ChromeAILanguageModel {
             return {
                 content,
                 finishReason: "tool-calls",
-                usage: {
-                    inputTokens: undefined,
-                    outputTokens: undefined,
-                    totalTokens: undefined
-                },
-                request: {
-                    body: { messages: finalMessages, options: promptOptions }
-                },
+                usage: { inputTokens: undefined, outputTokens: undefined, totalTokens: undefined },
+                request: { body: { messages: finalMessages, options: promptOptions } },
             };
         }
 
+        // 2. Handle Plain Text response
         return {
             content: [{ type: "text", text: textContent || responseText }],
             finishReason: "stop",
-            usage: {
-                inputTokens: undefined,
-                outputTokens: undefined,
-                totalTokens: undefined
-            },
-            request: {
-                body: { messages: finalMessages, options: promptOptions }
-            },
+            usage: { inputTokens: undefined, outputTokens: undefined, totalTokens: undefined },
+            request: { body: { messages: finalMessages, options: promptOptions } },
         };
     }
 
     /**
      * Handles streaming generation.
+     * This is complex because we must scan the stream for ` ```tool_call ` fences.
+     * If a fence is detecting, we suppress the raw text and emit `tool-call` events instead.
      */
-    async doStream(callOptions) {
-        const args = this.getArgs(callOptions);
-        const {
-            messages,
-            promptOptions,
-        } = args;
+    async doStream(callOptions: LanguageModelV1CallOptions) {
+        const { messages, promptOptions } = this.getArgs(callOptions);
 
         await this.getSession();
+        if (!this.session) return;
 
-        if (!this.session) {
-            return;
-        }
-
-        const systemMessage = `
-            You are the WebMCP Browsing Agent. Investigate pages, gather context, and guide the user through the browser using Model Context Protocol tools.\n\nBehavior\n• Operate entirely through the provided MCP tools—never assume page state without verifying.\n• Narrate intentions before acting and summarize findings after each tool call.\n• Prefer lightweight inspection (history, tabs, DOM extraction) before triggering heavier actions.\n\nWorkflow\n1. Confirm your objective and current tab context.\n2. Use tab & navigation tools to open or focus the right page.\n3. Extract structured information (dom_extract_*, screenshot, requestInput) instead of guessing.\n4. Record observations and recommend next steps; ask for confirmation before irreversible actions.\n\nSafety\n• Stay within the active browsing session; do not attempt filesystem access or userscript management.\n• Surface uncertainties clearly and request clarification when instructions conflict or lack detail.\n\nYou are a helpful AI assistant with access to tools.# Available Tools\n
-            ${JSON.stringify(this.formattedTools, null, 2)}
-            # Tool Calling Instructions
-            Only request one tool call at a time. Wait for tool results before asking for another tool.
-            To call a tool, output JSON in this exact format inside a \`\`\`tool_call code fence:
-        
-            \`\`\`tool_call
-            {"name": "tool_name", "arguments": {"param1": "value1", "param2": "value2"}}
-            \`\`\`
-        
-            Tool responses will be provided in \`\`\`tool_result fences. Each line contains JSON like:
-            \`\`\`tool_result
-            {"id": "call_123", "name": "tool_name", "result": {...}, "error": false}
-            \`\`\`
-            Use the \`result\` payload (and treat \`error\` as a boolean flag) when continuing the conversation.
-            Important:
-            - Use exact tool and parameter names from the schema above
-            - Arguments must be a valid JSON object matching the tool's parameters
-            - You can include brief reasoning before or after the tool call
-            - If no tool is needed, respond directly without tool_call fences
-            `
-
+        const systemMessage = systemPromptTemplate(JSON.stringify(this.formattedTools, null, 2));
         const finalMessages = mergeSystemAndMessages(messages, systemMessage);
-        // The Chrome Prompt API requires the full message history for every call
-        const messageContext: {
-            role: string;
-            content: any;
-        }[] = [...finalMessages];
+
+        const messageContext = [...finalMessages];
         const textPartId = "text-0";
 
         return {
             stream: new ReadableStream({
                 start: async (controller) => {
-                    // 1. Emit initial warnings
-                    controller.enqueue({
-                        type: "stream-start",
-                    });
+                    // 1. Emit stream start event
+                    controller.enqueue({ type: "stream-start" });
 
-                    // State tracking variables
+                    // Stream State Tracking
                     let hasStartedText = false;
                     let hasFinished = false;
                     let isAborted = false;
-                    let activeStreamReader = null;
+                    let activeStreamReader: ReadableStreamDefaultReader<string> | null = null;
 
-                    // Helper to emit text start event
+                    // --- Helper: Event Emitters ---
+
                     const emitTextStart = () => {
                         if (!hasStartedText) {
                             controller.enqueue({ type: "text-start", id: textPartId });
@@ -267,19 +247,13 @@ class ChromeAILanguageModel {
                         }
                     };
 
-                    // Helper to emit text delta
-                    const emitTextDelta = (delta) => {
+                    const emitTextDelta = (delta: string) => {
                         if (delta) {
                             emitTextStart();
-                            controller.enqueue({
-                                type: "text-delta",
-                                id: textPartId,
-                                delta: delta
-                            });
+                            controller.enqueue({ type: "text-delta", id: textPartId, delta });
                         }
                     };
 
-                    // Helper to emit text end
                     const emitTextEnd = () => {
                         if (hasStartedText) {
                             controller.enqueue({ type: "text-end", id: textPartId });
@@ -287,29 +261,25 @@ class ChromeAILanguageModel {
                         }
                     };
 
-                    // Helper to finalize stream
-                    const finishStream = (reason) => {
+                    const finishStream = (reason: "stop" | "tool-calls" | "length" | "error" | "other") => {
                         if (!hasFinished) {
                             hasFinished = true;
                             emitTextEnd();
                             controller.enqueue({
                                 type: "finish",
                                 finishReason: reason,
-                                usage: {
-                                    outputTokens: undefined,
-                                    totalTokens: undefined
-                                }
+                                usage: { outputTokens: undefined, totalTokens: undefined }
                             });
                             controller.close();
                         }
                     };
 
+                    // --- Helper: Abort Handling ---
+
                     const handleAbort = () => {
                         if (!isAborted) {
                             isAborted = true;
-                            if (activeStreamReader) {
-                                activeStreamReader.cancel().catch(() => { });
-                            }
+                            activeStreamReader?.cancel().catch(() => { });
                             finishStream("stop");
                         }
                     };
@@ -317,38 +287,47 @@ class ChromeAILanguageModel {
                     if (callOptions.abortSignal) {
                         callOptions.abortSignal.addEventListener("abort", handleAbort);
                     }
-                    const MAX_LOOPS = 10;
+
+                    // --- Main Stream Logic ---
+
+                    const MAX_LOOPS = 10; // Safety breaker for recursive/looped generation attempts
                     let loopCount = 0;
+
                     try {
+                        // Helper class that maintains buffer and detects regex patterns across chunks
                         const fenceScanner = new ToolCallParser();
 
                         while (loopCount < MAX_LOOPS && !isAborted && !hasFinished) {
-                            loopCount += 1;
+                            loopCount++;
+
                             if (!this.session) {
                                 finishStream("stop");
                                 return;
                             }
 
+                            // Start the browser stream
+                            //@ts-expect-error -- api unavailable hence the error
                             activeStreamReader = this.session.promptStreaming(messageContext).getReader();
 
-                            let toolCallsFound = [];
+                            // Parsing State
+                            let toolCallsFound: any[] = [];
                             let hasToolCalls = false;
                             let textBuffer = "";
-                            let currentToolCallId = null;
+                            let currentToolCallId: string | null = null;
                             let hasEmittedToolStart = false;
-                            let rawToolBuffer = ""; // Accumulates JSON for tool args
+                            let rawToolBuffer = ""; // Buffers the JSON string inside the fence
                             let processedArgLength = 0;
                             let isInFence = false;
 
-                            while (!isAborted) {
+                            // Read Loop
+                            while (!isAborted && activeStreamReader) {
                                 const { done, value: chunk } = await activeStreamReader.read();
-                                if (done) {
-                                    break;
-                                }
+                                if (done) break;
 
-                                // Add chunk to fence scanner to detect tool blocks
+                                // 1. Feed chunk to scanner
                                 fenceScanner.addChunk(chunk);
 
+                                // 2. Process scanner buffer
                                 while (fenceScanner.hasContent()) {
                                     const wasInFence = isInFence;
                                     const scanResult = fenceScanner.detectStreamingFence();
@@ -356,27 +335,33 @@ class ChromeAILanguageModel {
 
                                     let processedContent = false;
 
+                                    // Case A: Just entered a fence (Transition In)
                                     if (!wasInFence && scanResult.inFence) {
+                                        // Flush any safe text before the fence started
                                         if (scanResult.safeContent) {
                                             emitTextDelta(scanResult.safeContent);
                                             processedContent = true;
                                         }
-                                        // Generate ID for potential tool call
+
+                                        // Initialize new Tool Call
                                         currentToolCallId = `call_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
                                         hasEmittedToolStart = false;
                                         rawToolBuffer = "";
                                         processedArgLength = 0;
                                         isInFence = true;
-                                        continue;
+                                        continue; // Loop to process next part of buffer
                                     }
 
-
+                                    // Case B: Just exited a fence (Transition Out / Complete)
                                     if (scanResult.completeFence) {
                                         processedContent = true;
+
+                                        // Add final piece of content to buffer
                                         if (scanResult.safeContent) {
                                             rawToolBuffer += scanResult.safeContent;
                                         }
 
+                                        // Flush any remaining arguments
                                         if (hasEmittedToolStart && currentToolCallId) {
                                             const allArgs = extractArguments(rawToolBuffer);
                                             if (allArgs.length > processedArgLength) {
@@ -392,17 +377,20 @@ class ChromeAILanguageModel {
                                             }
                                         }
 
+                                        // Parse the full block to confirm it's a valid tool call
                                         const parsedCalls = extractToolCalls(scanResult.completeFence).toolCalls.slice(0, 1);
 
                                         if (parsedCalls.length === 0) {
-                                            // False alarm, was just code block
+                                            // FALSE ALARM: It was just a regular code block, not a tool_call.
+                                            // Emit the raw markdown we buffered back to the user as text.
                                             toolCallsFound = [];
                                             hasToolCalls = false;
                                             emitTextDelta(scanResult.completeFence);
                                             if (scanResult.textAfterFence) {
                                                 emitTextDelta(scanResult.textAfterFence);
                                             }
-                                            // Reset state
+
+                                            // Reset State
                                             currentToolCallId = null;
                                             hasEmittedToolStart = false;
                                             rawToolBuffer = "";
@@ -411,6 +399,7 @@ class ChromeAILanguageModel {
                                             continue;
                                         }
 
+                                        // VALID TOOL CALL
                                         if (parsedCalls.length > 0 && currentToolCallId) {
                                             parsedCalls[0].toolCallId = currentToolCallId;
                                         }
@@ -418,35 +407,30 @@ class ChromeAILanguageModel {
                                         toolCallsFound = parsedCalls;
                                         hasToolCalls = toolCallsFound.length > 0;
 
+                                        // Emit final Tool Call events
                                         for (const [idx, tool] of toolCallsFound.entries()) {
                                             const callId: string = (idx === 0 && currentToolCallId) ? currentToolCallId : tool.toolCallId;
                                             const name = tool.toolName;
                                             const argsString = JSON.stringify(tool.args ?? {});
 
                                             if (callId === currentToolCallId) {
+                                                // Ensure start event was sent
                                                 if (!hasEmittedToolStart) {
-                                                    controller.enqueue({
-                                                        type: "tool-input-start",
-                                                        id: callId,
-                                                        toolName: name
-                                                    });
+                                                    controller.enqueue({ type: "tool-input-start", id: callId, toolName: name });
                                                     hasEmittedToolStart = true;
                                                 }
-                                                // Ensure args are synced
+
+                                                // Sync final args delta
                                                 const currentArgs = extractArguments(rawToolBuffer);
                                                 if (currentArgs.length > processedArgLength) {
                                                     const diff = currentArgs.slice(processedArgLength);
                                                     processedArgLength = currentArgs.length;
                                                     if (diff.length > 0) {
-                                                        controller.enqueue({
-                                                            type: "tool-input-delta",
-                                                            id: callId,
-                                                            delta: diff
-                                                        });
+                                                        controller.enqueue({ type: "tool-input-delta", id: callId, delta: diff });
                                                     }
                                                 }
                                             } else {
-                                                // Secondary calls in same block (rare)
+                                                // Secondary calls in same block (rare edge case)
                                                 controller.enqueue({ type: "tool-input-start", id: callId, toolName: name });
                                                 if (argsString.length > 0) {
                                                     controller.enqueue({ type: "tool-input-delta", id: callId, delta: argsString });
@@ -469,13 +453,14 @@ class ChromeAILanguageModel {
 
                                         processedContent = true;
 
-                                        // Stop streaming text if we found a tool
+                                        // Stop reading the browser stream immediately if we found a tool.
+                                        // We need to yield control back to the runtime to execute the tool.
                                         if (hasToolCalls && activeStreamReader) {
                                             await activeStreamReader.cancel().catch(() => { });
-                                            break; // Break the inner loop
+                                            break; // Break the inner Read Loop
                                         }
 
-                                        // Reset state
+                                        // Reset State
                                         currentToolCallId = null;
                                         hasEmittedToolStart = false;
                                         rawToolBuffer = "";
@@ -484,12 +469,13 @@ class ChromeAILanguageModel {
                                         continue;
                                     }
 
-                                    // 3. Inside a fence (streaming tool args)
+                                    // Case C: Inside a fence (Streaming Args)
                                     if (isInFence) {
                                         if (scanResult.safeContent) {
                                             rawToolBuffer += scanResult.safeContent;
                                             processedContent = true;
 
+                                            // Try to extract tool name early
                                             const extractedName = extractToolName(rawToolBuffer);
                                             if (extractedName && !hasEmittedToolStart && currentToolCallId) {
                                                 controller.enqueue({
@@ -500,6 +486,7 @@ class ChromeAILanguageModel {
                                                 hasEmittedToolStart = true;
                                             }
 
+                                            // Streaming JSON arguments
                                             if (hasEmittedToolStart && currentToolCallId) {
                                                 const currentArgs = extractArguments(rawToolBuffer);
                                                 if (currentArgs.length > processedArgLength) {
@@ -518,31 +505,28 @@ class ChromeAILanguageModel {
                                         continue;
                                     }
 
+                                    // Case D: Regular Text
                                     if (!isInFence && scanResult.safeContent) {
                                         emitTextDelta(scanResult.safeContent);
                                         processedContent = true;
                                     }
 
-                                    if (!processedContent){
-                                        break;
-                                    }
+                                    if (!processedContent) break;
                                 }
 
-                                if (hasToolCalls) {
-                                    break;
-                                }
-                            }
+                                if (hasToolCalls) break;
+                            } // End Read Loop
 
                             activeStreamReader = null;
-                            if (isAborted) {
-                                return;
-                            }
+                            if (isAborted) return;
 
+                            // Check for leftovers in buffer
                             if (!hasToolCalls && fenceScanner.hasContent()) {
                                 emitTextDelta(fenceScanner.getBuffer());
                                 fenceScanner.clearBuffer();
                             }
 
+                            // Finalize stream based on what we found
                             if (!hasToolCalls || toolCallsFound.length === 0) {
                                 finishStream("stop");
                                 return;
@@ -556,6 +540,7 @@ class ChromeAILanguageModel {
                             return;
                         }
 
+                        // Fallback if loop finishes naturally without specific exit
                         if (!hasFinished && !isAborted) {
                             finishStream("other");
                         }

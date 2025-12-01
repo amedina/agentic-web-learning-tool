@@ -16,6 +16,7 @@ import type { AssistantRuntime } from "@assistant-ui/react";
  * Internal dependencies
  */
 import ChromeAILanguageModel from "./chromeAILanguageModel";
+import { systemPromptTemplate } from "../../utils";
 
 type SendMessagesParams = {
     /** The type of message submission - either new message or regeneration */
@@ -29,31 +30,6 @@ type SendMessagesParams = {
     /** Signal to abort the request if needed */
     abortSignal: AbortSignal | undefined;
 } & ChatRequestOptions
-
-/**
- * A type-safe declaration for the experimental Gemini Nano
- * API available on the `window` object in supported browsers
- * (like Chrome).
- */
-declare global {
-    interface Window {
-        LanguageModel?: LanguageModel;
-    }
-    interface LanguageModel {
-        availability(): Promise<"available" | "readily" | "after-download" | "unavailable">;
-        create(args: Record<string, any>): Promise<LanguageModelSession>;
-    }
-    interface LanguageModelSession {
-        promptStreaming(prompt: {
-            role: string;
-            content: any;
-        }[]): AsyncIterable<string>;
-        prompt(prompt: {
-            role: string;
-            content: any;
-        }[], promptOptions: Record<string, any>): Promise<string>;
-    }
-}
 
 /**
  * A custom ChatTransport for interfacing with the on-device
@@ -141,25 +117,7 @@ export class GeminiNanoChatTransport implements ChatTransport<UIMessage> {
                             }
                         },
                         stopWhen: ({steps}) => steps.length === 100,
-                        system: `You are the WebMCP Browsing Agent. Investigate pages, gather context, and guide the user through the browser using Model Context Protocol tools.\n\nBehavior\n• Operate entirely through the provided MCP tools—never assume page state without verifying.\n• Narrate intentions before acting and summarize findings after each tool call.\n• Prefer lightweight inspection (history, tabs, DOM extraction) before triggering heavier actions.\n\nWorkflow\n1. Confirm your objective and current tab context.\n2. Use tab & navigation tools to open or focus the right page.\n3. Extract structured information (dom_extract_*, screenshot, requestInput) instead of guessing.\n4. Record observations and recommend next steps; ask for confirmation before irreversible actions.\n\nSafety\n• Stay within the active browsing session; do not attempt filesystem access or userscript management.\n• Surface uncertainties clearly and request clarification when instructions conflict or lack detail.\n\nYou are a helpful AI assistant with access to tools.# Available Tools\n
-                        ${JSON.stringify(this.formattedTools, null, 2)}
-                        # Tool Calling Instructions
-                        Only request one tool call at a time. Wait for tool results before asking for another tool.
-                        To call a tool, output JSON in this exact format inside a \`\`\`tool_call code fence:
-                        \`\`\`tool_call
-                            {"name": "tool_name", "arguments": {"param1": "value1", "param2": "value2"}}
-                        \`\`\`
-                        Tool responses will be provided in \`\`\`tool_result fences. Each line contains JSON like:
-                        \`\`\`tool_result
-                            {"id": "call_123", "name": "tool_name", "result": {...}, "error": false}
-                        \`\`\`
-                        Use the \`result\` payload (and treat \`error\` as a boolean flag) when continuing the conversation.
-                        Important:
-                            - Use exact tool and parameter names from the schema above
-                            - Arguments must be a valid JSON object matching the tool's parameters
-                            - You can include brief reasoning before or after the tool call
-                            - If no tool is needed, respond directly without tool_call fences
-                    ` ,
+                        system: systemPromptTemplate(JSON.stringify(this.formattedTools, null, 2)),
 
                         onError: (err) => {
                             console.error(`AI SDK error [chatId=]:`, err.error);

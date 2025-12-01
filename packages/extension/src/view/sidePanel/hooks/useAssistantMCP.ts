@@ -144,7 +144,7 @@ export function useAssistantMCP(
                 { signal }
               );
 
-              return formatToolResult(toolResult.content);
+              return formatToolResult(toolResult.content as CallToolResult['content']);
             } catch (error) {
               console.error(`[useAssistantMCP] Tool execution failed for '${logName}':`, error);
               // Rethrow so the Assistant UI knows the tool failed
