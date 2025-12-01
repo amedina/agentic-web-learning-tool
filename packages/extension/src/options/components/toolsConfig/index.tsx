@@ -3,14 +3,16 @@ import { Save, Settings, X } from 'lucide-react';
 import { useApi } from '../../store';
 import {
 	PromptApiToolConfig,
-	RewriterApi,
+	ProofreaderApiToolConfig,
+	RewriterApiToolConfig,
 	WriterApiToolConfig,
 } from '../tools/builtinAITools/tools';
 
 const TOOLS = {
 	promptApi: PromptApiToolConfig,
 	writerApi: WriterApiToolConfig,
-	rewriterApi: RewriterApi,
+	rewriterApi: RewriterApiToolConfig,
+	proofreaderApi: ProofreaderApiToolConfig,
 };
 
 const ToolsConfig = () => {
