@@ -11,7 +11,7 @@ import { useEffect } from "react";
  * Internal dependencies
  */
 import { ChatBotUI } from "./components";
-import { GeminiNanoChatTransport } from "./transports/gemini/GeminiLocalTransport";
+import { GeminiNanoChatTransport } from "./transports/geminiNano";
 
 const geminiNanoTransport = new GeminiNanoChatTransport();
 

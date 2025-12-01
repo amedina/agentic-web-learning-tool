@@ -1,8 +1,12 @@
+/**
+ * External dependencies
+ */
 import type { AssistantRuntime } from "@assistant-ui/react";
 
-
-import { ToolCallParser } from "./utils/toolCallParser";
-import { extractArguments, convertMessages, extractToolCall, extractToolCalls, extractToolName, mergeSystemAndMessages } from "./utils";
+/**
+ * Internal dependencies
+ */
+import { ToolCallParser, extractArguments, convertMessages, extractToolCall, extractToolCalls, extractToolName, mergeSystemAndMessages } from "../../utils";
 import type { ToolCallRequest } from "../../types";
 
 /**

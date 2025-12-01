@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import {
     convertToModelMessages,
     createUIMessageStream,
@@ -9,7 +12,10 @@ import {
 } from "ai";
 import { type LanguageModelV2 } from '@ai-sdk/provider';
 import type { AssistantRuntime } from "@assistant-ui/react";
-import ChromeAILanguageModel from "./chromeAI";
+/**
+ * Internal dependencies
+ */
+import ChromeAILanguageModel from "./chromeAILanguageModel";
 
 type SendMessagesParams = {
     /** The type of message submission - either new message or regeneration */

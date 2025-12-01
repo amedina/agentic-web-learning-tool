@@ -13,7 +13,7 @@ import { useEffect } from "react";
 /**
  * Internal dependencies
  */
-import { useAssistantMCP } from "../../hooks/useAssistantMCP";
+import { useAssistantMCP } from "../../hooks";
 import ChatMessage from "./chatMessage";
 import { transport } from "../../../../utils/transports";
 
