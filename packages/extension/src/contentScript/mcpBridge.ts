@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { CONNECTION_NAMES } from "@/utils/constants";
 import { TabClientTransport } from "@mcp-b/transports";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 let connected = false;
@@ -18,7 +19,7 @@ try {
         });
 
         const backgroundPort = chrome.runtime.connect({
-            name: "mcp-content-script-proxy",
+            name: CONNECTION_NAMES.CONTENT_SCRIPT,
         });
 
         //Need to set interval because the TabServerTransport might not be ready to accept connections yet

@@ -4,14 +4,33 @@
 import {
   ComposerPrimitive,
   ThreadPrimitive,
+  useAssistantState,
+  type AssistantRuntime 
 } from "@assistant-ui/react";
 import { ArrowUpIcon } from "@radix-ui/react-icons";
+import { useMcpClient } from '@mcp-b/mcp-react-hooks';
+import { useEffect } from "react";
 /**
  * Internal dependencies
  */
+import { useAssistantMCP } from "../../hooks/useAssistantMCP";
 import ChatMessage from "./chatMessage";
+import { transport } from "../../../../utils/transports";
 
-const ChatBotUI = () => {
+type ChatBotUIProps = {
+    runtime: AssistantRuntime
+}
+
+const ChatBotUI = ({runtime}: ChatBotUIProps) => {
+  useEffect(() => {
+    (async() => client.connect(transport))();
+  }, []);
+
+  const { client, tools } = useMcpClient();
+
+  const threadId = useAssistantState(({threadListItem}) => threadListItem.id);
+  //@ts-expect-error -- Mismatch in versions being used by library
+  useAssistantMCP(tools, client, threadId, runtime);
 
   return (
     <ThreadPrimitive.Root className="flex h-full flex-col items-stretch bg-[#2b2a27] px-4 pt-16 font-serif">
