@@ -9,7 +9,10 @@ import {
 } from '@xyflow/react';
 import Context, { FlowCleaner, type EdgeType, type NodeType } from './context';
 import { useApi } from '../api';
-import { PromptApiToolNode } from '../../components/tools/builtinAITools/tools';
+import {
+	PromptApiToolNode,
+	WriterApiToolNode,
+} from '../../components/tools/builtinAITools/tools';
 
 const initialNodes: NodeType[] = [
 	{ id: 'n1', position: { x: 0, y: 0 }, data: { label: 'Node 1' } },
@@ -23,6 +26,7 @@ const FlowProvider = ({ children }: PropsWithChildren) => {
 	const nodeTypes = useMemo(
 		() => ({
 			promptApi: PromptApiToolNode,
+			writerApi: WriterApiToolNode,
 		}),
 		[]
 	);

@@ -1,9 +1,10 @@
-import { PromptApi } from './tools';
+import { PromptApi, WriterApi } from './tools';
 
 const BuiltInAITools = () => {
 	return (
-		<div>
+		<div className="w-full">
 			<PromptApi />
+			<WriterApi />
 		</div>
 	);
 };

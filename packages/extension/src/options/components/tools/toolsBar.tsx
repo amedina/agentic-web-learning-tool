@@ -11,7 +11,7 @@ const ToolsBar = () => {
 			</div>
 
 			<div className="p-4 space-y-6">
-				<div>
+				<div className='w-full'>
 					<h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
 						Gemini Nano APIs
 					</h3>

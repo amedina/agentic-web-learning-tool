@@ -1,10 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Save, Settings, X } from 'lucide-react';
 import { useApi } from '../../store';
-import { PromptApiToolConfig } from '../tools/builtinAITools/tools';
+import {
+	PromptApiToolConfig,
+	WriterApiToolConfig,
+} from '../tools/builtinAITools/tools';
 
 const TOOLS = {
 	promptApi: PromptApiToolConfig,
+	writerApi: WriterApiToolConfig,
 };
 
 const ToolsConfig = () => {
