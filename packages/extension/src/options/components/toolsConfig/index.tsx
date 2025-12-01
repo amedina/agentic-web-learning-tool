@@ -5,6 +5,8 @@ import {
 	PromptApiToolConfig,
 	ProofreaderApiToolConfig,
 	RewriterApiToolConfig,
+	SummarizerApiToolConfig,
+	TranslatorApiToolConfig,
 	WriterApiToolConfig,
 } from '../tools/builtinAITools/tools';
 
@@ -13,6 +15,9 @@ const TOOLS = {
 	writerApi: WriterApiToolConfig,
 	rewriterApi: RewriterApiToolConfig,
 	proofreaderApi: ProofreaderApiToolConfig,
+	translatorApi: TranslatorApiToolConfig,
+	languageDetectorApi: null,
+	summarizerApi: SummarizerApiToolConfig,
 };
 
 const ToolsConfig = () => {

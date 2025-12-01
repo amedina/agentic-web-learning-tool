@@ -10,11 +10,14 @@ import {
 import Context, { FlowCleaner, type EdgeType, type NodeType } from './context';
 import { useApi } from '../api';
 import {
+	LanguageDetectorApiToolNode,
 	PromptApiToolNode,
 	ProofreaderApiToolNode,
 	RewriterApiToolNode,
+	SummarizerApiToolNode,
+	TranslatorApiToolNode,
 	WriterApiToolNode,
-} from '../../components/tools/builtinAITools/tools';
+} from '../../components';
 
 const initialNodes: NodeType[] = [
 	{ id: 'n1', position: { x: 0, y: 0 }, data: { label: 'Node 1' } },
@@ -31,6 +34,9 @@ const FlowProvider = ({ children }: PropsWithChildren) => {
 			writerApi: WriterApiToolNode,
 			rewriterApi: RewriterApiToolNode,
 			proofreaderApi: ProofreaderApiToolNode,
+			translatorApi: TranslatorApiToolNode,
+			languageDetectorApi: LanguageDetectorApiToolNode,
+			summarizerApi: SummarizerApiToolNode,
 		}),
 		[]
 	);

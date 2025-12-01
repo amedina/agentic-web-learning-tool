@@ -111,7 +111,7 @@ const ToolConfig = ({ ref, node }: ToolConfigProps) => {
 							onChange={(e) => setFormat(e.target.value)}
 						>
 							<option value="markdown">Markdown</option>
-							<option value="plain">Plain Text</option>
+							<option value="plain-text">Plain Text</option>
 						</select>
 					</div>
 

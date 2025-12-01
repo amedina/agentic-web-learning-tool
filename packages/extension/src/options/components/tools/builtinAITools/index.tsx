@@ -1,4 +1,12 @@
-import { PromptApi, ProofreaderApi, RewriterApi, WriterApi } from './tools';
+import {
+	LanguageDetectorApi,
+	PromptApi,
+	ProofreaderApi,
+	RewriterApi,
+	SummarizerApi,
+	TranslatorApi,
+	WriterApi,
+} from './tools';
 
 const BuiltInAITools = () => {
 	return (
@@ -7,6 +15,9 @@ const BuiltInAITools = () => {
 			<WriterApi />
 			<RewriterApi />
 			<ProofreaderApi />
+			<TranslatorApi />
+			<LanguageDetectorApi />
+			<SummarizerApi />
 		</div>
 	);
 };
