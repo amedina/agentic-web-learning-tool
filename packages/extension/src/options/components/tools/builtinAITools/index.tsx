@@ -1,9 +1,9 @@
-import PromptAPI from './toolNodes/promptAPI';
+import { PromptApi } from './tools';
 
 const BuiltInAITools = () => {
 	return (
 		<div>
-			<PromptAPI />
+			<PromptApi />
 		</div>
 	);
 };

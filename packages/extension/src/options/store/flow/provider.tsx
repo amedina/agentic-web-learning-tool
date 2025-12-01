@@ -8,8 +8,8 @@ import {
 	type NodeChange,
 } from '@xyflow/react';
 import Context, { FlowCleaner, type EdgeType, type NodeType } from './context';
-import { PromptAPINode } from '../../components/tools/builtinAITools/toolNodes';
 import { useApi } from '../api';
+import { PromptApiToolNode } from '../../components/tools/builtinAITools/tools';
 
 const initialNodes: NodeType[] = [
 	{ id: 'n1', position: { x: 0, y: 0 }, data: { label: 'Node 1' } },
@@ -22,7 +22,7 @@ const FlowProvider = ({ children }: PropsWithChildren) => {
 	const [edges, setEdges] = useState(initialEdges);
 	const nodeTypes = useMemo(
 		() => ({
-			promptApi: PromptAPINode,
+			promptApi: PromptApiToolNode,
 		}),
 		[]
 	);
@@ -45,14 +45,17 @@ const FlowProvider = ({ children }: PropsWithChildren) => {
 		[]
 	);
 
-	const deleteNode = useCallback((id: string) => {
-		setNodes((prev) => prev.filter((node) => node.id !== id));
-		removeNode(id);
+	const deleteNode = useCallback(
+		(id: string) => {
+			setNodes((prev) => prev.filter((node) => node.id !== id));
+			removeNode(id);
 
-		setEdges((prev) =>
-			prev.filter((edge) => edge.source !== id && edge.target !== id)
-		);
-	}, [removeNode]);
+			setEdges((prev) =>
+				prev.filter((edge) => edge.source !== id && edge.target !== id)
+			);
+		},
+		[removeNode]
+	);
 
 	const deleteEdge = useCallback((id: string) => {
 		setEdges((prev) => prev.filter((edge) => edge.id !== id));

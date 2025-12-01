@@ -26,14 +26,14 @@ const ToolConfig = ({ ref, node }: ToolConfigProps) => {
 
 	const [initialPrompts, setInitialPrompts] = useState<
 		{ role: string; content: string }[]
-	>((node.config.initialPrompts || '[]'));
+	>(node.config.initialPrompts || '[]');
 
 	useEffect(() => {
 		setTopK(node.config.topK || 3);
 		setTemperature(node.config.temperature || 0.7);
 		setLanguageInput(node.config.expectedInputs?.[0]?.languages || []);
 		setLanguageOutput(node.config.expectedOutputs?.[0]?.languages || []);
-		setInitialPrompts((node.config.initialPrompts || '[]'));
+		setInitialPrompts(node.config.initialPrompts || '[]');
 	}, [node]);
 
 	useImperativeHandle(
@@ -65,7 +65,7 @@ const ToolConfig = ({ ref, node }: ToolConfigProps) => {
 							languages: languageOutput,
 						},
 					],
-					initialPrompts: (initialPrompts),
+					initialPrompts: initialPrompts,
 				};
 			},
 		}),
@@ -215,9 +215,7 @@ const ToolConfig = ({ ref, node }: ToolConfigProps) => {
 							className="w-full p-3 border border-slate-300 rounded-md bg-white font-mono text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 resize-vertical"
 							onChange={(e) => {
 								try {
-									setInitialPrompts(
-										(e.target.value)
-									);
+									setInitialPrompts(e.target.value);
 								} catch {
 									// Invalid JSON, keep previous value
 								}

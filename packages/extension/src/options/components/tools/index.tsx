@@ -1,6 +1,6 @@
 import BuiltInAITools from './builtinAITools';
 
-const Tools = () => {
+const ToolsBar = () => {
 	return (
 		<div className="w-64 bg-slate-50 border-r border-slate-200 h-full flex flex-col overflow-y-auto">
 			<div className="p-4 border-b border-slate-200 bg-white">
@@ -40,4 +40,4 @@ const Tools = () => {
 	);
 };
 
-export default Tools;
+export default ToolsBar;

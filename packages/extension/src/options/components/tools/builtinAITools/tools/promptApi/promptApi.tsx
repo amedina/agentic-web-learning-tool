@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { NotebookTextIcon } from 'lucide-react';
 import { useApi, useFlow } from '../../../../../store';
-import ToolItem from '../../../ui/toolItem';
+import { ToolItem } from '../../../ui';
 
 const createConfig = () => {
 	return {
@@ -21,7 +21,7 @@ const createConfig = () => {
 	};
 };
 
-const PromptAPI = () => {
+const PromptApi = () => {
 	const { addFlowNode } = useFlow(({ actions }) => ({
 		addFlowNode: actions.addNode,
 	}));
@@ -30,7 +30,7 @@ const PromptAPI = () => {
 		addApiNode: actions.addNode,
 	}));
 
-	const addPromptAPINode = useCallback(() => {
+	const addPromptApiNode = useCallback(() => {
 		const config = createConfig();
 		const id = new Date().getTime().toString();
 
@@ -53,10 +53,10 @@ const PromptAPI = () => {
 	return (
 		<ToolItem
 			label="Prompt API"
-			onClick={addPromptAPINode}
+			onClick={addPromptApiNode}
 			Icon={NotebookTextIcon}
 		/>
 	);
 };
 
-export default PromptAPI;
+export default PromptApi;

@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useApi } from '../../../store';
-import { PromptAPINodeConfig } from '../builtinAITools/toolNodes';
 import { Save, Settings, X } from 'lucide-react';
+import { PromptApiToolConfig } from '../builtinAITools/tools';
+import { useApi } from '../../../store';
 
 const TOOLS = {
-	promptApi: PromptAPINodeConfig,
+	promptApi: PromptApiToolConfig,
 };
 
 const ToolsConfig = () => {
@@ -138,6 +138,7 @@ const ToolsConfig = () => {
 							rows={3}
 							value={context || ''}
 							id="context"
+							name="context"
 							onChange={(e) => setContext(e.target.value)}
 							placeholder="Enter context for the tool..."
 						/>

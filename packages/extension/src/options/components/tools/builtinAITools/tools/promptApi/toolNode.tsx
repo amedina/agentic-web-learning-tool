@@ -1,9 +1,9 @@
 import { useMemo } from 'react';
 import { Handle, Position, useNodeId } from '@xyflow/react';
 import { useApi, useFlow } from '../../../../../store';
-import ToolNodeContainer from '../../../ui/toolNodeContainer';
+import { ToolNodeContainer } from '../../../ui';
 
-const PromptAPINode = () => {
+const ToolNode = () => {
 	const nodeId = useNodeId();
 	const { getNode, selectedNode, setSelectedNode } = useApi(
 		({ state, actions }) => ({
@@ -99,4 +99,4 @@ const PromptAPINode = () => {
 	);
 };
 
-export default PromptAPINode;
+export default ToolNode;
