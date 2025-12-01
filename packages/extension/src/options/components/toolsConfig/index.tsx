@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Save, Settings, X } from 'lucide-react';
-import { PromptApiToolConfig } from '../builtinAITools/tools';
-import { useApi } from '../../../store';
+import { useApi } from '../../store';
+import { PromptApiToolConfig } from '../tools/builtinAITools/tools';
 
 const TOOLS = {
 	promptApi: PromptApiToolConfig,

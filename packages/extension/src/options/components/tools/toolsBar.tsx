@@ -1,4 +1,4 @@
-import BuiltInAITools from './builtinAITools';
+import { BuiltInAIToolsBar } from '.';
 
 const ToolsBar = () => {
 	return (
@@ -15,7 +15,7 @@ const ToolsBar = () => {
 					<h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
 						Gemini Nano APIs
 					</h3>
-					<BuiltInAITools />
+					<BuiltInAIToolsBar />
 				</div>
 
 				<div>

@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { Handle, Position, useNodeId } from '@xyflow/react';
 import { useApi, useFlow } from '../../../../../store';
-import { ToolNodeContainer } from '../../../ui';
+import { ToolNodeContainer } from '../../../../ui';
 
 const ToolNode = () => {
 	const nodeId = useNodeId();

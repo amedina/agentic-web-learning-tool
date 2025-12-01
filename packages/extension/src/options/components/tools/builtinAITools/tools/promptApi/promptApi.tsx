@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { NotebookTextIcon } from 'lucide-react';
 import { useApi, useFlow } from '../../../../../store';
-import { ToolItem } from '../../../ui';
+import { ToolItem } from '../../../../ui';
 
 const createConfig = () => {
 	return {
