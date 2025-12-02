@@ -21,10 +21,10 @@ const ToolNodeContainer = ({
 }: PropsWithChildren<ToolNodeContainerProps>) => {
 	return (
 		<div
-			className={`bg-white rounded-lg shadow-md border-2 min-w-[250px] transition-all ${selected ? 'border-indigo-500 shadow-lg' : 'border-slate-200'}`}
+			className={`bg-white rounded-lg shadow-md border-2 w-[300px] transition-all ${selected ? 'border-indigo-500 shadow-lg' : 'border-slate-200'}`}
 		>
 			<div
-				className={`flex items-center justify-between p-2 rounded-t-md border-b border-slate-100 ${selected ? 'bg-indigo-50' : 'bg-slate-50'}`}
+				className={`w-full flex items-center justify-between p-2 rounded-t-md border-b border-slate-100 ${selected ? 'bg-indigo-50' : 'bg-slate-50'}`}
 			>
 				<div className="flex items-center gap-2 text-slate-700">
 					<Icon size={16} className="text-indigo-600" />
@@ -50,7 +50,7 @@ const ToolNodeContainer = ({
 					</button>
 				</div>
 			</div>
-			<div className="p-3">{children}</div>
+			<div className="w-full p-3">{children}</div>
 		</div>
 	);
 };

@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
-import { Languages } from 'lucide-react';
 import { Handle, Position, useNodeId } from '@xyflow/react';
+import { Languages } from 'lucide-react';
 import { useApi, useFlow } from '../../../../../store';
 import { ToolNodeContainer } from '../../../../ui';
 
@@ -44,23 +44,24 @@ const ToolNode = () => {
 				}
 			}}
 		>
-			<div className="h-full min-h-[120px]">
-				<div className="bg-linear-to-br from-blue-50 to-indigo-50 rounded-md p-3 mb-4 border border-blue-100">
-					<p className="text-sm text-slate-700 leading-relaxed">
+			<div className="h-fit min-h-[120px] w-full flex flex-col">
+				<div className="w-full bg-linear-to-br from-blue-50 to-indigo-50 rounded-md p-3 mb-4 border border-blue-100">
+					<p className="truncate text-sm text-slate-700 leading-relaxed">
 						{config.context}
 					</p>
 				</div>
-				<Handle
-					type="target"
-					position={Position.Left}
-					style={{
-						background: 'none',
-						border: 'none',
-						top: '145px',
-					}}
-				>
-					<div className="relative">
-						<div className="flex items-center gap-2 w-fit absolute translate-y-[-50%] top-[2.5px]">
+				<div className="relative w-full flex-1">
+					<Handle
+						type="target"
+						position={Position.Left}
+						style={{
+							background: 'none',
+							border: 'none',
+							top: '20px',
+							left: '-10px'
+						}}
+					>
+						<div className="flex items-center gap-2 w-fit absolute -translate-x-[7%] translate-y-[-50%] top-[2.5px]">
 							<div className="min-w-3 h-3 bg-blue-500 rounded-full shadow-sm"></div>
 							<div className="flex flex-col">
 								<span className="text-xs font-semibold text-slate-600">
@@ -71,19 +72,18 @@ const ToolNode = () => {
 								</span>
 							</div>
 						</div>
-					</div>
-				</Handle>
-				<Handle
-					type="source"
-					position={Position.Right}
-					style={{
-						background: 'none',
-						border: 'none',
-						top: '170px',
-					}}
-				>
-					<div className="relative">
-						<div className="flex items-center gap-2 w-fit absolute translate-y-[-50%] translate-x-[-90%] top-[2.5px]">
+					</Handle>
+					<Handle
+						type="source"
+						position={Position.Right}
+						style={{
+							background: 'none',
+							border: 'none',
+							top: '40px',
+							right: '-10px'
+						}}
+					>
+						<div className="flex items-center gap-2 w-fit absolute translate-y-[-50%] -translate-x-[83%] top-[2.5px]">
 							<div className="flex flex-col items-end">
 								<span className="text-xs font-semibold text-slate-600">
 									Output
@@ -94,8 +94,8 @@ const ToolNode = () => {
 							</div>
 							<div className="min-w-3 h-3 bg-green-600 rounded-full shadow-sm"></div>
 						</div>
-					</div>
-				</Handle>
+					</Handle>
+				</div>
 			</div>
 		</ToolNodeContainer>
 	);
