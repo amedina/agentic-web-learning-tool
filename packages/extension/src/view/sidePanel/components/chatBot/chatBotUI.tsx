@@ -46,7 +46,7 @@ const ChatBotUI = ({runtime}: ChatBotUIProps) => {
       <ComposerPrimitive.Root className="mx-auto flex w-full max-w-screen-md flex-col rounded-xl border border-[#6c6a6040] bg-[#393937] p-1.5 m-2">
         <div className="flex">
           <ComposerPrimitive.Input
-            placeholder="Reply to Claude..."
+            placeholder="Reply to Agent..."
             className="h-12 flex-grow resize-none bg-transparent p-3.5 text-sm text-white outline-none placeholder:text-white/50"
           />
           <ComposerPrimitive.Send

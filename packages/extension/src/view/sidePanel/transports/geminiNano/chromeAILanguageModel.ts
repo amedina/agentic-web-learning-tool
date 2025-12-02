@@ -68,7 +68,7 @@ class ChromeAILanguageModel {
     private runtime: AssistantRuntime | null = null;
     private formattedTools: any[] = [];
 
-    public readonly specificationVersion = "v1";
+    public readonly specificationVersion = "v2";
     public readonly provider = "browser-ai";
     public readonly modelId: string;
 
@@ -77,9 +77,16 @@ class ChromeAILanguageModel {
         "image/*": [/^https?:\/\/.+$/],
         "audio/*": [/^https?:\/\/.+$/]
     };
+    // Configuration options for the model
+    config: any;
 
-    constructor(modelId: string) {
+    constructor(modelId: string, options = {}) {
         this.modelId = modelId;
+        this.config = {
+            provider: this.provider,
+            modelId: modelId,
+            options: options
+        };
     }
 
     public setRuntime(runtime: AssistantRuntime) {
@@ -212,7 +219,9 @@ class ChromeAILanguageModel {
         const { messages, promptOptions } = this.getArgs(callOptions);
 
         await this.getSession();
-        if (!this.session) return;
+        if (!this.session) {
+            return;
+        }
 
         const systemMessage = systemPromptTemplate(JSON.stringify(this.formattedTools, null, 2));
         const finalMessages = mergeSystemAndMessages(messages, systemMessage);

@@ -1,9 +1,12 @@
 /**
  * External dependencies
  */
-import { CONNECTION_NAMES } from "@/utils/constants";
 import { TabClientTransport } from "@mcp-b/transports";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+/**
+ * Internal dependencies
+ */
+import { CONNECTION_NAMES } from "..//utils/constants";
 let connected = false;
 try {
     (async () => {
