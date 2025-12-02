@@ -12,6 +12,7 @@ import SidePanel from './sidePanel';
 import { client, transport } from '../../utils/transports';
 
 createRoot(document.getElementById('root')!).render(
+	//@ts-expect-error -- library is still in development and may have some version mismatches.
 	<McpClientProvider client={client} transport={transport} opts={{}}>
 		<StrictMode>
 			<SidePanel />

@@ -1,4 +1,6 @@
-// MockAssistantProvider.tsx
+/**
+ * External dependencies
+ */
 import { type ReactNode } from 'react';
 import { AssistantRuntimeProvider, useLocalRuntime } from '@assistant-ui/react';
 

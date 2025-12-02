@@ -68,7 +68,6 @@ class ChromeAILanguageModel {
     private runtime: AssistantRuntime | null = null;
     private formattedTools: any[] = [];
 
-    // LanguageModelV1 required properties
     public readonly specificationVersion = "v1";
     public readonly provider = "browser-ai";
     public readonly modelId: string;
@@ -79,15 +78,8 @@ class ChromeAILanguageModel {
         "audio/*": [/^https?:\/\/.+$/]
     };
 
-    private config: any;
-
-    constructor(modelId: string, options = {}) {
+    constructor(modelId: string) {
         this.modelId = modelId;
-        this.config = {
-            provider: this.provider,
-            modelId: modelId,
-            options: options
-        };
     }
 
     public setRuntime(runtime: AssistantRuntime) {
@@ -99,7 +91,9 @@ class ChromeAILanguageModel {
      * Converts AssistantUI tools into a JSON schema format understandable by the model.
      */
     private async getSession() {
-        if (!this.runtime) return;
+        if (!this.runtime) {
+            return;
+        }
 
         // Use global window object for Chrome AI
         const lm = window.LanguageModel;

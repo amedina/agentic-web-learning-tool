@@ -4,7 +4,8 @@
 		"jsx": "react-jsx",
 		"esModuleInterop": true,
 		"allowSyntheticDefaultImports": true,
-		"types": ["jest", "chrome", "jest-extended"],
+		"typeRoots": ["./node_modules/@types"],
+		"types": ["jest", "chrome"],
 		"tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
 		"baseUrl": ".",
 		"paths": {
@@ -12,5 +13,5 @@
 		}
 	},
 	"include": ["src", "tests/setupTests.d.ts", "node_modules/jest-extended/types/index.d.ts", "node_modules/@types/chrome/index.d.ts"],
-	"exclude": ["dist", "build", "tests"]
+	"exclude": ["dist", "build", "tests", "node_modules"]
 }

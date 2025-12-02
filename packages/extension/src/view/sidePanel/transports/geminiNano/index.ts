@@ -33,7 +33,7 @@ type SendMessagesParams = {
 
 /**
  * A custom ChatTransport for interfacing with the on-device
- * Gemini Nano API (window.ai.languageModel).
+ * Gemini Nano API (window.languageModel).
  *
  * This transport does not make any network requests. It calls
  * the browser's built-in LanguageModel API directly.
@@ -70,7 +70,7 @@ export class GeminiNanoChatTransport implements ChatTransport<UIMessage> {
             }
 
             this.model = new ChromeAILanguageModel(crypto.randomUUID()) as unknown as LanguageModelV2;
-            if(this.model){
+            if (this.model) {
                 //@ts-expect-error -- Mismatch in versions being used by library
                 this.model.setRuntime(this.runtime);
             }
@@ -104,6 +104,7 @@ export class GeminiNanoChatTransport implements ChatTransport<UIMessage> {
             name: key,
             type: "function"
         }]);
+
         return createUIMessageStream({
             execute: async ({ writer }) => {
                 try {
@@ -116,7 +117,7 @@ export class GeminiNanoChatTransport implements ChatTransport<UIMessage> {
                                 "parallelToolExecution": false
                             }
                         },
-                        stopWhen: ({steps}) => steps.length === 100,
+                        stopWhen: ({ steps }) => steps.length === 100,
                         system: systemPromptTemplate(JSON.stringify(this.formattedTools, null, 2)),
 
                         onError: (err) => {
