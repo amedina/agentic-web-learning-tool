@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { Languages } from 'lucide-react';
 import { Handle, Position, useNodeId } from '@xyflow/react';
 import { useApi, useFlow } from '../../../../../store';
 import { ToolNodeContainer } from '../../../../ui';
@@ -31,6 +32,7 @@ const ToolNode = () => {
 	return (
 		<ToolNodeContainer
 			title={config.title}
+			Icon={Languages}
 			type={config.type || ''}
 			selected={selectedNode === nodeId}
 			onEdit={() => {

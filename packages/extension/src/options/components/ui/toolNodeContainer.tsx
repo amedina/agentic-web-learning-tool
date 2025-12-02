@@ -1,9 +1,10 @@
-import { NotebookText, Pen, X } from 'lucide-react';
-import type { PropsWithChildren } from 'react';
+import { Pen, X } from 'lucide-react';
+import type { JSX, PropsWithChildren } from 'react';
 
 interface ToolNodeContainerProps {
 	title: string;
 	type: string;
+	Icon: JSX.ElementType;
 	selected: boolean;
 	onEdit: () => void;
 	onRemove: () => void;
@@ -13,6 +14,7 @@ const ToolNodeContainer = ({
 	children,
 	title,
 	type,
+	Icon,
 	selected,
 	onEdit,
 	onRemove,
@@ -25,7 +27,7 @@ const ToolNodeContainer = ({
 				className={`flex items-center justify-between p-2 rounded-t-md border-b border-slate-100 ${selected ? 'bg-indigo-50' : 'bg-slate-50'}`}
 			>
 				<div className="flex items-center gap-2 text-slate-700">
-					<NotebookText size={16} className="text-indigo-600" />
+					<Icon size={16} className="text-indigo-600" />
 					<p className="flex flex-col ml-1">
 						<span className="font-semibold text-sm">{title}</span>
 						<span className="font-medium text-[10px] text-gray-400 italic">

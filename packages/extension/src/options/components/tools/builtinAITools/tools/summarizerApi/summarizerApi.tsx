@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { RefreshCcw } from 'lucide-react';
+import { NotepadTextDashed } from 'lucide-react';
 import { useApi, useFlow } from '../../../../../store';
 import { ToolItem } from '../../../../ui';
 
@@ -49,7 +49,7 @@ const SummarizerApi = () => {
 		<ToolItem
 			label="Summarizer API"
 			onClick={addSummarizerApiNode}
-			Icon={RefreshCcw}
+			Icon={NotepadTextDashed}
 		/>
 	);
 };

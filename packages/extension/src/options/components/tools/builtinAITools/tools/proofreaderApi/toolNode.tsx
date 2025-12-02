@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { Handle, Position, useNodeId } from '@xyflow/react';
+import { BookCheck } from 'lucide-react';
 import { useApi, useFlow } from '../../../../../store';
 import { ToolNodeContainer } from '../../../../ui';
 
@@ -31,6 +32,7 @@ const ToolNode = () => {
 	return (
 		<ToolNodeContainer
 			title={config.title}
+			Icon={BookCheck}
 			type={config.type || ''}
 			selected={selectedNode === nodeId}
 			onEdit={() => {
