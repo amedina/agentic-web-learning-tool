@@ -1,5 +1,6 @@
-import type { Meta, StoryObj } from '@storybook/addon-docs/blocks';
-
+/**
+ * External dependencies
+ */
 import { Tabs, TabsList, TabsTrigger, TabsContent } from './index';
 
 /**

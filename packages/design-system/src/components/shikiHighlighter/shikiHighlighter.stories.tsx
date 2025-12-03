@@ -1,5 +1,11 @@
+/**
+ * External dependencies
+ */
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import SyntaxHighlighter from "./shikiHighlighter"; // Adjust path as necessary
+/**
+ * Internal dependencies
+ */
+import SyntaxHighlighter from "./shikiHighlighter";
 
 const meta: Meta<typeof SyntaxHighlighter> = {
   title: "ui/SyntaxHighlighter",

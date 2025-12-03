@@ -1,14 +1,17 @@
-import { render, renderHook, screen, waitFor } from '@testing-library/react';
+/**
+ * External dependencies
+ */
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {
-	AssistantRuntimeProvider,
 	MessagePrimitive,
 	ThreadPrimitive,
-	useLocalRuntime,
 } from '@assistant-ui/react';
 import '@testing-library/jest-dom';
-
-import { MarkdownText } from '../markdownText';
+/**
+ * Internal dependencies
+ */
+import MarkdownText from '../markdownText';
 import { MockAssistantProvider } from './mockAssistantProvider';
 
 Object.assign(navigator, {
