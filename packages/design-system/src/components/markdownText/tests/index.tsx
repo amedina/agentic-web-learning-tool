@@ -12,7 +12,7 @@ import '@testing-library/jest-dom';
  * Internal dependencies
  */
 import MarkdownText from '../markdownText';
-import { MockAssistantProvider } from './mockAssistantProvider';
+import { MockAssistantProvider } from '../test-utils/mockAssistantProvider';
 
 Object.assign(navigator, {
 	clipboard: {
@@ -21,7 +21,7 @@ Object.assign(navigator, {
 });
 
 // Mock SyntaxHighlighter to avoid loading heavy parsing in tests
-jest.mock('../../shikiHighlighter', () => ({
+jest.mock('../../syntaxhighlighter', () => ({
 	SyntaxHighlighter: ({ children }: { children: React.ReactNode }) => (
 		<pre data-testid="mock-highlighter">{children}</pre>
 	),
