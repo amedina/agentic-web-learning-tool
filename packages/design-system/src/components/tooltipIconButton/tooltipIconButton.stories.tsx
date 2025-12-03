@@ -1,9 +1,15 @@
+/**
+ * External dependencies
+ */
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { TooltipIconButton } from './tooltipIconButton';
 import { Plus, Trash2, Info } from 'lucide-react';
+/**
+ * Internal dependencies
+ */
+import TooltipIconButton from './tooltipIconButton';
 
 const meta: Meta<typeof TooltipIconButton> = {
-	title: 'Components/TooltipIconButton',
+	title: 'ui/TooltipIconButton',
 	component: TooltipIconButton,
 	tags: ['autodocs'],
 	argTypes: {

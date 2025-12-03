@@ -1,5 +1,6 @@
-import type { Meta, StoryObj } from '@storybook/addon-docs/blocks';
-
+/**
+ * External dependencies
+ */
 import { Button } from './index';
 import { Loader2, Mail } from 'lucide-react';
 

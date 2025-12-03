@@ -1,9 +1,14 @@
+/**
+ * External dependencies
+ */
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Settings } from "lucide-react";
 import '@testing-library/jest-dom'
-
-import { TooltipIconButton } from "../tooltipIconButton";
+/**
+ * Internal dependencies
+ */
+import TooltipIconButton from "../tooltipIconButton";
 
 // Radix UI Tooltip requires a ResizeObserver mock in JSDOM
 global.ResizeObserver = class ResizeObserver {
