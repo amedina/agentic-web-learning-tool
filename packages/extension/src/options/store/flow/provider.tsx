@@ -97,6 +97,14 @@ const FlowProvider = ({ children }: PropsWithChildren) => {
 		setNodes((prev) => [...prev, node]);
 	}, []);
 
+	const clearFlow = useCallback(() => {
+		nodes.forEach((node) => {
+			deleteNode(node.id);
+		});
+
+		setEdges([]);
+	}, [deleteNode, nodes]);
+
 	return (
 		<Context.Provider
 			value={{
@@ -113,6 +121,7 @@ const FlowProvider = ({ children }: PropsWithChildren) => {
 					onConnect,
 					addNode,
 					deleteNode,
+					clearFlow,
 				},
 			}}
 		>
