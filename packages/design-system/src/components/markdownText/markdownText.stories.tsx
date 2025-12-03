@@ -14,7 +14,7 @@ import {
 import MarkdownText from './markdownText';
 
 const meta: Meta<typeof MarkdownText> = {
-	title: 'Components/MarkdownText',
+	title: 'ui/MarkdownText',
 	component: MarkdownText,
 	tags: ['autodocs'],
 };
