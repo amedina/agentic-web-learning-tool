@@ -26,6 +26,8 @@ const ToolNode = () => {
 			title: node?.config.title,
 			type: node?.type,
 			context: node?.config.context,
+			sourceLanguage: node?.config.sourceLanguage,
+			targetLanguage: node?.config.targetLanguage,
 		};
 	}, [getNode, nodeId]);
 
@@ -44,58 +46,53 @@ const ToolNode = () => {
 				}
 			}}
 		>
-			<div className="h-fit min-h-[120px] w-full flex flex-col">
-				<div className="w-full bg-linear-to-br from-blue-50 to-indigo-50 rounded-md p-3 mb-4 border border-blue-100">
-					<p className="truncate text-sm text-slate-700 leading-relaxed">
-						{config.context}
-					</p>
+			<div className="h-fit w-full flex flex-col relative">
+				<div className="w-full bg-linear-to-br from-blue-50 to-indigo-50 rounded-md p-3 my-2 border border-blue-100">
+					<div className="flex justify-between items-center ">
+						<p className="text-sm font-medium text-slate-500">
+							Source Language
+						</p>
+						<p className="text-slate-700">
+							{config.sourceLanguage || 'Not set'}
+						</p>
+					</div>
+					<div className="flex justify-between items-center">
+						<p className="text-sm font-medium text-slate-500">
+							Target Language
+						</p>
+						<p className="text-slate-700">
+							{config.targetLanguage || 'Not set'}
+						</p>
+					</div>
 				</div>
-				<div className="relative w-full flex-1">
-					<Handle
-						type="target"
-						position={Position.Left}
-						style={{
-							background: 'none',
-							border: 'none',
-							top: '20px',
-							left: '-10px'
-						}}
-					>
-						<div className="flex items-center gap-2 w-fit absolute -translate-x-[7%] translate-y-[-50%] top-[2.5px]">
-							<div className="min-w-3 h-3 bg-blue-500 rounded-full shadow-sm"></div>
-							<div className="flex flex-col">
-								<span className="text-xs font-semibold text-slate-600">
-									Input
-								</span>
-								<span className="text-xs text-gray-500 italic">
-									(string)
-								</span>
-							</div>
-						</div>
-					</Handle>
-					<Handle
-						type="source"
-						position={Position.Right}
-						style={{
-							background: 'none',
-							border: 'none',
-							top: '40px',
-							right: '-10px'
-						}}
-					>
-						<div className="flex items-center gap-2 w-fit absolute translate-y-[-50%] -translate-x-[83%] top-[2.5px]">
-							<div className="flex flex-col items-end">
-								<span className="text-xs font-semibold text-slate-600">
-									Output
-								</span>
-								<span className="text-xs text-gray-500 italic">
-									(string)
-								</span>
-							</div>
-							<div className="min-w-3 h-3 bg-green-600 rounded-full shadow-sm"></div>
-						</div>
-					</Handle>
-				</div>
+				<Handle
+					type="target"
+					position={Position.Left}
+					style={{
+						background: 'none',
+						border: 'none',
+						top: '50%x',
+						left: '-10px',
+					}}
+				>
+					<div className="flex items-center gap-2 w-fit absolute -translate-x-[30%] translate-y-[-50%] top-[2.5px]">
+						<div className="min-w-3 h-3 bg-blue-500 rounded-full shadow-sm"></div>
+					</div>
+				</Handle>
+				<Handle
+					type="source"
+					position={Position.Right}
+					style={{
+						background: 'none',
+						border: 'none',
+						top: '50%',
+						right: '-10px',
+					}}
+				>
+					<div className="flex items-center gap-2 w-fit absolute translate-y-[-50%] -translate-x-[10%] top-[2.5px]">
+						<div className="min-w-3 h-3 bg-green-600 rounded-full shadow-sm"></div>
+					</div>
+				</Handle>
 			</div>
 		</ToolNodeContainer>
 	);
