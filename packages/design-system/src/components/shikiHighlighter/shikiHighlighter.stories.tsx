@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import SyntaxHighlighter from "./shikiHighlighter"; // Adjust path as necessary
 
 const meta: Meta<typeof SyntaxHighlighter> = {
-  title: "Utility/SyntaxHighlighter",
+  title: "ui/SyntaxHighlighter",
   component: SyntaxHighlighter,
   tags: ["autodocs"],
   argTypes: {
