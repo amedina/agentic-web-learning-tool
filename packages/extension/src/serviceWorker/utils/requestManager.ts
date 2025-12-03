@@ -1,5 +1,11 @@
+/**
+ * External dependencies
+ */
 import type { z } from 'zod';
 import { convertJsonSchemaToZod } from 'zod-from-json-schema';
+/**
+ * Internal dependencies
+ */
 import type { PendingRequest, RequestResponse } from '../types';
 
 /**

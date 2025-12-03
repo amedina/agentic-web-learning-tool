@@ -142,7 +142,7 @@ export class GeminiNanoChatTransport implements ChatTransport<UIMessage> {
 
                         writer.write({
                             type: "text-delta",
-                            delta: `\n\n⚠️ Error: ${errorMessage}\n\nThe model may still be processing. Please try again.`,
+                            delta: `Error: ${errorMessage}\n\nThe model may still be processing. Please try again.`,
                             id: crypto.randomUUID()
                         });
                     }
@@ -157,7 +157,7 @@ export class GeminiNanoChatTransport implements ChatTransport<UIMessage> {
 
                         writer.write({
                             type: "text-delta",
-                            delta: `\n\n⚠️ Error: ${executionError.message}\n\nPlease check the console for more details.`,
+                            delta: `Error: ${executionError.message}\n\nPlease check the console for more details.`,
                             id: crypto.randomUUID()
                         });
                         return;
@@ -166,7 +166,7 @@ export class GeminiNanoChatTransport implements ChatTransport<UIMessage> {
                     console.error(`Unknown stream error [chatId=]:`, executionError);
                     writer.write({
                         type: "text-delta",
-                        delta: `\n\n⚠️ An unexpected error occurred. Please try again.`,
+                        delta: `An unexpected error occurred. Please try again.`,
                         id: crypto.randomUUID()
                     });
                 }

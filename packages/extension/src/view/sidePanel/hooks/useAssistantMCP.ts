@@ -1,8 +1,13 @@
+/**
+ * External dependencies
+ */
 import { tool, type AssistantRuntime } from '@assistant-ui/react';
 import type { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import type { Tool as McpTool, CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { useEffect, useMemo } from 'react';
-
+/**
+ * Internal dependencies
+ */
 import { getToolNameForUI, mcpToolToJSONSchema, validateToolPreferences } from '../utils';
 
 interface ToolExecutionArgs {

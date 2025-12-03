@@ -12,7 +12,8 @@ import { useEffect } from "react";
  */
 import { ChatBotUI } from "./components";
 import { GeminiNanoChatTransport } from "./transports/geminiNano";
-
+//Declare and initialize Gemini Nano transport only once no need to recreate on every render
+//Move this to a custom hook when more options for LLM is provided
 const geminiNanoTransport = new GeminiNanoChatTransport();
 
 const SidePanel = () => {

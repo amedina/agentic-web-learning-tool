@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import type { CallToolRequest, Tool } from '@modelcontextprotocol/sdk/types.js';
 
 export interface TabToolInfo {

@@ -1,7 +1,6 @@
 /**
- * Manages tool preferences for each thread using WXT storage with Zod validation
+ * External dependencies
  */
-
 import { z } from 'zod';
 
 // Zod schemas for validation
