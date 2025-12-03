@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import {
 	AssistantRuntimeProvider,
@@ -5,8 +8,10 @@ import {
 	useLocalRuntime,
 	ThreadPrimitive,
 } from '@assistant-ui/react';
-
-import { MarkdownText } from './markdownText';
+/**
+ * Internal dependencies
+ */
+import MarkdownText from './markdownText';
 
 const meta: Meta<typeof MarkdownText> = {
 	title: 'Components/MarkdownText',
@@ -38,8 +43,14 @@ console.log(hello);
 
 export const Default: Story = {
 	render: (args) => {
+		const content = (args as { content: string }).content;
 		const runtime = useLocalRuntime(
-			{ run: () => Promise.resolve({ content: args.content }) },
+			{
+				run: () =>
+					Promise.resolve({
+						content: [{ type: 'text', text: content }],
+					}),
+			},
 			{
 				initialMessages: [
 					{
@@ -48,7 +59,7 @@ export const Default: Story = {
 						content: [
 							{
 								type: 'text',
-								text: args.content,
+								text: content,
 							},
 						],
 					},
@@ -76,8 +87,14 @@ export const Default: Story = {
 
 export const ComplexDocument: Story = {
 	render: (args) => {
+		const content = (args as { content: string }).content;
 		const runtime = useLocalRuntime(
-			{ run: () => Promise.resolve({ content: args.content }) },
+			{
+				run: () =>
+					Promise.resolve({
+						content: [{ type: 'text', text: content }],
+					}),
+			},
 			{
 				initialMessages: [
 					{
@@ -86,7 +103,7 @@ export const ComplexDocument: Story = {
 						content: [
 							{
 								type: 'text',
-								text: args.content,
+								text: content,
 							},
 						],
 					},
@@ -114,8 +131,14 @@ export const ComplexDocument: Story = {
 
 export const PythonCode: Story = {
 	render: (args) => {
+		const content = (args as { content: string }).content;
 		const runtime = useLocalRuntime(
-			{ run: () => Promise.resolve({ content: args.content }) },
+			{
+				run: () =>
+					Promise.resolve({
+						content: [{ type: 'text', text: content }],
+					}),
+			},
 			{
 				initialMessages: [
 					{
@@ -124,7 +147,7 @@ export const PythonCode: Story = {
 						content: [
 							{
 								type: 'text',
-								text: args.content,
+								text: content,
 							},
 						],
 					},

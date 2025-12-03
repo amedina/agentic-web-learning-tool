@@ -13,7 +13,8 @@
 		"paths": {
 			"@/*": ["./src/*"]
 		},
-		"types": ["jest", "jest-extended", "@testing-library/jest-dom"]
+		"typeRoots": ["./node_modules/@types"],
+		"types": ["jest"]
 	},
 	"include": ["src", "storybook.d.ts", "node_modules/jest-extended/types/index.d.ts"],
 	"exclude": ["dist", "build", "node_modules", "tests"]
