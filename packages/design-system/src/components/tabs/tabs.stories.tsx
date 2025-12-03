@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from './index';
 
 /**

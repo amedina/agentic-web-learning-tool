@@ -3,4 +3,4 @@ export * from './tabs';
 export * from './tooltip';
 export * from './tooltipIconButton';
 export * from './markdownText';
-export * from './shikiHighlighter';
+export * from './syntaxHighlighter';
