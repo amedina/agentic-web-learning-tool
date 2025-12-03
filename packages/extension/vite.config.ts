@@ -19,14 +19,17 @@ const distDir = path.resolve(__dirname, '../../dist/extension');
 const isDev = process.env.NODE_ENV === 'development';
 // More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
 export default defineConfig({
-	plugins: [react(), tailwindcss(), svgr(), 
-        viteStaticCopy({
-          targets: [
-            { src: '../manifest.json', dest: '' },
-            { src: '../icons', dest: '' },
-          ],
-        }),
-      ],
+	plugins: [
+		react(),
+		tailwindcss(),
+		svgr(),
+ 		viteStaticCopy({
+			targets: [
+				{ src: resolve(__dirname, 'src/manifest.json'), dest: '' },
+				{ src: resolve(__dirname, 'src/icons'), dest: '' },
+			],
+		}),
+	],
 	resolve: {
 		alias: aliases,
 	},
