@@ -20,8 +20,9 @@ const ToolNodeContainer = ({
 	onRemove,
 }: PropsWithChildren<ToolNodeContainerProps>) => {
 	return (
-		<div
+		<button
 			className={`bg-white rounded-lg shadow-md border-2 w-[300px] transition-all ${selected ? 'border-indigo-500 shadow-lg' : 'border-slate-200'}`}
+			onClick={onEdit}
 		>
 			<div
 				className={`w-full flex items-center justify-between p-2 rounded-t-md border-b border-slate-100 ${selected ? 'bg-indigo-50' : 'bg-slate-50'}`}
@@ -37,12 +38,6 @@ const ToolNodeContainer = ({
 				</div>
 				<div className="flex items-center gap-1">
 					<button
-						onClick={() => onEdit()}
-						className="p-1 hover:bg-indigo-100 rounded text-slate-400 hover:text-indigo-600 transition-colors"
-					>
-						<Pen size={14} />
-					</button>
-					<button
 						onClick={onRemove}
 						className="p-1 hover:bg-red-100 rounded text-slate-400 hover:text-red-500"
 					>
@@ -51,7 +46,7 @@ const ToolNodeContainer = ({
 				</div>
 			</div>
 			<div className="w-full p-3">{children}</div>
-		</div>
+		</button>
 	);
 };
 

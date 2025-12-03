@@ -2,7 +2,7 @@ import { BuiltInAIToolsBar } from '.';
 
 const ToolsBar = () => {
 	return (
-		<div className="w-64 bg-slate-50 border-r border-slate-200 h-full flex flex-col overflow-y-auto">
+		<div className="w-74 bg-slate-50 border-r border-slate-200 h-full flex flex-col overflow-y-auto">
 			<div className="p-4 border-b border-slate-200 bg-white">
 				<h1 className="font-bold text-slate-800 text-lg">
 					AWL Workflow Composer
