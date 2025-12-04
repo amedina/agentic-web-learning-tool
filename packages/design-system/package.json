@@ -43,8 +43,7 @@
 		"clsx": "^2.1.1",
 		"react-syntax-highlighter": "^16.1.0",
 		"remark-gfm": "^4.0.1",
-		"tailwind-merge": "^3.3.1",
-		"ts-jest": "^29.4.5"
+		"tailwind-merge": "^3.3.1"
 	},
 	"peerDependencies": {
 		"lucide-react": "^0.379.0",
