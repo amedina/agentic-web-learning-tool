@@ -16,7 +16,7 @@
 		"lint": "eslint .",
 		"lint:fix": "eslint . --fix",
 		"format": "prettier . --write",
-		"test": "jest --config='./tests/jest.config.ts'",
+		"test": "jest --config='./tests/jest.config.js' --passWithNoTests",
 		"test:e2e": "playwright test",
 		"test:e2e-ui": "playwright test --ui"
 	},

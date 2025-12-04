@@ -12,6 +12,9 @@ const meta: Meta<typeof TooltipIconButton> = {
 	title: 'ui/TooltipIconButton',
 	component: TooltipIconButton,
 	tags: ['autodocs'],
+	parameters: {
+		layout: 'centered',
+	},
 	argTypes: {
 		side: {
 			control: 'select',
