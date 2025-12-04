@@ -17,7 +17,8 @@
     "serve": "pnpm --filter extension preview",
     "preview-storybook": "pnpm --filter storybook-config preview-storybook",
     "storybook": "pnpm --filter storybook-config storybook",
-    "test": "pnpm --filter extension test",
+    "test:extension": "pnpm --filter extension test",
+    "test:design-system": "pnpm --filter design-system test",
     "test:e2e": "pnpm --filter extension test:e2e",
     "test:e2e-ui": "pnpm --filter extension test:e2e-ui"
   },

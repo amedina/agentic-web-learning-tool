@@ -1,7 +1,11 @@
-import type { Meta, StoryObj } from '@storybook/addon-docs/blocks';
-
-import { Button } from './index';
+/**
+ * External dependencies
+ */
 import { Loader2, Mail } from 'lucide-react';
+/**
+ * Internal dependencies
+ */
+import { Button } from './index';
 
 /**
  * Displays a button or a component that looks like a button.
