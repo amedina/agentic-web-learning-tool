@@ -1,9 +1,27 @@
+import { AlertNotification } from './outputTools';
+
 const JSTools = () => {
 	return (
-		<div>
-			<h3 className="text-lg">JavaScript Tools</h3>
-			<div></div>
-		</div>
+		<>
+			<div className="w-full">
+				<h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
+					Web Elements
+				</h3>
+			</div>
+
+			<div className="w-full">
+				<h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
+					Logic
+				</h3>
+			</div>
+
+			<div className="w-full">
+				<h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
+					Output
+				</h3>
+				<AlertNotification />
+			</div>
+		</>
 	);
 };
 

@@ -18,6 +18,7 @@ const TOOLS = {
 	translatorApi: TranslatorApiToolConfig,
 	languageDetectorApi: null,
 	summarizerApi: SummarizerApiToolConfig,
+	alertNotification: null,
 };
 
 const ToolsConfig = () => {

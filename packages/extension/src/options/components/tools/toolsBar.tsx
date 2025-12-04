@@ -1,4 +1,4 @@
-import { BuiltInAIToolsBar } from '.';
+import { BuiltInAIToolsBar, JSToolsBar } from '.';
 
 const ToolsBar = () => {
 	return (
@@ -11,30 +11,8 @@ const ToolsBar = () => {
 			</div>
 
 			<div className="p-4 space-y-6">
-				<div className='w-full'>
-					<h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
-						Gemini Nano APIs
-					</h3>
-					<BuiltInAIToolsBar />
-				</div>
-
-				<div>
-					<h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
-						Web Elements
-					</h3>
-				</div>
-
-				<div>
-					<h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
-						Logic
-					</h3>
-				</div>
-
-				<div>
-					<h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
-						Output
-					</h3>
-				</div>
+				<BuiltInAIToolsBar />
+				<JSToolsBar />
 			</div>
 		</div>
 	);
