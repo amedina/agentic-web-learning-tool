@@ -287,6 +287,12 @@ class ChromeAILanguageModel {
                         }
                     };
 
+                    if (this.formattedTools.length === 0) {
+                        emitTextDelta("Error: No tools are configured for tool calling.");
+                        finishStream("error");
+                        return;
+                    }
+
                     if (callOptions.abortSignal) {
                         callOptions.abortSignal.addEventListener("abort", handleAbort);
                     }
