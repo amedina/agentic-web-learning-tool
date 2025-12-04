@@ -1,3 +1,4 @@
+import { DomInput } from './inputTools';
 import { AlertNotification } from './outputTools';
 
 const JSTools = () => {
@@ -5,8 +6,9 @@ const JSTools = () => {
 		<>
 			<div className="w-full">
 				<h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
-					Web Elements
+					Input Elements
 				</h3>
+				<DomInput />
 			</div>
 
 			<div className="w-full">

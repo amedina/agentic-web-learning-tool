@@ -18,6 +18,7 @@ import {
 	TranslatorApiToolNode,
 	WriterApiToolNode,
 	AlertNotificationToolNode,
+	DomInputToolNode,
 } from '../../components';
 
 const FlowProvider = ({ children }: PropsWithChildren) => {
@@ -33,6 +34,7 @@ const FlowProvider = ({ children }: PropsWithChildren) => {
 			languageDetectorApi: LanguageDetectorApiToolNode,
 			summarizerApi: SummarizerApiToolNode,
 			alertNotification: AlertNotificationToolNode,
+			domInput: DomInputToolNode,
 		}),
 		[]
 	);

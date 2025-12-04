@@ -1,16 +1,19 @@
 import { useCallback } from 'react';
-import { BellRing } from 'lucide-react';
+import { FileSearch } from 'lucide-react';
 import { useApi, useFlow } from '../../../../../store';
 import { ToolItem } from '../../../../ui';
 
 const createConfig = () => {
 	return {
-		title: 'Alert Notification',
-		context: 'An Alert notification for displaying output.',
+		title: 'DOM Input',
+		context: 'Extract text content from the DOM element.',
+		cssSelector: 'body',
+		extract: 'textContent',
+		defaultValue: 'Test',
 	};
 };
 
-const AlertNotification = () => {
+const DomInput = () => {
 	const { addFlowNode } = useFlow(({ actions }) => ({
 		addFlowNode: actions.addNode,
 	}));
@@ -19,32 +22,33 @@ const AlertNotification = () => {
 		addApiNode: actions.addNode,
 	}));
 
-	const addAlertNotificationNode = useCallback(() => {
+	const addDomInputNode = useCallback(() => {
+		const config = createConfig();
 		const id = new Date().getTime().toString();
 
 		addFlowNode({
 			id,
-			type: 'alertNotification',
+			type: 'domInput',
 			position: { x: 0, y: 0 },
 			data: {
-				label: 'Alert Notification',
+				label: 'Dom Input',
 			},
 		});
 
 		addApiNode({
 			id,
-			type: 'alertNotification',
-			config: createConfig(),
+			type: 'domInput',
+			config,
 		});
 	}, [addApiNode, addFlowNode]);
 
 	return (
 		<ToolItem
-			label="Alert Notification"
-			onClick={addAlertNotificationNode}
-			Icon={BellRing}
+			label="Dom Input"
+			onClick={addDomInputNode}
+			Icon={FileSearch}
 		/>
 	);
 };
 
-export default AlertNotification;
+export default DomInput;

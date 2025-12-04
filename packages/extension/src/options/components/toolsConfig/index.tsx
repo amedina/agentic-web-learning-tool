@@ -9,6 +9,7 @@ import {
 	TranslatorApiToolConfig,
 	WriterApiToolConfig,
 } from '../tools/builtinAITools/tools';
+import { DomInputToolConfig } from '../tools/jsTools/inputTools';
 
 const TOOLS = {
 	promptApi: PromptApiToolConfig,
@@ -19,6 +20,7 @@ const TOOLS = {
 	languageDetectorApi: null,
 	summarizerApi: SummarizerApiToolConfig,
 	alertNotification: null,
+	domInput: DomInputToolConfig,
 };
 
 const ToolsConfig = () => {
