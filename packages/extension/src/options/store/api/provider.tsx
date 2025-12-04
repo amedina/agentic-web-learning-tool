@@ -1,0 +1,98 @@
+import { useCallback, useState, type PropsWithChildren } from 'react';
+import Context, { ApiCleaner, type NodeConfig } from './context';
+
+const ApiProvider = ({ children }: PropsWithChildren) => {
+	const [nodes, setNodes] = useState<{
+		[id: string]: NodeConfig;
+	}>({});
+
+	const [selectedNode, setSelectedNode] = useState<string | null>(null);
+
+	const getNode = useCallback(
+		(id: string) => {
+			return nodes[id];
+		},
+		[nodes]
+	);
+
+	const addNode = useCallback(
+		(
+			node: {
+				id: string;
+			} & NodeConfig
+		) => {
+			setNodes((prev) => ({
+				...prev,
+				[node.id]: {
+					type: node.type,
+					config: node.config,
+				},
+			}));
+
+			setSelectedNode(node.id);
+		},
+		[]
+	);
+
+	const updateNode = useCallback(
+		(
+			id: string,
+			updates: {
+				type?: string;
+				config?: { [key: string]: any };
+			}
+		) => {
+			setNodes((prev) => {
+				if (!prev || !prev[id]) return prev;
+
+				return {
+					...prev,
+					[id]: {
+						...prev[id],
+						...updates,
+						config: {
+							...prev[id].config,
+							...updates.config,
+						},
+					},
+				};
+			});
+		},
+		[]
+	);
+
+	const removeNode = useCallback((id: string) => {
+		setNodes((prev) => {
+			if (!prev || !prev[id]) return prev;
+
+			const updated = { ...prev };
+			delete updated[id];
+			setSelectedNode((current) => (current === id ? null : current));
+
+			return updated;
+		});
+	}, []);
+
+	return (
+		<Context.Provider
+			value={{
+				state: {
+					nodes,
+					selectedNode,
+				},
+				actions: {
+					getNode,
+					addNode,
+					updateNode,
+					removeNode,
+					setSelectedNode,
+				},
+			}}
+		>
+			<ApiCleaner />
+			{children}
+		</Context.Provider>
+	);
+};
+
+export default ApiProvider;
