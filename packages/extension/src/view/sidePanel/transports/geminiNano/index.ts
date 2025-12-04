@@ -90,7 +90,7 @@ export class GeminiNanoChatTransport implements ChatTransport<UIMessage> {
     async sendMessages(
         params: SendMessagesParams,
     ): Promise<ReadableStream<UIMessageChunk>> {
-        const { messages } = params;
+        const { messages, abortSignal } = params;
 
         if (!this.runtime) {
             return new ReadableStream();
@@ -112,6 +112,7 @@ export class GeminiNanoChatTransport implements ChatTransport<UIMessage> {
                         model: this.model as unknown as LanguageModelV2,
                         messages: convertToModelMessages(messages),
                         tools: Object.fromEntries(this.formattedTools),
+                        abortSignal,
                         providerOptions: {
                             "built-in-ai": {
                                 "parallelToolExecution": false
