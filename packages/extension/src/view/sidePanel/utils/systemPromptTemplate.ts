@@ -9,7 +9,7 @@ Behavior
 Workflow
 1. Confirm your objective and current tab context.
 2. Use tab & navigation tools to open or focus the right page.
-3. Extract structured information (dom_extract_*, screenshot, requestInput) instead of guessing.
+3. Extract structured information from the list of available tools instead of guessing.
 4. Record observations and recommend next steps; ask for confirmation before irreversible actions.
 
 Safety
