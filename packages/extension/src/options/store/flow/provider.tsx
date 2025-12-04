@@ -20,6 +20,7 @@ import {
 	AlertNotificationToolNode,
 	DomInputToolNode,
 	ConditionToolNode,
+	StaticInputToolNode,
 } from '../../components';
 
 const FlowProvider = ({ children }: PropsWithChildren) => {
@@ -37,6 +38,7 @@ const FlowProvider = ({ children }: PropsWithChildren) => {
 			alertNotification: AlertNotificationToolNode,
 			domInput: DomInputToolNode,
 			condition: ConditionToolNode,
+			staticInput: StaticInputToolNode,
 		}),
 		[]
 	);

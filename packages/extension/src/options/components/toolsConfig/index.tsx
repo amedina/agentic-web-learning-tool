@@ -9,7 +9,10 @@ import {
 	TranslatorApiToolConfig,
 	WriterApiToolConfig,
 } from '../tools/builtinAITools/tools';
-import { DomInputToolConfig } from '../tools/jsTools/inputTools';
+import {
+	DomInputToolConfig,
+	StaticInputToolConfig,
+} from '../tools/jsTools/inputTools';
 import { ConditionToolConfig } from '../tools/jsTools/logicTools';
 
 const TOOLS = {
@@ -23,6 +26,7 @@ const TOOLS = {
 	alertNotification: null,
 	domInput: DomInputToolConfig,
 	condition: ConditionToolConfig,
+	staticInput: StaticInputToolConfig,
 };
 
 const ToolsConfig = () => {

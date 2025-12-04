@@ -1,4 +1,4 @@
-import { DomInput } from './inputTools';
+import { DomInput, StaticInput } from './inputTools';
 import { Condition } from './logicTools';
 import { AlertNotification } from './outputTools';
 
@@ -10,6 +10,7 @@ const JSTools = () => {
 					Input Elements
 				</h3>
 				<DomInput />
+				<StaticInput />
 			</div>
 
 			<div className="w-full">
