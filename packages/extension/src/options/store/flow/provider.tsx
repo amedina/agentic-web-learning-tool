@@ -19,6 +19,7 @@ import {
 	WriterApiToolNode,
 	AlertNotificationToolNode,
 	DomInputToolNode,
+	ConditionToolNode,
 } from '../../components';
 
 const FlowProvider = ({ children }: PropsWithChildren) => {
@@ -35,6 +36,7 @@ const FlowProvider = ({ children }: PropsWithChildren) => {
 			summarizerApi: SummarizerApiToolNode,
 			alertNotification: AlertNotificationToolNode,
 			domInput: DomInputToolNode,
+			condition: ConditionToolNode,
 		}),
 		[]
 	);

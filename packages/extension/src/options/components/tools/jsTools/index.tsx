@@ -1,4 +1,5 @@
 import { DomInput } from './inputTools';
+import { Condition } from './logicTools';
 import { AlertNotification } from './outputTools';
 
 const JSTools = () => {
@@ -15,6 +16,7 @@ const JSTools = () => {
 				<h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
 					Logic
 				</h3>
+				<Condition />
 			</div>
 
 			<div className="w-full">

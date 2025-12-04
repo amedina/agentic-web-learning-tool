@@ -10,6 +10,7 @@ import {
 	WriterApiToolConfig,
 } from '../tools/builtinAITools/tools';
 import { DomInputToolConfig } from '../tools/jsTools/inputTools';
+import { ConditionToolConfig } from '../tools/jsTools/logicTools';
 
 const TOOLS = {
 	promptApi: PromptApiToolConfig,
@@ -21,6 +22,7 @@ const TOOLS = {
 	summarizerApi: SummarizerApiToolConfig,
 	alertNotification: null,
 	domInput: DomInputToolConfig,
+	condition: ConditionToolConfig,
 };
 
 const ToolsConfig = () => {
