@@ -6,25 +6,23 @@ import {
 } from "@assistant-ui/react";
 import { lastAssistantMessageIsCompleteWithToolCalls } from 'ai';
 import { useChatRuntime } from '@assistant-ui/react-ai-sdk';
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 /**
  * Internal dependencies
  */
 import { ChatBotUI } from "./components";
-import { GeminiNanoChatTransport } from "./transports/geminiNano";
-//Declare and initialize Gemini Nano transport only once no need to recreate on every render
-//Move this to a custom hook when more options for LLM is provided
-const geminiNanoTransport = new GeminiNanoChatTransport();
+import { transportGenerator } from "./transports";
 
 const SidePanel = () => {
+   const [transport, _setTransport] = useState(transportGenerator());
    const runtime = useChatRuntime({
-    transport: geminiNanoTransport,
+    transport,
     sendAutomaticallyWhen: (messages) => lastAssistantMessageIsCompleteWithToolCalls(messages),
   });
 
  useEffect(() => {
-    geminiNanoTransport.setRuntime(runtime);
-    geminiNanoTransport.initializeSession();
+    transport.setRuntime(runtime);
+    transport.initializeSession();
   }, [runtime]);
 
   return (

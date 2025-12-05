@@ -1,1 +1,1 @@
-export * from './geminiNano';
+export { default as transportGenerator } from './transportGenerator';
