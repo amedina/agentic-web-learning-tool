@@ -21,6 +21,8 @@
 		"test:e2e-ui": "playwright test --ui"
 	},
 	"dependencies": {
+		"@ai-sdk/anthropic": "^2.0.53",
+		"@ai-sdk/openai": "^2.0.77",
 		"@ai-sdk/provider": "^2.0.0",
 		"@assistant-ui/react": "^0.11.41",
 		"@assistant-ui/react-ai-sdk": "^1.1.16",

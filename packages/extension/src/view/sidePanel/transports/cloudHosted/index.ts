@@ -12,11 +12,13 @@ import {
 } from "ai";
 import { type LanguageModelV2 } from '@ai-sdk/provider';
 import type { AssistantRuntime } from "@assistant-ui/react";
-import { createOllama } from 'ollama-ai-provider-v2';
 /**
  * Internal dependencies
  */
 import { systemPromptTemplate } from "../../utils";
+import { createOllama, type OllamaProviderSettings } from "ollama-ai-provider-v2";
+import type { createOpenAI, OpenAIProviderSettings } from "@ai-sdk/openai";
+import type { AnthropicProviderSettings, createAnthropic } from "@ai-sdk/anthropic";
 
 type SendMessagesParams = {
     /** The type of message submission - either new message or regeneration */
@@ -31,14 +33,10 @@ type SendMessagesParams = {
     abortSignal: AbortSignal | undefined;
 } & ChatRequestOptions
 
-/**
- * A custom ChatTransport for interfacing with the on-device
- * Gemini Nano API (window.languageModel).
- *
- * This transport does not make any network requests. It calls
- * the browser's built-in LanguageModel API directly.
- */
-export class OllamaTransport implements ChatTransport<UIMessage> {
+export type ModelInitializer = typeof createOllama | typeof createOpenAI | typeof createAnthropic;
+export type ProviderSettings = OllamaProviderSettings | OpenAIProviderSettings | AnthropicProviderSettings;
+
+export class CloudHostedTrapsort implements ChatTransport<UIMessage> {
     private model: LanguageModelV2 | null = null;
     private isInitializing: boolean = false;
     private runtime: AssistantRuntime | null = null;
@@ -46,7 +44,7 @@ export class OllamaTransport implements ChatTransport<UIMessage> {
     private modelId: string = ""
     constructor(modelId: string) {
         this.modelId = modelId;
-     }
+    }
 
     setRuntime(runtime: AssistantRuntime) {
         this.runtime = runtime;
@@ -55,26 +53,14 @@ export class OllamaTransport implements ChatTransport<UIMessage> {
      * Initializes the on-device model session.
      * This checks for API availability and creates a session.
      */
-    async initializeSession(): Promise<void> {
+    async initializeSession(modelInitializerFunction: ModelInitializer, config: ProviderSettings): Promise<void> {
         if (this.model || this.isInitializing) {
             return;
         }
 
         this.isInitializing = true;
         try {
-            const lm = window.LanguageModel;
-            if (!lm) {
-                throw new Error("Gemini Nano API (window.ai.languageModel) is not available.");
-            }
-
-            const availability = await lm.availability();
-            if (availability === "unavailable") {
-                throw new Error("On-device Gemini Nano model is unavailable.");
-            }
-
-            this.model = createOllama({
-            baseURL: "https://ollama.gagan.pro/api"
-        }).languageModel(this.modelId);
+            this.model = modelInitializerFunction(config).languageModel(this.modelId);
         } catch (error) {
             console.error("Failed to initialize Gemini Nano session:", error);
             this.model = null; // Ensure model is null on failure
