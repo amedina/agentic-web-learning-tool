@@ -7,7 +7,7 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
  * Internal dependencies
  */
 import { CONNECTION_NAMES } from "..//utils/constants";
-let connected = false;
+let connectionStarted = false;
 try {
     (async () => {
         //This connects to the page context since content scripts have a separate JS context
@@ -28,9 +28,13 @@ try {
         //Need to set interval because the TabServerTransport might not be ready to accept connections yet
         const interval = setInterval(async () => {
             try {
-                if (!connected) {
-                    await client.connect(transport);
-                    connected = true;
+                if (!client.transport && !connectionStarted) {
+                    try {
+                        await client.connect(transport);
+                        connectionStarted = true;
+                    }catch(error) {
+                        console.log("Error connecting client:", error);
+                    }
                 }
                 const pageTools = await client.listTools();
                 //Send initial list of tools to service worker
@@ -40,7 +44,7 @@ try {
                 });
                 clearInterval(interval)
             } catch (error) {
-                console.error("Error connecting to MCP background:", error);
+                console.log("Error connecting to MCP background:", error);
             }
         }, 100);
 
@@ -69,5 +73,5 @@ try {
     })();
 
 } catch (error) {
-    console.error("Error connecting to MCP background:", error);
+    console.log("Error connecting to MCP background:", error);
 }

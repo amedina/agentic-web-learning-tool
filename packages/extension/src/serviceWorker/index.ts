@@ -83,7 +83,7 @@ class McpHub {
     }
   }
 
-  private setupConnections() {
+  setupConnections() {
     chrome.runtime.onConnect.addListener((port) => {
       if (port.name === CONNECTION_NAMES.CONTENT_SCRIPT) {
         this.handleContentScriptConnection(port);
@@ -109,6 +109,7 @@ class McpHub {
     // Listener for messages coming FROM the tab
     port.onMessage.addListener(async (message: ContentScriptMessage) => {
       try {
+        console.log(`MCP Hub: New message of type ${message.type} on port ${port.name}`);
         switch (message.type) {
           case MESSAGE_TYPES.REGISTER:
             if (message.tools) {
@@ -127,7 +128,7 @@ class McpHub {
             break;
         }
       } catch (err) {
-        console.error(`Error handling message from tab ${tabId}:`, err);
+        console.log(`Error handling message from tab ${tabId}:`, err);
       }
     });
 
@@ -404,7 +405,7 @@ class McpHub {
 
 // Initialize the MCP Server and Hub
 const sharedServer = new McpServer({ name: 'Extension-Hub', version: '1.0.0' });
-new McpHub(sharedServer);
+const mcpHub = new McpHub(sharedServer);
 
 chrome.runtime.onConnect.addListener((port) => {
   if (port.name !== CONNECTION_NAMES.MCP_HOST) {
@@ -416,4 +417,5 @@ chrome.runtime.onConnect.addListener((port) => {
     keepAliveInterval: 25_000,
   });
   sharedServer.connect(transport);
+  mcpHub.setupConnections();
 });
