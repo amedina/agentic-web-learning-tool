@@ -1,9 +1,34 @@
 import { createContext } from 'react';
 import { createContextSelector } from 'react-context-selector';
+import {
+	type AlertNotificationConfig,
+	type ConditionConfig,
+	type DomInputConfig,
+	type LanguageDetectorApiConfig,
+	type PromptApiConfig,
+	type ProofreaderApiConfig,
+	type RewriterApiConfig,
+	type StaticInputConfig,
+	type SummarizerApiConfig,
+	type TranslatorApiConfig,
+	type WriterApiConfig,
+} from './../../components/tools';
 
 export type NodeConfig = {
 	type: string;
-	config: { [key: string]: any };
+	config: Partial<
+		| LanguageDetectorApiConfig
+		| PromptApiConfig
+		| ProofreaderApiConfig
+		| RewriterApiConfig
+		| SummarizerApiConfig
+		| TranslatorApiConfig
+		| WriterApiConfig
+		| DomInputConfig
+		| StaticInputConfig
+		| ConditionConfig
+		| AlertNotificationConfig
+	>;
 };
 
 export interface ApiStoreContext {
@@ -20,7 +45,7 @@ export interface ApiStoreContext {
 			id: string,
 			updates: {
 				type?: string;
-				config?: { [key: string]: any };
+				config?: NodeConfig['config'];
 			}
 		) => void;
 		removeNode: (id: string) => void;

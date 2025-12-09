@@ -1,31 +1,47 @@
 import { useEffect, useImperativeHandle, useState } from 'react';
 import { Settings } from 'lucide-react';
-import { type NodeConfig } from '../../../../../store';
+import { StaticInputSchema, type StaticInputConfig } from './staticInput';
 
 interface ToolConfigProps {
 	ref: React.Ref<{
-		getConfig: () => Record<string, unknown>;
+		getConfig: (formData: FormData) => StaticInputConfig | undefined;
 	}>;
-	node: NodeConfig;
+	config: StaticInputConfig;
 }
 
-const ToolConfig = ({ ref, node }: ToolConfigProps) => {
+const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 	const [inputValue, setInputValue] = useState<string>(
-		node.config.inputValue || ''
+		config.inputValue || ''
 	);
 
 	useEffect(() => {
-		setInputValue(node.config.inputValue || '');
-	}, [node]);
+		setInputValue(config.inputValue || '');
+	}, [config]);
 
 	useImperativeHandle(
 		ref,
 		() => ({
-			getConfig: () => ({
-				inputValue,
-			}),
+			getConfig: (formData: FormData) => {
+				const title = formData.get('title') as string;
+				const description = formData.get('description') as string;
+				const inputValue = formData.get('inputValue') as string;
+
+				const configResult = {
+					title,
+					description,
+					inputValue,
+				};
+
+				const validation = StaticInputSchema.safeParse(configResult);
+				if (!validation.success) {
+					console.error('Invalid configuration:', validation.error);
+					return undefined;
+				}
+
+				return validation.data;
+			},
 		}),
-		[inputValue]
+		[]
 	);
 
 	return (

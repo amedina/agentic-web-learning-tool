@@ -39,7 +39,7 @@ const ApiProvider = ({ children }: PropsWithChildren) => {
 			id: string,
 			updates: {
 				type?: string;
-				config?: { [key: string]: any };
+				config?: NodeConfig['config'];
 			}
 		) => {
 			setNodes((prev) => {

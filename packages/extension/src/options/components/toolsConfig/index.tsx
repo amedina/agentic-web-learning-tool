@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Save, Settings } from 'lucide-react';
-import { useApi } from '../../store';
+import { useApi, type NodeConfig } from '../../store';
 import {
 	PromptApiToolConfig,
 	ProofreaderApiToolConfig,
@@ -39,11 +39,10 @@ const ToolsConfig = () => {
 	);
 
 	const [node, setNode] = useState<ReturnType<typeof getNode>>();
-	const [title, setTitle] = useState<string>(node?.config.title || '');
-	const [context, setContext] = useState<string>(node?.config.context || '');
+	const [config, setConfig] = useState<NodeConfig['config']>();
 
 	const toolNodeRef = useRef<{
-		getConfig: (formData: FormData) => void;
+		getConfig: (formData: FormData) => NodeConfig['config'] | undefined;
 	}>(null);
 
 	useEffect(() => {
@@ -56,8 +55,7 @@ const ToolsConfig = () => {
 	}, [selectedNode, getNode]);
 
 	useEffect(() => {
-		setTitle(node?.config.title || '');
-		setContext(node?.config.context || '');
+		setConfig(node?.config);
 	}, [node]);
 
 	const handleSubmit = useCallback(
@@ -67,18 +65,13 @@ const ToolsConfig = () => {
 
 			if (!node || !selectedNode) return;
 
-			const title = formData.get('title') as string;
-			const context = formData.get('context') as string;
+			const config = toolNodeRef.current?.getConfig(formData);
 
 			updateNode(selectedNode, {
 				...node,
 				config: {
 					...node.config,
-					title,
-					context,
-					...(toolNodeRef.current
-						? toolNodeRef.current.getConfig(formData)
-						: {}),
+					...(config ? config : {}),
 				},
 			});
 		},
@@ -134,9 +127,12 @@ const ToolsConfig = () => {
 							<input
 								type="text"
 								className="w-full p-3 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-white"
-								value={title}
+								value={config?.title || ''}
 								onChange={(e) => {
-									setTitle(e.target.value);
+									setConfig((prev) => ({
+										...prev,
+										title: e.target.value,
+									}));
 								}}
 								id="title"
 								name="title"
@@ -145,7 +141,7 @@ const ToolsConfig = () => {
 						</div>
 
 						<div>
-							{context ? (
+							{config?.context ? (
 								<>
 									<label
 										className="block text-sm font-medium text-slate-700 mb-2"
@@ -156,11 +152,14 @@ const ToolsConfig = () => {
 									<textarea
 										className="w-full p-3 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm resize-none bg-white"
 										rows={4}
-										value={context || ''}
+										value={config?.context || ''}
 										id="context"
 										name="context"
 										onChange={(e) =>
-											setContext(e.target.value)
+											setConfig((prev) => ({
+												...prev,
+												context: e.target.value,
+											}))
 										}
 										placeholder="Enter context for the tool..."
 									/>
@@ -172,7 +171,9 @@ const ToolsConfig = () => {
 							)}
 						</div>
 
-						{Tool && node && <Tool ref={toolNodeRef} node={node} />}
+						{Tool && node && (
+							<Tool ref={toolNodeRef} config={node.config} />
+						)}
 					</form>
 				)}
 			</div>

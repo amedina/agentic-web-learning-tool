@@ -1,46 +1,47 @@
 import { useEffect, useImperativeHandle, useState } from 'react';
 import { Settings } from 'lucide-react';
-import { type NodeConfig } from '../../../../../store';
+import { RewriterApiSchema, type RewriterApiConfig } from './rewriterApi';
 
 interface ToolConfigProps {
 	ref: React.Ref<{
-		getConfig: (formData: FormData) => void;
+		getConfig: (formData: FormData) => RewriterApiConfig | void;
 	}>;
-	node: NodeConfig;
+	config: RewriterApiConfig;
 }
 
-const ToolConfig = ({ ref, node }: ToolConfigProps) => {
-	const [tone, setTone] = useState<string>(node.config.tone || 'as-is');
+const ToolConfig = ({ ref, config }: ToolConfigProps) => {
+	const [tone, setTone] = useState<string>(config.tone || 'as-is');
+	const [format, setFormat] = useState<string>(config.format || 'as-is');
 
-	const [format, setFormat] = useState<string>(node.config.format || 'as-is');
-
-	const [length, setLength] = useState<string>(node.config.length || 'as-is');
+	const [length, setLength] = useState<string>(config.length || 'as-is');
 
 	const [inputLanguages, setInputLanguages] = useState<string[]>(
-		node.config.expectedInputLanguages || []
+		config.expectedInputLanguages || []
 	);
 
 	const [contextLanguages, setContextLanguages] = useState<string[]>(
-		node.config.expectedContextLanguages || []
+		config.expectedContextLanguages || []
 	);
 
 	const [outputLanguage, setOutputLanguage] = useState<string>(
-		node.config.outputLanguage || 'es'
+		config.outputLanguage || 'es'
 	);
 
 	useEffect(() => {
-		setTone(node.config.tone || 'as-is');
-		setFormat(node.config.format || 'as-is');
-		setLength(node.config.length || 'as-is');
-		setInputLanguages(node.config.expectedInputLanguages || []);
-		setContextLanguages(node.config.expectedContextLanguages || []);
-		setOutputLanguage(node.config.outputLanguage || 'es');
-	}, [node]);
+		setTone(config.tone || 'as-is');
+		setFormat(config.format || 'as-is');
+		setLength(config.length || 'as-is');
+		setInputLanguages(config.expectedInputLanguages || []);
+		setContextLanguages(config.expectedContextLanguages || []);
+		setOutputLanguage(config.outputLanguage || 'es');
+	}, [config]);
 
 	useImperativeHandle(
 		ref,
 		() => ({
 			getConfig: (formData: FormData) => {
+				const title = formData.get('title') as string;
+				const context = formData.get('context') as string;
 				const tone = formData.get('tone') as string;
 				const format = formData.get('format') as string;
 				const length = formData.get('length') as string;
@@ -52,7 +53,9 @@ const ToolConfig = ({ ref, node }: ToolConfigProps) => {
 				) as string[];
 				const outputLanguage = formData.get('outputLanguage') as string;
 
-				return {
+				const configResult = {
+					title,
+					context,
 					tone,
 					format,
 					length,
@@ -60,6 +63,14 @@ const ToolConfig = ({ ref, node }: ToolConfigProps) => {
 					expectedContextLanguages: contextLanguages,
 					outputLanguage,
 				};
+
+				const validation = RewriterApiSchema.safeParse(configResult);
+				if (!validation.success) {
+					console.error('Invalid configuration:', validation.error);
+					return undefined;
+				}
+
+				return validation.data;
 			},
 		}),
 		[]
@@ -127,9 +138,7 @@ const ToolConfig = ({ ref, node }: ToolConfigProps) => {
 							value={length}
 							className="w-full p-2 border border-slate-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
 							onChange={(e) => setLength(e.target.value)}
-						>
-							
-						</select>
+						></select>
 					</div>
 
 					<div>
