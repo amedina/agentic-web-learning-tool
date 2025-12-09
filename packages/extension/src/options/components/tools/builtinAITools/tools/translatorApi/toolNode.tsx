@@ -3,6 +3,7 @@ import { Handle, Position, useNodeId } from '@xyflow/react';
 import { Languages } from 'lucide-react';
 import { useApi, useFlow } from '../../../../../store';
 import { ToolNodeContainer } from '../../../../ui';
+import type { TranslatorApiConfig } from './translatorApi';
 
 const ToolNode = () => {
 	const nodeId = useNodeId();
@@ -19,23 +20,28 @@ const ToolNode = () => {
 	}));
 
 	const config = useMemo(() => {
-		if (!nodeId) return {};
+		if (!nodeId) return undefined;
 
 		const node = getNode(nodeId);
+
+		if (!node) return undefined;
+
+		const _config = node.config as TranslatorApiConfig;
+
 		return {
-			title: node?.config.title,
 			type: node?.type,
-			context: node?.config.context,
-			sourceLanguage: node?.config.sourceLanguage,
-			targetLanguage: node?.config.targetLanguage,
+			title: _config.title,
+			description: _config.description,
+			sourceLanguage: _config.sourceLanguage,
+			targetLanguage: _config.targetLanguage,
 		};
 	}, [getNode, nodeId]);
 
 	return (
 		<ToolNodeContainer
-			title={config.title}
+			title={config?.title || ''}
 			Icon={Languages}
-			type={config.type || ''}
+			type={config?.type || ''}
 			selected={selectedNode === nodeId}
 			onEdit={() => {
 				setSelectedNode(nodeId);
@@ -53,7 +59,7 @@ const ToolNode = () => {
 							Source Language
 						</p>
 						<p className="text-slate-700">
-							{config.sourceLanguage || 'Not set'}
+							{config?.sourceLanguage || 'Not set'}
 						</p>
 					</div>
 					<div className="flex justify-between items-center">
@@ -61,7 +67,7 @@ const ToolNode = () => {
 							Target Language
 						</p>
 						<p className="text-slate-700">
-							{config.targetLanguage || 'Not set'}
+							{config?.targetLanguage || 'Not set'}
 						</p>
 					</div>
 				</div>
