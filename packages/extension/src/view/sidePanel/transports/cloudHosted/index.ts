@@ -12,13 +12,14 @@ import {
 } from "ai";
 import { type LanguageModelV2 } from '@ai-sdk/provider';
 import type { AssistantRuntime } from "@assistant-ui/react";
+import { createOllama, type OllamaProviderSettings } from "ollama-ai-provider-v2";
+import type { createOpenAI, OpenAIProviderSettings } from "@ai-sdk/openai";
+import type { AnthropicProviderSettings, createAnthropic } from "@ai-sdk/anthropic";
+import type { createGoogleGenerativeAI, GoogleGenerativeAIProviderSettings } from "@ai-sdk/google";
 /**
  * Internal dependencies
  */
 import { systemPromptTemplate } from "../../utils";
-import { createOllama, type OllamaProviderSettings } from "ollama-ai-provider-v2";
-import type { createOpenAI, OpenAIProviderSettings } from "@ai-sdk/openai";
-import type { AnthropicProviderSettings, createAnthropic } from "@ai-sdk/anthropic";
 
 type SendMessagesParams = {
     /** The type of message submission - either new message or regeneration */
@@ -33,8 +34,8 @@ type SendMessagesParams = {
     abortSignal: AbortSignal | undefined;
 } & ChatRequestOptions
 
-export type ModelInitializer = typeof createOllama | typeof createOpenAI | typeof createAnthropic;
-export type ProviderSettings = OllamaProviderSettings | OpenAIProviderSettings | AnthropicProviderSettings;
+export type ModelInitializer = typeof createOllama | typeof createOpenAI | typeof createAnthropic | typeof createGoogleGenerativeAI;
+export type ProviderSettings = OllamaProviderSettings | OpenAIProviderSettings | AnthropicProviderSettings | GoogleGenerativeAIProviderSettings;
 
 export class CloudHostedTrapsort implements ChatTransport<UIMessage> {
     private model: LanguageModelV2 | null = null;
@@ -60,6 +61,7 @@ export class CloudHostedTrapsort implements ChatTransport<UIMessage> {
 
         this.isInitializing = true;
         try {
+            //@ts-expect-error -- Gemini provider has different headers type than the Ollama provider
             this.model = modelInitializerFunction(config).languageModel(this.modelId);
         } catch (error) {
             console.error("Failed to initialize Gemini Nano session:", error);

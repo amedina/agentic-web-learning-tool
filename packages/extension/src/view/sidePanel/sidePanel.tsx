@@ -12,14 +12,12 @@ import { ChatBotUI } from './components';
 import { transportGenerator } from './transports';
 import type { GeminiNanoChatTransport } from './transports/geminiNano';
 
-const provider: 'ollama' | 'browser-ai' | 'anthropic' = 'ollama';
-const model = 'qwen3:14b';
+const provider: 'ollama' | 'browser-ai' | 'anthropic' | 'openai' | 'gemini' = 'browser-ai';
+const model = 'prompt-api';
 
 const SidePanel = () => {
 	const [transport, _setTransport] = useState(
-		transportGenerator(provider, model, {
-			baseURL: 'https://ollama.gagan.pro/api',
-		})
+		transportGenerator(provider, model, {})
 	);
 	const runtime = useChatRuntime({
 		transport,
@@ -29,9 +27,9 @@ const SidePanel = () => {
 
 	useEffect(() => {
 		transport.setRuntime(runtime);
-    if(provider !== 'browser-ai'){
-      return;
-    }
+		if (provider !== 'browser-ai') {
+			return;
+		}
 		(transport as GeminiNanoChatTransport).initializeSession();
 	}, [runtime]);
 

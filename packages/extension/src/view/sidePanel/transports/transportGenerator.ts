@@ -4,6 +4,7 @@
 import { createOllama } from 'ollama-ai-provider-v2';
 import { createOpenAI } from '@ai-sdk/openai';
 import { createAnthropic } from '@ai-sdk/anthropic';
+import { createGoogleGenerativeAI } from '@ai-sdk/google';
 /**
  * Internal dependencies
  */
@@ -26,6 +27,10 @@ function transportGenerator(provider = 'browser-ai', model = 'prompt-api', confi
         case 'anthropic':
             modelInstance = new CloudHostedTrapsort(model);
             modelInstance.initializeSession(createAnthropic, config);
+            return modelInstance;
+        case 'gemini':
+            modelInstance = new CloudHostedTrapsort(model);
+            modelInstance.initializeSession(createGoogleGenerativeAI, config);
             return modelInstance;
         default:
             return new GeminiNanoChatTransport();
