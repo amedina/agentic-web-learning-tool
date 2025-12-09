@@ -32,21 +32,23 @@ try {
                     try {
                         await client.connect(transport);
                         connectionStarted = true;
-                    }catch(error) {
+                    } catch (error) {
                         console.log("Error connecting client:", error);
                     }
                 }
-                const pageTools = await client.listTools();
-                //Send initial list of tools to service worker
-                backgroundPort.postMessage({
-                    type: "register-tools",
-                    tools: pageTools.tools,
-                });
-                clearInterval(interval)
+                if (client.transport) {
+                    clearInterval(interval)
+                    const pageTools = await client.listTools();
+                    //Send initial list of tools to service worker
+                    backgroundPort.postMessage({
+                        type: "register-tools",
+                        tools: pageTools.tools,
+                    });
+                }
             } catch (error) {
                 console.log("Error connecting to MCP background:", error);
             }
-        }, 100);
+        }, 1000);
 
         backgroundPort.onMessage.addListener(async (message) => {
             if (message.type === "execute-tool") {
@@ -64,11 +66,20 @@ try {
         });
 
         transport.onclose = () => {
+            if (!chrome.runtime?.id) {
+                return;
+            }
+
             backgroundPort.disconnect();
         }
 
         backgroundPort.onDisconnect.addListener(() => {
+            if (!chrome.runtime?.id) {
+                return;
+            }
+
             transport.close();
+            console.log(client.transport)
         });
     })();
 
