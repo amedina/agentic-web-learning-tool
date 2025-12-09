@@ -4,7 +4,7 @@ import { useApi, useFlow } from '../../../../../store';
 import { ToolItem } from '../../../../ui';
 import z from 'zod';
 
-const WriterApiSchema = z.object({
+export const WriterApiSchema = z.object({
 	title: z.string(),
 	context: z.string(),
 	tone: z.enum(['formal', 'neutral', 'casual']),
@@ -14,7 +14,9 @@ const WriterApiSchema = z.object({
 	outputLanguage: z.enum(['en', 'ja', 'es']),
 });
 
-const createConfig: () => z.infer<typeof WriterApiSchema> = () => {
+export type WriterApiConfig = z.infer<typeof WriterApiSchema>;
+
+const createConfig: () => WriterApiConfig = () => {
 	return {
 		title: 'Writer API',
 		context: 'You are a helpful writer',

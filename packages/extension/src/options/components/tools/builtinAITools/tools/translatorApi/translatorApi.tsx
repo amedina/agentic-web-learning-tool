@@ -11,7 +11,9 @@ export const TranslatorApiSchema = z.object({
 	targetLanguage: z.enum(['en', 'ja', 'es']),
 });
 
-const createConfig: () => z.infer<typeof TranslatorApiSchema> = () => {
+export type TranslatorApiConfig = z.infer<typeof TranslatorApiSchema>;
+
+const createConfig: () => TranslatorApiConfig = () => {
 	return {
 		title: 'Translator API',
 		description: 'You are a helpful translator',

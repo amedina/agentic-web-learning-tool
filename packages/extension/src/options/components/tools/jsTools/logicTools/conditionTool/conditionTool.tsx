@@ -6,19 +6,21 @@ import { ToolItem } from '../../../../ui';
 
 export const ConditionSchema = z.object({
 	title: z.string(),
-	context: z.string(),
+	description: z.string(),
 	comparisonType: z.enum([
 		'equals',
 		'not-equals',
-		'greater-than',
+		'greater-than', 
 		'less-than',
 	]),
 });
 
-const createConfig = () => {
+export type ConditionConfig = z.infer<typeof ConditionSchema>;
+
+const createConfig: () => ConditionConfig = () => {
 	return {
 		title: 'Condition',
-		context: 'If/Else condition based on compared values.',
+		description: 'If/Else condition based on compared values.',
 		comparisonType: 'equals',
 	};
 };

@@ -15,7 +15,9 @@ export const RewriterApiSchema = z.object({
 	outputLanguage: z.enum(['en', 'ja', 'es']),
 });
 
-const createConfig: () => z.infer<typeof RewriterApiSchema> = () => {
+export type RewriterApiConfig = z.infer<typeof RewriterApiSchema>;
+
+const createConfig: () => RewriterApiConfig = () => {
 	return {
 		title: 'Rewriter API',
 		context: 'You are a helpful re-writer',

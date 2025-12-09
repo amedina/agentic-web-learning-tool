@@ -19,7 +19,9 @@ export const PromptApiSchema = z.object({
 	),
 });
 
-const createConfig: () => z.infer<typeof PromptApiSchema> = () => {
+export type PromptApiConfig = z.infer<typeof PromptApiSchema>;
+
+const createConfig: () => PromptApiConfig = () => {
 	return {
 		title: 'Prompt API',
 		context: 'You are a helpful assistant',

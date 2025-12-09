@@ -12,7 +12,9 @@ export const DomInputSchema = z.object({
 	defaultValue: z.string(),
 });
 
-const createConfig: () => z.infer<typeof DomInputSchema> = () => {
+export type DomInputConfig = z.infer<typeof DomInputSchema>;
+
+const createConfig: () => DomInputConfig = () => {
 	return {
 		title: 'DOM Input',
 		description: 'Extract text content from the DOM element.',

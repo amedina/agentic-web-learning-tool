@@ -9,7 +9,9 @@ export const AlertNotificationSchema = z.object({
 	description: z.string(),
 });
 
-const createConfig = () => {
+export type AlertNotificationConfig = z.infer<typeof AlertNotificationSchema>;
+
+const createConfig: () => AlertNotificationConfig = () => {
 	return {
 		title: 'Alert Notification',
 		description: 'An Alert notification for displaying output.',

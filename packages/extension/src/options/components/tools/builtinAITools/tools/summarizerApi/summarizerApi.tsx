@@ -14,7 +14,9 @@ export const SummarizerApiSchema = z.object({
 	outputLanguage: z.enum(['en', 'ja', 'es']),
 });
 
-const createConfig: () => z.infer<typeof SummarizerApiSchema> = () => {
+export type SummarizerApiConfig = z.infer<typeof SummarizerApiSchema>;
+
+const createConfig: () => SummarizerApiConfig = () => {
 	return {
 		title: 'Summarizer API',
 		context: 'You are a helpful summarizer',

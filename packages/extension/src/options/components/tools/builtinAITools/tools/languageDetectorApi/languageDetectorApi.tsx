@@ -9,7 +9,11 @@ export const LanguageDetectorApiSchema = z.object({
 	description: z.string(),
 });
 
-const createConfig: () => z.infer<typeof LanguageDetectorApiSchema> = () => {
+export type LanguageDetectorApiConfig = z.infer<
+	typeof LanguageDetectorApiSchema
+>;
+
+const createConfig: () => LanguageDetectorApiConfig = () => {
 	return {
 		title: 'Language Detector API',
 		description: 'Determine the language of input text.',

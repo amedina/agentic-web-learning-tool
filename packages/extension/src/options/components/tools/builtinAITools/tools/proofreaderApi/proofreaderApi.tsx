@@ -10,7 +10,9 @@ export const ProofreaderApiSchema = z.object({
 	expectedInputLanguages: z.array(z.enum(['en', 'ja', 'es'])),
 });
 
-const createConfig: () => z.infer<typeof ProofreaderApiSchema> = () => {
+export type ProofreaderApiConfig = z.infer<typeof ProofreaderApiSchema>;
+
+const createConfig: () => ProofreaderApiConfig = () => {
 	return {
 		title: 'Proofreader API',
 		description: 'You are a helpful proofreader',

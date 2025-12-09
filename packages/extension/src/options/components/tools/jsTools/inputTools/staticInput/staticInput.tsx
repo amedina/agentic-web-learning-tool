@@ -7,12 +7,16 @@ import { ToolItem } from '../../../../ui';
 export const StaticInputSchema = z.object({
 	title: z.string(),
 	description: z.string(),
+	inputValue: z.string(),
 });
 
-const createConfig: () => z.infer<typeof StaticInputSchema> = () => {
+export type StaticInputConfig = z.infer<typeof StaticInputSchema>;
+
+const createConfig: () => StaticInputConfig = () => {
 	return {
 		title: 'Static Input',
 		description: 'Provide a static text input.',
+		inputValue: '',
 	};
 };
 
