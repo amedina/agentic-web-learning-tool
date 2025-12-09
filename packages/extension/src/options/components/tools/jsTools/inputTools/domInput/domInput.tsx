@@ -1,12 +1,21 @@
 import { useCallback } from 'react';
 import { FileSearch } from 'lucide-react';
+import z from 'zod';
 import { useApi, useFlow } from '../../../../../store';
 import { ToolItem } from '../../../../ui';
 
-const createConfig = () => {
+export const DomInputSchema = z.object({
+	title: z.string(),
+	description: z.string(),
+	cssSelector: z.string(),
+	extract: z.enum(['textContent', 'innerText', 'innerHTML']),
+	defaultValue: z.string(),
+});
+
+const createConfig: () => z.infer<typeof DomInputSchema> = () => {
 	return {
 		title: 'DOM Input',
-		context: 'Extract text content from the DOM element.',
+		description: 'Extract text content from the DOM element.',
 		cssSelector: 'body',
 		extract: 'textContent',
 		defaultValue: 'Test',

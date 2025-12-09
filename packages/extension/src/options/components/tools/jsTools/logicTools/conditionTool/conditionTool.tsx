@@ -1,7 +1,19 @@
 import { useCallback } from 'react';
 import { Split } from 'lucide-react';
+import z from 'zod';
 import { useApi, useFlow } from '../../../../../store';
 import { ToolItem } from '../../../../ui';
+
+export const ConditionSchema = z.object({
+	title: z.string(),
+	context: z.string(),
+	comparisonType: z.enum([
+		'equals',
+		'not-equals',
+		'greater-than',
+		'less-than',
+	]),
+});
 
 const createConfig = () => {
 	return {

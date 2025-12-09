@@ -24,16 +24,16 @@ const ToolConfig = ({ ref, node }: ToolConfigProps) => {
 		node.config.languageOutput || []
 	);
 
-	const [initialPrompts, setInitialPrompts] = useState<
-		{ role: string; content: string }[]
-	>(node.config.initialPrompts || '[]');
+	const [initialPrompts, setInitialPrompts] = useState<string>(
+		JSON.stringify(node.config.initialPrompts) || '[]'
+	);
 
 	useEffect(() => {
 		setTopK(node.config.topK || 3);
 		setTemperature(node.config.temperature || 0.7);
 		setLanguageInput(node.config.expectedInputs?.[0]?.languages || []);
 		setLanguageOutput(node.config.expectedOutputs?.[0]?.languages || []);
-		setInitialPrompts(node.config.initialPrompts || '[]');
+		setInitialPrompts(JSON.stringify(node.config.initialPrompts) || '[]');
 	}, [node]);
 
 	useImperativeHandle(
@@ -49,6 +49,14 @@ const ToolConfig = ({ ref, node }: ToolConfigProps) => {
 					'languageOutput'
 				) as string[];
 				const initialPrompts = formData.get('initialPrompts') as string;
+				let parsedInitialPrompts = [];
+
+				try {
+					parsedInitialPrompts = JSON.parse(initialPrompts);
+				} catch (error) {
+					console.error('Invalid JSON for initialPrompts:', error);
+					return {};
+				}
 
 				return {
 					topK: Number(topK),
@@ -65,7 +73,7 @@ const ToolConfig = ({ ref, node }: ToolConfigProps) => {
 							languages: languageOutput,
 						},
 					],
-					initialPrompts: initialPrompts,
+					initialPrompts: parsedInitialPrompts,
 				};
 			},
 		}),
@@ -211,7 +219,7 @@ const ToolConfig = ({ ref, node }: ToolConfigProps) => {
 							name="initialPrompts"
 							placeholder='[{"role": "system", "content": "You are a helpful assistant."}, {"role": "user", "content": "Hello"}]'
 							rows={6}
-							value={(initialPrompts, null, 2)}
+							value={initialPrompts}
 							className="w-full p-3 border border-slate-300 rounded-md bg-white font-mono text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 resize-vertical"
 							onChange={(e) => {
 								try {

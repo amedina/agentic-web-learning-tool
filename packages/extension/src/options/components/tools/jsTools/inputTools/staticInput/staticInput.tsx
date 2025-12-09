@@ -1,12 +1,18 @@
 import { useCallback } from 'react';
 import { FormInput } from 'lucide-react';
+import z from 'zod';
 import { useApi, useFlow } from '../../../../../store';
 import { ToolItem } from '../../../../ui';
 
-const createConfig = () => {
+export const StaticInputSchema = z.object({
+	title: z.string(),
+	description: z.string(),
+});
+
+const createConfig: () => z.infer<typeof StaticInputSchema> = () => {
 	return {
 		title: 'Static Input',
-		context: 'Provide a static text input.',
+		description: 'Provide a static text input.',
 	};
 };
 

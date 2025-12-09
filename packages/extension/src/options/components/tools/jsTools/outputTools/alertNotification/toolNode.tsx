@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { Handle, Position, useNodeId } from '@xyflow/react';
-import { BellRing, NotebookText } from 'lucide-react';
+import { BellRing } from 'lucide-react';
 import { useApi, useFlow } from '../../../../../store';
 import { ToolNodeContainer } from '../../../../ui';
 

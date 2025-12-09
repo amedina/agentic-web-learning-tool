@@ -2,8 +2,19 @@ import { useCallback } from 'react';
 import { PenTool } from 'lucide-react';
 import { useApi, useFlow } from '../../../../../store';
 import { ToolItem } from '../../../../ui';
+import z from 'zod';
 
-const createConfig = () => {
+const WriterApiSchema = z.object({
+	title: z.string(),
+	context: z.string(),
+	tone: z.enum(['formal', 'neutral', 'casual']),
+	format: z.enum(['markdown', 'plain-text']),
+	length: z.enum(['short', 'medium', 'long']),
+	expectedInputLanguages: z.array(z.enum(['en', 'ja', 'es'])),
+	outputLanguage: z.enum(['en', 'ja', 'es']),
+});
+
+const createConfig: () => z.infer<typeof WriterApiSchema> = () => {
 	return {
 		title: 'Writer API',
 		context: 'You are a helpful writer',
@@ -11,7 +22,6 @@ const createConfig = () => {
 		format: 'markdown',
 		length: 'short',
 		expectedInputLanguages: ['en', 'ja', 'es'],
-		expectedContextLanguages: ['en', 'ja', 'es'],
 		outputLanguage: 'es',
 	};
 };

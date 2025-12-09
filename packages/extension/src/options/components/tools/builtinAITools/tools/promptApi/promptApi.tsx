@@ -1,23 +1,35 @@
 import { useCallback } from 'react';
 import { NotebookTextIcon } from 'lucide-react';
+import z from 'zod';
 import { useApi, useFlow } from '../../../../../store';
 import { ToolItem } from '../../../../ui';
 
-const createConfig = () => {
+export const PromptApiSchema = z.object({
+	title: z.string(),
+	context: z.string(),
+	topK: z.number().min(1).max(128),
+	temperature: z.number().min(0).max(2),
+	expectedInputsLanguages: z.array(z.enum(['en', 'es', 'ja'])),
+	expectedOutputsLanguages: z.array(z.enum(['en', 'es', 'ja'])),
+	initialPrompts: z.array(
+		z.object({
+			role: z.enum(['system', 'user', 'assistant']),
+			content: z.string(),
+		})
+	),
+});
+
+const createConfig: () => z.infer<typeof PromptApiSchema> = () => {
 	return {
 		title: 'Prompt API',
 		context: 'You are a helpful assistant',
 		topK: 3,
 		temperature: 1,
-		expectedInputs: [
-			{
-				type: 'text',
-				languages: ['en', 'ja'],
-			},
+		expectedInputsLanguages: ['en', 'ja'],
+		expectedOutputsLanguages: ['ja'],
+		initialPrompts: [
+			{ role: 'system', content: 'You are a helpful assistant.' },
 		],
-		expectedOutputs: [{ type: 'text', languages: ['ja'] }],
-		initialPrompts:
-			"[{role: 'system', content: 'You are a helpful assistant.',},]",
 	};
 };
 

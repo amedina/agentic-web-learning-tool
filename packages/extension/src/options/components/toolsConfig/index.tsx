@@ -145,21 +145,31 @@ const ToolsConfig = () => {
 						</div>
 
 						<div>
-							<label
-								className="block text-sm font-medium text-slate-700 mb-2"
-								htmlFor="context"
-							>
-								Context
-							</label>
-							<textarea
-								className="w-full p-3 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm resize-none bg-white"
-								rows={4}
-								value={context || ''}
-								id="context"
-								name="context"
-								onChange={(e) => setContext(e.target.value)}
-								placeholder="Enter context for the tool..."
-							/>
+							{context ? (
+								<>
+									<label
+										className="block text-sm font-medium text-slate-700 mb-2"
+										htmlFor="context"
+									>
+										Context
+									</label>
+									<textarea
+										className="w-full p-3 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm resize-none bg-white"
+										rows={4}
+										value={context || ''}
+										id="context"
+										name="context"
+										onChange={(e) =>
+											setContext(e.target.value)
+										}
+										placeholder="Enter context for the tool..."
+									/>
+								</>
+							) : (
+								<p className="text-sm text-slate-700 mb-2">
+									{node?.config.description}
+								</p>
+							)}
 						</div>
 
 						{Tool && node && <Tool ref={toolNodeRef} node={node} />}

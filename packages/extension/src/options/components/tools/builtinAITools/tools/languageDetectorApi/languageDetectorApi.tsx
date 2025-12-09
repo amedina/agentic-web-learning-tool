@@ -1,14 +1,21 @@
 import { useCallback } from 'react';
 import { ScanSearch } from 'lucide-react';
+import z from 'zod';
 import { useApi, useFlow } from '../../../../../store';
 import { ToolItem } from '../../../../ui';
 
-const createConfig = () => {
+export const LanguageDetectorApiSchema = z.object({
+	title: z.string(),
+	description: z.string(),
+});
+
+const createConfig: () => z.infer<typeof LanguageDetectorApiSchema> = () => {
 	return {
 		title: 'Language Detector API',
-		context: 'You are a helpful language detector',
+		description: 'Determine the language of input text.',
 	};
 };
+
 const LanguageDetectorApi = () => {
 	const { addFlowNode } = useFlow(({ actions }) => ({
 		addFlowNode: actions.addNode,
