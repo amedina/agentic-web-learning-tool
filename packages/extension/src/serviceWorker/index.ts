@@ -414,7 +414,6 @@ class McpHub {
 
 // Initialize the MCP Server and Hub
 const mcpHub = new McpHub(sharedServer);
-globalThis.mcpHub = mcpHub;
 
 chrome.runtime.onConnect.addListener((port) => {
   if (port.name !== CONNECTION_NAMES.MCP_HOST) {
