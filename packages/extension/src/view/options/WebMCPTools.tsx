@@ -3,11 +3,11 @@ import { useState, useEffect } from "react";
 import { Button } from '@google-awlt/design-system';
 import { PlusIcon, TrashIcon, Cross2Icon, Pencil1Icon } from "@radix-ui/react-icons";
 
-// Type definitions for our script object
+
 interface WebMCPScript {
     id: string;
     name: string;
-    code: string; // The full script content
+    code: string;
     enabled: boolean;
     metadata: {
         name?: string;
@@ -24,7 +24,7 @@ export function WebMCPTools() {
     const [editingScript, setEditingScript] = useState<WebMCPScript | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    // Load scripts from storage on mount
+
     useEffect(() => {
         chrome.storage.local.get([STORAGE_KEY], (result) => {
             if (result[STORAGE_KEY]) {
@@ -33,7 +33,7 @@ export function WebMCPTools() {
         });
     }, []);
 
-    // Save scripts to storage whenever they change
+
     const saveScripts = (updatedScripts: WebMCPScript[]) => {
         setScripts(updatedScripts);
         chrome.storage.local.set({ [STORAGE_KEY]: updatedScripts });
@@ -59,7 +59,7 @@ export function WebMCPTools() {
 };
 
 export async function execute(args) {
-  // Your tool logic here
+  
   return \`Processed: \${args.query}\`;
 }`,
             enabled: true,
@@ -89,16 +89,16 @@ export async function execute(args) {
     };
 
     const extractMetadata = (code: string) => {
-        // Simple regex to extract metadata object - this is a basic approximation
-        // A full AST parser would be better but heavier.
+
+
         try {
             const match = code.match(/export\s+const\s+metadata\s*=\s*({[\s\S]*?});/);
             if (match && match[1]) {
-                // This is dangerous if we eval arbitrary code, but here we are just trying to parse the object literla
-                // We can try to allow limited eval or just basic loose JSON parsing if possible.
-                // For now let's try a safe evaluation or regex parsing for specific fields.
 
-                // Using regex for key fields to be safer than eval
+
+
+
+
                 const nameMatch = match[1].match(/name:\s*["']([^"']+)["']/);
                 const matchPatternMatch = match[1].match(/match:\s*["']([^"']+)["']/);
                 const versionMatch = match[1].match(/version:\s*["']([^"']+)["']/);
