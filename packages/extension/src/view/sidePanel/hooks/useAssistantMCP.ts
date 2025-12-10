@@ -126,7 +126,6 @@ export function useAssistantMCP(
       // Extract a human-readable name for logging (removes "tab123_" prefix)
       const match = mcpT.name.match(/^tab\d+_(.+)$/);
       const logName = match ? match[1] : mcpT.name;
-      console.log(filteredTools)
       return {
         name: uiToolName,
         // The Assistant UI 'tool' definition

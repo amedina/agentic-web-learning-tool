@@ -27,6 +27,10 @@ type ContentScriptMessage =
 
 const sharedServer = new McpServer({ name: 'Extension-Hub', version: '1.0.0' }, { capabilities: { tools: { listChanged: true } } });
 
+chrome.sidePanel
+  .setPanelBehavior({ openPanelOnActionClick: true })
+  .catch((error) => console.error(error));
+
 /**
  * Sanitizes a string to be safe for use in MCP tool names.
  */
@@ -203,7 +207,7 @@ class McpHub {
         this.server.server?.transport?.send({
           jsonrpc: '2.0',
           method: 'get/Tools'
-        })
+        });
         this.registeredTools.set(uniqueToolName, mcpTool);
       }
     }
@@ -410,6 +414,7 @@ class McpHub {
 
 // Initialize the MCP Server and Hub
 const mcpHub = new McpHub(sharedServer);
+globalThis.mcpHub = mcpHub;
 
 chrome.runtime.onConnect.addListener((port) => {
   if (port.name !== CONNECTION_NAMES.MCP_HOST) {
@@ -420,13 +425,23 @@ chrome.runtime.onConnect.addListener((port) => {
     keepAlive: true,
     keepAliveInterval: 25_000,
   });
-  //Why this is being done look herehttps://github.com/modelcontextprotocol/typescript-sdk/issues/893
-  sharedServer.registerTool('dummyTool', {}, () =>
-  ({
-    content: [{ type: 'text', text: `Failed to execute tool: Tab connection lost or closed.` }],
-    isError: true,
-  } as CallToolResult)
-  );
+  try {
+    //Why this is being done look herehttps://github.com/modelcontextprotocol/typescript-sdk/issues/893
+    sharedServer.registerTool('dummyTool', {}, () =>
+    ({
+      content: [{ type: 'text', text: `Failed to execute tool: Tab connection lost or closed.` }],
+      isError: true,
+    } as CallToolResult)
+    );
+  } catch (error) {
+    //supress error
+  }
   sharedServer.connect(transport);
   mcpHub.setupConnections();
+  if (mcpHub.registeredTools.size > 0) {
+    sharedServer.server?.transport?.send({
+      jsonrpc: '2.0',
+      method: 'get/Tools'
+    });
+  }
 });
