@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { cn, MarkdownText } from '@google-awlt/design-system';
+import { cn, MarkdownText, ToolFallback } from '@google-awlt/design-system';
 import { useAssistantState, MessagePrimitive, ActionBarPrimitive } from "@assistant-ui/react";
 import { Root, AvatarFallback } from "@radix-ui/react-avatar";
 import { ReloadIcon } from "@radix-ui/react-icons";
@@ -34,7 +34,7 @@ const ChatMessage: FC = () => {
           </MessagePrimitive.If>
 
           <span className="text-[#eee]">
-            <MessagePrimitive.Parts components={{ Text: MarkdownText }} />
+            <MessagePrimitive.Parts components={{ Text: MarkdownText, tools: {Fallback: ToolFallback} }} />
           </span>
         </div>
       </div>
