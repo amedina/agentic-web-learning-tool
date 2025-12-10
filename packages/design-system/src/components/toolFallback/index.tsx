@@ -60,7 +60,7 @@ export const ToolFallback: ToolCallMessagePartComponent = ({
       `}>
         
         {/* Header Section */}
-        <div 
+        <div
           onClick={() => setIsOpen(!isOpen)}
           className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-neutral-900 transition-colors"
         >
