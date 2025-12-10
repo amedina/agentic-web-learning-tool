@@ -1,12 +1,26 @@
 import { useCallback } from 'react';
 import { Split } from 'lucide-react';
+import z from 'zod';
 import { useApi, useFlow } from '../../../../../store';
 import { ToolItem } from '../../../../ui';
 
-const createConfig = () => {
+export const ConditionSchema = z.object({
+	title: z.string(),
+	description: z.string(),
+	comparisonType: z.enum([
+		'equals',
+		'not-equals',
+		'greater-than', 
+		'less-than',
+	]),
+});
+
+export type ConditionConfig = z.infer<typeof ConditionSchema>;
+
+const createConfig: () => ConditionConfig = () => {
 	return {
 		title: 'Condition',
-		context: 'If/Else condition based on compared values.',
+		description: 'If/Else condition based on compared values.',
 		comparisonType: 'equals',
 	};
 };

@@ -1,45 +1,48 @@
 import { useEffect, useImperativeHandle, useState } from 'react';
 import { Settings } from 'lucide-react';
-import { type NodeConfig } from '../../../../../store';
+import type { PromptApiConfig } from './promptApi';
+import { PromptApiSchema } from './promptApi';
 
 interface ToolConfigProps {
 	ref: React.Ref<{
-		getConfig: (formData: FormData) => void;
+		getConfig: (formData: FormData) => PromptApiConfig | undefined;
 	}>;
-	node: NodeConfig;
+	config: PromptApiConfig;
 }
 
-const ToolConfig = ({ ref, node }: ToolConfigProps) => {
-	const [topK, setTopK] = useState<number>(node.config.topK || 3);
+const ToolConfig = ({ ref, config }: ToolConfigProps) => {
+	const [topK, setTopK] = useState<number>(config.topK || 3);
 
 	const [temperature, setTemperature] = useState<number>(
-		node.config.temperature || 1
+		config.temperature || 1
 	);
 
 	const [languageInput, setLanguageInput] = useState<string[]>(
-		node.config.languageInput || []
+		config.expectedInputsLanguages || []
 	);
 
 	const [languageOutput, setLanguageOutput] = useState<string[]>(
-		node.config.languageOutput || []
+		config.expectedOutputsLanguages || []
 	);
 
-	const [initialPrompts, setInitialPrompts] = useState<
-		{ role: string; content: string }[]
-	>(node.config.initialPrompts || '[]');
+	const [initialPrompts, setInitialPrompts] = useState<string>(
+		JSON.stringify(config.initialPrompts) || '[]'
+	);
 
 	useEffect(() => {
-		setTopK(node.config.topK || 3);
-		setTemperature(node.config.temperature || 0.7);
-		setLanguageInput(node.config.expectedInputs?.[0]?.languages || []);
-		setLanguageOutput(node.config.expectedOutputs?.[0]?.languages || []);
-		setInitialPrompts(node.config.initialPrompts || '[]');
-	}, [node]);
+		setTopK(config.topK || 3);
+		setTemperature(config.temperature || 0.7);
+		setLanguageInput(config.expectedInputsLanguages || []);
+		setLanguageOutput(config.expectedOutputsLanguages || []);
+		setInitialPrompts(JSON.stringify(config.initialPrompts) || '[]');
+	}, [config]);
 
 	useImperativeHandle(
 		ref,
 		() => ({
 			getConfig: (formData: FormData) => {
+				const title = formData.get('title') as string;
+				const context = formData.get('context') as string;
 				const topK = formData.get('topK') as string;
 				const temperature = formData.get('temperature') as string;
 				const languageInput = formData.getAll(
@@ -49,24 +52,35 @@ const ToolConfig = ({ ref, node }: ToolConfigProps) => {
 					'languageOutput'
 				) as string[];
 				const initialPrompts = formData.get('initialPrompts') as string;
+				let parsedInitialPrompts = [];
 
-				return {
+				try {
+					parsedInitialPrompts = JSON.parse(initialPrompts);
+				} catch (error) {
+					console.error('Invalid JSON for initialPrompts:', error);
+					return undefined;
+				}
+
+				const configResult = {
+					title,
+					context,
 					topK: Number(topK),
 					temperature: Number(temperature),
-					expectedInputs: [
-						{
-							type: 'text',
-							languages: languageInput,
-						},
-					],
-					expectedOutputs: [
-						{
-							type: 'text',
-							languages: languageOutput,
-						},
-					],
-					initialPrompts: initialPrompts,
+					expectedInputsLanguages: languageInput,
+					expectedOutputsLanguages: languageOutput,
+					initialPrompts: parsedInitialPrompts,
 				};
+
+				const validation = PromptApiSchema.safeParse(configResult);
+				if (!validation.success) {
+					console.error(
+						'Configuration validation failed:',
+						validation.error
+					);
+					return undefined;
+				}
+
+				return validation.data;
 			},
 		}),
 		[]
@@ -211,7 +225,7 @@ const ToolConfig = ({ ref, node }: ToolConfigProps) => {
 							name="initialPrompts"
 							placeholder='[{"role": "system", "content": "You are a helpful assistant."}, {"role": "user", "content": "Hello"}]'
 							rows={6}
-							value={(initialPrompts, null, 2)}
+							value={initialPrompts}
 							className="w-full p-3 border border-slate-300 rounded-md bg-white font-mono text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 resize-vertical"
 							onChange={(e) => {
 								try {

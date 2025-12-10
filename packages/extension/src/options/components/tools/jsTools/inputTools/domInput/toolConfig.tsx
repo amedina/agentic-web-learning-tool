@@ -1,41 +1,59 @@
 import { useEffect, useImperativeHandle, useState } from 'react';
 import { Settings } from 'lucide-react';
-import { type NodeConfig } from '../../../../../store';
+import { DomInputSchema, type DomInputConfig } from './domInput';
 
 interface ToolConfigProps {
 	ref: React.Ref<{
-		getConfig: () => Record<string, unknown>;
+		getConfig: (formData: FormData) => DomInputConfig | undefined;
 	}>;
-	node: NodeConfig;
+	config: DomInputConfig;
 }
 
-const ToolConfig = ({ ref, node }: ToolConfigProps) => {
+const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 	const [cssSelector, setCssSelector] = useState<string>(
-		node.config.cssSelector || 'body'
+		config.cssSelector || 'body'
 	);
 	const [extract, setExtract] = useState<string>(
-		node.config.extract || 'textContent'
+		config.extract || 'textContent'
 	);
 	const [defaultValue, setDefaultValue] = useState<string>(
-		node.config.defaultValue || ''
+		config.defaultValue || ''
 	);
 
 	useEffect(() => {
-		setCssSelector(node.config.cssSelector || 'body');
-		setExtract(node.config.extract || 'textContent');
-		setDefaultValue(node.config.defaultValue || '');
-	}, [node]);
+		setCssSelector(config.cssSelector || 'body');
+		setExtract(config.extract || 'textContent');
+		setDefaultValue(config.defaultValue || '');
+	}, [config]);
 
 	useImperativeHandle(
 		ref,
 		() => ({
-			getConfig: () => ({
-				cssSelector,
-				extract,
-				defaultValue,
-			}),
+			getConfig: (formData: FormData) => {
+				const title = formData.get('title') as string;
+				const description = formData.get('description') as string;
+				const cssSelector = formData.get('cssSelector') as string;
+				const extract = formData.get('extract') as string;
+				const defaultValue = formData.get('defaultValue') as string;
+
+				const configResult = {
+					title,
+					description,
+					cssSelector,
+					extract,
+					defaultValue,
+				};
+
+				const validation = DomInputSchema.safeParse(configResult);
+				if (!validation.success) {
+					console.error('Invalid configuration:', validation.error);
+					return undefined;
+				}
+
+				return validation.data;
+			},
 		}),
-		[cssSelector, extract, defaultValue]
+		[]
 	);
 
 	return (

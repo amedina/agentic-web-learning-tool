@@ -2,8 +2,21 @@ import { useCallback } from 'react';
 import { RefreshCcw } from 'lucide-react';
 import { useApi, useFlow } from '../../../../../store';
 import { ToolItem } from '../../../../ui';
+import z from 'zod';
 
-const createConfig = () => {
+export const RewriterApiSchema = z.object({
+	title: z.string(),
+	context: z.string(),
+	tone: z.enum(['more-formal', 'as-is', 'more-casual']),
+	format: z.enum(['as-is', 'markdown', 'plain-text']),
+	length: z.enum(['shorter', 'as-is', 'longer']),
+	expectedInputLanguages: z.array(z.enum(['en', 'ja', 'es'])),
+	outputLanguage: z.enum(['en', 'ja', 'es']),
+});
+
+export type RewriterApiConfig = z.infer<typeof RewriterApiSchema>;
+
+const createConfig: () => RewriterApiConfig = () => {
 	return {
 		title: 'Rewriter API',
 		context: 'You are a helpful re-writer',
@@ -11,7 +24,6 @@ const createConfig = () => {
 		format: 'as-is',
 		length: 'as-is',
 		expectedInputLanguages: ['en', 'ja', 'es'],
-		expectedContextLanguages: ['en', 'ja', 'es'],
 		outputLanguage: 'es',
 	};
 };

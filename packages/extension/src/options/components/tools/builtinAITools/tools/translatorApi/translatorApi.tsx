@@ -2,11 +2,21 @@ import { useCallback } from 'react';
 import { Languages } from 'lucide-react';
 import { useApi, useFlow } from '../../../../../store';
 import { ToolItem } from '../../../../ui';
+import z from 'zod';
 
-const createConfig = () => {
+export const TranslatorApiSchema = z.object({
+	title: z.string(),
+	description: z.string(),
+	sourceLanguage: z.enum(['en', 'ja', 'es']),
+	targetLanguage: z.enum(['en', 'ja', 'es']),
+});
+
+export type TranslatorApiConfig = z.infer<typeof TranslatorApiSchema>;
+
+const createConfig: () => TranslatorApiConfig = () => {
 	return {
 		title: 'Translator API',
-		context: 'You are a helpful translator',
+		description: 'You are a helpful translator',
 		sourceLanguage: 'en',
 		targetLanguage: 'es',
 	};

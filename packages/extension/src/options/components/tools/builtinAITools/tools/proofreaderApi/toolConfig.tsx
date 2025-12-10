@@ -1,34 +1,49 @@
 import { useEffect, useImperativeHandle, useState } from 'react';
 import { Settings } from 'lucide-react';
-import { type NodeConfig } from '../../../../../store';
+import {
+	ProofreaderApiSchema,
+	type ProofreaderApiConfig,
+} from './proofreaderApi';
 
 interface ToolConfigProps {
 	ref: React.Ref<{
-		getConfig: (formData: FormData) => void;
+		getConfig: (formData: FormData) => ProofreaderApiConfig | undefined;
 	}>;
-	node: NodeConfig;
+	config: ProofreaderApiConfig;
 }
 
-const ToolConfig = ({ ref, node }: ToolConfigProps) => {
+const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 	const [inputLanguages, setInputLanguages] = useState<string[]>(
-		node.config.expectedInputLanguages || []
+		config.expectedInputLanguages || []
 	);
 
 	useEffect(() => {
-		setInputLanguages(node.config.expectedInputLanguages || []);
-	}, [node]);
+		setInputLanguages(config.expectedInputLanguages || []);
+	}, [config]);
 
 	useImperativeHandle(
 		ref,
 		() => ({
 			getConfig: (formData: FormData) => {
+				const title = formData.get('title') as string;
+				const description = formData.get('description') as string;
 				const inputLanguages = formData.getAll(
 					'inputLanguages'
 				) as string[];
 
-				return {
+				const configResult = {
+					title,
+					description,
 					expectedInputLanguages: inputLanguages,
 				};
+
+				const validation = ProofreaderApiSchema.safeParse(configResult);
+				if (!validation.success) {
+					console.error('Invalid configuration:', validation.error);
+					return undefined;
+				}
+
+				return validation.data;
 			},
 		}),
 		[]

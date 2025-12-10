@@ -1,12 +1,21 @@
 import { useCallback } from 'react';
 import { BookCheck } from 'lucide-react';
+import z from 'zod';
 import { useApi, useFlow } from '../../../../../store';
 import { ToolItem } from '../../../../ui';
 
-const createConfig = () => {
+export const ProofreaderApiSchema = z.object({
+	title: z.string(),
+	description: z.string(),
+	expectedInputLanguages: z.array(z.enum(['en', 'ja', 'es'])),
+});
+
+export type ProofreaderApiConfig = z.infer<typeof ProofreaderApiSchema>;
+
+const createConfig: () => ProofreaderApiConfig = () => {
 	return {
 		title: 'Proofreader API',
-		context: 'You are a helpful proofreader', // TODO: Remove, no context required for proofreader
+		description: 'You are a helpful proofreader',
 		expectedInputLanguages: ['en', 'ja', 'es'],
 	};
 };

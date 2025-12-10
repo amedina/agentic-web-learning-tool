@@ -2,8 +2,21 @@ import { useCallback } from 'react';
 import { NotepadTextDashed } from 'lucide-react';
 import { useApi, useFlow } from '../../../../../store';
 import { ToolItem } from '../../../../ui';
+import z from 'zod';
 
-const createConfig = () => {
+export const SummarizerApiSchema = z.object({
+	title: z.string(),
+	context: z.string(),
+	type: z.enum(['key-points', 'tldr', 'teaser', 'headline']),
+	format: z.enum(['markdown', 'plain-text']),
+	length: z.enum(['short', 'medium', 'long']),
+	expectedInputLanguages: z.array(z.enum(['en', 'ja', 'es'])),
+	outputLanguage: z.enum(['en', 'ja', 'es']),
+});
+
+export type SummarizerApiConfig = z.infer<typeof SummarizerApiSchema>;
+
+const createConfig: () => SummarizerApiConfig = () => {
 	return {
 		title: 'Summarizer API',
 		context: 'You are a helpful summarizer',
@@ -12,7 +25,6 @@ const createConfig = () => {
 		length: 'short',
 		expectedInputLanguages: ['en', 'ja', 'es'],
 		outputLanguage: 'es',
-		expectedContextLanguages: ['en', 'ja', 'es'],
 	};
 };
 

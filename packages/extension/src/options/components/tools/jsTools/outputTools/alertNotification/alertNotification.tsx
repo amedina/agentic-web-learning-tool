@@ -1,12 +1,20 @@
 import { useCallback } from 'react';
 import { BellRing } from 'lucide-react';
+import z from 'zod';
 import { useApi, useFlow } from '../../../../../store';
 import { ToolItem } from '../../../../ui';
 
-const createConfig = () => {
+export const AlertNotificationSchema = z.object({
+	title: z.string(),
+	description: z.string(),
+});
+
+export type AlertNotificationConfig = z.infer<typeof AlertNotificationSchema>;
+
+const createConfig: () => AlertNotificationConfig = () => {
 	return {
 		title: 'Alert Notification',
-		context: 'An Alert notification for displaying output.',
+		description: 'An Alert notification for displaying output.',
 	};
 };
 
