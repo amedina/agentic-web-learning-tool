@@ -21,7 +21,7 @@ Object.assign(navigator, {
 });
 
 // Mock SyntaxHighlighter to avoid loading heavy parsing in tests
-jest.mock('../../syntaxhighlighter', () => ({
+jest.mock('../../syntaxHighlighter', () => ({
 	SyntaxHighlighter: ({ children }: { children: React.ReactNode }) => (
 		<pre data-testid="mock-highlighter">{children}</pre>
 	),
