@@ -50,7 +50,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 		<ThreadPrimitive.Root className="flex h-full flex-col items-stretch bg-[#2b2a27] px-4 pt-16 font-serif">
 			<ThreadPrimitive.Viewport className="no-scrollbar flex flex-grow flex-col overflow-y-scroll">
 				<ThreadPrimitive.Messages
-					components={{ Message: ChatMessage,  }}
+					components={{ Message: ChatMessage }}
 				/>
 				<ThreadPrimitive.If empty={false}>
 					<p className="mx-auto w-full max-w-screen-md p-2 text-right text-xs text-[#b8b5a9]">
