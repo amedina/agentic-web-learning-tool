@@ -121,12 +121,12 @@ export function useAssistantMCP(
     // Transform MCP tools into Assistant UI tools
     const assistantTools = filteredTools.map((mcpT) => {
       // Generate a clean name for the UI (handles length limits & hashing if needed)
-      const uiToolName = getToolNameForUI(mcpT.name);
+      const uiToolName = mcpT.name === 'dummyTool' ? mcpT.name :getToolNameForUI(mcpT.name);
 
       // Extract a human-readable name for logging (removes "tab123_" prefix)
       const match = mcpT.name.match(/^tab\d+_(.+)$/);
       const logName = match ? match[1] : mcpT.name;
-
+      console.log(filteredTools)
       return {
         name: uiToolName,
         // The Assistant UI 'tool' definition
@@ -158,7 +158,7 @@ export function useAssistantMCP(
           },
         }),
       };
-    });
+    }).filter((singleTool) => singleTool.name !== 'dummyTool');
 
     // Register the Context Provider with the Runtime
     const unregister = runtime.registerModelContextProvider({

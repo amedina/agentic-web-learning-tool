@@ -10,6 +10,7 @@ import {
 import { ArrowUpIcon, StopIcon } from '@radix-ui/react-icons';
 import { useMcpClient } from '@mcp-b/mcp-react-hooks';
 import { useEffect } from 'react';
+import type { JSONRPCMessage } from '@modelcontextprotocol/sdk/types.js';
 /**
  * Internal dependencies
  */
@@ -22,11 +23,22 @@ type ChatBotUIProps = {
 };
 
 const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
-	useEffect(() => {
-		(async () => client.connect(transport))();
-	}, []);
-
 	const { client, tools } = useMcpClient();
+
+	useEffect(() => {
+		(async () => {
+			await client.connect(transport);
+	})();
+	}, [client]);
+
+	useEffect(() => {
+		transport.onmessage = (async(message: JSONRPCMessage) => {
+			//@ts-expect-error -- One of the JSONRPCMessage doesnt have the method property
+			if(message.method === 'get/Tools'){
+				await client.listTools();
+			}
+		})
+	}, [client]);
 
 	const threadId = useAssistantState(
 		({ threadListItem }) => threadListItem.id
@@ -47,8 +59,9 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 				</ThreadPrimitive.If>
 			</ThreadPrimitive.Viewport>
 
-			<ComposerPrimitive.Root className="mx-auto flex w-full max-w-screen-md flex-col rounded-xl border border-[#6c6a6040] bg-[#393937] p-1.5 m-2">
+			<ComposerPrimitive.Root className="mx-auto relative flex w-full max-w-screen-md flex-col rounded-xl border border-[#6c6a6040] bg-[#393937] p-1.5 m-2">
 				<div className="flex">
+					<p className='absolute text-xxs top-0 left-0 ml-1 text-white'>Total tools registered: {tools.length}</p>
 					<ComposerPrimitive.Input
 						placeholder="Reply to Agent..."
 						className="h-12 flex-grow resize-none bg-transparent p-3.5 text-sm text-white outline-none placeholder:text-white/50"

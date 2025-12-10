@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import type { CallToolResult, Tool } from '@modelcontextprotocol/sdk/types.js';
+import { type CallToolResult, type Tool } from '@modelcontextprotocol/sdk/types.js';
 import { z } from 'zod';
 import { ExtensionServerTransport } from '@mcp-b/transports';
 /**
@@ -23,8 +23,9 @@ interface TabData {
 type ContentScriptMessage =
   | { type: typeof MESSAGE_TYPES.REGISTER; tools: Tool[] }
   | { type: typeof MESSAGE_TYPES.UPDATE; tools: Tool[] }
-  | { type: typeof MESSAGE_TYPES.RESULT; requestId: string; data: {success: boolean; payload: CallToolResult | Error } };
+  | { type: typeof MESSAGE_TYPES.RESULT; requestId: string; data: { success: boolean; payload: CallToolResult | Error } };
 
+const sharedServer = new McpServer({ name: 'Extension-Hub', version: '1.0.0' }, { capabilities: { tools: { listChanged: true } } });
 
 /**
  * Sanitizes a string to be safe for use in MCP tool names.
@@ -39,15 +40,15 @@ function sanitizeToolName(name: string): string {
  */
 class McpHub {
   private server: McpServer;
-  
+
   // Storage: Domain -> DataId (tab-123) -> TabData
   private domains = new Map<string, Map<string, TabData>>();
-  
+
   private activeTabId: number | null = null;
   private requestManager = new RequestManager();
-  
+
   // Track registered tools to allow updating/removing them dynamically
-  private registeredTools = new Map<string, ReturnType<typeof this.server.registerTool>>();
+  registeredTools = new Map<string, ReturnType<typeof this.server.registerTool>>();
 
   constructor(server: McpServer) {
     this.server = server;
@@ -199,6 +200,10 @@ class McpHub {
         const mcpTool = this.server.registerTool(uniqueToolName, config, async (args: any) =>
           this.executeTool(domain, dataId, tool.name, args)
         );
+        this.server.server?.transport?.send({
+          jsonrpc: '2.0',
+          method: 'get/Tools'
+        })
         this.registeredTools.set(uniqueToolName, mcpTool);
       }
     }
@@ -207,7 +212,7 @@ class McpHub {
     if (!isRegister) {
       const oldTools = existingTabData?.tools || [];
       const removedTools = oldTools.filter((t) => !tools.some((nt) => nt.name === t.name));
-      
+
       for (const tool of removedTools) {
         const uniqueToolName = this.generateUniqueToolName(toolNameComponents.cleanDomain, toolNameComponents.prefix, tool.name);
         this.registeredTools.get(uniqueToolName)?.remove();
@@ -218,8 +223,8 @@ class McpHub {
 
   private unregisterTab(domain: string, dataId: string) {
     const domainData = this.getDomainData(domain);
-    if (!domainData.has(dataId)){
-        return;
+    if (!domainData.has(dataId)) {
+      return;
     }
 
     this.unregisterTools(domain, dataId);
@@ -229,8 +234,8 @@ class McpHub {
   private unregisterTools(domain: string, dataId: string) {
     const domainData = this.getDomainData(domain);
     const tabData = domainData.get(dataId);
-    if (!tabData){
-        return;
+    if (!tabData) {
+      return;
     }
 
     const cleanDomain = sanitizeToolName(domain);
@@ -246,7 +251,7 @@ class McpHub {
   /**
    * Forwards a tool execution request to the specific Chrome tab via its Port.
    */
-  private async executeTool(
+  async executeTool(
     domain: string,
     dataId: string,
     toolName: string,
@@ -254,7 +259,7 @@ class McpHub {
   ): Promise<CallToolResult> {
     try {
       const port = await this.getPortForDataId(domain, dataId);
-      
+
       if (!port) {
         return {
           content: [{ type: 'text', text: `Failed to execute tool: Tab connection lost or closed.` }],
@@ -263,10 +268,10 @@ class McpHub {
       }
 
       // Forward request to content script using RequestManager
-      const response = await this.requestManager.create(port, { 
-        type: MESSAGE_TYPES.EXECUTE, 
-        toolName, 
-        args 
+      const response = await this.requestManager.create(port, {
+        type: MESSAGE_TYPES.EXECUTE,
+        toolName,
+        args
       });
 
       return response as CallToolResult;
@@ -287,8 +292,8 @@ class McpHub {
   private async getPortForDataId(domain: string, dataId: string): Promise<chrome.runtime.Port | null> {
     const domainData = this.getDomainData(domain);
     const tabData = domainData.get(dataId);
-    if (!tabData){
-        return null;
+    if (!tabData) {
+      return null;
     }
 
     if (!tabData.isClosed && tabData.port) {
@@ -368,8 +373,8 @@ class McpHub {
   private updateToolDescriptions(domain: string, dataId: string) {
     const domainData = this.getDomainData(domain);
     const tabData = domainData.get(dataId);
-    if (!tabData || tabData.isClosed || !tabData.tabId){
-        return;
+    if (!tabData || tabData.isClosed || !tabData.tabId) {
+      return;
     }
 
     const toolNameComponents = {
@@ -404,7 +409,6 @@ class McpHub {
 }
 
 // Initialize the MCP Server and Hub
-const sharedServer = new McpServer({ name: 'Extension-Hub', version: '1.0.0' });
 const mcpHub = new McpHub(sharedServer);
 
 chrome.runtime.onConnect.addListener((port) => {
@@ -416,6 +420,13 @@ chrome.runtime.onConnect.addListener((port) => {
     keepAlive: true,
     keepAliveInterval: 25_000,
   });
+  //Why this is being done look herehttps://github.com/modelcontextprotocol/typescript-sdk/issues/893
+  sharedServer.registerTool('dummyTool', {}, () =>
+  ({
+    content: [{ type: 'text', text: `Failed to execute tool: Tab connection lost or closed.` }],
+    isError: true,
+  } as CallToolResult)
+  );
   sharedServer.connect(transport);
   mcpHub.setupConnections();
 });
