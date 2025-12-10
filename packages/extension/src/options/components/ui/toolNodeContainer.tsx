@@ -20,7 +20,7 @@ const ToolNodeContainer = ({
 	onRemove,
 }: PropsWithChildren<ToolNodeContainerProps>) => {
 	return (
-		<button
+		<div
 			className={`bg-white rounded-lg shadow-md border-2 w-[300px] transition-all ${selected ? 'border-indigo-500 shadow-lg' : 'border-slate-200'}`}
 			onClick={onEdit}
 		>
@@ -46,7 +46,7 @@ const ToolNodeContainer = ({
 				</div>
 			</div>
 			<div className="w-full p-3">{children}</div>
-		</button>
+		</div>
 	);
 };
 

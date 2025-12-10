@@ -19,10 +19,6 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 		config.expectedInputLanguages || []
 	);
 
-	const [contextLanguages, setContextLanguages] = useState<string[]>(
-		config.expectedContextLanguages || []
-	);
-
 	const [outputLanguage, setOutputLanguage] = useState<string>(
 		config.outputLanguage || 'es'
 	);
@@ -32,7 +28,6 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 		setFormat(config.format || 'as-is');
 		setLength(config.length || 'as-is');
 		setInputLanguages(config.expectedInputLanguages || []);
-		setContextLanguages(config.expectedContextLanguages || []);
 		setOutputLanguage(config.outputLanguage || 'es');
 	}, [config]);
 
@@ -156,37 +151,6 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 							className="w-full p-2 border border-slate-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
 							onChange={(e) =>
 								setInputLanguages(
-									Array.from(
-										e.target.selectedOptions,
-										(option) => option.value
-									)
-								)
-							}
-						>
-							<option value="en">English</option>
-							<option value="es">Spanish</option>
-							<option value="ja">Japanese</option>
-						</select>
-						<p className="text-xs text-slate-500 mt-1">
-							Hold Ctrl/Cmd to select multiple
-						</p>
-					</div>
-
-					<div>
-						<label
-							className="block text-sm font-medium text-slate-700 mb-2"
-							htmlFor="contextLanguages"
-						>
-							Context Languages
-						</label>
-						<select
-							multiple
-							name="contextLanguages"
-							id="contextLanguages"
-							value={contextLanguages}
-							className="w-full p-2 border border-slate-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
-							onChange={(e) =>
-								setContextLanguages(
 									Array.from(
 										e.target.selectedOptions,
 										(option) => option.value

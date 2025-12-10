@@ -11,7 +11,6 @@ export const RewriterApiSchema = z.object({
 	format: z.enum(['as-is', 'markdown', 'plain-text']),
 	length: z.enum(['shorter', 'as-is', 'longer']),
 	expectedInputLanguages: z.array(z.enum(['en', 'ja', 'es'])),
-	expectedContextLanguages: z.array(z.enum(['en', 'ja', 'es'])),
 	outputLanguage: z.enum(['en', 'ja', 'es']),
 });
 
@@ -25,7 +24,6 @@ const createConfig: () => RewriterApiConfig = () => {
 		format: 'as-is',
 		length: 'as-is',
 		expectedInputLanguages: ['en', 'ja', 'es'],
-		expectedContextLanguages: ['en', 'ja', 'es'],
 		outputLanguage: 'es',
 	};
 };
