@@ -42,8 +42,9 @@ const FlowProvider = ({ children }: PropsWithChildren) => {
 		}),
 		[]
 	);
-	const { removeNode } = useApi(({ actions }) => ({
+	const { removeNode, clearApiData } = useApi(({ actions }) => ({
 		removeNode: actions.removeNode,
+		clearApiData: actions.clearApiData,
 	}));
 
 	const onNodesChange = useCallback(
@@ -106,12 +107,10 @@ const FlowProvider = ({ children }: PropsWithChildren) => {
 	}, []);
 
 	const clearFlow = useCallback(() => {
-		nodes.forEach((node) => {
-			deleteNode(node.id);
-		});
-
+		clearApiData();
+		setNodes([]);
 		setEdges([]);
-	}, [deleteNode, nodes]);
+	}, [clearApiData]);
 
 	return (
 		<Context.Provider

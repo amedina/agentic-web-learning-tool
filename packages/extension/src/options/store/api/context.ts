@@ -50,6 +50,7 @@ export interface ApiStoreContext {
 		) => void;
 		removeNode: (id: string) => void;
 		setSelectedNode: (id: string | null) => void;
+		clearApiData: () => void;
 	};
 }
 
@@ -64,6 +65,7 @@ const initialState: ApiStoreContext = {
 		updateNode: () => {},
 		removeNode: () => {},
 		setSelectedNode: () => {},
+		clearApiData: () => {},
 	},
 };
 

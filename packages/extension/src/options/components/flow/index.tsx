@@ -1,14 +1,37 @@
 import { useApi, useFlow } from '../../store';
 import { Controls, MiniMap, ReactFlow } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { Download, Play, Save, Trash2, Upload, X } from 'lucide-react';
-import { useState } from 'react';
+import { Download, Play, Plus, Trash2, Upload, X } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
 import type { EdgeType, NodeType } from '../../store/flow/context';
+
+const ID_PREFIX = 'wf_';
+const STORAGE_PREFIX = 'workflow-';
+
+const generateId = () =>
+	`${ID_PREFIX}${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+const useDebounce = <T,>(value: T, delay: number): T => {
+	const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+	useEffect(() => {
+		const handler = setTimeout(() => {
+			setDebouncedValue(value);
+		}, delay);
+
+		return () => {
+			clearTimeout(handler);
+		};
+	}, [value, delay]);
+
+	return debouncedValue;
+};
 
 const Flow = () => {
 	const [workflowTitle, setWorkflowTitle] = useState('Untitled Workflow');
 	const [showImportDialog, setShowImportDialog] = useState(false);
 	const [importJson, setImportJson] = useState('');
+	const [workflowId, setWorkflowId] = useState<string | null>(null);
 	const [toast, setToast] = useState<{
 		message: string;
 		type: 'success' | 'error';
@@ -49,15 +72,150 @@ const Flow = () => {
 		setShowImportDialog(true);
 	};
 
+	const loadWorkflowData = useCallback(
+		(workflowData: any) => {
+			clearFlow();
+
+			if (workflowData.meta?.name) {
+				setWorkflowTitle(workflowData.meta.name);
+			}
+
+			const graphNodes = workflowData.graph?.nodes;
+			const graphEdges = workflowData.graph?.edges;
+
+			if (graphNodes && Array.isArray(graphNodes)) {
+				graphNodes.forEach((node: any) => {
+					const flowNode: NodeType = {
+						id: node.id,
+						type: node.type,
+						position: node.ui?.position || { x: 0, y: 0 },
+						data: { label: node.label || 'Node' },
+					};
+
+					addNode(flowNode);
+
+					if (node.config) {
+						addApiNode({
+							id: node.id,
+							type: node.type,
+							config: node.config,
+						});
+					}
+				});
+			}
+
+			if (graphEdges && Array.isArray(graphEdges)) {
+				graphEdges.forEach((edge: EdgeType) => {
+					onConnect(edge);
+				});
+			}
+		},
+		[clearFlow, addNode, addApiNode, onConnect]
+	);
+
+	useEffect(() => {
+		const params = new URLSearchParams(window.location.search);
+		const idFromUrl = params.get('id');
+
+		if (idFromUrl) {
+			setWorkflowId(idFromUrl);
+
+			const savedData = localStorage.getItem(
+				`${STORAGE_PREFIX}${idFromUrl}`
+			);
+			if (savedData) {
+				try {
+					const parsed = JSON.parse(savedData);
+					loadWorkflowData(parsed);
+				} catch (e) {
+					console.error('Failed to load workflow from storage', e);
+				}
+			}
+		} else {
+			const newId = generateId();
+			setWorkflowId(newId);
+			const newUrl = new URL(window.location.href);
+			newUrl.searchParams.set('id', newId);
+			window.history.replaceState({}, '', newUrl.toString());
+		}
+	}, [loadWorkflowData]);
+
+	const serializeWorkflow = useCallback(
+		(
+			id: string | null,
+			title: string,
+			currentNodes: NodeType[],
+			currentEdges: EdgeType[],
+			currentApiData: any
+		) => {
+			return {
+				meta: {
+					id: id || `${ID_PREFIX}${Date.now()}`,
+					name: title,
+					description: 'Exported from Agentic Web Learning Tool',
+					version: '1.0.0',
+					savedAt: new Date().toISOString(),
+				},
+				graph: {
+					nodes: currentNodes.map((node) => ({
+						id: node.id,
+						type: node.type || 'default',
+						label: node.data.label,
+						config: currentApiData[node.id]?.config || {},
+						ui: {
+							position: node.position,
+						},
+					})),
+					edges: currentEdges.map((edge) => ({
+						id: edge.id,
+						source: edge.source,
+						target: edge.target,
+						sourceHandle: edge.sourceHandle || null,
+						targetHandle: edge.targetHandle || null,
+					})),
+				},
+			};
+		},
+		[]
+	);
+
+	const debouncedTitle = useDebounce(workflowTitle, 1000);
+	const debouncedNodes = useDebounce(nodes, 1000);
+	const debouncedEdges = useDebounce(edges, 1000);
+	const debouncedNodesApiData = useDebounce(nodesApiData, 1000);
+
+	useEffect(() => {
+		if (!workflowId) return;
+
+		const workflowData = serializeWorkflow(
+			workflowId,
+			debouncedTitle,
+			debouncedNodes,
+			debouncedEdges,
+			debouncedNodesApiData
+		);
+		localStorage.setItem(
+			`${STORAGE_PREFIX}${workflowId}`,
+			JSON.stringify(workflowData)
+		);
+	}, [
+		workflowId,
+		debouncedTitle,
+		debouncedNodes,
+		debouncedEdges,
+		debouncedNodesApiData,
+		serializeWorkflow,
+	]);
+
 	const handleExport = async () => {
 		try {
-			const workflowData = {
-				title: workflowTitle,
+			const workflowData = serializeWorkflow(
+				workflowId,
+				workflowTitle,
 				nodes,
-				nodesApiData,
 				edges,
-				savedAt: new Date().toISOString(),
-			};
+				nodesApiData
+			);
 
 			await navigator.clipboard.writeText(
 				JSON.stringify(workflowData, null, 2)
@@ -75,35 +233,28 @@ const Flow = () => {
 
 			const workflowData = JSON.parse(importJson);
 
-			if (workflowData.title) {
-				setWorkflowTitle(workflowData.title);
-			}
-
-			if (workflowData.nodes && Array.isArray(workflowData.nodes)) {
-				workflowData.nodes.forEach((node: NodeType) => {
-					addNode(node);
-				});
-			}
-
-			if (workflowData.edges && Array.isArray(workflowData.edges)) {
-				workflowData.edges.forEach((edge: EdgeType) => {
-					onConnect(edge);
-				});
-			}
-
-			if (
-				workflowData.nodesApiData &&
-				typeof workflowData.nodesApiData == 'object'
-			) {
-				Object.entries(workflowData.nodesApiData).forEach(
-					([id, config]: [string, any]) => {
-						addApiNode({
-							id,
-							...config,
-						});
-					}
+			if (!workflowData.graph || !workflowData.meta) {
+				throw new Error(
+					'Invalid workflow format: Missing graph or meta'
 				);
 			}
+
+			const newId = generateId();
+			setWorkflowId(newId);
+
+			const newUrl = new URL(window.location.href);
+			newUrl.searchParams.set('id', newId);
+			window.history.replaceState({}, '', newUrl.toString());
+
+			loadWorkflowData(workflowData);
+
+			localStorage.setItem(
+				`${STORAGE_PREFIX}${newId}`,
+				JSON.stringify({
+					...workflowData,
+					meta: { ...workflowData.meta, id: newId },
+				})
+			);
 
 			setShowImportDialog(false);
 			setImportJson('');
@@ -122,30 +273,8 @@ const Flow = () => {
 		setTimeout(() => setToast(null), 3000);
 	};
 
-	const handleSave = () => {
-		try {
-			const workflowData = {
-				title: workflowTitle,
-				nodes,
-				nodesApiData,
-				edges,
-				savedAt: new Date().toISOString(),
-			};
-
-			localStorage.setItem(
-				`workflow-${Date.now()}`,
-				JSON.stringify(workflowData)
-			);
-
-			alert(`Workflow "${workflowTitle}" saved successfully!`);
-		} catch (error) {
-			console.error('Failed to save workflow:', error);
-			alert('Failed to save workflow');
-		}
-	};
-
 	const handleRun = () => {
-		return; // Placeholder to ignore
+		return;
 	};
 
 	const handleClear = () => {
@@ -155,6 +284,40 @@ const Flow = () => {
 			)
 		) {
 			clearFlow();
+		}
+	};
+
+	const handleNewWorkflow = () => {
+		if (
+			window.confirm(
+				'Create a new workflow? This will start a fresh canvas. Your current workflow is auto-saved.'
+			)
+		) {
+			const newId = generateId();
+
+			setWorkflowId(newId);
+			setWorkflowTitle('Untitled Workflow');
+			const newUrl = new URL(window.location.href);
+			newUrl.searchParams.set('id', newId);
+			window.history.replaceState({}, '', newUrl.toString());
+
+			clearFlow();
+
+			const initialData = {
+				meta: {
+					id: newId,
+					name: 'Untitled Workflow',
+					description: '',
+					version: '1.0.0',
+					savedAt: new Date().toISOString(),
+				},
+				graph: { nodes: [], edges: [] },
+			};
+			localStorage.setItem(
+				`${STORAGE_PREFIX}${newId}`,
+				JSON.stringify(initialData)
+			);
+			showToast('New workflow creating!', 'success');
 		}
 	};
 
@@ -229,13 +392,6 @@ const Flow = () => {
 						onChange={(e) => setWorkflowTitle(e.target.value)}
 						placeholder="Enter workflow title..."
 					></input>
-					<button
-						onClick={handleSave}
-						className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded transition-colors"
-					>
-						<Save size={16} />
-						Save
-					</button>{' '}
 					<div className="h-6 w-px bg-slate-200 mx-2"></div>
 					<select className="text-sm border border-slate-200 rounded px-2 py-1.5 bg-slate-50 text-slate-600 focus:outline-none focus:border-indigo-500">
 						<option value="global">Global</option>
@@ -246,6 +402,14 @@ const Flow = () => {
 				</div>
 
 				<div className="flex items-center gap-2">
+					<button
+						className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded cursor-pointer transition-colors"
+						onClick={handleNewWorkflow}
+					>
+						<Plus size={16} />
+						New
+					</button>
+
 					<button
 						className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded cursor-pointer transition-colors"
 						onClick={handleImport}
