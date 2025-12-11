@@ -1,7 +1,13 @@
+/**
+ * External dependencies
+ */
 import { useState } from 'react';
+import { Button } from '@google-awlt/design-system';
+/**
+ * Internal dependencies
+ */
 import reactLogo from '../../assets/react.svg';
 import viteLogo from '../../assets/vite.svg';
-import { Button } from '@google-awlt/design-system';
 
 function Options() {
 	const [count, setCount] = useState(0);

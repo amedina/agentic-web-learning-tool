@@ -1,43 +1,37 @@
-import { useState } from 'react';
-import reactLogo from '../../assets/react.svg';
-import viteLogo from '../../assets/vite.svg';
-import { Button } from '@google-awlt/design-system';
+/**
+ * External dependencies
+ */
+import {
+  AssistantRuntimeProvider,
+} from "@assistant-ui/react";
+import { lastAssistantMessageIsCompleteWithToolCalls } from 'ai';
+import { useChatRuntime } from '@assistant-ui/react-ai-sdk';
+import { useEffect } from "react";
+/**
+ * Internal dependencies
+ */
+import { ChatBotUI } from "./components";
+import { GeminiNanoChatTransport } from "./transports/geminiNano";
+//Declare and initialize Gemini Nano transport only once no need to recreate on every render
+//Move this to a custom hook when more options for LLM is provided
+const geminiNanoTransport = new GeminiNanoChatTransport();
 
-function SidePanel() {
-	const [count, setCount] = useState(0);
+const SidePanel = () => {
+   const runtime = useChatRuntime({
+    transport: geminiNanoTransport,
+    sendAutomaticallyWhen: (messages) => lastAssistantMessageIsCompleteWithToolCalls(messages),
+  });
 
-	return (
-		<main className="max-w-7xl m-auto min-h-screen flex flex-col items-center justify-center gap-5">
-			<div className="flex gap-5">
-				<Button variant="link" size="icon">
-					<a href="https://vite.dev" target="_blank">
-						<img src={viteLogo} className="logo" alt="Vite logo" />
-					</a>
-				</Button>
-				<Button variant="link" size="icon">
-					<a href="https://react.dev" target="_blank">
-						<img
-							src={reactLogo}
-							className="logo react"
-							alt="React logo"
-						/>
-					</a>
-				</Button>
-			</div>
-			<h1 className="text-2xl">Vite + React</h1>
-			<div className="flex flex-col items-center justify-center">
-				<button onClick={() => setCount((count) => count + 1)}>
-					count is {count}
-				</button>
-				<p className="text-2xl">
-					Edit <code>src/App.tsx</code> and save to test HMR
-				</p>
-			</div>
-			<p className="read-the-docs">
-				Click on the Vite and React logos to learn more
-			</p>
-		</main>
-	);
-}
+ useEffect(() => {
+    geminiNanoTransport.setRuntime(runtime);
+    geminiNanoTransport.initializeSession();
+  }, [runtime]);
+
+  return (
+    <AssistantRuntimeProvider runtime={runtime}>
+      <ChatBotUI runtime={runtime} />
+    </AssistantRuntimeProvider>
+  )
+};
 
 export default SidePanel;
