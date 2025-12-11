@@ -29,6 +29,10 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 		(async () => {
 			await client.connect(transport);
 	})();
+
+	return () => {
+		client.close();
+	}
 	}, [client]);
 
 	useEffect(() => {

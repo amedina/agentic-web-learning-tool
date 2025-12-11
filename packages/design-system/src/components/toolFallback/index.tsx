@@ -68,7 +68,7 @@ export const ToolFallback: ToolCallMessagePartComponent = ({
             {/* Minimalist Icon Box */}
             <div className={`
               flex items-center justify-center h-8 w-8 rounded-lg 
-              border border-stone-100 bg-neutral-800 border-neutral-700
+              border border-stone-600 bg-neutral-800 border-neutral-700
               text-stone-400
             `}>
               <Terminal strokeWidth={1.5} size={16} />
