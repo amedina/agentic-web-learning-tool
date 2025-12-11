@@ -6,7 +6,7 @@ import { ToolItem } from '../../../../ui';
 
 export const LanguageDetectorApiSchema = z.object({
 	title: z.string(),
-	description: z.string(),
+	description: z.string().optional(),
 });
 
 export type LanguageDetectorApiConfig = z.infer<

@@ -6,7 +6,7 @@ import { ToolItem } from '../../../../ui';
 
 export const StaticInputSchema = z.object({
 	title: z.string(),
-	description: z.string(),
+	description: z.string().optional(),
 	inputValue: z.string(),
 });
 

@@ -36,12 +36,10 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 		() => ({
 			getConfig: (formData: FormData) => {
 				const title = formData.get('title') as string;
-				const description = formData.get('description') as string;
 				const comparisonType = formData.get('comparisonType') as string;
 
 				const configResult = {
 					title,
-					description,
 					comparisonType,
 				};
 

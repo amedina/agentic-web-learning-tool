@@ -6,7 +6,7 @@ import { ToolItem } from '../../../../ui';
 
 export const DomInputSchema = z.object({
 	title: z.string(),
-	description: z.string(),
+	description: z.string().optional(),
 	cssSelector: z.string(),
 	extract: z.enum(['textContent', 'innerText', 'innerHTML']),
 	defaultValue: z.string(),

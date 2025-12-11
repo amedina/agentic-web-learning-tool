@@ -6,7 +6,7 @@ import { ToolItem } from '../../../../ui';
 
 export const ProofreaderApiSchema = z.object({
 	title: z.string(),
-	description: z.string(),
+	description: z.string().optional(),
 	expectedInputLanguages: z.array(z.enum(['en', 'ja', 'es'])),
 });
 

@@ -6,7 +6,7 @@ import z from 'zod';
 
 export const TranslatorApiSchema = z.object({
 	title: z.string(),
-	description: z.string(),
+	description: z.string().optional(),
 	sourceLanguage: z.enum(['en', 'ja', 'es']),
 	targetLanguage: z.enum(['en', 'ja', 'es']),
 });

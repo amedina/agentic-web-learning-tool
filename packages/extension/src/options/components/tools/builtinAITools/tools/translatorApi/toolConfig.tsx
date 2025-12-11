@@ -27,13 +27,11 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 		() => ({
 			getConfig: (formData: FormData) => {
 				const title = formData.get('title') as string;
-				const description = formData.get('description') as string;
 				const sourceLanguage = formData.get('sourceLanguage') as string;
 				const targetLanguage = formData.get('targetLanguage') as string;
 
 				const configResult = {
 					title,
-					description,
 					sourceLanguage,
 					targetLanguage,
 				};

@@ -6,7 +6,7 @@ import { ToolItem } from '../../../../ui';
 
 export const ConditionSchema = z.object({
 	title: z.string(),
-	description: z.string(),
+	description: z.string().optional(),
 	comparisonType: z.enum([
 		'equals',
 		'not-equals',

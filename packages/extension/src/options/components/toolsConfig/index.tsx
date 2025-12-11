@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Save, Settings } from 'lucide-react';
-import { useApi, type NodeConfig } from '../../store';
+import { Settings } from 'lucide-react';
+import { useApi } from '../../store';
 import {
 	PromptApiToolConfig,
 	ProofreaderApiToolConfig,
@@ -39,10 +39,11 @@ const ToolsConfig = () => {
 	);
 
 	const [node, setNode] = useState<ReturnType<typeof getNode>>();
-	const [config, setConfig] = useState<NodeConfig['config']>();
+	const [config, setConfig] = useState<any>();
+	const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	const toolNodeRef = useRef<{
-		getConfig: (formData: FormData) => NodeConfig['config'] | undefined;
+		getConfig: (formData: FormData) => any;
 	}>(null);
 
 	useEffect(() => {
@@ -58,27 +59,49 @@ const ToolsConfig = () => {
 		setConfig(node?.config);
 	}, [node]);
 
-	const handleSubmit = useCallback(
-		(e: React.FormEvent<HTMLFormElement>) => {
-			const formData = new FormData(e.currentTarget);
-			e.preventDefault();
-
+	const handleConfigUpdate = useCallback(
+		(form: HTMLFormElement) => {
+			const formData = new FormData(form);
 			if (!node || !selectedNode) return;
 
-			const config = toolNodeRef.current?.getConfig(formData);
+			const toolConfig = toolNodeRef.current?.getConfig(formData);
+			if (!toolConfig) {
+				return;
+			}
 
 			updateNode(selectedNode, {
-				...node,
-				config: {
-					...node.config,
-					...(config ? config : {}),
-				},
+				config: toolConfig,
 			});
 		},
 		[node, selectedNode, updateNode]
 	);
 
-	const Tool = node?.type ? TOOLS[node.type as keyof typeof TOOLS] : null;
+	const handleChange = useCallback(
+		(e: React.FormEvent<HTMLFormElement>) => {
+			const form = e.currentTarget;
+
+			if (timeoutRef.current) {
+				clearTimeout(timeoutRef.current);
+			}
+
+			timeoutRef.current = setTimeout(() => {
+				handleConfigUpdate(form);
+			}, 100);
+		},
+		[handleConfigUpdate]
+	);
+
+	useEffect(() => {
+		return () => {
+			if (timeoutRef.current) {
+				clearTimeout(timeoutRef.current);
+			}
+		};
+	}, []);
+
+	const Tool = node?.type
+		? (TOOLS[node.type as keyof typeof TOOLS] as any)
+		: null;
 
 	return (
 		<div className="w-96 bg-white border-l border-slate-200 flex flex-col h-full">
@@ -105,7 +128,8 @@ const ToolsConfig = () => {
 				) : (
 					<form
 						id="node-config-form"
-						onSubmit={handleSubmit}
+						onChange={handleChange}
+						onSubmit={(e) => e.preventDefault()}
 						className="p-4 space-y-4"
 					>
 						<div className="bg-slate-100 rounded-lg p-3">
@@ -129,7 +153,7 @@ const ToolsConfig = () => {
 								className="w-full p-3 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-white"
 								value={config?.title || ''}
 								onChange={(e) => {
-									setConfig((prev) => ({
+									setConfig((prev: any) => ({
 										...prev,
 										title: e.target.value,
 									}));
@@ -156,7 +180,7 @@ const ToolsConfig = () => {
 										id="context"
 										name="context"
 										onChange={(e) =>
-											setConfig((prev) => ({
+											setConfig((prev: any) => ({
 												...prev,
 												context: e.target.value,
 											}))
@@ -166,7 +190,7 @@ const ToolsConfig = () => {
 								</>
 							) : (
 								<p className="text-sm text-slate-700 mb-2">
-									{node?.config.description}
+									{(node?.config as any)?.description}
 								</p>
 							)}
 						</div>
@@ -178,16 +202,8 @@ const ToolsConfig = () => {
 				)}
 			</div>
 
-			<div className="p-4 border-t border-slate-200 bg-white">
-				<button
-					type="submit"
-					form={selectedNode ? 'node-config-form' : undefined}
-					disabled={!selectedNode}
-					className="w-full px-4 py-3 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors text-sm font-medium flex items-center justify-center gap-2"
-				>
-					<Save size={16} />
-					Save Configuration
-				</button>
+			<div className="p-4 border-t border-slate-200 bg-slate-50 text-xs text-slate-500 text-center">
+				<p>Changes are saved automatically</p>
 			</div>
 		</div>
 	);

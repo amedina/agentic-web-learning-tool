@@ -31,7 +31,6 @@ const ToolNode = () => {
 		return {
 			type: node?.type,
 			title: _config.title,
-			description: _config.description,
 			expectedInputLanguages: _config.expectedInputLanguages,
 		};
 	}, [getNode, nodeId]);
