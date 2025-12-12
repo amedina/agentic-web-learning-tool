@@ -98,7 +98,28 @@ const FlowProvider = ({ children }: PropsWithChildren) => {
 
 	const onConnect = useCallback(
 		(params: Connection | EdgeType) =>
-			setEdges((edgesSnapshot) => addEdge(params, edgesSnapshot)),
+			setEdges((edgesSnapshot) => {
+				const isTargetConnected = edgesSnapshot.some((edge) => {
+					const sameTargetId = edge.target === params.target;
+
+					const edgeTargetHandle = !edge.targetHandle
+						? ''
+						: edge.targetHandle;
+					const paramsTargetHandle = !params.targetHandle
+						? ''
+						: params.targetHandle;
+
+					return (
+						sameTargetId && edgeTargetHandle === paramsTargetHandle
+					);
+				});
+
+				if (isTargetConnected) {
+					return edgesSnapshot;
+				}
+
+				return addEdge(params, edgesSnapshot);
+			}),
 		[]
 	);
 
