@@ -25,6 +25,9 @@
 	"host_permissions": ["*://*/*"],
 	"devtools_page": "devtools/devtools.html",
 	"options_page": "options/options.html",
+	"action": {
+    	"default_title": "Click to open panel"
+  	},
 	"side_panel": {
 		"default_path": "sidePanel/sidePanel.html"
 	},
@@ -35,21 +38,6 @@
 	"content_scripts": [
 		{
 			"js": ["contentScript.js"],
-			"matches": ["*://*/*"]
-		}
-	],
-	"action": {
-		"default_popup": "popup/popup.html",
-		"default_icon": "icons/icon-48.png"
-	},
-	"web_accessible_resources": [
-		{
-			"resources": [
-				"assets/data/*.json",
-				"data/*json",
-				"report/index.html",
-				"prebid-interface.js"
-			],
 			"matches": ["*://*/*"]
 		}
 	]

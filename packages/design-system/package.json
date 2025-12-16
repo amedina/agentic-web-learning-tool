@@ -33,7 +33,7 @@
 		"test": "jest --config='tests/jest.config.js'"
 	},
 	"dependencies": {
-		"@assistant-ui/react": "^0.11.41",
+		"@assistant-ui/react": "0.11.41",
 		"@assistant-ui/react-markdown": "^0.11.4",
 		"@assistant-ui/react-syntax-highlighter": "^0.11.4",
 		"@radix-ui/react-slot": "^1.2.3",

@@ -36,15 +36,15 @@ try {
                         console.log("Error connecting client:", error);
                     }
                 }
-                if (client.transport) {
-                    clearInterval(interval)
-                    const pageTools = await client.listTools();
-                    //Send initial list of tools to service worker
-                    backgroundPort.postMessage({
-                        type: "register-tools",
-                        tools: pageTools.tools,
-                    });
-                }
+                if(client.transport){
+                  clearInterval(interval); 
+                  const pageTools = await client.listTools();
+                  //Send initial list of tools to service worker
+                  backgroundPort.postMessage({
+                    type: "register-tools",
+                    tools: pageTools.tools,
+                  });
+              }
             } catch (error) {
                 console.log("Error connecting to MCP background:", error);
             }

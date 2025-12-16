@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { cn, MarkdownText } from '@google-awlt/design-system';
+import { cn, MarkdownText, ToolFallback } from '@google-awlt/design-system';
 import { useAssistantState, MessagePrimitive, ActionBarPrimitive } from "@assistant-ui/react";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { ClipboardIcon } from "lucide-react";
@@ -24,7 +24,7 @@ const ChatMessage: FC = () => {
         )}
         <div className="relative flex gap-2">
           <span className="text-foreground">
-            <MessagePrimitive.Parts components={{ Text: MarkdownText }} />
+            <MessagePrimitive.Parts components={{ Text: MarkdownText, tools: {Fallback: ToolFallback} }} />
           </span>
         </div>
       </div>

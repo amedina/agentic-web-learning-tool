@@ -273,6 +273,7 @@ class ChromeAILanguageModel {
                                 usage: { outputTokens: undefined, totalTokens: undefined }
                             });
                             controller.close();
+                            this.session?.destroy();
                         }
                     };
 

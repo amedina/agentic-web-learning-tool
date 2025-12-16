@@ -10,6 +10,7 @@ import {
 import { ArrowUpIcon, StopIcon } from '@radix-ui/react-icons';
 import { useMcpClient } from '@mcp-b/mcp-react-hooks';
 import { useEffect } from 'react';
+import type { JSONRPCMessage } from '@modelcontextprotocol/sdk/types.js';
 /**
  * Internal dependencies
  */
@@ -23,12 +24,26 @@ type ChatBotUIProps = {
 };
 
 const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
-	//@todo move line 27-37 in provider
-	useEffect(() => {
-		(async () => client.connect(transport))();
-	}, []);
-
 	const { client, tools } = useMcpClient();
+
+	useEffect(() => {
+		(async () => {
+			await client.connect(transport);
+	})();
+
+	return () => {
+		client.close();
+	}
+	}, [client]);
+
+	useEffect(() => {
+		transport.onmessage = (async(message: JSONRPCMessage) => {
+			//@ts-expect-error -- One of the JSONRPCMessage doesnt have the method property
+			if(message.method === 'get/Tools'){
+				await client.listTools();
+			}
+		})
+	}, [client]);
 
 	const threadId = useAssistantState(
 		({ threadListItem }) => threadListItem.id
