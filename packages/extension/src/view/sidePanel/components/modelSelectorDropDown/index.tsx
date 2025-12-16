@@ -18,7 +18,7 @@ import {
 	Root as DialogRoot,
 	Trigger as DialogTrigger,
 } from '@radix-ui/react-dialog';
-import { ChevronRight, CpuIcon, X } from 'lucide-react';
+import { ChevronRight, CpuIcon } from 'lucide-react';
 
 /**
  * Internal dependencies

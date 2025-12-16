@@ -15,7 +15,7 @@ import { useEffect } from 'react';
  */
 import { useAssistantMCP } from '../../hooks';
 import ChatMessage from './chatMessage';
-import { transport, useModelProvider } from '../../providers';
+import { transport } from '../../providers';
 import ModelSelectorDropDown from '../modelSelectorDropDown';
 
 type ChatBotUIProps = {

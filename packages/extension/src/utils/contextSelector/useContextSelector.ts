@@ -51,7 +51,7 @@ function useContextSelector<T, S>(
   selector: (value: T) => S,
   equalityFn: EqualityFn = shallowEqual
 ) {
-  const ref: MutableRefObject<S | undefined> = useRef();
+  const ref: MutableRefObject<S | undefined> = useRef(undefined);
 
   const equalityFnCallback = (state: T) => {
     const selected = selector(state);
