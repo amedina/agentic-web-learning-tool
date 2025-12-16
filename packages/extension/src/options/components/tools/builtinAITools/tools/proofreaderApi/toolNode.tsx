@@ -1,6 +1,13 @@
+/**
+ * External dependencies
+ */
 import { useMemo } from 'react';
 import { Handle, Position, useNodeId } from '@xyflow/react';
 import { BookCheck } from 'lucide-react';
+
+/**
+ * Internal dependencies
+ */
 import { useApi, useFlow } from '../../../../../store';
 import { ToolNodeContainer } from '../../../../ui';
 import type { ProofreaderApiConfig } from './proofreaderApi';

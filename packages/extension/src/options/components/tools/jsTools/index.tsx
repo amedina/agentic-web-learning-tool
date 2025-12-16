@@ -1,3 +1,6 @@
+/**
+ * Internal dependencies
+ */
 import { DomInput, StaticInput } from './inputTools';
 import { Condition } from './logicTools';
 import { AlertNotification } from './outputTools';

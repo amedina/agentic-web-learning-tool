@@ -1,6 +1,13 @@
+/**
+ * External dependencies
+ */
 import { useCallback } from 'react';
 import { BookCheck } from 'lucide-react';
 import z from 'zod';
+
+/**
+ * Internal dependencies
+ */
 import { useApi, useFlow } from '../../../../../store';
 import { ToolItem } from '../../../../ui';
 

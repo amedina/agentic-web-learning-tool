@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import { createContext } from 'react';
 import { createContextSelector } from 'react-context-selector';
 import {
@@ -12,7 +15,7 @@ import {
 	type SummarizerApiConfig,
 	type TranslatorApiConfig,
 	type WriterApiConfig,
-} from './../../components/tools';
+} from './../../components';
 
 export type NodeConfig = {
 	type: string;

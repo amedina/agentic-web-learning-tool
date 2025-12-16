@@ -1,7 +1,13 @@
+/**
+ * External dependencies
+ */
 import { useEffect, useImperativeHandle, useState } from 'react';
 import { Settings } from 'lucide-react';
-import type { PromptApiConfig } from './promptApi';
-import { PromptApiSchema } from './promptApi';
+
+/**
+ * Internal dependencies
+ */
+import { type PromptApiConfig, PromptApiSchema } from './promptApi';
 
 interface ToolConfigProps {
 	ref: React.Ref<{

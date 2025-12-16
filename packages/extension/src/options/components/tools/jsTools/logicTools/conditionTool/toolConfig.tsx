@@ -1,5 +1,12 @@
+/**
+ * External dependencies
+ */
 import { useEffect, useImperativeHandle, useState } from 'react';
 import { Settings } from 'lucide-react';
+
+/**
+ * Internal dependencies
+ */
 import { ConditionSchema, type ConditionConfig } from './conditionTool';
 
 interface ToolConfigProps {

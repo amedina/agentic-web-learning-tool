@@ -1,4 +1,7 @@
-import { Pen, X } from 'lucide-react';
+/**
+ * External dependencies
+ */
+import { X } from 'lucide-react';
 import type { JSX, PropsWithChildren } from 'react';
 
 interface ToolNodeContainerProps {

@@ -1,9 +1,15 @@
-import { useApi, useFlow } from '../../store';
+/**
+ * External dependencies
+ */
 import { Controls, MiniMap, ReactFlow } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { Download, Play, Plus, Trash2, Upload, X } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
-import type { EdgeType, NodeType } from '../../store/flow/context';
+
+/**
+ * Internal dependencies
+ */
+import { type EdgeType, type NodeType, useFlow, useApi } from '../../store';
 
 const ID_PREFIX = 'wf_';
 const STORAGE_PREFIX = 'workflow-';

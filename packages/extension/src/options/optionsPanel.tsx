@@ -1,3 +1,6 @@
+/**
+ * Internal dependencies
+ */
 import { Flow, ToolsBar, ToolsConfig } from './components';
 
 function OptionsPanel() {

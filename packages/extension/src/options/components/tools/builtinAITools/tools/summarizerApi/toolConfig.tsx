@@ -1,5 +1,12 @@
+/**
+ * External dependencies
+ */
 import { useEffect, useImperativeHandle, useState } from 'react';
 import { Settings } from 'lucide-react';
+
+/**
+ * Internal dependencies
+ */
 import { SummarizerApiSchema, type SummarizerApiConfig } from './summarizerApi';
 
 interface ToolConfigProps {

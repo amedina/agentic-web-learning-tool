@@ -1,5 +1,12 @@
+/**
+ * External dependencies
+ */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Settings } from 'lucide-react';
+
+/**
+ * Internal dependencies
+ */
 import { useApi } from '../../store';
 import {
 	PromptApiToolConfig,
@@ -8,12 +15,10 @@ import {
 	SummarizerApiToolConfig,
 	TranslatorApiToolConfig,
 	WriterApiToolConfig,
-} from '../tools/builtinAITools/tools';
-import {
 	DomInputToolConfig,
 	StaticInputToolConfig,
-} from '../tools/jsTools/inputTools';
-import { ConditionToolConfig } from '../tools/jsTools/logicTools';
+	ConditionToolConfig,
+} from '../tools';
 
 const TOOLS = {
 	promptApi: PromptApiToolConfig,
