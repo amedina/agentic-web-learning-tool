@@ -1,4 +1,11 @@
+/**
+ * External dependencies
+ */
 import { useCallback, useState, type PropsWithChildren } from 'react';
+
+/**
+ * Internal dependencies
+ */
 import Context, { ApiCleaner, type NodeConfig } from './context';
 
 const ApiProvider = ({ children }: PropsWithChildren) => {
