@@ -6,7 +6,7 @@ import { ChatBotUI } from './components';
 
 const SidePanel = () => {
 	return (
-		<ChatBotUI runtime={runtime} />
+		<ChatBotUI />
 	);
 };
 

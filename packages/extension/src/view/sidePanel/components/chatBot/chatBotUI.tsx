@@ -5,7 +5,6 @@ import {
 	ComposerPrimitive,
 	ThreadPrimitive,
 	useAssistantState,
-	type AssistantRuntime,
 } from '@assistant-ui/react';
 import { ArrowUpIcon, StopIcon } from '@radix-ui/react-icons';
 import { useMcpClient } from '@mcp-b/mcp-react-hooks';
@@ -15,14 +14,14 @@ import { useEffect } from 'react';
  */
 import { useAssistantMCP } from '../../hooks';
 import ChatMessage from './chatMessage';
-import { transport } from '../../providers';
+import { transport, useModelProvider } from '../../providers';
 import ModelSelectorDropDown from '../modelSelectorDropDown';
 
-type ChatBotUIProps = {
-	runtime: AssistantRuntime;
-};
+const ChatBotUI = () => {
+	const { runtime } = useModelProvider(({ state }) => ({
+		runtime: state.runtime,
+	}));
 
-const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 	//@todo move line 27-37 in provider
 	useEffect(() => {
 		(async () => client.connect(transport))();
