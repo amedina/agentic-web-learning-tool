@@ -3,13 +3,13 @@
  */
 import { noop, createContext } from '../../../../utils'
 import type { GeminiNanoChatTransport } from '../../transports/geminiNano';
-import type { CloudHostedTrapsort } from '../../transports/cloudHosted';
+import type { CloudHostedTransport } from '../../transports/cloudHosted';
 
 export interface ModelProviderStoreContext {
   state: {
     selectedModel: string;
     selectedProvider: string;
-    transport: GeminiNanoChatTransport | CloudHostedTrapsort | null;
+    transport: GeminiNanoChatTransport | CloudHostedTransport | null;
     baseUrl: string;
     apiKey: string;
   };

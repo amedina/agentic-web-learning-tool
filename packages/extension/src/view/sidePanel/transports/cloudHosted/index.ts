@@ -21,6 +21,14 @@ import type { createGoogleGenerativeAI, GoogleGenerativeAIProviderSettings } fro
  */
 import { systemPromptTemplate } from "../../utils";
 
+
+type JsonSchemaObject = Record<string, unknown>;
+type SchemaInput = JsonSchemaObject | (() => JsonSchemaObject);
+
+interface JsonSchemaOptions<T> {
+    validate?: (value: unknown) => T | { value: T; error?: unknown };
+}
+
 type SendMessagesParams = {
     /** The type of message submission - either new message or regeneration */
     trigger: 'submit-message' | 'regenerate-message';
@@ -36,12 +44,11 @@ type SendMessagesParams = {
 
 export type ModelInitializer = typeof createOllama | typeof createOpenAI | typeof createAnthropic | typeof createGoogleGenerativeAI;
 export type ProviderSettings = OllamaProviderSettings | OpenAIProviderSettings | AnthropicProviderSettings | GoogleGenerativeAIProviderSettings;
-
-export class CloudHostedTrapsort implements ChatTransport<UIMessage> {
+export class CloudHostedTransport implements ChatTransport<UIMessage> {
     private model: LanguageModelV2 | null = null;
     private isInitializing: boolean = false;
     private runtime: AssistantRuntime | null = null;
-    formattedTools: any[] = [];
+    formattedTools: any = {};
     private modelId: string = ""
     constructor(modelId: string) {
         this.modelId = modelId;
@@ -72,6 +79,26 @@ export class CloudHostedTrapsort implements ChatTransport<UIMessage> {
     }
 
     /**
+     * Allows you to define a tool's schema using raw JSON Schema 
+     * instead of Zod.
+     * @param schema - A JSON Schema object OR a function returning one.
+     * @param options - Optional validation logic.
+     */
+    jsonSchema<T = unknown>(schema: SchemaInput, options: JsonSchemaOptions<T> = {}) {
+        return {
+            [Symbol.for("vercel.ai.schema")]: true,
+            _type: undefined,
+            get jsonSchema() {
+                if (typeof schema === "function") {
+                    schema = schema();
+                }
+                return schema;
+            },
+            validate: options?.validate
+        };
+    }
+
+    /**
      * The core method that implements the ChatTransport interface.
      * This is called by `useChat` when a new message is sent.
      */
@@ -79,27 +106,32 @@ export class CloudHostedTrapsort implements ChatTransport<UIMessage> {
         params: SendMessagesParams,
     ): Promise<ReadableStream<UIMessageChunk>> {
         const { messages, abortSignal } = params;
-        console.log(this.runtime)
+
         if (!this.runtime) {
             return new ReadableStream();
         }
 
         const { tools } = this.runtime.thread.getModelContext();
 
-        this.formattedTools = Object.entries(tools ?? []).map(([key, value]) => [key, {
-            description: value.description,
-            execute: value.execute,
-            name: key,
-            type: "function"
-        }]);
-console.log('cloud hosted')
+        this.formattedTools = {};
+    
+        Object.entries(tools ?? []).forEach(([key, value]) => {
+            this.formattedTools[key] = {
+                description: value.description,
+                execute: value.execute,
+                inputSchema: this.jsonSchema(value.parameters as Record<string, unknown>),
+                name: key,
+                type: "function"
+            }
+        });
+
         return createUIMessageStream({
             execute: async ({ writer }) => {
                 try {
                     const result = streamText({
                         model: this.model as unknown as LanguageModelV2,
                         messages: convertToModelMessages(messages),
-                        tools: Object.fromEntries(this.formattedTools),
+                        tools: this.formattedTools,
                         abortSignal,
                         stopWhen: ({ steps }) => steps.length === 100,
                         system: systemPromptTemplate(JSON.stringify(this.formattedTools, null, 2)),

@@ -182,6 +182,9 @@ importers:
       ai:
         specifier: ^5.0.104
         version: 5.0.104(zod@4.1.13)
+      assistant-stream:
+        specifier: ^0.2.45
+        version: 0.2.45
       cross-env:
         specifier: ^10.1.0
         version: 10.1.0
@@ -3058,8 +3061,8 @@ packages:
   assistant-cloud@0.1.8:
     resolution: {integrity: sha512-oPEzDz8b0ZC2PSff/aabbcz5h9cN+tdyHrxkHkHz2aJo1+kbqcUt9dd1Ggp8becNjvRuAarig7/l70WvvhRauQ==}
 
-  assistant-stream@0.2.42:
-    resolution: {integrity: sha512-mIUyoSdmTkawY/TtE77yf4+eQAVVS+jf4Gb5s7CVkz8IFYlWnVOIIEUA2l1qwarplLEkvkgM5OeKiy0UkMNZCw==}
+  assistant-stream@0.2.45:
+    resolution: {integrity: sha512-gfCwkPcGpfCpwWDzKrgzR5TvKP/ppc+MqotFHPCufbYK8nMft1+GyWGhQp6XXzQR2dC7T/IrqmtEGlGSs8uobA==}
 
   ast-types-flow@0.0.8:
     resolution: {integrity: sha512-OH/2E5Fg20h2aPrbe+QL8JZQFko0YZaF+j4mnQ7BGhfavO7OpSLa8a0y9sBwomHdSbkhTS8TQNayBfnW5DwbvQ==}
@@ -6382,7 +6385,7 @@ snapshots:
       '@radix-ui/react-use-callback-ref': 1.1.1(@types/react@19.1.12)(react@19.1.1)
       '@types/json-schema': 7.0.15
       ai: 5.0.104(zod@4.1.13)
-      assistant-stream: 0.2.42
+      assistant-stream: 0.2.45
       react: 19.1.1
       zod: 4.1.13
       zustand: 5.0.8(@types/react@19.1.12)(react@19.1.1)(use-sync-external-store@1.6.0(react@19.1.1))
@@ -6432,7 +6435,7 @@ snapshots:
       '@radix-ui/react-use-escape-keydown': 1.1.1(@types/react@19.1.12)(react@19.1.1)
       '@standard-schema/spec': 1.0.0
       assistant-cloud: 0.1.8
-      assistant-stream: 0.2.42
+      assistant-stream: 0.2.45
       json-schema: 0.4.0
       nanoid: 5.1.6
       react: 19.1.1
@@ -9201,9 +9204,9 @@ snapshots:
 
   assistant-cloud@0.1.8:
     dependencies:
-      assistant-stream: 0.2.42
+      assistant-stream: 0.2.45
 
-  assistant-stream@0.2.42:
+  assistant-stream@0.2.45:
     dependencies:
       '@types/json-schema': 7.0.15
       nanoid: 5.1.6

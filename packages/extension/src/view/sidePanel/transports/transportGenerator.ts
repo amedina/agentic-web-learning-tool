@@ -9,7 +9,7 @@ import { createGoogleGenerativeAI } from '@ai-sdk/google';
  * Internal dependencies
  */
 import { GeminiNanoChatTransport } from "./geminiNano";
-import { CloudHostedTrapsort, type ProviderSettings } from "./cloudHosted";
+import { CloudHostedTransport, type ProviderSettings } from "./cloudHosted";
 
 function transportGenerator(provider = 'browser-ai', model = 'prompt-api', config: ProviderSettings){
     let modelInstance = null;
@@ -18,19 +18,19 @@ function transportGenerator(provider = 'browser-ai', model = 'prompt-api', confi
         case 'broswer-ai':
             return new GeminiNanoChatTransport();
         case 'ollama':
-            modelInstance = new CloudHostedTrapsort(model);
+            modelInstance = new CloudHostedTransport(model);
             modelInstance.initializeSession(createOllama, config);
             return modelInstance;
         case 'open-ai':
-            modelInstance = new CloudHostedTrapsort(model);
+            modelInstance = new CloudHostedTransport(model);
             modelInstance.initializeSession(createOpenAI, config);
             return modelInstance;
         case 'anthropic':
-            modelInstance = new CloudHostedTrapsort(model);
+            modelInstance = new CloudHostedTransport(model);
             modelInstance.initializeSession(createAnthropic, config);
             return modelInstance;
         case 'gemini':
-            modelInstance = new CloudHostedTrapsort(model);
+            modelInstance = new CloudHostedTransport(model);
             modelInstance.initializeSession(createGoogleGenerativeAI, config);
             return modelInstance;
         default:
