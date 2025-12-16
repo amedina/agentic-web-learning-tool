@@ -1,5 +1,12 @@
+/**
+ * External dependencies
+ */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Save, Settings } from 'lucide-react';
+
+/**
+ * Internal dependencies
+ */
 import { useApi } from '../../store';
 import {
 	PromptApiToolConfig,

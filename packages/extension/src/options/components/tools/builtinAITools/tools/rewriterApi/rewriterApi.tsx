@@ -1,5 +1,12 @@
+/**
+ * External dependencies
+ */
 import { useCallback } from 'react';
 import { RefreshCcw } from 'lucide-react';
+
+/**
+ * Internal dependencies
+ */
 import { useApi, useFlow } from '../../../../../store';
 import { ToolItem } from '../../../../ui';
 

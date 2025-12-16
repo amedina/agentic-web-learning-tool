@@ -1,17 +1,23 @@
-import { useCallback, useMemo, useState } from 'react';
+/**
+ * External dependencies
+ */
+import { useMemo } from 'react';
 import { Handle, Position, useNodeId } from '@xyflow/react';
 import { BookCheck } from 'lucide-react';
+
+/**
+ * Internal dependencies
+ */
 import { useApi, useFlow } from '../../../../../store';
 import { ToolNodeContainer } from '../../../../ui';
 
 const ToolNode = () => {
 	const nodeId = useNodeId();
-	const { getNode, selectedNode, setSelectedNode, updateNode } = useApi(
+	const { getNode, selectedNode, setSelectedNode } = useApi(
 		({ state, actions }) => ({
 			selectedNode: state.selectedNode,
 			getNode: actions.getNode,
 			setSelectedNode: actions.setSelectedNode,
-			updateNode: actions.updateNode,
 		})
 	);
 

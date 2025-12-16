@@ -1,5 +1,12 @@
+/**
+ * External dependencies
+ */
 import { useEffect, useImperativeHandle, useState } from 'react';
 import { Settings } from 'lucide-react';
+
+/**
+ * Internal dependencies
+ */
 import { type NodeConfig } from '../../../../../store';
 
 interface ToolConfigProps {
@@ -127,9 +134,7 @@ const ToolConfig = ({ ref, node }: ToolConfigProps) => {
 							value={length}
 							className="w-full p-2 border border-slate-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
 							onChange={(e) => setLength(e.target.value)}
-						>
-							
-						</select>
+						></select>
 					</div>
 
 					<div>

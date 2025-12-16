@@ -1,5 +1,12 @@
+/**
+ * External dependencies
+ */
 import { useCallback } from 'react';
 import { FormInput } from 'lucide-react';
+
+/**
+ * Internal dependencies
+ */
 import { useApi, useFlow } from '../../../../../store';
 import { ToolItem } from '../../../../ui';
 

@@ -1,3 +1,6 @@
+/**
+ * Internal dependencies
+ */
 import { BuiltInAIToolsBar, JSToolsBar } from '.';
 
 const ToolsBar = () => {
