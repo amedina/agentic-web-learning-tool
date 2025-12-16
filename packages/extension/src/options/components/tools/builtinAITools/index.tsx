@@ -1,3 +1,6 @@
+/**
+ * Internal dependencies
+ */
 import { PromptApi } from './tools';
 
 const BuiltInAITools = () => {

@@ -1,3 +1,6 @@
+/**
+ * Internal dependencies
+ */
 import { flowUseContextSelector } from './context';
 import type { FlowStoreContext } from './context';
 

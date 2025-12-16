@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import type { Connection, EdgeChange, NodeChange } from '@xyflow/react';
 import { createContext } from 'react';
 import { createContextSelector } from 'react-context-selector';

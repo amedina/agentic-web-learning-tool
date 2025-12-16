@@ -1,3 +1,6 @@
+/**
+ * Internal dependencies
+ */
 import { apiUseContextSelector, type ApiStoreContext } from './context';
 
 export function useApi(): ApiStoreContext;

@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import { useCallback, useMemo, useState, type PropsWithChildren } from 'react';
 import {
 	addEdge,
@@ -7,6 +10,10 @@ import {
 	type EdgeChange,
 	type NodeChange,
 } from '@xyflow/react';
+
+/**
+ * Internal dependencies
+ */
 import Context, { FlowCleaner, type EdgeType, type NodeType } from './context';
 import { useApi } from '../api';
 import { PromptApiToolNode } from '../../components/tools/builtinAITools/tools';

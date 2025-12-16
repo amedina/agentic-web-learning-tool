@@ -1,7 +1,14 @@
-import { useFlow } from '../../store';
+/**
+ * External dependencies
+ */
 import { Controls, MiniMap, ReactFlow } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { FileOutput, Import, Save, Trash } from 'lucide-react';
+
+/**
+ * Internal dependencies
+ */
+import { useFlow } from '../../store';
 
 const Flow = () => {
 	const {

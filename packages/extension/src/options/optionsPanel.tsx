@@ -1,3 +1,6 @@
+/**
+ * Internal dependencies
+ */
 import Flow from './components/flow';
 import ToolsBar from './components/tools';
 import { ToolsConfig } from './components/tools/ui';

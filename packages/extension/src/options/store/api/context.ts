@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import { createContext } from 'react';
 import { createContextSelector } from 'react-context-selector';
 

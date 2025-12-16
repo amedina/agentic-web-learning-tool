@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import { NotebookText, Pen, X } from 'lucide-react';
 import type { PropsWithChildren } from 'react';
 

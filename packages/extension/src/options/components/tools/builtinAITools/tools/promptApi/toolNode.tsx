@@ -1,5 +1,12 @@
+/**
+ * External dependencies
+ */
 import { useMemo } from 'react';
 import { Handle, Position, useNodeId } from '@xyflow/react';
+
+/**
+ * Internal dependencies
+ */
 import { useApi, useFlow } from '../../../../../store';
 import { ToolNodeContainer } from '../../../ui';
 
