@@ -10,7 +10,7 @@ import {
 import { ArrowUpIcon, StopIcon } from '@radix-ui/react-icons';
 import { useMcpClient } from '@mcp-b/mcp-react-hooks';
 import { useEffect } from 'react';
-import type { JSONRPCMessage } from '@modelcontextprotocol/sdk/types.js';
+import type { JSONRPCMessage, Tool } from '@modelcontextprotocol/sdk/types.js';
 /**
  * Internal dependencies
  */
@@ -18,6 +18,7 @@ import { useAssistantMCP } from '../../hooks';
 import ChatMessage from './chatMessage';
 import { transport } from '../../providers';
 import ModelSelectorDropDown from '../modelSelectorDropDown';
+import ToolDropDown from '../toolDropDown';
 
 type ChatBotUIProps = {
 	runtime: AssistantRuntime;
@@ -96,8 +97,9 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 							</ComposerPrimitive.Cancel>
 						</ThreadPrimitive.If>
 					</div>
-					<div className="flex px-3.5">
+					<div className="flex px-3.5 gap-3">
 						<ModelSelectorDropDown />
+						<ToolDropDown tools={tools as Tool[]}/>
 					</div>
 				</div>
 			</ComposerPrimitive.Root>
