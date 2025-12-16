@@ -13,6 +13,7 @@ import { CloudHostedTrapsort, type ProviderSettings } from "./cloudHosted";
 
 function transportGenerator(provider = 'browser-ai', model = 'prompt-api', config: ProviderSettings){
     let modelInstance = null;
+    console.log(provider)
     switch(provider){
         case 'broswer-ai':
             return new GeminiNanoChatTransport();
@@ -20,7 +21,7 @@ function transportGenerator(provider = 'browser-ai', model = 'prompt-api', confi
             modelInstance = new CloudHostedTrapsort(model);
             modelInstance.initializeSession(createOllama, config);
             return modelInstance;
-        case 'openai':
+        case 'open-ai':
             modelInstance = new CloudHostedTrapsort(model);
             modelInstance.initializeSession(createOpenAI, config);
             return modelInstance;
