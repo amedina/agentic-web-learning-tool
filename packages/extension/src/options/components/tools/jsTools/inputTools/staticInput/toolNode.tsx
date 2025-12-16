@@ -4,12 +4,12 @@
 import { useMemo } from 'react';
 import { Handle, Position, useNodeId } from '@xyflow/react';
 import { FormInput } from 'lucide-react';
+import { ToolNodeContainer } from '@google-awlt/design-system';
 
 /**
  * Internal dependencies
  */
 import { useApi, useFlow } from '../../../../../store';
-import { ToolNodeContainer } from '../../../../ui';
 import type { StaticInputConfig } from './staticInput';
 
 const ToolNode = () => {

@@ -4,12 +4,12 @@
 import { useCallback } from 'react';
 import { FormInput } from 'lucide-react';
 import z from 'zod';
+import { ToolItem } from '@google-awlt/design-system';
 
 /**
  * Internal dependencies
  */
 import { useApi, useFlow } from '../../../../../store';
-import { ToolItem } from '../../../../ui';
 
 export const StaticInputSchema = z.object({
 	title: z.string(),

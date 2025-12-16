@@ -11,5 +11,9 @@
 			"@/*": ["./src/*"]
 		}
 	},
-	"include": ["src", "tests/setupTests.d.ts"]
+	"include": [
+		"src",
+		"tests/setupTests.d.ts",
+		"../design-system/src/**/*.(ts|tsx)"
+	]
 }

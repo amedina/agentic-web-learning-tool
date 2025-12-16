@@ -4,12 +4,12 @@
 import { useCallback } from 'react';
 import { Split } from 'lucide-react';
 import z from 'zod';
+import { ToolItem } from '@google-awlt/design-system';
 
 /**
  * Internal dependencies
  */
 import { useApi, useFlow } from '../../../../../store';
-import { ToolItem } from '../../../../ui';
 
 export const ConditionSchema = z.object({
 	title: z.string(),
