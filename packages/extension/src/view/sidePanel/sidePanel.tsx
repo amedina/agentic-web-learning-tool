@@ -4,24 +4,37 @@
 import { useChatRuntime } from '@assistant-ui/react-ai-sdk';
 import { ChatBotUI } from './components';
 import { useModelProvider } from './providers';
-import { AssistantRuntimeProvider } from '@assistant-ui/react';
+import { AssistantRuntimeProvider, type AssistantRuntime } from '@assistant-ui/react';
 import { lastAssistantMessageIsCompleteWithToolCalls } from 'ai';
+import { useEffect, useRef } from 'react';
 
 const SidePanel = () => {
 	const { transport } = useModelProvider(({ state }) => ({
 		transport: state.transport,
 	}));
 
-	const runtime = useChatRuntime({
+	const runtimeRef = useRef<AssistantRuntime | null>(null);
+
+	runtimeRef.current = useChatRuntime({
 		//@ts-expect-error -- transport will be initialised once available
 		transport,
 		sendAutomaticallyWhen: (messages) =>
 			lastAssistantMessageIsCompleteWithToolCalls(messages),
 	});
-	console.log(runtime.threads.switchToNewThread())
+
+	useEffect(() => {
+		(async() => {
+			if(!runtimeRef.current){
+				return;
+			}
+			await runtimeRef.current.threads.switchToNewThread();
+			transport?.setRuntime(runtimeRef.current);
+		})()
+	}, [transport])
+
 	return (
-		<AssistantRuntimeProvider runtime={runtime}>
-			<ChatBotUI runtime={runtime}/>
+		<AssistantRuntimeProvider runtime={runtimeRef.current}>
+			<ChatBotUI runtime={runtimeRef.current}/>
 		</AssistantRuntimeProvider>
 	);
 };

@@ -104,7 +104,7 @@ export class GeminiNanoChatTransport implements ChatTransport<UIMessage> {
             name: key,
             type: "function"
         }]);
-
+        console.log('gemini nano')
         return createUIMessageStream({
             execute: async ({ writer }) => {
                 try {

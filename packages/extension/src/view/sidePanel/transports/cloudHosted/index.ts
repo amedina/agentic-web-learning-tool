@@ -79,7 +79,7 @@ export class CloudHostedTrapsort implements ChatTransport<UIMessage> {
         params: SendMessagesParams,
     ): Promise<ReadableStream<UIMessageChunk>> {
         const { messages, abortSignal } = params;
-
+        console.log(this.runtime)
         if (!this.runtime) {
             return new ReadableStream();
         }
@@ -92,7 +92,7 @@ export class CloudHostedTrapsort implements ChatTransport<UIMessage> {
             name: key,
             type: "function"
         }]);
-
+console.log('cloud hosted')
         return createUIMessageStream({
             execute: async ({ writer }) => {
                 try {
