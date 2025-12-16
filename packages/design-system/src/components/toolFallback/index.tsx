@@ -43,7 +43,7 @@ export const ToolFallback: ToolCallMessagePartComponent = ({
     }
   };
 
-  const currentStatus = statusConfig[status.type as keyof typeof statusConfig];
+  const currentStatus = statusConfig?.[status.type as keyof typeof statusConfig];
 
   return (
    // Outer Container: Simulates the chat stream width
@@ -54,7 +54,7 @@ export const ToolFallback: ToolCallMessagePartComponent = ({
         group relative overflow-hidden
         bg-[#1a1a1a] 
         rounded-xl 
-        border ${currentStatus.border}
+        border ${currentStatus?.border}
         shadow-[0_2px_8px_-4px_rgba(0,0,0,0.05)]
         transition-all duration-300 ease-out
       `}>

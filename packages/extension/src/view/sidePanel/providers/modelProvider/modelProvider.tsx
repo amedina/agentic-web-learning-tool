@@ -17,7 +17,7 @@ import { Client } from '@modelcontextprotocol/sdk/client';
  * Internal dependencies.
  */
 import { transportGenerator } from '../../transports';
-import type { CloudHostedTrapsort } from '../../transports/cloudHosted';
+import type { CloudHostedTransport } from '../../transports/cloudHosted';
 import { GeminiNanoChatTransport } from '../../transports/geminiNano';
 import Context from './context';
 import { CONNECTION_NAMES } from '../../../../utils';
@@ -37,7 +37,7 @@ const Provider = ({ children }: PropsWithChildren) => {
 	const [_llmModel, setLLMModel] = useState<string>('');
 	const [_modelConfig, setModelConfig] = useState<Record<string, string>>({});
 	const [_transport, setTransport] = useState<
-		GeminiNanoChatTransport | CloudHostedTrapsort | null
+		GeminiNanoChatTransport | CloudHostedTransport | null
 	>(null);
 	const initialFetchDone = useRef<boolean>(false);
 	const [_baseUrl, setBaseUrl] = useState<string>('');
@@ -168,7 +168,7 @@ const Provider = ({ children }: PropsWithChildren) => {
 
 	return (
 		<Context.Provider value={memoisedValue}>
-			{/*@ts-expect-error -- library is still in development and may have some version mismatches.*/}
+			{/* @ts-ignore -- library is still in development and may have some version mismatches.*/}
 			<McpClientProvider client={client} transport={transport} opts={{}}>
 				{children}
 			</McpClientProvider>
