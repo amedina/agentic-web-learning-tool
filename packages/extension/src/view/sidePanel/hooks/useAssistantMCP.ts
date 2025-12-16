@@ -119,7 +119,7 @@ export function useAssistantMCP(
     if (!client) {
       return;
     }
-    console.log(filteredTools)
+
     // Transform MCP tools into Assistant UI tools
     const assistantTools = filteredTools.map((mcpT) => {
       // Generate a clean name for the UI (handles length limits & hashing if needed)

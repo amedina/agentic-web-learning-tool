@@ -79,7 +79,6 @@ try {
             }
 
             transport.close();
-            console.log(client.transport)
         });
     })();
 
