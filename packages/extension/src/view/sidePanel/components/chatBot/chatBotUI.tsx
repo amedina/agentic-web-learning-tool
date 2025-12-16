@@ -15,7 +15,7 @@ import { useEffect } from 'react';
  */
 import { useAssistantMCP } from '../../hooks';
 import ChatMessage from './chatMessage';
-import { transport } from '../../../../utils/transports';
+import { transport } from '../../providers';
 import ModelSelectorDropDown from '../modelSelectorDropDown';
 
 type ChatBotUIProps = {
@@ -23,6 +23,7 @@ type ChatBotUIProps = {
 };
 
 const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
+	//@todo move line 27-37 in provider
 	useEffect(() => {
 		(async () => client.connect(transport))();
 	}, []);
@@ -80,7 +81,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 							</ComposerPrimitive.Cancel>
 						</ThreadPrimitive.If>
 					</div>
-					<div className="flex p-3.5">
+					<div className="flex px-3.5">
 						<ModelSelectorDropDown />
 					</div>
 				</div>

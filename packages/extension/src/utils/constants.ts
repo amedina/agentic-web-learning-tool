@@ -10,3 +10,5 @@ export const MESSAGE_TYPES = {
   REFRESH_REQUEST: 'request-tools-refresh',
   EXECUTE: 'execute-tool',
 } as const;
+
+export const noop = () => {};

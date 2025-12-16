@@ -3,19 +3,18 @@
  */
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { McpClientProvider } from '@mcp-b/mcp-react-hooks';
 /**
  * Internal dependencies
  */
 import './index.css';
 import SidePanel from './sidePanel';
-import { client, transport } from '../../utils/transports';
+import { ModelProvider } from './providers';
+
 
 createRoot(document.getElementById('root')!).render(
-	//@ts-expect-error -- library is still in development and may have some version mismatches.
-	<McpClientProvider client={client} transport={transport} opts={{}}>
+	<ModelProvider>
 		<StrictMode>
 			<SidePanel />
 		</StrictMode>
-	</McpClientProvider>
+	</ModelProvider>
 );

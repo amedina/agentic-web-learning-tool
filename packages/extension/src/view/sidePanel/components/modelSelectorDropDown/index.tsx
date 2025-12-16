@@ -116,7 +116,7 @@ export default function ModelSelectorDropDown() {
 			<div className="flex flex-col items-center justify-center font-sans">
 				<DropDownMenuRoot>
 					<DropdownMenuTrigger asChild>
-						<CpuIcon className="w-4 h-4" />
+						<CpuIcon className="w-4 h-4 text-foreground" />
 					</DropdownMenuTrigger>
 
 					<DropDownMenuPortal>
