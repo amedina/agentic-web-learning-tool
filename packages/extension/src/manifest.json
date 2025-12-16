@@ -37,15 +37,15 @@
 	},
 	"content_scripts": [
 		{
-			"js": ["contentScript.js"],
+			"js": ["contentScript/contentScript.js"],
 			"matches": ["*://*/*"]
 		}
 	],
 	"web_accessible_resources": [
 		{
 			"resources": [
-				"src/assets/webmcp-polyfill.js",
-				"src/contentScripts/register-tools.js"
+				"contentScript/webmcp-polyfill.js",
+				"contentScript/registerTools.js"
 			],
 			"matches": [
 				"<all_urls>"

@@ -1,3 +1,4 @@
+// @ts-nocheck
 (function () {
     console.log("WebMCP: register-tools.js loaded (Diagnostic Version 2.0)");
 
