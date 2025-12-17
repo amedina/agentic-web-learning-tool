@@ -5,6 +5,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { type CallToolResult, type Tool } from '@modelcontextprotocol/sdk/types.js';
 import { z } from 'zod';
 import { ExtensionServerTransport } from '@mcp-b/transports';
+
 /**
  * Internal dependencies
  */
@@ -425,7 +426,7 @@ chrome.runtime.onConnect.addListener((port) => {
     keepAliveInterval: 25_000,
   });
   try {
-    //Why this is being done look herehttps://github.com/modelcontextprotocol/typescript-sdk/issues/893
+    //Why this is being done look here https://github.com/modelcontextprotocol/typescript-sdk/issues/893
     sharedServer.registerTool('dummyTool', {}, () =>
     ({
       content: [{ type: 'text', text: `Failed to execute tool: Tab connection lost or closed.` }],

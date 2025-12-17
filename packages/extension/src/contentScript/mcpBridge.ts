@@ -3,11 +3,13 @@
  */
 import { TabClientTransport } from "@mcp-b/transports";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+
 /**
  * Internal dependencies
  */
 import { CONNECTION_NAMES } from "..//utils/constants";
 let connectionStarted = false;
+
 try {
     (async () => {
         //This connects to the page context since content scripts have a separate JS context
@@ -36,20 +38,25 @@ try {
                         console.log("Error connecting client:", error);
                     }
                 }
-                if(client.transport){
-                  clearInterval(interval); 
-                  const pageTools = await client.listTools();
-                  //Send initial list of tools to service worker
-                  backgroundPort.postMessage({
-                    type: "register-tools",
-                    tools: pageTools.tools,
-                  });
-              }
+                if (client.transport) {
+                    clearInterval(interval);
+
+                    // client.listTools sends message to TabServerTransport which is implemented by the MCP-B polyfill in real world page context.
+                    // @see https://github.com/WebMCP-org/npm-packages/blob/a262b42b7dc260f47f6fbc5b6dd82937ec01fb83/global/src/global.ts#L2167-L2170
+                    const pageTools = await client.listTools();
+
+                    //Send initial list of tools to service worker
+                    backgroundPort.postMessage({
+                        type: "register-tools",
+                        tools: pageTools.tools,
+                    });
+                }
             } catch (error) {
                 console.log("Error connecting to MCP background:", error);
             }
         }, 1000);
 
+        // Listen for messages from service worker.
         backgroundPort.onMessage.addListener(async (message) => {
             if (message.type === "execute-tool") {
                 const result = await client.callTool({
