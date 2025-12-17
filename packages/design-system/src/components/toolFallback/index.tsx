@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import getToolNameWithoutPrefix from "@/lib/getToolNameWithoutPrefix";
 import type { ToolCallMessagePartComponent } from "@assistant-ui/react";
 import {
   ArrowRight,
@@ -77,7 +78,7 @@ export const ToolFallback: ToolCallMessagePartComponent = ({
             <div className="flex flex-col">
               <div className="flex items-center gap-2">
                 <span className="text-[15px] font-medium text-stone-100 tracking-tight">
-                  {toolName}
+                  {getToolNameWithoutPrefix(toolName)}
                 </span>
                 {/* Status Badge - Pill shaped, very subtle */}
                 <div className={`

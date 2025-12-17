@@ -16,7 +16,7 @@ import {
 } from '@radix-ui/react-dialog';
 import { Settings2 } from 'lucide-react';
 import type { Tool as McpTool } from '@modelcontextprotocol/sdk/types.js';
-import { TooltipIconButton } from '@google-awlt/design-system';
+import { TooltipIconButton, getToolNameWithoutPrefix } from '@google-awlt/design-system';
 
 
 const itemStyles = `
@@ -75,7 +75,7 @@ export default function ToolDropDown({tools}: ToolProps) {
 								<DropDownMenuSub key={tool.name}>
 									<div className={itemStyles}>
 										<div className="flex items-center gap-3">
-											<span>{tool.name}</span>
+											<span>{getToolNameWithoutPrefix(tool.name)}</span>
 										</div>
 									</div>
 								</DropDownMenuSub>
