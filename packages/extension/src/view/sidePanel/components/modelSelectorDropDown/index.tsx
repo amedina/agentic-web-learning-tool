@@ -26,6 +26,7 @@ import { ChevronRight, CpuIcon } from 'lucide-react';
 import { INITIAL_PROVIDERS } from '../../constants';
 import { useModelProvider } from '../../providers';
 import ModelDialog from '../modelDialog';
+import { TooltipIconButton } from '@google-awlt/design-system';
 
 const itemStyles = `
   group relative flex items-center h-9 px-2.5 
@@ -128,7 +129,9 @@ export default function ModelSelectorDropDown() {
 			<div className="flex flex-col items-center justify-center font-sans">
 				<DropDownMenuRoot>
 					<DropdownMenuTrigger asChild>
-						<CpuIcon className="w-4 h-4 text-foreground" />
+						<TooltipIconButton tooltip={`Current Model ${ llmModel } from ${ modelProvider }.`}>
+							<CpuIcon className="w-4 h-4 text-foreground" />
+						</TooltipIconButton>
 					</DropdownMenuTrigger>
 
 					<DropDownMenuPortal>
