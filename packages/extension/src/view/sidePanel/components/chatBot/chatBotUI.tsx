@@ -30,20 +30,20 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 	useEffect(() => {
 		(async () => {
 			await client.connect(transport);
-	})();
+		})();
 
-	return () => {
-		client.close();
-	}
+		return () => {
+			client.close();
+		};
 	}, [client]);
 
 	useEffect(() => {
-		transport.onmessage = (async(message: JSONRPCMessage) => {
+		transport.onmessage = async (message: JSONRPCMessage) => {
 			//@ts-expect-error -- One of the JSONRPCMessage doesnt have the method property
-			if(message.method === 'get/Tools'){
+			if (message.method === 'get/Tools') {
 				await client.listTools();
 			}
-		})
+		};
 	}, [client]);
 
 	const threadId = useAssistantState(
@@ -99,7 +99,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 					</div>
 					<div className="flex px-3.5 gap-3">
 						<ModelSelectorDropDown />
-						<ToolDropDown tools={tools as Tool[]}/>
+						<ToolDropDown tools={tools as Tool[]} />
 					</div>
 				</div>
 			</ComposerPrimitive.Root>
