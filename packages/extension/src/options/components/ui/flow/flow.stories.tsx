@@ -4,7 +4,7 @@ import Flow from './index';
 import { useCallback } from 'react';
 
 const meta: Meta<typeof Flow> = {
-	title: 'Flow',
+	title: 'Extension/Flow',
 	component: Flow,
 	parameters: {
 		layout: 'fullscreen',

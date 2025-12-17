@@ -10,7 +10,7 @@ import { Settings } from 'lucide-react';
 import ToolItem from '.';
 
 const meta = {
-	title: 'ToolItem',
+	title: 'Extension/ToolItem',
 	component: ToolItem,
 	parameters: {
 		layout: 'centered',

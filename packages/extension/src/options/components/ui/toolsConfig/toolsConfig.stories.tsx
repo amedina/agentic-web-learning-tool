@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import ToolsConfig from './index';
 
 const meta: Meta<typeof ToolsConfig> = {
-	title: 'ToolsConfig',
+	title: 'Extension/ToolsConfig',
 	component: ToolsConfig,
 	parameters: {
 		layout: 'fullscreen',

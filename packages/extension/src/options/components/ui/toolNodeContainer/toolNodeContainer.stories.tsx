@@ -10,7 +10,7 @@ import { Settings } from 'lucide-react';
 import ToolNodeContainer from '.';
 
 const meta = {
-	title: 'ToolNodeContainer',
+	title: 'Extension/ToolNodeContainer',
 	component: ToolNodeContainer,
 	parameters: {
 		layout: 'centered',
