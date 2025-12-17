@@ -34,13 +34,14 @@
 	"dependencies": {
 		"@radix-ui/react-slot": "^1.2.3",
 		"@radix-ui/react-tabs": "^1.1.13",
+		"@xyflow/react": "^12.9.3",
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
 		"tailwind-merge": "^3.3.1"
 	},
 	"peerDependencies": {
-		"react": "^19",
-		"lucide-react": "^0.379.0"
+		"lucide-react": "^0.379.0",
+		"react": "^19"
 	},
 	"devDependencies": {
 		"@google-awlt/shared-config": "workspace:*",
