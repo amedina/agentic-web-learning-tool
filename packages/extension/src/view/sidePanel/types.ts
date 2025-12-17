@@ -52,3 +52,7 @@ export interface ConversionResult {
   systemMessage?: any; // Content of the system message
   messages: FormattedMessage[];
 }
+
+export interface ToolExecutionArgs {
+  [key: string]: unknown;
+}

@@ -1,12 +1,12 @@
 /**
  * Internal dependencies
  */
-import type { PendingRequest, RequestResponse } from '../types';
+import type { PendingRequest, RequestResponse } from '../../types';
 
 /**
  * Manages async request/response communication with content scripts
  */
-export class RequestManager {
+class RequestManager {
   private pending = new Map<string, PendingRequest>();
 
   create<T = unknown>(port: chrome.runtime.Port, message: object): Promise<T> {
@@ -40,3 +40,5 @@ export class RequestManager {
     }
   }
 }
+
+export default RequestManager;
