@@ -1,14 +1,14 @@
 /**
  * External dependencies
  */
-import { Flow } from '@google-awlt/design-system';
 import { X } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 
 /**
  * Internal dependencies
- */
+*/
 import { type EdgeType, type NodeType, useFlow, useApi } from '../../store';
+import { Flow } from '../ui';
 
 const ID_PREFIX = 'wf_';
 const STORAGE_PREFIX = 'workflow-';

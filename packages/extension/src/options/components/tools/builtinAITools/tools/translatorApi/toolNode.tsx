@@ -4,11 +4,11 @@
 import { useMemo } from 'react';
 import { Handle, Position, useNodeId } from '@xyflow/react';
 import { Languages } from 'lucide-react';
-import { ToolNodeContainer } from '@google-awlt/design-system';
 
 /**
  * Internal dependencies
- */
+*/
+import { ToolNodeContainer } from '../../../../ui';
 import { useApi, useFlow } from '../../../../../store';
 import type { TranslatorApiConfig } from './translatorApi';
 

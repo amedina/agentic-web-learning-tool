@@ -4,12 +4,12 @@
 import { useMemo } from 'react';
 import { Handle, Position, useNodeId } from '@xyflow/react';
 import { NotebookText } from 'lucide-react';
-import { ToolNodeContainer } from '@google-awlt/design-system';
 
 /**
  * Internal dependencies
- */
+*/
 import { useApi, useFlow } from '../../../../../store';
+import { ToolNodeContainer } from '../../../../ui';
 import type { PromptApiConfig } from './promptApi';
 
 const ToolNode = () => {

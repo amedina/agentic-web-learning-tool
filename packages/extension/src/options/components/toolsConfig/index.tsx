@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ToolsConfig as ToolsConfigComponent } from '@google-awlt/design-system';
 
 /**
  * Internal dependencies
@@ -16,6 +15,7 @@ import {
 	StaticInputToolConfig,
 	ConditionToolConfig,
 } from '../tools';
+import { ToolsConfig as ToolsConfigComponent } from '../ui';
 
 const TOOLS = {
 	promptApi: PromptApiToolConfig,

@@ -4,11 +4,11 @@
 import { useCallback } from 'react';
 import { Languages } from 'lucide-react';
 import z from 'zod';
-import { ToolItem } from '@google-awlt/design-system';
 
 /**
  * Internal dependencies
- */
+*/
+import { ToolItem } from '../../../../ui';
 import { useApi, useFlow } from '../../../../../store';
 
 export const TranslatorApiSchema = z.object({
