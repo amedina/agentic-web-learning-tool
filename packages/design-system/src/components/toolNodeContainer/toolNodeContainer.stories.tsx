@@ -50,6 +50,6 @@ export const Selected: Story = {
 export const LongTitle: Story = {
 	args: {
 		...Default.args,
-		title: 'Very Long Node Title That Might Wrap Or Truncate',
+		title: 'Very Long Node Title That Wrap In Two Lines',
 	},
 };

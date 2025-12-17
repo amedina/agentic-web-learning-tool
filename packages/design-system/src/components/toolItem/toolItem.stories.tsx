@@ -2,7 +2,7 @@
  * External dependencies
  */
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Settings, PenTool, Sparkles } from 'lucide-react';
+import { Settings } from 'lucide-react';
 
 /**
  * Internal dependencies
@@ -17,8 +17,19 @@ const meta = {
 	},
 	tags: ['autodocs'],
 	argTypes: {
-		onClick: { action: 'onClick' },
-		Icon: { control: false },
+		onClick: {
+			action: 'onClick',
+			description:
+				'Callback function to be called when the tool item is clicked',
+		},
+		Icon: {
+			control: false,
+			description: 'Icon component to be displayed in the tool item',
+		},
+		label: {
+			control: 'text',
+			description: 'Label to be displayed in the tool item',
+		},
 	},
 } as Meta<typeof ToolItem>;
 
@@ -29,19 +40,5 @@ export const Default: Story = {
 	args: {
 		label: 'Standard Tool',
 		Icon: Settings,
-	},
-};
-
-export const WithDifferentIcon: Story = {
-	args: {
-		label: 'AI Feature',
-		Icon: Sparkles,
-	},
-};
-
-export const LongLabel: Story = {
-	args: {
-		label: 'A Very Long Tool Label That Might Need Space',
-		Icon: PenTool,
 	},
 };

@@ -28,10 +28,12 @@ const ToolNodeContainer = ({
 			onClick={onEdit}
 		>
 			<div
-				className={`w-full flex items-center justify-between p-2 rounded-t-md border-b border-slate-100 ${selected ? 'bg-indigo-50' : 'bg-slate-50'}`}
+				className={`w-full flex items-center gap-2 p-2 rounded-t-md border-b border-slate-100 ${selected ? 'bg-indigo-50' : 'bg-slate-50'}`}
 			>
 				<div className="flex items-center gap-2 text-slate-700">
-					<Icon size={16} className="text-indigo-600" />
+					<div>
+						<Icon size={16} className="text-indigo-600" />
+					</div>
 					<p className="flex flex-col ml-1">
 						<span className="font-semibold text-sm">{title}</span>
 						<span className="font-medium text-[10px] text-gray-400 italic">
