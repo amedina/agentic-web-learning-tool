@@ -1,9 +1,4 @@
 /**
- * External dependencies
- */
-import type { z } from 'zod';
-import { convertJsonSchemaToZod } from 'zod-from-json-schema';
-/**
  * Internal dependencies
  */
 import type { PendingRequest, RequestResponse } from '../types';
@@ -44,19 +39,4 @@ export class RequestManager {
       this.pending.delete(requestId);
     }
   }
-}
-
-export function jsonSchemaToZodShapeCustom(jsonSchema: any) {
-  if (!jsonSchema.properties) {
-    throw new Error('JSON Schema must have properties');
-  }
-
-  const zodShape: Record<string, z.ZodTypeAny> = {};
-
-  // Convert each property individually
-  for (const [key, propertySchema] of Object.entries(jsonSchema.properties)) {
-    zodShape[key] = convertJsonSchemaToZod(propertySchema as any) as any;
-  }
-
-  return zodShape;
 }
