@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { Loader2, Mail } from 'lucide-react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 /**
  * Internal dependencies
  */

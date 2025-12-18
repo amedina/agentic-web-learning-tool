@@ -7,6 +7,7 @@ export { default as SidebarGroupLabel } from './sidebarGroupLabel';
 export { default as SidebarHeader } from './sidebarHeader';
 export { default as SidebarInset } from './sidebarInset';
 export { default as SidebarMenu } from './sidebarMenu';
+export { default as SidebarMain } from './sidebarMain';
 export { default as SidebarMenuAction } from './sidebarMenuAction';
 export { default as SidebarMenuBadge } from './sidebarMenuBadge';
 export { default as SidebarMenuButton } from './sidebarMenuButton';
