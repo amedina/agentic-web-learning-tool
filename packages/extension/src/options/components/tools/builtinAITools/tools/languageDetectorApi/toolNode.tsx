@@ -7,7 +7,7 @@ import { ScanSearch } from 'lucide-react';
 
 /**
  * Internal dependencies
-*/
+ */
 import { useApi, useFlow } from '../../../../../store';
 import { ToolNodeContainer } from '../../../../ui';
 import type { LanguageDetectorApiConfig } from './languageDetectorApi';
