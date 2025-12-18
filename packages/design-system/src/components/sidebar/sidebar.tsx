@@ -38,7 +38,7 @@ export function Sidebar({ items }: SidebarProps) {
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map(({id, title, icon}) => (
-                <SidebarMenuItem key={title}>
+                <SidebarMenuItem key={title} onClick={() => setSelectedMenuItem(id)}>
                   <SidebarMenuButton asChild>
                     <div onClick={() => setSelectedMenuItem(id)}>
                       {icon && icon()}

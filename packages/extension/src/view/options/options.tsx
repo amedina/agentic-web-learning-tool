@@ -21,6 +21,7 @@ function Options() {
 	const { selectedMenuItem } = useSidebar();
 
 	const ComponentToRender = useMemo(() => {
+		console.log(selectedMenuItem)
 		return (
 			Items.find((item) => item.id === selectedMenuItem)?.component ?? (
 				<></>
