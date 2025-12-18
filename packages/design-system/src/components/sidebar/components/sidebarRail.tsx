@@ -1,15 +1,17 @@
 /**
  * External dependencies
  */
-import type { ComponentProps } from "react";
+import type { ComponentProps } from 'react';
 /**
  * Internal dependencies
  */
-import { useSidebar } from "../sidebarProvider";
-import { cn } from "../../../lib";
+import { useSidebar } from '../sidebarProvider';
+import { cn } from '../../../lib';
 
 function SidebarRail({ className, ...props }: ComponentProps<'button'>) {
-	const { toggleSidebar } = useSidebar();
+	const { toggleSidebar } = useSidebar(({ actions }) => ({
+		toggleSidebar: actions.toggleSidebar,
+	}));
 
 	return (
 		<button

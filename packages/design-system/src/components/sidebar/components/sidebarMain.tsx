@@ -6,9 +6,8 @@ import { type ComponentProps } from 'react';
 /**
  * Internal dependencies
  */
-import { cn } from '../../../lib';;
+import { cn } from '../../../lib';
 import { useSidebar } from '../sidebarProvider';
-
 
 function SidebarMain({
 	side = 'left',
@@ -22,7 +21,9 @@ function SidebarMain({
 	variant?: 'sidebar' | 'floating' | 'inset';
 	collapsible?: 'offcanvas' | 'icon' | 'none';
 }) {
-	const { state } = useSidebar();
+	const { sidebarState } = useSidebar(({ state }) => ({
+		sidebarState: state.sidebarState,
+	}));
 
 	if (collapsible === 'none') {
 		return (
@@ -42,8 +43,8 @@ function SidebarMain({
 	return (
 		<div
 			className="group peer text-sidebar-foreground hidden md:block"
-			data-state={state}
-			data-collapsible={state === 'collapsed' ? collapsible : ''}
+			data-state={sidebarState}
+			data-collapsible={sidebarState === 'collapsed' ? collapsible : ''}
 			data-variant={variant}
 			data-side={side}
 			data-slot="sidebar"

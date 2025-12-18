@@ -83,14 +83,18 @@ function SidebarProvider({
 
 	const contextValue = useMemo<SidebarContextProps>(
 		() => ({
-			state,
-			open,
-			setOpen,
-			toggleSidebar,
-			selectedMenuItem,
-			setSelectedMenuItem,
+			state:{
+				open,
+				selectedMenuItem,
+				sidebarState: state,
+			},
+			actions: {
+				setOpen,
+				toggleSidebar,
+				setSelectedMenuItem,
+			}
 		}),
-		[state, open, setOpen, toggleSidebar]
+		[state, open, setOpen, toggleSidebar, selectedMenuItem,]
 	);
 
 	return (

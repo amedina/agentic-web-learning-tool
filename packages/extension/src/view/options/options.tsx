@@ -18,10 +18,12 @@ const Items = [
 	},
 ];
 function Options() {
-	const { selectedMenuItem } = useSidebar();
+	const { selectedMenuItem } = useSidebar(({ state }) => ({
+		selectedMenuItem: state.selectedMenuItem,
+	}));
 
 	const ComponentToRender = useMemo(() => {
-		console.log(selectedMenuItem)
+		console.log(selectedMenuItem);
 		return (
 			Items.find((item) => item.id === selectedMenuItem)?.component ?? (
 				<></>

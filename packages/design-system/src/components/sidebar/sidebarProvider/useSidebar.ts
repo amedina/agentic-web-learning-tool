@@ -1,13 +1,28 @@
-import React from "react";
-import SidebarContext from "./context";
+/**
+ * External dependencies
+ */
+import { useContextSelector } from '@google-awlt/common';
+/**
+ * Internal dependencies.
+ */
+import Context, { type SidebarContextProps } from './context';
 
-function useSidebar() {
-    const context = React.useContext(SidebarContext);
-    if (!context) {
-        throw new Error('useSidebar must be used within a SidebarProvider.');
-    }
+export function useSidebar(): SidebarContextProps;
+export function useSidebar<T>(
+  selector: (state: SidebarContextProps) => T
+): T;
 
-    return context;
+/**
+ * Allowed list hook.
+ * @param selector Selector function to partially select state.
+ * @returns selected part of the state
+ */
+export function useSidebar<T>(
+  selector: (state: SidebarContextProps) => T | SidebarContextProps = (
+    state
+  ) => state
+) {
+  return useContextSelector(Context, selector);
 }
 
 export default useSidebar;

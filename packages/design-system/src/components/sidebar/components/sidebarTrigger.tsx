@@ -1,21 +1,23 @@
 /**
  * External dependencies
  */
-import { PanelLeftIcon } from "lucide-react";
-import type { ComponentProps } from "react";
+import { PanelLeftIcon } from 'lucide-react';
+import type { ComponentProps } from 'react';
 /**
  * Internal dependencies
  */
-import { useSidebar } from "../sidebarProvider";
-import { cn } from "../../../lib";
-import { Button } from "../../button";
+import { useSidebar } from '../sidebarProvider';
+import { cn } from '../../../lib';
+import { Button } from '../../button';
 
 function SidebarTrigger({
 	className,
 	onClick,
 	...props
 }: ComponentProps<typeof Button>) {
-	const { toggleSidebar } = useSidebar();
+	const { toggleSidebar } = useSidebar(({ actions }) => ({
+		toggleSidebar: actions.toggleSidebar,
+	}));
 
 	return (
 		<Button
