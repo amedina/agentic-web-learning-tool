@@ -12,27 +12,27 @@ import { Sidebar, SidebarProvider, SidebarTrigger } from './';
 const items = [
 	{
 		title: 'Home',
-		url: '#',
+		id: 'home',
 		icon: () => <Home />,
 	},
 	{
 		title: 'Inbox',
-		url: '#',
+		id: 'inbox',
 		icon: () => <Inbox />,
 	},
 	{
 		title: 'Calendar',
-		url: '#',
+		id: 'calendar',
 		icon: () => <Calendar />,
 	},
 	{
 		title: 'Search',
-		url: '#',
+		id: 'search',
 		icon: () => <Search />,
 	},
 	{
 		title: 'Settings',
-		url: '#',
+		id: 'settings',
 		icon: () => <Settings />,
 	},
 ];
@@ -56,14 +56,14 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
 	render: (args) => {
 		return (
-            <div className='w-screen'>
-			<SidebarProvider>
-				<Sidebar items={args.items} />
-				<main>
-					<SidebarTrigger />
-				</main>
-			</SidebarProvider>
-            </div>
+			<div className="w-screen">
+				<SidebarProvider>
+					<Sidebar items={args.items} />
+					<main>
+						<SidebarTrigger />
+					</main>
+				</SidebarProvider>
+			</div>
 		);
 	},
 	args: {

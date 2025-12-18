@@ -15,10 +15,11 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "./components"
+import { useSidebar } from "./sidebarProvider";
  
 type MenuItem = {
+    id: string;
     title: string;
-    url: string;
     icon?: () => ReactNode;
 }
 
@@ -27,20 +28,22 @@ type SidebarProps = {
 }
  
 export function Sidebar({ items }: SidebarProps) {
+  const {setSelectedMenuItem} = useSidebar();
+
   return (
     <SidebarMain>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Application</SidebarGroupLabel>
+          <SidebarGroupLabel>AWLT</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map(({title, url, icon}) => (
+              {items.map(({id, title, icon}) => (
                 <SidebarMenuItem key={title}>
                   <SidebarMenuButton asChild>
-                    <a href={url}>
+                    <div onClick={() => setSelectedMenuItem(id)}>
                       {icon && icon()}
                       <span>{title}</span>
-                    </a>
+                    </div>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}

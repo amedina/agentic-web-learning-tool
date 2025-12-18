@@ -5,6 +5,8 @@ export type SidebarContextProps = {
     open: boolean;
     setOpen: (open: boolean) => void;
     toggleSidebar: () => void;
+    selectedMenuItem: string;
+    setSelectedMenuItem: React.Dispatch<React.SetStateAction<string>> 
 };
 
 const SidebarContext = React.createContext<SidebarContextProps | null>(null);
