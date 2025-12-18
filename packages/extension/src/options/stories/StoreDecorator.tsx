@@ -1,7 +1,14 @@
+/**
+ * External dependencies
+ */
 import { ReactFlowProvider, ReactFlow } from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
+
+/**
+ * Internal dependencies
+ */
 import FlowContext, { FlowCleaner } from '../store/flow/context';
 import ApiContext, { ApiCleaner } from '../store/api/context';
-import '@xyflow/react/dist/style.css';
 
 export const withStore = (Story: any, { parameters }: any) => {
 	const { flowStore, apiStore } = parameters;
