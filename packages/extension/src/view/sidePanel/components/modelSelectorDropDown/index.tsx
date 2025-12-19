@@ -112,6 +112,7 @@ export default function ModelSelectorDropDown() {
 					className={itemStyles}
 					onSelect={() => {
 						handleSelect(providerId, modelId);
+						setSelectedModel(modelId, providerId)
 					}}
 				>
 					{modelId}

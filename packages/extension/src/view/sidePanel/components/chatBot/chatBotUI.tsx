@@ -7,18 +7,29 @@ import {
 	useAssistantState,
 	type AssistantRuntime,
 } from '@assistant-ui/react';
-import { ArrowUpIcon, StopIcon } from '@radix-ui/react-icons';
 import { useMcpClient } from '@mcp-b/mcp-react-hooks';
 import { useEffect } from 'react';
-import type { JSONRPCMessage, Tool } from '@modelcontextprotocol/sdk/types.js';
+import type { JSONRPCMessage } from '@modelcontextprotocol/sdk/types.js';
+import {
+	Bot,
+	Paperclip,
+	SendHorizontal,
+	CircleStop,
+} from 'lucide-react';
 /**
  * Internal dependencies
  */
 import { useAssistantMCP } from '../../hooks';
-import ChatMessage from './chatMessage';
 import { transport } from '../../providers';
 import ModelSelectorDropDown from '../modelSelectorDropDown';
-import ToolDropDown from '../toolDropDown';
+import AssistantMessage from './assistantMessage';
+import EditComposer from './editComposer';
+import UserMessage from './userMessage';
+
+const AVAILABLE_TOOLS = [
+	{ name: 'get_weather', description: 'Get current weather data' },
+	{ name: 'search_web', description: 'Search the internet' },
+];
 
 type ChatBotUIProps = {
 	runtime: AssistantRuntime;
@@ -53,56 +64,71 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 	useAssistantMCP(tools, client, threadId, runtime);
 
 	return (
-		<ThreadPrimitive.Root className="flex h-full flex-col items-stretch bg-dark-brown px-4 pt-16 font-serif">
-			<ThreadPrimitive.Viewport className="no-scrollbar flex flex-grow flex-col overflow-y-scroll">
-				<ThreadPrimitive.Messages
-					components={{ Message: ChatMessage }}
-				/>
-				<ThreadPrimitive.If empty={false}>
-					<p className="mx-auto w-full max-w-screen-md p-2 text-right text-xs text-sidebar-ring">
-						LLM can make mistakes. Please double-check responses.
-					</p>
-				</ThreadPrimitive.If>
-			</ThreadPrimitive.Viewport>
+		<ThreadPrimitive.Root className="h-full flex flex-col">
+			<ThreadPrimitive.Viewport className="flex-1 overflow-y-auto scroll-smooth px-4 md:px-0">
+				<div className="max-w-3xl mx-auto w-full pt-8 pb-32">
+					{/* Empty State / Welcome */}
+					<ThreadPrimitive.Empty>
+						<div className="flex flex-col items-center justify-center text-center mt-20 px-4">
+							<div className="h-16 w-16 rounded-2xl flex items-center justify-center bg-background shadow-lg mb-6 text-foreground">
+								<Bot size={32} />
+							</div>
+							<h2 className="text-2xl font-bold text-zinc-900 mb-2">
+								How can I help you today?
+							</h2>
+							<p className="text-zinc-500 max-w-md mb-8">
+								I can help you write code, analyze data, or even
+								check the weather. I have access to{' '}
+								{tools.length} tools.
+							</p>
+						</div>
+					</ThreadPrimitive.Empty>
 
-			<ComposerPrimitive.Root className="mx-auto flex w-full max-w-screen-md flex-col rounded-xl border border-[#6c6a6040] bg-dark-brown p-1.5 m-2">
-				<div className="flex flex-col">
-					<div className="flex">
+					{/* Messages */}
+					<ThreadPrimitive.Messages
+						components={{
+							UserMessage,
+							EditComposer,
+							AssistantMessage,
+						}}
+					/>
+				</div>
+			</ThreadPrimitive.Viewport>
+			<div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-white via-white to-transparent pb-6 pt-10 px-4">
+				<div className="max-w-3xl mx-auto w-full">
+					<ComposerPrimitive.Root className="relative flex flex-col gap-2 rounded-2xl border border-zinc-200 bg-white shadow-xl shadow-zinc-200/50 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all overflow-hidden">
 						<ComposerPrimitive.Input
-							placeholder="Reply to Agent..."
-							className="h-12 flex-grow resize-none bg-transparent p-3.5 text-sm text-foreground outline-none placeholder:text-ring"
+							placeholder="Ask anything..."
+							className="w-full max-h-40 min-h-[56px] resize-none bg-transparent px-4 py-4 text-base outline-none placeholder:text-zinc-400 text-zinc-800"
 						/>
-						<ThreadPrimitive.If running={false}>
-							<ComposerPrimitive.Send
-								type="submit"
-								className="m-2 flex h-8 w-8 items-center justify-center rounded-lg bg-fiery-orange text-2xl font-bold disabled:opacity-0"
-							>
-								<ArrowUpIcon
-									width={16}
-									height={16}
-									className="text-[#ddd] [&_path]:stroke-white [&_path]:stroke-[0.5]"
-								/>
-							</ComposerPrimitive.Send>
-						</ThreadPrimitive.If>
-						<ThreadPrimitive.If running>
-							<ComposerPrimitive.Cancel
-								type="button"
-								className="m-2 flex h-8 w-8 items-center justify-center rounded-lg bg-[#ae5630] text-2xl font-bold disabled:opacity-0"
-							>
-								<StopIcon
-									height={16}
-									width={16}
-									className="text-[#ddd] [&_path]:stroke-white [&_path]:stroke-[0.5]"
-								/>
-							</ComposerPrimitive.Cancel>
-						</ThreadPrimitive.If>
-					</div>
-					<div className="flex px-3.5 gap-3">
-						<ModelSelectorDropDown />
-						<ToolDropDown tools={tools as Tool[]} />
+						<div className="flex items-center justify-between px-3 pb-3">
+							<div className="flex items-center gap-1">
+								<button
+									className="p-2 text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100 rounded-lg transition-colors"
+									title="Attach"
+								>
+									<Paperclip size={18} />
+								</button>
+								<ModelSelectorDropDown />
+							</div>
+							<ThreadPrimitive.If running={false}>
+								<ComposerPrimitive.Send className="h-9 w-9 flex items-center justify-center rounded-lg bg-background hover:text-ring text-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+									<SendHorizontal size={18} />
+								</ComposerPrimitive.Send>
+							</ThreadPrimitive.If>
+							<ThreadPrimitive.If running>
+								<ComposerPrimitive.Cancel className="h-9 w-9 flex items-center justify-center rounded-lg bg-background hover:text-ring text-foreground hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+									<CircleStop size={18} />
+								</ComposerPrimitive.Cancel>
+							</ThreadPrimitive.If>
+						</div>
+					</ComposerPrimitive.Root>
+					<div className="text-center mt-3 text-xs text-zinc-400">
+						AI can make mistakes. Please verify important
+						information.
 					</div>
 				</div>
-			</ComposerPrimitive.Root>
+			</div>
 		</ThreadPrimitive.Root>
 	);
 };

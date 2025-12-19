@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import getToolNameWithoutPrefix from "@/lib/getToolNameWithoutPrefix";
 import type { ToolCallMessagePartComponent } from "@assistant-ui/react";
 import {
   ArrowRight,
@@ -13,6 +12,10 @@ import {
   Terminal,
 } from "lucide-react";
 import { useState } from "react";
+/**
+ * Internal dependencies
+ */
+import { getToolNameWithoutPrefix } from "../../lib";
 
 export const ToolFallback: ToolCallMessagePartComponent = ({
   toolName,
