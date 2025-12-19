@@ -22,8 +22,8 @@ export type TranslatorApiConfig = z.infer<typeof TranslatorApiSchema>;
 
 const createConfig: () => TranslatorApiConfig = () => {
 	return {
-		title: 'Translator API',
-		description: 'You are a helpful translator',
+		title: 'Translator',
+		description: 'Translate text from one language to another.',
 		sourceLanguage: 'en',
 		targetLanguage: 'es',
 	};

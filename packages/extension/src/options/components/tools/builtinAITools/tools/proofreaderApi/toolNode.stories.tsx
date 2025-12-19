@@ -19,7 +19,8 @@ const meta = {
 				'1': {
 					type: 'proofreaderApi',
 					config: {
-						title: 'Grammar & Tone Check',
+						title: 'Grammar & Tone Checker',
+						description: 'Check grammar, spelling, and tone of your text.',
 						expectedInputLanguages: ['en', 'es', 'fr'],
 					},
 				},

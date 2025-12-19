@@ -30,7 +30,7 @@ export type PromptApiConfig = z.infer<typeof PromptApiSchema>;
 
 const createConfig: () => PromptApiConfig = () => {
 	return {
-		title: 'Prompt API',
+		title: 'Chat Assistant',
 		context: 'You are a helpful assistant',
 		topK: 3,
 		temperature: 1,
@@ -60,7 +60,7 @@ const PromptApi = () => {
 			type: 'promptApi',
 			position: { x: 0, y: 0 },
 			data: {
-				label: 'Prompt API',
+				label: 'Chat Assistant',
 			},
 		});
 
@@ -73,7 +73,7 @@ const PromptApi = () => {
 
 	return (
 		<ToolItem
-			label="Prompt API"
+			label="Chat Assistant"
 			onClick={addPromptApiNode}
 			Icon={NotebookTextIcon}
 		/>

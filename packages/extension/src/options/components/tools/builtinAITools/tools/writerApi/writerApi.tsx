@@ -25,8 +25,8 @@ export type WriterApiConfig = z.infer<typeof WriterApiSchema>;
 
 const createConfig: () => WriterApiConfig = () => {
 	return {
-		title: 'Writer API',
-		context: 'You are a helpful writer',
+		title: 'Writer',
+		context: 'A helpful assistant that writes content based on the provided context.',
 		tone: 'neutral',
 		format: 'markdown',
 		length: 'short',

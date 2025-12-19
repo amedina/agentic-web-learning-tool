@@ -21,8 +21,8 @@ export type ProofreaderApiConfig = z.infer<typeof ProofreaderApiSchema>;
 
 const createConfig: () => ProofreaderApiConfig = () => {
 	return {
-		title: 'Proofreader API',
-		description: 'You are a helpful proofreader',
+		title: 'Grammar & Tone Checker',
+		description: 'Check grammar, spelling, and tone of your text.',
 		expectedInputLanguages: ['en', 'ja', 'es'],
 	};
 };

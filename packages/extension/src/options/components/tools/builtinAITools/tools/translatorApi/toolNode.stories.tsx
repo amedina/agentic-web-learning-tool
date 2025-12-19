@@ -20,6 +20,7 @@ const meta = {
 					type: 'translatorApi',
 					config: {
 						title: 'Translate to Spanish',
+						description: 'Translate text to Spanish.',
 						sourceLanguage: 'en',
 						targetLanguage: 'es',
 					},

@@ -25,8 +25,8 @@ export type SummarizerApiConfig = z.infer<typeof SummarizerApiSchema>;
 
 const createConfig: () => SummarizerApiConfig = () => {
 	return {
-		title: 'Summarizer API',
-		context: 'You are a helpful summarizer',
+		title: 'Summarizer',
+		context: 'Summarizes text into key points, TL;DR, teasers, or headlines.',
 		type: 'key-points',
 		format: 'markdown',
 		length: 'short',
