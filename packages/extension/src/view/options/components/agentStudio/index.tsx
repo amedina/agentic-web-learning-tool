@@ -9,8 +9,12 @@ import {
   Cpu, 
 } from 'lucide-react';
 import { Button, Input } from '@google-awlt/design-system';
+/**
+ * Internal dependencies
+ */
 import type { AgentType } from './types';
 import ConfigModal from './configModal';
+import { DEFAULT_FORM_STATE } from './constants';
 
 const MOCK_AGENTS = [
   { id: '1', name: 'Production GPT-4', provider: 'OpenAI', model: 'gpt-4-turbo', lastActive: '2 min ago', status: 'active', temperature: 0.7 },
@@ -30,7 +34,7 @@ export default function AgentDashboard() {
   }, []);
 
   const handleCreate = useCallback(() => {
-    setEditingAgent(null);
+    setEditingAgent(DEFAULT_FORM_STATE);
     setIsModalOpen(true);
   }, []);
 
