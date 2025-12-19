@@ -6,15 +6,18 @@ import {
 	SidebarTrigger,
 	useSidebar,
 } from '@google-awlt/design-system';
-import { Settings } from 'lucide-react';
-import { useMemo } from 'react';
+import { CpuIcon } from 'lucide-react';
+/**
+ * Internal dependencies
+ */
+import { AgentStudioTab } from './components';
 
 const Items = [
 	{
-		title: 'Settings',
-		id: 'settings',
-		icon: () => <Settings />,
-		component: <div>Settings Page</div>,
+		title: 'Agent Studio',
+		id: 'agent-studio',
+		icon: () => <CpuIcon />,
+		component: <AgentStudioTab />,
 	},
 ];
 function Options() {
@@ -22,22 +25,10 @@ function Options() {
 		selectedMenuItem: state.selectedMenuItem,
 	}));
 
-	const ComponentToRender = useMemo(() => {
-		console.log(selectedMenuItem);
-		return (
-			Items.find((item) => item.id === selectedMenuItem)?.component ?? (
-				<></>
-			)
-		);
-	}, [selectedMenuItem]);
-
 	return (
 		<>
-			<Sidebar items={Items} />
-			<main>
-				<SidebarTrigger />
-			</main>
-			{ComponentToRender}
+			<Sidebar items={Items} collapsible='icon' />
+			{Items.find((item) => item.id === selectedMenuItem)?.component}
 		</>
 	);
 }

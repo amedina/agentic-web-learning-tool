@@ -14,6 +14,8 @@ import {
 	SidebarMenu,
 	SidebarMenuButton,
 	SidebarMenuItem,
+	SidebarHeader,
+	SidebarTrigger,
 } from './components';
 import { useSidebar } from './sidebarProvider';
 
@@ -25,31 +27,32 @@ type MenuItem = {
 
 type SidebarProps = {
 	items: MenuItem[];
+    side?: "left" | "right";
+    sidebarVariant?: "sidebar" | "floating" | "inset";
+    collapsible?: "offcanvas" | "icon" | "none";
 };
 
-export function Sidebar({ items }: SidebarProps) {
-	const { setSelectedMenuItem } = useSidebar(({ actions }) => ({
+export function Sidebar({ items, sidebarVariant = 'sidebar', collapsible='offcanvas', side='left'  }: SidebarProps) {
+	const { setSelectedMenuItem, sidebarState } = useSidebar(({ state, actions }) => ({
 		setSelectedMenuItem: actions.setSelectedMenuItem,
+		sidebarState: state.sidebarState
 	}));
 
 	return (
-		<SidebarMain>
+		<SidebarMain variant={sidebarVariant} collapsible={collapsible} side={side}>
+			<SidebarHeader className="flex-row justify-between items-center w-full">
+				<span className={`text-lg font-bold ${sidebarState === 'expanded' ? '' : 'hidden'}`}>AWLT</span>
+				<SidebarTrigger />
+			</SidebarHeader>
 			<SidebarContent>
 				<SidebarGroup>
-					<SidebarGroupLabel>AWLT</SidebarGroupLabel>
 					<SidebarGroupContent>
 						<SidebarMenu>
 							{items.map(({ id, title, icon }) => (
-								<SidebarMenuItem
-									key={title}
-									onClick={() => {
-										setSelectedMenuItem(id);
-									}}
-								>
-									<SidebarMenuButton asChild isActive>
+								<SidebarMenuItem key={title}>
+									<SidebarMenuButton asChild isActive className="w-full cursor-pointer">
 										<div
 											onClick={() => {
-												console.log(id);
 												setSelectedMenuItem(id);
 											}}
 										>
