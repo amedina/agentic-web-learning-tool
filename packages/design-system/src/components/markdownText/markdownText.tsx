@@ -10,7 +10,6 @@ import {
 import remarkGfm from 'remark-gfm';
 import { type FC, memo, useState } from 'react';
 import { CheckIcon, CopyIcon } from 'lucide-react';
-//@ts-expects-error -- missing types
 import "@assistant-ui/react-markdown/styles/dot.css";
 /**
  * Internal dependencies
@@ -268,7 +267,7 @@ const defaultComponents = memoizeMarkdownComponents({
 			<code
 				className={cn(
 					!isCodeBlock &&
-						'aui-md-inline-code font-semibold rounded text-amber-600',
+					'aui-md-inline-code font-semibold rounded text-amber-600',
 					className
 				)}
 				{...props}

@@ -28,17 +28,17 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 	useEffect(() => {
 		(async () => {
 			await client.connect(transport);
-	})();
+		})();
 
-	return () => {
-		client.close();
-	}
+		return () => {
+			client.close();
+		}
 	}, [client]);
 
 	useEffect(() => {
-		transport.onmessage = (async(message: JSONRPCMessage) => {
+		transport.onmessage = (async (message: JSONRPCMessage) => {
 			//@ts-expect-error -- One of the JSONRPCMessage doesnt have the method property
-			if(message.method === 'get/Tools'){
+			if (message.method === 'get/Tools') {
 				await client.listTools();
 			}
 		})
@@ -47,7 +47,6 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 	const threadId = useAssistantState(
 		({ threadListItem }) => threadListItem.id
 	);
-	//@ts-expect-error -- Mismatch in versions being used by library
 	useAssistantMCP(tools, client, threadId, runtime);
 
 	return (
