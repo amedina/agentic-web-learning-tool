@@ -13,7 +13,7 @@ export function getToolNameForUI(name: string): string {
   for (let i = 0; i < name.length; i++) {
     const char = name.charCodeAt(i);
     hash = (hash << 5) - hash + char;
-    hash = hash & hash; // Convert to 32-bit integer
+    hash = hash & hash;
   }
   return `tool_${Math.abs(hash).toString(36)}`;
 }

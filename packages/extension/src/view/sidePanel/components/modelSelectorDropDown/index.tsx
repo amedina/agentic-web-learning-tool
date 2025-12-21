@@ -26,6 +26,7 @@ import { ChevronRight, CpuIcon } from 'lucide-react';
 import { INITIAL_PROVIDERS } from '../../constants';
 import { useModelProvider } from '../../providers';
 import ModelDialog from '../modelDialog';
+import { TooltipIconButton } from '@google-awlt/design-system';
 
 const itemStyles = `
   group relative flex items-center h-9 px-2.5 
@@ -79,9 +80,49 @@ export default function ModelSelectorDropDown() {
 
 	const handleSelect = useCallback(
 		(providerId: string, modelId: string) => {
-			setSelected({modelId, provider: providerId});
+			setSelected({ modelId, provider: providerId });
 		},
 		[setSelectedModel]
+	);
+
+	const generateTrigger = useCallback(
+		(modelId: string, providerId: string) => {
+			if (modelId !== 'prompt-api') {
+				return (
+					<DialogTrigger asChild key={modelId}>
+						<DropDownMenuItem
+							key={modelId}
+							className={itemStyles}
+							onSelect={() => {
+								setDialogType('apiKey');
+								handleSelect(providerId, modelId);
+							}}
+						>
+							{modelId}
+							{llmModel === modelId && (
+								<div className="ml-auto w-1.5 h-1.5 rounded-full bg-stone-600" />
+							)}
+						</DropDownMenuItem>
+					</DialogTrigger>
+				);
+			}
+			return (
+				<DropDownMenuItem
+					key={modelId}
+					className={itemStyles}
+					onSelect={() => {
+						handleSelect(providerId, modelId);
+						setSelectedModel(modelId, providerId)
+					}}
+				>
+					{modelId}
+					{llmModel === modelId && (
+						<div className="ml-auto w-1.5 h-1.5 rounded-full bg-stone-600" />
+					)}
+				</DropDownMenuItem>
+			);
+		},
+		[handleSelect]
 	);
 
 	return (
@@ -89,7 +130,9 @@ export default function ModelSelectorDropDown() {
 			<div className="flex flex-col items-center justify-center font-sans">
 				<DropDownMenuRoot>
 					<DropdownMenuTrigger asChild>
-						<CpuIcon className="w-4 h-4 text-foreground" />
+						<TooltipIconButton tooltip={`Current Model ${ llmModel } from ${ modelProvider }.`}>
+							<CpuIcon className="w-4 h-4 text-foreground" />
+						</TooltipIconButton>
 					</DropdownMenuTrigger>
 
 					<DropDownMenuPortal>
@@ -126,31 +169,9 @@ export default function ModelSelectorDropDown() {
 											</DropDownMenuLabel>
 											<div className="h-full w-full">
 												{provider.models.map(
-													(model) => (
-														<DialogTrigger asChild key={model.id}>
-															<DropDownMenuItem
-																key={model.id}
-																className={
-																	itemStyles
-																}
-																onSelect={() => {
-																	setDialogType(
-																		'apiKey'
-																	);
-																	handleSelect(
-																		provider.id,
-																		model.id
-																	);
-																}}
-															>
-																{model.label}
-																{llmModel ===
-																	model.id && (
-																	<div className="ml-auto w-1.5 h-1.5 rounded-full bg-stone-600" />
-																)}
-															</DropDownMenuItem>
-														</DialogTrigger>
-													)
+													(model) => {
+														return generateTrigger(model.id, provider.id);
+													}
 												)}
 											</div>
 										</DropDownMenuSubContent>
@@ -180,7 +201,9 @@ export default function ModelSelectorDropDown() {
 
 				<ModelDialog
 					setIsDialogOpen={setIsDialogOpen}
-					handlePostAPIKey={() => setSelectedModel(selected.modelId, selected.provider)}
+					handlePostAPIKey={() =>
+						setSelectedModel(selected.modelId, selected.provider)
+					}
 					modelId={selected?.provider}
 					model={selected?.modelId}
 					dialogType={dialogType}

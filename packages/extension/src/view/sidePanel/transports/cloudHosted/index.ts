@@ -13,7 +13,7 @@ import {
 import { type LanguageModelV2 } from '@ai-sdk/provider';
 import type { AssistantRuntime } from "@assistant-ui/react";
 import { createOllama, type OllamaProviderSettings } from "ollama-ai-provider-v2";
-import type { createOpenAI, OpenAIProviderSettings } from "@ai-sdk/openai";
+import { type createOpenAI, type OpenAIProviderSettings } from "@ai-sdk/openai";
 import type { AnthropicProviderSettings, createAnthropic } from "@ai-sdk/anthropic";
 import type { createGoogleGenerativeAI, GoogleGenerativeAIProviderSettings } from "@ai-sdk/google";
 /**
@@ -114,7 +114,7 @@ export class CloudHostedTransport implements ChatTransport<UIMessage> {
         const { tools } = this.runtime.thread.getModelContext();
 
         this.formattedTools = {};
-    
+
         Object.entries(tools ?? []).forEach(([key, value]) => {
             this.formattedTools[key] = {
                 description: value.description,
@@ -132,6 +132,11 @@ export class CloudHostedTransport implements ChatTransport<UIMessage> {
                         model: this.model as unknown as LanguageModelV2,
                         messages: convertToModelMessages(messages),
                         tools: this.formattedTools,
+                        providerOptions: {
+                            openai: {
+                                reasoningEffort: "medium",
+                            }
+                        },
                         abortSignal,
                         stopWhen: ({ steps }) => steps.length === 100,
                         system: systemPromptTemplate(JSON.stringify(this.formattedTools, null, 2)),
