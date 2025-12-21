@@ -4,8 +4,9 @@
 import { SidebarProvider } from '@google-awlt/design-system';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+
 /**
- * Internal dependecies
+ * Internal dependencies
  */
 import './index.css';
 import Options from './options';

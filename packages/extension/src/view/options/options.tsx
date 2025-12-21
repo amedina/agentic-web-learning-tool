@@ -3,10 +3,10 @@
  */
 import {
 	Sidebar,
-	SidebarTrigger,
 	useSidebar,
 } from '@google-awlt/design-system';
 import { CpuIcon } from 'lucide-react';
+
 /**
  * Internal dependencies
  */

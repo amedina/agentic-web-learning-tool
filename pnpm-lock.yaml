@@ -219,9 +219,18 @@ importers:
       '@google-awlt/design-system':
         specifier: workspace:*
         version: link:../design-system
+      '@mcp-b/extension-tools':
+        specifier: ^0.2.3
+        version: 0.2.3
       '@mcp-b/mcp-react-hooks':
         specifier: ^0.2.2
         version: 0.2.2(@assistant-ui/react@0.11.41(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(use-sync-external-store@1.6.0(react@19.2.1)))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(zod@4.1.13)
+      '@mcp-b/transports':
+        specifier: ^1.1.1
+        version: 1.2.0(@modelcontextprotocol/sdk@1.24.3(zod@4.1.13))
+      '@modelcontextprotocol/sdk':
+        specifier: ^1.24.0
+        version: 1.24.3(zod@4.1.13)
       '@radix-ui/react-avatar':
         specifier: ^1.1.11
         version: 1.1.11(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
@@ -243,6 +252,9 @@ importers:
       lucide-react:
         specifier: ^0.542.0
         version: 0.542.0(react@19.2.1)
+      ollama-ai-provider-v2:
+        specifier: ^1.5.5
+        version: 1.5.5(zod@4.1.13)
       react:
         specifier: ^19.1.1
         version: 19.2.1
@@ -1723,6 +1735,9 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
+  '@mcp-b/extension-tools@0.2.3':
+    resolution: {integrity: sha512-0uqFDvEPWsb+djc9VFRhuXGyNWFfbZ5TWjhZku81P8RopdhX27DB7bOZur0S1rkB5/lzKaxNYeKXwLY27VUoMQ==}
+
   '@mcp-b/mcp-react-hooks@0.2.2':
     resolution: {integrity: sha512-sOEV5Azyn7n/ZoK2Px6m79/xv1Lk4FOT2N4n7rnbnkA39DVvXqreUjnNefM8ITCG5hnuPzgK/bycLtyJtEZgpw==}
     peerDependencies:
@@ -1733,8 +1748,21 @@ packages:
       '@assistant-ui/react':
         optional: true
 
+  '@mcp-b/smart-dom-reader@1.0.2':
+    resolution: {integrity: sha512-mXTn1SSvHWUcyWSYTS1bowLM7idDCbePpsWbfqCxytnFmfEsgS5Z44K4egiwqRRTA/gLLqDAKXjYcxvXSbo0/A==}
+    peerDependencies:
+      '@modelcontextprotocol/sdk': ^1.24.0
+    peerDependenciesMeta:
+      '@modelcontextprotocol/sdk':
+        optional: true
+
   '@mcp-b/transports@1.0.3':
     resolution: {integrity: sha512-zAGIvo7r2rqrZQtoTrH21PZZkh49AFy2FwOx4gPDqxgVb074PRPb4JtJwUgTa0g399v9zLbU8ep6f1r7c4MQfg==}
+    peerDependencies:
+      '@modelcontextprotocol/sdk': ^1.24.0
+
+  '@mcp-b/transports@1.2.0':
+    resolution: {integrity: sha512-YMKv7K3QFWu1xPxKCXGGUU2coSf6Z0OcbsckriA+SfeHdTO7gDUqDXPp88Y4jSvczKdfZuuL64gV9v8StP7RJQ==}
     peerDependencies:
       '@modelcontextprotocol/sdk': ^1.24.0
 
@@ -4941,6 +4969,12 @@ packages:
     resolution: {integrity: sha512-gXah6aZrcUxjWg2zR2MwouP2eHlCBzdV4pygudehaKXSGW4v2AsRQUK+lwwXhii6KFZcunEnmSUoYp5CXibxtA==}
     engines: {node: '>= 0.4'}
 
+  ollama-ai-provider-v2@1.5.5:
+    resolution: {integrity: sha512-1YwTFdPjhPNHny/DrOHO+s8oVGGIE5Jib61/KnnjPRNWQhVVimrJJdaAX3e6nNRRDXrY5zbb9cfm2+yVvgsrqw==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      zod: ^4.0.16
+
   on-finished@2.4.1:
     resolution: {integrity: sha512-oVlzkg3ENAhCk2zdv7IJwd/QUD4z2RxRwpkcGY8psCVcCYZNq4wYnVWALHM+brtuJjePWiYF/ClmuDr8Ch5+kg==}
     engines: {node: '>= 0.8'}
@@ -6181,6 +6215,9 @@ packages:
 
   zod@3.24.1:
     resolution: {integrity: sha512-muH7gBL9sI1nciMZV67X5fTKKBLtwpZ5VBp1vsOQzj1MhrBZ4wlVCm3gedKZWLp0Oyel8sIGfeiz54Su+OVT+A==}
+
+  zod@3.25.76:
+    resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
 
   zod@4.1.13:
     resolution: {integrity: sha512-AvvthqfqrAhNH9dnfmrfKzX5upOdjUVJYFqNSlkmGf64gRaTzlPwz99IHYnVs28qYAybvAlBV+H7pn0saFY4Ig==}
@@ -7615,6 +7652,16 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
+  '@mcp-b/extension-tools@0.2.3':
+    dependencies:
+      '@mcp-b/smart-dom-reader': 1.0.2(@modelcontextprotocol/sdk@1.24.3(zod@4.1.13))
+      '@modelcontextprotocol/sdk': 1.24.3(zod@3.25.76)
+      zod: 3.25.76
+      zod-to-json-schema: 3.25.0(zod@3.25.76)
+    transitivePeerDependencies:
+      - '@cfworker/json-schema'
+      - supports-color
+
   '@mcp-b/mcp-react-hooks@0.2.2(@assistant-ui/react@0.11.41(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(use-sync-external-store@1.6.0(react@19.2.1)))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(zod@4.1.13)':
     dependencies:
       '@mcp-b/transports': 1.0.3(@modelcontextprotocol/sdk@1.24.3(zod@4.1.13))
@@ -7628,16 +7675,44 @@ snapshots:
       - supports-color
       - zod
 
+  '@mcp-b/smart-dom-reader@1.0.2(@modelcontextprotocol/sdk@1.24.3(zod@4.1.13))':
+    optionalDependencies:
+      '@modelcontextprotocol/sdk': 1.24.3(zod@4.1.13)
+
   '@mcp-b/transports@1.0.3(@modelcontextprotocol/sdk@1.24.3(zod@4.1.13))':
     dependencies:
       '@modelcontextprotocol/sdk': 1.24.3(zod@4.1.13)
       zod: 3.24.1
+
+  '@mcp-b/transports@1.2.0(@modelcontextprotocol/sdk@1.24.3(zod@4.1.13))':
+    dependencies:
+      '@modelcontextprotocol/sdk': 1.24.3(zod@4.1.13)
+      zod: 3.25.76
 
   '@mdx-js/react@3.1.1(@types/react@19.2.7)(react@19.2.1)':
     dependencies:
       '@types/mdx': 2.0.13
       '@types/react': 19.2.7
       react: 19.2.1
+
+  '@modelcontextprotocol/sdk@1.24.3(zod@3.25.76)':
+    dependencies:
+      ajv: 8.17.1
+      ajv-formats: 3.0.1(ajv@8.17.1)
+      content-type: 1.0.5
+      cors: 2.8.5
+      cross-spawn: 7.0.6
+      eventsource: 3.0.7
+      eventsource-parser: 3.0.6
+      express: 5.2.1
+      express-rate-limit: 7.5.1(express@5.2.1)
+      jose: 6.1.3
+      pkce-challenge: 5.0.1
+      raw-body: 3.0.2
+      zod: 3.25.76
+      zod-to-json-schema: 3.25.0(zod@3.25.76)
+    transitivePeerDependencies:
+      - supports-color
 
   '@modelcontextprotocol/sdk@1.24.3(zod@4.1.13)':
     dependencies:
@@ -11538,6 +11613,12 @@ snapshots:
       define-properties: 1.2.1
       es-object-atoms: 1.1.1
 
+  ollama-ai-provider-v2@1.5.5(zod@4.1.13):
+    dependencies:
+      '@ai-sdk/provider': 2.0.0
+      '@ai-sdk/provider-utils': 3.0.18(zod@4.1.13)
+      zod: 4.1.13
+
   on-finished@2.4.1:
     dependencies:
       ee-first: 1.1.1
@@ -12937,11 +13018,17 @@ snapshots:
     dependencies:
       zod: 4.1.13
 
+  zod-to-json-schema@3.25.0(zod@3.25.76):
+    dependencies:
+      zod: 3.25.76
+
   zod-to-json-schema@3.25.0(zod@4.1.13):
     dependencies:
       zod: 4.1.13
 
   zod@3.24.1: {}
+
+  zod@3.25.76: {}
 
   zod@4.1.13: {}
 

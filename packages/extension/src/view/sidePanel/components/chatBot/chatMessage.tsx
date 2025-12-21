@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { cn, MarkdownText } from '@google-awlt/design-system';
+import { cn, MarkdownText, ToolFallback } from '@google-awlt/design-system';
 import { useAssistantState, MessagePrimitive, ActionBarPrimitive } from "@assistant-ui/react";
 import { Root, AvatarFallback } from "@radix-ui/react-avatar";
 import { ReloadIcon } from "@radix-ui/react-icons";
@@ -22,9 +22,9 @@ const ChatMessage: FC = () => {
         )}
       >
         {role === "assistant" && (
-          <div className="absolute inset-0 rounded-2xl border-[0.5px] border-[hsla(50_5.8%_40%/0.15)] bg-[radial-gradient(ellipse_at_left_top,_hsla(60_1.8%_22%/0.5)_0%,_hsla(60_1.8%_22%/0.3)_60%)] shadow-[0_4px_24px_rgba(0,0,0,0.015)]" />
+          <div className="absolute rounded-2xl border-[0.5px] border-[hsla(50_5.8%_40%/0.15)] bg-[radial-gradient(ellipse_at_left_top,_hsla(60_1.8%_22%/0.5)_0%,_hsla(60_1.8%_22%/0.3)_60%)] shadow-[0_4px_24px_rgba(0,0,0,0.015)]" />
         )}
-        <div className="relative flex gap-2">
+        <div className="relative flex gap-2 overflow-auto">
           <MessagePrimitive.If user>
             <Root className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-[24px] bg-white">
               <AvatarFallback className="text-xs">
@@ -34,7 +34,7 @@ const ChatMessage: FC = () => {
           </MessagePrimitive.If>
 
           <span className="text-[#eee]">
-            <MessagePrimitive.Parts components={{ Text: MarkdownText }} />
+            <MessagePrimitive.Parts components={{ Text: MarkdownText, tools: {Fallback: ToolFallback} }} />
           </span>
         </div>
       </div>
