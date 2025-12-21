@@ -4,3 +4,4 @@ export * from './tooltip';
 export * from './tooltipIconButton';
 export * from './markdownText';
 export * from './syntaxHighlighter';
+export * from './toolFallback';
