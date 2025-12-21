@@ -26,10 +26,7 @@ import AssistantMessage from './assistantMessage';
 import EditComposer from './editComposer';
 import UserMessage from './userMessage';
 
-const AVAILABLE_TOOLS = [
-	{ name: 'get_weather', description: 'Get current weather data' },
-	{ name: 'search_web', description: 'Search the internet' },
-];
+
 
 type ChatBotUIProps = {
 	runtime: AssistantRuntime;
@@ -50,8 +47,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 
 	useEffect(() => {
 		transport.onmessage = async (message: JSONRPCMessage) => {
-			//@ts-expect-error -- One of the JSONRPCMessage doesnt have the method property
-			if (message.method === 'get/Tools') {
+			if ('method' in message && message.method === 'get/Tools') {
 				await client.listTools();
 			}
 		};
@@ -60,7 +56,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 	const threadId = useAssistantState(
 		({ threadListItem }) => threadListItem.id
 	);
-	useAssistantMCP(tools, client, threadId, runtime);
+	useAssistantMCP(tools, client, threadId, runtime, {});
 
 	return (
 		<ThreadPrimitive.Root className="h-full flex flex-col">

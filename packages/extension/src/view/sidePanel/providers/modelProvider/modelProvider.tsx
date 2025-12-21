@@ -58,7 +58,7 @@ const Provider = ({ children }: PropsWithChildren) => {
 	}, [_llmModel, _modelProvider, _modelConfig, _baseUrl, _apiKey]);
 
 	useEffect(() => {
-		if(!initialFetchDone.current){
+		if (!initialFetchDone.current) {
 			return
 		}
 
@@ -86,14 +86,21 @@ const Provider = ({ children }: PropsWithChildren) => {
 	 * parses data currently in store, set current tab URL.
 	 */
 	const intitialSync = useCallback(async () => {
-		const { modelProvider, llmModel, modelConfig, apiKey, baseUrl } =
-			await chrome.storage.sync.get([
-				'modelProvider',
-				'llmModel',
-				'modelConfig',
-				'apiKey',
-				'baseUrl',
-			]);
+		const items = await chrome.storage.sync.get([
+			'modelProvider',
+			'llmModel',
+			'modelConfig',
+			'apiKey',
+			'baseUrl',
+		]);
+
+		const modelProvider = items.modelProvider as string | undefined;
+		const llmModel = items.llmModel as string | undefined;
+		const modelConfig = items.modelConfig as
+			| Record<string, string>
+			| undefined;
+		const apiKey = items.apiKey as string | undefined;
+		const baseUrl = items.baseUrl as string | undefined;
 
 		if (baseUrl && !modelConfig) {
 			setModelConfig({});
@@ -102,14 +109,14 @@ const Provider = ({ children }: PropsWithChildren) => {
 		}
 
 		if (!modelProvider || !llmModel || !apiKey) {
-			setModelProvider(modelProvider);
-			setLLMModel(llmModel);
-			setApiKey(apiKey);
+			setModelProvider(modelProvider || '');
+			setLLMModel(llmModel || '');
+			setApiKey(apiKey || '');
 			initialFetchDone.current = true;
 			return;
 		}
 
-		setModelConfig(modelConfig);
+		setModelConfig(modelConfig || {});
 		setModelProvider(modelProvider);
 		setLLMModel(llmModel);
 		setApiKey(apiKey);

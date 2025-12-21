@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import type { PendingRequest, RequestResponse } from '../../types';
+import type { PendingRequest, RequestResponse } from '../types';
 
 /**
  * Manages async request/response communication with content scripts
