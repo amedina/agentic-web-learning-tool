@@ -10,7 +10,6 @@ import {
 	SidebarContent,
 	SidebarGroup,
 	SidebarGroupContent,
-	SidebarGroupLabel,
 	SidebarMenu,
 	SidebarMenuButton,
 	SidebarMenuItem,
@@ -27,12 +26,12 @@ type MenuItem = {
 
 type SidebarProps = {
 	items: MenuItem[];
-    side?: "left" | "right";
-    sidebarVariant?: "sidebar" | "floating" | "inset";
-    collapsible?: "offcanvas" | "icon" | "none";
+	side?: "left" | "right";
+	sidebarVariant?: "sidebar" | "floating" | "inset";
+	collapsible?: "offcanvas" | "icon" | "none";
 };
 
-export function Sidebar({ items, sidebarVariant = 'sidebar', collapsible='offcanvas', side='left'  }: SidebarProps) {
+export function Sidebar({ items, sidebarVariant = 'sidebar', collapsible = 'offcanvas', side = 'left' }: SidebarProps) {
 	const { setSelectedMenuItem, sidebarState } = useSidebar(({ state, actions }) => ({
 		setSelectedMenuItem: actions.setSelectedMenuItem,
 		sidebarState: state.sidebarState

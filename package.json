@@ -24,6 +24,7 @@
     "build:extension": "pnpm --filter extension build",
     "build:design-system": "pnpm --filter design-system build",
     "build:common": "pnpm --filter common build",
+    "build": "pnpm run build:common && pnpm run build:design-system && pnpm run build:extension",
     "serve": "pnpm --filter extension preview",
     "preview-storybook": "pnpm --filter storybook-config preview-storybook",
     "storybook": "pnpm --filter storybook-config storybook",

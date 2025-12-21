@@ -38,6 +38,9 @@ importers:
       '@babel/preset-typescript':
         specifier: ^7.28.5
         version: 7.28.5(@babel/core@7.28.5)
+      '@google-awlt/shared-config':
+        specifier: workspace:*
+        version: link:../shared-config
       '@testing-library/jest-dom':
         specifier: ^6.8.0
         version: 6.9.1
