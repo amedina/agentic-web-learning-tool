@@ -1,9 +1,17 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Button } from '../../../index';
+/**
+ * External dependencies.
+ */
 import { PlusIcon } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+
+/**
+ * Internal dependencies.
+ */
+import { Button } from '../../../index';
 import type { WebMCPTool } from '../types';
 import { ToolList } from '../ToolList';
 import { EditToolDialog } from '../EditToolDialog';
+
 
 const BUILT_IN_TOOLS: WebMCPTool[] = [
     {

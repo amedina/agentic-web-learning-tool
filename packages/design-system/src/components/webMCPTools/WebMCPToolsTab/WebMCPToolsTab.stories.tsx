@@ -1,4 +1,11 @@
+/**
+ * External dependencies.
+ */
 import type { Meta, StoryObj } from '@storybook/react';
+
+/**
+ * Internal dependencies.
+ */
 import { WebMCPToolsTab } from '.';
 
 const meta: Meta<typeof WebMCPToolsTab> = {

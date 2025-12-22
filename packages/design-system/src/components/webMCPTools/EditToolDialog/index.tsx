@@ -1,3 +1,13 @@
+/**
+ * External dependencies.
+ */
+import { useState, useEffect } from 'react';
+import * as Dialog from '@radix-ui/react-dialog';
+import { X, PlayIcon, CheckIcon, AlertCircleIcon, TrashIcon, FileCodeIcon, LayoutTemplateIcon, SaveIcon } from 'lucide-react';
+
+/**
+ * Internal dependencies.
+ */
 import {
     Button,
     SyntaxHighlighter,
@@ -8,9 +18,6 @@ import {
     githubGist
 } from '../../../index';
 import type { WebMCPTool } from '../types';
-import { useState, useEffect } from 'react';
-import * as Dialog from '@radix-ui/react-dialog';
-import { X, PlayIcon, CheckIcon, AlertCircleIcon, TrashIcon, FileCodeIcon, LayoutTemplateIcon, SaveIcon } from 'lucide-react';
 
 interface EditToolDialogProps {
     open: boolean;

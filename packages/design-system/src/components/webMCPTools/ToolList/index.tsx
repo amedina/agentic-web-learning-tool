@@ -1,3 +1,6 @@
+/**
+ * Internal dependencies.
+ */
 import type { WebMCPTool } from '../types';
 import { ToolCard } from '../ToolCard';
 

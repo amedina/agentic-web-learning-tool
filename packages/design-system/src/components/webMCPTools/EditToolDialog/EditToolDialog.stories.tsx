@@ -1,7 +1,14 @@
+/**
+ * External dependencies.
+ */
 import type { Meta, StoryObj } from '@storybook/react';
+import { useState } from 'react';
+
+/**
+ * Internal dependencies.
+ */
 import { EditToolDialog } from '.';
 import type { WebMCPTool } from '../types';
-import { useState } from 'react';
 import { Button } from '../../../index';
 
 const meta: Meta<typeof EditToolDialog> = {
