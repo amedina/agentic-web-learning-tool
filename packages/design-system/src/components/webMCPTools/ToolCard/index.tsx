@@ -20,28 +20,29 @@ interface ToolCardProps {
 
 export function ToolCard({ tool, onToggle, onEdit }: ToolCardProps) {
     return (
-        <div className="flex flex-col p-4 bg-[var(--surface-color)] rounded-lg border border-[var(--border-color)]">
-            <div className="flex justify-between items-start mb-2">
+        <div className="flex flex-col p-5 bg-[var(--surface-color)] rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
+            <div className="flex justify-between items-start mb-3">
                 <div>
-                    <h3 className="text-lg font-semibold text-[var(--text-color)]">{tool.name}</h3>
-                    <div className="text-sm text-[var(--text-secondary-color)] mb-1">
+                    <h3 className="text-lg font-bold text-gray-800">{tool.name}</h3>
+                    <div className="text-xs text-gray-500 font-mono opacity-80 mb-1">
                         {tool.namespace} • v{tool.version}
                     </div>
                 </div>
                 <ToggleSwitch
                     checked={tool.enabled}
                     onCheckedChange={onToggle}
+                    className="data-[state=checked]:bg-gray-900"
                 />
             </div>
 
-            <p className="text-sm text-[var(--text-color)] mb-4 flex-grow">
+            <p className="text-sm text-gray-600 mb-5 flex-grow leading-relaxed">
                 {tool.description}
             </p>
 
-            <div className="flex justify-between items-center mt-auto pt-2 border-t border-[var(--border-color)]">
-                <div className="flex gap-2">
+            <div className="flex justify-between items-center mt-auto pt-3 border-t border-gray-200">
+                <div className="flex gap-2 flex-wrap">
                     {tool.matchPatterns.map((pattern, idx) => (
-                        <span key={idx} className="bg-[var(--surface-active)] text-[var(--text-secondary-color)] px-2 py-1 rounded text-xs font-mono">
+                        <span key={idx} className="bg-[var(--surface-active)] text-gray-500 px-2 py-0.5 rounded-md text-[10px] font-mono border border-[var(--border-color)]">
                             {pattern}
                         </span>
                     ))}
@@ -52,7 +53,7 @@ export function ToolCard({ tool, onToggle, onEdit }: ToolCardProps) {
                         variant="ghost"
                         size="sm"
                         onClick={onEdit}
-                        className="text-[var(--primary-color)] hover:text-[var(--primary-hover)] items-center gap-2"
+                        className="text-[var(--primary-color)] hover:text-[var(--primary-hover)] hover:bg-[var(--surface-active)]"
                     >
                         <EditIcon size={14} />
                         Edit

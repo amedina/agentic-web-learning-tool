@@ -128,10 +128,13 @@ export function WebMCPToolsTab() {
 
     return (
         <div className="p-8 max-w-5xl mx-auto w-full">
-            <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-bold text-[var(--text-color)]">WebMCP Tools</h1>
+            <div className="flex justify-between items-start mb-8 border-b border-gray-200 pb-6">
+                <div>
+                    <h1 className="text-3xl font-bold text-gray-800 mb-2">WebMCP Tools</h1>
+                    <p className="text-gray-500">Manage your custom scripts and tools.</p>
+                </div>
                 <Button
-                    className="flex items-center gap-2"
+                    className="shadow-sm hover:shadow-md transition-all gap-2 bg-gray-900 hover:bg-gray-800 text-white"
                     onClick={() => {
                         setEditingTool(undefined);
                         setIsEditDialogOpen(true);
@@ -148,6 +151,10 @@ export function WebMCPToolsTab() {
                 onToggleTool={handleToggleTool}
                 onEditTool={(tool) => {
                     setEditingTool(tool);
+                    setIsEditDialogOpen(true);
+                }}
+                onNewTool={() => {
+                    setEditingTool(undefined);
                     setIsEditDialogOpen(true);
                 }}
             />

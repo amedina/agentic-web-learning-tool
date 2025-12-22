@@ -243,20 +243,20 @@ export function EditToolDialog({ open, onOpenChange, tool, onSave, onDelete }: E
                             <Button
                                 size="sm"
                                 variant="outline"
-                                className={`bg-white h-8 text-xs font-medium ${code === initialCode ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                className={`bg-white h-8 text-xs font-medium gap-1.5 ${code === initialCode ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 onClick={handleInsertTemplateRequest}
                                 disabled={code === initialCode}
                             >
-                                <LayoutTemplateIcon size={12} className="mr-1.5" /> Insert Template
+                                <LayoutTemplateIcon size={12} /> Insert Template
                             </Button>
                             <Button
                                 size="sm"
                                 variant="outline"
-                                className={`bg-white h-8 text-xs font-medium ${!code?.trim() ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                className={`bg-white h-8 text-xs font-medium gap-1.5 ${!code?.trim() ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 onClick={handleCopy}
                                 disabled={!code?.trim()}
                             >
-                                {isCopied ? <CheckIcon size={12} className="mr-1.5 text-green-600" /> : <CopyIcon size={12} className="mr-1.5" />}
+                                {isCopied ? <CheckIcon size={12} className="text-green-600" /> : <CopyIcon size={12} />}
                                 {isCopied ? 'Copied' : 'Copy'}
                             </Button>
                         </div>
@@ -411,8 +411,8 @@ export function EditToolDialog({ open, onOpenChange, tool, onSave, onDelete }: E
                                             )}
                                         </div>
 
-                                        <Button className="w-full bg-white border border-gray-300 text-gray-700 hover:bg-gray-50" onClick={handleValidate}>
-                                            <PlayIcon size={16} className="mr-2" /> Validate Syntax
+                                        <Button className="w-full bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 gap-2" onClick={handleValidate}>
+                                            <PlayIcon size={16} /> Validate Syntax
                                         </Button>
 
                                     </TabsContent>
@@ -423,8 +423,8 @@ export function EditToolDialog({ open, onOpenChange, tool, onSave, onDelete }: E
                             <div className="p-6 border-t border-gray-200 bg-white flex-none flex items-center justify-between gap-4">
                                 <div className="flex-1">
                                     {tool && onDelete && (
-                                        <Button variant="ghost" className="text-red-500 hover:text-red-700 hover:bg-red-50" onClick={() => onDelete(tool)}>
-                                            <TrashIcon size={16} className="mr-2" /> Delete
+                                        <Button variant="ghost" className="text-red-500 hover:text-red-700 hover:bg-red-50 gap-2" onClick={() => onDelete(tool)}>
+                                            <TrashIcon size={16} /> Delete
                                         </Button>
                                     )}
                                 </div>
@@ -433,11 +433,11 @@ export function EditToolDialog({ open, onOpenChange, tool, onSave, onDelete }: E
                                         <Button variant="outline">Cancel</Button>
                                     </Dialog.Close>
                                     <Button
-                                        className={`${validationState === 'valid' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-blue-600 hover:bg-blue-700'} ${code === initialCode ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                        className={`${validationState === 'valid' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-blue-600 hover:bg-blue-700'} ${code === initialCode ? 'opacity-50 cursor-not-allowed' : ''} gap-2`}
                                         onClick={handleSave}
                                         disabled={code === initialCode}
                                     >
-                                        <SaveIcon size={16} className="mr-2" /> Save Tool
+                                        <SaveIcon size={16} /> Save Tool
                                     </Button>
                                 </div>
                             </div>
