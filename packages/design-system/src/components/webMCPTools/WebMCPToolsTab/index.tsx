@@ -42,17 +42,13 @@ export function WebMCPToolsTab() {
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
     const [editingTool, setEditingTool] = useState<WebMCPTool | undefined>(undefined);
 
-    // Load tools from storage
     useEffect(() => {
-        // Load user tools
-        // Check if chrome.storage is available (it might not be in Storybook/design system env)
         if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
             chrome.storage.local.get(['userWebMCPTools', 'builtInWebMCPToolsState'], (result) => {
                 if (result.userWebMCPTools && Array.isArray(result.userWebMCPTools)) {
                     setUserTools(result.userWebMCPTools as WebMCPTool[]);
                 }
 
-                // Restore built-in tool states
                 if (result.builtInWebMCPToolsState) {
                     const states = result.builtInWebMCPToolsState as Record<string, boolean>;
                     setBuiltInTools(prev => prev.map(t => ({
@@ -64,7 +60,6 @@ export function WebMCPToolsTab() {
         }
     }, []);
 
-    // Save updates to storage
     const saveUserTools = useCallback((tools: WebMCPTool[]) => {
         setUserTools(tools);
         if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
@@ -81,12 +76,6 @@ export function WebMCPToolsTab() {
     }, []);
 
     const handleSaveTool = (tool: WebMCPTool) => {
-        // Check if updating existing or adding new
-        // We use name as ID for now. TODO: better ID system?
-        // Note: tool.name from user input might change. 
-        // If we are editing "foo" and rename to "bar", we should ideally update "foo".
-        // But for this simple implementation, if name matches existing, update it.
-        // If editingTool is set, we can match by original name?
 
         let newTools = [...userTools];
 

@@ -1,7 +1,11 @@
 /**
- * Internal dependencies.
+ * External dependencies.
  */
 import { PlusIcon, CodeIcon } from 'lucide-react';
+
+/**
+ * Internal dependencies.
+ */
 import { Button } from '../../button';
 import type { WebMCPTool } from '../types';
 import { ToolCard } from '../ToolCard';
@@ -62,7 +66,6 @@ export function ToolList({ userTools, builtInTools, onToggleTool, onEditTool, on
                             key={tool.name}
                             tool={tool}
                             onToggle={(enabled) => onToggleTool(tool, enabled)}
-                        // Built-in tools cannot be edited
                         />
                     ))}
                 </div>

@@ -1,44 +1,19 @@
 {
-	"extends": "@google-awlt/shared-config/typescript/react-library",
+	"extends": "./tsconfig.build.json",
 	"compilerOptions": {
-		"allowJs": true,
-		"checkJs": true,
-		"outDir": "./dist",
-		"lib": [
-			"dom",
-			"ES2015"
-		],
-		"sourceMap": true,
-		"noEmit": false,
-		"allowImportingTsExtensions": false,
-		"jsx": "react-jsx",
-		"baseUrl": ".",
-		"paths": {
-			"@/*": [
-				"./src/*"
-			]
-		},
-		"typeRoots": [
-			"./node_modules/@types"
-		],
-		"types": [
-			"jest",
-			"chrome"
-		]
+		"noEmit": true
 	},
 	"include": [
 		"src",
+		"tests",
 		"storybook.d.ts",
-		"node_modules/jest-extended/types/index.d.ts"
+		"node_modules/jest-extended/types/index.d.ts",
+		"**/*.test.ts",
+		"**/*.test.tsx"
 	],
 	"exclude": [
 		"dist",
 		"build",
-		"node_modules",
-		"tests",
-		"**/*.stories.tsx",
-		"**/tests/**",
-		"**/*.test.tsx",
-		"src/**/tests"
+		"node_modules"
 	]
 }

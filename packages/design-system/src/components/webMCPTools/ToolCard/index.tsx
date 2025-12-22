@@ -6,10 +6,8 @@ import { EditIcon } from 'lucide-react';
 /**
  * Internal dependencies.
  */
-import {
-    Button,
-    ToggleSwitch
-} from '../../../index'; // Importing from main index
+import { Button } from '../../button';
+import ToggleSwitch from '../../toggleSwitch';
 import type { WebMCPTool } from '../types';
 
 interface ToolCardProps {

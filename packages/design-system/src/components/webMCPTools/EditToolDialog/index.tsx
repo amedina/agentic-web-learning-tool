@@ -1,17 +1,19 @@
 /**
  * External dependencies.
  */
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
-import { X, PlayIcon, CheckIcon, AlertCircleIcon, TrashIcon, LayoutTemplateIcon, SaveIcon, AlertTriangleIcon, CopyIcon } from 'lucide-react';
+import { X, CheckIcon, AlertTriangleIcon, CopyIcon, TrashIcon, LayoutTemplateIcon, SaveIcon } from 'lucide-react';
 
 /**
  * Internal dependencies.
  */
 import { Button } from '../../button';
-import SyntaxHighlighter from './syntaxHighlighter';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../tabs';
 import type { WebMCPTool } from '../types';
+import { ExtractMetadata } from './extractMetadata';
+import { validateCode } from './validateCode';
+import { MetadataPanel } from './MetadataPanel';
+import { CodeEditor } from './CodeEditor';
 
 interface EditToolDialogProps {
     open: boolean;
@@ -40,49 +42,6 @@ export async function execute(args) {
   return "Tool executed successfully";
 }
 `;
-
-function ExtractMetadata(code: string): Partial<WebMCPTool> {
-    const metadata: any = {};
-    try {
-        // Safe regex parsing
-        const nameMatch = code.match(/name:\s*["']([^"']+)["']/);
-        if (nameMatch) metadata.name = nameMatch[1];
-
-        const nsMatch = code.match(/namespace:\s*["']([^"']+)["']/);
-        if (nsMatch) metadata.namespace = nsMatch[1];
-
-        const versionMatch = code.match(/version:\s*["']([^"']+)["']/);
-        if (versionMatch) metadata.version = versionMatch[1];
-
-        const descMatch = code.match(/description:\s*["']([^"']+)["']/);
-        if (descMatch) metadata.description = descMatch[1];
-
-        // Extract match patterns (simple array regex)
-        const matchPatternsMatch = code.match(/match:\s*(\[[^\]]+\])/);
-        if (matchPatternsMatch) {
-            try {
-                // Be careful with eval-like behavior, but JSON.parse might fail on single quotes.
-                // Let's just store the string for display if parsing fails, or try a safe replace
-                const arrayStr = matchPatternsMatch[1].replace(/'/g, '"');
-                metadata.matchPatterns = JSON.parse(arrayStr);
-            } catch (e) {
-                metadata.matchPatterns = [matchPatternsMatch[1]]; // Fallback string
-            }
-        }
-
-        // Extract inputSchema (block match)
-        const schemaMatch = code.match(/inputSchema:\s*({[\s\S]*?})\s*}/);
-        if (schemaMatch) {
-            // Just keeping the string representation for UI is often safer/easier for preview
-            // We can try to format it slightly
-            metadata.inputSchema = schemaMatch[1];
-        }
-
-    } catch (e) {
-        console.warn("Failed to extract metadata", e);
-    }
-    return metadata;
-}
 
 export function EditToolDialog({ open, onOpenChange, tool, onSave, onDelete }: EditToolDialogProps) {
     const [code, setCode] = useState(DEFAULT_SCRIPT_TEMPLATE);
@@ -131,34 +90,6 @@ export function EditToolDialog({ open, onOpenChange, tool, onSave, onDelete }: E
         setTimeout(() => setIsCopied(false), 2000);
     };
 
-    const validateCode = (currentCode: string): { valid: boolean; error?: string } => {
-        try {
-            const hasMetadata = /export\s+const\s+metadata\s*=\s*{/.test(currentCode);
-            // Use word boundary \b to ensure we match 'execute' exactly, not 'executeStupid'
-            const hasExecute = /export\s+async\s+function\s+execute\b/.test(currentCode);
-
-            if (!hasMetadata) throw new Error("Missing 'export const metadata = { ... }'");
-            if (!hasExecute) throw new Error("Missing 'export async function execute(args) { ... }'");
-
-            // Extract and validate required metadata fields
-            const tempMetadata = ExtractMetadata(currentCode);
-            if (!tempMetadata.name) throw new Error("Metadata must contain a 'name' field.");
-            if (!tempMetadata.inputSchema) throw new Error("Metadata must contain an 'inputSchema' field.");
-
-            // Simple brace balance check
-            let balance = 0;
-            for (const char of currentCode) {
-                if (char === '{') balance++;
-                if (char === '}') balance--;
-            }
-            if (balance !== 0) throw new Error("Unbalanced curly braces. Check your syntax.");
-
-            return { valid: true };
-        } catch (e: any) {
-            return { valid: false, error: e.message };
-        }
-    };
-
     const handleValidate = () => {
         const result = validateCode(code);
         if (result.valid) {
@@ -198,22 +129,9 @@ export function EditToolDialog({ open, onOpenChange, tool, onSave, onDelete }: E
         onOpenChange(false);
     };
 
-    // EDITOR CONFIG
-    const editorFontFamily = '"Fira Code", "Cascadia Code", Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace';
-    const editorFontSize = '14px';
-    const editorLineHeight = '1.5';
-    const editorPadding = '1.5rem 1rem';
-
-    // Cast to any to allow style prop which is missing in types but valid in runtime
-    const SyntaxHighlighterAny = SyntaxHighlighter as any;
-
-    const backdropRef = useRef<HTMLDivElement>(null);
-
-    const handleScroll = (e: React.UIEvent<HTMLTextAreaElement>) => {
-        if (backdropRef.current) {
-            backdropRef.current.scrollTop = e.currentTarget.scrollTop;
-            backdropRef.current.scrollLeft = e.currentTarget.scrollLeft;
-        }
+    const handleCodeChange = (newCode: string) => {
+        setCode(newCode);
+        setValidationState('idle'); // Invalidate on change
     };
 
     return (
@@ -237,7 +155,6 @@ export function EditToolDialog({ open, onOpenChange, tool, onSave, onDelete }: E
                     </div>
 
                     <div className="flex-grow flex flex-row overflow-hidden relative">
-                        {/* Toolbar overlay for editor */}
                         {/* Toolbar overlay for editor */}
                         <div className="absolute top-4 right-[420px] z-20 flex gap-2">
                             <Button
@@ -292,132 +209,19 @@ export function EditToolDialog({ open, onOpenChange, tool, onSave, onDelete }: E
                                 Script Code
                             </div>
 
-                            <div className="flex-1 relative">
-                                <textarea
-                                    className="absolute inset-0 w-full h-full bg-transparent text-transparent caret-black z-10 resize-none outline-none border-none focus:ring-0 whitespace-nowrap overflow-auto"
-                                    value={code}
-                                    onChange={(e) => {
-                                        setCode(e.target.value);
-                                        setValidationState('idle'); // Invalidate on change
-                                    }}
-                                    onScroll={handleScroll}
-                                    spellCheck={false}
-                                    style={{
-                                        fontFamily: editorFontFamily,
-                                        fontSize: editorFontSize,
-                                        lineHeight: editorLineHeight,
-                                        padding: editorPadding,
-                                        whiteSpace: 'pre', // CRITICAL for alignment
-                                    }}
-                                />
-                                <div
-                                    ref={backdropRef}
-                                    className="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-hidden bg-white"
-                                >
-                                    {/* @ts-ignore */}
-                                    <SyntaxHighlighterAny
-                                        language="javascript"
-                                        code={code}
-                                        components={{
-                                            Pre: (props: any) => <pre {...props} style={{ margin: 0, minHeight: '100%', fontFamily: editorFontFamily, fontSize: editorFontSize, lineHeight: editorLineHeight, padding: editorPadding, backgroundColor: 'white' }} />,
-                                            Code: (props: any) => <code {...props} style={{ fontFamily: 'inherit' }} />,
-                                        }}
-                                    />
-                                </div>
-                            </div>
+                            <CodeEditor code={code} onChange={handleCodeChange} />
                         </div>
 
                         {/* Sidebar/Metadata Side */}
                         <div className="w-[400px] bg-gray-50 flex flex-col overflow-hidden">
-                            <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col flex-1 overflow-hidden">
-                                {/* Tabs Header */}
-                                <div className="bg-white px-4 border-b border-gray-200 flex-none">
-                                    <TabsList className="w-full grid grid-cols-2 bg-transparent h-12 p-0 gap-8">
-                                        <TabsTrigger value="metadata" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none h-full px-0">Metadata</TabsTrigger>
-                                        <TabsTrigger value="validation" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none h-full px-0">Validation</TabsTrigger>
-                                    </TabsList>
-                                </div>
-
-                                <div className="flex-1 overflow-y-auto p-6">
-                                    <TabsContent value="metadata" className="m-0 p-0 border-0 bg-transparent space-y-6">
-                                        <div>
-                                            <h3 className="font-semibold mb-3 text-sm text-gray-900 border-b pb-2">Parsed Metadata</h3>
-                                            <div className="space-y-4">
-                                                <div>
-                                                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Name</label>
-                                                    <div className="px-3 py-2 bg-white border border-gray-200 rounded font-mono text-sm text-gray-700">{ExtractMetadata(code).name || "—"}</div>
-                                                    <p className="text-[10px] text-gray-400 mt-1">Unique identifier for the tool (e.g. "search_web")</p>
-                                                </div>
-                                                <div>
-                                                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Namespace</label>
-                                                    <div className="px-3 py-2 bg-white border border-gray-200 rounded font-mono text-sm text-gray-700">{ExtractMetadata(code).namespace || "—"}</div>
-                                                    <p className="text-[10px] text-gray-400 mt-1">Grouping identifier to escape naming collisions</p>
-                                                </div>
-                                                <div>
-                                                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Version</label>
-                                                    <div className="px-3 py-2 bg-white border border-gray-200 rounded font-mono text-sm text-gray-700">{ExtractMetadata(code).version || "—"}</div>
-                                                    <p className="text-[10px] text-gray-400 mt-1">Semantic versioning (e.g. 1.0.0)</p>
-                                                </div>
-                                                <div>
-                                                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Description</label>
-                                                    <div className="px-3 py-2 bg-white border border-gray-200 rounded text-sm text-gray-700">{ExtractMetadata(code).description || "—"}</div>
-                                                    <p className="text-[10px] text-gray-400 mt-1">Human-readable description of what the tool does</p>
-                                                </div>
-                                                <div>
-                                                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">URL Match Patterns</label>
-                                                    <div className="px-3 py-2 bg-white border border-gray-200 rounded font-mono text-xs text-gray-700 bg-gray-50">
-                                                        {(() => {
-                                                            const patterns = ExtractMetadata(code).matchPatterns;
-                                                            if (!patterns) return "—";
-                                                            // Display nicely without array format if possible, just comma separated or new lines
-                                                            if (Array.isArray(patterns)) {
-                                                                return patterns.join(', ');
-                                                            }
-                                                            // If somehow string, clean it
-                                                            return String(patterns).replace(/[[\]"]/g, '');
-                                                        })()}
-                                                    </div>
-                                                    <p className="text-[10px] text-gray-400 mt-1">Patterns of URLs where this tool can execute</p>
-                                                </div>
-                                                <div>
-                                                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Input Schema</label>
-                                                    <div className="px-3 py-2 bg-white border border-gray-200 rounded font-mono text-xs text-gray-700 whitespace-pre-wrap">
-                                                        {(() => {
-                                                            const schema = ExtractMetadata(code).inputSchema;
-                                                            if (!schema) return "—";
-                                                            if (typeof schema === 'string') return schema;
-                                                            return JSON.stringify(schema, null, 2);
-                                                        })()}
-                                                    </div>
-                                                    <p className="text-[10px] text-gray-400 mt-1">JSON Schema defining the arguments the tool accepts</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </TabsContent>
-
-                                    <TabsContent value="validation" className="m-0 p-0 border-0 bg-transparent space-y-4">
-                                        <div className={`border rounded p-4 ${validationState === 'valid' ? 'bg-green-50 border-green-200' : validationState === 'invalid' ? 'bg-red-50 border-red-200' : 'bg-white'}`}>
-                                            {validationState === 'idle' && <span className="text-gray-500 text-sm">Not yet validated.</span>}
-                                            {validationState === 'valid' && (
-                                                <div className="flex items-center gap-2 text-green-700 text-sm font-medium">
-                                                    <CheckIcon size={16} /> Valid Structure
-                                                </div>
-                                            )}
-                                            {validationState === 'invalid' && (
-                                                <div className="flex items-start gap-2 text-red-700 text-sm font-medium">
-                                                    <AlertCircleIcon size={16} className="mt-0.5" />
-                                                    <span>{errorMsg}</span>
-                                                </div>
-                                            )}
-                                        </div>
-
-                                        <Button className="w-full bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 gap-2" onClick={handleValidate}>
-                                            <PlayIcon size={16} /> Validate Syntax
-                                        </Button>
-
-                                    </TabsContent>
-                                </div>
-                            </Tabs>
+                            <MetadataPanel
+                                code={code}
+                                activeTab={activeTab}
+                                onTabChange={setActiveTab}
+                                validationState={validationState}
+                                errorMsg={errorMsg}
+                                onValidate={handleValidate}
+                            />
 
                             {/* Footer Buttons - Save always visible now (disabled if invalid), Delete always visible for existing */}
                             <div className="p-6 border-t border-gray-200 bg-white flex-none flex items-center justify-between gap-4">

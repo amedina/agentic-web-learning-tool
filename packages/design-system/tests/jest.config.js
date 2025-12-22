@@ -1,5 +1,5 @@
 import baseConfig from '@google-awlt/shared-config/jest/react';
-import { resolve, join } from 'path';
+import { resolve } from 'path';
 
 /** @type {import('jest').Config} */
 const config = {
