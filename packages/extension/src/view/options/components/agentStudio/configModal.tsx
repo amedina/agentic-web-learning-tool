@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import {
 	Button,
+	Dropdown,
 	Input,
 	InputGroup,
 	ToggleSwitch,
@@ -32,6 +33,17 @@ type ConfigModalProps = {
 	onDelete: (id: string) => void;
 };
 
+const REASONING_OPTIONS = [
+	{ id: 'minimal', label: 'Minimal: Quick Analysis'},
+	{ id: 'low', label: 'Low: Basic Reasoning'},
+	{ id: 'medium', label: 'Medium: Balanced Thinking'},
+	{ id: 'high', label: 'High: Deep Thinking'},
+];
+const REASONING_SUMMARY_OPTIONS = [
+	{ id: 'auto', label: 'Auto: Model Decides'},
+	{ id: 'full', label: 'Detailed: Full Thinking Trace'},
+];
+
 const ConfigModal = ({
 	isOpen,
 	onClose,
@@ -39,8 +51,7 @@ const ConfigModal = ({
 	onSave,
 	onDelete,
 }: ConfigModalProps) => {
-	const [formData, setFormData] =
-		useState<AgentType>(DEFAULT_FORM_STATE);
+	const [formData, setFormData] = useState<AgentType>(DEFAULT_FORM_STATE);
 
 	// Reset form when modal opens with new data
 	useEffect(() => {
@@ -207,6 +218,38 @@ const ConfigModal = ({
 									}
 								/>
 							</div>
+							{formData.thinkingMode && (
+								<div className='flex flex-row items-center'>
+									<div className="flex items-center justify-between">
+										<div>
+											<div className="text-[13px] font-medium text-accent-foreground">
+												Reasoning Effort
+											</div>
+										</div>
+										<Dropdown
+											options={REASONING_OPTIONS}
+											onSelect={(v) =>
+												handleChange('reasoinigEffort', v)
+											}
+											selectedValue={formData.reasoningEffort ?? ''}
+										/>
+									</div>
+									<div className="flex items-center justify-between">
+										<div>
+											<div className="text-[13px] font-medium text-accent-foreground">
+												Reasoning summary
+											</div>
+										</div>
+										<Dropdown
+											options={REASONING_SUMMARY_OPTIONS}
+											onSelect={(v) =>
+												handleChange('reasoningSummary', v)
+											}
+											selectedValue={formData.reasoningSummary ?? ''}
+										/>
+									</div>
+								</div>
+							)}
 						</div>
 					</section>
 

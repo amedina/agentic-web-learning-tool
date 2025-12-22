@@ -8,4 +8,6 @@ export type AgentType = {
 	thinkingMode: boolean;
 	extraConfig: string;
 	model: string;
+	reasoningEffort?: string;
+	reasoningSummary?: string;
 }

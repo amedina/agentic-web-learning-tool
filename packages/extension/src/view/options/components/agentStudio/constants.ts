@@ -1,4 +1,9 @@
-export const DEFAULT_FORM_STATE = {
+/**
+ * Internal dependencies
+ */
+import type { AgentType } from "./types";
+
+export const DEFAULT_FORM_STATE: AgentType = {
     id: '',
     name: '',
     apiKey: '',
@@ -8,4 +13,6 @@ export const DEFAULT_FORM_STATE = {
     thinkingMode: false,
     extraConfig: '{\n  "top_p": 1,\n  "frequency_penalty": 0\n}',
     model: '',
+    reasoningEffort: "medium",
+    reasoningSummary: "auto",
 };
