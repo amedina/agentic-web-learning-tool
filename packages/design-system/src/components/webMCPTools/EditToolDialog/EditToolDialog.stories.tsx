@@ -15,7 +15,7 @@ const meta: Meta<typeof EditToolDialog> = {
     title: 'Components/WebMCPTools/EditToolDialog',
     component: EditToolDialog,
     parameters: {
-        layout: 'fullscreen',
+        layout: 'centered',
     },
 };
 

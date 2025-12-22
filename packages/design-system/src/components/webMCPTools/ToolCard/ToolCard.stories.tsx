@@ -12,6 +12,9 @@ import type { WebMCPTool } from '../types';
 const meta: Meta<typeof ToolCard> = {
     title: 'Components/WebMCPTools/ToolCard',
     component: ToolCard,
+    parameters: {
+        layout: 'centered',
+    },
 };
 
 export default meta;

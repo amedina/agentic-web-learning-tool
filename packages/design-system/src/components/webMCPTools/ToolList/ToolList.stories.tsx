@@ -12,6 +12,9 @@ import type { WebMCPTool } from '../types';
 const meta: Meta<typeof ToolList> = {
     title: 'Components/WebMCPTools/ToolList',
     component: ToolList,
+    parameters: {
+        layout: 'centered',
+    },
 };
 
 export default meta;

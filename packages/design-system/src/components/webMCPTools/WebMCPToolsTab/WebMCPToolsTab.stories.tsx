@@ -12,7 +12,7 @@ const meta: Meta<typeof WebMCPToolsTab> = {
     title: 'Components/WebMCPTools/WebMCPToolsTab',
     component: WebMCPToolsTab,
     parameters: {
-        layout: 'fullscreen',
+        layout: 'centered',
     },
 };
 
