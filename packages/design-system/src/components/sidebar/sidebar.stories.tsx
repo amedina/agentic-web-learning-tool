@@ -6,7 +6,7 @@ import { Calendar, Home, Inbox, Search, Settings } from 'lucide-react';
 /**
  * Internal dependencies
  */
-import { Sidebar, SidebarProvider, SidebarTrigger } from './';
+import { Sidebar, SidebarProvider } from './';
 
 // Menu items.
 const items = [
@@ -37,16 +37,10 @@ const items = [
 	},
 ];
 
-/**
- * Displays a button or a component that looks like a button.
- */
 const meta = {
 	title: 'ui/Sidebar',
 	component: Sidebar,
 	tags: ['autodocs'],
-	parameters: {
-		layout: 'centered',
-	},
 } satisfies Meta<typeof Sidebar>;
 
 export default meta;
@@ -58,10 +52,7 @@ export const Default: Story = {
 		return (
 			<div className="w-screen">
 				<SidebarProvider>
-					<Sidebar items={args.items} />
-					<main>
-						<SidebarTrigger />
-					</main>
+					<Sidebar collapsible="icon" items={args.items} />
 				</SidebarProvider>
 			</div>
 		);
