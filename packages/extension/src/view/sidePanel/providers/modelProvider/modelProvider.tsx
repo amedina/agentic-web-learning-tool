@@ -35,7 +35,7 @@ export const client = new Client({
 });
 
 const Provider = ({ children }: PropsWithChildren) => {
-	const [agents, setAgents] = useState<AgentType[]>([]);
+	const [_agents, setAgents] = useState<AgentType[]>([]);
 	const [selectedAgent, setSelectedAgent] = useState<AgentType>(DEFAULT_AGENTS[0]);
 	const [_transport, setTransport] = useState<
 		GeminiNanoChatTransport | CloudHostedTransport | null
@@ -75,6 +75,13 @@ const Provider = ({ children }: PropsWithChildren) => {
 		initialFetchDone.current = true;
 	}, []);
 
+	const onSyncStorageChangedListener = useCallback(async() => {
+		const { agents }: { agents: AgentType[] } =
+			await chrome.storage.sync.get('agents');
+
+		setAgents(agents);
+	}, []);
+
 	useEffect(() => {
 		if (!_transport || !initialFetchDone.current) {
 			return;
@@ -89,12 +96,16 @@ const Provider = ({ children }: PropsWithChildren) => {
 
 	useEffect(() => {
 		intitialSync();
+		chrome.storage.sync.onChanged.addListener(onSyncStorageChangedListener);
+		return () => {
+			chrome.storage.sync.onChanged.removeListener(onSyncStorageChangedListener);
+		}
 	}, [intitialSync]);
 
 	const memoisedValue = useMemo(() => {
 		return {
 			state: {
-				agents,
+				agents: _agents,
 				selectedAgent,
 				transport: _transport,
 			},
@@ -102,7 +113,7 @@ const Provider = ({ children }: PropsWithChildren) => {
 				setSelectedAgent,
 			},
 		};
-	}, [agents, selectedAgent, _transport]);
+	}, [_agents, selectedAgent, _transport]);
 
 	return (
 		<Context.Provider value={memoisedValue}>
