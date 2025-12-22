@@ -12,7 +12,7 @@ const meta: Meta<typeof WebMCPToolsTab> = {
     title: 'Components/WebMCPTools/WebMCPToolsTab',
     component: WebMCPToolsTab,
     parameters: {
-        layout: 'centered',
+        layout: 'fullscreen',
     },
 };
 
@@ -20,5 +20,7 @@ export default meta;
 type Story = StoryObj<typeof WebMCPToolsTab>;
 
 export const Default: Story = {
-    render: () => <WebMCPToolsTab />,
+    render: () => <div className='min-h-screen min-w-screen'>
+        <WebMCPToolsTab />
+    </div>,
 };

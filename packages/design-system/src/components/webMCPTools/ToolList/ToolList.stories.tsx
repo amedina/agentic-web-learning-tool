@@ -13,8 +13,15 @@ const meta: Meta<typeof ToolList> = {
     title: 'Components/WebMCPTools/ToolList',
     component: ToolList,
     parameters: {
-        layout: 'centered',
+        layout: 'fullscreen',
     },
+    decorators: [
+        (Story) => (
+            <div className="min-h-screen min-w-screen p-10">
+                <Story />
+            </div>
+        ),
+    ],
 };
 
 export default meta;
