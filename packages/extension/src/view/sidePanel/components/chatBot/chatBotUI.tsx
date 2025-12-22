@@ -15,18 +15,17 @@ import {
 	Paperclip,
 	SendHorizontal,
 	CircleStop,
+	ToolCaseIcon,
 } from 'lucide-react';
+import { Dropdown, getToolNameWithoutPrefix } from '@google-awlt/design-system';
 /**
  * Internal dependencies
  */
 import { useAssistantMCP } from '../../hooks';
 import { transport } from '../../providers';
-import ModelSelectorDropDown from '../modelSelectorDropDown';
 import AssistantMessage from './assistantMessage';
 import EditComposer from './editComposer';
 import UserMessage from './userMessage';
-
-
 
 type ChatBotUIProps = {
 	runtime: AssistantRuntime;
@@ -104,7 +103,23 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 								>
 									<Paperclip size={18} />
 								</button>
-								<ModelSelectorDropDown />
+								<Dropdown
+									options={tools
+										.map((tool) => ({
+											id: tool.name,
+											label:
+												getToolNameWithoutPrefix(
+													tool.name
+												) ?? '',
+										}))
+										.filter((tool) => tool.id !== 'dummy')}
+									onSelect={(id) => console.log(id)}
+									selectedValue=""
+								>
+									<div>
+										<ToolCaseIcon className="w-4 h-4" />
+									</div>
+								</Dropdown>
 							</div>
 							<ThreadPrimitive.If running={false}>
 								<ComposerPrimitive.Send className="h-9 w-9 flex items-center justify-center rounded-lg bg-background hover:text-ring text-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-colors">

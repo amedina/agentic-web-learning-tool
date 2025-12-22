@@ -34,14 +34,14 @@ type ConfigModalProps = {
 };
 
 const REASONING_OPTIONS = [
-	{ id: 'minimal', label: 'Minimal: Quick Analysis'},
-	{ id: 'low', label: 'Low: Basic Reasoning'},
-	{ id: 'medium', label: 'Medium: Balanced Thinking'},
-	{ id: 'high', label: 'High: Deep Thinking'},
+	{ id: 'minimal', label: 'Minimal: Quick Analysis' },
+	{ id: 'low', label: 'Low: Basic Reasoning' },
+	{ id: 'medium', label: 'Medium: Balanced Thinking' },
+	{ id: 'high', label: 'High: Deep Thinking' },
 ];
 const REASONING_SUMMARY_OPTIONS = [
-	{ id: 'auto', label: 'Auto: Model Decides'},
-	{ id: 'full', label: 'Detailed: Full Thinking Trace'},
+	{ id: 'auto', label: 'Auto: Model Decides' },
+	{ id: 'full', label: 'Detailed: Full Thinking Trace' },
 ];
 
 const ConfigModal = ({
@@ -219,33 +219,39 @@ const ConfigModal = ({
 								/>
 							</div>
 							{formData.thinkingMode && (
-								<div className='flex flex-row items-center'>
-									<div className="flex items-center justify-between">
-										<div>
-											<div className="text-[13px] font-medium text-accent-foreground">
-												Reasoning Effort
-											</div>
+								<div className="flex flex-row items-center gap-3">
+									<div className="flex flex-col items-center justify-start">
+										<div className="text-base font-medium text-accent-foreground w-full">
+											Reasoning Effort
 										</div>
 										<Dropdown
 											options={REASONING_OPTIONS}
 											onSelect={(v) =>
-												handleChange('reasoinigEffort', v)
+												handleChange(
+													'reasoinigEffort',
+													v
+												)
 											}
-											selectedValue={formData.reasoningEffort ?? ''}
+											selectedValue={
+												formData.reasoningEffort ?? ''
+											}
 										/>
 									</div>
-									<div className="flex items-center justify-between">
-										<div>
-											<div className="text-[13px] font-medium text-accent-foreground">
-												Reasoning summary
-											</div>
+									<div className="flex flex-col items-center justify-start">
+										<div className="text-base font-medium text-accent-foreground w-full">
+											Reasoning summary
 										</div>
 										<Dropdown
 											options={REASONING_SUMMARY_OPTIONS}
 											onSelect={(v) =>
-												handleChange('reasoningSummary', v)
+												handleChange(
+													'reasoningSummary',
+													v
+												)
 											}
-											selectedValue={formData.reasoningSummary ?? ''}
+											selectedValue={
+												formData.reasoningSummary ?? ''
+											}
 										/>
 									</div>
 								</div>

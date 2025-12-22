@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useCallback } from 'react';
+import { useCallback, type PropsWithChildren } from 'react';
 import {
 	Root as DropDownMenuRoot,
 	DropdownMenuTrigger,
@@ -10,10 +10,7 @@ import {
 	Label as DropDownMenuLabel,
 	Item as DropDownMenuItem,
 } from '@radix-ui/react-dropdown-menu';
-/**
- * Internal dependencies
- */
-import { Button } from '../button';
+import { ChevronDown } from 'lucide-react';
 
 const itemStyles = `
   group relative flex items-center h-9 px-2.5 
@@ -44,7 +41,7 @@ const menuContentStyles = `
 `;
 
 type Option = { id: string; label: string };
-type DropDownProps = {
+type DropDownProps = PropsWithChildren & {
 	options: Option[];
 	onSelect: (value: string) => void;
 	label?: string;
@@ -56,6 +53,7 @@ export default function DropDown({
 	onSelect,
 	label,
 	selectedValue,
+	children,
 }: DropDownProps) {
 	const handleSelect = useCallback(
 		(selectedValueId: string) => {
@@ -63,18 +61,25 @@ export default function DropDown({
 		},
 		[onSelect]
 	);
-
+	console.log(selectedValue)
 	return (
 		<div className="flex flex-col items-center justify-center font-sans">
 			<DropDownMenuRoot>
 				<DropdownMenuTrigger asChild>
-					<Button>
-						{
-							options.find(
-								(option) => option.id === selectedValue
-							)?.label
-						}
-					</Button>
+					{children ? (
+						children
+					) : (
+						<div className="flex items-center bg-background text-foreground shadow-sm p-2 rounded">
+							<span>
+								{
+									options.find(
+										(option) => option.id === selectedValue
+									)?.label
+								}
+							</span>
+							<ChevronDown className="ml-auto w-3.5 h-3.5 text-stone-400" />
+						</div>
+					)}
 				</DropdownMenuTrigger>
 
 				<DropDownMenuPortal>
