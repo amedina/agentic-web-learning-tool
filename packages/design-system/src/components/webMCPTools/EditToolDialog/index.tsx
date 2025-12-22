@@ -8,15 +8,9 @@ import { X, PlayIcon, CheckIcon, AlertCircleIcon, TrashIcon, FileCodeIcon, Layou
 /**
  * Internal dependencies.
  */
-import {
-    Button,
-    SyntaxHighlighter,
-    Tabs,
-    TabsList,
-    TabsTrigger,
-    TabsContent,
-    githubGist
-} from '../../../index';
+import { Button } from '../../button';
+import SyntaxHighlighter from './syntaxHighlighter';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../tabs';
 import type { WebMCPTool } from '../types';
 
 interface EditToolDialogProps {
@@ -219,10 +213,8 @@ export function EditToolDialog({ open, onOpenChange, tool, onSave, onDelete }: E
                                 <div className="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-hidden bg-white">
                                     {/* @ts-ignore */}
                                     <SyntaxHighlighterAny
-                                        language="typescript"
+                                        language="javascript"
                                         code={code}
-                                        style={githubGist}
-                                        customStyle={{ backgroundColor: 'white', margin: 0 }}
                                         components={{
                                             Pre: (props: any) => <pre {...props} style={{ margin: 0, height: '100%', fontFamily: editorFontFamily, fontSize: editorFontSize, lineHeight: editorLineHeight, padding: editorPadding, backgroundColor: 'white' }} />,
                                             Code: (props: any) => <code {...props} style={{ fontFamily: 'inherit' }} />,
