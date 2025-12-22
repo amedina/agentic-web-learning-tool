@@ -1,7 +1,7 @@
 /**
  * External dependencies.
  */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { X, PlayIcon, CheckIcon, AlertCircleIcon, TrashIcon, FileCodeIcon, LayoutTemplateIcon, SaveIcon } from 'lucide-react';
 
@@ -155,6 +155,15 @@ export function EditToolDialog({ open, onOpenChange, tool, onSave, onDelete }: E
     // Cast to any to allow style prop which is missing in types but valid in runtime
     const SyntaxHighlighterAny = SyntaxHighlighter as any;
 
+    const backdropRef = useRef<HTMLDivElement>(null);
+
+    const handleScroll = (e: React.UIEvent<HTMLTextAreaElement>) => {
+        if (backdropRef.current) {
+            backdropRef.current.scrollTop = e.currentTarget.scrollTop;
+            backdropRef.current.scrollLeft = e.currentTarget.scrollLeft;
+        }
+    };
+
     return (
         <Dialog.Root open={open} onOpenChange={onOpenChange}>
             <Dialog.Portal>
@@ -201,6 +210,7 @@ export function EditToolDialog({ open, onOpenChange, tool, onSave, onDelete }: E
                                         setCode(e.target.value);
                                         setValidationState('idle'); // Invalidate on change
                                     }}
+                                    onScroll={handleScroll}
                                     spellCheck={false}
                                     style={{
                                         fontFamily: editorFontFamily,
@@ -210,13 +220,16 @@ export function EditToolDialog({ open, onOpenChange, tool, onSave, onDelete }: E
                                         whiteSpace: 'pre', // CRITICAL for alignment
                                     }}
                                 />
-                                <div className="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-hidden bg-white">
+                                <div
+                                    ref={backdropRef}
+                                    className="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-hidden bg-white"
+                                >
                                     {/* @ts-ignore */}
                                     <SyntaxHighlighterAny
                                         language="javascript"
                                         code={code}
                                         components={{
-                                            Pre: (props: any) => <pre {...props} style={{ margin: 0, height: '100%', fontFamily: editorFontFamily, fontSize: editorFontSize, lineHeight: editorLineHeight, padding: editorPadding, backgroundColor: 'white' }} />,
+                                            Pre: (props: any) => <pre {...props} style={{ margin: 0, minHeight: '100%', fontFamily: editorFontFamily, fontSize: editorFontSize, lineHeight: editorLineHeight, padding: editorPadding, backgroundColor: 'white' }} />,
                                             Code: (props: any) => <code {...props} style={{ fontFamily: 'inherit' }} />,
                                         }}
                                     />
@@ -226,83 +239,83 @@ export function EditToolDialog({ open, onOpenChange, tool, onSave, onDelete }: E
 
                         {/* Sidebar/Metadata Side */}
                         <div className="w-[400px] bg-gray-50 flex flex-col overflow-hidden">
-                            {/* Tabs Header */}
-                            <div className="bg-white px-4 border-b border-gray-200">
-                                <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                            <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col flex-1 overflow-hidden">
+                                {/* Tabs Header */}
+                                <div className="bg-white px-4 border-b border-gray-200 flex-none">
                                     <TabsList className="w-full grid grid-cols-2 bg-transparent h-12 p-0 gap-8">
                                         <TabsTrigger value="metadata" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none h-full px-0">Metadata</TabsTrigger>
                                         <TabsTrigger value="validation" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none h-full px-0">Validation</TabsTrigger>
                                     </TabsList>
+                                </div>
 
-                                    <div className="p-6 overflow-y-auto h-[cale(100vh-200px)]">
-                                        <TabsContent value="metadata" className="m-0 p-0 border-0 bg-transparent space-y-6">
-                                            <div>
-                                                <h3 className="font-semibold mb-3 text-sm text-gray-900 border-b pb-2">Parsed Metadata</h3>
-                                                <div className="space-y-4">
-                                                    <div>
-                                                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Name</label>
-                                                        <div className="px-3 py-2 bg-white border border-gray-200 rounded font-mono text-sm text-gray-700">{ExtractMetadata(code).name || "—"}</div>
+                                <div className="flex-1 overflow-y-auto p-6">
+                                    <TabsContent value="metadata" className="m-0 p-0 border-0 bg-transparent space-y-6">
+                                        <div>
+                                            <h3 className="font-semibold mb-3 text-sm text-gray-900 border-b pb-2">Parsed Metadata</h3>
+                                            <div className="space-y-4">
+                                                <div>
+                                                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Name</label>
+                                                    <div className="px-3 py-2 bg-white border border-gray-200 rounded font-mono text-sm text-gray-700">{ExtractMetadata(code).name || "—"}</div>
+                                                </div>
+                                                <div>
+                                                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Namespace</label>
+                                                    <div className="px-3 py-2 bg-white border border-gray-200 rounded font-mono text-sm text-gray-700">{ExtractMetadata(code).namespace || "—"}</div>
+                                                </div>
+                                                <div>
+                                                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Version</label>
+                                                    <div className="px-3 py-2 bg-white border border-gray-200 rounded font-mono text-sm text-gray-700">{ExtractMetadata(code).version || "—"}</div>
+                                                </div>
+                                                <div>
+                                                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Description</label>
+                                                    <div className="px-3 py-2 bg-white border border-gray-200 rounded text-sm text-gray-700">{ExtractMetadata(code).description || "—"}</div>
+                                                </div>
+                                                <div>
+                                                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">URL Match Patterns</label>
+                                                    <div className="px-3 py-2 bg-white border border-gray-200 rounded font-mono text-xs text-gray-700 bg-gray-50">
+                                                        {JSON.stringify(ExtractMetadata(code).matchPatterns, null, 2) || (ExtractMetadata(code).matchPatterns ? String(ExtractMetadata(code).matchPatterns) : "—")}
                                                     </div>
-                                                    <div>
-                                                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Namespace</label>
-                                                        <div className="px-3 py-2 bg-white border border-gray-200 rounded font-mono text-sm text-gray-700">{ExtractMetadata(code).namespace || "—"}</div>
-                                                    </div>
-                                                    <div>
-                                                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Version</label>
-                                                        <div className="px-3 py-2 bg-white border border-gray-200 rounded font-mono text-sm text-gray-700">{ExtractMetadata(code).version || "—"}</div>
-                                                    </div>
-                                                    <div>
-                                                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Description</label>
-                                                        <div className="px-3 py-2 bg-white border border-gray-200 rounded text-sm text-gray-700">{ExtractMetadata(code).description || "—"}</div>
-                                                    </div>
-                                                    <div>
-                                                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">URL Match Patterns</label>
-                                                        <div className="px-3 py-2 bg-white border border-gray-200 rounded font-mono text-xs text-gray-700 bg-gray-50">
-                                                            {JSON.stringify(ExtractMetadata(code).matchPatterns, null, 2) || (ExtractMetadata(code).matchPatterns ? String(ExtractMetadata(code).matchPatterns) : "—")}
-                                                        </div>
-                                                    </div>
-                                                    <div>
-                                                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Input Schema</label>
-                                                        <div className="px-3 py-2 bg-white border border-gray-200 rounded font-mono text-xs text-gray-700 whitespace-pre-wrap">
-                                                            {(() => {
-                                                                const schema = ExtractMetadata(code).inputSchema;
-                                                                if (!schema) return "—";
-                                                                if (typeof schema === 'string') return schema;
-                                                                return JSON.stringify(schema, null, 2);
-                                                            })()}
-                                                        </div>
+                                                </div>
+                                                <div>
+                                                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Input Schema</label>
+                                                    <div className="px-3 py-2 bg-white border border-gray-200 rounded font-mono text-xs text-gray-700 whitespace-pre-wrap">
+                                                        {(() => {
+                                                            const schema = ExtractMetadata(code).inputSchema;
+                                                            if (!schema) return "—";
+                                                            if (typeof schema === 'string') return schema;
+                                                            return JSON.stringify(schema, null, 2);
+                                                        })()}
                                                     </div>
                                                 </div>
                                             </div>
-                                        </TabsContent>
+                                        </div>
+                                    </TabsContent>
 
-                                        <TabsContent value="validation" className="m-0 p-0 border-0 bg-transparent space-y-4">
-                                            <div className={`border rounded p-4 ${validationState === 'valid' ? 'bg-green-50 border-green-200' : validationState === 'invalid' ? 'bg-red-50 border-red-200' : 'bg-white'}`}>
-                                                {validationState === 'idle' && <span className="text-gray-500 text-sm">Not yet validated.</span>}
-                                                {validationState === 'valid' && (
-                                                    <div className="flex items-center gap-2 text-green-700 text-sm font-medium">
-                                                        <CheckIcon size={16} /> Valid Structure
-                                                    </div>
-                                                )}
-                                                {validationState === 'invalid' && (
-                                                    <div className="flex items-start gap-2 text-red-700 text-sm font-medium">
-                                                        <AlertCircleIcon size={16} className="mt-0.5" />
-                                                        <span>{errorMsg}</span>
-                                                    </div>
-                                                )}
-                                            </div>
+                                    <TabsContent value="validation" className="m-0 p-0 border-0 bg-transparent space-y-4">
+                                        <div className={`border rounded p-4 ${validationState === 'valid' ? 'bg-green-50 border-green-200' : validationState === 'invalid' ? 'bg-red-50 border-red-200' : 'bg-white'}`}>
+                                            {validationState === 'idle' && <span className="text-gray-500 text-sm">Not yet validated.</span>}
+                                            {validationState === 'valid' && (
+                                                <div className="flex items-center gap-2 text-green-700 text-sm font-medium">
+                                                    <CheckIcon size={16} /> Valid Structure
+                                                </div>
+                                            )}
+                                            {validationState === 'invalid' && (
+                                                <div className="flex items-start gap-2 text-red-700 text-sm font-medium">
+                                                    <AlertCircleIcon size={16} className="mt-0.5" />
+                                                    <span>{errorMsg}</span>
+                                                </div>
+                                            )}
+                                        </div>
 
-                                            <Button className="w-full bg-white border border-gray-300 text-gray-700 hover:bg-gray-50" onClick={handleValidate}>
-                                                <PlayIcon size={16} className="mr-2" /> Validate Syntax
-                                            </Button>
+                                        <Button className="w-full bg-white border border-gray-300 text-gray-700 hover:bg-gray-50" onClick={handleValidate}>
+                                            <PlayIcon size={16} className="mr-2" /> Validate Syntax
+                                        </Button>
 
-                                        </TabsContent>
-                                    </div>
-                                </Tabs>
-                            </div>
+                                    </TabsContent>
+                                </div>
+                            </Tabs>
 
                             {/* Footer Buttons - Save always visible now (disabled if invalid), Delete always visible for existing */}
-                            <div className="mt-auto p-6 border-t border-gray-200 bg-white flex items-center justify-between gap-4">
+                            <div className="p-6 border-t border-gray-200 bg-white flex-none flex items-center justify-between gap-4">
                                 <div className="flex-1">
                                     {tool && onDelete && (
                                         <Button variant="ghost" className="text-red-500 hover:text-red-700 hover:bg-red-50" onClick={() => onDelete(tool)}>
