@@ -103,32 +103,56 @@ export function EditToolDialog({ open, onOpenChange, tool, onSave, onDelete }: E
         }
     }, [open, tool]);
 
-    const handleValidate = () => {
+    const validateCode = (currentCode: string): { valid: boolean; error?: string } => {
         try {
-            const hasMetadata = /export\s+const\s+metadata\s*=\s*{/.test(code);
-            const hasExecute = /export\s+async\s+function\s+execute/.test(code);
+            const hasMetadata = /export\s+const\s+metadata\s*=\s*{/.test(currentCode);
+            // Use word boundary \b to ensure we match 'execute' exactly, not 'executeStupid'
+            const hasExecute = /export\s+async\s+function\s+execute\b/.test(currentCode);
 
             if (!hasMetadata) throw new Error("Missing 'export const metadata = { ... }'");
             if (!hasExecute) throw new Error("Missing 'export async function execute(args) { ... }'");
 
+            // Extract and validate required metadata fields
+            const tempMetadata = ExtractMetadata(currentCode);
+            if (!tempMetadata.name) throw new Error("Metadata must contain a 'name' field.");
+            if (!tempMetadata.inputSchema) throw new Error("Metadata must contain an 'inputSchema' field.");
+
             // Simple brace balance check
             let balance = 0;
-            for (const char of code) {
+            for (const char of currentCode) {
                 if (char === '{') balance++;
                 if (char === '}') balance--;
             }
             if (balance !== 0) throw new Error("Unbalanced curly braces. Check your syntax.");
 
+            return { valid: true };
+        } catch (e: any) {
+            return { valid: false, error: e.message };
+        }
+    };
+
+    const handleValidate = () => {
+        const result = validateCode(code);
+        if (result.valid) {
             setValidationState('valid');
             setErrorMsg('');
-        } catch (e: any) {
+        } else {
             setValidationState('invalid');
-            setErrorMsg(e.message);
+            setErrorMsg(result.error || 'Unknown error');
         }
     };
 
     const handleSave = () => {
-        if (validationState !== 'valid') return;
+        // Run validation on save attempt
+        const validation = validateCode(code);
+
+        if (!validation.valid) {
+            setValidationState('invalid');
+            setErrorMsg(validation.error || 'Validation failed');
+            setActiveTab('validation'); // Switch to validation tab so user sees error
+            return;
+        }
+
         const extracted = ExtractMetadata(code);
 
         const newTool: WebMCPTool = {
@@ -328,8 +352,7 @@ export function EditToolDialog({ open, onOpenChange, tool, onSave, onDelete }: E
                                         <Button variant="outline">Cancel</Button>
                                     </Dialog.Close>
                                     <Button
-                                        className={`${validationState === 'valid' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-200 text-gray-400 cursor-not-allowed hover:bg-gray-200'}`}
-                                        disabled={validationState !== 'valid'}
+                                        className={`${validationState === 'valid' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-blue-600 hover:bg-blue-700'}`}
                                         onClick={handleSave}
                                     >
                                         <SaveIcon size={16} className="mr-2" /> Save Tool
