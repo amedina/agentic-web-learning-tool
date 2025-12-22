@@ -3,7 +3,7 @@
  */
 import { useState, useEffect, useRef } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
-import { X, PlayIcon, CheckIcon, AlertCircleIcon, TrashIcon, FileCodeIcon, LayoutTemplateIcon, SaveIcon, AlertTriangleIcon } from 'lucide-react';
+import { X, PlayIcon, CheckIcon, AlertCircleIcon, TrashIcon, LayoutTemplateIcon, SaveIcon, AlertTriangleIcon, CopyIcon } from 'lucide-react';
 
 /**
  * Internal dependencies.
@@ -86,9 +86,11 @@ function ExtractMetadata(code: string): Partial<WebMCPTool> {
 
 export function EditToolDialog({ open, onOpenChange, tool, onSave, onDelete }: EditToolDialogProps) {
     const [code, setCode] = useState(DEFAULT_SCRIPT_TEMPLATE);
+    const [initialCode, setInitialCode] = useState(DEFAULT_SCRIPT_TEMPLATE);
     const [validationState, setValidationState] = useState<'idle' | 'valid' | 'invalid'>('idle');
     const [errorMsg, setErrorMsg] = useState('');
     const [activeTab, setActiveTab] = useState('metadata');
+    const [isCopied, setIsCopied] = useState(false);
 
     const [showTemplateWarning, setShowTemplateWarning] = useState(false);
 
@@ -96,13 +98,16 @@ export function EditToolDialog({ open, onOpenChange, tool, onSave, onDelete }: E
         if (open) {
             if (tool?.code) {
                 setCode(tool.code);
+                setInitialCode(tool.code);
             } else {
                 setCode(DEFAULT_SCRIPT_TEMPLATE);
+                setInitialCode(DEFAULT_SCRIPT_TEMPLATE);
             }
             setValidationState('idle');
             setErrorMsg('');
             setActiveTab('metadata');
             setShowTemplateWarning(false);
+            setIsCopied(false);
         }
     }, [open, tool]);
 
@@ -120,47 +125,10 @@ export function EditToolDialog({ open, onOpenChange, tool, onSave, onDelete }: E
         setShowTemplateWarning(false);
     };
 
-    const handleFormat = () => {
-        // Basic indentation formatter
-        try {
-            const lines = code.split('\n');
-            const indentString = '  '; // 2 spaces
-
-            let currentLevel = 0;
-            const smartFormatted = lines.map(line => {
-                const trimmed = line.trim();
-
-                // Heuristic: Closing braces reduce level immediately
-                if (trimmed.startsWith('}') || trimmed === '];' || trimmed === '};') {
-                    currentLevel = Math.max(0, currentLevel - 1);
-                }
-
-                const indentedLine = indentString.repeat(currentLevel) + trimmed;
-
-                // Heuristic: Opening braces increase level for NEXT line
-                // Be ignoring self-closing or single-line blocks { } on same line
-                const openCount = (trimmed.match(/{/g) || []).length;
-                const closeCount = (trimmed.match(/}/g) || []).length;
-                const opens = openCount;
-                const closes = closeCount;
-
-                if (opens > closes) {
-                    currentLevel += (opens - closes);
-                } else if (closes > opens) {
-                    // if we have more closes than opens, we might have decremented too early if we didn't start with }
-                    if (!trimmed.startsWith('}')) {
-                        currentLevel = Math.max(0, currentLevel - (closes - opens));
-                    }
-                }
-
-                return indentedLine;
-            });
-
-            setCode(smartFormatted.join('\n'));
-
-        } catch (e) {
-            console.error("Format failed", e);
-        }
+    const handleCopy = () => {
+        navigator.clipboard.writeText(code);
+        setIsCopied(true);
+        setTimeout(() => setIsCopied(false), 2000);
     };
 
     const validateCode = (currentCode: string): { valid: boolean; error?: string } => {
@@ -270,12 +238,26 @@ export function EditToolDialog({ open, onOpenChange, tool, onSave, onDelete }: E
 
                     <div className="flex-grow flex flex-row overflow-hidden relative">
                         {/* Toolbar overlay for editor */}
+                        {/* Toolbar overlay for editor */}
                         <div className="absolute top-4 right-[420px] z-20 flex gap-2">
-                            <Button size="sm" variant="outline" className="bg-white h-8 text-xs font-medium" onClick={handleInsertTemplateRequest}>
+                            <Button
+                                size="sm"
+                                variant="outline"
+                                className={`bg-white h-8 text-xs font-medium ${code === initialCode ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                onClick={handleInsertTemplateRequest}
+                                disabled={code === initialCode}
+                            >
                                 <LayoutTemplateIcon size={12} className="mr-1.5" /> Insert Template
                             </Button>
-                            <Button size="sm" variant="outline" className="bg-white h-8 text-xs font-medium" onClick={handleFormat}>
-                                <FileCodeIcon size={12} className="mr-1.5" /> Format
+                            <Button
+                                size="sm"
+                                variant="outline"
+                                className={`bg-white h-8 text-xs font-medium ${!code?.trim() ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                onClick={handleCopy}
+                                disabled={!code?.trim()}
+                            >
+                                {isCopied ? <CheckIcon size={12} className="mr-1.5 text-green-600" /> : <CopyIcon size={12} className="mr-1.5" />}
+                                {isCopied ? 'Copied' : 'Copy'}
                             </Button>
                         </div>
 
@@ -451,8 +433,9 @@ export function EditToolDialog({ open, onOpenChange, tool, onSave, onDelete }: E
                                         <Button variant="outline">Cancel</Button>
                                     </Dialog.Close>
                                     <Button
-                                        className={`${validationState === 'valid' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-blue-600 hover:bg-blue-700'}`}
+                                        className={`${validationState === 'valid' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-blue-600 hover:bg-blue-700'} ${code === initialCode ? 'opacity-50 cursor-not-allowed' : ''}`}
                                         onClick={handleSave}
+                                        disabled={code === initialCode}
                                     >
                                         <SaveIcon size={16} className="mr-2" /> Save Tool
                                     </Button>
