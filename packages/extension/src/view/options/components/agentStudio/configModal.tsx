@@ -108,7 +108,7 @@ const ConfigModal = ({
 									onChange={(e) =>
 										handleChange('name', e.target.value)
 									}
-									className="bg-transparent border-darth-vader text-accentfore-ground transition-all w-full px-3 py-2 rounded-md text-sm"
+									className="bg-transparent border-darth-vader text-accent-foreground transition-all w-full px-3 py-2 rounded-md text-sm"
 									placeholder="e.g. Legal Assistant"
 								/>
 							</InputGroup>
@@ -122,7 +122,7 @@ const ConfigModal = ({
 												: 'custom-model'
 										}
 										readOnly
-										className="bg-transparent border-darth-vader text-accentfore-ground transition-all w-full px-3 py-2 rounded-md text-sm font-mono text-amethyst-haze bg-aswad"
+										className="bg-transparent border-darth-vader text-accent-foreground transition-all w-full px-3 py-2 rounded-md text-sm font-mono text-amethyst-haze bg-aswad"
 									/>
 								</div>
 							</InputGroup>
@@ -146,7 +146,7 @@ const ConfigModal = ({
 												e.target.value
 											)
 										}
-										className="bg-transparent border-darth-vader text-accentfore-ground transition-all w-full pl-3 pr-9 py-2 rounded-md text-sm font-mono"
+										className="bg-transparent border-darth-vader text-accent-foreground transition-all w-full pl-3 pr-9 py-2 rounded-md text-sm font-mono"
 										placeholder="sk-..."
 									/>
 									<ShieldCheck className="absolute right-3 top-2.5 w-4 h-4 text-exclusive-plum" />
@@ -163,7 +163,7 @@ const ConfigModal = ({
 											e.target.value
 										)
 									}
-									className="bg-transparent border-darth-vader text-accentfore-ground transition-all w-full px-3 py-2 rounded-md text-sm font-mono"
+									className="bg-transparent border-darth-vader text-accent-foreground transition-all w-full px-3 py-2 rounded-md text-sm font-mono"
 									placeholder="https://api.openai.com/v1"
 								/>
 							</InputGroup>
