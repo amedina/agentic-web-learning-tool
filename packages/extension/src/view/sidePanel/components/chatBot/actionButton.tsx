@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import { Button, Tooltip, cn } from "@google-awlt/design-system";
-import type { ComponentPropsWithoutRef, FC } from "react";
+import { Button, Tooltip, cn } from '@google-awlt/design-system';
+import type { ComponentPropsWithoutRef, FC } from 'react';
 
 type ActionButtonProps = ComponentPropsWithoutRef<typeof Button> & {
 	tooltip: string;

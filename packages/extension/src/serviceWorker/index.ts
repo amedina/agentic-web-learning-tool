@@ -1,9 +1,9 @@
 /**
  * External dependencies
  */
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 z.config({jitless: true});
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { type CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { ExtensionServerTransport } from '@mcp-b/transports';
 /**

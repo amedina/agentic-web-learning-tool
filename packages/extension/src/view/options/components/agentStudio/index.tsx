@@ -40,7 +40,7 @@ export default function AgentDashboard() {
 		} else {
 			agents.push({
 				...data,
-				id: crypto.randomUUID()
+				id: crypto.randomUUID(),
 			});
 			await chrome.storage.sync.set({ agents });
 		}
@@ -196,3 +196,4 @@ export default function AgentDashboard() {
 		</div>
 	);
 }
+

@@ -14,7 +14,6 @@
 		"storage",
 		"tabs",
 		"webNavigation",
-		"contentSettings",
 		"scripting",
 		"sidePanel"
 	],

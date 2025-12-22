@@ -11,9 +11,9 @@ import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { GeminiNanoChatTransport } from "./geminiNano";
 import { CloudHostedTransport, type ProviderSettings } from "./cloudHosted";
 
-function transportGenerator(provider = 'browser-ai', model = 'prompt-api', config: ProviderSettings){
+function transportGenerator(provider = 'browser-ai', model = 'prompt-api', config: ProviderSettings) {
     let modelInstance = null;
-    switch(provider){
+    switch (provider) {
         case 'broswer-ai':
             return new GeminiNanoChatTransport();
         case 'ollama':

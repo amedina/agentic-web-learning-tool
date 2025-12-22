@@ -4,7 +4,6 @@
  */
 import { z } from 'zod';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-z.config({jitless: true});
 import { type CallToolResult, type Tool } from '@modelcontextprotocol/sdk/types.js';
 /**
  * Internal dependencies
