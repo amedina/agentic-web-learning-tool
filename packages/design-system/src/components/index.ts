@@ -1,4 +1,4 @@
-export * from './button';
+export * from './button'; export * from './webMCPTools';
 export * from './tabs';
 export * from './tooltip';
 export * from './tooltipIconButton';
