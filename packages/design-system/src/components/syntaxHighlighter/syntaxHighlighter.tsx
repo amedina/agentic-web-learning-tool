@@ -5,7 +5,7 @@ import { makePrismAsyncLightSyntaxHighlighter } from "@assistant-ui/react-syntax
 import { PrismAsyncLight } from "react-syntax-highlighter";
 import tsx from "react-syntax-highlighter/dist/esm/languages/prism/tsx";
 import python from "react-syntax-highlighter/dist/esm/languages/prism/python";
-import { coldarkDark } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { coldarkDark, coy } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 PrismAsyncLight.registerLanguage("js", tsx);
 PrismAsyncLight.registerLanguage("jsx", tsx);
@@ -24,3 +24,4 @@ const SyntaxHighlighter = makePrismAsyncLightSyntaxHighlighter({
 });
 
 export default SyntaxHighlighter;
+export { coy };

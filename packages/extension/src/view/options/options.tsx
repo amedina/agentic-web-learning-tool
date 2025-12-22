@@ -5,12 +5,12 @@ import {
 	Sidebar,
 	useSidebar,
 } from '@google-awlt/design-system';
-import { CpuIcon } from 'lucide-react';
+import { CpuIcon, CodeIcon } from 'lucide-react';
 
 /**
  * Internal dependencies
  */
-import { AgentStudioTab } from './components';
+import { AgentStudioTab, WebMCPToolsTab } from './components';
 
 const Items = [
 	{
@@ -18,6 +18,12 @@ const Items = [
 		id: 'agent-studio',
 		icon: () => <CpuIcon />,
 		component: <AgentStudioTab />,
+	},
+	{
+		title: 'WebMCP Tools',
+		id: 'webmcp-tools',
+		icon: () => <CodeIcon />,
+		component: <WebMCPToolsTab />,
 	},
 ];
 function Options() {
