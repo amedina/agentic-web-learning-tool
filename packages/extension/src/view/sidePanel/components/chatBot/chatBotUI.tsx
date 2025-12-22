@@ -15,18 +15,19 @@ import {
 	Paperclip,
 	SendHorizontal,
 	CircleStop,
+	ToolCaseIcon,
+	CpuIcon,
 } from 'lucide-react';
+import { Dropdown, getToolNameWithoutPrefix } from '@google-awlt/design-system';
 /**
  * Internal dependencies
  */
 import { useAssistantMCP } from '../../hooks';
-import { transport } from '../../providers';
-import ModelSelectorDropDown from '../modelSelectorDropDown';
+import { transport, useModelProvider } from '../../providers';
 import AssistantMessage from './assistantMessage';
 import EditComposer from './editComposer';
 import UserMessage from './userMessage';
-
-
+import type { AgentType } from '@/types';
 
 type ChatBotUIProps = {
 	runtime: AssistantRuntime;
@@ -34,6 +35,13 @@ type ChatBotUIProps = {
 
 const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 	const { client, tools } = useMcpClient();
+	const { agents, setSelectedAgent, selectedAgent } = useModelProvider(
+		({ state, actions }) => ({
+			agents: state.agents,
+			setSelectedAgent: actions.setSelectedAgent,
+			selectedAgent: state.selectedAgent,
+		})
+	);
 
 	useEffect(() => {
 		(async () => {
@@ -96,7 +104,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 							placeholder="Ask anything..."
 							className="w-full max-h-40 min-h-[56px] resize-none bg-transparent px-4 py-4 text-base outline-none placeholder:text-zinc-400 text-zinc-800"
 						/>
-						<div className="flex items-center justify-between px-3 pb-3">
+						<div className="flex items-center justify-between gap-2 px-3 pb-3">
 							<div className="flex items-center gap-1">
 								<button
 									className="p-2 text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100 rounded-lg transition-colors"
@@ -104,7 +112,41 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 								>
 									<Paperclip size={18} />
 								</button>
-								<ModelSelectorDropDown />
+								<Dropdown
+									options={tools
+										.map((tool) => ({
+											id: tool.name,
+											label:
+												getToolNameWithoutPrefix(
+													tool.name
+												) ?? '',
+										}))
+										.filter((tool) => tool.id !== 'dummy')}
+									onSelect={(id) => console.log(id)}
+									selectedValue=""
+								>
+									<div>
+										<ToolCaseIcon className="w-4 h-4" />
+									</div>
+								</Dropdown>
+								<Dropdown
+									options={agents.map((agent) => ({
+										id: agent.id,
+										label: agent.name,
+									}))}
+									onSelect={(id) =>
+										setSelectedAgent(
+											agents.find(
+												(agent) => agent.id === id
+											) as AgentType
+										)
+									}
+									selectedValue={selectedAgent.id}
+								>
+									<div>
+										<CpuIcon className="w-4 h-4" />
+									</div>
+								</Dropdown>
 							</div>
 							<ThreadPrimitive.If running={false}>
 								<ComposerPrimitive.Send className="h-9 w-9 flex items-center justify-center rounded-lg bg-background hover:text-ring text-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-colors">

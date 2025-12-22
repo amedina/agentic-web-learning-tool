@@ -1,9 +1,9 @@
 /**
  * External dependencies
  */
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 z.config({jitless: true});
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { type CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { ExtensionServerTransport } from '@mcp-b/transports';
 
@@ -12,6 +12,7 @@ import { ExtensionServerTransport } from '@mcp-b/transports';
  */
 import { CONNECTION_NAMES } from '../utils/constants';
 import McpHub from './mcpHub';
+import './chromeListeners';
 
 const sharedServer = new McpServer({ name: 'Extension-Hub', version: '1.0.0' }, { capabilities: { tools: { listChanged: true } } });
 
@@ -39,7 +40,7 @@ chrome.runtime.onConnect.addListener((port) => {
       isError: true,
     } as CallToolResult)
     );
-  } catch (error) {
+  } catch (_error) {
     //supress error
   }
   sharedServer.connect(transport);

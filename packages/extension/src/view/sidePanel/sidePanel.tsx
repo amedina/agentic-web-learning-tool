@@ -4,7 +4,10 @@
 import { useChatRuntime } from '@assistant-ui/react-ai-sdk';
 import { ChatBotUI } from './components';
 import { useModelProvider } from './providers';
-import { AssistantRuntimeProvider, type AssistantRuntime } from '@assistant-ui/react';
+import {
+	AssistantRuntimeProvider,
+	type AssistantRuntime,
+} from '@assistant-ui/react';
 import { lastAssistantMessageIsCompleteWithToolCalls } from 'ai';
 import { useEffect, useRef } from 'react';
 
@@ -23,19 +26,18 @@ const SidePanel = () => {
 	});
 
 	useEffect(() => {
-		(async() => {
-			if(!runtimeRef.current){
+		(async () => {
+			if (!runtimeRef.current) {
 				return;
 			}
-			console.log(transport)
-			await runtimeRef.current.threads.switchToNewThread();
+			runtimeRef.current.thread.reset();
 			transport?.setRuntime(runtimeRef.current);
-		})()
-	}, [transport])
+		})();
+	}, [transport]);
 
 	return (
 		<AssistantRuntimeProvider runtime={runtimeRef.current}>
-			<ChatBotUI runtime={runtimeRef.current}/>
+			<ChatBotUI runtime={runtimeRef.current} />
 		</AssistantRuntimeProvider>
 	);
 };

@@ -1,10 +1,7 @@
 /**
  * External dependencies
  */
-import {
-	MessagePrimitive,
-	ActionBarPrimitive,
-} from '@assistant-ui/react';
+import { MessagePrimitive, ActionBarPrimitive } from '@assistant-ui/react';
 import { CheckIcon, CopyIcon, ReloadIcon } from '@radix-ui/react-icons';
 import { Bot } from 'lucide-react';
 import type { FC } from 'react';

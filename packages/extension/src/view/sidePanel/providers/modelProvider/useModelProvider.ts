@@ -1,8 +1,11 @@
 /**
+ * External dependencies
+ */
+import { useContextSelector } from '@google-awlt/common';
+/**
  * Internal dependencies.
  */
 import Context, { type ModelProviderStoreContext } from './context';
-import { useContextSelector } from '../../../../utils';
 
 export function useModelProvider(): ModelProviderStoreContext;
 export function useModelProvider<T>(selector: (state: ModelProviderStoreContext) => T): T;
