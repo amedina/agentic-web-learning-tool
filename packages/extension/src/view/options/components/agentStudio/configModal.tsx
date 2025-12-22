@@ -19,6 +19,7 @@ import {
 	InputGroup,
 	ToggleSwitch,
 } from '@google-awlt/design-system';
+import { isEqual } from 'lodash-es';
 /**
  * Internal dependencies
  */
@@ -57,7 +58,13 @@ const ConfigModal = ({
 	// Reset form when modal opens with new data
 	useEffect(() => {
 		if (isOpen) {
-			setFormData(initialData || DEFAULT_FORM_STATE);
+			setFormData((prev) => {
+				const value = initialData || DEFAULT_FORM_STATE;
+				if (isEqual(prev, value)) {
+					return prev;
+				}
+				return value;
+			});
 		}
 	}, [isOpen, initialData]);
 
@@ -101,52 +108,64 @@ const ConfigModal = ({
 						<div className="flex items-center gap-2 text-xs font-semibold text-amethyst-haze uppercase tracking-wider">
 							<Terminal className="w-3.5 h-3.5" /> Identity
 						</div>
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-							<InputGroup label="Name">
-								<Input
-									type="text"
-									value={formData.name}
-									onChange={(e) =>
-										handleChange('name', e.target.value)
-									}
-									className="bg-transparent border-darth-vader text-accent-foreground transition-all w-full px-3 py-2 rounded-md text-sm"
-									placeholder="e.g. Legal Assistant"
-								/>
-							</InputGroup>
-							<InputGroup label="Model ID">
-								<div className="relative">
+						<div className="flex flex-col gap-y-2">
+							<div className="w-full">
+								<InputGroup label="Name">
 									<Input
 										type="text"
-										value={
-											formData.id
-												? formData.model
-												: 'custom-model'
+										value={formData.name}
+										onChange={(e) =>
+											handleChange('name', e.target.value)
 										}
-										readOnly
-										className="bg-transparent border-darth-vader text-accent-foreground transition-all w-full px-3 py-2 rounded-md text-sm font-mono text-amethyst-haze bg-aswad"
+										className="bg-transparent border-darth-vader text-accent-foreground transition-all w-full px-3 py-2 rounded-md text-sm"
+										placeholder="e.g. Legal Assistant"
 									/>
-								</div>
-							</InputGroup>
+								</InputGroup>
+							</div>
+							<div className="w-full flex flex-row gap-2">
+								<InputGroup
+									label="Model Provider"
+									className="w-1/2"
+								>
+									<div className="relative">
+										<Dropdown
+											options={INITIAL_PROVIDERS.map(
+												(provider) => ({
+													id: provider.id,
+													label: provider.name,
+												})
+											)}
+											onSelect={(value) =>
+												handleChange(
+													'modelProvider',
+													value
+												)
+											}
+											selectedValue={
+												formData.modelProvider
+											}
+										/>
+									</div>
+								</InputGroup>
 
-							<InputGroup label="Model Provider">
-								<div className="relative">
-									<Dropdown
-										options={INITIAL_PROVIDERS.map((provider) => ({ id: provider.id , label: provider.name}))}
-										onSelect={(value) => handleChange('modelProvider', value)}
-										selectedValue={formData.modelProvider}
-									/>
-								</div>
-							</InputGroup>
-
-							<InputGroup label="Model">
-								<div className="relative">
-									<Dropdown
-										options={INITIAL_PROVIDERS.find((provider) => provider.id === formData.modelProvider)?.models ?? []}
-										onSelect={(value) => handleChange('model', value)}
-										selectedValue={formData.model}
-									/>
-								</div>
-							</InputGroup>
+								<InputGroup label="Model" className="w-1/2">
+									<div className="relative">
+										<Dropdown
+											options={
+												INITIAL_PROVIDERS.find(
+													(provider) =>
+														provider.id ===
+														formData.modelProvider
+												)?.models ?? []
+											}
+											onSelect={(value) =>
+												handleChange('model', value)
+											}
+											selectedValue={formData.model}
+										/>
+									</div>
+								</InputGroup>
+							</div>
 						</div>
 					</section>
 

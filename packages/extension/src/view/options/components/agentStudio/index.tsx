@@ -31,14 +31,17 @@ export default function AgentDashboard() {
 		const { agents }: { agents: AgentType[] } =
 			await chrome.storage.sync.get('agents');
 
-		const isOldAgent = agents.find((agent) => agent.id === data.id);
+		const isOldAgent = !data.id;
 		if (isOldAgent) {
 			const updatedAgents = agents.map((agent) =>
 				agent.id === data.id ? { ...agent, ...data } : { ...agent }
 			);
 			await chrome.storage.sync.set({ agents: updatedAgents });
 		} else {
-			agents.push(data);
+			agents.push({
+				...data,
+				id: crypto.randomUUID()
+			});
 			await chrome.storage.sync.set({ agents });
 		}
 		setIsModalOpen(false);
