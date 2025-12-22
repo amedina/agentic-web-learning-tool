@@ -23,7 +23,8 @@ import {
  * Internal dependencies
  */
 import { DEFAULT_FORM_STATE } from './constants';
-import type { AgentType } from './types';
+import type { AgentType } from '../../../../types';
+import { INITIAL_PROVIDERS } from '../../../../constants';
 
 type ConfigModalProps = {
 	isOpen: boolean;
@@ -123,6 +124,26 @@ const ConfigModal = ({
 										}
 										readOnly
 										className="bg-transparent border-darth-vader text-accent-foreground transition-all w-full px-3 py-2 rounded-md text-sm font-mono text-amethyst-haze bg-aswad"
+									/>
+								</div>
+							</InputGroup>
+
+							<InputGroup label="Model Provider">
+								<div className="relative">
+									<Dropdown
+										options={INITIAL_PROVIDERS.map((provider) => ({ id: provider.id , label: provider.name}))}
+										onSelect={(value) => handleChange('modelProvider', value)}
+										selectedValue={formData.modelProvider}
+									/>
+								</div>
+							</InputGroup>
+
+							<InputGroup label="Model">
+								<div className="relative">
+									<Dropdown
+										options={INITIAL_PROVIDERS.find((provider) => provider.id === formData.modelProvider)?.models ?? []}
+										onSelect={(value) => handleChange('model', value)}
+										selectedValue={formData.model}
 									/>
 								</div>
 							</InputGroup>

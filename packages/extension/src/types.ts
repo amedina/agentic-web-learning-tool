@@ -7,7 +7,9 @@ export type AgentType = {
 	maxTokens: number;
 	thinkingMode: boolean;
 	extraConfig: string;
+	status: boolean;
 	model: string;
+	modelProvider: string;
 	reasoningEffort?: string;
 	reasoningSummary?: string;
 }

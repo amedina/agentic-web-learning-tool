@@ -1,76 +1,18 @@
 /**
  * External dependencies
  */
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { Plus, Search, Settings2, Cpu } from 'lucide-react';
 import { Button, Input } from '@google-awlt/design-system';
 /**
  * Internal dependencies
  */
-import type { AgentType } from './types';
+import type { AgentType } from '../../../../types';
 import ConfigModal from './configModal';
 import { DEFAULT_FORM_STATE } from './constants';
 
-const MOCK_AGENTS = [
-	{
-		id: '1',
-		name: 'Production GPT-4',
-		provider: 'OpenAI',
-		model: 'gpt-4-turbo',
-		lastActive: '2 min ago',
-		status: 'active',
-		temperature: 0.7,
-		apiKey: '',
-		providerUrl: '',
-		maxTokens: 4096,
-		thinkingMode: false,
-		extraConfig: '',
-	},
-	{
-		id: '2',
-		name: 'Claude Opus (Code)',
-		provider: 'Anthropic',
-		model: 'claude-3-opus',
-		lastActive: '4 hours ago',
-		status: 'active',
-		temperature: 0.2,
-		apiKey: '',
-		providerUrl: '',
-		maxTokens: 4096,
-		thinkingMode: false,
-		extraConfig: '',
-	},
-	{
-		id: '3',
-		name: 'Local Llama 3',
-		provider: 'Local',
-		model: 'llama-3-70b',
-		lastActive: '1 day ago',
-		status: 'offline',
-		temperature: 0.9,
-		apiKey: '',
-		providerUrl: '',
-		maxTokens: 4096,
-		thinkingMode: false,
-		extraConfig: '',
-	},
-	{
-		id: '4',
-		name: 'Gemini Pro Vision',
-		provider: 'Google',
-		model: 'gemini-1.5-pro',
-		lastActive: '3 days ago',
-		status: 'active',
-		temperature: 0.5,
-		apiKey: '',
-		providerUrl: '',
-		maxTokens: 4096,
-		thinkingMode: false,
-		extraConfig: '',
-	},
-];
 export default function AgentDashboard() {
-	const [agents, setAgents] = useState(MOCK_AGENTS);
+	const [agents, setAgents] = useState<AgentType[]>([]);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [editingAgent, setEditingAgent] = useState<AgentType | null>(null);
 	const [searchQuery, setSearchQuery] = useState('');
@@ -104,12 +46,20 @@ export default function AgentDashboard() {
 
 	const handleDeleteAgent = useCallback(async (id: string) => {
 		setAgents((prev) => prev.filter((a) => a.id !== id));
-    const { agents }: { agents: AgentType[] } =
+		const { agents }: { agents: AgentType[] } =
 			await chrome.storage.sync.get('agents');
-    const updatedAgents = agents.filter((agent) => agent.id !== id);
-    await chrome.storage.sync.set({ agents: updatedAgents });
+		const updatedAgents = agents.filter((agent) => agent.id !== id);
+		await chrome.storage.sync.set({ agents: updatedAgents });
 		setIsModalOpen(false);
 	}, []);
+
+	useEffect(() => {
+		(async () => {
+			const { agents }: { agents: AgentType[] } =
+				await chrome.storage.sync.get('agents');
+			setAgents(agents);
+		})();
+	});
 
 	const filteredAgents = useMemo(
 		() =>
@@ -184,7 +134,7 @@ export default function AgentDashboard() {
 								<div className="flex justify-between items-start mb-4">
 									<div className="flex items-center gap-3">
 										<div className="w-10 h-10 rounded-lg bg-aswad border border-darth-vader flex items-center justify-center text-[10px] font-bold text-amethyst-haze uppercase tracking-wider">
-											{agent.provider.slice(0, 2)}
+											{agent.modelProvider.slice(0, 2)}
 										</div>
 										<div>
 											<h3 className="text-sm font-semibold text-accent-foreground group-hover:text-baby-blue transition-colors">
@@ -195,9 +145,6 @@ export default function AgentDashboard() {
 											</div>
 										</div>
 									</div>
-									<div
-										className={`w-2 h-2 rounded-full ${agent.status === 'active' ? 'bg-emerald-500' : 'bg-zinc-300 dark:bg-zinc-700'}`}
-									/>
 								</div>
 
 								{/* Details Row */}
@@ -211,19 +158,14 @@ export default function AgentDashboard() {
 										</span>
 									</div>
 									<div className="w-px h-6 bg-darth-vader"></div>
-									<div className="flex flex-col">
-										<span className="text-[10px] text-exclusive-plum uppercase font-semibold">
-											Active
-										</span>
-										<span className="text-xs text-accent-foreground">
-											{agent.lastActive}
-										</span>
-									</div>
 								</div>
 
 								{/* Hover Action */}
-								<div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-									<Settings2 className="w-4 h-4 text-exclusive-plum" />
+								<div className="absolute top-4 right-4">
+									<div
+										className={`w-2 h-2 group-hover:hidden rounded-full ${agent.status ? 'bg-emerald-500' : 'bg-zinc-300 dark:bg-zinc-700'}`}
+									/>
+									<Settings2 className="w-4 h-4 hidden group-hover:block text-exclusive-plum" />
 								</div>
 							</div>
 						))}

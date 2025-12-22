@@ -1,37 +1,30 @@
 /**
+ * External dependencies
+ */
+import { noop, createContext } from '@google-awlt/common';
+/**
  * Internal dependencies.
  */
-import { noop, createContext } from '../../../../utils'
-import type { GeminiNanoChatTransport } from '../../transports/geminiNano';
-import type { CloudHostedTransport } from '../../transports/cloudHosted';
+import {  } from '../../../../utils'
+import type { AgentType } from '@/types';
 
 export interface ModelProviderStoreContext {
   state: {
-    selectedModel: string;
-    selectedProvider: string;
-    transport: GeminiNanoChatTransport | CloudHostedTransport | null;
-    baseUrl: string;
-    apiKey: string;
+    agents: AgentType[],
+    selectedAgent: AgentType[]
   };
   actions: {
-    setSelectedModel: (model: string, provider: string) => void,
-    handleCustomConfig: (baseUrl: string, customConfig: Record<string, any>) => void;
-    setApiKey: React.Dispatch<React.SetStateAction<string>>,
+    setSelectedAgent: React.Dispatch<React.SetStateAction<AgentType>>,
   };
 }
 
 const initialState: ModelProviderStoreContext = {
   state: {
-    selectedModel: '',
-    selectedProvider: '',
-    transport: null,
-    baseUrl: '',
-    apiKey: ''
+    agents: [],
+    selectedAgent: [],
   },
   actions: {
-    setSelectedModel: noop,
-    handleCustomConfig: noop,
-    setApiKey: noop,
+    setSelectedAgent: noop
   },
 };
 

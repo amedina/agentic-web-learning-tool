@@ -231,6 +231,9 @@ importers:
       '@assistant-ui/react-ai-sdk':
         specifier: ^1.1.16
         version: 1.1.16(@assistant-ui/react@0.11.41(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(use-sync-external-store@1.6.0(react@19.2.1)))(@types/react@19.2.7)(assistant-cloud@0.1.10)(react@19.2.1)(use-sync-external-store@1.6.0(react@19.2.1))
+      '@google-awlt/common':
+        specifier: workspace:*
+        version: link:../common
       '@google-awlt/design-system':
         specifier: workspace:*
         version: link:../design-system
