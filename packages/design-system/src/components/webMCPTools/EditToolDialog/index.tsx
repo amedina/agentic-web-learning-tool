@@ -3,7 +3,7 @@
  */
 import { useState, useEffect, useRef } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
-import { X, PlayIcon, CheckIcon, AlertCircleIcon, TrashIcon, FileCodeIcon, LayoutTemplateIcon, SaveIcon } from 'lucide-react';
+import { X, PlayIcon, CheckIcon, AlertCircleIcon, TrashIcon, FileCodeIcon, LayoutTemplateIcon, SaveIcon, AlertTriangleIcon } from 'lucide-react';
 
 /**
  * Internal dependencies.
@@ -90,6 +90,8 @@ export function EditToolDialog({ open, onOpenChange, tool, onSave, onDelete }: E
     const [errorMsg, setErrorMsg] = useState('');
     const [activeTab, setActiveTab] = useState('metadata');
 
+    const [showTemplateWarning, setShowTemplateWarning] = useState(false);
+
     useEffect(() => {
         if (open) {
             if (tool?.code) {
@@ -100,8 +102,66 @@ export function EditToolDialog({ open, onOpenChange, tool, onSave, onDelete }: E
             setValidationState('idle');
             setErrorMsg('');
             setActiveTab('metadata');
+            setShowTemplateWarning(false);
         }
     }, [open, tool]);
+
+    const handleInsertTemplateRequest = () => {
+        // If code is empty or matches default exactly, just insert
+        if (!code.trim() || code === DEFAULT_SCRIPT_TEMPLATE) {
+            setCode(DEFAULT_SCRIPT_TEMPLATE);
+            return;
+        }
+        setShowTemplateWarning(true);
+    };
+
+    const confirmInsertTemplate = () => {
+        setCode(DEFAULT_SCRIPT_TEMPLATE);
+        setShowTemplateWarning(false);
+    };
+
+    const handleFormat = () => {
+        // Basic indentation formatter
+        try {
+            const lines = code.split('\n');
+            const indentString = '  '; // 2 spaces
+
+            let currentLevel = 0;
+            const smartFormatted = lines.map(line => {
+                const trimmed = line.trim();
+
+                // Heuristic: Closing braces reduce level immediately
+                if (trimmed.startsWith('}') || trimmed === '];' || trimmed === '};') {
+                    currentLevel = Math.max(0, currentLevel - 1);
+                }
+
+                const indentedLine = indentString.repeat(currentLevel) + trimmed;
+
+                // Heuristic: Opening braces increase level for NEXT line
+                // Be ignoring self-closing or single-line blocks { } on same line
+                const openCount = (trimmed.match(/{/g) || []).length;
+                const closeCount = (trimmed.match(/}/g) || []).length;
+                const opens = openCount;
+                const closes = closeCount;
+
+                if (opens > closes) {
+                    currentLevel += (opens - closes);
+                } else if (closes > opens) {
+                    // if we have more closes than opens, we might have decremented too early if we didn't start with }
+                    if (!trimmed.startsWith('}')) {
+                        currentLevel = Math.max(0, currentLevel - (closes - opens));
+                    }
+                }
+
+                return indentedLine;
+            });
+
+            setCode(smartFormatted.join('\n'));
+
+        } catch (e) {
+            console.error("Format failed", e);
+        }
+    };
 
     const validateCode = (currentCode: string): { valid: boolean; error?: string } => {
         try {
@@ -211,13 +271,37 @@ export function EditToolDialog({ open, onOpenChange, tool, onSave, onDelete }: E
                     <div className="flex-grow flex flex-row overflow-hidden relative">
                         {/* Toolbar overlay for editor */}
                         <div className="absolute top-4 right-[420px] z-20 flex gap-2">
-                            <Button size="sm" variant="outline" className="bg-white h-8 text-xs font-medium" onClick={() => setCode(DEFAULT_SCRIPT_TEMPLATE)}>
+                            <Button size="sm" variant="outline" className="bg-white h-8 text-xs font-medium" onClick={handleInsertTemplateRequest}>
                                 <LayoutTemplateIcon size={12} className="mr-1.5" /> Insert Template
                             </Button>
-                            <Button size="sm" variant="outline" className="bg-white h-8 text-xs font-medium" disabled>
+                            <Button size="sm" variant="outline" className="bg-white h-8 text-xs font-medium" onClick={handleFormat}>
                                 <FileCodeIcon size={12} className="mr-1.5" /> Format
                             </Button>
                         </div>
+
+                        {/* Template Warning Toast/Overlay */}
+                        {showTemplateWarning && (
+                            <div className="absolute top-16 left-4 right-[420px] z-30 mx-auto w-max max-w-[90%]">
+                                <div className="bg-gray-900/95 text-white p-3 rounded-lg shadow-xl flex items-center gap-4 animate-in fade-in slide-in-from-top-2 border border-gray-700">
+                                    <AlertTriangleIcon className="text-yellow-400" size={16} />
+                                    <span className="text-sm font-medium">Overwriting code with template. Are you sure?</span>
+                                    <div className="flex gap-2 ml-2">
+                                        <button
+                                            onClick={confirmInsertTemplate}
+                                            className="text-xs bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded transition-colors"
+                                        >
+                                            Overwrite
+                                        </button>
+                                        <button
+                                            onClick={() => setShowTemplateWarning(false)}
+                                            className="text-xs bg-gray-700 hover:bg-gray-600 text-gray-200 px-2 py-1 rounded transition-colors"
+                                        >
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
                         {/* Editor Side */}
                         <div className="flex-1 flex flex-col p-0 border-r border-gray-200 relative bg-white">
@@ -280,24 +364,38 @@ export function EditToolDialog({ open, onOpenChange, tool, onSave, onDelete }: E
                                                 <div>
                                                     <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Name</label>
                                                     <div className="px-3 py-2 bg-white border border-gray-200 rounded font-mono text-sm text-gray-700">{ExtractMetadata(code).name || "—"}</div>
+                                                    <p className="text-[10px] text-gray-400 mt-1">Unique identifier for the tool (e.g. "search_web")</p>
                                                 </div>
                                                 <div>
                                                     <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Namespace</label>
                                                     <div className="px-3 py-2 bg-white border border-gray-200 rounded font-mono text-sm text-gray-700">{ExtractMetadata(code).namespace || "—"}</div>
+                                                    <p className="text-[10px] text-gray-400 mt-1">Grouping identifier to escape naming collisions</p>
                                                 </div>
                                                 <div>
                                                     <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Version</label>
                                                     <div className="px-3 py-2 bg-white border border-gray-200 rounded font-mono text-sm text-gray-700">{ExtractMetadata(code).version || "—"}</div>
+                                                    <p className="text-[10px] text-gray-400 mt-1">Semantic versioning (e.g. 1.0.0)</p>
                                                 </div>
                                                 <div>
                                                     <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Description</label>
                                                     <div className="px-3 py-2 bg-white border border-gray-200 rounded text-sm text-gray-700">{ExtractMetadata(code).description || "—"}</div>
+                                                    <p className="text-[10px] text-gray-400 mt-1">Human-readable description of what the tool does</p>
                                                 </div>
                                                 <div>
                                                     <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">URL Match Patterns</label>
                                                     <div className="px-3 py-2 bg-white border border-gray-200 rounded font-mono text-xs text-gray-700 bg-gray-50">
-                                                        {JSON.stringify(ExtractMetadata(code).matchPatterns, null, 2) || (ExtractMetadata(code).matchPatterns ? String(ExtractMetadata(code).matchPatterns) : "—")}
+                                                        {(() => {
+                                                            const patterns = ExtractMetadata(code).matchPatterns;
+                                                            if (!patterns) return "—";
+                                                            // Display nicely without array format if possible, just comma separated or new lines
+                                                            if (Array.isArray(patterns)) {
+                                                                return patterns.join(', ');
+                                                            }
+                                                            // If somehow string, clean it
+                                                            return String(patterns).replace(/[[\]"]/g, '');
+                                                        })()}
                                                     </div>
+                                                    <p className="text-[10px] text-gray-400 mt-1">Patterns of URLs where this tool can execute</p>
                                                 </div>
                                                 <div>
                                                     <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Input Schema</label>
@@ -309,6 +407,7 @@ export function EditToolDialog({ open, onOpenChange, tool, onSave, onDelete }: E
                                                             return JSON.stringify(schema, null, 2);
                                                         })()}
                                                     </div>
+                                                    <p className="text-[10px] text-gray-400 mt-1">JSON Schema defining the arguments the tool accepts</p>
                                                 </div>
                                             </div>
                                         </div>
