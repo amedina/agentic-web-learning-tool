@@ -22,6 +22,7 @@ import { GeminiNanoChatTransport } from '../../transports/geminiNano';
 import Context from './context';
 import { CONNECTION_NAMES } from '../../../../utils';
 import type { AgentType } from '../../../../types';
+import { DEFAULT_AGENTS } from '../../../../constants';
 
 export const transport = new ExtensionClientTransport({
 	portName: CONNECTION_NAMES.MCP_HOST,
@@ -35,7 +36,7 @@ export const client = new Client({
 
 const Provider = ({ children }: PropsWithChildren) => {
 	const [agents, setAgents] = useState<AgentType[]>([]);
-	const [selectedAgent, setSelectedAgent] = useState<AgentType>();
+	const [selectedAgent, setSelectedAgent] = useState<AgentType>(DEFAULT_AGENTS[0]);
 	const [_transport, setTransport] = useState<
 		GeminiNanoChatTransport | CloudHostedTransport | null
 	>(null);
@@ -95,16 +96,16 @@ const Provider = ({ children }: PropsWithChildren) => {
 			state: {
 				agents,
 				selectedAgent,
+				transport: _transport,
 			},
 			actions: {
 				setSelectedAgent,
 			},
 		};
-	}, [agents, selectedAgent]);
+	}, [agents, selectedAgent, _transport]);
 
 	return (
 		<Context.Provider value={memoisedValue}>
-			{/* @ts-expect-error -- library is still in development and may have some version mismatches.*/}
 			<McpClientProvider client={client} transport={transport} opts={{}}>
 				{children}
 			</McpClientProvider>

@@ -13,7 +13,7 @@ import {
 import { ChevronDown } from 'lucide-react';
 
 const itemStyles = `
-  group relative flex items-center h-9 px-2.5 
+  group relative flex items-center h-9 px-2.5 w-full
   text-[13px] font-medium leading-none text-stone-600 
   rounded-[6px] outline-none select-none cursor-default
   data-[highlighted]:bg-stone-100 data-[highlighted]:text-stone-900
@@ -61,15 +61,15 @@ export default function DropDown({
 		},
 		[onSelect]
 	);
-	console.log(selectedValue)
+
 	return (
-		<div className="flex flex-col items-center justify-center font-sans">
+		<div className="flex flex-col items-center justify-center w-full font-sans">
 			<DropDownMenuRoot>
 				<DropdownMenuTrigger asChild>
 					{children ? (
 						children
 					) : (
-						<div className="flex items-center bg-background text-foreground shadow-sm p-2 rounded">
+						<div className="flex items-center bg-background text-foreground w-full shadow-sm p-2 rounded">
 							<span>
 								{
 									options.find(
@@ -88,7 +88,7 @@ export default function DropDown({
 						sideOffset={5}
 					>
 						{label && (
-							<DropDownMenuLabel className="px-2.5 py-2 text-[11px] font-bold text-stone-400 uppercase tracking-widest">
+							<DropDownMenuLabel className="px-2.5 py-2 text-[11px] w-full  font-bold text-stone-400 uppercase tracking-widest">
 								{label}
 							</DropDownMenuLabel>
 						)}

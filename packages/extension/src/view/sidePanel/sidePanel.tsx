@@ -27,7 +27,7 @@ const SidePanel = () => {
 			if(!runtimeRef.current){
 				return;
 			}
-			console.log(transport)
+			console.log(transport, runtimeRef.current)
 			await runtimeRef.current.threads.switchToNewThread();
 			transport?.setRuntime(runtimeRef.current);
 		})()

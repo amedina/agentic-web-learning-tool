@@ -1,3 +1,8 @@
+/**
+ * Internal dependencies
+ */
+import type { AgentType } from "./types";
+
 export const INITIAL_PROVIDERS = [
     {
         id: 'browser-ai',
@@ -76,5 +81,23 @@ export const INITIAL_PROVIDERS = [
             { id: 'gemini-1.5-flash-8b-latest', label: 'gemini-1.5-flash-8b-latest' },
             { id: 'gemma-3-27b-it', label: 'gemma-3-27b-it' }
         ],
+    },
+];
+
+export const DEFAULT_AGENTS: AgentType[] = [
+    {
+        id: 'browser-ai-default',
+        name: 'Broswer AI Default',
+        modelProvider: 'browser-ai',
+        model: 'prompt-api',
+        status: true,
+        temperature: 3,
+        apiKey: '',
+        providerUrl: '',
+        maxTokens: 4096,
+        thinkingMode: false,
+        extraConfig: '',
+        reasoningEffort: '',
+        reasoningSummary: ''
     },
 ];

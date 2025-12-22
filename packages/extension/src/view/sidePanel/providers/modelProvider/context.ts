@@ -5,13 +5,16 @@ import { noop, createContext } from '@google-awlt/common';
 /**
  * Internal dependencies.
  */
-import {  } from '../../../../utils'
-import type { AgentType } from '@/types';
+import type { AgentType } from '../../../../types';
+import type { CloudHostedTransport } from '../../transports/cloudHosted';
+import type { GeminiNanoChatTransport } from '../../transports/geminiNano';
+import { DEFAULT_AGENTS } from '../../../../constants';
 
 export interface ModelProviderStoreContext {
   state: {
     agents: AgentType[],
-    selectedAgent: AgentType[]
+    selectedAgent: AgentType,
+    transport: GeminiNanoChatTransport | CloudHostedTransport | null;
   };
   actions: {
     setSelectedAgent: React.Dispatch<React.SetStateAction<AgentType>>,
@@ -21,7 +24,8 @@ export interface ModelProviderStoreContext {
 const initialState: ModelProviderStoreContext = {
   state: {
     agents: [],
-    selectedAgent: [],
+    selectedAgent: DEFAULT_AGENTS[0],
+    transport: null
   },
   actions: {
     setSelectedAgent: noop
