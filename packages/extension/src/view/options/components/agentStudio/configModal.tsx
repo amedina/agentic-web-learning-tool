@@ -11,6 +11,7 @@ import {
 	X,
 	Save,
 	Trash2,
+	Settings2,
 } from 'lucide-react';
 import {
 	Button,
@@ -312,6 +313,28 @@ const ConfigModal = ({
 							className="bg-transparent border border-darth-vader text-accent-foreground transition-all w-full h-32 px-3 py-2 rounded-md text-xs font-mono"
 							spellCheck="false"
 						/>
+					</section>
+
+					<section className="space-y-4">
+						<div className="flex items-center gap-2 text-xs font-semibold text-amethyst-haze uppercase tracking-wider">
+							<Settings2 className="w-3.5 h-3.5" /> Agent Settings
+						</div>
+						<div className="flex items-center justify-between">
+							<div>
+								<div className="text-[13px] font-medium text-accent-foreground">
+									Agent Status
+								</div>
+								<div className="text-[11px] text-amethyst-haze">
+									Availability of the agent for use.
+								</div>
+							</div>
+							<ToggleSwitch
+								checked={formData.status}
+								onCheckedChange={(value) =>
+									handleChange('status', value)
+								}
+							/>
+						</div>
 					</section>
 				</div>
 

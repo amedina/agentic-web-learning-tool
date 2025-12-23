@@ -6,7 +6,7 @@ import { Calendar, Home, Inbox, Search, Settings } from 'lucide-react';
 /**
  * Internal dependencies
  */
-import { Sidebar, SidebarProvider } from './';
+import { Sidebar, SidebarProvider, SidebarTrigger } from './';
 
 // Menu items.
 const items = [
@@ -50,8 +50,11 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
 	render: (args) => {
 		return (
-			<div className="w-screen">
+			<div className="w-screen h-screen">
 				<SidebarProvider>
+					<div className="fixed top-0 left-0 z-20 md:hidden pl-4 shadow bg-sidebar rounded-md">
+						<SidebarTrigger />
+					</div>
 					<Sidebar collapsible="icon" items={args.items} />
 				</SidebarProvider>
 			</div>

@@ -15,7 +15,7 @@ const timezoneOptions = Array.from({ length: 20 }).map((_, i) => ({
 }));
 
 const meta = {
-  title: 'Components/DropDown',
+  title: 'ui/DropDown',
   component: DropDown,
   parameters: {
     layout: 'centered',
