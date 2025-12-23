@@ -1,16 +1,13 @@
 /**
  * External dependencies
  */
-import {
-	Sidebar,
-	useSidebar,
-} from '@google-awlt/design-system';
-import { CpuIcon } from 'lucide-react';
+import { Sidebar, useSidebar } from '@google-awlt/design-system';
+import { CpuIcon, Settings2 } from 'lucide-react';
 
 /**
  * Internal dependencies
  */
-import { AgentStudioTab } from './components';
+import { AgentStudioTab, SettingsTab } from './components';
 
 const Items = [
 	{
@@ -18,6 +15,12 @@ const Items = [
 		id: 'agent-studio',
 		icon: () => <CpuIcon />,
 		component: <AgentStudioTab />,
+	},
+	{
+		title: 'Settings',
+		id: 'settings',
+		icon: () => <Settings2 />,
+		component: <SettingsTab />,
 	},
 ];
 function Options() {
@@ -27,7 +30,7 @@ function Options() {
 
 	return (
 		<>
-			<Sidebar items={Items} collapsible='icon' />
+			<Sidebar items={Items} collapsible="icon" />
 			{Items.find((item) => item.id === selectedMenuItem)?.component}
 		</>
 	);

@@ -1,0 +1,81 @@
+/**
+ * External dependencies
+ */
+import { useState } from 'react';
+import {
+	Monitor,
+	Moon,
+	Sun,
+} from 'lucide-react';
+import { Button, cn } from '@google-awlt/design-system';
+/**
+ * Internal dependencies
+ */
+import type { SettingsState, ThemeMode } from './types';
+
+export default function ThemeToggleSection() {
+	const [settings, setSettings] = useState<SettingsState>({
+		logLevel: 'WARN',
+		theme: 'system',
+	});
+
+	const applyTheme = (mode: ThemeMode) => {
+		setSettings((p) => ({ ...p, theme: mode }));
+		const root = document.documentElement;
+		root.classList.remove('light', 'dark');
+		if (mode === 'system') {
+			if (window.matchMedia('(prefers-color-scheme: dark)').matches)
+				root.classList.add('dark');
+		} else {
+			root.classList.add(mode);
+		}
+	};
+
+	return (
+		<section className="space-y-6">
+			<div className="flex items-center gap-3 border-b border-subtle-zinc pb-2">
+				<Monitor className="text-amethyst-haze" size={18} />
+				<h2 className="text-sm font-medium uppercase tracking-wider text-amethyst-haze">
+					Interface
+				</h2>
+			</div>
+
+			{/* Theme Toggle - Segmented Control */}
+			<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+				<div>
+					<h3 className="text-sm font-medium text-text-primary">
+						Theme Preference
+					</h3>
+					<p className="text-sm text-text-tertiary">
+						Select your preferred appearance mode.
+					</p>
+				</div>
+				<div className="flex p-1 bg-extreme-zinc rounded-lg">
+					{[
+						{ id: 'light', icon: Sun, label: 'Light' },
+						{ id: 'system', icon: Monitor, label: 'Auto' },
+						{ id: 'dark', icon: Moon, label: 'Dark' },
+					].map((m) => {
+						const isActive = settings.theme === m.id;
+						const Icon = m.icon;
+						return (
+							<Button
+								key={m.id}
+								variant="ghost"
+								onClick={() => applyTheme(m.id as ThemeMode)}
+								className={cn(
+									'relative flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ease-out',
+									isActive
+										? 'bg-surface text-primary shadow-sm ring-1 ring-subtle-zinc/50' : ''
+								)}
+							>
+								<Icon size={14} />
+								{m.label}
+							</Button>
+						);
+					})}
+				</div>
+			</div>
+		</section>
+	);
+}
