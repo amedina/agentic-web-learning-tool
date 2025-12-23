@@ -12,6 +12,31 @@ let connectionStarted = false;
 
 try {
     (async () => {
+        // 0. Inject Polyfill FIRST (Critical for modelContext)
+        try {
+            const polyfillScript = document.createElement('script');
+            polyfillScript.src = chrome.runtime.getURL('contentScript/webmcp-polyfill.js');
+            polyfillScript.onload = () => polyfillScript.remove();
+            (document.head || document.documentElement).appendChild(polyfillScript);
+            console.log("WebMCP: Injected webmcp-polyfill.js");
+        } catch (e) {
+            console.error("WebMCP: Failed to inject webmcp-polyfill.js", e);
+        }
+
+        // 1. Inject registerTools.js
+        try {
+            const script = document.createElement('script');
+            script.src = chrome.runtime.getURL('contentScript/registerTools.js');
+            script.onload = () => script.remove();
+            (document.head || document.documentElement).appendChild(script);
+            console.log("WebMCP: Injected registerTools.js");
+        } catch (e) {
+            console.error("WebMCP: Failed to inject registerTools.js", e);
+        }
+
+        const storage = await chrome.storage.local.get();
+        const userWebMCPTools = storage && storage['userWebMCPTools'];
+
         //This connects to the page context since content scripts have a separate JS context
         //TabClientTransport uses window.postMessage under the hood. The TabServerTransport is implemented from the MCP-B polyfill
         const transport = new TabClientTransport({
@@ -27,9 +52,23 @@ try {
             name: CONNECTION_NAMES.CONTENT_SCRIPT,
         });
 
+        // Moved storage get to top level (already there in previous replacement, but ensuring order)
+
         //Need to set interval because the TabServerTransport might not be ready to accept connections yet
         const interval = setInterval(async () => {
             try {
+
+                if (userWebMCPTools) {
+                    // We need to send the tools to the Main World (registerTools.ts) because:
+                    // 1. mcpBridge.ts is in Isolated World and cannot access window.navigator.modelContext
+                    // 2. Main World can use import(blob) thanks to our CSP stripping
+                    window.postMessage({
+                        type: "REGISTER_USER_TOOLS",
+                        tools: userWebMCPTools
+                    }, "*");
+                }
+
+
                 if (!client.transport && !connectionStarted) {
                     try {
                         await client.connect(transport);

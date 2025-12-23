@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useEffect, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 /**
  * Internal dependencies
  */

@@ -15,8 +15,19 @@
 		"tabs",
 		"webNavigation",
 		"scripting",
-		"sidePanel"
+		"sidePanel",
+		"declarativeNetRequest",
+		"declarativeNetRequestWithHostAccess"
 	],
+	"declarative_net_request": {
+		"rule_resources": [
+			{
+				"id": "ruleset_1",
+				"enabled": true,
+				"path": "rules.json"
+			}
+		]
+	},
 	"host_permissions": ["*://*/*"],
 	"devtools_page": "devtools/devtools.html",
 	"options_page": "options/options.html",

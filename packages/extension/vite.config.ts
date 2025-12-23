@@ -23,10 +23,11 @@ export default defineConfig({
 		react(),
 		tailwindcss(),
 		svgr(),
- 		viteStaticCopy({
+		viteStaticCopy({
 			targets: [
 				{ src: resolve(__dirname, 'src/manifest.json'), dest: '' },
 				{ src: resolve(__dirname, 'src/icons'), dest: '' },
+				{ src: resolve(__dirname, 'src/rules.json'), dest: '' },
 			],
 		}),
 	],

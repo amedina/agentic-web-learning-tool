@@ -102,6 +102,48 @@
                 }, "*");
             }
         });
+
+        // Listen for User Defined Tools from Content Script (mcpBridge.ts)
+        window.addEventListener("message", async (event) => {
+            if (event.source !== window) return;
+            if (!event.data || event.data.type !== "REGISTER_USER_TOOLS") return;
+
+            const tools = event.data.tools;
+            if (!tools || !Array.isArray(tools)) return;
+
+            console.log("WebMCP: Received user tools to register", tools.length);
+
+            for (const toolWrapper of tools) {
+                try {
+                    // 1. Create a Blob from the code string
+                    const blob = new Blob([toolWrapper.code], { type: 'text/javascript' });
+                    const url = URL.createObjectURL(blob);
+
+                    // 2. Dynamically import the blob as a module
+                    // This works because we stripped CSP headers
+                    const module = await import(url);
+
+                    // 3. Construct the tool object
+                    const toolToRegister = {
+                        ...module.metadata,
+                        execute: module.execute
+                    };
+
+                    // 4. Register
+                    if (mcp) {
+                        await mcp.registerTool(toolToRegister);
+                        console.log("WebMCP: User tool registered successfully:", toolToRegister.name);
+                    } else {
+                        console.error("WebMCP: Cannot register tool, mcp missing");
+                    }
+
+                    // Clean up
+                    URL.revokeObjectURL(url);
+                } catch (err) {
+                    console.error('WebMCP: Failed to register user tool:', toolWrapper.name, err);
+                }
+            }
+        });
     }
 
     if (window.navigator.modelContext) {
