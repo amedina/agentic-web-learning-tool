@@ -8,7 +8,7 @@ import { PlusIcon, CodeIcon } from 'lucide-react';
  */
 import { Button } from '../../button';
 import type { WebMCPTool } from '../types';
-import { ToolCard } from '../ToolCard';
+import { ToolCard } from '../toolCard';
 
 interface ToolListProps {
     userTools: WebMCPTool[];

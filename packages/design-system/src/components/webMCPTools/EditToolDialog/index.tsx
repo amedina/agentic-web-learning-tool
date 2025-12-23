@@ -12,8 +12,8 @@ import { Button } from '../../button';
 import type { WebMCPTool } from '../types';
 import { ExtractMetadata } from './extractMetadata';
 import { validateCode } from './validateCode';
-import { MetadataPanel } from './MetadataPanel';
-import { CodeEditor } from './CodeEditor';
+import { MetadataPanel } from './metadataPanel';
+import { CodeEditor } from './codeEditor';
 
 interface EditToolDialogProps {
     open: boolean;

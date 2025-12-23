@@ -9,8 +9,8 @@ import { useState, useEffect, useCallback } from 'react';
  */
 import { Button } from '../../../index';
 import type { WebMCPTool } from '../types';
-import { ToolList } from '../ToolList';
-import { EditToolDialog } from '../EditToolDialog';
+import { ToolList } from '../toolList';
+import { EditToolDialog } from '../editToolDialog';
 
 
 const BUILT_IN_TOOLS: WebMCPTool[] = [
