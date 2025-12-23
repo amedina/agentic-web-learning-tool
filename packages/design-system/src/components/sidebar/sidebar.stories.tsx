@@ -37,16 +37,10 @@ const items = [
 	},
 ];
 
-/**
- * Displays a button or a component that looks like a button.
- */
 const meta = {
 	title: 'ui/Sidebar',
 	component: Sidebar,
 	tags: ['autodocs'],
-	parameters: {
-		layout: 'centered',
-	},
 } satisfies Meta<typeof Sidebar>;
 
 export default meta;
@@ -56,12 +50,12 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
 	render: (args) => {
 		return (
-			<div className="w-screen">
+			<div className="w-screen h-screen">
 				<SidebarProvider>
-					<Sidebar items={args.items} />
-					<main>
+					<div className="fixed top-0 left-0 z-20 md:hidden pl-4 shadow bg-sidebar rounded-md">
 						<SidebarTrigger />
-					</main>
+					</div>
+					<Sidebar collapsible="icon" items={args.items} />
 				</SidebarProvider>
 			</div>
 		);
