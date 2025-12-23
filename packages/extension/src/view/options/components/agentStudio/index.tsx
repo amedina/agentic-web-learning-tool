@@ -60,7 +60,7 @@ export default function AgentDashboard() {
 		(async () => {
 			const { agents }: { agents: AgentType[] } =
 				await chrome.storage.sync.get('agents');
-			setAgents(agents);
+			setAgents(agents ?? []);
 		})();
 	});
 
@@ -186,7 +186,7 @@ export default function AgentDashboard() {
 						</p>
 						<Button
 							onClick={handleCreate}
-							className="text-xs font-medium text-accent-foreground underline underline-offset-4 hover:text-baby-blue"
+							className="text-xs font-medium"
 						>
 							Create New Agent
 						</Button>
