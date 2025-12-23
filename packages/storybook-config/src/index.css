@@ -2,3 +2,4 @@
 @import "@google-awlt/design-system/styles.css";
 
 @source "../../extension/src/";
+@source "../../design-system/src/";

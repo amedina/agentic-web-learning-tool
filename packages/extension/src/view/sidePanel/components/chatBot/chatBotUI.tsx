@@ -129,7 +129,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 									</div>
 								</Dropdown>
 								<Dropdown
-									options={agents.map((agent) => ({
+									options={agents.filter(({ status }) => status).map((agent) => ({
 										id: agent.id,
 										label: agent.name,
 									}))}

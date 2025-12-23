@@ -9,11 +9,17 @@ import { type ComponentProps } from 'react';
 import { cn } from '../../../lib';
 import { useSidebar } from '../sidebarProvider';
 import { SIDEBAR_WIDTH_MOBILE } from '../constants';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '../../sheet';
+import {
+	Sheet,
+	SheetContent,
+	SheetHeader,
+	SheetTitle,
+	SheetDescription,
+} from '../../sheet';
 
 function SidebarMain({
 	side = 'left',
-	variant = 'floating',
+	variant = 'sidebar',
 	collapsible = 'offcanvas',
 	className,
 	children,
@@ -23,12 +29,14 @@ function SidebarMain({
 	variant?: 'sidebar' | 'floating' | 'inset';
 	collapsible?: 'offcanvas' | 'icon' | 'none';
 }) {
-	const { sidebarState, isMobile, setOpen, open } = useSidebar(({ state, actions }) => ({
-		sidebarState: state.sidebarState,
-		isMobile: state.isMobile,
-		setOpen: actions.setOpen,
-		open: state.open,
-	}));
+	const { sidebarState, isMobile, setOpen, open } = useSidebar(
+		({ state, actions }) => ({
+			sidebarState: state.sidebarState,
+			isMobile: state.isMobile,
+			setOpen: actions.setOpen,
+			open: state.open,
+		})
+	);
 
 	if (collapsible === 'none') {
 		return (
@@ -76,7 +84,7 @@ function SidebarMain({
 
 	return (
 		<div
-			className="group peer text-sidebar-foreground sm:block"
+			className="group peer text-sidebar-foreground hidden md:block"
 			data-state={sidebarState}
 			data-collapsible={sidebarState === 'collapsed' ? collapsible : ''}
 			data-variant={variant}
