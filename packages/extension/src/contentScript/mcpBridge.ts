@@ -12,6 +12,11 @@ let connectionStarted = false;
 
 try {
     (async () => {
+        // Prevent running in iframes
+        if (window !== window.top) {
+            return;
+        }
+
         // 0. Inject Polyfill FIRST (Critical for modelContext)
         try {
             const polyfillScript = document.createElement('script');

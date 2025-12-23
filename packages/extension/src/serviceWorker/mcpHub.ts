@@ -91,7 +91,7 @@ class McpHub {
         switch (message.type) {
           case MESSAGE_TYPES.REGISTER:
             if (message.tools) {
-              await this.registerOrUpdateTools(domain, dataId, port, message.tools, true);
+              await this.registerOrUpdateTools(domain, dataId, port, message.tools, false);
             }
             break;
           case MESSAGE_TYPES.UPDATE:
