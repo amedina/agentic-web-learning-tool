@@ -116,7 +116,7 @@ export default function AgentDashboard() {
 						</div>
 						<Button
 							onClick={handleCreate}
-							className="btn-foreground px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 shadow-sm hover:opacity-90 transition-opacity whitespace-nowrap"
+							className="px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 shadow-sm hover:opacity-90 transition-opacity whitespace-nowrap"
 						>
 							<Plus className="w-4 h-4" />
 							New Agent

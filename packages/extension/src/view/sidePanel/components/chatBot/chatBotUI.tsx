@@ -87,7 +87,6 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 						</div>
 					</ThreadPrimitive.Empty>
 
-					{/* Messages */}
 					<ThreadPrimitive.Messages
 						components={{
 							UserMessage,
@@ -97,7 +96,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 					/>
 				</div>
 			</ThreadPrimitive.Viewport>
-			<div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-white via-white to-transparent pb-6 pt-10 px-4">
+			<div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-white via-white to-transparent pb-3 pt-10 px-4">
 				<div className="max-w-3xl mx-auto w-full">
 					<ComposerPrimitive.Root className="relative flex flex-col gap-2 rounded-2xl border border-zinc-200 bg-white shadow-xl shadow-zinc-200/50 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all overflow-hidden">
 						<ComposerPrimitive.Input
