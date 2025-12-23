@@ -1,10 +1,13 @@
 /**
  * External dependencies
  */
-import { useState, type Dispatch, type SetStateAction } from 'react';
 import {
-	AlertOctagon,
-} from 'lucide-react';
+	useCallback,
+	useState,
+	type Dispatch,
+	type SetStateAction,
+} from 'react';
+import { AlertOctagon } from 'lucide-react';
 import { Button } from '@google-awlt/design-system';
 /**
  * Internal dependencies
@@ -12,27 +15,31 @@ import { Button } from '@google-awlt/design-system';
 import type { SettingsState, ThemeMode } from './types';
 
 type ResetConfirmationDialogProps = {
-    setSettings: Dispatch<SetStateAction<SettingsState>>;
-    setIsResetModalOpen: Dispatch<SetStateAction<boolean>>;
+	setSettings: Dispatch<SetStateAction<SettingsState>>;
+	setIsResetModalOpen: Dispatch<SetStateAction<boolean>>;
 };
 
-
-export default function ResetConfirmationDialog({ setSettings, setIsResetModalOpen }: ResetConfirmationDialogProps) {
+export default function ResetConfirmationDialog({
+	setSettings,
+	setIsResetModalOpen,
+}: ResetConfirmationDialogProps) {
 	const [resetInput, setResetInput] = useState('');
 
-	const applyTheme = (mode: ThemeMode) => {
+	const applyTheme = useCallback((mode: ThemeMode) => {
 		setSettings((p) => ({ ...p, theme: mode }));
+
 		const root = document.documentElement;
 		root.classList.remove('light', 'dark');
+
 		if (mode === 'system') {
 			if (window.matchMedia('(prefers-color-scheme: dark)').matches)
 				root.classList.add('dark');
 		} else {
 			root.classList.add(mode);
 		}
-	};
+	}, []);
 
-	const handleReset = async () => {
+	const handleReset = useCallback(async () => {
 		if (resetInput === 'DELETE') {
 			setSettings({ logLevel: 'WARN', theme: 'system' });
 			applyTheme('system');
@@ -40,7 +47,7 @@ export default function ResetConfirmationDialog({ setSettings, setIsResetModalOp
 			setResetInput('');
 			await chrome.storage.sync.clear();
 		}
-	};
+	}, [resetInput]);
 
 	return (
 		<div className="fixed inset-0 z-50 flex items-center justify-center p-4">

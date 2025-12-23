@@ -2,11 +2,7 @@
  * External dependencies
  */
 import { useState } from 'react';
-import {
-	Monitor,
-	Moon,
-	Sun,
-} from 'lucide-react';
+import { Monitor, Moon, Sun } from 'lucide-react';
 import { Button, cn } from '@google-awlt/design-system';
 /**
  * Internal dependencies
@@ -66,7 +62,8 @@ export default function ThemeToggleSection() {
 								className={cn(
 									'relative flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ease-out',
 									isActive
-										? 'bg-surface text-primary shadow-sm ring-1 ring-subtle-zinc/50' : ''
+										? 'bg-surface text-primary shadow-sm ring-1 ring-subtle-zinc/50'
+										: ''
 								)}
 							>
 								<Icon size={14} />

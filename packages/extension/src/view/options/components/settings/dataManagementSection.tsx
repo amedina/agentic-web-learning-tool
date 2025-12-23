@@ -1,7 +1,13 @@
 /**
  * External dependencies
  */
-import { useState, useRef, type Dispatch, type SetStateAction, useCallback } from 'react';
+import {
+	useState,
+	useRef,
+	type Dispatch,
+	type SetStateAction,
+	useCallback,
+} from 'react';
 import {
 	Download,
 	Upload,
@@ -16,13 +22,17 @@ import { Button } from '@google-awlt/design-system';
 import type { SettingsState } from './types';
 
 type DataManagementSectionProps = {
-    settings: SettingsState;
-    setIsResetModalOpen: Dispatch<SetStateAction<boolean>>;
+	settings: SettingsState;
+	setIsResetModalOpen: Dispatch<SetStateAction<boolean>>;
 };
 
-export default function DataManagementSection({ settings, setIsResetModalOpen }: DataManagementSectionProps) {
+export default function DataManagementSection({
+	settings,
+	setIsResetModalOpen,
+}: DataManagementSectionProps) {
 	const [isExporting, setIsExporting] = useState(false);
 	const fileInputRef = useRef<HTMLInputElement>(null);
+	
 	const handleExport = useCallback(() => {
 		setIsExporting(true);
 		setTimeout(() => {
@@ -85,7 +95,7 @@ export default function DataManagementSection({ settings, setIsResetModalOpen }:
 					</p>
 				</div>
 				<Button
-				 	variant="destructive"
+					variant="destructive"
 					onClick={() => setIsResetModalOpen(true)}
 					className="px-4 py-2 text-danger text-sm font-medium rounded-lg shadow-sm transition-all active:scale-95 whitespace-nowrap"
 				>

@@ -34,8 +34,8 @@ export default function SettingsTab() {
 							</h1>
 						</div>
 						<p className="text-sm text-accent-foreground max-w-md leading-relaxed">
-							Manage your extension settings, customize themes, and handle data
-							storage options.
+							Manage your extension settings, customize themes,
+							and handle data storage options.
 						</p>
 					</div>
 				</div>
