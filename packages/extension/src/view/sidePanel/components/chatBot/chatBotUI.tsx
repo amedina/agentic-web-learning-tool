@@ -8,7 +8,7 @@ import {
 	type AssistantRuntime,
 } from '@assistant-ui/react';
 import { useMcpClient } from '@mcp-b/mcp-react-hooks';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import type { JSONRPCMessage } from '@modelcontextprotocol/sdk/types.js';
 import {
 	Bot,
@@ -19,6 +19,7 @@ import {
 	CpuIcon,
 } from 'lucide-react';
 import { Dropdown, getToolNameWithoutPrefix } from '@google-awlt/design-system';
+import type { Tool as McpTool } from '@modelcontextprotocol/sdk/types.js';
 /**
  * Internal dependencies
  */
@@ -28,6 +29,20 @@ import AssistantMessage from './assistantMessage';
 import EditComposer from './editComposer';
 import UserMessage from './userMessage';
 import type { AgentType } from '@/types';
+
+type SingleGroupTool = {
+	group: string;
+	key: string;
+	items: { id: string; label: string }[];
+};
+
+type GroupedTool = {
+	[key: string]: {
+		group: string;
+		key: string;
+		items: McpTool[];
+	};
+};
 
 type ChatBotUIProps = {
 	runtime: AssistantRuntime;
@@ -65,6 +80,61 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 		({ threadListItem }) => threadListItem.id
 	);
 	useAssistantMCP(tools, client, threadId, runtime, {});
+
+	const groupedTools = useMemo(() => {
+		const toolGroups: SingleGroupTool[] = [];
+
+		const websiteTools = tools.reduce((acc, tool) => {
+			const WEBSITE_TOOL_PREFIX = 'website_tool_';
+			if(getToolNameWithoutPrefix(tool.name) === 'dummyTool'){
+				return acc;
+			}
+
+			if (tool.name.startsWith(WEBSITE_TOOL_PREFIX)) {
+				const toolNameWithoutHardCodePrefix = tool.name.substring(
+					WEBSITE_TOOL_PREFIX.length
+				);
+				const pieces = toolNameWithoutHardCodePrefix.split('_');
+				const cleanToolName = pieces.join('_');
+				const result = cleanToolName.split('_tab')[0].replaceAll('_', '.');
+
+				if (acc[result]) {
+					acc[result].items.push(tool);
+				} else {
+					acc[result] = {
+						group: result,
+						key: result,
+						items: [tool],
+					};
+				}
+				return acc;
+			}else{
+				if(acc['other']){
+					acc['others'].items.push(tool);
+				}else{
+					acc['others'] = {
+						group: 'others',
+						key: 'others',
+						items: [tool],
+					};
+				}
+			}
+			return acc;
+		}, {} as GroupedTool);
+
+		Object.keys(websiteTools).forEach((key) => {
+			toolGroups.push({
+				group: websiteTools[key].group,
+				key: websiteTools[key].key,
+				items: websiteTools[key].items.map((tool) => ({
+					id: tool.name,
+					label: getToolNameWithoutPrefix(tool.name) ?? '',
+				})),
+			});
+		});
+
+		return toolGroups;
+	}, [tools]);
 
 	return (
 		<ThreadPrimitive.Root className="h-full flex flex-col">
@@ -112,15 +182,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 									<Paperclip size={18} />
 								</button>
 								<Dropdown
-									options={tools
-										.map((tool) => ({
-											id: tool.name,
-											label:
-												getToolNameWithoutPrefix(
-													tool.name
-												) ?? '',
-										}))
-										.filter((tool) => tool.id !== 'dummy')}
+									options={groupedTools}
 									onSelect={(id) => console.log(id)}
 									selectedValue=""
 								>
@@ -129,10 +191,12 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 									</div>
 								</Dropdown>
 								<Dropdown
-									options={agents.filter(({ status }) => status).map((agent) => ({
-										id: agent.id,
-										label: agent.name,
-									}))}
+									options={agents
+										.filter(({ status }) => status)
+										.map((agent) => ({
+											id: agent.id,
+											label: agent.name,
+										}))}
 									onSelect={(id) =>
 										setSelectedAgent(
 											agents.find(

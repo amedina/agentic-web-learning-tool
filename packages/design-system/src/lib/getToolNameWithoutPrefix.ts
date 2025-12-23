@@ -29,7 +29,6 @@ function getToolNameWithoutPrefix(toolName: string){
 
     if(toolName.startsWith(websiteToolNamePrefix)){
         toolNameWithoutHardCodePrefix = toolName.substring(websiteToolNamePrefix.length-1);
-        toolNameWithoutHardCodePrefix.split('_');
         const pieces = toolNameWithoutHardCodePrefix.split('_');
         pieces.shift();
         return pieces.join('_').match(/_tab[^_]+_(.+)$/)?.[1];
