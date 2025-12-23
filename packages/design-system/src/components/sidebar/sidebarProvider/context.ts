@@ -9,6 +9,7 @@ export interface SidebarContextProps {
     sidebarState: 'expanded' | 'collapsed';
     open: boolean;
     selectedMenuItem: string;
+    isMobile: boolean;
   };
   actions: {
     setOpen: (open: boolean) => void;
@@ -22,6 +23,7 @@ const initialState: SidebarContextProps = {
     sidebarState: 'expanded',
     open: true,
     selectedMenuItem: '',
+    isMobile: false,
   },
   actions: {
     setOpen: noop,

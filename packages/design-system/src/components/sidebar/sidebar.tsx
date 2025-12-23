@@ -32,9 +32,10 @@ type SidebarProps = {
 };
 
 export function Sidebar({ items, sidebarVariant = 'sidebar', collapsible = 'offcanvas', side = 'left' }: SidebarProps) {
-	const { setSelectedMenuItem, sidebarState } = useSidebar(({ state, actions }) => ({
+	const { setSelectedMenuItem, sidebarState, selectedMenuItem } = useSidebar(({ state, actions }) => ({
 		setSelectedMenuItem: actions.setSelectedMenuItem,
-		sidebarState: state.sidebarState
+		sidebarState: state.sidebarState,
+		selectedMenuItem: state.selectedMenuItem,
 	}));
 
 	return (
@@ -49,7 +50,7 @@ export function Sidebar({ items, sidebarVariant = 'sidebar', collapsible = 'offc
 						<SidebarMenu>
 							{items.map(({ id, title, icon }) => (
 								<SidebarMenuItem key={title}>
-									<SidebarMenuButton asChild isActive className="w-full cursor-pointer">
+									<SidebarMenuButton asChild isActive={selectedMenuItem === id} className="w-full cursor-pointer">
 										<div
 											onClick={() => {
 												setSelectedMenuItem(id);

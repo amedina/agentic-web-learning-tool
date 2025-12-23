@@ -22,6 +22,7 @@ import {
 	SIDEBAR_WIDTH,
 	SIDEBAR_WIDTH_ICON,
 } from '../constants';
+import useIsMobile from '../hooks/useIsMobile';
 
 function SidebarProvider({
 	defaultOpen = true,
@@ -39,6 +40,7 @@ function SidebarProvider({
 	// This is the internal state of the sidebar.
 	// We use openProp and setOpenProp for control from outside the component.
 	const [_open, _setOpen] = useState(defaultOpen);
+	const isMobile = useIsMobile();
 	const open = openProp ?? _open;
 	const [selectedMenuItem, setSelectedMenuItem] = useState('');
 	const setOpen = useCallback(
@@ -87,6 +89,7 @@ function SidebarProvider({
 				open,
 				selectedMenuItem,
 				sidebarState: state,
+				isMobile,
 			},
 			actions: {
 				setOpen,
@@ -94,7 +97,7 @@ function SidebarProvider({
 				setSelectedMenuItem,
 			}
 		}),
-		[state, open, setOpen, toggleSidebar, selectedMenuItem,]
+		[state, open, setOpen, toggleSidebar, selectedMenuItem, isMobile]
 	);
 
 	return (
