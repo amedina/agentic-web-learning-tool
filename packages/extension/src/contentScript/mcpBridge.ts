@@ -3,12 +3,19 @@
  */
 import { TabClientTransport } from "@mcp-b/transports";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { ToolListChangedNotificationSchema, type Tool } from "@modelcontextprotocol/sdk/types.js";
 
 /**
  * Internal dependencies
  */
-import { CONNECTION_NAMES } from "..//utils/constants";
+import { CONNECTION_NAMES, MESSAGE_TYPES } from "..//utils/constants";
 let connectionStarted = false;
+
+interface ToolUpdateMessage {
+    type: string;
+    tools: Tool[];
+    url: string;
+}
 
 try {
     (async () => {
@@ -42,6 +49,59 @@ try {
         const storage = await chrome.storage.local.get();
         const userWebMCPTools = storage && storage['userWebMCPTools'];
 
+        async function setupToolChangeListener() {
+            if (!client) {
+                return;
+            }
+
+            // Retrieve capabilities (useful for debugging or logic checks)
+            const capabilities = client.getServerCapabilities();
+
+            console.log("[MCP Proxy] Server supports tool list change notifications", capabilities);
+
+            // Replaced 'as' with the likely Schema object or method string
+            client.setNotificationHandler(
+                ToolListChangedNotificationSchema,
+                async () => {
+                    console.log("[MCP Proxy] Received tool list change notification");
+                    await sendToolUpdate(MESSAGE_TYPES.UPDATE);
+                }
+            );
+        }
+
+        /**
+         * Fetches current tools and sends an update message to the background port.
+         * @param updateType - The event type identifier (e.g., "tools-updated")
+        */
+        async function sendToolUpdate(updateType: string) {
+            if (!backgroundPort) {
+                console.log("[MCP Proxy] No background port to send tool update");
+                return;
+            }
+
+            try {
+                // Renamed 't' to 'tools' for clarity
+
+                const { tools } = await client.listTools();
+
+                console.log(`[MCP Proxy] Sending ${tools.length} tools with type: ${updateType}`);
+
+                const message: ToolUpdateMessage = {
+                    type: updateType,
+                    tools: tools,
+                    url: window.location.href,
+                };
+                backgroundPort.postMessage({
+                    type: "register-tools",
+                    tools: tools,
+                });
+
+                backgroundPort.postMessage(message);
+            } catch (error) {
+                console.error("[MCP Proxy] Failed to send tool update:", error);
+            }
+        }
+
         //This connects to the page context since content scripts have a separate JS context
         //TabClientTransport uses window.postMessage under the hood. The TabServerTransport is implemented from the MCP-B polyfill
         const transport = new TabClientTransport({
@@ -62,7 +122,6 @@ try {
         //Need to set interval because the TabServerTransport might not be ready to accept connections yet
         const interval = setInterval(async () => {
             try {
-
                 if (userWebMCPTools) {
                     // We need to send the tools to the Main World (registerTools.ts) because:
                     // 1. mcpBridge.ts is in Isolated World and cannot access window.navigator.modelContext
@@ -72,7 +131,6 @@ try {
                         tools: userWebMCPTools
                     }, "*");
                 }
-
 
                 if (!client.transport && !connectionStarted) {
                     try {
@@ -84,11 +142,11 @@ try {
                 }
                 if (client.transport) {
                     clearInterval(interval);
+                    setupToolChangeListener();
 
                     // client.listTools sends message to TabServerTransport which is implemented by the MCP-B polyfill in real world page context.
                     // @see https://github.com/WebMCP-org/npm-packages/blob/a262b42b7dc260f47f6fbc5b6dd82937ec01fb83/global/src/global.ts#L2167-L2170
                     const pageTools = await client.listTools();
-
                     //Send initial list of tools to service worker
                     backgroundPort.postMessage({
                         type: "register-tools",
