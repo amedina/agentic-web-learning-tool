@@ -95,7 +95,7 @@ const ConfigModal = ({
 					</div>
 					<Button
 						onClick={onClose}
-						className="p-1.5 rounded-md text-amethyst-haze hover:bg-aswad hover:text-accent-foreground transition-colors"
+						className="p-1.5 rounded-md transition-colors"
 					>
 						<X className="w-4 h-4" />
 					</Button>
@@ -319,8 +319,9 @@ const ConfigModal = ({
 				<div className="px-6 py-4 border-t border-darth-vader bg-aswad/30 flex justify-between items-center rounded-b-xl">
 					{formData.id ? (
 						<Button
+							variant="destructive"
 							onClick={() => onDelete(formData.id)}
-							className="text-xs text-red-500 hover:text-red-700 font-medium flex items-center gap-1.5 px-2 py-1.5 rounded hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors"
+							className="text-xs font-medium flex items-center gap-1.5 px-2 py-1.5 rounded transition-colors"
 						>
 							<Trash2 className="w-3.5 h-3.5" /> Delete Agent
 						</Button>
@@ -331,13 +332,13 @@ const ConfigModal = ({
 					<div className="flex items-center gap-3">
 						<Button
 							onClick={onClose}
-							className="px-4 py-2 text-xs font-medium text-amethyst-haze hover:text-accent-foreground transition-colors"
+							className="px-4 py-2 text-xs font-medium transition-colors"
 						>
 							Cancel
 						</Button>
 						<Button
 							onClick={() => onSave(formData)}
-							className="btn-primary px-4 py-2 rounded-md text-xs font-medium flex items-center gap-2 shadow-sm transition-transform active:scale-95"
+							className="px-4 py-2 rounded-md text-xs font-medium flex items-center gap-2 shadow-sm transition-transform active:scale-95"
 						>
 							<Save className="w-3.5 h-3.5" />
 							{formData.id ? 'Save Changes' : 'Create Agent'}
