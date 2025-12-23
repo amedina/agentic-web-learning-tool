@@ -16,13 +16,11 @@ interface CodeEditorProps {
 export function CodeEditor({ code, onChange }: CodeEditorProps) {
     const backdropRef = useRef<HTMLDivElement>(null);
 
-    // EDITOR CONFIG
     const editorFontFamily = '"Fira Code", "Cascadia Code", Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace';
     const editorFontSize = '14px';
     const editorLineHeight = '1.5';
     const editorPadding = '1.5rem 1rem';
 
-    // Cast to any to allow style prop which is missing in types but valid in runtime
     const SyntaxHighlighterAny = SyntaxHighlighter as any;
 
     const handleScroll = (e: React.UIEvent<HTMLTextAreaElement>) => {
@@ -49,7 +47,7 @@ export function CodeEditor({ code, onChange }: CodeEditorProps) {
                 spellCheck={false}
                 style={{
                     ...commonStyle,
-                    whiteSpace: 'pre', // CRITICAL for alignment
+                    whiteSpace: 'pre',
                 }}
             />
             <div

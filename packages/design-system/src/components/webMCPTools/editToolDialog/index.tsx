@@ -18,7 +18,7 @@ import { CodeEditor } from './codeEditor';
 interface EditToolDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    tool?: WebMCPTool; // If undefined, creating new
+    tool?: WebMCPTool;
     onSave: (tool: WebMCPTool) => void;
     onDelete?: (tool: WebMCPTool) => void;
 }
@@ -71,7 +71,6 @@ export function EditToolDialog({ open, onOpenChange, tool, onSave, onDelete }: E
     }, [open, tool]);
 
     const handleInsertTemplateRequest = () => {
-        // If code is empty or matches default exactly, just insert
         if (!code.trim() || code === DEFAULT_SCRIPT_TEMPLATE) {
             setCode(DEFAULT_SCRIPT_TEMPLATE);
             return;
@@ -102,13 +101,12 @@ export function EditToolDialog({ open, onOpenChange, tool, onSave, onDelete }: E
     };
 
     const handleSave = () => {
-        // Run validation on save attempt
         const validation = validateCode(code);
 
         if (!validation.valid) {
             setValidationState('invalid');
             setErrorMsg(validation.error || 'Validation failed');
-            setActiveTab('validation'); // Switch to validation tab so user sees error
+            setActiveTab('validation');
             return;
         }
 
@@ -131,7 +129,7 @@ export function EditToolDialog({ open, onOpenChange, tool, onSave, onDelete }: E
 
     const handleCodeChange = (newCode: string) => {
         setCode(newCode);
-        setValidationState('idle'); // Invalidate on change
+        setValidationState('idle');
     };
 
     return (

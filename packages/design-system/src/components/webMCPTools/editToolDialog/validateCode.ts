@@ -1,4 +1,8 @@
-
+/**
+ * Validates the code to ensure it has the required metadata and execute function.
+ * @param currentCode The code to validate.
+ * @returns An object containing a boolean indicating if the code is valid and an optional error message.
+ */
 export const validateCode = (currentCode: string): { valid: boolean; error?: string } => {
     try {
         const hasMetadata = /export\s+const\s+metadata\s*=\s*{/.test(currentCode);

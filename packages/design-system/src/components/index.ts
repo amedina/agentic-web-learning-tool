@@ -1,4 +1,4 @@
-export * from './button'; export * from './webMCPTools';
+export * from './button';
 export * from './tabs';
 export * from './tooltip';
 export * from './tooltipIconButton';
@@ -10,3 +10,4 @@ export { default as InputGroup } from './inputGroup';
 export { default as Input } from './input';
 export * from './toolFallback';
 export { default as Dropdown } from './dropdown';
+export * from './webMCPTools';
