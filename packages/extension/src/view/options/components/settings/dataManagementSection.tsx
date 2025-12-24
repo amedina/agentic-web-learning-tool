@@ -14,7 +14,8 @@ import {
 	AlertTriangle,
 	Loader2,
 } from 'lucide-react';
-import { Button } from '@google-awlt/design-system';
+import { Button, OptionsPageTabSection } from '@google-awlt/design-system';
+
 /**
  * Internal dependencies
  */
@@ -47,13 +48,7 @@ export default function DataManagementSection({
 	}, []);
 
 	return (
-		<section className="space-y-6">
-			<div className="flex items-center gap-3 border-b border-subtle-zinc pb-2">
-				<h2 className="text-sm font-medium uppercase tracking-wider text-amethyst-haze">
-					Data & Storage
-				</h2>
-			</div>
-
+		<OptionsPageTabSection title="Data & Storage">
 			<div className="gap-5 flex flex-col sm:flex-row">
 				<Button
 					variant="outline"
@@ -99,6 +94,6 @@ export default function DataManagementSection({
 					Reset Data
 				</Button>
 			</div>
-		</section>
+		</OptionsPageTabSection>
 	);
 }

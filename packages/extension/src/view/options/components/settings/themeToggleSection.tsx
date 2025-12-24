@@ -3,7 +3,8 @@
  */
 import { useState } from 'react';
 import { Monitor, Moon, Sun } from 'lucide-react';
-import { Button, cn } from '@google-awlt/design-system';
+import { Button, cn, OptionsPageTabSection } from '@google-awlt/design-system';
+
 /**
  * Internal dependencies
  */
@@ -28,14 +29,7 @@ export default function ThemeToggleSection() {
 	};
 
 	return (
-		<section className="space-y-6">
-			<div className="flex items-center gap-3 border-b border-subtle-zinc pb-2">
-				<h2 className="text-sm font-medium uppercase tracking-wider text-gray">
-					Interface
-				</h2>
-			</div>
-
-			{/* Theme Toggle - Segmented Control */}
+		<OptionsPageTabSection title="Interface">
 			<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
 				<div>
 					<h3 className="text-sm font-medium text-text-primary">
@@ -69,6 +63,6 @@ export default function ThemeToggleSection() {
 					})}
 				</div>
 			</div>
-		</section>
+		</OptionsPageTabSection>
 	);
 }

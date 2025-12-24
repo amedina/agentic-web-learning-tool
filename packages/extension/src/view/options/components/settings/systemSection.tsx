@@ -3,7 +3,8 @@
  */
 import { useState } from 'react';
 import { Check } from 'lucide-react';
-import { Button, cn } from '@google-awlt/design-system';
+import { Button, cn, OptionsPageTabSection } from '@google-awlt/design-system';
+
 /**
  * Internal dependencies
  */
@@ -45,13 +46,7 @@ export default function SystemSection() {
 	});
 
 	return (
-		<section className="space-y-6">
-			<div className="flex items-center gap-3 border-b border-subtle-zinc pb-2">
-				<h2 className="text-sm font-medium uppercase tracking-wider text-amethyst-haze">
-					Developer Logs
-				</h2>
-			</div>
-
+		<OptionsPageTabSection title='Developer Logs' >
 			<div className="grid grid-cols-2 md:grid-cols-3 gap-4">
 				{LOG_OPTS.map((opt) => {
 					const active = settings.logLevel === opt.id;
@@ -106,6 +101,6 @@ export default function SystemSection() {
 					);
 				})}
 			</div>
-		</section>
+		</OptionsPageTabSection>
 	);
 }
