@@ -131,6 +131,7 @@ const ConfigModal = ({
 								>
 									<div className="relative">
 										<Dropdown
+											placeholder='Select a model provider'
 											options={INITIAL_PROVIDERS.map(
 												(provider) => ({
 													id: provider.id,
@@ -153,6 +154,7 @@ const ConfigModal = ({
 								<InputGroup label="Model" className="w-1/2">
 									<div className="relative">
 										<Dropdown
+											placeholder='Select a model'
 											options={
 												INITIAL_PROVIDERS.find(
 													(provider) =>

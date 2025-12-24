@@ -10,7 +10,7 @@ import { Button, Input } from '@google-awlt/design-system';
 import type { AgentType } from '../../../../types';
 import ConfigModal from './configModal';
 import { DEFAULT_FORM_STATE } from './constants';
-import { set } from 'zod';
+
 
 export default function AgentDashboard() {
 	const [agents, setAgents] = useState<AgentType[]>([]);
@@ -31,19 +31,20 @@ export default function AgentDashboard() {
 	const handleSaveAgent = useCallback(async (data: AgentType) => {
 		const { agents }: { agents: AgentType[] } =
 			await chrome.storage.sync.get('agents');
+		
+		const isOldAgent = Boolean(data.id);
 
-		const isOldAgent = !data.id;
 		if (isOldAgent) {
 			const updatedAgents = agents.map((agent) =>
 				agent.id === data.id ? { ...agent, ...data } : { ...agent }
 			);
+			setAgents(updatedAgents);
 			await chrome.storage.sync.set({ agents: updatedAgents });
 		} else {
 			agents.push({
 				...data,
 				id: crypto.randomUUID(),
 			});
-			console.log(agents);
 			setAgents(agents);
 			await chrome.storage.sync.set({ agents });
 		}
