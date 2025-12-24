@@ -81,7 +81,7 @@ const ConfigModal = ({
 	}
 
 	return (
-		<div className="fixed inset-0 z-50 flex items-center justify-center dialog-overlay p-4 sm:p-6">
+		<div className="fixed inset-0 z-50 flex items-center justify-center dialog-overlay p-4 sm:p-6 backdrop-blur-sm">
 			<div className="w-full max-w-2xl bg-existental-angst border border-volcanic-sand rounded-xl shadow-2xl flex flex-col max-h-[90vh] animate-in fade-in zoom-in-95 duration-200">
 				<div className="flex items-center justify-between px-6 py-4 border-b border-darth-vader bg-aswad/30 rounded-t-xl">
 					<div>
