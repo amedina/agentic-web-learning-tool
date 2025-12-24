@@ -34,6 +34,8 @@ export const client = new Client({
 	version: '1.0.0',
 });
 
+const FALLBACK_AGENT = transportGenerator(DEFAULT_AGENTS[0].modelProvider, DEFAULT_AGENTS[0].model, {})
+
 const Provider = ({ children }: PropsWithChildren) => {
 	const [_agents, setAgents] = useState<AgentType[]>([]);
 	const [selectedAgent, setSelectedAgent] = useState<AgentType>(
@@ -41,7 +43,7 @@ const Provider = ({ children }: PropsWithChildren) => {
 	);
 	const [_transport, setTransport] = useState<
 		GeminiNanoChatTransport | CloudHostedTransport | null
-	>(null);
+	>(FALLBACK_AGENT);
 	const initialFetchDone = useRef<boolean>(false);
 
 	useEffect(() => {
@@ -73,7 +75,7 @@ const Provider = ({ children }: PropsWithChildren) => {
 			await chrome.storage.sync.get('agents');
 
 		setAgents(agents);
-
+		(FALLBACK_AGENT as GeminiNanoChatTransport).initializeSession();
 		initialFetchDone.current = true;
 	}, []);
 
@@ -104,7 +106,7 @@ const Provider = ({ children }: PropsWithChildren) => {
 				onSyncStorageChangedListener
 			);
 		};
-	}, [intitialSync]);
+	}, [intitialSync, onSyncStorageChangedListener]);
 
 	const memoisedValue = useMemo(() => {
 		return {
@@ -118,7 +120,7 @@ const Provider = ({ children }: PropsWithChildren) => {
 			},
 		};
 	}, [_agents, selectedAgent, _transport]);
-
+	console.log('modelProvider state', memoisedValue.state);
 	return (
 		<Context.Provider value={memoisedValue}>
 			<McpClientProvider client={client} transport={transport} opts={{}}>

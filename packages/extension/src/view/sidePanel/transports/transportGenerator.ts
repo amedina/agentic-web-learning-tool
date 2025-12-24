@@ -13,6 +13,7 @@ import { CloudHostedTransport, type ProviderSettings } from "./cloudHosted";
 
 function transportGenerator(provider = 'browser-ai', model = 'prompt-api', config: ProviderSettings) {
     let modelInstance = null;
+    console.log('Generating transport for provider:', provider, 'model:', model);
     switch (provider) {
         case 'broswer-ai':
             return new GeminiNanoChatTransport();
