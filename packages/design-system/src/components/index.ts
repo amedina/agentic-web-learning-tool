@@ -10,3 +10,4 @@ export { default as InputGroup } from './inputGroup';
 export { default as Input } from './input';
 export * from './toolFallback';
 export { default as Dropdown } from './dropdown';
+export { default as OptionsPageTab } from './optionsPageTab';
