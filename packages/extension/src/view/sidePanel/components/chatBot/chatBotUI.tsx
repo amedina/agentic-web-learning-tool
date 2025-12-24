@@ -50,7 +50,7 @@ type ChatBotUIProps = {
 
 const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 	const { client, tools } = useMcpClient();
-	const { agents, setSelectedAgent, selectedAgent } = useModelProvider(
+	const { agents = [], setSelectedAgent, selectedAgent } = useModelProvider(
 		({ state, actions }) => ({
 			agents: state.agents,
 			setSelectedAgent: actions.setSelectedAgent,
@@ -86,7 +86,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 
 		const websiteTools = tools.reduce((acc, tool) => {
 			const WEBSITE_TOOL_PREFIX = 'website_tool_';
-			if(getToolNameWithoutPrefix(tool.name) === 'dummyTool'){
+			if (getToolNameWithoutPrefix(tool.name) === 'dummyTool') {
 				return acc;
 			}
 
@@ -108,10 +108,10 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 					};
 				}
 				return acc;
-			}else{
-				if(acc['other']){
+			} else {
+				if (acc['other']) {
 					acc['others'].items.push(tool);
-				}else{
+				} else {
 					acc['others'] = {
 						group: 'others',
 						key: 'others',
