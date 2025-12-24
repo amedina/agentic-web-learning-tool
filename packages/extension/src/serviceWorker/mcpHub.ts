@@ -92,6 +92,7 @@ class McpHub {
           case MESSAGE_TYPES.REGISTER:
             if (message.tools) {
               await this.registerOrUpdateTools(domain, dataId, port, message.tools, false);
+              await this.injectToolsAndRegisterFunction(tabId);
             }
             break;
           case MESSAGE_TYPES.UPDATE:
@@ -104,6 +105,8 @@ class McpHub {
               this.requestManager.resolve(message.requestId, message.data);
             }
             break;
+          default:
+            console.log(`Unknown message type from tab ${tabId}:`, message);
         }
       } catch (err) {
         console.log(`Error handling message from tab ${tabId}:`, err);
@@ -382,6 +385,59 @@ class McpHub {
     const status = isActive ? 'Active' : tabData.isClosed ? 'Closed' : '';
     // Format: [example.com • Active Tab] Tool Description
     return `[${domain} • ${status ? `${status} ` : ''}Tab] ${originalDesc}`;
+  }
+
+  async injectToolsAndRegisterFunction(tabId: number) {
+    const storage = await chrome.storage.local.get();
+    const userWebMCPTools = storage && storage['userWebMCPTools'];
+
+    console.log("WebMCP: Injecting user tools into tab", tabId, userWebMCPTools);
+
+    chrome.scripting.executeScript({
+      target: { tabId: tabId },
+      func: registerDynamicToolFromScripting,
+      args: [userWebMCPTools],
+    }).then((result) => {
+      console.log("WebMCP: tools registered", result);
+    }).catch((error) => {
+      console.error("WebMCP: Error injecting user tools", error);
+    });
+
+    async function registerDynamicToolFromScripting(tools) {
+      //@ts-expect-error -- window.navigator.modelContext is injected dynamically
+      const mcp = window.navigator.modelContext;
+      for (const toolWrapper of tools) {
+        console.log("WebMCP: Registering user tool:", toolWrapper.name);
+        try {
+          // 1. Create a Blob from the code string
+          const blob = new Blob([toolWrapper.code], { type: 'text/javascript' });
+          const url = URL.createObjectURL(blob);
+
+          // 2. Dynamically import the blob as a module
+          // This works because we stripped CSP headers
+          const module = await import(url);
+
+          // 3. Construct the tool object
+          const toolToRegister = {
+            ...module.metadata,
+            execute: module.execute
+          };
+          console.log("WebMCP: Tool to register:", toolToRegister);
+          // 4. Register
+          if (mcp) {
+            await mcp.registerTool(toolToRegister);
+            console.log("WebMCP: User tool registered successfully:", toolToRegister.name);
+          } else {
+            console.error("WebMCP: Cannot register tool, mcp missing");
+          }
+
+          // Clean up
+          URL.revokeObjectURL(url);
+        } catch (err) {
+          console.error('WebMCP: Failed to register user tool:', toolWrapper.name, err);
+        }
+      }
+    }
   }
 }
 
