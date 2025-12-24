@@ -6,11 +6,11 @@
 	"scripts": {
 		"predev": "rimraf ../../dist",
 		"dev": "concurrently \"pnpm run dev:contentScript\" \"pnpm run dev:extension\"",
-		"dev:contentScript": "concurrently \"cross-env NODE_ENV=development TARGET=mcpBridge vite build --watch --config scripts/contentScript.config.ts\" \"cross-env NODE_ENV=development TARGET=registerTools vite build --watch --config scripts/contentScript.config.ts\"",
+		"dev:contentScript": "cross-env NODE_ENV=development vite build --watch --config contentScript.config.ts",
 		"dev:extension": "cross-env NODE_ENV=development vite build --watch --config vite.config.ts",
 		"prebuild": "rimraf ../../dist",
 		"build": "tsc -b && concurrently \"pnpm run build:contentScript\" \"pnpm run build:extension\"",
-		"build:contentScript": "cross-env NODE_ENV=production TARGET=mcpBridge vite build --config scripts/contentScript.config.ts && cross-env NODE_ENV=production TARGET=registerTools vite build --config scripts/contentScript.config.ts",
+		"build:contentScript": "cross-env NODE_ENV=production vite build --config contentScript.config.ts",
 		"build:extension": "cross-env NODE_ENV=production vite build --config vite.config.ts",
 		"check-types": "tsc -b -noEmit",
 		"lint": "eslint .",
