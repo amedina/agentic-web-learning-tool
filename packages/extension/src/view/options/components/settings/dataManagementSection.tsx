@@ -96,7 +96,6 @@ export default function DataManagementSection({
 				<Button
 					variant="destructive"
 					onClick={() => setIsResetModalOpen(true)}
-					className="px-4 py-2 text-danger text-sm font-medium rounded-lg shadow-sm transition-all active:scale-95 whitespace-nowrap"
 				>
 					Reset Data
 				</Button>

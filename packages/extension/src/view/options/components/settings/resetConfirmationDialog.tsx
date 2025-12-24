@@ -73,14 +73,12 @@ export default function ResetConfirmationDialog({
 					<div className="grid grid-cols-2 gap-3 pt-2">
 						<Button
 							onClick={() => setIsResetModalOpen(false)}
-							className="px-4 py-2.5 rounded-lg text-sm font-medium transition-colors"
 						>
 							Cancel
 						</Button>
 						<Button
 							variant="destructive"
 							onClick={handleReset}
-							className="px-4 py-2.5 rounded-lg text-sm font-medium shadow-md transition-all"
 						>
 							Confirm Reset
 						</Button>
