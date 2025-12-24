@@ -48,6 +48,7 @@ type DropDownProps = PropsWithChildren & {
 	onSelect: (value: string) => void;
 	label?: string;
 	selectedValue: string;
+	placeholder?: string;
 };
 
 export interface DropdownOption {
@@ -70,6 +71,7 @@ export default function DropDown({
 	onSelect,
 	selectedValue,
 	children,
+	placeholder
 }: DropDownProps) {
 	const normalizeDropdownItem = useCallback(
 		(option: DropdownOption): DropdownOption => {
@@ -234,7 +236,7 @@ export default function DropDown({
 								{
 									groups.filter(group => group.items.find(
 										(option) => option.id === selectedValue
-									))?.[0]?.items.find(item => item.id === selectedValue)?.label
+									))?.[0]?.items.find(item => item.id === selectedValue)?.label ?? placeholder
 								}
 							</span>
 							<ChevronDown className="ml-auto w-3.5 h-3.5 text-stone-400" />

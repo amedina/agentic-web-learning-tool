@@ -11,6 +11,7 @@ import type { AgentType } from '../../../../types';
 import ConfigModal from './configModal';
 import { DEFAULT_FORM_STATE } from './constants';
 
+
 export default function AgentDashboard() {
 	const [agents, setAgents] = useState<AgentType[]>([]);
 	const [isModalOpen, setIsModalOpen] = useState(false);
@@ -30,18 +31,21 @@ export default function AgentDashboard() {
 	const handleSaveAgent = useCallback(async (data: AgentType) => {
 		const { agents }: { agents: AgentType[] } =
 			await chrome.storage.sync.get('agents');
+		
+		const isOldAgent = Boolean(data.id);
 
-		const isOldAgent = !data.id;
 		if (isOldAgent) {
 			const updatedAgents = agents.map((agent) =>
 				agent.id === data.id ? { ...agent, ...data } : { ...agent }
 			);
+			setAgents(updatedAgents);
 			await chrome.storage.sync.set({ agents: updatedAgents });
 		} else {
 			agents.push({
 				...data,
 				id: crypto.randomUUID(),
 			});
+			setAgents(agents);
 			await chrome.storage.sync.set({ agents });
 		}
 		setIsModalOpen(false);
