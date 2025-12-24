@@ -26,10 +26,7 @@ export default function SettingsTab() {
 				<div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
 					<div>
 						<div className="flex items-center gap-3 mb-1">
-							<div className="w-6 h-6 bg-accent-foreground text-aswad rounded-lg flex items-center justify-center">
-								<Settings className="w-4 h-4" />
-							</div>
-							<h1 className="text-xl font-bold text-accent-foreground tracking-tight">
+							<h1 className="text-3xl font-bold text-accent-foreground tracking-tight">
 								Settings
 							</h1>
 						</div>
