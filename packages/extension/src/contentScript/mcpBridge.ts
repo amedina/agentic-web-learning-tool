@@ -46,9 +46,6 @@ try {
             console.error("WebMCP: Failed to inject registerTools.js", e);
         }
 
-        const storage = await chrome.storage.local.get();
-        const userWebMCPTools = storage && storage['userWebMCPTools'];
-
         async function setupToolChangeListener() {
             if (!client) {
                 return;
@@ -122,16 +119,6 @@ try {
         //Need to set interval because the TabServerTransport might not be ready to accept connections yet
         const interval = setInterval(async () => {
             try {
-                if (userWebMCPTools) {
-                    // We need to send the tools to the Main World (registerTools.ts) because:
-                    // 1. mcpBridge.ts is in Isolated World and cannot access window.navigator.modelContext
-                    // 2. Main World can use import(blob) thanks to our CSP stripping
-                    window.postMessage({
-                        type: "REGISTER_USER_TOOLS",
-                        tools: userWebMCPTools
-                    }, "*");
-                }
-
                 if (!client.transport && !connectionStarted) {
                     try {
                         await client.connect(transport);
