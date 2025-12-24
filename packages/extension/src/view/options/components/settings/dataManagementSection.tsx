@@ -32,7 +32,7 @@ export default function DataManagementSection({
 }: DataManagementSectionProps) {
 	const [isExporting, setIsExporting] = useState(false);
 	const fileInputRef = useRef<HTMLInputElement>(null);
-	
+
 	const handleExport = useCallback(() => {
 		setIsExporting(true);
 		setTimeout(() => {
@@ -56,11 +56,11 @@ export default function DataManagementSection({
 				</h2>
 			</div>
 
-			<div className="rounded-xl bg-surface p-3 gap-5 shadow-md flex flex-col sm:flex-row">
+			<div className="gap-5 flex flex-col sm:flex-row">
 				<Button
 					variant="outline"
 					onClick={handleExport}
-					className="flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium transition-colors"
+					className="flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium transition-colors max-w-[200px]"
 				>
 					{isExporting ? (
 						<Loader2 size={16} className="animate-spin" />
@@ -72,7 +72,7 @@ export default function DataManagementSection({
 				<Button
 					variant="outline"
 					onClick={() => fileInputRef.current?.click()}
-					className="flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium transition-colors"
+					className="flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium transition-colors max-w-[200px]"
 				>
 					<Upload size={16} />
 					Import Configuration

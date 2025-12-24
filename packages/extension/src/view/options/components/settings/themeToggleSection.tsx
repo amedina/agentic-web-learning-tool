@@ -42,9 +42,6 @@ export default function ThemeToggleSection() {
 					<h3 className="text-sm font-medium text-text-primary">
 						Theme Preference
 					</h3>
-					<p className="text-sm text-text-tertiary">
-						Select your preferred appearance mode.
-					</p>
 				</div>
 				<div className="flex p-1 bg-extreme-zinc rounded-lg">
 					{[
@@ -62,7 +59,7 @@ export default function ThemeToggleSection() {
 								className={cn(
 									'relative flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ease-out',
 									isActive
-										? 'bg-surface text-primary shadow-sm ring-1 ring-subtle-zinc/50'
+										? 'bg-surface text-primary ring-1'
 										: ''
 								)}
 							>
