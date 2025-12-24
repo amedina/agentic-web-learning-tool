@@ -50,7 +50,6 @@ export default function DataManagementSection({
 	return (
 		<section className="space-y-6">
 			<div className="flex items-center gap-3 border-b border-subtle-zinc pb-2">
-				<ShieldAlert className="text-amethyst-haze" size={18} />
 				<h2 className="text-sm font-medium uppercase tracking-wider text-amethyst-haze">
 					Data & Storage
 				</h2>

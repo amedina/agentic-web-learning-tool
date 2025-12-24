@@ -30,8 +30,7 @@ export default function ThemeToggleSection() {
 	return (
 		<section className="space-y-6">
 			<div className="flex items-center gap-3 border-b border-subtle-zinc pb-2">
-				<Monitor className="text-amethyst-haze" size={18} />
-				<h2 className="text-sm font-medium uppercase tracking-wider text-amethyst-haze">
+				<h2 className="text-sm font-medium uppercase tracking-wider text-gray">
 					Interface
 				</h2>
 			</div>

@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { useState } from 'react';
-import { Settings } from 'lucide-react';
+
 /**
  * Internal dependencies
  */
@@ -20,7 +20,7 @@ export default function SettingsTab() {
 	const [isResetModalOpen, setIsResetModalOpen] = useState(false);
 
 	return (
-		<div className="min-h-screen w-full bg-background p-6 md:p-12">
+		<div className="min-h-screen w-full bg-background p-6 md:p-10">
 			<div className="max-w-6xl mx-auto">
 				{/* Header Section */}
 				<div className="flex flex-col md:flex-row md:items-center justify-between gap-6">

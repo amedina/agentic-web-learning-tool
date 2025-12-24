@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { useState } from 'react';
-import { Terminal, Check } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { Button, cn } from '@google-awlt/design-system';
 /**
  * Internal dependencies
@@ -47,7 +47,6 @@ export default function SystemSection() {
 	return (
 		<section className="space-y-6">
 			<div className="flex items-center gap-3 border-b border-subtle-zinc pb-2">
-				<Terminal className="text-amethyst-haze" size={18} />
 				<h2 className="text-sm font-medium uppercase tracking-wider text-amethyst-haze">
 					Developer Logs
 				</h2>
