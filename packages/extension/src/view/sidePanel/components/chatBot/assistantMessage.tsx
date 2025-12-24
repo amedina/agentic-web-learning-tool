@@ -9,6 +9,7 @@ import type { FC } from 'react';
  * Internal dependencies
  */
 import ActionButton from './actionButton';
+import { MarkdownText, ToolFallback } from '@google-awlt/design-system';
 
 const AssistantMessage: FC = () => {
 	return (
@@ -28,7 +29,12 @@ const AssistantMessage: FC = () => {
 						</span>
 					</div>
 					<div className="text-zinc-800 leading-7 text-[15px]">
-						<MessagePrimitive.Parts />
+						<MessagePrimitive.Parts
+							components={{
+								Text: MarkdownText,
+								tools: { Fallback: ToolFallback },
+							}}
+						/>
 					</div>
 				</div>
 				<ActionBarPrimitive.Root
