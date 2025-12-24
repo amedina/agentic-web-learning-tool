@@ -10,6 +10,7 @@ import { Button, Input } from '@google-awlt/design-system';
 import type { AgentType } from '../../../../types';
 import ConfigModal from './configModal';
 import { DEFAULT_FORM_STATE } from './constants';
+import { set } from 'zod';
 
 export default function AgentDashboard() {
 	const [agents, setAgents] = useState<AgentType[]>([]);
@@ -42,6 +43,8 @@ export default function AgentDashboard() {
 				...data,
 				id: crypto.randomUUID(),
 			});
+			console.log(agents);
+			setAgents(agents);
 			await chrome.storage.sync.set({ agents });
 		}
 		setIsModalOpen(false);

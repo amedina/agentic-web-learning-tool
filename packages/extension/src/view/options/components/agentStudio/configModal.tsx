@@ -113,6 +113,7 @@ const ConfigModal = ({
 							<div className="w-full">
 								<InputGroup label="Name">
 									<Input
+										required
 										type="text"
 										value={formData.name}
 										onChange={(e) =>
@@ -180,6 +181,7 @@ const ConfigModal = ({
 								<div className="relative">
 									<Input
 										type="password"
+										required
 										value={formData.apiKey}
 										onChange={(e) =>
 											handleChange(
