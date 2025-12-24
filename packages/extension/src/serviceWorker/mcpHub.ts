@@ -92,8 +92,8 @@ class McpHub {
           case MESSAGE_TYPES.REGISTER:
             if (message.tools) {
               await this.registerOrUpdateTools(domain, dataId, port, message.tools, false);
+              await this.injectToolsAndRegisterFunction(tabId);
             }
-            await this.injectToolsAndRegisterFunction(tabId);
             break;
           case MESSAGE_TYPES.UPDATE:
             if (message.tools) {
@@ -388,57 +388,55 @@ class McpHub {
   }
 
   async injectToolsAndRegisterFunction(tabId: number) {
-    if(!chrome.userScripts.getScripts()){
-      console.error('userscripts API not available');
-      return;
-    }
     const storage = await chrome.storage.local.get();
     const userWebMCPTools = storage && storage['userWebMCPTools'];
-    const permissiveCsp = [
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: data: filesystem: http: https:",
-      "object-src 'self' blob: data:",
-      'connect-src * data: blob:',
-      'img-src * data: blob:',
-      "style-src * 'unsafe-inline' blob: data:",
-      'font-src * data: blob:',
-      'frame-src * data: blob:',
-    ].join('; ');
 
-    // Configure default USER_SCRIPT world
-    try {
-      chrome.userScripts.configureWorld({
-        messaging: true,
-        csp: permissiveCsp,
-      });
-    } catch (error) {
-      console.warn('Failed to configure default USER_SCRIPT world:', error);
-    }
-
-    // Also configure a named world with the same permissive settings for callers that use worldId
-    try {
-      chrome.userScripts.configureWorld({
-        messaging: true,
-        csp: permissiveCsp,
-        // Use a stable non-reserved world ID for maximum-access world
-        worldId: 'max',
-      });
-    } catch (error) {
-      console.warn('Failed to configure USER_SCRIPT world "max":', error);
-    }
-    userWebMCPTools.forEach((tool) => {
-      chrome.userScripts.execute({
+    chrome.scripting.executeScript({
+      target: { tabId: tabId },
       world: 'MAIN',
-      js: [{
-        code: "(async ()=>{const mcp = navigator.modelContext; const blob = new Blob([`"+tool.code+"`], { type: 'text/javascript' });const url = URL.createObjectURL(blob);const module = await import(url); const toolToRegister = {...module.metadata,execute: module.execute};await mcp.registerTool(toolToRegister);})()"
-        
-        }],
-      target: { tabId },
+      func: registerDynamicToolFromScripting,
+      args: [userWebMCPTools],
     }).then((result) => {
-      console.log(`WebMCP: Injected user tools into tab ${tabId}`, result);
+      console.log("WebMCP: tools registered", result);
     }).catch((error) => {
-      console.error(`WebMCP: Failed to inject user tools into tab ${tabId}:`, error);
+      console.error("WebMCP: Error injecting user tools", error);
     });
-    })
+
+    async function registerDynamicToolFromScripting(tools) {
+      //@ts-expect-error -- window.navigator.modelContext is injected dynamically
+      const mcp = window.navigator.modelContext;
+      for (const toolWrapper of tools) {
+        try {
+          // 1. Create a Blob from the code string
+          const blob = new Blob([toolWrapper.code], { type: 'text/javascript' });
+          const url = URL.createObjectURL(blob);
+
+          // 2. Dynamically import the blob as a module
+          // This works because we stripped CSP headers
+          const module = await import(url);
+
+          // 3. Construct the tool object
+          const toolToRegister = {
+            ...module.metadata,
+            execute: module.execute
+          };
+          console.log(mcp);
+          console.log("WebMCP: Tool to register:", toolToRegister);
+          // 4. Register
+          if (mcp) {
+            await mcp.registerTool(toolToRegister);
+            console.log("WebMCP: User tool registered successfully:", toolToRegister.name);
+          } else {
+            console.log("WebMCP: Cannot register tool, mcp missing");
+          }
+
+          // Clean up
+          URL.revokeObjectURL(url);
+        } catch (err) {
+          console.log('WebMCP: Failed to register user tool:', toolWrapper.name, err);
+        }
+      }
+    }
   }
 }
 

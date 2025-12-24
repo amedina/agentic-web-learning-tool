@@ -15,7 +15,6 @@
 		"tabs",
 		"webNavigation",
 		"scripting",
-		"userScripts",
 		"activeTab",
 		"sidePanel",
 		"declarativeNetRequest",
