@@ -120,7 +120,6 @@ const Provider = ({ children }: PropsWithChildren) => {
 			},
 		};
 	}, [_agents, selectedAgent, _transport]);
-	
 	return (
 		<Context.Provider value={memoisedValue}>
 			<McpClientProvider client={client} transport={transport} opts={{}}>
