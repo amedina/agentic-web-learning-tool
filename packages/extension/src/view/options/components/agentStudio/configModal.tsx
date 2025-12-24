@@ -81,7 +81,7 @@ const ConfigModal = ({
 	}
 
 	return (
-		<div className="fixed inset-0 z-50 flex items-center justify-center dialog-overlay p-4 sm:p-6">
+		<div className="fixed inset-0 z-50 flex items-center justify-center dialog-overlay p-4 sm:p-6 backdrop-blur-sm">
 			<div className="w-full max-w-2xl bg-existental-angst border border-volcanic-sand rounded-xl shadow-2xl flex flex-col max-h-[90vh] animate-in fade-in zoom-in-95 duration-200">
 				<div className="flex items-center justify-between px-6 py-4 border-b border-darth-vader bg-aswad/30 rounded-t-xl">
 					<div>
@@ -113,7 +113,6 @@ const ConfigModal = ({
 							<div className="w-full">
 								<InputGroup label="Name">
 									<Input
-										required
 										type="text"
 										value={formData.name}
 										onChange={(e) =>
@@ -131,7 +130,6 @@ const ConfigModal = ({
 								>
 									<div className="relative">
 										<Dropdown
-											placeholder='Select a model provider'
 											options={INITIAL_PROVIDERS.map(
 												(provider) => ({
 													id: provider.id,
@@ -154,7 +152,6 @@ const ConfigModal = ({
 								<InputGroup label="Model" className="w-1/2">
 									<div className="relative">
 										<Dropdown
-											placeholder='Select a model'
 											options={
 												INITIAL_PROVIDERS.find(
 													(provider) =>
@@ -183,7 +180,6 @@ const ConfigModal = ({
 								<div className="relative">
 									<Input
 										type="password"
-										required
 										value={formData.apiKey}
 										onChange={(e) =>
 											handleChange(
