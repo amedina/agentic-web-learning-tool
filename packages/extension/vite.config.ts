@@ -23,12 +23,28 @@ export default defineConfig({
 		react(),
 		tailwindcss(),
 		svgr(),
- 		viteStaticCopy({
+		viteStaticCopy({
 			targets: [
 				{ src: resolve(__dirname, 'src/manifest.json'), dest: '' },
 				{ src: resolve(__dirname, 'src/icons'), dest: '' },
 			],
 		}),
+		{
+			name: 'zod-fix',
+			transform(code, id) {
+				if (id.includes('zod') && id.includes('util.js')) {
+					console.log('Zod Fix Plugin: Processing', id);
+					if (code.includes('new F(')) {
+						console.log('Zod Fix Plugin: Found "new F(" in', id);
+						const newCode = code.replace(/new F\s*\(\s*""\s*\);?/g, 'throw new Error("CSP Fix");');
+						return {
+							code: newCode,
+							map: null,
+						};
+					}
+				}
+			},
+		},
 	],
 	resolve: {
 		alias: aliases,
