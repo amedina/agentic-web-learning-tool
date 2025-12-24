@@ -12,7 +12,6 @@ import {
 	Download,
 	Upload,
 	AlertTriangle,
-	ShieldAlert,
 	Loader2,
 } from 'lucide-react';
 import { Button } from '@google-awlt/design-system';
