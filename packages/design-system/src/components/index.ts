@@ -4,4 +4,8 @@ export * from './tooltip';
 export * from './tooltipIconButton';
 export * from './markdownText';
 export * from './syntaxHighlighter';
+export * from './sidebar';
+export { default as ToggleSwitch } from './toggleSwitch';
+export { default as InputGroup } from './inputGroup';
+export { default as Input } from './input';
 export * from './toolFallback';

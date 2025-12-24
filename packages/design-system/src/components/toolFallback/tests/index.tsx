@@ -10,21 +10,20 @@ import { ToolFallback } from '..';
 
 // Mock data
 const mockArgs = { query: 'react testing library' };
-const mockResult = { count: 5, items: ['Item 1', 'Item 2'] };
 
 describe('ClaudeToolCard Component', () => {
-  
+
   it('renders the tool name and execution status correctly', () => {
     render(
       <ToolFallback
-        addResult={(result) => undefined}
-        resume={()=> undefined}      
+        addResult={(_result) => undefined}
+        resume={() => undefined}
         type='tool-call'
         toolCallId='google_search'
         args={mockArgs}
-        toolName="google_search" 
-        argsText={mockArgs.query} 
-        status={{type: "complete" }}
+        toolName="google_search"
+        argsText={mockArgs.query}
+        status={{ type: "complete" }}
       />
     );
 
@@ -35,14 +34,14 @@ describe('ClaudeToolCard Component', () => {
   it('starts collapsed when status is "success" or "error"', () => {
     render(
       <ToolFallback
-        addResult={(result) => undefined}
-        resume={()=> undefined} 
+        addResult={(_result) => undefined}
+        resume={() => undefined}
         type='tool-call'
         toolCallId="long_running_process"
         args={mockArgs}
         toolName="quick_task"
-        argsText={mockArgs.query} 
-        status={{type: "complete" }}
+        argsText={mockArgs.query}
+        status={{ type: "complete" }}
         result="Done"
       />
     );
@@ -54,19 +53,19 @@ describe('ClaudeToolCard Component', () => {
   it('toggles visibility when header is clicked', () => {
     render(
       <ToolFallback
-        addResult={(result) => undefined}
-        resume={()=> undefined}
+        addResult={(_result) => undefined}
+        resume={() => undefined}
         type='tool-call'
         toolCallId="long_running_process"
         args={mockArgs}
-        toolName="toggle_test" 
-        argsText={mockArgs.query} 
-        status={{type: "complete" }} 
+        toolName="toggle_test"
+        argsText={mockArgs.query}
+        status={{ type: "complete" }}
       />
     );
 
     const header = screen.getByText('toggle_test').closest('div')?.parentElement?.parentElement;
-    
+
     // 1. Click to expand
     fireEvent.click(header!);
     expect(screen.getByText(`"${mockArgs.query}"`)).toBeInTheDocument();
