@@ -11,7 +11,6 @@ import { useMcpClient } from '@mcp-b/mcp-react-hooks';
 import { useEffect, useMemo } from 'react';
 import type { JSONRPCMessage } from '@modelcontextprotocol/sdk/types.js';
 import {
-	Bot,
 	Paperclip,
 	SendHorizontal,
 	CircleStop,
@@ -189,7 +188,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 					<ComposerPrimitive.Root className="relative flex flex-col gap-2 rounded-md border border-zinc-200 bg-white shadow-xl shadow-zinc-200/50 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all overflow-hidden">
 						<ComposerPrimitive.Input
 							placeholder="Ask anything..."
-							className="w-full max-h-40 min-h-[56px] resize-none bg-transparent px-4 py-4 text-base outline-none placeholder:text-zinc-400 text-zinc-800"
+							className="w-full max-h-40 min-h-[56px] resize-none bg-transparent px-4 py-4 text-sm outline-none placeholder:text-zinc-400 text-zinc-800"
 						/>
 						<div className="flex items-center justify-between gap-2 px-3">
 							<div className="flex items-center">
