@@ -1,6 +1,12 @@
+/**
+ * External dependencies
+ */
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
-import DropDown from './index';
+/**
+ * Internal dependencies
+ */
+import DropDown from './';
 
 const modelOptions = [
   { id: 'gpt-4', label: 'GPT-4' },

@@ -6,13 +6,12 @@ import {
 	SidebarTrigger,
 	useSidebar,
 } from '@google-awlt/design-system';
-import { CpuIcon } from 'lucide-react';
-
+import { CpuIcon, Settings2 } from 'lucide-react';
+import { useEffect } from 'react';
 /**
  * Internal dependencies
  */
-import { AgentStudioTab } from './components';
-import { useEffect } from 'react';
+import { AgentStudioTab, SettingsTab } from './components';
 
 const Items = [
 	{
@@ -20,6 +19,12 @@ const Items = [
 		id: 'agent-studio',
 		icon: () => <CpuIcon />,
 		component: <AgentStudioTab />,
+	},
+	{
+		title: 'Settings',
+		id: 'settings',
+		icon: () => <Settings2 />,
+		component: <SettingsTab />,
 	},
 ];
 function Options() {

@@ -2,8 +2,10 @@
  * External dependencies
  */
 import { useCallback, useEffect, useState } from "react"
-
-const MOBILE_BREAKPOINT = 768
+/**
+ * internal dependencies
+ */
+import { MOBILE_BREAKPOINT } from "../constants";
 
 export default function useIsMobile() {
   const [isMobile, setIsMobile] = useState<boolean | undefined>(undefined)
