@@ -5,10 +5,13 @@ import { MessagePrimitive, ActionBarPrimitive } from '@assistant-ui/react';
 import { CheckIcon, CopyIcon, ReloadIcon } from '@radix-ui/react-icons';
 import { Bot } from 'lucide-react';
 import type { FC } from 'react';
+import { MarkdownText, ToolFallback } from '@google-awlt/design-system';
+
 /**
  * Internal dependencies
  */
 import ActionButton from './actionButton';
+
 
 const AssistantMessage: FC = () => {
 	return (
@@ -28,7 +31,12 @@ const AssistantMessage: FC = () => {
 						</span>
 					</div>
 					<div className="text-zinc-800 leading-7 text-sm">
-						<MessagePrimitive.Parts />
+						<MessagePrimitive.Parts
+							components={{
+								Text: MarkdownText,
+								tools: { Fallback: ToolFallback },
+							}}
+						/>
 					</div>
 				</div>
 				<ActionBarPrimitive.Root
