@@ -11,7 +11,7 @@
     "preinstall": "npx only-allow pnpm",
     "lint": "pnpm --filter extension lint",
     "format": "pnpm --filter extension format",
-    "dev": "pnpm --filter extension dev",
+    "dev": "pnpm --filter \"@google-awlt/engine*\" --parallel dev & pnpm --filter extension dev",
     "check-types": "pnpm --filter extension check-types",
     "build": "pnpm --filter extension build",
     "serve": "pnpm --filter extension preview",

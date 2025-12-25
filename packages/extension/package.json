@@ -16,6 +16,8 @@
 	},
 	"dependencies": {
 		"@google-awlt/design-system": "workspace:*",
+		"@google-awlt/engine-core": "workspace:*",
+		"@google-awlt/engine-extension": "workspace:*",
 		"@tailwindcss/vite": "^4.1.12",
 		"@xyflow/react": "^12.9.3",
 		"cross-env": "^10.1.0",
