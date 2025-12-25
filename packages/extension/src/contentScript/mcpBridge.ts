@@ -8,6 +8,9 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
  */
 import { CONNECTION_NAMES } from "..//utils/constants";
 import logger from "../utils/logger";
+import setLogLevelFromSyncSettings from "../utils/setLogLevelFromSyncSettings";
+//Run this when content script is injected to enable log level.
+(() => {setLogLevelFromSyncSettings();})();
 
 let connectionStarted = false;
 try {

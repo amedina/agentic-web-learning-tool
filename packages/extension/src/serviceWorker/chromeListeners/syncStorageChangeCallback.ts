@@ -1,13 +1,8 @@
 /**
- * External dependencies
- */
-import Logger from 'loglevel';
-/**
  * Internal dependencies
  */
-import { settingsGetter } from '../../utils/settingsGetter';
+import setLogLevelFromSyncSettings from '../../utils/setLogLevelFromSyncSettings';
 
 export default async function syncStorageChangeCallback(){
-    const { logLevel } = await settingsGetter();
-    Logger.setLevel(logLevel);
+    await setLogLevelFromSyncSettings()
 }
