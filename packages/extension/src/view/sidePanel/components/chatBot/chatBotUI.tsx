@@ -84,7 +84,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 	const threadId = useAssistantState(
 		({ threadListItem }) => threadListItem.id
 	);
-	useAssistantMCP(tools, client, threadId, runtime, {});
+	useAssistantMCP(tools, client, threadId, runtime);
 
 	const groupedTools = useMemo(() => {
 		const toolGroups: SingleGroupTool[] = [];

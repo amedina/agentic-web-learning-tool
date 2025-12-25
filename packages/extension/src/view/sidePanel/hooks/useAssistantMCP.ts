@@ -1,10 +1,11 @@
 /**
  * External dependencies
  */
-import { tool, type AssistantRuntime, type Tool } from '@assistant-ui/react';
+import { tool, type AssistantRuntime } from '@assistant-ui/react';
 import type { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import type { Tool as McpTool, CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { useEffect, useMemo } from 'react';
+
 /**
  * Internal dependencies
  */
@@ -72,7 +73,7 @@ export function useAssistantMCP(
         assistantTool: tool({
           type: 'frontend',
           description: mcpT.description,
-          parameters: mcpToolToJSONSchema(mcpT.inputSchema),          
+          parameters: mcpToolToJSONSchema(mcpT.inputSchema),
           execute: async (args, { abortSignal: signal }) => {
             try {
               const cleanedArgs = cleanArguments(args as ToolExecutionArgs);
@@ -80,7 +81,7 @@ export function useAssistantMCP(
               // Execute against the MCP Client using the *Original* name
               const toolResult = await client.callTool(
                 {
-                  name: mcpT.name, 
+                  name: mcpT.name,
                   arguments: cleanedArgs,
                 },
                 undefined,
