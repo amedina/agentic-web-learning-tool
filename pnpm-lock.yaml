@@ -10,6 +10,11 @@ overrides:
   js-yaml@^4: ^4.1.1
   '@modelcontextprotocol/sdk': ^1.24.0
 
+patchedDependencies:
+  zod@4.1.13:
+    hash: c114f207fef77f3edf0ad5c47ed131bfab96b9d7160773333de731bf592ee1e7
+    path: patches/zod@4.1.13.patch
+
 importers:
 
   .: {}
@@ -236,13 +241,13 @@ importers:
         version: 0.2.3
       '@mcp-b/mcp-react-hooks':
         specifier: ^0.2.2
-        version: 0.2.2(@assistant-ui/react@0.11.41(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(use-sync-external-store@1.6.0(react@19.2.1)))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(zod@4.1.13)
+        version: 0.2.2(@assistant-ui/react@0.11.41(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(use-sync-external-store@1.6.0(react@19.2.1)))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(zod@4.1.13(patch_hash=c114f207fef77f3edf0ad5c47ed131bfab96b9d7160773333de731bf592ee1e7))
       '@mcp-b/transports':
         specifier: ^1.1.1
-        version: 1.2.0(@modelcontextprotocol/sdk@1.24.3(zod@4.1.13))
+        version: 1.2.0(@modelcontextprotocol/sdk@1.24.3(zod@4.1.13(patch_hash=c114f207fef77f3edf0ad5c47ed131bfab96b9d7160773333de731bf592ee1e7)))
       '@modelcontextprotocol/sdk':
         specifier: ^1.24.0
-        version: 1.24.3(zod@4.1.13)
+        version: 1.24.3(zod@4.1.13(patch_hash=c114f207fef77f3edf0ad5c47ed131bfab96b9d7160773333de731bf592ee1e7))
       '@radix-ui/react-avatar':
         specifier: ^1.1.11
         version: 1.1.11(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
@@ -254,7 +259,7 @@ importers:
         version: 4.1.17(vite@7.2.7(@types/node@24.10.3)(jiti@2.6.1)(lightningcss@1.30.2))
       ai:
         specifier: ^5.0.104
-        version: 5.0.108(zod@4.1.13)
+        version: 5.0.108(zod@4.1.13(patch_hash=c114f207fef77f3edf0ad5c47ed131bfab96b9d7160773333de731bf592ee1e7))
       cross-env:
         specifier: ^10.1.0
         version: 10.1.0
@@ -266,7 +271,7 @@ importers:
         version: 0.542.0(react@19.2.1)
       ollama-ai-provider-v2:
         specifier: ^1.5.5
-        version: 1.5.5(zod@4.1.13)
+        version: 1.5.5(zod@4.1.13(patch_hash=c114f207fef77f3edf0ad5c47ed131bfab96b9d7160773333de731bf592ee1e7))
       react:
         specifier: ^19.1.1
         version: 19.2.1
@@ -275,7 +280,7 @@ importers:
         version: 19.2.1(react@19.2.1)
       zod:
         specifier: ^4.1.13
-        version: 4.1.13
+        version: 4.1.13(patch_hash=c114f207fef77f3edf0ad5c47ed131bfab96b9d7160773333de731bf592ee1e7)
       zod-from-json-schema:
         specifier: ^0.5.2
         version: 0.5.2
@@ -6305,33 +6310,33 @@ snapshots:
 
   '@adobe/css-tools@4.4.4': {}
 
-  '@ai-sdk/gateway@2.0.18(zod@4.1.13)':
+  '@ai-sdk/gateway@2.0.18(zod@4.1.13(patch_hash=c114f207fef77f3edf0ad5c47ed131bfab96b9d7160773333de731bf592ee1e7))':
     dependencies:
       '@ai-sdk/provider': 2.0.0
-      '@ai-sdk/provider-utils': 3.0.18(zod@4.1.13)
+      '@ai-sdk/provider-utils': 3.0.18(zod@4.1.13(patch_hash=c114f207fef77f3edf0ad5c47ed131bfab96b9d7160773333de731bf592ee1e7))
       '@vercel/oidc': 3.0.5
-      zod: 4.1.13
+      zod: 4.1.13(patch_hash=c114f207fef77f3edf0ad5c47ed131bfab96b9d7160773333de731bf592ee1e7)
 
-  '@ai-sdk/provider-utils@3.0.18(zod@4.1.13)':
+  '@ai-sdk/provider-utils@3.0.18(zod@4.1.13(patch_hash=c114f207fef77f3edf0ad5c47ed131bfab96b9d7160773333de731bf592ee1e7))':
     dependencies:
       '@ai-sdk/provider': 2.0.0
       '@standard-schema/spec': 1.0.0
       eventsource-parser: 3.0.6
-      zod: 4.1.13
+      zod: 4.1.13(patch_hash=c114f207fef77f3edf0ad5c47ed131bfab96b9d7160773333de731bf592ee1e7)
 
   '@ai-sdk/provider@2.0.0':
     dependencies:
       json-schema: 0.4.0
 
-  '@ai-sdk/react@2.0.109(react@19.2.1)(zod@4.1.13)':
+  '@ai-sdk/react@2.0.109(react@19.2.1)(zod@4.1.13(patch_hash=c114f207fef77f3edf0ad5c47ed131bfab96b9d7160773333de731bf592ee1e7))':
     dependencies:
-      '@ai-sdk/provider-utils': 3.0.18(zod@4.1.13)
-      ai: 5.0.108(zod@4.1.13)
+      '@ai-sdk/provider-utils': 3.0.18(zod@4.1.13(patch_hash=c114f207fef77f3edf0ad5c47ed131bfab96b9d7160773333de731bf592ee1e7))
+      ai: 5.0.108(zod@4.1.13(patch_hash=c114f207fef77f3edf0ad5c47ed131bfab96b9d7160773333de731bf592ee1e7))
       react: 19.2.1
       swr: 2.3.7(react@19.2.1)
       throttleit: 2.1.0
     optionalDependencies:
-      zod: 4.1.13
+      zod: 4.1.13(patch_hash=c114f207fef77f3edf0ad5c47ed131bfab96b9d7160773333de731bf592ee1e7)
 
   '@alloc/quick-lru@5.2.0': {}
 
@@ -6351,14 +6356,14 @@ snapshots:
   '@assistant-ui/react-ai-sdk@1.1.16(@assistant-ui/react@0.11.41(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(use-sync-external-store@1.6.0(react@19.2.1)))(@types/react@19.2.7)(assistant-cloud@0.1.10)(react@19.2.1)(use-sync-external-store@1.6.0(react@19.2.1))':
     dependencies:
       '@ai-sdk/provider': 2.0.0
-      '@ai-sdk/react': 2.0.109(react@19.2.1)(zod@4.1.13)
+      '@ai-sdk/react': 2.0.109(react@19.2.1)(zod@4.1.13(patch_hash=c114f207fef77f3edf0ad5c47ed131bfab96b9d7160773333de731bf592ee1e7))
       '@assistant-ui/react': 0.11.41(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(use-sync-external-store@1.6.0(react@19.2.1))
       '@radix-ui/react-use-callback-ref': 1.1.1(@types/react@19.2.7)(react@19.2.1)
       '@types/json-schema': 7.0.15
-      ai: 5.0.108(zod@4.1.13)
+      ai: 5.0.108(zod@4.1.13(patch_hash=c114f207fef77f3edf0ad5c47ed131bfab96b9d7160773333de731bf592ee1e7))
       assistant-stream: 0.2.43
       react: 19.2.1
-      zod: 4.1.13
+      zod: 4.1.13(patch_hash=c114f207fef77f3edf0ad5c47ed131bfab96b9d7160773333de731bf592ee1e7)
       zustand: 5.0.9(@types/react@19.2.7)(react@19.2.1)(use-sync-external-store@1.6.0(react@19.2.1))
     optionalDependencies:
       '@types/react': 19.2.7
@@ -6412,7 +6417,7 @@ snapshots:
       react: 19.2.1
       react-dom: 19.2.1(react@19.2.1)
       react-textarea-autosize: 8.5.9(@types/react@19.2.7)(react@19.2.1)
-      zod: 4.1.13
+      zod: 4.1.13(patch_hash=c114f207fef77f3edf0ad5c47ed131bfab96b9d7160773333de731bf592ee1e7)
       zustand: 5.0.9(@types/react@19.2.7)(react@19.2.1)(use-sync-external-store@1.6.0(react@19.2.1))
     optionalDependencies:
       '@types/react': 19.2.7
@@ -7712,7 +7717,7 @@ snapshots:
 
   '@mcp-b/extension-tools@0.2.3':
     dependencies:
-      '@mcp-b/smart-dom-reader': 1.0.2(@modelcontextprotocol/sdk@1.24.3(zod@4.1.13))
+      '@mcp-b/smart-dom-reader': 1.0.2(@modelcontextprotocol/sdk@1.24.3(zod@4.1.13(patch_hash=c114f207fef77f3edf0ad5c47ed131bfab96b9d7160773333de731bf592ee1e7)))
       '@modelcontextprotocol/sdk': 1.24.3(zod@3.25.76)
       zod: 3.25.76
       zod-to-json-schema: 3.25.0(zod@3.25.76)
@@ -7720,10 +7725,10 @@ snapshots:
       - '@cfworker/json-schema'
       - supports-color
 
-  '@mcp-b/mcp-react-hooks@0.2.2(@assistant-ui/react@0.11.41(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(use-sync-external-store@1.6.0(react@19.2.1)))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(zod@4.1.13)':
+  '@mcp-b/mcp-react-hooks@0.2.2(@assistant-ui/react@0.11.41(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(use-sync-external-store@1.6.0(react@19.2.1)))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(zod@4.1.13(patch_hash=c114f207fef77f3edf0ad5c47ed131bfab96b9d7160773333de731bf592ee1e7))':
     dependencies:
-      '@mcp-b/transports': 1.0.3(@modelcontextprotocol/sdk@1.24.3(zod@4.1.13))
-      '@modelcontextprotocol/sdk': 1.24.3(zod@4.1.13)
+      '@mcp-b/transports': 1.0.3(@modelcontextprotocol/sdk@1.24.3(zod@4.1.13(patch_hash=c114f207fef77f3edf0ad5c47ed131bfab96b9d7160773333de731bf592ee1e7)))
+      '@modelcontextprotocol/sdk': 1.24.3(zod@4.1.13(patch_hash=c114f207fef77f3edf0ad5c47ed131bfab96b9d7160773333de731bf592ee1e7))
       react: 19.2.1
       react-dom: 19.2.1(react@19.2.1)
     optionalDependencies:
@@ -7733,18 +7738,18 @@ snapshots:
       - supports-color
       - zod
 
-  '@mcp-b/smart-dom-reader@1.0.2(@modelcontextprotocol/sdk@1.24.3(zod@4.1.13))':
+  '@mcp-b/smart-dom-reader@1.0.2(@modelcontextprotocol/sdk@1.24.3(zod@4.1.13(patch_hash=c114f207fef77f3edf0ad5c47ed131bfab96b9d7160773333de731bf592ee1e7)))':
     optionalDependencies:
-      '@modelcontextprotocol/sdk': 1.24.3(zod@4.1.13)
+      '@modelcontextprotocol/sdk': 1.24.3(zod@4.1.13(patch_hash=c114f207fef77f3edf0ad5c47ed131bfab96b9d7160773333de731bf592ee1e7))
 
-  '@mcp-b/transports@1.0.3(@modelcontextprotocol/sdk@1.24.3(zod@4.1.13))':
+  '@mcp-b/transports@1.0.3(@modelcontextprotocol/sdk@1.24.3(zod@4.1.13(patch_hash=c114f207fef77f3edf0ad5c47ed131bfab96b9d7160773333de731bf592ee1e7)))':
     dependencies:
-      '@modelcontextprotocol/sdk': 1.24.3(zod@4.1.13)
+      '@modelcontextprotocol/sdk': 1.24.3(zod@4.1.13(patch_hash=c114f207fef77f3edf0ad5c47ed131bfab96b9d7160773333de731bf592ee1e7))
       zod: 3.24.1
 
-  '@mcp-b/transports@1.2.0(@modelcontextprotocol/sdk@1.24.3(zod@4.1.13))':
+  '@mcp-b/transports@1.2.0(@modelcontextprotocol/sdk@1.24.3(zod@4.1.13(patch_hash=c114f207fef77f3edf0ad5c47ed131bfab96b9d7160773333de731bf592ee1e7)))':
     dependencies:
-      '@modelcontextprotocol/sdk': 1.24.3(zod@4.1.13)
+      '@modelcontextprotocol/sdk': 1.24.3(zod@4.1.13(patch_hash=c114f207fef77f3edf0ad5c47ed131bfab96b9d7160773333de731bf592ee1e7))
       zod: 3.25.76
 
   '@mdx-js/react@3.1.1(@types/react@19.2.7)(react@19.2.1)':
@@ -7772,7 +7777,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@modelcontextprotocol/sdk@1.24.3(zod@4.1.13)':
+  '@modelcontextprotocol/sdk@1.24.3(zod@4.1.13(patch_hash=c114f207fef77f3edf0ad5c47ed131bfab96b9d7160773333de731bf592ee1e7))':
     dependencies:
       ajv: 8.17.1
       ajv-formats: 3.0.1(ajv@8.17.1)
@@ -7786,8 +7791,8 @@ snapshots:
       jose: 6.1.3
       pkce-challenge: 5.0.1
       raw-body: 3.0.2
-      zod: 4.1.13
-      zod-to-json-schema: 3.25.0(zod@4.1.13)
+      zod: 4.1.13(patch_hash=c114f207fef77f3edf0ad5c47ed131bfab96b9d7160773333de731bf592ee1e7)
+      zod-to-json-schema: 3.25.0(zod@4.1.13(patch_hash=c114f207fef77f3edf0ad5c47ed131bfab96b9d7160773333de731bf592ee1e7))
     transitivePeerDependencies:
       - supports-color
 
@@ -9112,13 +9117,13 @@ snapshots:
 
   agent-base@7.1.4: {}
 
-  ai@5.0.108(zod@4.1.13):
+  ai@5.0.108(zod@4.1.13(patch_hash=c114f207fef77f3edf0ad5c47ed131bfab96b9d7160773333de731bf592ee1e7)):
     dependencies:
-      '@ai-sdk/gateway': 2.0.18(zod@4.1.13)
+      '@ai-sdk/gateway': 2.0.18(zod@4.1.13(patch_hash=c114f207fef77f3edf0ad5c47ed131bfab96b9d7160773333de731bf592ee1e7))
       '@ai-sdk/provider': 2.0.0
-      '@ai-sdk/provider-utils': 3.0.18(zod@4.1.13)
+      '@ai-sdk/provider-utils': 3.0.18(zod@4.1.13(patch_hash=c114f207fef77f3edf0ad5c47ed131bfab96b9d7160773333de731bf592ee1e7))
       '@opentelemetry/api': 1.9.0
-      zod: 4.1.13
+      zod: 4.1.13(patch_hash=c114f207fef77f3edf0ad5c47ed131bfab96b9d7160773333de731bf592ee1e7)
 
   ajv-formats@3.0.1(ajv@8.17.1):
     optionalDependencies:
@@ -11740,11 +11745,11 @@ snapshots:
       define-properties: 1.2.1
       es-object-atoms: 1.1.1
 
-  ollama-ai-provider-v2@1.5.5(zod@4.1.13):
+  ollama-ai-provider-v2@1.5.5(zod@4.1.13(patch_hash=c114f207fef77f3edf0ad5c47ed131bfab96b9d7160773333de731bf592ee1e7)):
     dependencies:
       '@ai-sdk/provider': 2.0.0
-      '@ai-sdk/provider-utils': 3.0.18(zod@4.1.13)
-      zod: 4.1.13
+      '@ai-sdk/provider-utils': 3.0.18(zod@4.1.13(patch_hash=c114f207fef77f3edf0ad5c47ed131bfab96b9d7160773333de731bf592ee1e7))
+      zod: 4.1.13(patch_hash=c114f207fef77f3edf0ad5c47ed131bfab96b9d7160773333de731bf592ee1e7)
 
   on-finished@2.4.1:
     dependencies:
@@ -13143,21 +13148,21 @@ snapshots:
 
   zod-from-json-schema@0.5.2:
     dependencies:
-      zod: 4.1.13
+      zod: 4.1.13(patch_hash=c114f207fef77f3edf0ad5c47ed131bfab96b9d7160773333de731bf592ee1e7)
 
   zod-to-json-schema@3.25.0(zod@3.25.76):
     dependencies:
       zod: 3.25.76
 
-  zod-to-json-schema@3.25.0(zod@4.1.13):
+  zod-to-json-schema@3.25.0(zod@4.1.13(patch_hash=c114f207fef77f3edf0ad5c47ed131bfab96b9d7160773333de731bf592ee1e7)):
     dependencies:
-      zod: 4.1.13
+      zod: 4.1.13(patch_hash=c114f207fef77f3edf0ad5c47ed131bfab96b9d7160773333de731bf592ee1e7)
 
   zod@3.24.1: {}
 
   zod@3.25.76: {}
 
-  zod@4.1.13: {}
+  zod@4.1.13(patch_hash=c114f207fef77f3edf0ad5c47ed131bfab96b9d7160773333de731bf592ee1e7): {}
 
   zustand@5.0.9(@types/react@19.2.7)(react@19.2.1)(use-sync-external-store@1.6.0(react@19.2.1)):
     optionalDependencies:
