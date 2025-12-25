@@ -148,8 +148,8 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 
 	return (
 		<ThreadPrimitive.Root className="h-full flex flex-col">
-			<ThreadPrimitive.Viewport className="flex flex-1 items-center overflow-y-auto scroll-smooth px-4 pb-10 md:px-0">
-				<div className="max-w-3xl mx-auto w-full flex flex-row">
+			<ThreadPrimitive.Viewport className="flex flex-1 items-center overflow-y-auto scroll-smooth px-4 md:px-0">
+				<div className="max-w-3xl mx-auto w-full flex flex-col">
 					{/* Empty State / Welcome */}
 					<ThreadPrimitive.Empty>
 						<div className="flex flex-col items-center justify-center text-center px-4">
