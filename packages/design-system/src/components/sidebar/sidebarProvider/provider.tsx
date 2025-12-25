@@ -5,6 +5,7 @@ import {
 	useCallback,
 	useEffect,
 	useMemo,
+	useRef,
 	useState,
 	type ComponentProps,
 	type CSSProperties,
@@ -22,6 +23,7 @@ import {
 	SIDEBAR_WIDTH,
 	SIDEBAR_WIDTH_ICON,
 } from '../constants';
+import useIsMobile from '../hooks/useIsMobile';
 
 function SidebarProvider({
 	defaultOpen = true,
@@ -39,8 +41,10 @@ function SidebarProvider({
 	// This is the internal state of the sidebar.
 	// We use openProp and setOpenProp for control from outside the component.
 	const [_open, _setOpen] = useState(defaultOpen);
+	const isMobile = useIsMobile();
 	const open = openProp ?? _open;
 	const [selectedMenuItem, setSelectedMenuItem] = useState('');
+	const initialFetch = useRef(false);
 	const setOpen = useCallback(
 		(value: boolean | ((value: boolean) => boolean)) => {
 			const openState = typeof value === 'function' ? value(open) : value;
@@ -77,6 +81,22 @@ function SidebarProvider({
 		return () => window.removeEventListener('keydown', handleKeyDown);
 	}, [toggleSidebar]);
 
+
+	useEffect(() => {
+		if(!initialFetch.current) {
+			return;
+		}
+		localStorage.setItem('sidebarSelectedMenuItem', selectedMenuItem);
+	}, [selectedMenuItem]);
+
+	useEffect(() => {
+		const menuItemPreference = localStorage.getItem('sidebarSelectedMenuItem');
+		if (menuItemPreference) {
+			setSelectedMenuItem(menuItemPreference);
+		}
+		initialFetch.current = true;
+	}, []);
+
 	// We add a state so that we can do data-state="expanded" or "collapsed".
 	// This makes it easier to style the sidebar with Tailwind classes.
 	const state = open ? 'expanded' : 'collapsed';
@@ -87,6 +107,7 @@ function SidebarProvider({
 				open,
 				selectedMenuItem,
 				sidebarState: state,
+				isMobile,
 			},
 			actions: {
 				setOpen,
@@ -94,7 +115,7 @@ function SidebarProvider({
 				setSelectedMenuItem,
 			}
 		}),
-		[state, open, setOpen, toggleSidebar, selectedMenuItem,]
+		[state, open, setOpen, toggleSidebar, selectedMenuItem, isMobile]
 	);
 
 	return (

@@ -5,6 +5,7 @@ import path from 'path'
 const config: StorybookConfig = {
     stories: [
 	    '../../design-system/src/components/**/*.stories.@(js|jsx|ts|tsx)',
+        '../../extension/src/view/**/*.stories.@(js|jsx|ts|tsx)',
     ],
     addons: [
         '@chromatic-com/storybook',

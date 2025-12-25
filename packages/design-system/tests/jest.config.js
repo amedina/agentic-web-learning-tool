@@ -14,6 +14,7 @@ const config = {
 	transformIgnorePatterns: ['<rootDir>node_modules/'],
 	testMatch: ['<rootDir>/src/**/tests/*.{ts,tsx}'],
 	moduleNameMapper: {
+		"\\.(css|less|scss|sass)$": "identity-obj-proxy",
 		"@assistant-ui/tap/react": resolve("../../node_modules/.pnpm/node_modules/@assistant-ui/tap/dist/react/index.js"),
 		"@assistant-ui/tap": resolve("../../node_modules/.pnpm/node_modules/@assistant-ui/tap/dist/index.js"),
 	},

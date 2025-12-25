@@ -11,6 +11,18 @@
     color: rgba(255, 255, 255, 0.87);
     background-color: #242424;
 
+    --zinc-50: #fafafa;
+    --zinc-100: #f4f4f5;
+    --zinc-200: #e4e4e7;
+    --zinc-300: #d4d4d8;
+    --zinc-400: #a1a1aa;
+    --zinc-500: #71717a;
+    --zinc-600: #52525b;
+    --zinc-700: #3f3f46;
+    --zinc-800: #27272a;
+    --zinc-900: #18181b;
+    --zinc-950: #09090b;
+
     font-synthesis: none;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
@@ -31,6 +43,7 @@
     --accent: oklch(0.97 0 0);
     --accent-foreground: oklch(0.205 0 0);
     --destructive: oklch(0.577 0.245 27.325);
+    --baby-red: var(--color-red-50);
     --border: oklch(0.922 0 0);
     --input: oklch(0.922 0 0);
     --ring: oklch(0.708 0 0);
@@ -43,22 +56,22 @@
     --sidebar-foreground: oklch(0.145 0 0);
     --sidebar-primary: oklch(0.205 0 0);
     --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
+    --sidebar-accent: oklch(0.95 0.02 244.75);
+    --sidebar-accent-foreground: rgb(25, 103, 210);
     --sidebar-border: oklch(0.922 0 0);
     --sidebar-ring: oklch(0.708 0 0);
-    
     --bg-surface: #ffffff;
     --bg-surface-subtle: #f4f4f5;
-    
     --border-base:#e4e4e7;
     --border-strong: #d4d4d8;
-    
     --text-primary: #09090b;
     --text-secondary: #71717a;
     --text-tertiary: #a1a1aa;
-    
     --accent-blue: #3b82f6;
+
+    --border-subtle: var(--zinc-200);
+    --strong-zinc: var(--zinc-50);
+    --extreme-zinc: var(--zinc-50);
 }
 
 @theme inline {
@@ -104,6 +117,18 @@
     --color-darth-vader: var(--border-base);
     --color-baby-blue: var(--accent-blue);
     --color-volcanic-sand: var(--border-strong);
+
+    --color-subtle-zinc: var(--border-subtle);
+    --color-baby-red: var(--baby-red);
+    --color-strong-zinc: var(--strong-zinc);
+    --color-extreme-zinc: var(--extreme-zinc);
+
+    --color-status-trace: var(--blue-500);
+    --color-status-debug: var(--color-violet-500);
+    --color-status-info: var(--color-emerald-500);
+    --color-status-warn: var(--color-amber-500);
+    --color-status-error: var(--color-red-500);
+    --color-status-silent: var(--color-zinc-500);
 }
 
 .dark {
@@ -122,6 +147,7 @@
     --accent: oklch(0.269 0 0);
     --accent-foreground: #fafafa;
     --destructive: oklch(0.704 0.191 22.216);
+    --baby-red: #ef44441a;
     --border: oklch(1 0 0 / 10%);
     --input: oklch(100% 0.00011 271.152 / 0.15);
     --ring: rgb(115, 115, 115);
@@ -138,18 +164,18 @@
     --sidebar-accent-foreground: oklch(0.985 0 0);
     --sidebar-border: rgba(255, 255, 255, 0.1);
     --sidebar-ring: rgb(115, 115, 115);
-
     --bg-surface: #09090b;
-    --bg-surface-subtle: #18181b;
-      
+    --bg-surface-subtle: #18181b;    
     --border-base: #27272a;
     --border-strong: #3f3f46;
-      
     --text-primary: #fafafa;
     --text-secondary: #a1a1aa;
     --text-tertiary: #71717a;
-      
     --accent-blue: #60a5fa;
+
+    --subtle-zinc: var(--zinc-800);
+    --strong-zinc: var(--zinc-900);
+    --extreme-zinc: var(--zinc-950);
 }
 
 @layer base {
@@ -163,6 +189,18 @@
         [role="button"]:not(:disabled) {
             cursor: pointer;
         }
+}
+
+@layer utilities {
+  .glass {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  
+  /* Smooth focus rings */
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-strong-zinc/20 focus:border-strong-zinc transition-all duration-200;
+  }
 }
 
 /* Utility: hide scrollbar for scrollable nav strip */
