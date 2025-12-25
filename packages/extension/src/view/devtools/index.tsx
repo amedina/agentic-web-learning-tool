@@ -8,9 +8,12 @@ import { createRoot } from 'react-dom/client';
  */
 import './index.css';
 import DevTools from './devtools';
+import { SettingsProvider } from '../stateProviders';
 
 createRoot(document.getElementById('root')!).render(
-	<StrictMode>
-		<DevTools />
-	</StrictMode>
+	<SettingsProvider view='devtools'>
+		<StrictMode>
+			<DevTools />
+		</StrictMode>
+	</SettingsProvider>
 );

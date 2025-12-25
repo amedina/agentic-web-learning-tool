@@ -1,3 +1,3 @@
-export { default as useSidebar } from './useSettings';
-export { default as SidebarProvider } from './provider';
-export { default as SettingsContext } from './context';
+export { default as useSettings } from './useSettings';
+export { default as SettingsProvider } from './provider';
+export { default as SettingsContext, type SettingsContextProps } from './context';

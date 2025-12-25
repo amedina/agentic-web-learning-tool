@@ -3,7 +3,6 @@
  */
 import {
 	useCallback,
-	useState,
 	type Dispatch,
 	type SetStateAction,
 } from 'react';
@@ -12,42 +11,21 @@ import { Button } from '@google-awlt/design-system';
 /**
  * Internal dependencies
  */
-import type { SettingsState, ThemeMode } from '../../../../types';
+import type { SettingsContextProps } from '../../../stateProviders';
 
 type ResetConfirmationDialogProps = {
-	setSettings: Dispatch<SetStateAction<SettingsState>>;
+	clearSettings: SettingsContextProps['actions']['clearSettings'];
 	setIsResetModalOpen: Dispatch<SetStateAction<boolean>>;
 };
 
 export default function ResetConfirmationDialog({
-	setSettings,
+	clearSettings,
 	setIsResetModalOpen,
 }: ResetConfirmationDialogProps) {
-	const [resetInput, setResetInput] = useState('');
-
-	const applyTheme = useCallback((mode: ThemeMode) => {
-		setSettings((p) => ({ ...p, theme: mode }));
-
-		const root = document.documentElement;
-		root.classList.remove('light', 'dark');
-
-		if (mode === 'auto') {
-			if (window.matchMedia('(prefers-color-scheme: dark)').matches)
-				root.classList.add('dark');
-		} else {
-			root.classList.add(mode);
-		}
-	}, []);
-
 	const handleReset = useCallback(async () => {
-		if (resetInput === 'DELETE') {
-			setSettings({ logLevel: 'WARN', theme: 'auto' });
-			applyTheme('auto');
-			setIsResetModalOpen(false);
-			setResetInput('');
-			await chrome.storage.sync.clear();
-		}
-	}, [resetInput]);
+		clearSettings();
+		setIsResetModalOpen(false);
+	}, []);
 
 	return (
 		<div className="fixed inset-0 z-50 flex items-center justify-center p-4">

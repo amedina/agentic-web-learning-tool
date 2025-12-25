@@ -1,36 +1,32 @@
 /**
  * External dependencies
  */
-import { useState } from 'react';
 import { Check } from 'lucide-react';
 import { Button, cn, OptionsPageTabSection } from '@google-awlt/design-system';
 
 /**
  * Internal dependencies
  */
-import type { LogLevel, SettingsState } from '../../../../types';
 import { LOG_OPTS } from '../../../../constants';
+import type { SettingsContextProps } from '../../../stateProviders';
 
-export default function SystemSection() {
-	const [settings, setSettings] = useState<SettingsState>({
-		logLevel: 'WARN',
-		theme: 'auto',
-	});
+type SystemsSectionProps = {
+	toggleSettings: SettingsContextProps['actions']['toggleSettings'];
+	logLevel: SettingsContextProps['state']['logLevel'];
+};
 
+export default function SystemSection({ logLevel, toggleSettings} : SystemsSectionProps) {
 	return (
 		<OptionsPageTabSection title='Developer Logs' >
 			<div className="grid grid-cols-2 md:grid-cols-3 gap-4">
 				{LOG_OPTS.map((opt) => {
-					const active = settings.logLevel === opt.id;
+					const active = logLevel.toLowerCase() === opt.id.toLowerCase();
 					return (
 						<Button
 							size="lg"
 							key={opt.id}
 							onClick={() =>
-								setSettings({
-									...settings,
-									logLevel: opt.id as LogLevel,
-								})
+								toggleSettings('logLevel', opt.id)
 							}
 							variant="ghost"
 							className={cn(

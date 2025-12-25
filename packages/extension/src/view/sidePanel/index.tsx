@@ -10,11 +10,14 @@ import { McpClientProvider } from '@mcp-b/mcp-react-hooks';
 import './index.css';
 import SidePanel from './sidePanel';
 import { client, transport } from '../../utils/transports';
+import { SettingsProvider } from '../stateProviders';
 
 createRoot(document.getElementById('root')!).render(
 	<McpClientProvider client={client} transport={transport} opts={{}}>
-		<StrictMode>
-			<SidePanel />
-		</StrictMode>
+		<SettingsProvider view='sidepanel'>
+			<StrictMode>
+				<SidePanel />
+			</StrictMode>
+		</SettingsProvider>
 	</McpClientProvider>
 );
