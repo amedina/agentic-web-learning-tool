@@ -181,17 +181,17 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 					/>
 				</div>
 			</ThreadPrimitive.Viewport>
-			<div className="bg-gradient-to-t from-white via-white to-transparent pb-3 px-4">
-				<div className="text-center mt-3 text-[10px] text-zinc-400">
+			<div className="bg-gradient-to-t from-white via-white to-transparent pb-2 px-4">
+				<div className="text-center mt-3 mb-1 text-[10px] text-zinc-400">
 					AI can make mistakes. Please verify important information.
 				</div>
 				<div className="max-w-3xl mx-auto w-full">
-					<ComposerPrimitive.Root className="relative flex flex-col gap-2 rounded-2xl border border-zinc-200 bg-white shadow-xl shadow-zinc-200/50 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all overflow-hidden">
+					<ComposerPrimitive.Root className="relative flex flex-col gap-2 rounded-md border border-zinc-200 bg-white shadow-xl shadow-zinc-200/50 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all overflow-hidden">
 						<ComposerPrimitive.Input
 							placeholder="Ask anything..."
 							className="w-full max-h-40 min-h-[56px] resize-none bg-transparent px-4 py-4 text-base outline-none placeholder:text-zinc-400 text-zinc-800"
 						/>
-						<div className="flex items-center justify-between gap-2 px-3 pb-3">
+						<div className="flex items-center justify-between gap-2 px-3">
 							<div className="flex items-center">
 								<Button variant="ghost" disabled title="Attach" size="icon">
 									<Paperclip size={18} />
