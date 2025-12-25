@@ -12,6 +12,10 @@ import {
   Terminal,
 } from "lucide-react";
 import { useState } from "react";
+/**
+ * Internal dependencies
+ */
+import { getToolNameWithoutPrefix } from "../../lib";
 
 export const ToolFallback: ToolCallMessagePartComponent = ({
   toolName,
@@ -43,7 +47,7 @@ export const ToolFallback: ToolCallMessagePartComponent = ({
     }
   };
 
-  const currentStatus = statusConfig[status.type as keyof typeof statusConfig];
+  const currentStatus = statusConfig?.[status.type as keyof typeof statusConfig];
 
   return (
    // Outer Container: Simulates the chat stream width
@@ -54,7 +58,7 @@ export const ToolFallback: ToolCallMessagePartComponent = ({
         group relative overflow-hidden
         bg-[#1a1a1a] 
         rounded-xl 
-        border ${currentStatus.border}
+        border ${currentStatus?.border}
         shadow-[0_2px_8px_-4px_rgba(0,0,0,0.05)]
         transition-all duration-300 ease-out
       `}>
@@ -77,7 +81,7 @@ export const ToolFallback: ToolCallMessagePartComponent = ({
             <div className="flex flex-col">
               <div className="flex items-center gap-2">
                 <span className="text-[15px] font-medium text-stone-100 tracking-tight">
-                  {toolName}
+                  {getToolNameWithoutPrefix(toolName)}
                 </span>
                 {/* Status Badge - Pill shaped, very subtle */}
                 <div className={`

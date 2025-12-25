@@ -1,2 +1,2 @@
-export { default as ChatMessage } from './chatMessage';
+export { default as AssistantMessage } from './assistantMessage';
 export { default as ChatBotUI } from './chatBotUI';

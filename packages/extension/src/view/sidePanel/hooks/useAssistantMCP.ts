@@ -5,70 +5,12 @@ import { tool, type AssistantRuntime } from '@assistant-ui/react';
 import type { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import type { Tool as McpTool, CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { useEffect, useMemo } from 'react';
+
 /**
  * Internal dependencies
  */
-import { getToolNameForUI, mcpToolToJSONSchema, validateToolPreferences } from '../utils';
-
-interface ToolExecutionArgs {
-  [key: string]: unknown;
-}
-
-/**
- * Removes null or undefined values from the arguments object.
- * specific LLMs/Transports fail if nulls are passed explicitly.
- */
-function cleanArguments(args: ToolExecutionArgs): ToolExecutionArgs {
-  return Object.fromEntries(
-    Object.entries(args).filter(([, v]) => v !== null && v !== undefined)
-  );
-}
-
-/**
- * Processes the raw MCP result content into a format compatible with Assistant UI.
- * Handles single images, multiple images, and mixed content.
- */
-function formatToolResult(content: CallToolResult['content']) {
-  // 1. Handle Images
-  const images = content.filter((part) => part.type === 'image');
-  if (images.length > 0) {
-    const imageParts = images.map((imagePart, index) => {
-      // Log for debugging purposes
-      console.debug(
-        `[ToolResult] Image ${index + 1}/${images.length}: ${imagePart.mimeType}, ${imagePart.data.length} bytes`
-      );
-      
-      return {
-        type: 'image',
-        data: imagePart.data,
-        mimeType: imagePart.mimeType,
-      };
-    });
-
-    // If we only have one image, return it directly object (common UI pattern)
-    // Otherwise return the array of images
-    return images.length === 1 ? imageParts[0] : imageParts;
-  }
-
-  // 2. Handle Simple Text (common case)
-  if (content.length === 1 && content[0].type === 'text') {
-    return content[0].text;
-  }
-
-  // 3. Handle Mixed/Generic Content
-  const processedContent = content.map((part) =>
-    part.type === 'text' ? { type: 'text', text: part.text } : part
-  );
-
-  // Unwrap single text results from mixed processing
-  if (processedContent.length === 1 && processedContent[0].type === 'text') {
-    return processedContent[0].text;
-  }
-
-  return processedContent;
-}
-
-// --- Main Hook ---
+import { cleanArguments, formatToolResult, getToolNameForUI, mcpToolToJSONSchema, validateToolPreferences } from '../utils';
+import type { ToolExecutionArgs } from '../types';
 
 /**
  * Hook that bridges MCP tools with the Assistant UI framework.
@@ -90,7 +32,6 @@ export function useAssistantMCP(
   threadId: string,
   runtime: AssistantRuntime
 ): void {
-  
   // 1. Filter tools based on thread preferences
   const filteredTools = useMemo(() => {
     if (!threadId) return mcpTools;
@@ -121,7 +62,7 @@ export function useAssistantMCP(
     // Transform MCP tools into Assistant UI tools
     const assistantTools = filteredTools.map((mcpT) => {
       // Generate a clean name for the UI (handles length limits & hashing if needed)
-      const uiToolName = mcpT.name === 'dummyTool' ? mcpT.name :getToolNameForUI(mcpT.name);
+      const uiToolName = mcpT.name === 'dummyTool' ? mcpT.name : getToolNameForUI(mcpT.name);
 
       // Extract a human-readable name for logging (removes "tab123_" prefix)
       const match = mcpT.name.match(/^tab\d+_(.+)$/);
@@ -133,7 +74,6 @@ export function useAssistantMCP(
           type: 'frontend',
           description: mcpT.description,
           parameters: mcpToolToJSONSchema(mcpT.inputSchema),
-          
           execute: async (args, { abortSignal: signal }) => {
             try {
               const cleanedArgs = cleanArguments(args as ToolExecutionArgs);
@@ -141,7 +81,7 @@ export function useAssistantMCP(
               // Execute against the MCP Client using the *Original* name
               const toolResult = await client.callTool(
                 {
-                  name: mcpT.name, 
+                  name: mcpT.name,
                   arguments: cleanedArgs,
                 },
                 undefined,
@@ -163,8 +103,8 @@ export function useAssistantMCP(
     const unregister = runtime.registerModelContextProvider({
       getModelContext: () => ({
         // Hint to the model that tools are available
-        system: filteredTools.length > 0 ? 'TOOLS:' : '', 
-        // Map: { [uiName]: ToolDefinition }
+        system: filteredTools.length > 0 ? 'TOOLS:' : '',
+        // Map: { [uiName]: ToolDefinition } 
         tools: Object.fromEntries(assistantTools.map((t) => [t.name, t.assistantTool])),
       }),
     });

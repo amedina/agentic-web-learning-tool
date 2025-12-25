@@ -3,18 +3,18 @@
  */
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { McpClientProvider } from '@mcp-b/mcp-react-hooks';
 /**
  * Internal dependencies
  */
 import './index.css';
 import SidePanel from './sidePanel';
-import { client, transport } from '../../utils/transports';
+import { ModelProvider } from './providers';
+
 
 createRoot(document.getElementById('root')!).render(
-	<McpClientProvider client={client} transport={transport} opts={{}}>
+	<ModelProvider>
 		<StrictMode>
 			<SidePanel />
 		</StrictMode>
-	</McpClientProvider>
+	</ModelProvider>
 );

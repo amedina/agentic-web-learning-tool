@@ -32,7 +32,7 @@ try {
                     try {
                         await client.connect(transport);
                         connectionStarted = true;
-                    }catch(error) {
+                    } catch (error) {
                         console.log("Error connecting client:", error);
                     }
                 }
@@ -66,10 +66,18 @@ try {
         });
 
         transport.onclose = () => {
+            if (!chrome.runtime?.id) {
+                return;
+            }
+
             backgroundPort.disconnect();
         }
 
         backgroundPort.onDisconnect.addListener(() => {
+            if (!chrome.runtime?.id) {
+                return;
+            }
+
             transport.close();
         });
     })();
