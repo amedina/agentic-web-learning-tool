@@ -55,7 +55,7 @@ type ChatBotUIProps = {
 
 const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 	const { client, tools } = useMcpClient();
-	const { agents, setSelectedAgent, selectedAgent } = useModelProvider(
+	const { agents = [], setSelectedAgent, selectedAgent } = useModelProvider(
 		({ state, actions }) => ({
 			agents: state.agents,
 			setSelectedAgent: actions.setSelectedAgent,

@@ -53,7 +53,7 @@ export default function AgentDashboard() {
 
 	const handleDeleteAgent = useCallback(async (id: string) => {
 		setAgents((prev) => prev.filter((a) => a.id !== id));
-		const { agents }: { agents: AgentType[] } =
+		const { agents = [] }: { agents: AgentType[] } =
 			await chrome.storage.sync.get('agents');
 		const updatedAgents = agents.filter((agent) => agent.id !== id);
 		await chrome.storage.sync.set({ agents: updatedAgents });
