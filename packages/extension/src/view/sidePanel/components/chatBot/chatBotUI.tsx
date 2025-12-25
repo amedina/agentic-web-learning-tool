@@ -22,7 +22,7 @@ import {
 	Button,
 	Dropdown,
 	getToolNameWithoutPrefix,
-	OwlIcon
+	OwlIcon,
 } from '@google-awlt/design-system';
 import type { Tool as McpTool } from '@modelcontextprotocol/sdk/types.js';
 
@@ -56,13 +56,15 @@ type ChatBotUIProps = {
 
 const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 	const { client, tools } = useMcpClient();
-	const { agents = [], setSelectedAgent, selectedAgent } = useModelProvider(
-		({ state, actions }) => ({
-			agents: state.agents,
-			setSelectedAgent: actions.setSelectedAgent,
-			selectedAgent: state.selectedAgent,
-		})
-	);
+	const {
+		agents = [],
+		setSelectedAgent,
+		selectedAgent,
+	} = useModelProvider(({ state, actions }) => ({
+		agents: state.agents,
+		setSelectedAgent: actions.setSelectedAgent,
+		selectedAgent: state.selectedAgent,
+	}));
 
 	useEffect(() => {
 		(async () => {
@@ -145,10 +147,16 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 		return toolGroups;
 	}, [tools]);
 
+	const messages = useAssistantState(({ thread }) => thread.messages);
+
 	return (
 		<ThreadPrimitive.Root className="h-full flex flex-col">
-			<ThreadPrimitive.Viewport className="flex flex-1 items-center overflow-y-auto scroll-smooth px-4 md:px-0">
-				<div className="max-w-3xl mx-auto w-full flex flex-col">
+			<ThreadPrimitive.Viewport
+				className={`flex flex-1 items-center overflow-y-auto scroll-smooth px-4 md:px-0 ${messages.length === 0 ? '' : 'h-full'}`}
+			>
+				<div
+					className={`max-w-3xl mx-auto w-full flex flex-col ${messages.length === 0 ? '' : 'h-full'}`}
+				>
 					{/* Empty State / Welcome */}
 					<ThreadPrimitive.Empty>
 						<div className="flex flex-col items-center justify-center text-center px-4">
@@ -170,14 +178,15 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 							</p>
 						</div>
 					</ThreadPrimitive.Empty>
-
-					<ThreadPrimitive.Messages
-						components={{
-							UserMessage,
-							EditComposer,
-							AssistantMessage,
-						}}
-					/>
+					<div className="h-full mt-8">
+						<ThreadPrimitive.Messages
+							components={{
+								UserMessage,
+								EditComposer,
+								AssistantMessage,
+							}}
+						/>
+					</div>
 				</div>
 			</ThreadPrimitive.Viewport>
 			<div className="bg-gradient-to-t from-white via-white to-transparent pb-2 px-4">
@@ -192,7 +201,12 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 						/>
 						<div className="flex items-center justify-between gap-2 px-3">
 							<div className="flex items-center">
-								<Button variant="ghost" disabled title="Attach" size="icon">
+								<Button
+									variant="ghost"
+									disabled
+									title="Attach"
+									size="icon"
+								>
 									<Paperclip size={18} />
 								</Button>
 								<Dropdown
