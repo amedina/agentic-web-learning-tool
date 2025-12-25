@@ -67,6 +67,7 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 						</label>
 						<textarea
 							id="inputValue"
+							name="inputValue"
 							value={inputValue}
 							onChange={(e) => setInputValue(e.target.value)}
 							rows={4}

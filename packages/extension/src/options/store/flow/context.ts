@@ -10,6 +10,7 @@ export type NodeType = {
 	type?: string;
 	position: { x: number; y: number };
 	data: { label: string };
+	status?: 'running' | 'success' | 'error';
 };
 
 export type EdgeType = {
@@ -36,6 +37,10 @@ export interface FlowStoreContext {
 		onConnect: (params: Connection | EdgeType) => void;
 		addNode: (node: NodeType) => void;
 		deleteNode: (id: string) => void;
+		updateNodeStatus: (
+			id: string,
+			status: 'running' | 'success' | 'error'
+		) => void;
 		clearFlow: () => void;
 	};
 }
@@ -54,6 +59,7 @@ const initialState: FlowStoreContext = {
 		onConnect: () => {},
 		addNode: () => {},
 		deleteNode: () => {},
+		updateNodeStatus: () => {},
 		clearFlow: () => {},
 	},
 };

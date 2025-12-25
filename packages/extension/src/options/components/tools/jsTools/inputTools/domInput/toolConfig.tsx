@@ -80,6 +80,7 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 						<input
 							type="text"
 							id="cssSelector"
+							name="cssSelector"
 							value={cssSelector}
 							onChange={(e) => setCssSelector(e.target.value)}
 							className="w-full p-3 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-white"
@@ -99,6 +100,7 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 						</label>
 						<select
 							id="extract"
+							name="extract"
 							value={extract}
 							onChange={(e) => setExtract(e.target.value)}
 							className="w-full p-3 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-white"
@@ -125,6 +127,7 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 						<input
 							type="text"
 							id="defaultValue"
+							name="defaultValue"
 							value={defaultValue}
 							onChange={(e) => setDefaultValue(e.target.value)}
 							className="w-full p-3 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-white"

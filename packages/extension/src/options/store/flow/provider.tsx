@@ -134,6 +134,15 @@ const FlowProvider = ({ children }: PropsWithChildren) => {
 		setNodes((prev) => [...prev, node]);
 	}, []);
 
+	const updateNodeStatus = useCallback(
+		(id: string, status: 'running' | 'success' | 'error') => {
+			setNodes((nds) =>
+				nds.map((node) => (node.id === id ? { ...node, status } : node))
+			);
+		},
+		[]
+	);
+
 	const clearFlow = useCallback(() => {
 		clearApiData();
 		setNodes([]);
@@ -156,6 +165,7 @@ const FlowProvider = ({ children }: PropsWithChildren) => {
 					onConnect,
 					addNode,
 					deleteNode,
+					updateNodeStatus,
 					clearFlow,
 				},
 			}}
