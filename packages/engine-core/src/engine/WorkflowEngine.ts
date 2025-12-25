@@ -159,9 +159,11 @@ export class WorkflowEngine {
       }
     }
 
-    const singleInput = this.context.steps[inputNodes[0].id];
-    if (singleInput?.status === "success") {
-      inputData["input"] = singleInput.data;
+    if (inputNodes.length) {
+      const singleInput = this.context.steps[inputNodes[0].id];
+      if (singleInput?.status === "success") {
+        inputData["input"] = singleInput.data;
+      }
     }
 
     return inputData;
