@@ -7,6 +7,8 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
  * Internal dependencies
  */
 import { CONNECTION_NAMES } from "..//utils/constants";
+import logger from "../utils/logger";
+
 let connectionStarted = false;
 try {
     (async () => {
@@ -33,7 +35,7 @@ try {
                         await client.connect(transport);
                         connectionStarted = true;
                     }catch(error) {
-                        console.log("Error connecting client:", error);
+                        logger(['error'], `Error connecting client: ${error}`);
                     }
                 }
                 if(client.transport){
@@ -46,7 +48,7 @@ try {
                   });
               }
             } catch (error) {
-                console.log("Error connecting to MCP background:", error);
+                logger(['error'], `Error connecting to MCP background:${error}`);
             }
         }, 1000);
 
@@ -75,5 +77,5 @@ try {
     })();
 
 } catch (error) {
-    console.log("Error connecting to MCP background:", error);
+    logger(['error'], `Error connecting to MCP background:${error}`);
 }

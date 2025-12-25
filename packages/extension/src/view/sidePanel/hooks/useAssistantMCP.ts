@@ -9,6 +9,7 @@ import { useEffect, useMemo } from 'react';
  * Internal dependencies
  */
 import { getToolNameForUI, mcpToolToJSONSchema, validateToolPreferences } from '../utils';
+import logger from '../../../utils/logger';
 
 interface ToolExecutionArgs {
   [key: string]: unknown;
@@ -34,7 +35,7 @@ function formatToolResult(content: CallToolResult['content']) {
   if (images.length > 0) {
     const imageParts = images.map((imagePart, index) => {
       // Log for debugging purposes
-      console.debug(
+      logger(['debug'],
         `[ToolResult] Image ${index + 1}/${images.length}: ${imagePart.mimeType}, ${imagePart.data.length} bytes`
       );
       
@@ -150,9 +151,7 @@ export function useAssistantMCP(
 
               return formatToolResult(toolResult.content as CallToolResult['content']);
             } catch (error) {
-              console.error(`[useAssistantMCP] Tool execution failed for '${logName}':`, error);
-              // Rethrow so the Assistant UI knows the tool failed
-              throw error;
+              logger(['error'],`[useAssistantMCP] Tool execution failed for '${logName}': ${error}`);
             }
           },
         }),

@@ -10,7 +10,11 @@ import { ExtensionServerTransport } from '@mcp-b/transports';
  */
 import { RequestManager } from './utils/requestManager';
 import { MESSAGE_TYPES, CONNECTION_NAMES } from '../utils/constants';
+import logger from '../utils/logger';
+import './chromeListeners';
+import syncStorageChangeCallback from './chromeListeners/syncStorageChangeCallback';
 
+(async () => await syncStorageChangeCallback())();
 interface TabData {
   tools: Tool[];
   lastUpdated: number;
@@ -29,7 +33,7 @@ const sharedServer = new McpServer({ name: 'Extension-Hub', version: '1.0.0' }, 
 
 chrome.sidePanel
   .setPanelBehavior({ openPanelOnActionClick: true })
-  .catch((error) => console.error(error));
+  .catch((error) => logger([ 'error'],`Error while opening sidepanel: ${error}`));
 
 /**
  * Sanitizes a string to be safe for use in MCP tool names.
@@ -104,7 +108,7 @@ class McpHub {
     const url = port.sender?.tab?.url || '';
 
     if (!tabId) {
-      console.warn('Connection attempted from port without tab ID');
+      logger(['warn', 'error'],'Connection attempted from port without tab ID');
       return;
     }
 
@@ -114,7 +118,7 @@ class McpHub {
     // Listener for messages coming FROM the tab
     port.onMessage.addListener(async (message: ContentScriptMessage) => {
       try {
-        console.log(`MCP Hub: New message of type ${message.type} on port ${port.name}`);
+        logger(['trace', 'log', 'info'], `MCP Hub: New message of type ${message.type} on port ${port.name} with message payload ${JSON.stringify(message, null, 2)}`)
         switch (message.type) {
           case MESSAGE_TYPES.REGISTER:
             if (message.tools) {
@@ -133,12 +137,13 @@ class McpHub {
             break;
         }
       } catch (err) {
-        console.log(`Error handling message from tab ${tabId}:`, err);
+        logger(['error'], `Error handling message from tab ${tabId}: ${err}`);
       }
     });
 
     // Cleanup on disconnect
     port.onDisconnect.addListener(() => {
+      logger(['trace', 'log', 'info'], `Tab ${domain} unregistered.`);
       this.unregisterTab(domain, dataId);
     });
   }
@@ -250,6 +255,7 @@ class McpHub {
       this.registeredTools.get(uniqueToolName)?.remove();
       this.registeredTools.delete(uniqueToolName);
     }
+    logger(['trace', 'log', 'info'], `Unregistered tools for tab ${domain} (${dataId})`);
   }
 
   /**
@@ -265,6 +271,7 @@ class McpHub {
       const port = await this.getPortForDataId(domain, dataId);
 
       if (!port) {
+        logger(['error, warn'], `Port not found for messaging`);
         return {
           content: [{ type: 'text', text: `Failed to execute tool: Tab connection lost or closed.` }],
           isError: true,
@@ -281,6 +288,7 @@ class McpHub {
       return response as CallToolResult;
 
     } catch (error) {
+      logger(['error'], `Failed to execute tool: ${error instanceof Error ? error.message : String(error)}`);
       return {
         content: [
           {
@@ -306,7 +314,7 @@ class McpHub {
         try {
           await chrome.tabs.update(tabData.tabId, { active: true });
         } catch (e) {
-          console.warn(`Failed to activate tab ${tabData.tabId}`, e);
+          logger(['warn'], `Failed to activate tab ${tabData.tabId} error trace: ${e}`);
           return null;
         }
       }
@@ -337,7 +345,7 @@ class McpHub {
           this.requestToolsFromTab(domain, dataId);
         }
       } catch (e) {
-        console.log('Error updating active tab tools:', e);
+        logger(['warn'], `Error updating active tab tools: ${e}`);
       }
     });
   }
@@ -352,6 +360,7 @@ class McpHub {
       }
     } catch {
       // Tab likely closed, ignore
+      logger(['warn'], `Tab has been closed`);
     }
   }
 
@@ -362,7 +371,7 @@ class McpHub {
         this.activeTabId = activeTab.id;
       }
     } catch (e) {
-      console.error('Error initializing active tab:', e);
+      logger(['warn', 'error'],`Error initializing active tab: ${e}`);
     }
   }
 
@@ -434,6 +443,7 @@ chrome.runtime.onConnect.addListener((port) => {
     );
   } catch (error) {
     //supress error
+    logger(['warn', 'error'],`Error registering tool: ${error}`);
   }
   sharedServer.connect(transport);
   mcpHub.setupConnections();

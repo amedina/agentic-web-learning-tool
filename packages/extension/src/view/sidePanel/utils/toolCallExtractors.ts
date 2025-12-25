@@ -1,6 +1,7 @@
 /**
  * Internal dependencies
  */
+import logger from "../../../utils/logger";
 import type { ToolCallRequest } from "../types";
 
 export function extractToolCall(text: string): { toolCall: ToolCallRequest[] | null, textPrefix: string | null } {
@@ -24,7 +25,7 @@ export function extractToolCall(text: string): { toolCall: ToolCallRequest[] | n
         const toolCall: ToolCallRequest = JSON.parse(jsonBlock);
         return { toolCall: [toolCall], textPrefix: textPrefix || null };
     } catch (error) {
-        console.error("Failed to parse tool call JSON:", error);
+        logger(['error'],"Failed to parse tool call JSON:" + error );
         return { toolCall: null, textPrefix: null };
     }
 }
@@ -80,6 +81,7 @@ export function extractToolCalls(text: string) {
                     }
                 }
             } catch (jsonError) {
+                logger(['warn'], `${jsonError}` );
                 // Strategy 2: Fallback for Newline Delimited JSON (NDJSON)
                 // Sometimes LLMs output multiple JSON objects separated by newlines
                 // instead of a proper comma-separated array.
@@ -97,13 +99,13 @@ export function extractToolCalls(text: string) {
                             args: item.arguments || {}
                         });
                     } catch (lineError) {
-                        // Skip lines that aren't valid JSON
+                        logger(['error'], `${lineError}` );
                         continue;
                     }
                 }
             }
         } catch (error) {
-            console.warn("Failed to parse JSON tool call:", error);
+            logger(['error'], "Failed to parse JSON tool call:"+ error);
             continue;
         }
     }
