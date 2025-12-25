@@ -29,7 +29,7 @@ export default function AgentDashboard() {
 	}, []);
 
 	const handleSaveAgent = useCallback(async (data: AgentType) => {
-		const { agents }: { agents: AgentType[] } =
+		const { agents = [] }: { agents: AgentType[] } =
 			await chrome.storage.sync.get('agents');
 
 		const isOldAgent = Boolean(data.id);
