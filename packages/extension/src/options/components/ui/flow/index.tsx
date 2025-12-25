@@ -28,6 +28,9 @@ export interface FlowProps<
 	onEdgesDelete?: (edges: EdgeType[]) => void;
 	title: string;
 	onTitleChange: (title: string) => void;
+	selectedTabId: number | null;
+	setSelectedTabId: (tabId: number | null) => void;
+	tabs: chrome.tabs.Tab[];
 	actions: {
 		onImport: () => void;
 		onExport: () => void;
@@ -48,6 +51,9 @@ const Flow = <NodeType extends Node, EdgeType extends Edge>({
 	onEdgesDelete,
 	title,
 	onTitleChange,
+	selectedTabId,
+	setSelectedTabId,
+	tabs,
 	actions,
 }: FlowProps<NodeType, EdgeType>) => {
 	return (
@@ -60,6 +66,32 @@ const Flow = <NodeType extends Node, EdgeType extends Edge>({
 						onChange={(e) => onTitleChange(e.target.value)}
 						placeholder="Enter workflow title..."
 					/>
+				</div>
+
+				<div className="flex items-center gap-2 bg-white/90 backdrop-blur-sm p-2 mx-2 rounded-lg shadow-sm border border-gray-200">
+					<label
+						htmlFor="tab-select"
+						className="text-xs font-semibold text-gray-500 uppercase tracking-wider"
+					>
+						Tab:
+					</label>
+					<select
+						id="tab-select"
+						value={selectedTabId || ''}
+						onChange={(e) =>
+							setSelectedTabId(Number(e.target.value))
+						}
+						className="text-sm bg-transparent border-none focus:ring-0 text-slate-700 font-medium max-w-[200px]"
+					>
+						<option value="" disabled>
+							Select a tab
+						</option>
+						{tabs.map((tab) => (
+							<option key={tab.id} value={tab.id}>
+								{tab.title || tab.url || `Tab ${tab.id}`}
+							</option>
+						))}
+					</select>
 				</div>
 
 				<div className="flex items-center gap-2">

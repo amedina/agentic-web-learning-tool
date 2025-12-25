@@ -3,10 +3,11 @@
  */
 import { X } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
+import { WorkflowClient } from '@google-awlt/engine-extension';
 
 /**
  * Internal dependencies
-*/
+ */
 import { type EdgeType, type NodeType, useFlow, useApi } from '../../store';
 import { Flow } from '../ui';
 
@@ -16,27 +17,14 @@ const STORAGE_PREFIX = 'workflow-';
 const generateId = () =>
 	`${ID_PREFIX}${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-const useDebounce = <T,>(value: T, delay: number): T => {
-	const [debouncedValue, setDebouncedValue] = useState<T>(value);
-
-	useEffect(() => {
-		const handler = setTimeout(() => {
-			setDebouncedValue(value);
-		}, delay);
-
-		return () => {
-			clearTimeout(handler);
-		};
-	}, [value, delay]);
-
-	return debouncedValue;
-};
-
 const FlowContainer = () => {
 	const [workflowTitle, setWorkflowTitle] = useState('Untitled Workflow');
 	const [showImportDialog, setShowImportDialog] = useState(false);
 	const [importJson, setImportJson] = useState('');
 	const [workflowId, setWorkflowId] = useState<string | null>(null);
+	const [tabs, setTabs] = useState<chrome.tabs.Tab[]>([]);
+	const [selectedTabId, setSelectedTabId] = useState<number | null>(null);
+	const [isExecuting, setIsExecuting] = useState(false);
 	const [toast, setToast] = useState<{
 		message: string;
 		type: 'success' | 'error';
@@ -53,6 +41,7 @@ const FlowContainer = () => {
 		onConnect,
 		clearFlow,
 		addNode,
+		updateNodeStatus,
 	} = useFlow(({ state, actions }) => ({
 		nodes: state.nodes,
 		edges: state.edges,
@@ -64,6 +53,7 @@ const FlowContainer = () => {
 		onConnect: actions.onConnect,
 		clearFlow: actions.clearFlow,
 		addNode: actions.addNode,
+		updateNodeStatus: actions.updateNodeStatus,
 	}));
 
 	const { nodes: nodesApiData, addNode: addApiNode } = useApi(
@@ -72,6 +62,20 @@ const FlowContainer = () => {
 			addNode: actions.addNode,
 		})
 	);
+
+	// Fetch tabs on mount
+	useEffect(() => {
+		if (typeof chrome !== 'undefined' && chrome.tabs?.query) {
+			chrome.tabs.query({}, (result) => {
+				setTabs(result);
+				// Select active tab if found
+				const activeTab = result.find((t) => t.active);
+				if (activeTab?.id) {
+					setSelectedTabId(activeTab.id);
+				}
+			});
+		}
+	}, []);
 
 	const handleImport = () => {
 		setShowImportDialog(true);
@@ -184,20 +188,15 @@ const FlowContainer = () => {
 		[]
 	);
 
-	const debouncedTitle = useDebounce(workflowTitle, 1000);
-	const debouncedNodes = useDebounce(nodes, 1000);
-	const debouncedEdges = useDebounce(edges, 1000);
-	const debouncedNodesApiData = useDebounce(nodesApiData, 1000);
-
 	useEffect(() => {
 		if (!workflowId) return;
 
 		const workflowData = serializeWorkflow(
 			workflowId,
-			debouncedTitle,
-			debouncedNodes,
-			debouncedEdges,
-			debouncedNodesApiData
+			workflowTitle,
+			nodes,
+			edges,
+			nodesApiData
 		);
 		localStorage.setItem(
 			`${STORAGE_PREFIX}${workflowId}`,
@@ -205,10 +204,10 @@ const FlowContainer = () => {
 		);
 	}, [
 		workflowId,
-		debouncedTitle,
-		debouncedNodes,
-		debouncedEdges,
-		debouncedNodesApiData,
+		workflowTitle,
+		nodes,
+		edges,
+		nodesApiData,
 		serializeWorkflow,
 	]);
 
@@ -278,8 +277,55 @@ const FlowContainer = () => {
 		setTimeout(() => setToast(null), 3000);
 	};
 
-	const handleRun = () => {
-		return;
+	const handleRun = async () => {
+		if (isExecuting) return;
+		if (!selectedTabId) {
+			showToast('Please select a tab to run on', 'error');
+			return;
+		}
+
+		setIsExecuting(true);
+
+		// Reset statuses
+		nodes.forEach((node) => updateNodeStatus(node.id, undefined as any));
+
+		const workflowData = serializeWorkflow(
+			workflowId,
+			workflowTitle,
+			nodes,
+			edges,
+			nodesApiData
+		);
+
+		const client = new WorkflowClient();
+
+		try {
+			await client.runWorkflow(workflowData as any, selectedTabId, {
+				onNodeStart: (nodeId: string) => {
+					updateNodeStatus(nodeId, 'running');
+				},
+				onNodeFinish: (nodeId: string, output: any) => {
+					updateNodeStatus(
+						nodeId,
+						output.status === 'success' ? 'success' : 'error'
+					);
+				},
+				onComplete: (context: any) => {
+					setIsExecuting(false);
+					showToast('Workflow completed successfully!', 'success');
+					console.log('Workflow context:', context);
+				},
+				onError: (error: string) => {
+					setIsExecuting(false);
+					showToast(`Workflow failed: ${error}`, 'error');
+					console.error('Workflow error:', error);
+				},
+			});
+		} catch (error) {
+			setIsExecuting(false);
+			const msg = error instanceof Error ? error.message : String(error);
+			showToast(`Failed to start workflow: ${msg}`, 'error');
+		}
 	};
 
 	const handleClear = () => {
@@ -401,6 +447,9 @@ const FlowContainer = () => {
 					onConnect={onConnect}
 					title={workflowTitle}
 					onTitleChange={setWorkflowTitle}
+					selectedTabId={selectedTabId}
+					setSelectedTabId={setSelectedTabId}
+					tabs={tabs}
 					actions={{
 						onImport: handleImport,
 						onExport: handleExport,
