@@ -228,6 +228,7 @@ class ChromeAILanguageModel {
 
         const messageContext = [...finalMessages];
         const textPartId = "text-0";
+
         return {
             stream: new ReadableStream({
                 start: async (controller) => {

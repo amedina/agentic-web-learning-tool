@@ -140,7 +140,6 @@ export default function AgentDashboard() {
                     </div>
                   </div>
                 </div>
-                <div className={`w-2 h-2 rounded-full ${agent.status ? 'bg-emerald-500' : 'bg-zinc-300 dark:bg-zinc-700'}`} />
               </div>
 
               {/* Details Row */}
@@ -150,6 +149,10 @@ export default function AgentDashboard() {
                   <span className="text-xs font-mono text-accent-foreground">{agent.temperature}</span>
                 </div>
                 <div className="w-px h-6 bg-darth-vader"></div>
+                <div className="flex flex-col">
+                  <span className="text-[10px] text-exclusive-plum uppercase font-semibold">Status</span>
+                  <span className="text-xs text-accent-foreground">{agent.status ? 'Active' : 'Inactive'}</span>
+                </div>
               </div>
 
               {/* Hover Action */}

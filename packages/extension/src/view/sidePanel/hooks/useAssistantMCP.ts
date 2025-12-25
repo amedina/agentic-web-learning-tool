@@ -29,8 +29,7 @@ export function useAssistantMCP(
   mcpTools: McpTool[],
   client: Client | null, // Allow null for initial loading states
   threadId: string,
-  runtime: AssistantRuntime,
-  prevRuntimeRegisteredTools: Record<string, Tool>
+  runtime: AssistantRuntime
 ): void {
   // 1. Filter tools based on thread preferences
   const filteredTools = useMemo(() => {
@@ -46,7 +45,7 @@ export function useAssistantMCP(
     }
 
     // Only include tools present in the whitelist
-    return mcpTools.filter((tool) => preferences.includes(tool.name) || !prevRuntimeRegisteredTools?.[tool.name].disabled);
+    return mcpTools.filter((tool) => preferences.includes(tool.name));
   }, [mcpTools, threadId]);
 
   // Create a stable dependency key for the effect based on tool names
@@ -57,9 +56,7 @@ export function useAssistantMCP(
 
   // 2. Register tools with the Assistant Runtime
   useEffect(() => {
-    if (!client) {
-      return;
-    }
+    if (!client) return;
 
     // Transform MCP tools into Assistant UI tools
     const assistantTools = filteredTools.map((mcpT) => {
@@ -75,9 +72,7 @@ export function useAssistantMCP(
         assistantTool: tool({
           type: 'frontend',
           description: mcpT.description,
-          parameters: mcpToolToJSONSchema(mcpT.inputSchema),
-          disabled: prevRuntimeRegisteredTools?.[mcpT.name]?.disabled ?? false,
-          
+          parameters: mcpToolToJSONSchema(mcpT.inputSchema),          
           execute: async (args, { abortSignal: signal }) => {
             try {
               const cleanedArgs = cleanArguments(args as ToolExecutionArgs);
@@ -107,7 +102,8 @@ export function useAssistantMCP(
     const unregister = runtime.registerModelContextProvider({
       getModelContext: () => ({
         // Hint to the model that tools are available
-        system: filteredTools.length > 0 ? 'TOOLS:' : '', 
+        system: filteredTools.length > 0 ? 'TOOLS:' : '',
+        // Map: { [uiName]: ToolDefinition } 
         tools: Object.fromEntries(assistantTools.map((t) => [t.name, t.assistantTool])),
       }),
     });
