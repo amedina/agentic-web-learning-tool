@@ -100,9 +100,11 @@ export class WorkflowEngine {
   /**
    * Verify that all required capabilities are available.
    */
-  private async verifyCapabilities(capabilities: string[]): Promise<void> {
-    for (const cap of capabilities) {
-      const available = await this.runtime.checkCapability(cap);
+  private async verifyCapabilities(
+    capabilities: Record<string, any>
+  ): Promise<void> {
+    for (const [cap, options] of Object.entries(capabilities)) {
+      const available = await this.runtime.checkCapability(cap, options);
       if (!available) {
         throw new Error(
           `Required capability "${cap}" is not available in this environment`

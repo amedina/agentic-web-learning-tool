@@ -84,7 +84,7 @@ export class WorkflowClient {
    * @returns Map of capability to availability
    */
   public async checkCapabilities(
-    capabilities: string[]
+    capabilities: string[] | Record<string, any>
   ): Promise<Record<string, boolean>> {
     const message: CheckCapabilitiesMessage = {
       type: "CHECK_CAPABILITIES",

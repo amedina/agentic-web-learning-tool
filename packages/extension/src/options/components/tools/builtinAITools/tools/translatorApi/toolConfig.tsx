@@ -9,6 +9,8 @@ import { Settings } from 'lucide-react';
  */
 import { TranslatorApiSchema, type TranslatorApiConfig } from './translatorApi';
 
+import { getWorkflowClient } from '@google-awlt/engine-extension';
+
 interface ToolConfigProps {
 	ref: React.Ref<{
 		getConfig: (formData: FormData) => TranslatorApiConfig | undefined;
@@ -23,6 +25,35 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 	const [targetLanguage, setTargetLanguage] = useState(
 		config.targetLanguage || 'es'
 	);
+	const [isAvailable, setIsAvailable] = useState(true);
+	const [isChecking, setIsChecking] = useState(false);
+
+	useEffect(() => {
+		const check = async () => {
+			setIsChecking(true);
+			try {
+				const client = getWorkflowClient();
+				const results = await client.checkCapabilities({
+					translatorApi: {
+						sourceLanguage,
+						targetLanguage,
+					},
+				});
+
+				setIsAvailable(!!results.translatorApi);
+			} catch (error) {
+				console.error(
+					'Failed to check translator availability:',
+					error
+				);
+				setIsAvailable(false);
+			} finally {
+				setIsChecking(false);
+			}
+		};
+
+		check();
+	}, [sourceLanguage, targetLanguage]);
 
 	useEffect(() => {
 		setSourceLanguage(config.sourceLanguage || 'en');
@@ -110,6 +141,23 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 							<option value="ja">Japanese</option>
 						</select>
 					</div>
+
+					{!isAvailable && !isChecking && (
+						<div className="p-3 bg-red-50 border border-red-200 rounded-md">
+							<p className="text-xs text-red-600 font-medium">
+								Warning: This language pair is not available in
+								your browser&apos;s Translator API.
+							</p>
+						</div>
+					)}
+
+					{isChecking && (
+						<div className="p-3 bg-slate-50 border border-slate-200 rounded-md animate-pulse">
+							<p className="text-xs text-slate-500 font-medium">
+								Checking language pack availability...
+							</p>
+						</div>
+					)}
 				</div>
 			</div>
 		</div>

@@ -63,7 +63,7 @@ async function handleRunWorkflow(
         `[Workflow] Injecting content script into tab ${targetTabId}`
       );
 
-			// Try-catch to handle cases where content script is not active
+      // Try-catch to handle cases where content script is not active
       try {
         await chrome.tabs.sendMessage(targetTabId, {
           type: "CONTENT_SCRIPT_ACTIVE",
@@ -117,7 +117,7 @@ async function handleRunWorkflow(
  * Handle capability check request.
  */
 async function handleCheckCapabilities(
-  capabilities: string[],
+  capabilities: string[] | Record<string, any>,
   sendResponse: (response: CapabilitiesResponse) => void
 ) {
   const runner = getWorkflowRunner();

@@ -142,18 +142,27 @@ export class WorkflowParser {
   /**
    * Get the list of capabilities required by nodes in the graph.
    * @param graph - The parsed graph
-   * @returns Array of unique capability identifiers
+   * @returns Record of unique capability identifiers to their options
    */
-  public getRequiredCapabilities(graph: ParsedGraph): string[] {
-    const capabilities = new Set<string>();
+  public getRequiredCapabilities(graph: ParsedGraph): Record<string, any> {
+    const capabilities: Record<string, any> = {};
 
     for (const node of graph.nodes.values()) {
       if (AI_API_NODE_TYPES.has(node.type)) {
-        capabilities.add(node.type);
+        if (node.type === "translatorApi") {
+          // For translator, we only need source and target languages
+          capabilities[node.type] = {
+            sourceLanguage: node.config?.sourceLanguage,
+            targetLanguage: node.config?.targetLanguage,
+          };
+        } else {
+          // Others go without specific options for now
+          capabilities[node.type] = true;
+        }
       }
     }
 
-    return Array.from(capabilities);
+    return capabilities;
   }
 
   /**

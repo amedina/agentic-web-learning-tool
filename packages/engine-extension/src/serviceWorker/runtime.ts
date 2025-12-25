@@ -46,7 +46,7 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
    * Check if a capability is available.
    * Built-in AI APIs are checked in the service worker context.
    */
-  async checkCapability(capability: string): Promise<boolean> {
+  async checkCapability(capability: string, options?: any): Promise<boolean> {
     try {
       switch (capability) {
         case "promptApi": {
@@ -88,7 +88,7 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
         case "translatorApi": {
           let available = "Translator" in self;
           // @ts-ignore
-          const status = await Translator.availability();
+          const status = await Translator.availability(options);
           available = available && status !== "unavailable";
 
           return available;

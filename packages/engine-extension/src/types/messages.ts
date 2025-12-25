@@ -72,7 +72,7 @@ export interface RunWorkflowMessage {
  */
 export interface CheckCapabilitiesMessage {
   type: "CHECK_CAPABILITIES";
-  capabilities: string[];
+  capabilities: string[] | Record<string, any>;
 }
 
 /**

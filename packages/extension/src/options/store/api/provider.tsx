@@ -107,7 +107,10 @@ const ApiProvider = ({ children }: PropsWithChildren) => {
 				'languageDetectorApi',
 				'proofreaderApi',
 			]);
-			setCapabilities(results);
+			setCapabilities({
+				...results,
+				translatorApi: true, // Always show in UI per user request
+			});
 		} catch (error) {
 			console.error('Failed to check capabilities:', error);
 		}

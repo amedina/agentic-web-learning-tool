@@ -67,11 +67,21 @@ export class WorkflowRunner {
    * Check if capabilities are available.
    */
   public async checkCapabilities(
-    capabilities: string[]
+    capabilities: string[] | Record<string, any>
   ): Promise<Record<string, boolean>> {
     const results: Record<string, boolean> = {};
-    for (const cap of capabilities) {
-      results[cap] = await this.runtime.checkCapability(cap);
+
+    if (Array.isArray(capabilities)) {
+      for (const cap of capabilities) {
+        results[cap] = await this.runtime.checkCapability(cap as any);
+      }
+    } else {
+      for (const cap in capabilities) {
+        results[cap] = await this.runtime.checkCapability(
+          cap as any,
+          capabilities[cap]
+        );
+      }
     }
 
     return results;
