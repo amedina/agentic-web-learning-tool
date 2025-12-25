@@ -23,8 +23,10 @@ import {
 	Button,
 	Dropdown,
 	getToolNameWithoutPrefix,
+	OwlIcon
 } from '@google-awlt/design-system';
 import type { Tool as McpTool } from '@modelcontextprotocol/sdk/types.js';
+
 /**
  * Internal dependencies
  */
@@ -84,6 +86,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 	const threadId = useAssistantState(
 		({ threadListItem }) => threadListItem.id
 	);
+
 	useAssistantMCP(tools, client, threadId, runtime);
 
 	const groupedTools = useMemo(() => {
@@ -145,18 +148,18 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 
 	return (
 		<ThreadPrimitive.Root className="h-full flex flex-col">
-			<ThreadPrimitive.Viewport className="flex-1 overflow-y-auto scroll-smooth px-4 md:px-0">
-				<div className="max-w-3xl mx-auto w-full pt-8 pb-32">
+			<ThreadPrimitive.Viewport className="flex flex-1 items-center overflow-y-auto scroll-smooth px-4 pb-10 md:px-0">
+				<div className="max-w-3xl mx-auto w-full flex flex-row">
 					{/* Empty State / Welcome */}
 					<ThreadPrimitive.Empty>
-						<div className="flex flex-col items-center justify-center text-center mt-20 px-4">
-							<div className="h-16 w-16 rounded-2xl flex items-center justify-center bg-background shadow-lg mb-6 text-foreground">
-								<Bot size={32} />
+						<div className="flex flex-col items-center justify-center text-center px-4">
+							<div className="mb-3">
+								<OwlIcon width={42} height={42} />
 							</div>
 							<h2 className="text-2xl font-bold text-zinc-900 mb-2">
 								How can I help you today?
 							</h2>
-							<p className="text-zinc-500 max-w-md mb-8">
+							<p className="text-zinc-500 max-w-md">
 								I can help you write code, analyze data, or even
 								check the weather. I have access to{' '}
 								{
@@ -178,7 +181,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 					/>
 				</div>
 			</ThreadPrimitive.Viewport>
-			<div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-white via-white to-transparent pb-3 pt-10 px-4">
+			<div className="bg-gradient-to-t from-white via-white to-transparent pb-3 px-4">
 				<div className="text-center mt-3 text-[10px] text-zinc-400">
 					AI can make mistakes. Please verify important information.
 				</div>
