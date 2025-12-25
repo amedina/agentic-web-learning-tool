@@ -19,7 +19,7 @@ import { Button, OptionsPageTabSection } from '@google-awlt/design-system';
 /**
  * Internal dependencies
  */
-import type { SettingsState } from './types';
+import type { SettingsState } from '../../../../types';
 
 type DataManagementSectionProps = {
 	settings: SettingsState;

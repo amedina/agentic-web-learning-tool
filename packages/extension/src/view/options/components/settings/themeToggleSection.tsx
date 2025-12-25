@@ -8,19 +8,19 @@ import { Button, cn, OptionsPageTabSection } from '@google-awlt/design-system';
 /**
  * Internal dependencies
  */
-import type { SettingsState, ThemeMode } from './types';
+import type { SettingsState, ThemeMode } from '../../../../types';
 
 export default function ThemeToggleSection() {
 	const [settings, setSettings] = useState<SettingsState>({
 		logLevel: 'WARN',
-		theme: 'system',
+		theme: 'auto',
 	});
 
 	const applyTheme = (mode: ThemeMode) => {
 		setSettings((p) => ({ ...p, theme: mode }));
 		const root = document.documentElement;
 		root.classList.remove('light', 'dark');
-		if (mode === 'system') {
+		if (mode === 'auto') {
 			if (window.matchMedia('(prefers-color-scheme: dark)').matches)
 				root.classList.add('dark');
 		} else {

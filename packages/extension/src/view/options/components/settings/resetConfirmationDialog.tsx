@@ -12,7 +12,7 @@ import { Button } from '@google-awlt/design-system';
 /**
  * Internal dependencies
  */
-import type { SettingsState, ThemeMode } from './types';
+import type { SettingsState, ThemeMode } from '../../../../types';
 
 type ResetConfirmationDialogProps = {
 	setSettings: Dispatch<SetStateAction<SettingsState>>;
@@ -31,7 +31,7 @@ export default function ResetConfirmationDialog({
 		const root = document.documentElement;
 		root.classList.remove('light', 'dark');
 
-		if (mode === 'system') {
+		if (mode === 'auto') {
 			if (window.matchMedia('(prefers-color-scheme: dark)').matches)
 				root.classList.add('dark');
 		} else {
@@ -41,8 +41,8 @@ export default function ResetConfirmationDialog({
 
 	const handleReset = useCallback(async () => {
 		if (resetInput === 'DELETE') {
-			setSettings({ logLevel: 'WARN', theme: 'system' });
-			applyTheme('system');
+			setSettings({ logLevel: 'WARN', theme: 'auto' });
+			applyTheme('auto');
 			setIsResetModalOpen(false);
 			setResetInput('');
 			await chrome.storage.sync.clear();

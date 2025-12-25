@@ -228,6 +228,9 @@ importers:
       '@assistant-ui/react-ai-sdk':
         specifier: ^1.1.16
         version: 1.1.16(@assistant-ui/react@0.11.41(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(use-sync-external-store@1.6.0(react@19.2.1)))(@types/react@19.2.7)(assistant-cloud@0.1.10)(react@19.2.1)(use-sync-external-store@1.6.0(react@19.2.1))
+      '@google-awlt/common':
+        specifier: workspace:*
+        version: link:../common
       '@google-awlt/design-system':
         specifier: workspace:*
         version: link:../design-system
@@ -261,6 +264,9 @@ importers:
       json-schema:
         specifier: ^0.4.0
         version: 0.4.0
+      loglevel:
+        specifier: ^1.9.2
+        version: 1.9.2
       lucide-react:
         specifier: ^0.542.0
         version: 0.542.0(react@19.2.1)
@@ -4698,6 +4704,10 @@ packages:
 
   lodash.merge@4.6.2:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
+
+  loglevel@1.9.2:
+    resolution: {integrity: sha512-HgMmCqIJSAKqo68l0rS2AanEWfkxaZ5wNiEFb5ggm08lDs9Xl2KxBlX3PTcaD2chBM1gXAYf491/M2Rv8Jwayg==}
+    engines: {node: '>= 0.6.0'}
 
   longest-streak@3.1.0:
     resolution: {integrity: sha512-9Ri+o0JYgehTaVBBDoMqIl8GXtbWg711O3srftcHhZ0dqnETqLaoIK0x17fUw9rFSlK/0NlsKe0Ahhyl5pXE2g==}
@@ -11224,6 +11234,8 @@ snapshots:
   lodash.memoize@4.1.2: {}
 
   lodash.merge@4.6.2: {}
+
+  loglevel@1.9.2: {}
 
   longest-streak@3.1.0: {}
 
