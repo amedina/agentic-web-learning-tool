@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import type { LOG_OPTS } from "./constants";
+import type { LOG_OPTS } from "./utils/constants";
 
 export type LogLevel = typeof LOG_OPTS[number]['id'];
 export type ThemeMode = 'light' | 'dark' | 'auto';

@@ -7,7 +7,7 @@ import { Button, cn, OptionsPageTabSection } from '@google-awlt/design-system';
 /**
  * Internal dependencies
  */
-import { LOG_OPTS } from '../../../../constants';
+import { LOG_OPTS } from '../../../../utils/constants';
 import type { SettingsContextProps } from '../../../stateProviders';
 
 type SystemsSectionProps = {
@@ -30,7 +30,7 @@ export default function SystemSection({ logLevel, toggleSettings} : SystemsSecti
 							}
 							variant="ghost"
 							className={cn(
-								'group relative p-7 flex items-center justify-between rounded-xl border text-left transition-all duration-200',
+								'group relative p-7 flex items-center justify-between rounded-xl border text-left transition-all duration-200 min-w-fit',
 								active
 									? 'bg-surface ring-1 ring-primary shadow-sm'
 									: ''

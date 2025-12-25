@@ -123,7 +123,7 @@
     --color-strong-zinc: var(--strong-zinc);
     --color-extreme-zinc: var(--extreme-zinc);
 
-    --color-status-trace: var(--blue-500);
+    --color-status-trace: var(--color-blue-500);
     --color-status-debug: var(--color-violet-500);
     --color-status-info: var(--color-emerald-500);
     --color-status-warn: var(--color-amber-500);
