@@ -7,7 +7,7 @@ import z from 'zod';
 
 /**
  * Internal dependencies
-*/
+ */
 import { ToolItem } from '../../../../ui';
 import { useApi, useFlow } from '../../../../../store';
 
@@ -26,7 +26,8 @@ export type SummarizerApiConfig = z.infer<typeof SummarizerApiSchema>;
 const createConfig: () => SummarizerApiConfig = () => {
 	return {
 		title: 'Summarizer',
-		context: 'Summarizes text into key points, TL;DR, teasers, or headlines.',
+		context:
+			'Summarizes text into key points, TL;DR, teasers, or headlines.',
 		type: 'key-points',
 		format: 'markdown',
 		length: 'short',
@@ -40,11 +41,14 @@ const SummarizerApi = () => {
 		addFlowNode: actions.addNode,
 	}));
 
-	const { addApiNode } = useApi(({ actions }) => ({
+	const { addApiNode, isAvailable } = useApi(({ state, actions }) => ({
 		addApiNode: actions.addNode,
+		isAvailable: state.capabilities.summarizerApi,
 	}));
 
 	const addSummarizerApiNode = useCallback(() => {
+		if (!isAvailable) return;
+
 		const config = createConfig();
 		const id = new Date().getTime().toString();
 
@@ -62,13 +66,19 @@ const SummarizerApi = () => {
 			type: 'summarizerApi',
 			config,
 		});
-	}, [addApiNode, addFlowNode]);
+	}, [addApiNode, addFlowNode, isAvailable]);
 
 	return (
 		<ToolItem
 			label="Summarizer API"
 			onClick={addSummarizerApiNode}
 			Icon={NotepadTextDashed}
+			disabled={!isAvailable}
+			title={
+				!isAvailable
+					? 'Built-in Summarizer API is not available in this browser'
+					: undefined
+			}
 		/>
 	);
 };

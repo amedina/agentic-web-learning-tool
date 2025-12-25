@@ -7,7 +7,7 @@ import z from 'zod';
 
 /**
  * Internal dependencies
-*/
+ */
 import { ToolItem } from '../../../../ui';
 import { useApi, useFlow } from '../../../../../store';
 
@@ -26,7 +26,8 @@ export type WriterApiConfig = z.infer<typeof WriterApiSchema>;
 const createConfig: () => WriterApiConfig = () => {
 	return {
 		title: 'Writer',
-		context: 'A helpful assistant that writes content based on the provided context.',
+		context:
+			'A helpful assistant that writes content based on the provided context.',
 		tone: 'neutral',
 		format: 'markdown',
 		length: 'short',
@@ -40,11 +41,14 @@ const WriterApi = () => {
 		addFlowNode: actions.addNode,
 	}));
 
-	const { addApiNode } = useApi(({ actions }) => ({
+	const { addApiNode, isAvailable } = useApi(({ state, actions }) => ({
 		addApiNode: actions.addNode,
+		isAvailable: state.capabilities.writerApi,
 	}));
 
 	const addWriterApiNode = useCallback(() => {
+		if (!isAvailable) return;
+
 		const config = createConfig();
 		const id = new Date().getTime().toString();
 
@@ -62,13 +66,19 @@ const WriterApi = () => {
 			type: 'writerApi',
 			config,
 		});
-	}, [addApiNode, addFlowNode]);
+	}, [addApiNode, addFlowNode, isAvailable]);
 
 	return (
 		<ToolItem
 			label="Writer API"
 			onClick={addWriterApiNode}
 			Icon={PenTool}
+			disabled={!isAvailable}
+			title={
+				!isAvailable
+					? 'Built-in Writer API is not available in this browser'
+					: undefined
+			}
 		/>
 	);
 };

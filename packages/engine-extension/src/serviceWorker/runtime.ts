@@ -47,79 +47,83 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
    * Built-in AI APIs are checked in the service worker context.
    */
   async checkCapability(capability: string): Promise<boolean> {
-    switch (capability) {
-      case "promptApi": {
-        let available = "LanguageModel" in self;
-        // @ts-ignore
-        const status = await LanguageModel.availability();
-        available = available && status !== "unavailable";
+    try {
+      switch (capability) {
+        case "promptApi": {
+          let available = "LanguageModel" in self;
+          // @ts-ignore
+          const status = await LanguageModel.availability();
+          available = available && status !== "unavailable";
 
-        return available;
+          return available;
+        }
+
+        case "writerApi": {
+          let available = "Writer" in self;
+          // @ts-ignore
+          const status = await Writer.availability();
+          available = available && status !== "unavailable";
+
+          return available;
+        }
+
+        case "rewriterApi": {
+          let available = "Rewriter" in self;
+          // @ts-ignore
+          const status = await Rewriter.availability();
+          available = available && status !== "unavailable";
+
+          return available;
+        }
+
+        case "summarizerApi": {
+          let available = "Summarizer" in self;
+          // @ts-ignore
+          const status = await Summarizer.availability();
+          available = available && status !== "unavailable";
+
+          return available;
+        }
+
+        case "translatorApi": {
+          let available = "Translator" in self;
+          // @ts-ignore
+          const status = await Translator.availability();
+          available = available && status !== "unavailable";
+
+          return available;
+        }
+
+        case "languageDetectorApi": {
+          let available = "LanguageDetector" in self;
+          // @ts-ignore
+          const status = await LanguageDetector.availability();
+          available = available && status !== "unavailable";
+
+          return available;
+        }
+
+        case "proofreaderApi": {
+          let available = "Proofreader" in self;
+          // @ts-ignore
+          const status = await Proofreader.availability();
+          available = available && status !== "unavailable";
+
+          return available;
+        }
+
+        // JS tools are always available
+        case "staticInput":
+        case "domInput":
+        case "alertNotification":
+        case "condition":
+          return true;
+
+        default:
+          return false;
       }
-
-      case "writerApi": {
-        let available = "Writer" in self;
-        // @ts-ignore
-        const status = await Writer.availability();
-        available = available && status !== "unavailable";
-
-        return available;
-      }
-
-      case "rewriterApi": {
-        let available = "Rewriter" in self;
-        // @ts-ignore
-        const status = await Rewriter.availability();
-        available = available && status !== "unavailable";
-
-        return available;
-      }
-
-      case "summarizerApi": {
-        let available = "Summarizer" in self;
-        // @ts-ignore
-        const status = await Summarizer.availability();
-        available = available && status !== "unavailable";
-
-        return available;
-      }
-
-      case "translatorApi": {
-        let available = "Translator" in self;
-        // @ts-ignore
-        const status = await Translator.availability();
-        available = available && status !== "unavailable";
-
-        return available;
-      }
-
-      case "languageDetectorApi": {
-        let available = "LanguageDetector" in self;
-        // @ts-ignore
-        const status = await LanguageDetector.availability();
-        available = available && status !== "unavailable";
-
-        return available;
-      }
-
-      case "proofreaderApi": {
-        let available = "Proofreader" in self;
-        // @ts-ignore
-        const status = await Proofreader.availability();
-        available = available && status !== "unavailable";
-
-        return available;
-      }
-
-      // JS tools are always available
-      case "staticInput":
-      case "domInput":
-      case "alertNotification":
-      case "condition":
-        return true;
-
-      default:
-        return false;
+    } catch (error) {
+      return false;
     }
   }
 

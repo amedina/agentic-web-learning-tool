@@ -7,7 +7,7 @@ import z from 'zod';
 
 /**
  * Internal dependencies
-*/
+ */
 import { useApi, useFlow } from '../../../../../store';
 import { ToolItem } from '../../../../ui';
 
@@ -47,11 +47,14 @@ const PromptApi = () => {
 		addFlowNode: actions.addNode,
 	}));
 
-	const { addApiNode } = useApi(({ actions }) => ({
+	const { addApiNode, isAvailable } = useApi(({ state, actions }) => ({
 		addApiNode: actions.addNode,
+		isAvailable: state.capabilities.promptApi,
 	}));
 
 	const addPromptApiNode = useCallback(() => {
+		if (!isAvailable) return;
+
 		const config = createConfig();
 		const id = new Date().getTime().toString();
 
@@ -69,13 +72,19 @@ const PromptApi = () => {
 			type: 'promptApi',
 			config,
 		});
-	}, [addApiNode, addFlowNode]);
+	}, [addApiNode, addFlowNode, isAvailable]);
 
 	return (
 		<ToolItem
 			label="Chat Assistant"
 			onClick={addPromptApiNode}
 			Icon={NotebookTextIcon}
+			disabled={!isAvailable}
+			title={
+				!isAvailable
+					? 'Built-in Prompt API is not available in this browser'
+					: undefined
+			}
 		/>
 	);
 };

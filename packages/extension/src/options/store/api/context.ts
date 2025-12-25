@@ -44,6 +44,7 @@ export interface ApiStoreContext {
 			[id: string]: NodeConfig;
 		};
 		selectedNode: string | null;
+		capabilities: Record<string, boolean>;
 	};
 	actions: {
 		getNode: (id: string) => NodeConfig | undefined;
@@ -58,6 +59,7 @@ export interface ApiStoreContext {
 		removeNode: (id: string) => void;
 		setSelectedNode: (id: string | null) => void;
 		clearApiData: () => void;
+		checkCapabilities: () => Promise<void>;
 	};
 }
 
@@ -65,6 +67,7 @@ const initialState: ApiStoreContext = {
 	state: {
 		nodes: {},
 		selectedNode: null,
+		capabilities: {},
 	},
 	actions: {
 		getNode: () => undefined,
@@ -73,6 +76,7 @@ const initialState: ApiStoreContext = {
 		removeNode: () => {},
 		setSelectedNode: () => {},
 		clearApiData: () => {},
+		checkCapabilities: async () => {},
 	},
 };
 
