@@ -16,6 +16,7 @@ import {
 	SidebarHeader,
 	SidebarTrigger,
 } from './components';
+import { OwlIcon } from '../../icons';
 import { useSidebar } from './sidebarProvider';
 
 type MenuItem = {
@@ -40,8 +41,11 @@ export function Sidebar({ items, sidebarVariant = 'sidebar', collapsible = 'offc
 
 	return (
 		<SidebarMain variant={sidebarVariant} collapsible={collapsible} side={side}>
-			<SidebarHeader className="flex-row justify-between items-center w-full">
-				<span className={`text-lg font-bold ${sidebarState === 'expanded' ? '' : 'hidden'}`}>AWLT</span>
+			<SidebarHeader className="flex justify-between items-center w-full">
+				<div className="flex items-center gap-2">
+					<div className={`ml-2 ${sidebarState === 'expanded' ? '' : 'hidden'}`}><OwlIcon className={`h-6 w-6`} /></div>
+					<span className={`text-lg font-bold ${sidebarState === 'expanded' ? '' : 'hidden'}`}>AWLT</span>
+				</div>
 				<SidebarTrigger />
 			</SidebarHeader>
 			<SidebarContent>
