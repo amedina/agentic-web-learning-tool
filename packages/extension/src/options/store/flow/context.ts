@@ -28,6 +28,7 @@ export interface FlowStoreContext {
 		nodeTypes: {
 			[key: string]: () => React.JSX.Element;
 		};
+		isRunning: boolean;
 	};
 	actions: {
 		onNodesChange: (changes: NodeChange<NodeType>[]) => void;
@@ -39,8 +40,9 @@ export interface FlowStoreContext {
 		deleteNode: (id: string) => void;
 		updateNodeStatus: (
 			id: string,
-			status: 'running' | 'success' | 'error'
+			status: 'running' | 'success' | 'error' | undefined
 		) => void;
+		setIsRunning: (isRunning: boolean) => void;
 		clearFlow: () => void;
 	};
 }
@@ -50,6 +52,7 @@ const initialState: FlowStoreContext = {
 		nodes: [],
 		edges: [],
 		nodeTypes: {},
+		isRunning: false,
 	},
 	actions: {
 		onNodesChange: () => {},
@@ -60,6 +63,7 @@ const initialState: FlowStoreContext = {
 		addNode: () => {},
 		deleteNode: () => {},
 		updateNodeStatus: () => {},
+		setIsRunning: () => {},
 		clearFlow: () => {},
 	},
 };

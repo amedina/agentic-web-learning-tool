@@ -31,6 +31,7 @@ export interface FlowProps<
 	selectedTabId: number | null;
 	setSelectedTabId: (tabId: number | null) => void;
 	tabs: chrome.tabs.Tab[];
+	isRunning: boolean;
 	actions: {
 		onImport: () => void;
 		onExport: () => void;
@@ -54,6 +55,7 @@ const Flow = <NodeType extends Node, EdgeType extends Edge>({
 	selectedTabId,
 	setSelectedTabId,
 	tabs,
+	isRunning,
 	actions,
 }: FlowProps<NodeType, EdgeType>) => {
 	return (
@@ -131,10 +133,18 @@ const Flow = <NodeType extends Node, EdgeType extends Edge>({
 
 					<button
 						onClick={actions.onRun}
-						className="flex items-center gap-1 px-4 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded shadow-sm transition-colors"
+						disabled={isRunning}
+						className={`flex items-center gap-1 px-4 py-1.5 text-sm font-medium text-white rounded shadow-sm transition-colors ${
+							isRunning
+								? 'bg-blue-400 cursor-not-allowed opacity-75'
+								: 'bg-blue-600 hover:bg-blue-700'
+						}`}
 					>
-						<Play size={16} />
-						Run
+						<Play
+							size={16}
+							className={isRunning ? 'animate-pulse' : ''}
+						/>
+						{isRunning ? 'Running...' : 'Run'}
 					</button>
 				</div>
 			</div>

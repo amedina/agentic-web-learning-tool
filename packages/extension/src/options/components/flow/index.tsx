@@ -24,7 +24,6 @@ const FlowContainer = () => {
 	const [workflowId, setWorkflowId] = useState<string | null>(null);
 	const [tabs, setTabs] = useState<chrome.tabs.Tab[]>([]);
 	const [selectedTabId, setSelectedTabId] = useState<number | null>(null);
-	const [isExecuting, setIsExecuting] = useState(false);
 	const [toast, setToast] = useState<{
 		message: string;
 		type: 'success' | 'error';
@@ -42,6 +41,8 @@ const FlowContainer = () => {
 		clearFlow,
 		addNode,
 		updateNodeStatus,
+		isRunning,
+		setIsRunning,
 	} = useFlow(({ state, actions }) => ({
 		nodes: state.nodes,
 		edges: state.edges,
@@ -54,6 +55,8 @@ const FlowContainer = () => {
 		clearFlow: actions.clearFlow,
 		addNode: actions.addNode,
 		updateNodeStatus: actions.updateNodeStatus,
+		isRunning: state.isRunning,
+		setIsRunning: actions.setIsRunning,
 	}));
 
 	const { nodes: nodesApiData, addNode: addApiNode } = useApi(
@@ -278,16 +281,16 @@ const FlowContainer = () => {
 	};
 
 	const handleRun = async () => {
-		if (isExecuting) return;
+		if (isRunning) return;
 		if (!selectedTabId) {
 			showToast('Please select a tab to run on', 'error');
 			return;
 		}
 
-		setIsExecuting(true);
+		setIsRunning(true);
 
 		// Reset statuses
-		nodes.forEach((node) => updateNodeStatus(node.id, undefined as any));
+		nodes.forEach((node) => updateNodeStatus(node.id, undefined));
 
 		const workflowData = serializeWorkflow(
 			workflowId,
@@ -311,18 +314,18 @@ const FlowContainer = () => {
 					);
 				},
 				onComplete: (context: any) => {
-					setIsExecuting(false);
+					setIsRunning(false);
 					showToast('Workflow completed successfully!', 'success');
 					console.log('Workflow context:', context);
 				},
 				onError: (error: string) => {
-					setIsExecuting(false);
+					setIsRunning(false);
 					showToast(`Workflow failed: ${error}`, 'error');
 					console.error('Workflow error:', error);
 				},
 			});
 		} catch (error) {
-			setIsExecuting(false);
+			setIsRunning(false);
 			const msg = error instanceof Error ? error.message : String(error);
 			showToast(`Failed to start workflow: ${msg}`, 'error');
 		}
@@ -450,6 +453,7 @@ const FlowContainer = () => {
 					selectedTabId={selectedTabId}
 					setSelectedTabId={setSelectedTabId}
 					tabs={tabs}
+					isRunning={isRunning}
 					actions={{
 						onImport: handleImport,
 						onExport: handleExport,
