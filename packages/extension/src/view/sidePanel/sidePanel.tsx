@@ -1,37 +1,45 @@
 /**
- * External dependencies
- */
-import {
-  AssistantRuntimeProvider,
-} from "@assistant-ui/react";
-import { lastAssistantMessageIsCompleteWithToolCalls } from 'ai';
-import { useChatRuntime } from '@assistant-ui/react-ai-sdk';
-import { useEffect } from "react";
-/**
  * Internal dependencies
  */
-import { ChatBotUI } from "./components";
-import { GeminiNanoChatTransport } from "./transports/geminiNano";
-//Declare and initialize Gemini Nano transport only once no need to recreate on every render
-//Move this to a custom hook when more options for LLM is provided
-const geminiNanoTransport = new GeminiNanoChatTransport();
+import { useChatRuntime } from '@assistant-ui/react-ai-sdk';
+import { ChatBotUI } from './components';
+import { useModelProvider } from './providers';
+import {
+	AssistantRuntimeProvider,
+	type AssistantRuntime,
+} from '@assistant-ui/react';
+import { lastAssistantMessageIsCompleteWithToolCalls } from 'ai';
+import { useEffect, useRef } from 'react';
 
 const SidePanel = () => {
-   const runtime = useChatRuntime({
-    transport: geminiNanoTransport,
-    sendAutomaticallyWhen: (messages) => lastAssistantMessageIsCompleteWithToolCalls(messages),
-  });
+	const { transport } = useModelProvider(({ state }) => ({
+		transport: state.transport,
+	}));
 
- useEffect(() => {
-    geminiNanoTransport.setRuntime(runtime);
-    geminiNanoTransport.initializeSession();
-  }, [runtime]);
+	const runtimeRef = useRef<AssistantRuntime | null>(null);
 
-  return (
-    <AssistantRuntimeProvider runtime={runtime}>
-      <ChatBotUI runtime={runtime} />
-    </AssistantRuntimeProvider>
-  )
+	runtimeRef.current = useChatRuntime({
+		//@ts-expect-error -- transport will be initialised once available
+		transport,
+		sendAutomaticallyWhen: (messages) =>
+			lastAssistantMessageIsCompleteWithToolCalls(messages),
+	});
+
+	useEffect(() => {
+		(async () => {
+			if (!runtimeRef.current) {
+				return;
+			}
+			runtimeRef.current.thread.reset();
+			transport?.setRuntime(runtimeRef.current);
+		})();
+	}, [transport]);
+
+	return (
+		<AssistantRuntimeProvider runtime={runtimeRef.current}>
+			<ChatBotUI runtime={runtimeRef.current} />
+		</AssistantRuntimeProvider>
+	);
 };
 
 export default SidePanel;

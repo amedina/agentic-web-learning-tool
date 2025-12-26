@@ -71,10 +71,18 @@ try {
         });
 
         transport.onclose = () => {
+            if (!chrome.runtime?.id) {
+                return;
+            }
+
             backgroundPort.disconnect();
         }
 
         backgroundPort.onDisconnect.addListener(() => {
+            if (!chrome.runtime?.id) {
+                return;
+            }
+
             transport.close();
         });
     })();

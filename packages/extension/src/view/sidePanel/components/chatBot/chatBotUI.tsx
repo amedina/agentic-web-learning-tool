@@ -7,16 +7,48 @@ import {
 	useAssistantState,
 	type AssistantRuntime,
 } from '@assistant-ui/react';
-import { ArrowUpIcon, StopIcon } from '@radix-ui/react-icons';
 import { useMcpClient } from '@mcp-b/mcp-react-hooks';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import type { JSONRPCMessage } from '@modelcontextprotocol/sdk/types.js';
+import {
+	Paperclip,
+	SendHorizontal,
+	CircleStop,
+	ToolCaseIcon,
+	CpuIcon,
+	Settings,
+} from 'lucide-react';
+import {
+	Button,
+	Dropdown,
+	getToolNameWithoutPrefix,
+	OwlIcon,
+} from '@google-awlt/design-system';
+import type { Tool as McpTool } from '@modelcontextprotocol/sdk/types.js';
+
 /**
  * Internal dependencies
  */
 import { useAssistantMCP } from '../../hooks';
-import ChatMessage from './chatMessage';
-import { transport } from '../../../../utils/transports';
+import { transport, useModelProvider } from '../../providers';
+import AssistantMessage from './assistantMessage';
+import EditComposer from './editComposer';
+import UserMessage from './userMessage';
+import type { AgentType } from '../../../../types';
+
+type SingleGroupTool = {
+	group: string;
+	key: string;
+	items: { id: string; label: string }[];
+};
+
+type GroupedTool = {
+	[key: string]: {
+		group: string;
+		key: string;
+		items: McpTool[];
+	};
+};
 
 type ChatBotUIProps = {
 	runtime: AssistantRuntime;
@@ -24,6 +56,15 @@ type ChatBotUIProps = {
 
 const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 	const { client, tools } = useMcpClient();
+	const {
+		agents = [],
+		setSelectedAgent,
+		selectedAgent,
+	} = useModelProvider(({ state, actions }) => ({
+		agents: state.agents,
+		setSelectedAgent: actions.setSelectedAgent,
+		selectedAgent: state.selectedAgent,
+	}));
 
 	useEffect(() => {
 		(async () => {
@@ -32,66 +73,195 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 
 		return () => {
 			client.close();
-		}
+		};
 	}, [client]);
 
 	useEffect(() => {
-		transport.onmessage = (async (message: JSONRPCMessage) => {
-			//@ts-expect-error -- One of the JSONRPCMessage doesnt have the method property
-			if (message.method === 'get/Tools') {
+		transport.onmessage = async (message: JSONRPCMessage) => {
+			if ('method' in message && message.method === 'get/Tools') {
 				await client.listTools();
 			}
-		})
+		};
 	}, [client]);
 
 	const threadId = useAssistantState(
 		({ threadListItem }) => threadListItem.id
 	);
+
 	useAssistantMCP(tools, client, threadId, runtime);
 
-	return (
-		<ThreadPrimitive.Root className="flex h-full flex-col items-stretch bg-[#2b2a27] px-4 pt-16 font-serif">
-			<ThreadPrimitive.Viewport className="no-scrollbar flex flex-grow flex-col overflow-y-scroll">
-				<ThreadPrimitive.Messages
-					components={{ Message: ChatMessage }}
-				/>
-				<ThreadPrimitive.If empty={false}>
-					<p className="mx-auto w-full max-w-screen-md p-2 text-right text-xs text-[#b8b5a9]">
-						LLM can make mistakes. Please double-check responses.
-					</p>
-				</ThreadPrimitive.If>
-			</ThreadPrimitive.Viewport>
+	const groupedTools = useMemo(() => {
+		const toolGroups: SingleGroupTool[] = [];
 
-			<ComposerPrimitive.Root className="mx-auto relative flex w-full max-w-screen-md flex-col rounded-xl border border-[#6c6a6040] bg-[#393937] p-1.5 m-2">
-				<div className="flex">
-					<p className='absolute text-xxs top-0 left-0 ml-1 text-white'>Total tools registered: {tools.length}</p>
-					<ComposerPrimitive.Input
-						placeholder="Reply to Agent..."
-						className="h-12 flex-grow resize-none bg-transparent p-3.5 text-sm text-white outline-none placeholder:text-white/50"
-					/>
-					<ThreadPrimitive.If running={false}>
-						<ComposerPrimitive.Send
-							type="submit"
-							className="m-2 flex h-8 w-8 items-center justify-center rounded-lg bg-[#ae5630] text-2xl font-bold disabled:opacity-0"
-						>
-							<ArrowUpIcon
-								width={16}
-								height={16}
-								className="text-[#ddd] [&_path]:stroke-white [&_path]:stroke-[0.5]"
-							/>
-						</ComposerPrimitive.Send>
-					</ThreadPrimitive.If>
-					<ThreadPrimitive.If running>
-						<ComposerPrimitive.Cancel type="button" className="m-2 flex h-8 w-8 items-center justify-center rounded-lg bg-[#ae5630] text-2xl font-bold disabled:opacity-0">
-							<StopIcon
-								height={16}
-								width={16}
-								className="text-[#ddd] [&_path]:stroke-white [&_path]:stroke-[0.5]"
-							/>
-						</ComposerPrimitive.Cancel>
-					</ThreadPrimitive.If>
+		const websiteTools = tools.reduce((acc, tool) => {
+			const WEBSITE_TOOL_PREFIX = 'website_tool_';
+			if (getToolNameWithoutPrefix(tool.name) === 'dummyTool') {
+				return acc;
+			}
+
+			if (tool.name.startsWith(WEBSITE_TOOL_PREFIX)) {
+				const toolNameWithoutHardCodePrefix = tool.name.substring(
+					WEBSITE_TOOL_PREFIX.length
+				);
+				const pieces = toolNameWithoutHardCodePrefix.split('_');
+				const cleanToolName = pieces.join('_');
+				const result = cleanToolName
+					.split('_tab')[0]
+					.replaceAll('_', '.');
+
+				if (acc[result]) {
+					acc[result].items.push(tool);
+				} else {
+					acc[result] = {
+						group: result,
+						key: result,
+						items: [tool],
+					};
+				}
+				return acc;
+			} else {
+				if (acc['other']) {
+					acc['others'].items.push(tool);
+				} else {
+					acc['others'] = {
+						group: 'others',
+						key: 'others',
+						items: [tool],
+					};
+				}
+			}
+			return acc;
+		}, {} as GroupedTool);
+
+		Object.keys(websiteTools).forEach((key) => {
+			toolGroups.push({
+				group: websiteTools[key].group,
+				key: websiteTools[key].key,
+				items: websiteTools[key].items.map((tool) => ({
+					id: tool.name,
+					label: getToolNameWithoutPrefix(tool.name) ?? '',
+				})),
+			});
+		});
+
+		return toolGroups;
+	}, [tools]);
+
+	const messages = useAssistantState(({ thread }) => thread.messages);
+
+	return (
+		<ThreadPrimitive.Root className="h-full flex flex-col">
+			<ThreadPrimitive.Viewport
+				className={`flex flex-1 items-center overflow-y-auto scroll-smooth px-4 md:px-0 ${messages.length === 0 ? '' : 'h-full'}`}
+			>
+				<div
+					className={`max-w-3xl mx-auto w-full flex flex-col ${messages.length === 0 ? '' : 'h-full'}`}
+				>
+					{/* Empty State / Welcome */}
+					<ThreadPrimitive.Empty>
+						<div className="flex flex-col items-center justify-center text-center px-4">
+							<div className="mb-3">
+								<OwlIcon width={42} height={42} />
+							</div>
+							<h2 className="text-2xl font-bold text-zinc-900 mb-2">
+								How can I help you today?
+							</h2>
+							<p className="text-zinc-500 max-w-md">
+								I can help you write code, analyze data, or even
+								check the weather. I have access to{' '}
+								{
+									tools.filter(
+										(tool) => tool.name !== 'dummyTool'
+									).length
+								}{' '}
+								tools.
+							</p>
+						</div>
+					</ThreadPrimitive.Empty>
+					<div className="h-full mt-8">
+						<ThreadPrimitive.Messages
+							components={{
+								UserMessage,
+								EditComposer,
+								AssistantMessage,
+							}}
+						/>
+					</div>
 				</div>
-			</ComposerPrimitive.Root>
+			</ThreadPrimitive.Viewport>
+			<div className="bg-gradient-to-t from-white via-white to-transparent pb-2 px-4">
+				<div className="text-center mt-3 mb-1 text-[10px] text-zinc-400">
+					AI can make mistakes. Please verify important information.
+				</div>
+				<div className="max-w-3xl mx-auto w-full">
+					<ComposerPrimitive.Root className="relative flex flex-col gap-2 rounded-md border border-zinc-200 bg-white shadow-xl shadow-zinc-200/50 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all overflow-hidden">
+						<ComposerPrimitive.Input
+							placeholder="Ask anything..."
+							className="w-full max-h-40 min-h-[56px] resize-none bg-transparent px-4 py-4 text-sm outline-none placeholder:text-zinc-400 text-zinc-800"
+						/>
+						<div className="flex items-center justify-between gap-2 px-3">
+							<div className="flex items-center">
+								<Button
+									variant="ghost"
+									disabled
+									title="Attach"
+									size="icon"
+								>
+									<Paperclip size={18} />
+								</Button>
+								<Dropdown
+									options={groupedTools}
+									onSelect={(id) => console.log(id)}
+									selectedValue=""
+								>
+									<Button variant="ghost" size="icon">
+										<ToolCaseIcon className="w-4 h-4" />
+									</Button>
+								</Dropdown>
+								<Dropdown
+									options={agents
+										.filter(({ status }) => status)
+										.map((agent) => ({
+											id: agent.id,
+											label: agent.name,
+										}))}
+									onSelect={(id) =>
+										setSelectedAgent(
+											agents.find(
+												(agent) => agent.id === id
+											) as AgentType
+										)
+									}
+									selectedValue={selectedAgent.id}
+								>
+									<Button variant="ghost" size="icon">
+										<CpuIcon className="w-4 h-4" />
+									</Button>
+								</Dropdown>
+								<Button
+									size="icon"
+									variant="ghost"
+									onClick={() =>
+										chrome.runtime.openOptionsPage()
+									}
+								>
+									<Settings className="w-4 h-4" />
+								</Button>
+							</div>
+							<ThreadPrimitive.If running={false}>
+								<ComposerPrimitive.Send className="h-9 w-9 flex items-center justify-center rounded-lg bg-background hover:text-ring text-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+									<SendHorizontal size={18} />
+								</ComposerPrimitive.Send>
+							</ThreadPrimitive.If>
+							<ThreadPrimitive.If running>
+								<ComposerPrimitive.Cancel className="h-9 w-9 flex items-center justify-center rounded-lg bg-background hover:text-ring text-foreground hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+									<CircleStop size={18} />
+								</ComposerPrimitive.Cancel>
+							</ThreadPrimitive.If>
+						</div>
+					</ComposerPrimitive.Root>
+				</div>
+			</div>
 		</ThreadPrimitive.Root>
 	);
 };

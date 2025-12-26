@@ -2,6 +2,9 @@
  * External dependencies
  */
 import { useCallback, useEffect, useState } from "react"
+/**
+ * internal dependencies
+ */
 import { MOBILE_BREAKPOINT } from "../constants";
 
 export default function useIsMobile() {

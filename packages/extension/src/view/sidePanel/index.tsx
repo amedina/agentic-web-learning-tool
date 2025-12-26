@@ -3,21 +3,20 @@
  */
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { McpClientProvider } from '@mcp-b/mcp-react-hooks';
 /**
  * Internal dependencies
  */
 import './index.css';
 import SidePanel from './sidePanel';
-import { client, transport } from '../../utils/transports';
+import { ModelProvider } from './providers';
 import { SettingsProvider } from '../stateProviders';
 
 createRoot(document.getElementById('root')!).render(
-	<McpClientProvider client={client} transport={transport} opts={{}}>
-		<SettingsProvider view='sidepanel'>
+	<ModelProvider>
+		<SettingsProvider view="sidepanel">
 			<StrictMode>
 				<SidePanel />
 			</StrictMode>
 		</SettingsProvider>
-	</McpClientProvider>
+	</ModelProvider>
 );
