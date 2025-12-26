@@ -145,11 +145,14 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 
 		return toolGroups;
 	}, [tools]);
-
+	//Only shows models whose apiKeys have been and have been enabled
 	const modelOptions = useMemo(() => {
 		const availableModelProviders = Object.keys(apiKeys).filter(
 			(key) => apiKeys[key].status
 		);
+		//Add browser-ai by default since it doesnt require apiKeys
+		availableModelProviders.push('browser-ai');
+
 		const modelProviders = availableModelProviders.map((provider) => {
 			const { id = '', name = '', models = [] } = INITIAL_PROVIDERS.find(
 				({ id }) => provider === id

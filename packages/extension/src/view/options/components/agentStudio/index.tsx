@@ -24,13 +24,12 @@ export default function AgentDashboard() {
 				{/* Dashboard Grid */}
 				{INITIAL_PROVIDERS.filter(
 					(provider) => provider.id !== 'browser-ai'
-				).map((provider) => {
-					console.log(apiKeys, apiKeys?.[provider.id])
-					return <SingleProviderAccordion
+				).map((provider) => (
+					<SingleProviderAccordion
 						provider={provider}
 						storedData={apiKeys?.[provider.id]}
 					/>
-})}
+				))}
 			</div>
 		</OptionsPageTab>
 	);
