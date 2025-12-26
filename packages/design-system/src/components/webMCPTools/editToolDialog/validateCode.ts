@@ -1,3 +1,5 @@
+import * as acorn from 'acorn';
+
 /**
  * Validates the code to ensure it has the required metadata and execute function.
  * @param currentCode The code to validate.
@@ -5,14 +7,26 @@
  */
 export const validateCode = (currentCode: string): { valid: boolean; error?: string } => {
     try {
-        // 1. Validate 'metadata' export
+        // 1. Validate Syntax
+        try {
+            // We use acorn to parse the code. This avoids using 'new Function' or 'eval'
+            // which triggers CSP violations in Chrome Extensions.
+            acorn.parse(currentCode, {
+                ecmaVersion: 'latest',
+                sourceType: 'module'
+            });
+        } catch (e: any) {
+            return { valid: false, error: `Syntax Error: ${e.message}` };
+        }
+
+        // 2. Validate 'metadata' export
         // Checks for: export const metadata = {
         const hasMetadata = /export\s+const\s+metadata\s*=\s*\{/.test(currentCode);
         if (!hasMetadata) {
             throw new Error("Missing required metadata export. Format: `export const metadata = { ... }`");
         }
 
-        // 2. Validate 'metadata' content keys
+        // 3. Validate 'metadata' content keys
         // Required: 'name', 'inputSchema'
         // We use \b to ensure we match whole words (e.g., 'name' vs 'namespace')
         const hasNameKey = /(['"]?)\bname\b\1\s*:/.test(currentCode);
@@ -25,7 +39,7 @@ export const validateCode = (currentCode: string): { valid: boolean; error?: str
             throw new Error("Metadata object is missing required key: 'inputSchema'.");
         }
 
-        // 3. Validate 'execute' function export
+        // 4. Validate 'execute' function export
         // Checks for: export async function execute(
         // We explicitly check for 'async' because MCP tools are asynchronous by default.
         // We use \bexecute\b to ensure we don't match 'executes' or other variations.
