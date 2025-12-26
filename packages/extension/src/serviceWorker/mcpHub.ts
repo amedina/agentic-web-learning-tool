@@ -11,6 +11,7 @@ import { type CallToolResult, type Tool } from '@modelcontextprotocol/sdk/types.
 import { RequestManager, sanitizeToolName } from './utils';
 import { MESSAGE_TYPES, CONNECTION_NAMES } from '../utils/constants';
 import type { ContentScriptMessage, TabData } from './types';
+import logger from '@/utils/logger';
 
 /**
  * The central hub managing connections between the MCP Server and Chrome Tabs.
@@ -78,7 +79,7 @@ class McpHub {
     const url = port.sender?.tab?.url || '';
 
     if (!tabId) {
-      console.warn('Connection attempted from port without tab ID');
+      logger(['warn'], ['Connection attempted from port without tab ID']);
       return;
     }
 
@@ -106,7 +107,7 @@ class McpHub {
             break;
         }
       } catch (err) {
-        console.log(`Error handling message from tab ${tabId}:`, err);
+        logger(['error'], [`Error handling message from tab ${tabId}:`, err]);
       }
     });
 
@@ -279,7 +280,7 @@ class McpHub {
         try {
           await chrome.tabs.update(tabData.tabId, { active: true });
         } catch (e) {
-          console.warn(`Failed to activate tab ${tabData.tabId}`, e);
+          logger(['warn'], [`Failed to activate tab ${tabData.tabId}`, e]);
           return null;
         }
       }
@@ -310,7 +311,7 @@ class McpHub {
           this.requestToolsFromTab(domain, dataId);
         }
       } catch (e) {
-        console.log('Error updating active tab tools:', e);
+        logger(['error'], ['Error updating active tab tools:', e]);
       }
     });
   }
@@ -335,7 +336,7 @@ class McpHub {
         this.activeTabId = activeTab.id;
       }
     } catch (e) {
-      console.error('Error initializing active tab:', e);
+      logger(['error'], ['Error initializing active tab:', e]);
     }
   }
 

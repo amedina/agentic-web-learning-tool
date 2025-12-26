@@ -10,10 +10,11 @@ import { createGoogleGenerativeAI } from '@ai-sdk/google';
  */
 import { GeminiNanoChatTransport } from "./geminiNano";
 import { CloudHostedTransport, type ProviderSettings } from "./cloudHosted";
+import logger from '../../../utils/logger';
 
 function transportGenerator(provider = 'browser-ai', model = 'prompt-api', config: ProviderSettings) {
     let modelInstance = null;
-    console.log('Generating transport for provider:', provider, 'model:', model);
+    logger(['log'],['Generating transport for provider:', provider, 'model:', model]);
     switch (provider) {
         case 'broswer-ai':
             return new GeminiNanoChatTransport();

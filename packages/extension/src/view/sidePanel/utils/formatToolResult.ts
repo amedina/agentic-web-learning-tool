@@ -2,6 +2,10 @@
  * External Dependencies
  */
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
+/**
+ * Internal Dependencies
+ */
+import logger from "../../../utils/logger";
 
 /**
  * Processes the raw MCP result content into a format compatible with Assistant UI.
@@ -13,8 +17,8 @@ function formatToolResult(content: CallToolResult['content']) {
   if (images.length > 0) {
     const imageParts = images.map((imagePart, index) => {
       // Log for debugging purposes
-      console.debug(
-        `[ToolResult] Image ${index + 1}/${images.length}: ${imagePart.mimeType}, ${imagePart.data.length} bytes`
+      logger(['error'],
+        [`[ToolResult] Image ${index + 1}/${images.length}: ${imagePart.mimeType}, ${imagePart.data.length} bytes`]
       );
       
       return {
