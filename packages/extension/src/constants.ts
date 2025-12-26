@@ -86,7 +86,7 @@ export const INITIAL_PROVIDERS = [
 
 export const DEFAULT_AGENTS: AgentType[] = [
     {
-        id: 'browser-ai-default',
+        id: 'browser-ai',
         name: 'Broswer AI Default',
         modelProvider: 'browser-ai',
         model: 'prompt-api',

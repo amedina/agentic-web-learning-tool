@@ -3,15 +3,10 @@
  */
 import { useState, useEffect, useCallback } from 'react';
 import {
-	Zap,
 	ShieldCheck,
-	Sliders,
-	Code2,
-	Terminal,
 	X,
 	Save,
 	Trash2,
-	Settings2,
 } from 'lucide-react';
 import {
 	Button,
@@ -107,7 +102,7 @@ const ConfigModal = ({
 					{/* Identity */}
 					<section className="space-y-4">
 						<div className="flex items-center gap-2 text-xs font-semibold text-amethyst-haze uppercase tracking-wider">
-							<Terminal className="w-3.5 h-3.5" /> Identity
+							Identity
 						</div>
 						<div className="flex flex-col gap-y-2">
 							<div className="w-full">
@@ -173,7 +168,7 @@ const ConfigModal = ({
 					{/* Connection */}
 					<section className="space-y-4">
 						<div className="flex items-center gap-2 text-xs font-semibold text-amethyst-haze uppercase tracking-wider">
-							<Zap className="w-3.5 h-3.5" /> Connection
+							Connection
 						</div>
 						<div className="space-y-4">
 							<InputGroup label="API Key">
@@ -214,7 +209,7 @@ const ConfigModal = ({
 					{/* Parameters */}
 					<section className="space-y-4">
 						<div className="flex items-center gap-2 text-xs font-semibold text-amethyst-haze uppercase tracking-wider">
-							<Sliders className="w-3.5 h-3.5" /> Parameters
+							Parameters
 						</div>
 
 						<div className="p-4 rounded-lg border border-darth-vader bg-aswad/30 space-y-6">
@@ -303,7 +298,7 @@ const ConfigModal = ({
 					{/* Advanced JSON */}
 					<section className="space-y-4">
 						<div className="flex items-center gap-2 text-xs font-semibold text-amethyst-haze uppercase tracking-wider">
-							<Code2 className="w-3.5 h-3.5" /> Advanced Config
+							Advanced Config
 						</div>
 						<textarea
 							value={formData.extraConfig}
@@ -317,7 +312,7 @@ const ConfigModal = ({
 
 					<section className="space-y-4">
 						<div className="flex items-center gap-2 text-xs font-semibold text-amethyst-haze uppercase tracking-wider">
-							<Settings2 className="w-3.5 h-3.5" /> Agent Settings
+							Agent Settings
 						</div>
 						<div className="flex items-center justify-between">
 							<div>

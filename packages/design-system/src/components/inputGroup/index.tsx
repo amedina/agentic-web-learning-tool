@@ -6,6 +6,7 @@ import type { PropsWithChildren } from "react";
  * Internal dependencies
  */
 import { cn } from "../../lib";
+
 type InputGroupProps = PropsWithChildren & {
     label: string;
     help?: string;

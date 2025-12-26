@@ -71,7 +71,7 @@ const Provider = ({ children }: PropsWithChildren) => {
 	 * parses data currently in store, set current tab URL.
 	 */
 	const intitialSync = useCallback(async () => {
-		const { agents }: { agents: AgentType[] } =
+		const { agents = [] }: { agents: AgentType[] } =
 			await chrome.storage.sync.get('agents');
 
 		setAgents(agents);
@@ -80,7 +80,7 @@ const Provider = ({ children }: PropsWithChildren) => {
 	}, []);
 
 	const onSyncStorageChangedListener = useCallback(async () => {
-		const { agents }: { agents: AgentType[] } =
+		const { agents = [] }: { agents: AgentType[] } =
 			await chrome.storage.sync.get('agents');
 
 		setAgents(agents);

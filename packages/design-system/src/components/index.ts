@@ -11,3 +11,6 @@ export { default as Input } from './input';
 export * from './toolFallback';
 export { default as Dropdown } from './dropdown';
 export * from './webMCPTools';
+export { default as OptionsPageTab } from './optionsPageTab';
+export { default as OptionsPageTabSection } from './optionsPageTab/optionsPageTabSection';
+

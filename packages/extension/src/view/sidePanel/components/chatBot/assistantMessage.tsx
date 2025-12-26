@@ -5,16 +5,18 @@ import { MessagePrimitive, ActionBarPrimitive } from '@assistant-ui/react';
 import { CheckIcon, CopyIcon, ReloadIcon } from '@radix-ui/react-icons';
 import { Bot } from 'lucide-react';
 import type { FC } from 'react';
+import { MarkdownText, ToolFallback } from '@google-awlt/design-system';
+
 /**
  * Internal dependencies
  */
 import ActionButton from './actionButton';
-import { MarkdownText, ToolFallback } from '@google-awlt/design-system';
+
 
 const AssistantMessage: FC = () => {
 	return (
 		<MessagePrimitive.Root className="relative mx-auto flex w-full max-w-screen-md gap-3">
-			<div className="flex gap-5 mb-10 w-full group">
+			<div className="flex gap-2 flex-col mb-10 w-full group">
 				<div className="h-9 w-9 rounded-full bg-white border border-zinc-100 flex-shrink-0 flex items-center justify-center text-zinc-900 shadow-sm mt-1 ring-4 ring-zinc-50">
 					<Bot size={20} />
 				</div>
@@ -28,7 +30,7 @@ const AssistantMessage: FC = () => {
 							Just now
 						</span>
 					</div>
-					<div className="text-zinc-800 leading-7 text-[15px]">
+					<div className="text-zinc-800 leading-7 text-sm">
 						<MessagePrimitive.Parts
 							components={{
 								Text: MarkdownText,

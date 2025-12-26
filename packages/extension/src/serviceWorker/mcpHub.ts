@@ -5,6 +5,7 @@
 import { z } from 'zod';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { type CallToolResult, type Tool } from '@modelcontextprotocol/sdk/types.js';
+
 /**
  * Internal dependencies
  */
@@ -402,7 +403,7 @@ class McpHub {
       console.error("WebMCP: Error injecting user tools", error);
     });
 
-    async function registerDynamicToolFromScripting(tools) {
+    async function registerDynamicToolFromScripting(tools: any) {
       //@ts-expect-error -- window.navigator.modelContext is injected dynamically
       const mcp = window.navigator.modelContext;
       for (const toolWrapper of tools) {

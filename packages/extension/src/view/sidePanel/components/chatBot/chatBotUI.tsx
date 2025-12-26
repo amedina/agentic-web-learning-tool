@@ -11,15 +11,21 @@ import { useMcpClient } from '@mcp-b/mcp-react-hooks';
 import { useEffect, useMemo } from 'react';
 import type { JSONRPCMessage } from '@modelcontextprotocol/sdk/types.js';
 import {
-	Bot,
 	Paperclip,
 	SendHorizontal,
 	CircleStop,
 	ToolCaseIcon,
 	CpuIcon,
+	Settings,
 } from 'lucide-react';
-import { Dropdown, getToolNameWithoutPrefix } from '@google-awlt/design-system';
+import {
+	Button,
+	Dropdown,
+	getToolNameWithoutPrefix,
+	OwlIcon,
+} from '@google-awlt/design-system';
 import type { Tool as McpTool } from '@modelcontextprotocol/sdk/types.js';
+
 /**
  * Internal dependencies
  */
@@ -28,7 +34,7 @@ import { transport, useModelProvider } from '../../providers';
 import AssistantMessage from './assistantMessage';
 import EditComposer from './editComposer';
 import UserMessage from './userMessage';
-import type { AgentType } from '@/types';
+import type { AgentType } from '../../../../types';
 
 type SingleGroupTool = {
 	group: string;
@@ -50,13 +56,15 @@ type ChatBotUIProps = {
 
 const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 	const { client, tools } = useMcpClient();
-	const { agents = [], setSelectedAgent, selectedAgent } = useModelProvider(
-		({ state, actions }) => ({
-			agents: state.agents,
-			setSelectedAgent: actions.setSelectedAgent,
-			selectedAgent: state.selectedAgent,
-		})
-	);
+	const {
+		agents = [],
+		setSelectedAgent,
+		selectedAgent,
+	} = useModelProvider(({ state, actions }) => ({
+		agents: state.agents,
+		setSelectedAgent: actions.setSelectedAgent,
+		selectedAgent: state.selectedAgent,
+	}));
 
 	useEffect(() => {
 		(async () => {
@@ -79,7 +87,8 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 	const threadId = useAssistantState(
 		({ threadListItem }) => threadListItem.id
 	);
-	useAssistantMCP(tools, client, threadId, runtime, {});
+
+	useAssistantMCP(tools, client, threadId, runtime);
 
 	const groupedTools = useMemo(() => {
 		const toolGroups: SingleGroupTool[] = [];
@@ -96,7 +105,9 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 				);
 				const pieces = toolNameWithoutHardCodePrefix.split('_');
 				const cleanToolName = pieces.join('_');
-				const result = cleanToolName.split('_tab')[0].replaceAll('_', '.');
+				const result = cleanToolName
+					.split('_tab')[0]
+					.replaceAll('_', '.');
 
 				if (acc[result]) {
 					acc[result].items.push(tool);
@@ -136,59 +147,76 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 		return toolGroups;
 	}, [tools]);
 
+	const messages = useAssistantState(({ thread }) => thread.messages);
+
 	return (
 		<ThreadPrimitive.Root className="h-full flex flex-col">
-			<ThreadPrimitive.Viewport className="flex-1 overflow-y-auto scroll-smooth px-4 md:px-0">
-				<div className="max-w-3xl mx-auto w-full pt-8 pb-32">
+			<ThreadPrimitive.Viewport
+				className={`flex flex-1 items-center overflow-y-auto scroll-smooth px-4 md:px-0 ${messages.length === 0 ? '' : 'h-full'}`}
+			>
+				<div
+					className={`max-w-3xl mx-auto w-full flex flex-col ${messages.length === 0 ? '' : 'h-full'}`}
+				>
 					{/* Empty State / Welcome */}
 					<ThreadPrimitive.Empty>
-						<div className="flex flex-col items-center justify-center text-center mt-20 px-4">
-							<div className="h-16 w-16 rounded-2xl flex items-center justify-center bg-background shadow-lg mb-6 text-foreground">
-								<Bot size={32} />
+						<div className="flex flex-col items-center justify-center text-center px-4">
+							<div className="mb-3">
+								<OwlIcon width={42} height={42} />
 							</div>
 							<h2 className="text-2xl font-bold text-zinc-900 mb-2">
 								How can I help you today?
 							</h2>
-							<p className="text-zinc-500 max-w-md mb-8">
+							<p className="text-zinc-500 max-w-md">
 								I can help you write code, analyze data, or even
 								check the weather. I have access to{' '}
-								{tools.length} tools.
+								{
+									tools.filter(
+										(tool) => tool.name !== 'dummyTool'
+									).length
+								}{' '}
+								tools.
 							</p>
 						</div>
 					</ThreadPrimitive.Empty>
-
-					<ThreadPrimitive.Messages
-						components={{
-							UserMessage,
-							EditComposer,
-							AssistantMessage,
-						}}
-					/>
+					<div className="h-full mt-8">
+						<ThreadPrimitive.Messages
+							components={{
+								UserMessage,
+								EditComposer,
+								AssistantMessage,
+							}}
+						/>
+					</div>
 				</div>
 			</ThreadPrimitive.Viewport>
-			<div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-white via-white to-transparent pb-3 pt-10 px-4">
+			<div className="bg-gradient-to-t from-white via-white to-transparent pb-2 px-4">
+				<div className="text-center mt-3 mb-1 text-[10px] text-zinc-400">
+					AI can make mistakes. Please verify important information.
+				</div>
 				<div className="max-w-3xl mx-auto w-full">
-					<ComposerPrimitive.Root className="relative flex flex-col gap-2 rounded-2xl border border-zinc-200 bg-white shadow-xl shadow-zinc-200/50 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all overflow-hidden">
+					<ComposerPrimitive.Root className="relative flex flex-col gap-2 rounded-md border border-zinc-200 bg-white shadow-xl shadow-zinc-200/50 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all overflow-hidden">
 						<ComposerPrimitive.Input
 							placeholder="Ask anything..."
-							className="w-full max-h-40 min-h-[56px] resize-none bg-transparent px-4 py-4 text-base outline-none placeholder:text-zinc-400 text-zinc-800"
+							className="w-full max-h-40 min-h-[56px] resize-none bg-transparent px-4 py-4 text-sm outline-none placeholder:text-zinc-400 text-zinc-800"
 						/>
-						<div className="flex items-center justify-between gap-2 px-3 pb-3">
-							<div className="flex items-center gap-1">
-								<button
-									className="p-2 text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100 rounded-lg transition-colors"
+						<div className="flex items-center justify-between gap-2 px-3">
+							<div className="flex items-center">
+								<Button
+									variant="ghost"
+									disabled
 									title="Attach"
+									size="icon"
 								>
 									<Paperclip size={18} />
-								</button>
+								</Button>
 								<Dropdown
 									options={groupedTools}
 									onSelect={(id) => console.log(id)}
 									selectedValue=""
 								>
-									<div>
+									<Button variant="ghost" size="icon">
 										<ToolCaseIcon className="w-4 h-4" />
-									</div>
+									</Button>
 								</Dropdown>
 								<Dropdown
 									options={agents
@@ -206,10 +234,19 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 									}
 									selectedValue={selectedAgent.id}
 								>
-									<div>
+									<Button variant="ghost" size="icon">
 										<CpuIcon className="w-4 h-4" />
-									</div>
+									</Button>
 								</Dropdown>
+								<Button
+									size="icon"
+									variant="ghost"
+									onClick={() =>
+										chrome.runtime.openOptionsPage()
+									}
+								>
+									<Settings className="w-4 h-4" />
+								</Button>
 							</div>
 							<ThreadPrimitive.If running={false}>
 								<ComposerPrimitive.Send className="h-9 w-9 flex items-center justify-center rounded-lg bg-background hover:text-ring text-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
@@ -223,10 +260,6 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 							</ThreadPrimitive.If>
 						</div>
 					</ComposerPrimitive.Root>
-					<div className="text-center mt-3 text-xs text-zinc-400">
-						AI can make mistakes. Please verify important
-						information.
-					</div>
 				</div>
 			</div>
 		</ThreadPrimitive.Root>
