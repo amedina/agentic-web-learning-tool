@@ -5,11 +5,35 @@
  */
 export const validateCode = (currentCode: string): { valid: boolean; error?: string } => {
     try {
-        const hasMetadata = /export\s+const\s+metadata\s*=\s*{/.test(currentCode);
-        const hasExecute = /export\s+async\s+function\s+execute/.test(currentCode);
+        // 1. Validate 'metadata' export
+        // Checks for: export const metadata = {
+        const hasMetadata = /export\s+const\s+metadata\s*=\s*\{/.test(currentCode);
+        if (!hasMetadata) {
+            throw new Error("Missing required metadata export. Format: `export const metadata = { ... }`");
+        }
 
-        if (!hasMetadata) throw new Error("Missing 'export const metadata = { ... }'");
-        if (!hasExecute) throw new Error("Missing 'export async function execute(args) { ... }'");
+        // 2. Validate 'metadata' content keys
+        // Required: 'name', 'inputSchema'
+        // We use \b to ensure we match whole words (e.g., 'name' vs 'namespace')
+        const hasNameKey = /(['"]?)\bname\b\1\s*:/.test(currentCode);
+        const hasSchemaKey = /(['"]?)\binputSchema\b\1\s*:/.test(currentCode);
+
+        if (!hasNameKey) {
+            throw new Error("Metadata object is missing required key: 'name'.");
+        }
+        if (!hasSchemaKey) {
+            throw new Error("Metadata object is missing required key: 'inputSchema'.");
+        }
+
+        // 3. Validate 'execute' function export
+        // Checks for: export async function execute(
+        // We explicitly check for 'async' because MCP tools are asynchronous by default.
+        // We use \bexecute\b to ensure we don't match 'executes' or other variations.
+        const hasExecute = /export\s+async\s+function\s+\bexecute\b\s*\(/.test(currentCode);
+
+        if (!hasExecute) {
+            throw new Error("Missing required execute function. Format: `export async function execute(args) { ... }`");
+        }
 
         return { valid: true };
     } catch (e: any) {
