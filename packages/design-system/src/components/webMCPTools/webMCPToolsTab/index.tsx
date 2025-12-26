@@ -7,11 +7,11 @@ import { useState, useEffect, useCallback } from 'react';
 /**
  * Internal dependencies.
  */
-import { Button } from '../../../index';
+import { Button } from '../../button';
 import type { WebMCPTool } from '../types';
 import { ToolList } from '../toolList';
 import { EditToolDialog } from '../editToolDialog';
-
+import OptionsPageTab from '../../optionsPageTab';
 
 const BUILT_IN_TOOLS: WebMCPTool[] = [
     {
@@ -116,24 +116,7 @@ export function WebMCPToolsTab() {
     };
 
     return (
-        <div className="p-8 max-w-5xl mx-auto w-full">
-            <div className="flex justify-between items-start mb-8 border-b border-gray-200 pb-6">
-                <div>
-                    <h1 className="text-3xl font-bold text-gray-800 mb-2">WebMCP Tools</h1>
-                    <p className="text-gray-500">Manage your custom scripts and tools.</p>
-                </div>
-                <Button
-                    className="shadow-sm hover:shadow-md transition-all gap-2 bg-gray-900 hover:bg-gray-800 text-white"
-                    onClick={() => {
-                        setEditingTool(undefined);
-                        setIsEditDialogOpen(true);
-                    }}
-                >
-                    <PlusIcon size={16} />
-                    New Script
-                </Button>
-            </div>
-
+        <OptionsPageTab title="WebMCP Tools" description="Manage your custom scripts and tools." >
             <ToolList
                 userTools={userTools}
                 builtInTools={builtInTools}
@@ -146,6 +129,18 @@ export function WebMCPToolsTab() {
                     setEditingTool(undefined);
                     setIsEditDialogOpen(true);
                 }}
+                newScriptButton={
+                    <Button
+                        className="shadow-sm hover:shadow-md transition-all gap-2 bg-gray-900 hover:bg-gray-800 text-white"
+                        onClick={() => {
+                            setEditingTool(undefined);
+                            setIsEditDialogOpen(true);
+                        }}
+                    >
+                        <PlusIcon size={16} />
+                        New Script
+                    </Button>
+                }
             />
 
             <EditToolDialog
@@ -155,6 +150,8 @@ export function WebMCPToolsTab() {
                 onSave={handleSaveTool}
                 onDelete={editingTool ? handleDeleteTool : undefined}
             />
-        </div>
-    );
+
+        </OptionsPageTab>
+    )
+
 }

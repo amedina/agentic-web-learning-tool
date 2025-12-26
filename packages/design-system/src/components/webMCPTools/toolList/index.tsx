@@ -9,6 +9,7 @@ import { PlusIcon, CodeIcon } from 'lucide-react';
 import { Button } from '../../button';
 import type { WebMCPTool } from '../types';
 import { ToolCard } from '../toolCard';
+import OptionsPageTabSection from '../../optionsPageTab/optionsPageTabSection';
 
 interface ToolListProps {
     userTools: WebMCPTool[];
@@ -16,14 +17,16 @@ interface ToolListProps {
     onToggleTool: (tool: WebMCPTool, enabled: boolean) => void;
     onEditTool: (tool: WebMCPTool) => void;
     onNewTool: () => void;
+    newScriptButton?: React.ReactNode;
 }
 
-export function ToolList({ userTools, builtInTools, onToggleTool, onEditTool, onNewTool }: ToolListProps) {
+export function ToolList({ userTools, builtInTools, onToggleTool, onEditTool, onNewTool, newScriptButton }: ToolListProps) {
     return (
         <div className="flex flex-col gap-8">
-            {/* User Scripts Section */}
-            <section>
-                <h2 className="text-xl font-bold mb-4 text-gray-800">User Scripts</h2>
+            <OptionsPageTabSection title='Custom Tools'>
+                <div className="flex justify-end">
+                    {newScriptButton}
+                </div>
                 {userTools.length === 0 ? (
                     <div className="flex flex-col items-center justify-center p-12 bg-[var(--surface-color)]/50 rounded-xl border border-dashed border-gray-200 text-center">
                         <div className="bg-[var(--surface-active)] p-4 rounded-full mb-3">
@@ -55,11 +58,10 @@ export function ToolList({ userTools, builtInTools, onToggleTool, onEditTool, on
                         ))}
                     </div>
                 )}
-            </section>
+            </OptionsPageTabSection>
 
             {/* Built-in Tools Section */}
-            <section>
-                <h2 className="text-xl font-bold mb-4 text-gray-800">Built-in Tools</h2>
+            <OptionsPageTabSection title='Built-in Tools'>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {builtInTools.map((tool) => (
                         <ToolCard
@@ -69,7 +71,7 @@ export function ToolList({ userTools, builtInTools, onToggleTool, onEditTool, on
                         />
                     ))}
                 </div>
-            </section>
+            </OptionsPageTabSection>
         </div>
     );
 }
