@@ -21,8 +21,7 @@ import type { CloudHostedTransport } from '../../transports/cloudHosted';
 import { GeminiNanoChatTransport } from '../../transports/geminiNano';
 import Context from './context';
 import { CONNECTION_NAMES } from '../../../../utils';
-import type { AgentType } from '../../../../types';
-import { DEFAULT_AGENTS } from '../../../../constants';
+import type { AgentType, APIKeys } from '../../../../types';
 
 export const transport = new ExtensionClientTransport({
 	portName: CONNECTION_NAMES.MCP_HOST,
@@ -34,13 +33,15 @@ export const client = new Client({
 	version: '1.0.0',
 });
 
-const FALLBACK_AGENT = transportGenerator(DEFAULT_AGENTS[0].modelProvider, DEFAULT_AGENTS[0].model, {})
+const FALLBACK_AGENT = transportGenerator('browser-ai', 'prompt-api', {})
 
 const Provider = ({ children }: PropsWithChildren) => {
-	const [_agents, setAgents] = useState<AgentType[]>([]);
-	const [selectedAgent, setSelectedAgent] = useState<AgentType>(
-		DEFAULT_AGENTS[0]
-	);
+	const [apiKeys, setApiKeys] = useState<{[key:string]: APIKeys}>({});
+	const [selectedAgent, setSelectedAgent] = useState<AgentType>({
+		modelProvider: 'browser-ai',
+		model: 'prompt-api'
+	});
+
 	const [_transport, setTransport] = useState<
 		GeminiNanoChatTransport | CloudHostedTransport | null
 	>(FALLBACK_AGENT);
@@ -57,7 +58,7 @@ const Provider = ({ children }: PropsWithChildren) => {
 					selectedAgent?.modelProvider,
 					selectedAgent?.model,
 					{
-						apiKey: selectedAgent?.apiKey,
+						...apiKeys[selectedAgent?.modelProvider],
 					}
 				)
 			);
@@ -71,19 +72,19 @@ const Provider = ({ children }: PropsWithChildren) => {
 	 * parses data currently in store, set current tab URL.
 	 */
 	const intitialSync = useCallback(async () => {
-		const { agents = [] }: { agents: AgentType[] } =
-			await chrome.storage.sync.get('agents');
+		const { apiKeys = {} }: { apiKeys: {[key:string]: APIKeys} } =
+			await chrome.storage.sync.get('apiKeys');
 
-		setAgents(agents);
+		setApiKeys(apiKeys);
 		(FALLBACK_AGENT as GeminiNanoChatTransport).initializeSession();
 		initialFetchDone.current = true;
 	}, []);
 
 	const onSyncStorageChangedListener = useCallback(async () => {
-		const { agents = [] }: { agents: AgentType[] } =
-			await chrome.storage.sync.get('agents');
+		const { apiKeys = {} }: { apiKeys: {[key:string]: APIKeys} } =
+			await chrome.storage.sync.get('apiKeys');
 
-		setAgents(agents);
+		setApiKeys(apiKeys);
 	}, []);
 
 	useEffect(() => {
@@ -111,7 +112,7 @@ const Provider = ({ children }: PropsWithChildren) => {
 	const memoisedValue = useMemo(() => {
 		return {
 			state: {
-				agents: _agents,
+				apiKeys,
 				selectedAgent,
 				transport: _transport,
 			},
@@ -119,7 +120,7 @@ const Provider = ({ children }: PropsWithChildren) => {
 				setSelectedAgent,
 			},
 		};
-	}, [_agents, selectedAgent, _transport]);
+	}, [apiKeys, selectedAgent, _transport]);
 
 	return (
 		<Context.Provider value={memoisedValue}>

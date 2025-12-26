@@ -35,6 +35,7 @@ import AssistantMessage from './assistantMessage';
 import EditComposer from './editComposer';
 import UserMessage from './userMessage';
 import type { AgentType } from '../../../../types';
+import { INITIAL_PROVIDERS } from '../../../../constants';
 
 type SingleGroupTool = {
 	group: string;
@@ -56,15 +57,13 @@ type ChatBotUIProps = {
 
 const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 	const { client, tools } = useMcpClient();
-	const {
-		agents = [],
-		setSelectedAgent,
-		selectedAgent,
-	} = useModelProvider(({ state, actions }) => ({
-		agents: state.agents,
-		setSelectedAgent: actions.setSelectedAgent,
-		selectedAgent: state.selectedAgent,
-	}));
+	const { apiKeys, setSelectedAgent, selectedAgent } = useModelProvider(
+		({ state, actions }) => ({
+			apiKeys: state.apiKeys,
+			setSelectedAgent: actions.setSelectedAgent,
+			selectedAgent: state.selectedAgent,
+		})
+	);
 
 	useEffect(() => {
 		(async () => {
@@ -147,6 +146,35 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 		return toolGroups;
 	}, [tools]);
 
+	const modelOptions = useMemo(() => {
+		const availableModelProviders = Object.keys(apiKeys).filter(
+			(key) => apiKeys[key].status
+		);
+		const modelProviders = availableModelProviders.map((provider) => {
+			const { id = '', name = '', models = [] } = INITIAL_PROVIDERS.find(
+				({ id }) => provider === id
+			) as typeof INITIAL_PROVIDERS[1];
+
+			return {
+				id,
+				label: name,
+				hideLabel: true,
+				group: id,
+				items: [
+					{
+						id,
+						label: name,
+						mainLabel: 'Models',
+						submenu: models,
+					}
+				]
+			};
+		});
+		return modelProviders.filter(
+			({ items }) => items[0]?.submenu && items[0]?.submenu.length >= 1
+		);
+	}, [apiKeys]);
+
 	const messages = useAssistantState(({ thread }) => thread.messages);
 
 	return (
@@ -219,20 +247,12 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 									</Button>
 								</Dropdown>
 								<Dropdown
-									options={agents
-										.filter(({ status }) => status)
-										.map((agent) => ({
-											id: agent.id,
-											label: agent.name,
-										}))}
+									options={modelOptions}
 									onSelect={(id) =>
-										setSelectedAgent(
-											agents.find(
-												(agent) => agent.id === id
-											) as AgentType
-										)
+										console.log(id)
 									}
-									selectedValue={selectedAgent.id}
+									mainLabel='Providers'
+									selectedValue={''}
 								>
 									<Button variant="ghost" size="icon">
 										<CpuIcon className="w-4 h-4" />

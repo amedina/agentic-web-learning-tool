@@ -11,9 +11,11 @@ import { createRoot } from 'react-dom/client';
 import './index.css';
 import Options from './options';
 import { SettingsProvider } from '../stateProviders';
+import { ModelProvider } from './providers';
 
 createRoot(document.getElementById('root')!).render(
 	<div className="w-screen h-screen">
+		<ModelProvider>
 		<SettingsProvider view='options'>
 			<SidebarProvider>
 				<StrictMode>
@@ -21,5 +23,6 @@ createRoot(document.getElementById('root')!).render(
 				</StrictMode>
 			</SidebarProvider>
 		</SettingsProvider>
+		</ModelProvider>
 	</div>
 );

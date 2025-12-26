@@ -49,12 +49,14 @@ type DropDownProps = PropsWithChildren & {
 	label?: string;
 	selectedValue: string;
 	placeholder?: string;
+	mainLabel?: string;
 };
 
 export interface DropdownOption {
 	label: string;
 	submenu?: DropdownOptions;
 	id: string;
+	mainLabel?: string;
 }
 
 export interface DropdownGroupOption {
@@ -71,7 +73,8 @@ export default function DropDown({
 	onSelect,
 	selectedValue,
 	children,
-	placeholder
+	placeholder,
+	mainLabel,
 }: DropDownProps) {
 	const normalizeDropdownItem = useCallback(
 		(option: DropdownOption): DropdownOption => {
@@ -79,6 +82,7 @@ export default function DropDown({
 				label: option.label,
 				submenu: option.submenu,
 				id: option.id,
+				mainLabel: option.mainLabel,
 			};
 		},
 		[]
@@ -167,6 +171,11 @@ export default function DropDown({
 							className={menuContentStyles}
 							sideOffset={4}
 						>
+							{item.mainLabel && (
+								<DropDownMenuLabel className="px-2.5 py-2 w-full text-stone-400">
+									{item.mainLabel}
+								</DropDownMenuLabel>
+							)}
 							{processOptionsIntoGroups(item.submenu).map(
 								(submenuGroup) => (
 									<div key={submenuGroup.key}>
@@ -233,11 +242,16 @@ export default function DropDown({
 					) : (
 						<div className="flex items-center bg-background text-foreground w-full shadow-sm p-2 rounded">
 							<span>
-								{
-									groups.filter(group => group.items.find(
-										(option) => option.id === selectedValue
-									))?.[0]?.items.find(item => item.id === selectedValue)?.label ?? placeholder
-								}
+								{groups
+									.filter((group) =>
+										group.items.find(
+											(option) =>
+												option.id === selectedValue
+										)
+									)?.[0]
+									?.items.find(
+										(item) => item.id === selectedValue
+									)?.label ?? placeholder}
 							</span>
 							<ChevronDown className="ml-auto w-3.5 h-3.5 text-stone-400" />
 						</div>
@@ -249,9 +263,15 @@ export default function DropDown({
 						className={menuContentStyles}
 						sideOffset={5}
 					>
+						{' '}
+						{mainLabel && (
+							<DropDownMenuLabel className="px-2.5 py-2 w-full text-stone-400">
+								{mainLabel}
+							</DropDownMenuLabel>
+						)}
 						{groups.map((group) => (
 							<div key={group.key}>
-								{group.group && (
+								{group.group && !group.hideLabel && (
 									<DropDownMenuLabel className="px-2.5 py-2 text-[11px] w-full text-stone-400 tracking-widest">
 										{group.group}
 									</DropDownMenuLabel>
@@ -264,7 +284,9 @@ export default function DropDown({
 										<DropDownMenuItem
 											asChild
 											onSelect={() =>
-												handleSelect(item.id)
+												item?.submenu
+													? null
+													: handleSelect(item.id)
 											}
 										>
 											{renderDropdownItem(item)}
