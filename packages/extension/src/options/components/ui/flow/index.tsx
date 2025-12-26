@@ -12,7 +12,8 @@ import {
 	type OnNodesChange,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { Download, Play, Plus, Trash2, Upload } from 'lucide-react';
+import { Play } from 'lucide-react';
+import WorkflowDropdown from './WorkflowDropdown';
 
 export interface FlowProps<
 	NodeType extends Node = Node,
@@ -97,37 +98,12 @@ const Flow = <NodeType extends Node, EdgeType extends Edge>({
 				</div>
 
 				<div className="flex items-center gap-2">
-					<button
-						className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded cursor-pointer transition-colors"
-						onClick={actions.onNew}
-					>
-						<Plus size={16} />
-						New
-					</button>
-
-					<button
-						className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded cursor-pointer transition-colors"
-						onClick={actions.onImport}
-					>
-						<Upload size={16} />
-						Import
-					</button>
-
-					<button
-						onClick={actions.onExport}
-						className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded transition-colors"
-					>
-						<Download size={16} />
-						Export
-					</button>
-
-					<button
-						onClick={actions.onClear}
-						className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 rounded transition-colors"
-					>
-						<Trash2 size={16} />
-						Clear
-					</button>
+					<WorkflowDropdown
+						onNew={actions.onNew}
+						onImport={actions.onImport}
+						onExport={actions.onExport}
+						onClear={actions.onClear}
+					/>
 
 					<div className="w-px h-6 bg-slate-200 mx-2"></div>
 
