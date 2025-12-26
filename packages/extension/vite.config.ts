@@ -49,7 +49,7 @@ export default defineConfig({
 				options: resolve(__dirname, 'src/options/options.html'),
 				devtools: resolve(__dirname, 'src/devtools/devtools.html'),
 				'devtools-index': resolve(__dirname, 'src/devtools/index.html'),
-				sidePanel: resolve(__dirname, 'src/sidepanel/sidePanel.html'),
+				sidePanel: resolve(__dirname, 'src/sidePanel/sidePanel.html'),
 				popup: resolve(__dirname, 'src/popup/popup.html'),
 				serviceWorker: resolve(__dirname, 'src/serviceWorker/index.ts'),
 			},
