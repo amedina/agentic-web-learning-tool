@@ -12,4 +12,4 @@ export * from './toolFallback';
 export { default as Dropdown } from './dropdown';
 export { default as OptionsPageTab } from './optionsPageTab';
 export { default as OptionsPageTabSection } from './optionsPageTab/optionsPageTabSection';
-
+export { default as Accordion } from './accordion';
