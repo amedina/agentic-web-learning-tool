@@ -16,7 +16,30 @@ export const validateCode = (currentCode: string): { valid: boolean; error?: str
                 sourceType: 'module'
             });
         } catch (e: any) {
-            return { valid: false, error: `Syntax Error: ${e.message}` };
+            let errorMsg = `Syntax Error: ${e.message}`;
+
+            // Heuristic for missing comma/semicolon on previous line
+            if (e.loc && e.loc.line > 1) {
+                const lines = currentCode.split('\n');
+                const prevLineIndex = e.loc.line - 2; // 0-indexed, and look at line before error
+
+                // Find the last non-empty line before the error
+                let checkIndex = prevLineIndex;
+                while (checkIndex >= 0) {
+                    const line = lines[checkIndex].trim();
+                    if (line && !line.startsWith('//')) {
+                        // Check if line ends with a delimiter
+                        // We exclude }, ], ) because they might need a comma if inside an object/array
+                        if (!/[;,{]$/.test(line)) {
+                            errorMsg += `\n(Possible missing comma or semicolon on line ${checkIndex + 1}: "${line}")`;
+                        }
+                        break;
+                    }
+                    checkIndex--;
+                }
+            }
+
+            return { valid: false, error: errorMsg };
         }
 
         // 2. Validate 'metadata' export
