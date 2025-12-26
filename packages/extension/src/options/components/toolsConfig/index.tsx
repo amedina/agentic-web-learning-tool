@@ -34,7 +34,12 @@ const TOOLS = {
 	staticInput: StaticInputToolConfig,
 };
 
-const ToolsConfig = () => {
+interface ToolsConfigProps {
+	collapsed?: boolean;
+	onToggle?: () => void;
+}
+
+const ToolsConfig = ({ collapsed = false, onToggle }: ToolsConfigProps) => {
 	const { selectedNode, getNode, updateNode } = useApi(
 		({ state, actions }) => ({
 			selectedNode: state.selectedNode,
@@ -113,6 +118,8 @@ const ToolsConfig = () => {
 					: undefined
 			}
 			onFormChange={handleChange}
+			collapsed={collapsed}
+			onToggle={onToggle}
 		>
 			{Tool && node && <Tool ref={toolNodeRef} config={node.config} />}
 		</ToolsConfigComponent>
