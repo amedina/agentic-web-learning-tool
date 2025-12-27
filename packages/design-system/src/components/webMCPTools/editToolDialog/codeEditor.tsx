@@ -41,7 +41,6 @@ export function CodeEditor({ code, onChange }: CodeEditorProps) {
         padding: editorPadding,
     };
 
-    // Calculate line numbers
     const lines = code.split('\n');
     const lineNumbers = lines.map((_, index) => index + 1);
 
@@ -53,8 +52,8 @@ export function CodeEditor({ code, onChange }: CodeEditorProps) {
                 className="select-none text-right bg-white text-gray-300 overflow-hidden border-r border-gray-100 flex-shrink-0"
                 style={{
                     ...commonStyle,
-                    padding: '1.5rem 0.5rem', // Match top padding, adjust horizontal
-                    width: '3rem', // Fixed width for gutter
+                    padding: '1.5rem 0.5rem',
+                    width: '3rem',
                     whiteSpace: 'pre',
                 }}
             >

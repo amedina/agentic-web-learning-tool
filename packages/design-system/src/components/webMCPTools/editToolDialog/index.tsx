@@ -202,11 +202,9 @@ export function EditToolDialog({ open, onOpenChange, tool, onSave, onDelete }: E
 
                         {/* Editor Side */}
                         <div className="flex-1 flex flex-col p-0 border-r border-gray-200 relative bg-white overflow-auto">
-                            {/* Header for Code section */}
                             <div className="px-4 py-2 bg-gray-50 border-b border-gray-100 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                                 Script Code
                             </div>
-
                             <CodeEditor code={code} onChange={handleCodeChange} />
                         </div>
 
@@ -221,7 +219,7 @@ export function EditToolDialog({ open, onOpenChange, tool, onSave, onDelete }: E
                                 onValidate={handleValidate}
                             />
 
-                            {/* Footer Buttons - Save always visible now (disabled if invalid), Delete always visible for existing */}
+                            {/* Footer Buttons */}
                             <div className="p-6 border-t border-gray-200 bg-white flex-none flex items-center justify-between gap-4">
                                 <div className="flex-1">
                                     {tool && onDelete && (

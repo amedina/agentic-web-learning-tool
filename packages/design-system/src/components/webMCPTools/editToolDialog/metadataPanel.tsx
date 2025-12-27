@@ -70,11 +70,9 @@ export function MetadataPanel({
                                     {(() => {
                                         const patterns = metadata.matchPatterns;
                                         if (!patterns) return "—";
-                                        // Display nicely without array format if possible, just comma separated or new lines
                                         if (Array.isArray(patterns)) {
                                             return patterns.join(', ');
                                         }
-                                        // If somehow string, clean it
                                         return String(patterns).replace(/[[\]"]/g, '');
                                     })()}
                                 </div>
