@@ -201,7 +201,7 @@ export function EditToolDialog({ open, onOpenChange, tool, onSave, onDelete }: E
                         )}
 
                         {/* Editor Side */}
-                        <div className="flex-1 flex flex-col p-0 border-r border-gray-200 relative bg-white">
+                        <div className="flex-1 flex flex-col p-0 border-r border-gray-200 relative bg-white overflow-auto">
                             {/* Header for Code section */}
                             <div className="px-4 py-2 bg-gray-50 border-b border-gray-100 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                                 Script Code

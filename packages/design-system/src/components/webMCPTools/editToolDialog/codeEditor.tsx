@@ -66,7 +66,7 @@ export function CodeEditor({ code, onChange }: CodeEditorProps) {
             {/* Editor Area */}
             <div className="relative flex-1">
                 <textarea
-                    className="absolute inset-0 w-full h-full bg-transparent text-transparent caret-black z-10 resize-none outline-none border-none focus:ring-0 whitespace-nowrap overflow-auto"
+                    className="absolute inset-0 w-full h-full bg-transparent text-transparent caret-black z-10 resize-none outline-none border-none focus:ring-0 whitespace-nowrap overflow-auto max-w-full"
                     value={code}
                     onChange={(e) => onChange(e.target.value)}
                     onScroll={handleScroll}
