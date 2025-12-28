@@ -130,12 +130,31 @@ class McpHub {
     tools: Tool[],
     isRegister: boolean
   ) {
+    // Unified filtering: Filter out any tool that is disabled in storage (built-in or custom)
+    const storage = await chrome.storage.local.get(['builtInWebMCPToolsState', 'userWebMCPTools']);
+    const builtInState = (storage.builtInWebMCPToolsState || {}) as Record<string, boolean | undefined>;
+    const userTools = (storage.userWebMCPTools || []) as Array<{ name: string; enabled: boolean }>;
+
+    const disabledToolNames = new Set<string>();
+
+    // Add disabled built-ins
+    for (const [name, enabled] of Object.entries(builtInState)) {
+      if (enabled === false) disabledToolNames.add(name);
+    }
+
+    // Add disabled custom tools
+    for (const tool of userTools) {
+      if (tool.enabled === false) disabledToolNames.add(tool.name);
+    }
+
+    const activeTools = tools.filter(t => !disabledToolNames.has(t.name));
+
     const domainData = this.getDomainData(domain);
     const existingTabData = domainData.get(dataId);
 
     // 1. Update Internal State
     const tabData: TabData = {
-      tools,
+      tools: activeTools,
       lastUpdated: Date.now(),
       url: port.sender?.tab?.url || '',
       tabId: port.sender?.tab?.id,
@@ -155,7 +174,7 @@ class McpHub {
       prefix: dataId.startsWith('cached-') ? dataId : `tab${tabData.tabId}`,
     };
 
-    for (const tool of tools) {
+    for (const tool of activeTools) {
       const uniqueToolName = this.generateUniqueToolName(toolNameComponents.cleanDomain, toolNameComponents.prefix, tool.name);
       const description = this.generateTabDescription(domain, dataId, tool.description || '');
 
@@ -192,7 +211,7 @@ class McpHub {
     // 4. Cleanup removed tools (if this is an update event)
     if (!isRegister) {
       const oldTools = existingTabData?.tools || [];
-      const removedTools = oldTools.filter((t) => !tools.some((nt) => nt.name === t.name));
+      const removedTools = oldTools.filter((t) => !activeTools.some((nt) => nt.name === t.name));
 
       for (const tool of removedTools) {
         const uniqueToolName = this.generateUniqueToolName(toolNameComponents.cleanDomain, toolNameComponents.prefix, tool.name);
@@ -392,11 +411,16 @@ class McpHub {
     const storage = await chrome.storage.local.get();
     const userWebMCPTools = storage && storage['userWebMCPTools'];
 
+    // Filter out disabled user tools
+    const enabledUserTools = Array.isArray(userWebMCPTools)
+      ? userWebMCPTools.filter((t: any) => t.enabled !== false)
+      : [];
+
     chrome.scripting.executeScript({
       target: { tabId: tabId },
       world: 'MAIN',
       func: registerDynamicToolFromScripting,
-      args: [userWebMCPTools],
+      args: [enabledUserTools],
     }).then((result) => {
       console.log("WebMCP: tools registered", result);
     }).catch((error) => {
