@@ -65,7 +65,6 @@ const Provider = ({ children }: PropsWithChildren) => {
 			);
 		} else {
 			setTransport(transportGenerator('browser-ai', 'prompt-api', {}));
-			console.log('comes here1')
 		}
 
 		chrome.storage.sync.set({
@@ -88,7 +87,6 @@ const Provider = ({ children }: PropsWithChildren) => {
 			setSelectedAgent(_selectedAgent);
 			setTransport(FALLBACK_AGENT);
 			(FALLBACK_AGENT as GeminiNanoChatTransport).initializeSession();
-			console.log('comes here2')
 		} else {
 			setSelectedAgent(_selectedAgent);
 			setTransport(
