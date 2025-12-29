@@ -1,11 +1,11 @@
 /**
  * Internal dependencies
  */
-import { settingsSetter } from "../../utils/settingsGetter";
+import { settingsSetter, setLogLevelFromSyncSettings } from "../../utils";
 import type { AgentType, SettingsState } from "../../types";
 import { DEFAULT_SETTINGS } from "../../constants";
 
-const onInstalledListener = async (details: chrome.runtime.InstalledDetails) => {
+const onInstalledCallback = async (details: chrome.runtime.InstalledDetails) => {
     if (details.reason === 'install') {
         chrome.storage.sync.set({ selectedAgent: { model: 'prompt-api', modelProvider: 'browser-ai' } })
         Object.entries(DEFAULT_SETTINGS).map(([key, value]) => settingsSetter(key as keyof SettingsState, value))
@@ -18,6 +18,7 @@ const onInstalledListener = async (details: chrome.runtime.InstalledDetails) => 
             chrome.storage.sync.set({ selectedAgent: { model: 'prompt-api', modelProvider: 'browser-ai' } })
         }
     }
+    await setLogLevelFromSyncSettings();
 };
 
-export default onInstalledListener;
+export default onInstalledCallback;

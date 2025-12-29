@@ -33,13 +33,13 @@ export const client = new Client({
 	version: '1.0.0',
 });
 
-const FALLBACK_AGENT = transportGenerator('browser-ai', 'prompt-api', {})
+const FALLBACK_AGENT = transportGenerator('browser-ai', 'prompt-api', {});
 
 const Provider = ({ children }: PropsWithChildren) => {
-	const [apiKeys, setApiKeys] = useState<{[key:string]: APIKeys}>({});
+	const [apiKeys, setApiKeys] = useState<{ [key: string]: APIKeys }>({});
 	const [selectedAgent, setSelectedAgent] = useState<AgentType>({
 		modelProvider: 'browser-ai',
-		model: 'prompt-api'
+		model: 'prompt-api',
 	});
 
 	const [_transport, setTransport] = useState<
@@ -52,7 +52,7 @@ const Provider = ({ children }: PropsWithChildren) => {
 			return;
 		}
 
-		if (selectedAgent) {
+		if (selectedAgent && selectedAgent?.modelProvider !== 'browser-ai') {
 			setTransport(
 				transportGenerator(
 					selectedAgent?.modelProvider,
@@ -65,32 +65,48 @@ const Provider = ({ children }: PropsWithChildren) => {
 			);
 		} else {
 			setTransport(transportGenerator('browser-ai', 'prompt-api', {}));
+			console.log('comes here1')
 		}
 
 		chrome.storage.sync.set({
 			selectedAgent,
 		});
 	}, [selectedAgent]);
-
 	/**
 	 * Sets current frames for sidebar, detected if the current tab is to be analysed,
 	 * parses data currently in store, set current tab URL.
 	 */
 	const intitialSync = useCallback(async () => {
-		const { apiKeys = {}, selectedAgent }: { apiKeys: {[key:string]: APIKeys}, selectedAgent: AgentType } =
+		const {
+			apiKeys: _apiKeys = {},
+			selectedAgent: _selectedAgent,
+		}: { apiKeys: { [key: string]: APIKeys }; selectedAgent: AgentType } =
 			await chrome.storage.sync.get(['apiKeys', 'selectedAgent']);
 
 		setApiKeys(apiKeys);
-		if(selectedAgent.model){
-			setSelectedAgent(selectedAgent);
-		}else{
+		if (_selectedAgent.modelProvider === 'browser-ai') {
+			setSelectedAgent(_selectedAgent);
+			setTransport(FALLBACK_AGENT);
 			(FALLBACK_AGENT as GeminiNanoChatTransport).initializeSession();
+			console.log('comes here2')
+		} else {
+			setSelectedAgent(_selectedAgent);
+			setTransport(
+				transportGenerator(
+					_selectedAgent?.modelProvider,
+					_selectedAgent?.model,
+					{
+						..._apiKeys[_selectedAgent?.modelProvider],
+					},
+					_apiKeys[_selectedAgent.modelProvider]?.thinkingMode
+				)
+			);
 		}
 		initialFetchDone.current = true;
 	}, []);
 
 	const onSyncStorageChangedListener = useCallback(async () => {
-		const { apiKeys = {} }: { apiKeys: {[key:string]: APIKeys} } =
+		const { apiKeys = {} }: { apiKeys: { [key: string]: APIKeys } } =
 			await chrome.storage.sync.get('apiKeys');
 
 		setApiKeys(apiKeys);

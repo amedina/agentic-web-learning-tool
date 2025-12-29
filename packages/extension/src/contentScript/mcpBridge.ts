@@ -38,7 +38,7 @@ try {
                         await client.connect(transport);
                         connectionStarted = true;
                     }catch(error) {
-                        logger(['error'], `Error connecting client: ${error}`);
+                        logger(['error'], [`Error connecting client: ${error}`]);
                     }
                 }
                 if(client.transport){
@@ -51,7 +51,7 @@ try {
                   });
               }
             } catch (error) {
-                logger(['error'], `Error connecting to MCP background:${error}`);
+                logger(['error'], [`Error connecting to MCP background:${error}`]);
             }
         }, 1000);
 
@@ -88,5 +88,5 @@ try {
     })();
 
 } catch (error) {
-    logger(['error'], `Error connecting to MCP background:${error}`);
+    logger(['error'], [`Error connecting to MCP background:${error}`]);
 }

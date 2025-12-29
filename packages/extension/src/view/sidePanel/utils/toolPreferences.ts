@@ -5,7 +5,7 @@ import { z } from 'zod';
 /**
  * Internal dependencies
  */
-import logger from '../../../utils/logger';
+import { logger } from '../../../utils';
 
 // Zod schemas for validation
 export const ThreadToolPreferencesSchema = z.record(z.string(), z.array(z.string()));
@@ -28,7 +28,7 @@ export const TOOL_PREFERENCES_STORAGE_KEY = 'local:mcp-thread-tools';
 export function validateToolPreferences(data: unknown): ThreadToolPreferences {
   const result = ThreadToolPreferencesSchema.safeParse(data);
   if (!result.success) {
-    logger(['warn'], 'Invalid tool preferences data:'+ result.error);
+    logger(['warn'], ['Invalid tool preferences data:'+ result.error]);
     return {};
   }
   return result.data;
@@ -43,7 +43,7 @@ export function validateThreadToolPreferences(threadId: string, toolNames: unkno
     toolNames,
   });
   if (!result.success) {
-    logger(['warn'],'Invalid thread tool preferences:'+ result.error);
+    logger(['warn'],['Invalid thread tool preferences:', result.error]);
     return [];
   }
   return result.data.toolNames;
@@ -84,11 +84,11 @@ export function parseStoredToolPreferences(stored: unknown): ThreadToolPreferenc
       const parsed = JSON.parse(stored);
       return validateToolPreferences(parsed);
     } catch (error) {
-      logger(['warn'],'Failed to parse stored tool preferences:'+ error);
+      logger(['warn'],['Failed to parse stored tool preferences:',error]);
       return {};
     }
   }
 
-  logger(['warn'],'Unexpected stored tool preferences format:'+ typeof stored);
+  logger(['warn'],['Unexpected stored tool preferences format:', typeof stored]);
   return {};
 }

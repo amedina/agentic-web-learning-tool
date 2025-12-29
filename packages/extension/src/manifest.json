@@ -13,6 +13,7 @@
 	"permissions": [
 		"storage",
 		"tabs",
+		"activeTab",
 		"webNavigation",
 		"scripting",
 		"sidePanel"
@@ -23,9 +24,6 @@
 	"action": {
     	"default_title": "Click to open panel"
   	},
-	"side_panel": {
-		"default_path": "sidePanel/sidePanel.html"
-	},
 	"background": {
 		"service_worker": "serviceWorker/serviceWorker.js",
 		"type": "module"

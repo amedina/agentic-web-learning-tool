@@ -11,7 +11,7 @@ import { useEffect, useMemo } from 'react';
  */
 import { cleanArguments, formatToolResult, getToolNameForUI, mcpToolToJSONSchema, validateToolPreferences } from '../utils';
 import type { ToolExecutionArgs } from '../types';
-import logger from '../../../utils/logger';
+import { logger } from '../../../utils';
 
 /**
  * Hook that bridges MCP tools with the Assistant UI framework.
@@ -91,7 +91,7 @@ export function useAssistantMCP(
 
               return formatToolResult(toolResult.content as CallToolResult['content']);
             } catch (error) {
-              logger(['error'], `[useAssistantMCP] Tool execution failed for '${logName}': ${error}`);
+              logger(['error'], [`[useAssistantMCP] Tool execution failed for '${logName}': ${error}`]);
             }
           },
         }),

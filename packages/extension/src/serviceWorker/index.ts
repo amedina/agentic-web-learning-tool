@@ -2,23 +2,22 @@
  * External dependencies
  */
 import { z } from 'zod';
-z.config({jitless: true});
+z.config({ jitless: true });
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { type CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { ExtensionServerTransport } from '@mcp-b/transports';
 /**
  * Internal dependencies
  */
-import { CONNECTION_NAMES } from '../utils/constants';
+import { CONNECTION_NAMES, logger } from '../utils';
 import McpHub from './mcpHub';
 import './chromeListeners';
-import logger from '../utils/logger';
 
 const sharedServer = new McpServer({ name: 'Extension-Hub', version: '1.0.0' }, { capabilities: { tools: { listChanged: true } } });
 
-chrome.sidePanel
-  .setPanelBehavior({ openPanelOnActionClick: true })
-  .catch((error) => logger([ 'error'],`Error while opening sidepanel: ${error}`));
+chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false }).catch((error) => {
+  logger(['error'],['Failed to set panel behavior:', error]);
+});
 
 // Initialize the MCP Server and Hub
 const mcpHub = new McpHub(sharedServer);
@@ -42,7 +41,7 @@ chrome.runtime.onConnect.addListener((port) => {
     );
   } catch (_error) {
     //supress error
-    logger(['warn', 'error'],`Error registering tool: ${_error}`);
+    logger(['warn', 'error'], [`Error registering tool:`, _error]);
   }
   sharedServer.connect(transport);
   mcpHub.setupConnections();
