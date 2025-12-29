@@ -68,7 +68,7 @@ export function MetadataPanel({
                                 <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">URL Match Patterns</label>
                                 <div className="px-3 py-2 bg-white border border-gray-200 rounded font-mono text-xs text-gray-700 bg-gray-50">
                                     {(() => {
-                                        const patterns = metadata.matchPatterns;
+                                        const patterns = metadata.allowedDomains;
                                         if (!patterns) return "—";
                                         if (Array.isArray(patterns)) {
                                             return patterns.join(', ');

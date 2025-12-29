@@ -18,14 +18,14 @@ export function ExtractMetadata(code: string): Partial<WebMCPTool> {
         const descMatch = code.match(/description:\s*["']([^"']+)["']/);
         if (descMatch) metadata.description = descMatch[1];
 
-        const matchPatternsMatch = code.match(/match:\s*(\[[^\]]+\])/);
+        const allowedDomainsMatch = code.match(/allowedDomains:\s*(\[[^\]]+\])/);
 
-        if (matchPatternsMatch) {
+        if (allowedDomainsMatch) {
             try {
-                const arrayStr = matchPatternsMatch[1].replace(/'/g, '"');
-                metadata.matchPatterns = JSON.parse(arrayStr);
+                const arrayStr = allowedDomainsMatch[1].replace(/'/g, '"');
+                metadata.allowedDomains = JSON.parse(arrayStr);
             } catch (e) {
-                metadata.matchPatterns = [matchPatternsMatch[1]];
+                metadata.allowedDomains = [allowedDomainsMatch[1]];
             }
         }
 

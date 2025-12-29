@@ -28,7 +28,7 @@ const DEFAULT_SCRIPT_TEMPLATE = `export const metadata = {
   namespace: "user_scripts",
   version: "1.0.0",
   description: "Description of your tool",
-  match: ["<all_urls>"],
+  allowedDomains: ["<all_urls>"],
   inputSchema: {
     type: "object",
     properties: {}, 
@@ -117,7 +117,7 @@ export function EditToolDialog({ open, onOpenChange, tool, onSave, onDelete }: E
             namespace: extracted.namespace || tool?.namespace || "user_scripts",
             version: extracted.version || tool?.version || "1.0.0",
             description: extracted.description || tool?.description || "No description",
-            matchPatterns: Array.isArray(extracted.matchPatterns) ? extracted.matchPatterns : ["<all_urls>"],
+            allowedDomains: Array.isArray(extracted.allowedDomains) ? extracted.allowedDomains : ["<all_urls>"],
             inputSchema: typeof extracted.inputSchema === 'string' ? {} : (extracted.inputSchema || {}),
             code: code,
             enabled: tool ? tool.enabled : true,

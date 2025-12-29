@@ -25,7 +25,7 @@ const sampleTool: WebMCPTool = {
     namespace: "user_scripts",
     version: "1.0.0",
     description: "An example tool description that is long enough to demonstrate wrapping.",
-    matchPatterns: ["<all_urls>", "https://example.com/*"],
+    allowedDomains: ["<all_urls>", "https://example.com/*"],
     inputSchema: {},
     enabled: true,
     isBuiltIn: false

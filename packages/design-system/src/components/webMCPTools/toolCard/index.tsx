@@ -39,9 +39,9 @@ export function ToolCard({ tool, onToggle, onEdit }: ToolCardProps) {
 
             <div className="flex justify-between items-center mt-auto pt-3 border-t border-gray-200">
                 <div className="flex gap-2 flex-wrap">
-                    {tool.matchPatterns.map((pattern, idx) => (
+                    {tool.allowedDomains.map((domain, idx) => (
                         <span key={idx} className="bg-[var(--surface-active)] text-gray-500 px-2 py-0.5 rounded-md text-[10px] font-mono border border-[var(--border-color)]">
-                            {pattern}
+                            {domain}
                         </span>
                     ))}
                 </div>

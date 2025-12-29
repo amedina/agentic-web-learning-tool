@@ -32,7 +32,7 @@ const sampleUserTool: WebMCPTool = {
     namespace: "user_scripts",
     version: "1.0.0",
     description: "A user defined script.",
-    matchPatterns: ["<all_urls>"],
+    allowedDomains: ["<all_urls>"],
     inputSchema: {},
     enabled: true,
     isBuiltIn: false
@@ -43,7 +43,7 @@ const sampleBuiltInTool: WebMCPTool = {
     namespace: "built_in",
     version: "1.0.0",
     description: "A built-in tool.",
-    matchPatterns: ["<all_urls>"],
+    allowedDomains: ["<all_urls>"],
     inputSchema: {},
     enabled: true,
     isBuiltIn: true

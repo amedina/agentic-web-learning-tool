@@ -27,9 +27,9 @@ const sampleTool: WebMCPTool = {
     namespace: "user_scripts",
     version: "1.0.0",
     description: "An example tool.",
-    matchPatterns: ["<all_urls>"],
+    allowedDomains: ["<all_urls>"],
     inputSchema: {},
-    code: `export const metadata = {\n  name: "example_tool",\n  namespace: "user_scripts",\n  version: "1.0.0",\n  description: "An example tool.",\n  match: ["<all_urls>"],\n  inputSchema: {}\n};\n\nexport async function execute(args) {\n  return "Hello";\n}`,
+    code: `export const metadata = {\n  name: "example_tool",\n  namespace: "user_scripts",\n  version: "1.0.0",\n  description: "An example tool.",\n  allowedDomains: ["<all_urls>"],\n  inputSchema: {}\n};\n\nexport async function execute(args) {\n  return "Hello";\n}`,
     enabled: true,
     isBuiltIn: false
 };
