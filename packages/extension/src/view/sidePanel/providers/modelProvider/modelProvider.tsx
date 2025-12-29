@@ -59,12 +59,17 @@ const Provider = ({ children }: PropsWithChildren) => {
 					selectedAgent?.model,
 					{
 						...apiKeys[selectedAgent?.modelProvider],
-					}
+					},
+					apiKeys[selectedAgent.modelProvider]?.thinkingMode
 				)
 			);
 		} else {
 			setTransport(transportGenerator('browser-ai', 'prompt-api', {}));
 		}
+
+		chrome.storage.sync.set({
+			selectedAgent,
+		});
 	}, [selectedAgent]);
 
 	/**
@@ -72,11 +77,15 @@ const Provider = ({ children }: PropsWithChildren) => {
 	 * parses data currently in store, set current tab URL.
 	 */
 	const intitialSync = useCallback(async () => {
-		const { apiKeys = {} }: { apiKeys: {[key:string]: APIKeys} } =
-			await chrome.storage.sync.get('apiKeys');
+		const { apiKeys = {}, selectedAgent }: { apiKeys: {[key:string]: APIKeys}, selectedAgent: AgentType } =
+			await chrome.storage.sync.get(['apiKeys', 'selectedAgent']);
 
 		setApiKeys(apiKeys);
-		(FALLBACK_AGENT as GeminiNanoChatTransport).initializeSession();
+		if(selectedAgent.model){
+			setSelectedAgent(selectedAgent);
+		}else{
+			(FALLBACK_AGENT as GeminiNanoChatTransport).initializeSession();
+		}
 		initialFetchDone.current = true;
 	}, []);
 

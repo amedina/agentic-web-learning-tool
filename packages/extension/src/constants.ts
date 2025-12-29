@@ -1,3 +1,8 @@
+/**
+ * Internal dependencies
+ */
+import type { SettingsState } from "./types";
+
 export const INITIAL_PROVIDERS = [
     {
         id: 'browser-ai',
@@ -78,3 +83,8 @@ export const INITIAL_PROVIDERS = [
         ],
     },
 ];
+
+export const DEFAULT_SETTINGS: SettingsState = {
+    theme: 'auto',
+    logLevel: 'SILENT'
+}
