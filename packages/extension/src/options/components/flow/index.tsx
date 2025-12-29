@@ -3,6 +3,7 @@
  */
 import { X } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
+import { useReactFlow } from '@xyflow/react';
 import { WorkflowClient } from '@google-awlt/engine-extension';
 
 /**
@@ -10,6 +11,7 @@ import { WorkflowClient } from '@google-awlt/engine-extension';
  */
 import { type EdgeType, type NodeType, useFlow, useApi } from '../../store';
 import { Flow } from '../ui';
+import { TOOL_CONFIGS } from '../tools/toolRegistry';
 
 const ID_PREFIX = 'wf_';
 const STORAGE_PREFIX = 'workflow-';
@@ -64,6 +66,42 @@ const FlowContainer = () => {
 			nodes: state.nodes,
 			addNode: actions.addNode,
 		})
+	);
+
+	const { screenToFlowPosition } = useReactFlow();
+
+	const handleDrop = useCallback(
+		(event: React.DragEvent) => {
+			event.preventDefault();
+
+			const type = event.dataTransfer.getData('workflow-composer/flow');
+
+			if (!type || !TOOL_CONFIGS[type]) {
+				return;
+			}
+
+			const position = screenToFlowPosition({
+				x: event.clientX,
+				y: event.clientY,
+			});
+
+			const id = new Date().getTime().toString();
+			const toolConfig = TOOL_CONFIGS[type];
+
+			addNode({
+				id,
+				type,
+				position,
+				data: { label: toolConfig.label },
+			});
+
+			addApiNode({
+				id,
+				type,
+				config: toolConfig.config,
+			});
+		},
+		[addNode, addApiNode, screenToFlowPosition]
 	);
 
 	// Fetch tabs on mount
@@ -507,6 +545,7 @@ const FlowContainer = () => {
 						onClear: handleClear,
 						onNew: handleNewWorkflow,
 						onRun: handleRun,
+						onDrop: handleDrop,
 					}}
 				/>
 			</div>

@@ -7,9 +7,8 @@ import z from 'zod';
 
 /**
  * Internal dependencies
-*/
+ */
 import { ToolItem } from '../../../../ui';
-import { useApi, useFlow } from '../../../../../store';
 
 export const AlertNotificationSchema = z.object({
 	title: z.string(),
@@ -18,45 +17,19 @@ export const AlertNotificationSchema = z.object({
 
 export type AlertNotificationConfig = z.infer<typeof AlertNotificationSchema>;
 
-const createConfig: () => AlertNotificationConfig = () => {
-	return {
-		title: 'Alert Notification',
-		description: 'An Alert notification for displaying output.',
-	};
-};
-
 const AlertNotification = () => {
-	const { addFlowNode } = useFlow(({ actions }) => ({
-		addFlowNode: actions.addNode,
-	}));
-
-	const { addApiNode } = useApi(({ actions }) => ({
-		addApiNode: actions.addNode,
-	}));
-
-	const addAlertNotificationNode = useCallback(() => {
-		const id = new Date().getTime().toString();
-
-		addFlowNode({
-			id,
-			type: 'alertNotification',
-			position: { x: 0, y: 0 },
-			data: {
-				label: 'Alert Notification',
-			},
-		});
-
-		addApiNode({
-			id,
-			type: 'alertNotification',
-			config: createConfig(),
-		});
-	}, [addApiNode, addFlowNode]);
+	const handleDragStart = useCallback((event: React.DragEvent) => {
+		event.dataTransfer.setData(
+			'workflow-composer/flow',
+			'alertNotification'
+		);
+		event.dataTransfer.effectAllowed = 'move';
+	}, []);
 
 	return (
 		<ToolItem
 			label="Alert Notification"
-			onClick={addAlertNotificationNode}
+			onDragStart={handleDragStart}
 			Icon={BellRing}
 		/>
 	);

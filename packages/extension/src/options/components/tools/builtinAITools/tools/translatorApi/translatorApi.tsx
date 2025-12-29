@@ -9,7 +9,7 @@ import z from 'zod';
  * Internal dependencies
  */
 import { ToolItem } from '../../../../ui';
-import { useApi, useFlow } from '../../../../../store';
+import { useApi } from '../../../../../store';
 
 export const TranslatorApiSchema = z.object({
 	title: z.string(),
@@ -20,51 +20,27 @@ export const TranslatorApiSchema = z.object({
 
 export type TranslatorApiConfig = z.infer<typeof TranslatorApiSchema>;
 
-const createConfig: () => TranslatorApiConfig = () => {
-	return {
-		title: 'Translator',
-		description: 'Translate text from one language to another.',
-		sourceLanguage: 'en',
-		targetLanguage: 'es',
-	};
-};
-
 const TranslatorApi = () => {
-	const { addFlowNode } = useFlow(({ actions }) => ({
-		addFlowNode: actions.addNode,
-	}));
-
-	const { addApiNode, isAvailable } = useApi(({ state, actions }) => ({
-		addApiNode: actions.addNode,
+	const { isAvailable } = useApi(({ state }) => ({
 		isAvailable: state.capabilities.translatorApi,
 	}));
 
-	const addTranslatorApiNode = useCallback(() => {
-		if (!isAvailable) return;
-
-		const config = createConfig();
-		const id = new Date().getTime().toString();
-
-		addFlowNode({
-			id,
-			type: 'translatorApi',
-			position: { x: 0, y: 0 },
-			data: {
-				label: 'Translator API',
-			},
-		});
-
-		addApiNode({
-			id,
-			type: 'translatorApi',
-			config,
-		});
-	}, [addApiNode, addFlowNode, isAvailable]);
+	const handleDragStart = useCallback(
+		(event: React.DragEvent) => {
+			if (!isAvailable) return;
+			event.dataTransfer.setData(
+				'workflow-composer/flow',
+				'translatorApi'
+			);
+			event.dataTransfer.effectAllowed = 'move';
+		},
+		[isAvailable]
+	);
 
 	return (
 		<ToolItem
 			label="Translator API"
-			onClick={addTranslatorApiNode}
+			onDragStart={handleDragStart}
 			Icon={Languages}
 			disabled={!isAvailable}
 			title={

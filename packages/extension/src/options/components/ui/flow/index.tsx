@@ -14,6 +14,7 @@ import {
 import '@xyflow/react/dist/style.css';
 import { Play } from 'lucide-react';
 import WorkflowDropdown from './WorkflowDropdown';
+import { useCallback } from 'react';
 
 export interface FlowProps<
 	NodeType extends Node = Node,
@@ -39,6 +40,7 @@ export interface FlowProps<
 		onClear: () => void;
 		onNew: () => void;
 		onRun: () => void;
+		onDrop: (event: React.DragEvent) => void;
 	};
 }
 
@@ -59,6 +61,16 @@ const Flow = <NodeType extends Node, EdgeType extends Edge>({
 	isRunning,
 	actions,
 }: FlowProps<NodeType, EdgeType>) => {
+	const onDragOver = useCallback((event: React.DragEvent) => {
+		event.preventDefault();
+		event.dataTransfer.dropEffect = 'move';
+	}, []);
+
+	const onDrop = useCallback((event: React.DragEvent) => {
+		event.preventDefault();
+		actions.onDrop(event);
+	}, [actions]);
+
 	return (
 		<div className="h-full flex-1 flex flex-col rounded bg-gray-100 relative min-h-[500px]">
 			<div className="h-15 bg-gray-200 flex items-center justify-between px-2 m-4 mb-0 border-b border-slate-300 rounded p-2">
@@ -134,6 +146,8 @@ const Flow = <NodeType extends Node, EdgeType extends Edge>({
 					onNodesDelete={onNodesDelete}
 					onEdgesDelete={onEdgesDelete}
 					onConnect={onConnect}
+					onDragOver={onDragOver}
+					onDrop={onDrop}
 				>
 					<MiniMap nodeStrokeWidth={3} zoomable pannable />
 					<Controls position="top-right" />

@@ -2,11 +2,13 @@ import { useToolSidebar } from '../../tools/ToolSidebarContext';
 
 interface ToolItemProps {
 	label: string;
-	onClick: () => void;
+	onClick?: () => void;
 	Icon: React.ComponentType<{ size: number; className?: string }>;
+
 	disabled?: boolean;
 	title?: string;
 	collapsed?: boolean;
+	onDragStart?: (event: React.DragEvent) => void;
 }
 
 const ToolItem = ({
@@ -16,6 +18,7 @@ const ToolItem = ({
 	disabled,
 	title,
 	collapsed: collapsedProp,
+	onDragStart,
 }: ToolItemProps) => {
 	const { collapsed: contextCollapsed } = useToolSidebar();
 	const collapsed = collapsedProp ?? contextCollapsed;
@@ -23,6 +26,8 @@ const ToolItem = ({
 	return (
 		<button
 			disabled={disabled}
+			draggable={!disabled}
+			onDragStart={onDragStart}
 			title={title || (collapsed ? label : undefined)}
 			className={`flex items-center transition-all ${
 				collapsed

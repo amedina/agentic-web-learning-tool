@@ -7,9 +7,8 @@ import z from 'zod';
 
 /**
  * Internal dependencies
-*/
+ */
 import { ToolItem } from '../../../../ui';
-import { useApi, useFlow } from '../../../../../store';
 
 export const StaticInputSchema = z.object({
 	title: z.string(),
@@ -19,47 +18,16 @@ export const StaticInputSchema = z.object({
 
 export type StaticInputConfig = z.infer<typeof StaticInputSchema>;
 
-const createConfig: () => StaticInputConfig = () => {
-	return {
-		title: 'Static Input',
-		description: 'Provide a static text input.',
-		inputValue: '',
-	};
-};
-
 const StaticInput = () => {
-	const { addFlowNode } = useFlow(({ actions }) => ({
-		addFlowNode: actions.addNode,
-	}));
-
-	const { addApiNode } = useApi(({ actions }) => ({
-		addApiNode: actions.addNode,
-	}));
-
-	const addStaticInputNode = useCallback(() => {
-		const config = createConfig();
-		const id = new Date().getTime().toString();
-
-		addFlowNode({
-			id,
-			type: 'staticInput',
-			position: { x: 0, y: 0 },
-			data: {
-				label: 'Static Input',
-			},
-		});
-
-		addApiNode({
-			id,
-			type: 'staticInput',
-			config,
-		});
-	}, [addApiNode, addFlowNode]);
+	const handleDragStart = useCallback((event: React.DragEvent) => {
+		event.dataTransfer.setData('workflow-composer/flow', 'staticInput');
+		event.dataTransfer.effectAllowed = 'move';
+	}, []);
 
 	return (
 		<ToolItem
 			label="Static Input"
-			onClick={addStaticInputNode}
+			onDragStart={handleDragStart}
 			Icon={FormInput}
 		/>
 	);

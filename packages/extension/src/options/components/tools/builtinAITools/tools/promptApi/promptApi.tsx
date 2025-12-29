@@ -8,7 +8,7 @@ import z from 'zod';
 /**
  * Internal dependencies
  */
-import { useApi, useFlow } from '../../../../../store';
+import { useApi } from '../../../../../store';
 import { ToolItem } from '../../../../ui';
 
 export const PromptApiSchema = z.object({
@@ -28,56 +28,24 @@ export const PromptApiSchema = z.object({
 
 export type PromptApiConfig = z.infer<typeof PromptApiSchema>;
 
-const createConfig: () => PromptApiConfig = () => {
-	return {
-		title: 'Chat Assistant',
-		context: 'You are a helpful assistant',
-		topK: 3,
-		temperature: 1,
-		expectedInputsLanguages: ['en', 'ja'],
-		expectedOutputsLanguages: ['ja'],
-		initialPrompts: [
-			{ role: 'system', content: 'You are a helpful assistant.' },
-		],
-	};
-};
-
 const PromptApi = () => {
-	const { addFlowNode } = useFlow(({ actions }) => ({
-		addFlowNode: actions.addNode,
-	}));
-
-	const { addApiNode, isAvailable } = useApi(({ state, actions }) => ({
-		addApiNode: actions.addNode,
+	const { isAvailable } = useApi(({ state }) => ({
 		isAvailable: state.capabilities.promptApi,
 	}));
 
-	const addPromptApiNode = useCallback(() => {
-		if (!isAvailable) return;
-
-		const config = createConfig();
-		const id = new Date().getTime().toString();
-
-		addFlowNode({
-			id,
-			type: 'promptApi',
-			position: { x: 0, y: 0 },
-			data: {
-				label: 'Chat Assistant',
-			},
-		});
-
-		addApiNode({
-			id,
-			type: 'promptApi',
-			config,
-		});
-	}, [addApiNode, addFlowNode, isAvailable]);
+	const handleDragStart = useCallback(
+		(event: React.DragEvent) => {
+			if (!isAvailable) return;
+			event.dataTransfer.setData('workflow-composer/flow', 'promptApi');
+			event.dataTransfer.effectAllowed = 'move';
+		},
+		[isAvailable]
+	);
 
 	return (
 		<ToolItem
 			label="Chat Assistant"
-			onClick={addPromptApiNode}
+			onDragStart={handleDragStart}
 			Icon={NotebookTextIcon}
 			disabled={!isAvailable}
 			title={

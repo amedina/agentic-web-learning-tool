@@ -7,9 +7,8 @@ import z from 'zod';
 
 /**
  * Internal dependencies
-*/
+ */
 import { ToolItem } from '../../../../ui';
-import { useApi, useFlow } from '../../../../../store';
 
 export const ConditionSchema = z.object({
 	title: z.string(),
@@ -24,45 +23,18 @@ export const ConditionSchema = z.object({
 
 export type ConditionConfig = z.infer<typeof ConditionSchema>;
 
-const createConfig: () => ConditionConfig = () => {
-	return {
-		title: 'Condition',
-		description: 'If/Else condition based on compared values.',
-		comparisonType: 'equals',
-	};
-};
-
 const Condition = () => {
-	const { addFlowNode } = useFlow(({ actions }) => ({
-		addFlowNode: actions.addNode,
-	}));
-
-	const { addApiNode } = useApi(({ actions }) => ({
-		addApiNode: actions.addNode,
-	}));
-
-	const addConditionNode = useCallback(() => {
-		const config = createConfig();
-		const id = new Date().getTime().toString();
-
-		addFlowNode({
-			id,
-			type: 'condition',
-			position: { x: 0, y: 0 },
-			data: {
-				label: 'Condition',
-			},
-		});
-
-		addApiNode({
-			id,
-			type: 'condition',
-			config,
-		});
-	}, [addApiNode, addFlowNode]);
+	const handleDragStart = useCallback((event: React.DragEvent) => {
+		event.dataTransfer.setData('workflow-composer/flow', 'condition');
+		event.dataTransfer.effectAllowed = 'move';
+	}, []);
 
 	return (
-		<ToolItem label="Condition" onClick={addConditionNode} Icon={Split} />
+		<ToolItem
+			label="Condition"
+			onDragStart={handleDragStart}
+			Icon={Split}
+		/>
 	);
 };
 

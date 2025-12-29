@@ -7,9 +7,8 @@ import z from 'zod';
 
 /**
  * Internal dependencies
-*/
+ */
 import { ToolItem } from '../../../../ui';
-import { useApi, useFlow } from '../../../../../store';
 
 export const DomInputSchema = z.object({
 	title: z.string(),
@@ -21,49 +20,16 @@ export const DomInputSchema = z.object({
 
 export type DomInputConfig = z.infer<typeof DomInputSchema>;
 
-const createConfig: () => DomInputConfig = () => {
-	return {
-		title: 'DOM Input',
-		description: 'Extract text content from the DOM element.',
-		cssSelector: 'body',
-		extract: 'textContent',
-		defaultValue: 'Test',
-	};
-};
-
 const DomInput = () => {
-	const { addFlowNode } = useFlow(({ actions }) => ({
-		addFlowNode: actions.addNode,
-	}));
-
-	const { addApiNode } = useApi(({ actions }) => ({
-		addApiNode: actions.addNode,
-	}));
-
-	const addDomInputNode = useCallback(() => {
-		const config = createConfig();
-		const id = new Date().getTime().toString();
-
-		addFlowNode({
-			id,
-			type: 'domInput',
-			position: { x: 0, y: 0 },
-			data: {
-				label: 'Dom Input',
-			},
-		});
-
-		addApiNode({
-			id,
-			type: 'domInput',
-			config,
-		});
-	}, [addApiNode, addFlowNode]);
+	const handleDragStart = useCallback((event: React.DragEvent) => {
+		event.dataTransfer.setData('workflow-composer/flow', 'domInput');
+		event.dataTransfer.effectAllowed = 'move';
+	}, []);
 
 	return (
 		<ToolItem
 			label="Dom Input"
-			onClick={addDomInputNode}
+			onDragStart={handleDragStart}
 			Icon={FileSearch}
 		/>
 	);
