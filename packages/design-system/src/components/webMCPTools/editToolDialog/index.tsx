@@ -26,7 +26,6 @@ interface EditToolDialogProps {
 const DEFAULT_SCRIPT_TEMPLATE = `export const metadata = {
   name: "new_tool",
   namespace: "user_scripts",
-  version: "1.0.0",
   description: "Description of your tool",
   allowedDomains: ["<all_urls>"],
   inputSchema: {
@@ -115,7 +114,6 @@ export function EditToolDialog({ open, onOpenChange, tool, onSave, onDelete }: E
         const newTool: WebMCPTool = {
             name: extracted.name || tool?.name || "new_tool",
             namespace: extracted.namespace || tool?.namespace || "user_scripts",
-            version: extracted.version || tool?.version || "1.0.0",
             description: extracted.description || tool?.description || "No description",
             allowedDomains: Array.isArray(extracted.allowedDomains) ? extracted.allowedDomains : ["<all_urls>"],
             inputSchema: typeof extracted.inputSchema === 'string' ? {} : (extracted.inputSchema || {}),

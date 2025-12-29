@@ -12,9 +12,6 @@ export function ExtractMetadata(code: string): Partial<WebMCPTool> {
         const nsMatch = code.match(/namespace:\s*["']([^"']+)["']/);
         if (nsMatch) metadata.namespace = nsMatch[1];
 
-        const versionMatch = code.match(/version:\s*["']([^"']+)["']/);
-        if (versionMatch) metadata.version = versionMatch[1];
-
         const descMatch = code.match(/description:\s*["']([^"']+)["']/);
         if (descMatch) metadata.description = descMatch[1];
 

@@ -30,7 +30,6 @@ type Story = StoryObj<typeof ToolList>;
 const sampleUserTool: WebMCPTool = {
     name: "user_script",
     namespace: "user_scripts",
-    version: "1.0.0",
     description: "A user defined script.",
     allowedDomains: ["<all_urls>"],
     inputSchema: {},
@@ -41,7 +40,6 @@ const sampleUserTool: WebMCPTool = {
 const sampleBuiltInTool: WebMCPTool = {
     name: "built_in_tool",
     namespace: "built_in",
-    version: "1.0.0",
     description: "A built-in tool.",
     allowedDomains: ["<all_urls>"],
     inputSchema: {},

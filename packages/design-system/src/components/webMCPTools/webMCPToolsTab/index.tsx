@@ -17,7 +17,6 @@ const BUILT_IN_TOOLS: WebMCPTool[] = [
     {
         name: "change_bg_color",
         namespace: "built_in",
-        version: "1.0.0",
         description: "Changes background color",
         allowedDomains: ["<all_urls>"],
         inputSchema: { type: "object", properties: { color: { type: "string" } } },
@@ -27,7 +26,6 @@ const BUILT_IN_TOOLS: WebMCPTool[] = [
     {
         name: "get_page_title",
         namespace: "built_in",
-        version: "1.0.0",
         description: "Get page title",
         allowedDomains: ["<all_urls>"],
         inputSchema: { type: "object", properties: {} },

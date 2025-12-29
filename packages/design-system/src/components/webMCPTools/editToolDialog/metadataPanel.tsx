@@ -55,17 +55,12 @@ export function MetadataPanel({
                                 <p className="text-[10px] text-gray-400 mt-1">Grouping identifier to escape naming collisions</p>
                             </div>
                             <div>
-                                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Version</label>
-                                <div className="px-3 py-2 bg-white border border-gray-200 rounded font-mono text-sm text-gray-700">{metadata.version || "—"}</div>
-                                <p className="text-[10px] text-gray-400 mt-1">Semantic versioning (e.g. 1.0.0)</p>
-                            </div>
-                            <div>
                                 <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Description</label>
                                 <div className="px-3 py-2 bg-white border border-gray-200 rounded text-sm text-gray-700">{metadata.description || "—"}</div>
                                 <p className="text-[10px] text-gray-400 mt-1">Human-readable description of what the tool does</p>
                             </div>
                             <div>
-                                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">URL Match Patterns</label>
+                                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Allowed Domains</label>
                                 <div className="px-3 py-2 bg-white border border-gray-200 rounded font-mono text-xs text-gray-700 bg-gray-50">
                                     {(() => {
                                         const patterns = metadata.allowedDomains;

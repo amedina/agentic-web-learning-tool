@@ -18,6 +18,7 @@
             mcp.registerTool({
                 name: "change_bg_color",
                 description: "Changes background color",
+                allowedDomains: ["<all_urls>"],
                 inputSchema: { type: "object", properties: { color: { type: "string" } } },
                 execute: async (args) => {
                     console.log("WebMCP: Executing change_bg_color", args);
@@ -31,6 +32,7 @@
             mcp.registerTool({
                 name: "get_page_title",
                 description: "Get page title",
+                allowedDomains: ["<all_urls>"],
                 inputSchema: { type: "object", properties: {} },
                 execute: async () => {
                     console.log("WebMCP: Executing get_page_title");

@@ -23,7 +23,6 @@ type Story = StoryObj<typeof ToolCard>;
 const sampleTool: WebMCPTool = {
     name: "example_tool",
     namespace: "user_scripts",
-    version: "1.0.0",
     description: "An example tool description that is long enough to demonstrate wrapping.",
     allowedDomains: ["<all_urls>", "https://example.com/*"],
     inputSchema: {},
