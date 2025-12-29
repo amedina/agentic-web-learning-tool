@@ -8,7 +8,7 @@ import {
 	type AssistantRuntime,
 } from '@assistant-ui/react';
 import { useMcpClient } from '@mcp-b/mcp-react-hooks';
-import { useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import type { JSONRPCMessage } from '@modelcontextprotocol/sdk/types.js';
 import {
 	Paperclip,
@@ -34,8 +34,8 @@ import { transport, useModelProvider } from '../../providers';
 import AssistantMessage from './assistantMessage';
 import EditComposer from './editComposer';
 import UserMessage from './userMessage';
-import type { AgentType } from '../../../../types';
 import { INITIAL_PROVIDERS } from '../../../../constants';
+import type { AgentType } from '@/types';
 
 type SingleGroupTool = {
 	group: string;
@@ -145,6 +145,26 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 
 		return toolGroups;
 	}, [tools]);
+
+	const handleSelect = useCallback((selectedId: string) => {
+		const agent: AgentType = {
+			modelProvider: '',
+			model: '',
+		};
+
+		INITIAL_PROVIDERS.forEach((provider) => {
+			const selectedModel = provider.models.find(
+				(model) => model.id === selectedId
+			);
+
+			if (selectedModel) {
+				agent.modelProvider = provider.id;
+				agent.model = selectedModel.id;
+			}
+		});
+
+		setSelectedAgent(agent);
+	}, []);
 	//Only shows models whose apiKeys have been and have been enabled
 	const modelOptions = useMemo(() => {
 		const availableModelProviders = Object.keys(apiKeys).filter(
@@ -154,9 +174,13 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 		availableModelProviders.push('browser-ai');
 
 		const modelProviders = availableModelProviders.map((provider) => {
-			const { id = '', name = '', models = [] } = INITIAL_PROVIDERS.find(
+			const {
+				id = '',
+				name = '',
+				models = [],
+			} = INITIAL_PROVIDERS.find(
 				({ id }) => provider === id
-			) as typeof INITIAL_PROVIDERS[1];
+			) as (typeof INITIAL_PROVIDERS)[1];
 
 			return {
 				id,
@@ -169,8 +193,8 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 						label: name,
 						mainLabel: 'Models',
 						submenu: models,
-					}
-				]
+					},
+				],
 			};
 		});
 		return modelProviders.filter(
@@ -251,11 +275,9 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 								</Dropdown>
 								<Dropdown
 									options={modelOptions}
-									onSelect={(id) =>
-										console.log(id)
-									}
-									mainLabel='Providers'
-									selectedValue={''}
+									onSelect={(id) => handleSelect(id)}
+									mainLabel="Providers"
+									selectedValue={selectedAgent.model}
 								>
 									<Button variant="ghost" size="icon">
 										<CpuIcon className="w-4 h-4" />

@@ -159,10 +159,18 @@ export default function DropDown({
 							onClick={() => handleSelect(item.id)}
 						>
 							<div className="flex items-center gap-3">
-								{selectedValue === item.id && (
-									<div className="ml-auto w-1.5 h-1.5 rounded-full bg-stone-600" />
-								)}
 								<span>{item.label}</span>
+								{selectedValue === item.id ||
+									(processOptionsIntoGroups(
+										item.submenu
+									).find((singleItem) =>
+										singleItem.items.find(
+											(parent) =>
+												parent.id === selectedValue
+										)
+									) && (
+										<div className="ml-auto w-1.5 h-1.5 rounded-full bg-stone-600" />
+									))}
 							</div>
 						</DropDownMenuItem>
 					</DropdownMenuSubTrigger>
@@ -211,10 +219,10 @@ export default function DropDown({
 					onClick={() => handleSelect(item.id)}
 				>
 					<div className="flex items-center gap-3">
+						<span>{item.label}</span>
 						{selectedValue === item.id && (
 							<div className="ml-auto w-1.5 h-1.5 rounded-full bg-stone-600" />
 						)}
-						<span>{item.label}</span>
 					</div>
 				</DropDownMenuItem>
 			);
