@@ -23,7 +23,7 @@ export function ToolCard({ tool, onToggle, onEdit }: ToolCardProps) {
                 <div>
                     <h3 className="text-lg font-bold text-gray-800">{tool.name}</h3>
                     <div className="text-xs text-gray-500 font-mono opacity-80 mb-1">
-                        {tool.namespace} • v{tool.version}
+                        {tool.namespace}
                     </div>
                 </div>
                 <ToggleSwitch
