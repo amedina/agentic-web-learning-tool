@@ -18,7 +18,7 @@ export default function AgentDashboard() {
 	return (
 		<OptionsPageTab
 			title="Agent Studio"
-			description="Manage your LLM agents, configure connection settings, and fine-tune inference parameters."
+			description="Manage your LLM keys, configure provider settings, and fine-tune inference parameters."
 		>
 			<div className="w-full flex flex-col flex-1">
 				{/* Dashboard Grid */}
