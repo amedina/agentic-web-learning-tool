@@ -11,7 +11,7 @@ import { type CallToolResult, type Tool } from '@modelcontextprotocol/sdk/types.
 import { RequestManager, sanitizeToolName } from './utils';
 import { MESSAGE_TYPES, CONNECTION_NAMES } from '../utils/constants';
 import type { ContentScriptMessage, TabData } from './types';
-import logger from '@/utils/logger';
+import logger from '../utils/logger';
 
 /**
  * The central hub managing connections between the MCP Server and Chrome Tabs.
