@@ -10,6 +10,7 @@ import { type CallToolResult, type Tool } from '@modelcontextprotocol/sdk/types.
  * Internal dependencies
  */
 import { RequestManager, sanitizeToolName } from './utils';
+import { isDomainAllowed } from './utils/domainMatcher';
 import { MESSAGE_TYPES, CONNECTION_NAMES } from '../utils/constants';
 import type { ContentScriptMessage, TabData } from './types';
 
@@ -130,24 +131,39 @@ class McpHub {
     tools: Tool[],
     isRegister: boolean
   ) {
-    // Unified filtering: Filter out any tool that is disabled in storage (built-in or custom)
+    // Unified filtering: Filter out any tool that is disabled in storage OR not allowed on this domain
     const storage = await chrome.storage.local.get(['builtInWebMCPToolsState', 'userWebMCPTools']);
     const builtInState = (storage.builtInWebMCPToolsState || {}) as Record<string, boolean | undefined>;
-    const userTools = (storage.userWebMCPTools || []) as Array<{ name: string; enabled: boolean }>;
+    const userTools = (storage.userWebMCPTools || []) as Array<{ name: string; enabled: boolean; allowedDomains?: string[] }>;
+    const userToolsMap = new Map(userTools.map(t => [t.name, t]));
 
+    const currentUrl = port.sender?.tab?.url || '';
     const disabledToolNames = new Set<string>();
 
-    // Add disabled built-ins
     for (const [name, enabled] of Object.entries(builtInState)) {
       if (enabled === false) disabledToolNames.add(name);
     }
 
-    // Add disabled custom tools
     for (const tool of userTools) {
-      if (tool.enabled === false) disabledToolNames.add(tool.name);
+      if (tool.enabled === false) {
+        disabledToolNames.add(tool.name);
+      }
     }
 
-    const activeTools = tools.filter(t => !disabledToolNames.has(t.name));
+    const activeTools = tools.filter(tool => {
+      if (disabledToolNames.has(tool.name)) {
+        return false;
+      }
+
+      const userToolConfig = userToolsMap.get(tool.name);
+      if (userToolConfig) {
+        if (!isDomainAllowed(currentUrl, userToolConfig.allowedDomains)) {
+          return false;
+        }
+      }
+
+      return true;
+    });
 
     const domainData = this.getDomainData(domain);
     const existingTabData = domainData.get(dataId);
@@ -410,10 +426,21 @@ class McpHub {
   async injectToolsAndRegisterFunction(tabId: number) {
     const storage = await chrome.storage.local.get();
     const userWebMCPTools = storage && storage['userWebMCPTools'];
+    let tabUrl = '';
 
-    // Filter out disabled user tools
+    try {
+      const tab = await chrome.tabs.get(tabId);
+      tabUrl = tab.url || '';
+    } catch (e) {
+      console.warn(`WebMCP: Could not get tab URL for injection (tabId: ${tabId})`, e);
+    }
+
+    // Filter out disabled user tools AND tools not allowed on this domain
     const enabledUserTools = Array.isArray(userWebMCPTools)
-      ? userWebMCPTools.filter((t: any) => t.enabled !== false)
+      ? userWebMCPTools.filter((t: any) => {
+        if (t.enabled === false) return false;
+        return isDomainAllowed(tabUrl, t.allowedDomains);
+      })
       : [];
 
     chrome.scripting.executeScript({
