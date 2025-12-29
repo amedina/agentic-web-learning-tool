@@ -104,6 +104,7 @@ export const Default: Story = {
 			onClear: () => {},
 			onNew: () => {},
 			onRun: () => {},
+			onDrop: () => {},
 		},
 		nodes: [
 			{

@@ -5,11 +5,22 @@ import { X } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { useReactFlow } from '@xyflow/react';
 import { WorkflowClient } from '@google-awlt/engine-extension';
+import type {
+	ExecutionContext,
+	NodeOutput,
+	WorkflowJSON,
+} from '@google-awlt/engine-core';
 
 /**
  * Internal dependencies
  */
-import { type EdgeType, type NodeType, useFlow, useApi } from '../../store';
+import {
+	type EdgeType,
+	type NodeType,
+	useFlow,
+	useApi,
+	type NodeConfig,
+} from '../../store';
 import { Flow } from '../ui';
 import { TOOL_CONFIGS } from '../tools/toolRegistry';
 
@@ -123,7 +134,7 @@ const FlowContainer = () => {
 	}, []);
 
 	const loadWorkflowData = useCallback(
-		(workflowData: any) => {
+		(workflowData: WorkflowJSON) => {
 			clearFlow();
 
 			if (workflowData.meta?.name) {
@@ -134,7 +145,7 @@ const FlowContainer = () => {
 			const graphEdges = workflowData.graph?.edges;
 
 			if (graphNodes && Array.isArray(graphNodes)) {
-				graphNodes.forEach((node: any) => {
+				graphNodes.forEach((node) => {
 					const flowNode: NodeType = {
 						id: node.id,
 						type: node.type,
@@ -219,7 +230,9 @@ const FlowContainer = () => {
 			title: string,
 			currentNodes: NodeType[],
 			currentEdges: EdgeType[],
-			currentApiData: any
+			currentApiData: {
+				[id: string]: NodeConfig;
+			}
 		) => {
 			return {
 				meta: {
@@ -376,17 +389,17 @@ const FlowContainer = () => {
 		const client = new WorkflowClient();
 
 		try {
-			await client.runWorkflow(workflowData as any, selectedTabId, {
+			await client.runWorkflow(workflowData, selectedTabId, {
 				onNodeStart: (nodeId: string) => {
 					updateNodeStatus(nodeId, 'running');
 				},
-				onNodeFinish: (nodeId: string, output: any) => {
+				onNodeFinish: (nodeId: string, output: NodeOutput) => {
 					updateNodeStatus(
 						nodeId,
 						output.status === 'success' ? 'success' : 'error'
 					);
 				},
-				onComplete: (context: any) => {
+				onComplete: (context: ExecutionContext) => {
 					setIsRunning(false);
 					showToast('Workflow completed successfully!', 'success');
 					console.log('Workflow context:', context);
