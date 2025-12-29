@@ -15,10 +15,17 @@ export const ConditionSchema = z.object({
 	description: z.string().optional(),
 	comparisonType: z.enum([
 		'equals',
-		'not-equals',
-		'greater-than',
-		'less-than',
+		'not_equals',
+		'contains',
+		'not_contains',
+		'starts_with',
+		'ends_with',
+		'greater_than',
+		'less_than',
+		'greater_equal',
+		'less_equal',
 	]),
+	comparisonValue: z.string(),
 });
 
 export type ConditionConfig = z.infer<typeof ConditionSchema>;

@@ -44,10 +44,14 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 			getConfig: (formData: FormData) => {
 				const title = formData.get('title') as string;
 				const comparisonType = formData.get('comparisonType') as string;
+				const comparisonValue = formData.get(
+					'comparisonValue'
+				) as string;
 
 				const configResult = {
 					title,
 					comparisonType,
+					comparisonValue,
 				};
 
 				const validation = ConditionSchema.safeParse(configResult);
@@ -91,8 +95,25 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 								</option>
 							))}
 						</select>
+					</div>
+
+					<div>
+						<label
+							className="block text-sm font-medium text-slate-700 mb-2"
+							htmlFor="comparisonValue"
+						>
+							Comparison Value
+						</label>
+						<input
+							type="text"
+							id="comparisonValue"
+							name="comparisonValue"
+							defaultValue={config.comparisonValue || ''}
+							placeholder="e.g. success, en, 100"
+							className="w-full p-3 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-white"
+						/>
 						<p className="text-xs text-slate-500 mt-1">
-							Select the type of comparison to perform
+							The static value to compare the input against
 						</p>
 					</div>
 				</div>

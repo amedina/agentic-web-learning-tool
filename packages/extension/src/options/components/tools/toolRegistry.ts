@@ -104,6 +104,8 @@ export const TOOL_CONFIGS: Record<
 		config: {
 			title: 'Condition',
 			description: 'Route flow based on a condition.',
+			comparisonType: 'equals',
+			comparisonValue: '',
 		},
 	},
 	alertNotification: {

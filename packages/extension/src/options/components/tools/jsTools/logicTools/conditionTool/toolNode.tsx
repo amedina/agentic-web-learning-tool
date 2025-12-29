@@ -78,34 +78,12 @@ const ToolNode = () => {
 					style={{
 						background: 'none',
 						border: 'none',
-						top: '7%',
+						top: '50%',
 						left: '-10px',
 					}}
 				>
-					<div className="flex items-center gap-2 w-fit absolute translate-y-[-50%] -translate-x-[15%] top-[2.5px]">
+					<div className="flex items-center gap-2 w-fit absolute translate-y-[-50%] -translate-x-[30%] top-[2.5px]">
 						<div className="min-w-3 h-3 bg-blue-600 rounded-full shadow-sm"></div>
-						<span className="text-xs text-slate-600 font-medium">
-							A
-						</span>
-					</div>
-				</Handle>
-
-				<Handle
-					type="target"
-					position={Position.Left}
-					id="inputB"
-					style={{
-						background: 'none',
-						border: 'none',
-						top: '95%',
-						left: '-10px',
-					}}
-				>
-					<div className="flex items-center gap-2 w-fit absolute translate-y-[-50%] -translate-x-[15%] top-[2.5px]">
-						<div className="min-w-3 h-3 bg-blue-600 rounded-full shadow-sm"></div>
-						<span className="text-xs text-slate-600 font-medium">
-							B
-						</span>
 					</div>
 				</Handle>
 
