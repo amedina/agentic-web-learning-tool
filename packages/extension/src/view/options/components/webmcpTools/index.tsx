@@ -1,30 +1,27 @@
+/**
+ * External dependencies.
+ */
 import { useState, useEffect, useCallback } from 'react';
 import { WebMCPToolsTab as WebMCPToolsUI, type WebMCPTool } from '@google-awlt/design-system';
 
-const BUILT_IN_TOOLS: WebMCPTool[] = [
-    {
-        name: "change_bg_color",
-        namespace: "built_in",
-        description: "Changes background color",
-        allowedDomains: ["<all_urls>"],
-        inputSchema: { type: "object", properties: { color: { type: "string" } } },
-        enabled: true,
-        isBuiltIn: true
-    },
-    {
-        name: "get_page_title",
-        namespace: "built_in",
-        description: "Get page title",
-        allowedDomains: ["<all_urls>"],
-        inputSchema: { type: "object", properties: {} },
-        enabled: true,
-        isBuiltIn: true
-    }
-];
+/**
+ * Internal Dependencies.
+ */
+import { tools } from '../../../../contentScript/tools';
+
+const builtInWebMCPTools: WebMCPTool[] = tools.map(tool => ({
+    name: tool.name,
+    namespace: "built_in",
+    description: tool.description,
+    allowedDomains: tool.allowedDomains,
+    inputSchema: tool.inputSchema,
+    enabled: true,
+    isBuiltIn: true
+}));
 
 export function WebMCPToolsTab() {
     const [userTools, setUserTools] = useState<WebMCPTool[]>([]);
-    const [builtInTools, setBuiltInTools] = useState<WebMCPTool[]>(BUILT_IN_TOOLS);
+    const [builtInTools, setBuiltInTools] = useState<WebMCPTool[]>(builtInWebMCPTools);
 
     useEffect(() => {
         if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
