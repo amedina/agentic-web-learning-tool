@@ -2,7 +2,7 @@
  * External dependencies.
  */
 import { PlusIcon } from 'lucide-react';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 /**
  * Internal dependencies.
@@ -29,7 +29,7 @@ export function WebMCPToolsTab({
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
     const [editingTool, setEditingTool] = useState<WebMCPTool | undefined>(undefined);
 
-    const handleSaveTool = (tool: WebMCPTool) => {
+    const handleSaveTool = useCallback((tool: WebMCPTool) => {
 
         let newTools = [...userTools];
 
@@ -51,9 +51,9 @@ export function WebMCPToolsTab({
         }
 
         onSaveUserTools(newTools);
-    };
+    }, [editingTool, userTools, onSaveUserTools]);
 
-    const handleToggleTool = (tool: WebMCPTool, enabled: boolean) => {
+    const handleToggleTool = useCallback((tool: WebMCPTool, enabled: boolean) => {
         if (tool.isBuiltIn) {
             const newTools = builtInTools.map(t => t.name === tool.name ? { ...t, enabled } : t);
             onSaveBuiltInState(newTools);
@@ -61,13 +61,13 @@ export function WebMCPToolsTab({
             const newTools = userTools.map(t => t.name === tool.name ? { ...t, enabled } : t);
             onSaveUserTools(newTools);
         }
-    };
+    }, [onSaveBuiltInState, onSaveUserTools, builtInTools, userTools]);
 
-    const handleDeleteTool = (tool: WebMCPTool) => {
+    const handleDeleteTool = useCallback((tool: WebMCPTool) => {
         const newTools = userTools.filter(t => t.name !== tool.name);
         onSaveUserTools(newTools);
         setIsEditDialogOpen(false);
-    };
+    }, [onSaveUserTools, userTools]);
 
     return (
         <OptionsPageTab title="WebMCP Tools" description="Manage your custom scripts and tools." >

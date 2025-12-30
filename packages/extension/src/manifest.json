@@ -16,7 +16,6 @@
 		"webNavigation",
 		"scripting",
 		"activeTab",
-		"sidePanel",
 		"sidePanel"
 	],
 	"host_permissions": ["*://*/*"],

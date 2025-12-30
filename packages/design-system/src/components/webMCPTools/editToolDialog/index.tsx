@@ -1,7 +1,7 @@
 /**
  * External dependencies.
  */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { X, CheckIcon, AlertTriangleIcon, CopyIcon, TrashIcon, LayoutTemplateIcon, SaveIcon } from 'lucide-react';
 
@@ -69,26 +69,26 @@ export function EditToolDialog({ open, onOpenChange, tool, onSave, onDelete }: E
         }
     }, [open, tool]);
 
-    const handleInsertTemplateRequest = () => {
+    const handleInsertTemplateRequest = useCallback(() => {
         if (!code.trim() || code === DEFAULT_SCRIPT_TEMPLATE) {
             setCode(DEFAULT_SCRIPT_TEMPLATE);
             return;
         }
         setShowTemplateWarning(true);
-    };
+    }, [code]);
 
-    const confirmInsertTemplate = () => {
+    const confirmInsertTemplate = useCallback(() => {
         setCode(DEFAULT_SCRIPT_TEMPLATE);
         setShowTemplateWarning(false);
-    };
+    }, []);
 
-    const handleCopy = () => {
+    const handleCopy = useCallback(() => {
         navigator.clipboard.writeText(code);
         setIsCopied(true);
         setTimeout(() => setIsCopied(false), 2000);
-    };
+    }, []);
 
-    const handleValidate = () => {
+    const handleValidate = useCallback(() => {
         const result = validateCode(code);
         if (result.valid) {
             setValidationState('valid');
@@ -97,9 +97,9 @@ export function EditToolDialog({ open, onOpenChange, tool, onSave, onDelete }: E
             setValidationState('invalid');
             setErrorMsg(result.error || 'Unknown error');
         }
-    };
+    }, [code]);
 
-    const handleSave = () => {
+    const handleSave = useCallback(() => {
         const validation = validateCode(code);
 
         if (!validation.valid) {
@@ -123,7 +123,7 @@ export function EditToolDialog({ open, onOpenChange, tool, onSave, onDelete }: E
         };
         onSave(newTool);
         onOpenChange(false);
-    };
+    }, [code, tool]);
 
     const handleCodeChange = (newCode: string) => {
         setCode(newCode);
