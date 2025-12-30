@@ -91,7 +91,7 @@ export function useAssistantMCP(
 
               return formatToolResult(toolResult.content as CallToolResult['content']);
             } catch (error) {
-              logger(['error'], `[useAssistantMCP] Tool execution failed for '${logName}': ${error}`);
+              logger(['error'], [`[useAssistantMCP] Tool execution failed for '${logName}': ${error}`]);
             }
           },
         }),

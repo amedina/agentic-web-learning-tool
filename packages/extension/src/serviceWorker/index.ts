@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { z } from 'zod';
-z.config({jitless: true});
+z.config({ jitless: true });
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { type CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { ExtensionServerTransport } from '@mcp-b/transports';
@@ -18,7 +18,7 @@ const sharedServer = new McpServer({ name: 'Extension-Hub', version: '1.0.0' }, 
 
 chrome.sidePanel
   .setPanelBehavior({ openPanelOnActionClick: true })
-  .catch((error) => logger([ 'error'],`Error while opening sidepanel: ${error}`));
+  .catch((error) => logger(['error'], [`Error while opening sidepanel: ${error}`]));
 
 // Initialize the MCP Server and Hub
 const mcpHub = new McpHub(sharedServer);
@@ -42,7 +42,7 @@ chrome.runtime.onConnect.addListener((port) => {
     );
   } catch (_error) {
     //supress error
-    logger(['warn', 'error'],`Error registering tool: ${_error}`);
+    logger(['warn', 'error'], [`Error registering tool: ${_error}`]);
   }
   sharedServer.connect(transport);
   mcpHub.setupConnections();

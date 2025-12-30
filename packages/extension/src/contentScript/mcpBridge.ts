@@ -10,7 +10,7 @@ import { CONNECTION_NAMES } from "..//utils/constants";
 import logger from "../utils/logger";
 import setLogLevelFromSyncSettings from "../utils/setLogLevelFromSyncSettings";
 //Run this when content script is injected to enable log level.
-(() => {setLogLevelFromSyncSettings();})();
+(() => { setLogLevelFromSyncSettings(); })();
 
 let connectionStarted = false;
 try {
@@ -37,21 +37,21 @@ try {
                     try {
                         await client.connect(transport);
                         connectionStarted = true;
-                    }catch(error) {
-                        logger(['error'], `Error connecting client: ${error}`);
+                    } catch (error) {
+                        logger(['error'], [`Error connecting client: ${error}`]);
                     }
                 }
-                if(client.transport){
-                  clearInterval(interval); 
-                  const pageTools = await client.listTools();
-                  //Send initial list of tools to service worker
-                  backgroundPort.postMessage({
-                    type: "register-tools",
-                    tools: pageTools.tools,
-                  });
-              }
+                if (client.transport) {
+                    clearInterval(interval);
+                    const pageTools = await client.listTools();
+                    //Send initial list of tools to service worker
+                    backgroundPort.postMessage({
+                        type: "register-tools",
+                        tools: pageTools.tools,
+                    });
+                }
             } catch (error) {
-                logger(['error'], `Error connecting to MCP background:${error}`);
+                logger(['error'], [`Error connecting to MCP background:${error}`]);
             }
         }, 1000);
 
@@ -88,5 +88,5 @@ try {
     })();
 
 } catch (error) {
-    logger(['error'], `Error connecting to MCP background:${error}`);
+    logger(['error'], [`Error connecting to MCP background:${error}`]);
 }
