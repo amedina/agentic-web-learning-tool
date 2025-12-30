@@ -79,7 +79,6 @@ export function CodeEditor({ code, onChange }: CodeEditorProps) {
                     ref={backdropRef}
                     className="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-hidden bg-white"
                 >
-                    {/* @ts-ignore */}
                     <SyntaxHighlighterAny
                         language="javascript"
                         code={code}

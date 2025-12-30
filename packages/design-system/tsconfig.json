@@ -1,7 +1,29 @@
 {
-	"extends": "./tsconfig.build.json",
+	"extends": "@google-awlt/shared-config/typescript/react-library",
 	"compilerOptions": {
-		"noEmit": true
+		"allowJs": true,
+		"checkJs": true,
+		"outDir": "./dist",
+		"lib": [
+			"dom",
+			"ES2015"
+		],
+		"sourceMap": true,
+		"noEmit": true,
+		"allowImportingTsExtensions": false,
+		"baseUrl": ".",
+		"paths": {
+			"@/*": [
+				"./src/*"
+			]
+		},
+		"types": [
+			"jest",
+			"chrome"
+		],
+		"typeRoots": [
+			"./node_modules/@types"
+		]
 	},
 	"include": [
 		"src",
