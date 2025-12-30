@@ -1,10 +1,12 @@
+import { tools } from "./tools/index";
+
 // @ts-nocheck
 (function () {
     console.log("WebMCP: register-tools.js loaded (Diagnostic Version 2.0)");
 
     function register() {
-        const mcp = window.navigator.modelContext;
-        const mcpTesting = window.navigator.modelContextTesting;
+        const mcp = (window.navigator as any).modelContext;
+        const mcpTesting = (window.navigator as any).modelContextTesting;
 
         if (!mcp) {
             console.error("WebMCP: navigator.modelContext missing");
@@ -15,31 +17,9 @@
         console.log("WebMCP: Registering tools...");
 
         try {
-            mcp.registerTool({
-                name: "change_bg_color",
-                description: "Changes background color",
-                allowedDomains: ["<all_urls>"],
-                inputSchema: { type: "object", properties: { color: { type: "string" } } },
-                execute: async (args) => {
-                    console.log("WebMCP: Executing change_bg_color", args);
-                    const color = args.color || "red";
-                    document.body.style.backgroundColor = color;
-                    // WORKAROUND: Return string directly to avoid [object Object] from Native API
-                    return `Changed background to ${color}`;
-                }
-            });
-
-            mcp.registerTool({
-                name: "get_page_title",
-                description: "Get page title",
-                allowedDomains: ["<all_urls>"],
-                inputSchema: { type: "object", properties: {} },
-                execute: async () => {
-                    console.log("WebMCP: Executing get_page_title");
-                    // WORKAROUND: Return string directly to avoid [object Object] from Native API
-                    return "Page Title: " + document.title;
-                }
-            });
+            for (const tool of tools) {
+                mcp.registerTool(tool);
+            }
 
             console.log("WebMCP: Tools registered.");
         } catch (e) {
@@ -95,7 +75,7 @@
                     result: normalizedResult
                 }, "*");
 
-            } catch (err) {
+            } catch (err: any) {
                 console.error("WebMCP: Execution error", err);
                 window.postMessage({
                     type: "WEBMCP_TOOL_RESULT",
@@ -106,7 +86,7 @@
         });
     }
 
-    if (window.navigator.modelContext) {
+    if ((window.navigator as any).modelContext) {
         register();
     } else {
         setTimeout(register, 100);
