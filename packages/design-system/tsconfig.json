@@ -36,6 +36,8 @@
 	"exclude": [
 		"dist",
 		"build",
-		"node_modules"
+		"node_modules",
+		"jest.config.cjs",
+		"tests/jest.setup.cjs"
 	]
 }

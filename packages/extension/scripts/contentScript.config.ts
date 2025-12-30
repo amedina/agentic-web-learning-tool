@@ -28,7 +28,6 @@ const target = process.env.TARGET || 'registerTools';
 
 export default defineConfig({
     plugins: [
-        // Only copy polyfill when building registerTools (or just once)
         target === 'registerTools' ? viteStaticCopy({
             targets: [
                 {
@@ -44,7 +43,7 @@ export default defineConfig({
     base: '',
     root: resolve(__dirname, '../src'), // Set root to packages/extension/src
     build: {
-        emptyOutDir: false, // Don't empty, as we run multiple builds
+        emptyOutDir: false,
         watch: isDev ? {} : null,
         sourcemap: isDev ? true : false,
         minify: !isDev,
@@ -57,8 +56,6 @@ export default defineConfig({
             },
             output: {
                 format: 'iife',
-                // Manually set entry file name to ensure it's not nested if unwanted, 
-                // or just [name].js. Prompt asked for "contentScript folder".
                 entryFileNames: (chunk) => {
                     return chunk.name === 'mcpBridge' ? 'contentScript.js' : '[name].js';
                 },
