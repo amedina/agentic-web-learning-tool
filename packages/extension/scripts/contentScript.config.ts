@@ -24,38 +24,37 @@ const distDir = path.resolve(__dirname, '../../../dist/extension/contentScript')
 // eslint-disable-next-line turbo/no-undeclared-env-vars
 const isDev = process.env.NODE_ENV === 'development';
 
-const target = process.env.TARGET || 'registerTools';
-
 export default defineConfig({
     plugins: [
-        target === 'registerTools' ? viteStaticCopy({
+        // Only copy polyfill when building registerTools (or just once)
+        viteStaticCopy({
             targets: [
                 {
                     src: resolve(__dirname, '../src/contentScript/assets/webmcp-polyfill.js'),
                     dest: '.', // copy to root of outDir
                 },
             ],
-        }) : undefined,
-    ].filter(Boolean),
+        })
+    ],
     resolve: {
         alias: aliases,
     },
     base: '',
     root: resolve(__dirname, '../src'), // Set root to packages/extension/src
     build: {
-        emptyOutDir: false,
+        emptyOutDir: false, // Don't empty, as we run multiple builds
         watch: isDev ? {} : null,
         sourcemap: isDev ? true : false,
         minify: !isDev,
         outDir: distDir,
         rollupOptions: {
             input: {
-                [target]: target === 'mcpBridge'
-                    ? resolve(__dirname, '../src/contentScript/mcpBridge.ts')
-                    : resolve(__dirname, '../src/contentScript/registerTools.ts'),
+                mcpBridge: resolve(__dirname, '../src/contentScript/mcpBridge.ts'),
+                registerTools: resolve(__dirname, '../src/contentScript/registerTools.ts')
             },
             output: {
-                format: 'iife',
+                // Manually set entry file name to ensure it's not nested if unwanted, 
+                // or just [name].js. Prompt asked for "contentScript folder".
                 entryFileNames: (chunk) => {
                     return chunk.name === 'mcpBridge' ? 'contentScript.js' : '[name].js';
                 },
