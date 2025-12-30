@@ -1,3 +1,6 @@
+/**
+ * External dependencies.
+ */
 import { defineConfig } from 'vite';
 import path, { resolve } from 'path';
 import { readdirSync } from 'node:fs';
