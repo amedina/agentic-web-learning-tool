@@ -8,7 +8,8 @@ import { ToolListChangedNotificationSchema, type Tool } from "@modelcontextproto
 /**
  * Internal dependencies
  */
-import { CONNECTION_NAMES, MESSAGE_TYPES } from "..//utils/constants";
+import { CONNECTION_NAMES, MESSAGE_TYPES } from "../utils/constants";
+
 let connectionStarted = false;
 
 interface ToolUpdateMessage {
@@ -19,12 +20,10 @@ interface ToolUpdateMessage {
 
 try {
     (async () => {
-        // Prevent running in iframes
         if (window !== window.top) {
             return;
         }
 
-        // 0. Inject Polyfill FIRST (Critical for modelContext)
         try {
             const polyfillScript = document.createElement('script');
             polyfillScript.src = chrome.runtime.getURL('contentScript/webmcp-polyfill.js');
@@ -35,7 +34,6 @@ try {
             console.error("WebMCP: Failed to inject webmcp-polyfill.js", e);
         }
 
-        // 1. Inject registerTools.js
         try {
             const script = document.createElement('script');
             script.src = chrome.runtime.getURL('contentScript/registerTools.js');
@@ -51,12 +49,9 @@ try {
                 return;
             }
 
-            // Retrieve capabilities (useful for debugging or logic checks)
             const capabilities = client.getServerCapabilities();
 
             console.log("[MCP Proxy] Server supports tool list change notifications", capabilities);
-
-            // Replaced 'as' with the likely Schema object or method string
             client.setNotificationHandler(
                 ToolListChangedNotificationSchema,
                 async () => {
@@ -77,8 +72,6 @@ try {
             }
 
             try {
-                // Renamed 't' to 'tools' for clarity
-
                 const { tools } = await client.listTools();
 
                 console.log(`[MCP Proxy] Sending ${tools.length} tools with type: ${updateType}`);
@@ -99,8 +92,8 @@ try {
             }
         }
 
-        //This connects to the page context since content scripts have a separate JS context
-        //TabClientTransport uses window.postMessage under the hood. The TabServerTransport is implemented from the MCP-B polyfill
+        // This connects to the page context since content scripts have a separate JS context
+        // TabClientTransport uses window.postMessage under the hood. The TabServerTransport is implemented from the MCP-B polyfill
         const transport = new TabClientTransport({
             targetOrigin: window.location.origin,
         });
