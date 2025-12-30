@@ -17,20 +17,20 @@ const AssistantMessage: FC = () => {
 	return (
 		<MessagePrimitive.Root className="relative mx-auto flex w-full max-w-screen-md gap-3">
 			<div className="flex gap-2 flex-col mb-10 w-full group">
-				<div className="h-9 w-9 rounded-full bg-white border border-zinc-100 flex-shrink-0 flex items-center justify-center text-zinc-900 shadow-sm mt-1 ring-4 ring-zinc-50">
+				<div className="h-9 w-9 rounded-full bg-background ring-muted-foreground/10 border border-input flex-shrink-0 flex items-center justify-center text-foreground shadow-sm mt-1 ring-4">
 					<Bot size={20} />
 				</div>
 
 				<div className="flex-1 min-w-0 space-y-1">
 					<div className="flex items-center gap-2 mb-1">
-						<span className="text-sm font-bold text-zinc-900">
+						<span className="text-sm font-bold text-primary">
 							Assistant
 						</span>
 						<span className="text-xs text-zinc-400 font-normal opacity-0 group-hover:opacity-100 transition-opacity">
 							Just now
 						</span>
 					</div>
-					<div className="text-zinc-800 leading-7 text-sm">
+					<div className="text-primary leading-7 text-sm">
 						<MessagePrimitive.Parts
 							components={{
 								Text: MarkdownText,

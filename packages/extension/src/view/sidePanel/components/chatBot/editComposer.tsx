@@ -8,8 +8,8 @@ const EditComposer: FC = () => {
     return (
         <ComposerPrimitive.Root className="flex justify-end mb-8 w-full">
             <div className="w-full max-w-[85%] flex flex-col items-end gap-2 animate-in fade-in zoom-in-95 duration-200">
-                <div className="w-full bg-white border-2 border-indigo-500/20 ring-4 ring-indigo-500/5 rounded-[20px] rounded-tr-sm shadow-lg overflow-hidden transition-all">
-                    <ComposerPrimitive.Input className="w-full bg-transparent px-5 py-4 text-[15px] leading-relaxed text-zinc-900 placeholder:text-zinc-300 resize-none focus:outline-none min-h-[60px]" />
+                <div className="w-full bg-muted border-2 border-indigo-500/20 ring-4 ring-indigo-500/5 rounded-[20px] rounded-tr-sm shadow-lg overflow-hidden transition-all">
+                    <ComposerPrimitive.Input className="w-full bg-transparent px-5 py-4 text-[15px] leading-relaxed text-primary placeholder:exclusive-plum resize-none focus:outline-none min-h-[60px]" />
                 </div>
 
                 {/* Action Buttons */}

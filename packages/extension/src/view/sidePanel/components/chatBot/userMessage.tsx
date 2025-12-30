@@ -27,7 +27,7 @@ const UserMessage = () => {
 						</ActionButton>
 					</ActionBarPrimitive.Edit>
 				</ActionBarPrimitive.Root>
-				<div className="max-w-[85%] bg-zinc-100 text-zinc-900 px-5 py-3.5 rounded-[20px] rounded-tr-sm text-[15px] leading-relaxed shadow-sm">
+				<div className="max-w-[85%] bg-volcanic-sand text-primary px-5 py-3.5 rounded-[20px] rounded-tr-sm text-[15px] leading-relaxed shadow-sm">
 					<MessagePrimitive.Parts />
 				</div>
 			</div>
