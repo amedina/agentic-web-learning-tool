@@ -154,14 +154,22 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
    */
   async queryPage(
     selector: string,
-    extract: "textContent" | "innerText" | "innerHTML"
-  ): Promise<string> {
+    extract:
+      | "textContent"
+      | "innerText"
+      | "innerHTML"
+      | "value"
+      | "src"
+      | "href",
+    isMultiple?: boolean
+  ): Promise<string | string[]> {
     const tabId = await this.getTargetTabId();
 
     const message: QueryDOMMessage = {
       type: "QUERY_DOM",
       selector,
       extract,
+      isMultiple,
     };
 
     const response = await chrome.tabs.sendMessage(tabId, message);
@@ -173,7 +181,7 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
       throw new Error(response.error ?? "DOM query failed");
     }
 
-    return String(response.data ?? "");
+    return response.data;
   }
 
   /**

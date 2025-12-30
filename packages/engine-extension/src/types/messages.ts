@@ -17,7 +17,8 @@ import type {
 export interface QueryDOMMessage {
   type: "QUERY_DOM";
   selector: string;
-  extract: "textContent" | "innerText" | "innerHTML";
+  extract: "textContent" | "innerText" | "innerHTML" | "value" | "src" | "href";
+  isMultiple?: boolean;
 }
 
 /**
@@ -44,7 +45,7 @@ export interface UpdateNodeStatusMessage {
  */
 export interface ContentScriptActiveMessage {
   type: "CONTENT_SCRIPT_ACTIVE";
-	targetTabId: number
+  targetTabId: number;
 }
 
 /**

@@ -14,6 +14,7 @@ export const StaticInputSchema = z.object({
 	title: z.string(),
 	description: z.string().optional(),
 	inputValue: z.string(),
+	isMultiple: z.boolean().optional(),
 });
 
 export type StaticInputConfig = z.infer<typeof StaticInputSchema>;

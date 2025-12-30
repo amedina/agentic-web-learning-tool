@@ -25,7 +25,12 @@ export function initContentScriptBridge(): void {
   ): boolean {
     switch (message.type) {
       case "QUERY_DOM":
-        handleQueryDOM(message.selector, message.extract, sendResponse);
+        handleQueryDOM(
+          message.selector,
+          message.extract,
+          message.isMultiple,
+          sendResponse
+        );
         return true;
 
       case "SHOW_ALERT":
@@ -51,37 +56,53 @@ export function initContentScriptBridge(): void {
    */
   function handleQueryDOM(
     selector: string,
-    extract: "textContent" | "innerText" | "innerHTML",
+    extract:
+      | "textContent"
+      | "innerText"
+      | "innerHTML"
+      | "value"
+      | "src"
+      | "href",
+    isMultiple: boolean | undefined,
     sendResponse: (response: ContentScriptResponse) => void
   ): void {
     try {
       const elements = document.querySelectorAll(selector);
 
-      if (!elements) {
+      if (!elements || elements.length === 0) {
         sendResponse({
           success: true,
-          data: "",
+          data: isMultiple ? [] : "",
         });
         return;
       }
 
-      let data: string[] = [];
-      for (const element of Array.from(elements))
+      const extractValue = (element: Element): string => {
         switch (extract) {
           case "textContent":
-            data.push(element.textContent ?? "");
-            break;
+            return element.textContent ?? "";
           case "innerText":
-            data.push((element as HTMLElement).innerText ?? "");
-            break;
+            return (element as HTMLElement).innerText ?? "";
           case "innerHTML":
-            data.push(element.innerHTML ?? "");
-            break;
+            return element.innerHTML ?? "";
+          case "value":
+            return (element as HTMLInputElement).value ?? "";
+          case "src":
+            return (element as HTMLImageElement).src ?? "";
+          case "href":
+            return (element as HTMLAnchorElement).href ?? "";
           default:
-            data.push(element.textContent ?? "");
+            return element.textContent ?? "";
         }
+      };
 
-      sendResponse({ success: true, data: data.join(" ") });
+      if (isMultiple) {
+        const data = Array.from(elements).map(extractValue);
+        sendResponse({ success: true, data });
+      } else {
+        const data = extractValue(elements[0]);
+        sendResponse({ success: true, data });
+      }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       sendResponse({ success: false, error: message });

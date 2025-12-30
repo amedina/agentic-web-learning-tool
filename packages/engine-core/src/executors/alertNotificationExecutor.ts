@@ -3,6 +3,7 @@
  */
 import type { ExecutionContext } from "../types";
 import type { RuntimeInterface } from "../runtime";
+import { formatInputText } from "../utils/executorUtils";
 
 /**
  * Alert Notification executor.
@@ -13,10 +14,11 @@ export async function alertNotificationExecutor(
   runtime: RuntimeInterface,
   _context: ExecutionContext
 ): Promise<string> {
-  const input = config.input as string | undefined;
+  const input = config.input;
   const title = config.title as string | undefined;
 
-  const message = input ?? title ?? "Notification";
+  const formattedInput = formatInputText(input);
+  const message = formattedInput || title || "Notification";
 
   await runtime.showAlert(message);
 

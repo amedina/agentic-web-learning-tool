@@ -14,8 +14,16 @@ export const DomInputSchema = z.object({
 	title: z.string(),
 	description: z.string().optional(),
 	cssSelector: z.string(),
-	extract: z.enum(['textContent', 'innerText', 'innerHTML']),
+	extract: z.enum([
+		'textContent',
+		'innerText',
+		'innerHTML',
+		'value',
+		'src',
+		'href',
+	]),
 	defaultValue: z.string(),
+	isMultiple: z.boolean().optional(),
 });
 
 export type DomInputConfig = z.infer<typeof DomInputSchema>;

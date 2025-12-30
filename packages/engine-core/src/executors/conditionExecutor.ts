@@ -1,8 +1,6 @@
-/**
- * Internal dependencies
- */
 import type { ExecutionContext } from "../types";
 import type { RuntimeInterface } from "../runtime";
+import { formatInputText } from "../utils/executorUtils";
 
 /**
  * Supported comparison operators for conditions.
@@ -28,11 +26,11 @@ export async function conditionExecutor(
   _runtime: RuntimeInterface,
   _context: ExecutionContext
 ): Promise<boolean | string> {
-  const input = config.input as string | undefined;
+  const input = config.input;
   const operator = (config.operator as ComparisonOperator) ?? "isNotEmpty";
   const compareValue = config.compareValue as string | undefined;
 
-  const inputStr = input ?? "";
+  const inputStr = formatInputText(input);
 
   switch (operator) {
     case "equals":

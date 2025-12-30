@@ -1,8 +1,6 @@
-/**
- * Internal dependencies
- */
 import type { ExecutionContext } from "../types";
 import type { RuntimeInterface } from "../runtime";
+import { formatInputText } from "../utils/executorUtils";
 
 /**
  * Proofreader API executor.
@@ -13,12 +11,14 @@ export async function proofreaderApiExecutor(
   _runtime: RuntimeInterface,
   _context: ExecutionContext
 ): Promise<string> {
-  const input = config.input as string | undefined;
+  const input = config.input;
   const expectedInputLanguages = config.expectedInputLanguages as
     | string[]
     | undefined;
 
-  if (!input) {
+  const formattedInput = formatInputText(input);
+
+  if (!formattedInput) {
     throw new Error("Proofreader API requires input text");
   }
 
@@ -28,25 +28,30 @@ export async function proofreaderApiExecutor(
       expectedInputLanguages,
     });
 
-    const results = await proofreader.proofread(input);
-		const corrections = results.corrections;
+    const results = await proofreader.proofread(formattedInput);
+    const corrections = results.corrections;
 
     let inputRenderIndex = 0;
     let correctedText = "";
 
     for (const correction of corrections) {
       if (correction.startIndex > inputRenderIndex) {
-        correctedText += input.substring(inputRenderIndex, correction.startIndex);
+        correctedText += formattedInput.substring(
+          inputRenderIndex,
+          correction.startIndex
+        );
       }
 
       const suggestion = (correction as any).suggestions?.[0];
-      correctedText += suggestion ?? input.substring(correction.startIndex, correction.endIndex);
+      correctedText +=
+        suggestion ??
+        formattedInput.substring(correction.startIndex, correction.endIndex);
 
       inputRenderIndex = correction.endIndex;
     }
 
-    if (inputRenderIndex < input.length) {
-      correctedText += input.substring(inputRenderIndex);
+    if (inputRenderIndex < formattedInput.length) {
+      correctedText += formattedInput.substring(inputRenderIndex);
     }
 
     return correctedText;

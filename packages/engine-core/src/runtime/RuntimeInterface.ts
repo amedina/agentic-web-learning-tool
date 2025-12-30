@@ -40,8 +40,15 @@ export interface RuntimeInterface {
    */
   queryPage(
     selector: string,
-    extract: "textContent" | "innerText" | "innerHTML"
-  ): Promise<string>;
+    extract:
+      | "textContent"
+      | "innerText"
+      | "innerHTML"
+      | "value"
+      | "src"
+      | "href",
+    isMultiple?: boolean
+  ): Promise<string | string[]>;
 
   /**
    * Show an alert/notification to the user.

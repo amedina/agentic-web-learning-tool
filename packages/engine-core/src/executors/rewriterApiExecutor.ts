@@ -1,8 +1,6 @@
-/**
- * Internal dependencies
- */
 import type { ExecutionContext } from "../types";
 import type { RuntimeInterface } from "../runtime";
+import { formatInputText } from "../utils/executorUtils";
 
 /**
  * Rewriter API executor.
@@ -13,7 +11,7 @@ export async function rewriterApiExecutor(
   _runtime: RuntimeInterface,
   _context: ExecutionContext
 ): Promise<string> {
-  const input = config.input as string | undefined;
+  const input = config.input;
   const sharedContext = config.sharedContext as string | undefined;
   const tone = config.tone as
     | "as-is"
@@ -31,7 +29,9 @@ export async function rewriterApiExecutor(
     | undefined;
   const outputLanguage = config.outputLanguage as string | undefined;
 
-  if (!input) {
+  const formattedInput = formatInputText(input);
+
+  if (!formattedInput) {
     throw new Error("Rewriter API requires input text");
   }
 
@@ -58,7 +58,7 @@ export async function rewriterApiExecutor(
 
     // @ts-ignore
     const rewriter = await Rewriter.create(options);
-    const result = await rewriter.rewrite(input);
+    const result = await rewriter.rewrite(formattedInput);
     rewriter.destroy?.();
 
     return result;

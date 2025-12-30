@@ -3,6 +3,7 @@
  */
 import type { ExecutionContext } from "../types";
 import type { RuntimeInterface } from "../runtime";
+import { formatInputText } from "../utils/executorUtils";
 
 /**
  * Translator API executor.
@@ -13,11 +14,13 @@ export async function translatorApiExecutor(
   _runtime: RuntimeInterface,
   _context: ExecutionContext
 ): Promise<string> {
-  const input = config.input as string | undefined;
+  const input = config.input;
   const sourceLanguage = config.sourceLanguage as string | undefined;
   const targetLanguage = config.targetLanguage as string | undefined;
 
-  if (!input) {
+  const formattedInput = formatInputText(input);
+
+  if (!formattedInput) {
     throw new Error("Translator API requires input text");
   }
 
@@ -32,7 +35,7 @@ export async function translatorApiExecutor(
       targetLanguage,
     });
 
-    const result = await translator.translate(input);
+    const result = await translator.translate(formattedInput);
 
     return result;
   } catch (error) {
