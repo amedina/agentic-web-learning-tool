@@ -9,12 +9,14 @@ import { createRoot } from 'react-dom/client';
 import './index.css';
 import SidePanel from './sidePanel';
 import { ModelProvider } from './providers';
-
+import { SettingsProvider } from '../stateProviders';
 
 createRoot(document.getElementById('root')!).render(
-	<ModelProvider>
-		<StrictMode>
-			<SidePanel />
-		</StrictMode>
-	</ModelProvider>
+	<StrictMode>
+		<ModelProvider>
+			<SettingsProvider view="sidepanel">
+				<SidePanel />
+			</SettingsProvider>
+		</ModelProvider>
+	</StrictMode>
 );

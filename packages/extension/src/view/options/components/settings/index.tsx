@@ -11,26 +11,36 @@ import ResetConfirmationDialog from './resetConfirmationDialog';
 import ThemeSection from './themeToggleSection';
 import DataManagementSection from './dataManagementSection';
 import SystemSection from './systemSection';
-import type { SettingsState } from './types';
+import { useSettings } from '../../../stateProviders';
 
 export default function SettingsTab() {
-	const [settings, setSettings] = useState<SettingsState>({
-		logLevel: 'WARN',
-		theme: 'system',
-	});
+	const { theme, logLevel, clearSettings, toggleSettings } = useSettings(
+		({ state, actions }) => ({
+			theme: state.theme,
+			logLevel: state.logLevel,
+			clearSettings: actions.clearSettings,
+			toggleSettings: actions.toggleSettings,
+		})
+	);
 	const [isResetModalOpen, setIsResetModalOpen] = useState(false);
 
 	return (
-		<OptionsPageTab title="Settings" description="Manage your extension settings, customize themes, and handle data storage options.">
-			<ThemeSection />
-			<SystemSection />
+		<OptionsPageTab
+			title="Settings"
+			description="Manage your extension settings, customize themes, and handle data storage options."
+		>
+			<ThemeSection toggleSettings={toggleSettings} theme={theme} />
+			<SystemSection
+				toggleSettings={toggleSettings}
+				logLevel={logLevel}
+			/>
 			<DataManagementSection
-				settings={settings}
+				settings={{ theme, logLevel }}
 				setIsResetModalOpen={setIsResetModalOpen}
 			/>
 			{isResetModalOpen && (
 				<ResetConfirmationDialog
-					setSettings={setSettings}
+					clearSettings={clearSettings}
 					setIsResetModalOpen={setIsResetModalOpen}
 				/>
 			)}

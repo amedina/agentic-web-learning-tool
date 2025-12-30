@@ -1,68 +1,36 @@
 /**
  * External dependencies
  */
-import { useState } from 'react';
 import { Check } from 'lucide-react';
 import { Button, cn, OptionsPageTabSection } from '@google-awlt/design-system';
 
 /**
  * Internal dependencies
  */
-import type { LogLevel, SettingsState } from './types';
+import { LOG_OPTS } from '../../../../utils/constants';
+import type { SettingsContextProps } from '../../../stateProviders';
 
-const LOG_OPTS = [
-	{
-		id: 'TRACE',
-		label: 'Trace',
-		color: 'bg-status-trace',
-		desc: 'All events',
-	},
-	{
-		id: 'DEBUG',
-		label: 'Debug',
-		color: 'bg-status-debug',
-		desc: 'Detailed ops',
-	},
-	{ id: 'INFO', label: 'Info', color: 'bg-status-info', desc: 'Key events' },
-	{
-		id: 'WARN',
-		label: 'Warn',
-		color: 'bg-status-warn',
-		desc: 'Handled issues',
-	},
-	{ id: 'ERROR', label: 'Error', color: 'bg-status-error', desc: 'Failures' },
-	{
-		id: 'SILENT',
-		label: 'Silent',
-		color: 'bg-status-silent',
-		desc: 'No logs',
-	},
-] as const;
+type SystemsSectionProps = {
+	toggleSettings: SettingsContextProps['actions']['toggleSettings'];
+	logLevel: SettingsContextProps['state']['logLevel'];
+};
 
-export default function SystemSection() {
-	const [settings, setSettings] = useState<SettingsState>({
-		logLevel: 'WARN',
-		theme: 'system',
-	});
-
+export default function SystemSection({ logLevel, toggleSettings} : SystemsSectionProps) {
 	return (
 		<OptionsPageTabSection title='Developer Logs' >
 			<div className="grid grid-cols-2 md:grid-cols-3 gap-4">
 				{LOG_OPTS.map((opt) => {
-					const active = settings.logLevel === opt.id;
+					const active = logLevel.toLowerCase() === opt.id.toLowerCase();
 					return (
 						<Button
 							size="lg"
 							key={opt.id}
 							onClick={() =>
-								setSettings({
-									...settings,
-									logLevel: opt.id as LogLevel,
-								})
+								toggleSettings('logLevel', opt.id)
 							}
 							variant="ghost"
 							className={cn(
-								'group relative p-7 flex items-center justify-between rounded-xl border text-left transition-all duration-200',
+								'group relative p-7 flex items-center justify-between rounded-xl border text-left transition-all duration-200 min-w-fit',
 								active
 									? 'bg-surface ring-1 ring-primary shadow-sm'
 									: ''

@@ -1,33 +1,21 @@
 /**
  * External dependencies
  */
-import { useState } from 'react';
 import { Monitor, Moon, Sun } from 'lucide-react';
 import { Button, cn, OptionsPageTabSection } from '@google-awlt/design-system';
 
 /**
  * Internal dependencies
  */
-import type { SettingsState, ThemeMode } from './types';
+import type { ThemeMode } from '../../../../types';
+import type { SettingsContextProps } from '../../../stateProviders';
 
-export default function ThemeToggleSection() {
-	const [settings, setSettings] = useState<SettingsState>({
-		logLevel: 'WARN',
-		theme: 'system',
-	});
+type ThemeToggleSectionProps = {
+	toggleSettings: SettingsContextProps['actions']['toggleSettings'];
+	theme: SettingsContextProps['state']['theme'];
+};
 
-	const applyTheme = (mode: ThemeMode) => {
-		setSettings((p) => ({ ...p, theme: mode }));
-		const root = document.documentElement;
-		root.classList.remove('light', 'dark');
-		if (mode === 'system') {
-			if (window.matchMedia('(prefers-color-scheme: dark)').matches)
-				root.classList.add('dark');
-		} else {
-			root.classList.add(mode);
-		}
-	};
-
+export default function ThemeToggleSection({ theme, toggleSettings}: ThemeToggleSectionProps) {
 	return (
 		<OptionsPageTabSection title="Interface">
 			<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -39,16 +27,16 @@ export default function ThemeToggleSection() {
 				<div className="flex p-1 bg-extreme-zinc rounded-lg">
 					{[
 						{ id: 'light', icon: Sun, label: 'Light' },
-						{ id: 'system', icon: Monitor, label: 'Auto' },
+						{ id: 'auto', icon: Monitor, label: 'Auto' },
 						{ id: 'dark', icon: Moon, label: 'Dark' },
-					].map((m) => {
-						const isActive = settings.theme === m.id;
-						const Icon = m.icon;
+					].map((mode) => {
+						const isActive = theme === mode.id;
+						const Icon = mode.icon;
 						return (
 							<Button
-								key={m.id}
+								key={mode.id}
 								variant="ghost"
-								onClick={() => applyTheme(m.id as ThemeMode)}
+								onClick={() => toggleSettings('theme', mode.id as ThemeMode)}
 								className={cn(
 									'relative flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ease-out',
 									isActive
@@ -57,7 +45,7 @@ export default function ThemeToggleSection() {
 								)}
 							>
 								<Icon size={14} />
-								{m.label}
+								{mode.label}
 							</Button>
 						);
 					})}

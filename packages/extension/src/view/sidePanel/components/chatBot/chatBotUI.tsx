@@ -165,7 +165,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 							<div className="mb-3">
 								<OwlIcon width={42} height={42} />
 							</div>
-							<h2 className="text-2xl font-bold text-zinc-900 mb-2">
+							<h2 className="text-2xl font-bold text-primary mb-2">
 								How can I help you today?
 							</h2>
 							<p className="text-zinc-500 max-w-md">
@@ -191,15 +191,15 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 					</div>
 				</div>
 			</ThreadPrimitive.Viewport>
-			<div className="bg-gradient-to-t from-white via-white to-transparent pb-2 px-4">
-				<div className="text-center mt-3 mb-1 text-[10px] text-zinc-400">
+			<div className="bg-gradient from-foreground via-foreground to-transparent pb-2 px-4">
+				<div className="text-center mt-3 mb-1 text-[10px] text-exclusive-plum">
 					AI can make mistakes. Please verify important information.
 				</div>
 				<div className="max-w-3xl mx-auto w-full">
-					<ComposerPrimitive.Root className="relative flex flex-col gap-2 rounded-md border border-zinc-200 bg-white shadow-xl shadow-zinc-200/50 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all overflow-hidden">
+					<ComposerPrimitive.Root className="relative flex flex-col gap-2 rounded-md border border-zinc-200 bg-background shadow-xl shadow-subtle-zinc/20 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all overflow-hidden">
 						<ComposerPrimitive.Input
 							placeholder="Ask anything..."
-							className="w-full max-h-40 min-h-[56px] resize-none bg-transparent px-4 py-4 text-sm outline-none placeholder:text-zinc-400 text-zinc-800"
+							className="w-full max-h-40 min-h-[56px] resize-none bg-transparent px-4 py-4 text-sm outline-none placeholder:exclusive-plum text-primary"
 						/>
 						<div className="flex items-center justify-between gap-2 px-3">
 							<div className="flex items-center">

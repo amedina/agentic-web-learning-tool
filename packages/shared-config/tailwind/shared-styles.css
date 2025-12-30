@@ -38,12 +38,12 @@
     --secondary-foreground: oklch(0.205 0 0);
     --muted: oklch(0.97 0 0);
     --muted-foreground: #737373;
-    --accent: oklch(0.97 0 0);
+    --accent: rgb(245, 245, 245);
     --accent-foreground: oklch(0.205 0 0);
     --destructive: oklch(0.577 0.245 27.325);
     --baby-red: var(--color-red-50);
     --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
+    --input: #e5e5e5;
     --ring: #a1a1a1;
     --chart-1: oklch(0.646 0.222 41.116);
     --chart-2: oklch(0.6 0.118 184.704);
@@ -135,7 +135,7 @@
     --color-strong-zinc: var(--strong-zinc);
     --color-extreme-zinc: var(--extreme-zinc);
 
-    --color-status-trace: var(--blue-500);
+    --color-status-trace: var(--color-blue-500);
     --color-status-debug: var(--color-violet-500);
     --color-status-info: var(--color-emerald-500);
     --color-status-warn: var(--color-amber-500);

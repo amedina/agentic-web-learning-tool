@@ -40,6 +40,7 @@
 		"assistant-stream": "^0.2.45",
 		"cross-env": "^10.1.0",
 		"json-schema": "^0.4.0",
+		"loglevel": "^1.9.2",
 		"lodash-es": "^4.17.21",
 		"lucide-react": "^0.542.0",
 		"ollama-ai-provider-v2": "^1.5.5",
