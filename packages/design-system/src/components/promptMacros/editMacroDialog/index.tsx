@@ -37,7 +37,7 @@ export function EditMacroDialog({ open, onOpenChange, macro, onSave, onDelete, e
     const handleSave = () => {
         const trimmedName = name.trim();
         if (!trimmedName) {
-            setError('Command Name is required');
+            setError('Macro Name is required');
             return;
         }
         if (!/^[a-zA-Z0-9_\-]+$/.test(trimmedName)) {
@@ -45,11 +45,11 @@ export function EditMacroDialog({ open, onOpenChange, macro, onSave, onDelete, e
             return;
         }
         if (trimmedName.length > 50) {
-            setError('Command Name starts to get too long (max 50 chars).');
+            setError('Macro Name starts to get too long (max 50 chars).');
             return;
         }
         if (existingNames.includes(trimmedName) && trimmedName !== (macro?.name || '')) {
-            setError('Command name already exists. Please choose another.');
+            setError('Macro name already exists. Please choose another.');
             return;
         }
         if (!instructions.trim()) {
@@ -61,7 +61,7 @@ export function EditMacroDialog({ open, onOpenChange, macro, onSave, onDelete, e
         onOpenChange(false);
     };
 
-    const exampleInput = "/" + (name || "command") + " your arguments here";
+    const exampleInput = "/" + (name || "macro") + " your arguments here";
     // Replace $ARGUMENTS if present, otherwise append
     const exampleOutput = instructions
         ? (instructions.includes('$ARGUMENTS')
@@ -76,7 +76,7 @@ export function EditMacroDialog({ open, onOpenChange, macro, onSave, onDelete, e
                 <Dialog.Content className="fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] w-[600px] max-w-[95vw] bg-white text-gray-900 border border-gray-200 rounded-xl shadow-2xl z-50 flex flex-col p-6 outline-none">
                     <div className="flex items-center justify-between mb-6">
                         <Dialog.Title className="text-xl font-bold">
-                            {macro ? 'Edit Command' : 'Create Command'}
+                            {macro ? 'Edit Macro' : 'Create Macro'}
                         </Dialog.Title>
                         <Dialog.Close asChild>
                             <button className="text-gray-500 hover:text-gray-900 transition-colors">
@@ -87,7 +87,7 @@ export function EditMacroDialog({ open, onOpenChange, macro, onSave, onDelete, e
 
                     <div className="flex flex-col gap-5">
                         <div className="flex flex-col gap-1.5">
-                            <label className="text-sm font-medium text-gray-700">Command Name *</label>
+                            <label className="text-sm font-medium text-gray-700">Macro Name *</label>
                             <Input
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
@@ -107,7 +107,7 @@ export function EditMacroDialog({ open, onOpenChange, macro, onSave, onDelete, e
                                 placeholder="You are an expert software developer. Review this code focusing on: $ARGUMENTS"
                             />
                             <p className="text-xs text-gray-500">
-                                Use $ARGUMENTS where you want the command arguments to be inserted
+                                Use $ARGUMENTS where you want the macro arguments to be inserted
                             </p>
                         </div>
 

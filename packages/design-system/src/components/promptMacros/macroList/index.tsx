@@ -12,28 +12,28 @@ import type { PromptMacro } from '../types';
 import OptionsPageTabSection from '../../optionsPageTab/optionsPageTabSection';
 
 interface MacroListProps {
-    macros: PromptMacro[];
+    userMacros: PromptMacro[];
+    builtInMacros: PromptMacro[];
     onEditMacro: (macro: PromptMacro) => void;
     onNewMacro: () => void;
     newMacroButton?: React.ReactNode;
 }
 
-export function MacroList({ macros, onEditMacro, onNewMacro, newMacroButton }: MacroListProps) {
+export function MacroList({ userMacros, builtInMacros, onEditMacro, onNewMacro, newMacroButton }: MacroListProps) {
     return (
         <div className="flex flex-col gap-8">
-            <OptionsPageTabSection title='Custom Commands'>
+            <OptionsPageTabSection title='Custom Macros'>
                 <div className="flex justify-end mb-4">
                     {newMacroButton}
                 </div>
-                {macros.length === 0 ? (
+                {userMacros.length === 0 ? (
                     <div className="flex flex-col items-center justify-center p-12 bg-[var(--surface-color)]/50 rounded-xl border border-dashed border-gray-200 text-center">
                         <div className="bg-[var(--surface-active)] p-4 rounded-full mb-3">
                             <MessageSquareIcon className="text-gray-300" size={32} />
                         </div>
-                        <h3 className="text-gray-900 font-medium mb-1">No commands configured</h3>
+                        <h3 className="text-gray-900 font-medium mb-1">No custom macros</h3>
                         <p className="text-gray-500 text-sm max-w-lg mb-4 text-balance">
-                            Create custom commands that expand into reusable prompt templates.
-                            Trigger them with <code className="bg-gray-100 px-1 py-0.5 rounded text-xs font-mono text-gray-700">/name</code> in the chat. Use <code className="bg-gray-100 px-1 py-0.5 rounded text-xs font-mono text-gray-700">$ARGUMENTS</code> to capture any text after the command.
+                            Create custom macros that expand into reusable prompt templates.
                         </p>
                         <Button
                             variant="outline"
@@ -42,12 +42,12 @@ export function MacroList({ macros, onEditMacro, onNewMacro, newMacroButton }: M
                             className="gap-2"
                         >
                             <PlusIcon size={14} />
-                            Create Command
+                            Create Macro
                         </Button>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {macros.map((macro) => (
+                        {userMacros.map((macro) => (
                             <MacroCard
                                 key={macro.name}
                                 macro={macro}
@@ -56,6 +56,18 @@ export function MacroList({ macros, onEditMacro, onNewMacro, newMacroButton }: M
                         ))}
                     </div>
                 )}
+            </OptionsPageTabSection>
+
+            <OptionsPageTabSection title='Built-in Macros'>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {builtInMacros.map((macro) => (
+                        <MacroCard
+                            key={macro.name}
+                            macro={macro}
+                            onEdit={() => { }}
+                        />
+                    ))}
+                </div>
             </OptionsPageTabSection>
         </div>
     );

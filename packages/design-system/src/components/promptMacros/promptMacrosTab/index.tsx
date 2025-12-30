@@ -14,16 +14,17 @@ import OptionsPageTab from '../../optionsPageTab';
 import type { PromptMacro } from '../types';
 
 interface PromptMacrosTabProps {
-    macros: PromptMacro[];
+    userMacros: PromptMacro[];
+    builtInMacros?: PromptMacro[];
     onSaveMacros: (macros: PromptMacro[]) => void;
 }
 
-export function PromptMacrosTab({ macros, onSaveMacros }: PromptMacrosTabProps) {
+export function PromptMacrosTab({ userMacros, builtInMacros = [], onSaveMacros }: PromptMacrosTabProps) {
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
     const [editingMacro, setEditingMacro] = useState<PromptMacro | undefined>(undefined);
 
     const handleSaveMacro = useCallback((macro: PromptMacro) => {
-        let newMacros = [...macros];
+        let newMacros = [...userMacros];
 
         if (editingMacro) {
             const index = newMacros.findIndex(m => m.name === editingMacro.name);
@@ -38,20 +39,21 @@ export function PromptMacrosTab({ macros, onSaveMacros }: PromptMacrosTabProps) 
 
         onSaveMacros(newMacros);
         setIsEditDialogOpen(false);
-    }, [editingMacro, macros, onSaveMacros]);
+    }, [editingMacro, userMacros, onSaveMacros]);
 
     const handleDeleteMacro = useCallback((macro: PromptMacro) => {
-        const newMacros = macros.filter(m => m.name !== macro.name);
+        const newMacros = userMacros.filter(m => m.name !== macro.name);
         onSaveMacros(newMacros);
         setIsEditDialogOpen(false);
-    }, [macros, onSaveMacros]);
+    }, [userMacros, onSaveMacros]);
 
-    const existingNames = macros.map(m => m.name);
+    const existingNames = userMacros.map(m => m.name);
 
     return (
-        <OptionsPageTab title="Prompt Macros" description="Manage your frequent prompt templates and commands.">
+        <OptionsPageTab title="Prompt Macros" description="Manage your frequent prompt templates and macros.">
             <MacroList
-                macros={macros}
+                userMacros={userMacros}
+                builtInMacros={builtInMacros}
                 onEditMacro={(macro) => {
                     setEditingMacro(macro);
                     setIsEditDialogOpen(true);
@@ -69,7 +71,7 @@ export function PromptMacrosTab({ macros, onSaveMacros }: PromptMacrosTabProps) 
                         }}
                     >
                         <PlusIcon size={16} />
-                        New Command
+                        New Macro
                     </Button>
                 }
             />
