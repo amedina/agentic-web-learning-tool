@@ -6,7 +6,15 @@ import type { RuntimeInterface, NodeOutput } from "@google-awlt/engine-core";
 /**
  * Internal dependencies
  */
-import type { QueryDOMMessage, ShowAlertMessage } from "../types/messages";
+import type {
+  QueryDOMMessage,
+  ShowAlertMessage,
+  ReplaceDOMMessage,
+  CopyToClipboardMessage,
+  DownloadFileMessage,
+  SpeakTextMessage,
+  ShowTooltipMessage,
+} from "../types/messages";
 
 /**
  * Service Worker Runtime
@@ -204,6 +212,119 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
     }
     if (!response.success) {
       throw new Error(response.error ?? "Alert failed");
+    }
+  }
+
+  /**
+   * Replace DOM content via content script.
+   */
+  async replaceDOM(
+    selector: string,
+    content: string,
+    isMultiple?: boolean
+  ): Promise<void> {
+    const tabId = await this.getTargetTabId();
+
+    const message: ReplaceDOMMessage = {
+      type: "REPLACE_DOM",
+      selector,
+      content,
+      isMultiple,
+    };
+
+    const response = await chrome.tabs.sendMessage(tabId, message);
+
+    if (chrome.runtime.lastError) {
+      throw new Error(chrome.runtime.lastError.message);
+    }
+    if (!response.success) {
+      throw new Error(response.error ?? "Replace DOM failed");
+    }
+  }
+
+  /**
+   * Copy to clipboard via content script.
+   */
+  async copyToClipboard(text: string): Promise<void> {
+    const tabId = await this.getTargetTabId();
+
+    const message: CopyToClipboardMessage = {
+      type: "COPY_TO_CLIPBOARD",
+      text,
+    };
+
+    const response = await chrome.tabs.sendMessage(tabId, message);
+
+    if (chrome.runtime.lastError) {
+      throw new Error(chrome.runtime.lastError.message);
+    }
+    if (!response.success) {
+      throw new Error(response.error ?? "Copy to clipboard failed");
+    }
+  }
+
+  /**
+   * Download file via content script.
+   */
+  async downloadFile(filename: string, content: string): Promise<void> {
+    const tabId = await this.getTargetTabId();
+
+    const message: DownloadFileMessage = {
+      type: "DOWNLOAD_FILE",
+      filename,
+      content,
+    };
+
+    const response = await chrome.tabs.sendMessage(tabId, message);
+
+    if (chrome.runtime.lastError) {
+      throw new Error(chrome.runtime.lastError.message);
+    }
+    if (!response.success) {
+      throw new Error(response.error ?? "Download file failed");
+    }
+  }
+
+  /**
+   * Speak text via content script.
+   */
+  async speakText(text: string): Promise<void> {
+    const tabId = await this.getTargetTabId();
+
+    const message: SpeakTextMessage = {
+      type: "SPEAK_TEXT",
+      text,
+    };
+
+    const response = await chrome.tabs.sendMessage(tabId, message);
+
+    if (chrome.runtime.lastError) {
+      throw new Error(chrome.runtime.lastError.message);
+    }
+    if (!response.success) {
+      throw new Error(response.error ?? "Speak text failed");
+    }
+  }
+
+  /**
+   * Show tooltip via content script.
+   */
+  async showTooltip(selector: string, content: string): Promise<void> {
+    const tabId = await this.getTargetTabId();
+
+    const message: ShowTooltipMessage = {
+      type: "SHOW_TOOLTIP",
+      selector,
+      content,
+    };
+
+    const response = await chrome.tabs.sendMessage(tabId, message);
+
+    if (chrome.runtime.lastError) {
+      throw new Error(chrome.runtime.lastError.message);
+    }
+    if (!response.success) {
+      throw new Error(response.error ?? "Show tooltip failed");
     }
   }
 

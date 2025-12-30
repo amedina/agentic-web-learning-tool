@@ -29,6 +29,11 @@ import {
 	ConditionToolNode,
 	StaticInputToolNode,
 	LoopToolNode,
+	ClipboardWriterNode,
+	TextToSpeechNode,
+	DomReplacementNode,
+	FileCreatorNode,
+	TooltipNode,
 } from '../../components';
 
 const FlowProvider = ({ children }: PropsWithChildren) => {
@@ -48,6 +53,11 @@ const FlowProvider = ({ children }: PropsWithChildren) => {
 			condition: ConditionToolNode,
 			staticInput: StaticInputToolNode,
 			loop: LoopToolNode,
+			clipboardWriter: ClipboardWriterNode,
+			textToSpeech: TextToSpeechNode,
+			domReplacement: DomReplacementNode,
+			fileCreator: FileCreatorNode,
+			tooltip: TooltipNode,
 		}),
 		[]
 	);

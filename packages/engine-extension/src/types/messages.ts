@@ -41,6 +41,50 @@ export interface UpdateNodeStatusMessage {
 }
 
 /**
+ * Replace DOM content.
+ */
+export interface ReplaceDOMMessage {
+  type: "REPLACE_DOM";
+  selector: string;
+  content: string;
+  isMultiple?: boolean;
+}
+
+/**
+ * Copy text to clipboard.
+ */
+export interface CopyToClipboardMessage {
+  type: "COPY_TO_CLIPBOARD";
+  text: string;
+}
+
+/**
+ * Trigger file download.
+ */
+export interface DownloadFileMessage {
+  type: "DOWNLOAD_FILE";
+  filename: string;
+  content: string;
+}
+
+/**
+ * Speak text (TTS).
+ */
+export interface SpeakTextMessage {
+  type: "SPEAK_TEXT";
+  text: string;
+}
+
+/**
+ * Show tooltip on page.
+ */
+export interface ShowTooltipMessage {
+  type: "SHOW_TOOLTIP";
+  selector: string;
+  content: string;
+}
+
+/**
  * Content script is active.
  */
 export interface ContentScriptActiveMessage {
@@ -55,7 +99,12 @@ export type ContentScriptMessage =
   | QueryDOMMessage
   | ShowAlertMessage
   | UpdateNodeStatusMessage
-  | ContentScriptActiveMessage;
+  | ContentScriptActiveMessage
+  | ReplaceDOMMessage
+  | CopyToClipboardMessage
+  | DownloadFileMessage
+  | SpeakTextMessage
+  | ShowTooltipMessage;
 
 // Options Page / UI -> Service Worker Messages
 

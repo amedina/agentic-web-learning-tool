@@ -3,7 +3,7 @@
  */
 import { DomInput, StaticInput } from './inputTools';
 import { Condition, Loop } from './logicTools';
-import { AlertNotification } from './outputTools';
+import { AlertNotification, ClipboardWriter, DomReplacement, FileCreator, TextToSpeech, Tooltip } from './outputTools';
 
 interface JSToolsProps {
 	collapsed?: boolean;
@@ -50,6 +50,11 @@ const JSTools = ({ collapsed }: JSToolsProps) => {
 				)}
 				<div className="space-y-1">
 					<AlertNotification />
+					<DomReplacement	/>
+					<Tooltip />
+					<TextToSpeech />
+					<ClipboardWriter />
+					<FileCreator />
 				</div>
 			</div>
 		</>

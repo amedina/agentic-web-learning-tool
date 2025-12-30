@@ -19,6 +19,10 @@ import {
 	type SummarizerApiConfig,
 	type TranslatorApiConfig,
 	type WriterApiConfig,
+	type LoopConfig,
+	type DomReplacementConfig,
+	type FileCreatorConfig,
+	type TooltipConfig,
 } from './../../components';
 
 export type NodeConfig = {
@@ -35,6 +39,10 @@ export type NodeConfig = {
 		| StaticInputConfig
 		| ConditionConfig
 		| AlertNotificationConfig
+		| LoopConfig
+		| DomReplacementConfig
+		| FileCreatorConfig
+		| TooltipConfig
 	>;
 };
 

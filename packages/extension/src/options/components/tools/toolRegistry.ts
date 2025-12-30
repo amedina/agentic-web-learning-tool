@@ -122,4 +122,42 @@ export const TOOL_CONFIGS: Record<
 			description: 'Display an alert notification to the user.',
 		},
 	},
+	domReplacement: {
+		label: 'DOM Replacement',
+		config: {
+			title: 'DOM Replacement',
+			description: 'Replace content of an element on the page.',
+			selector: '',
+		},
+	},
+	clipboardWriter: {
+		label: 'Clipboard Writer',
+		config: {
+			title: 'Clipboard Writer',
+			description: 'Copy input to the clipboard.',
+		},
+	},
+	fileCreator: {
+		label: 'File Creator',
+		config: {
+			title: 'File Creator',
+			description: 'Download input as a file.',
+			filename: 'output.txt',
+		},
+	},
+	textToSpeech: {
+		label: 'Text to Speech',
+		config: {
+			title: 'Text to Speech',
+			description: 'Read input text aloud.',
+		},
+	},
+	tooltip: {
+		label: 'Tooltip',
+		config: {
+			title: 'Tooltip',
+			description: 'Show a tooltip on the page.',
+			selector: '',
+		},
+	},
 };
