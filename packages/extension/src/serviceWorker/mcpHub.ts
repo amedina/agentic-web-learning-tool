@@ -5,10 +5,12 @@
 import { z } from 'zod';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { type CallToolResult, type Tool } from '@modelcontextprotocol/sdk/types.js';
+
 /**
  * Internal dependencies
  */
 import { RequestManager, sanitizeToolName } from './utils';
+import { isDomainAllowed } from './utils/domainMatcher';
 import { MESSAGE_TYPES, CONNECTION_NAMES } from '../utils/constants';
 import type { ContentScriptMessage, TabData } from './types';
 import logger from '../utils/logger';
@@ -92,7 +94,8 @@ class McpHub {
         switch (message.type) {
           case MESSAGE_TYPES.REGISTER:
             if (message.tools) {
-              await this.registerOrUpdateTools(domain, dataId, port, message.tools, true);
+              await this.registerOrUpdateTools(domain, dataId, port, message.tools, false);
+              await this.injectToolsAndRegisterFunction(tabId);
             }
             break;
           case MESSAGE_TYPES.UPDATE:
@@ -105,6 +108,8 @@ class McpHub {
               this.requestManager.resolve(message.requestId, message.data);
             }
             break;
+          default:
+            console.log(`Unknown message type from tab ${tabId}:`, message);
         }
       } catch (err) {
         logger(['error'], [`Error handling message from tab ${tabId}:`, err]);
@@ -127,12 +132,46 @@ class McpHub {
     tools: Tool[],
     isRegister: boolean
   ) {
+    // Unified filtering: Filter out any tool that is disabled in storage OR not allowed on this domain
+    const storage = await chrome.storage.local.get(['builtInWebMCPToolsState', 'userWebMCPTools']);
+    const builtInState = (storage.builtInWebMCPToolsState || {}) as Record<string, boolean | undefined>;
+    const userTools = (storage.userWebMCPTools || []) as Array<{ name: string; enabled: boolean; allowedDomains?: string[] }>;
+    const userToolsMap = new Map(userTools.map(t => [t.name, t]));
+
+    const currentUrl = port.sender?.tab?.url || '';
+    const disabledToolNames = new Set<string>();
+
+    for (const [name, enabled] of Object.entries(builtInState)) {
+      if (enabled === false) disabledToolNames.add(name);
+    }
+
+    for (const tool of userTools) {
+      if (tool.enabled === false) {
+        disabledToolNames.add(tool.name);
+      }
+    }
+
+    const activeTools = tools.filter(tool => {
+      if (disabledToolNames.has(tool.name)) {
+        return false;
+      }
+
+      const userToolConfig = userToolsMap.get(tool.name);
+      if (userToolConfig) {
+        if (!isDomainAllowed(currentUrl, userToolConfig.allowedDomains)) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+
     const domainData = this.getDomainData(domain);
     const existingTabData = domainData.get(dataId);
 
     // 1. Update Internal State
     const tabData: TabData = {
-      tools,
+      tools: activeTools,
       lastUpdated: Date.now(),
       url: port.sender?.tab?.url || '',
       tabId: port.sender?.tab?.id,
@@ -152,7 +191,7 @@ class McpHub {
       prefix: dataId.startsWith('cached-') ? dataId : `tab${tabData.tabId}`,
     };
 
-    for (const tool of tools) {
+    for (const tool of activeTools) {
       const uniqueToolName = this.generateUniqueToolName(toolNameComponents.cleanDomain, toolNameComponents.prefix, tool.name);
       const description = this.generateTabDescription(domain, dataId, tool.description || '');
 
@@ -189,7 +228,7 @@ class McpHub {
     // 4. Cleanup removed tools (if this is an update event)
     if (!isRegister) {
       const oldTools = existingTabData?.tools || [];
-      const removedTools = oldTools.filter((t) => !tools.some((nt) => nt.name === t.name));
+      const removedTools = oldTools.filter((t) => !activeTools.some((nt) => nt.name === t.name));
 
       for (const tool of removedTools) {
         const uniqueToolName = this.generateUniqueToolName(toolNameComponents.cleanDomain, toolNameComponents.prefix, tool.name);
@@ -383,6 +422,74 @@ class McpHub {
     const status = isActive ? 'Active' : tabData.isClosed ? 'Closed' : '';
     // Format: [example.com • Active Tab] Tool Description
     return `[${domain} • ${status ? `${status} ` : ''}Tab] ${originalDesc}`;
+  }
+
+  async injectToolsAndRegisterFunction(tabId: number) {
+    const storage = await chrome.storage.local.get();
+    const userWebMCPTools = storage && storage['userWebMCPTools'];
+    let tabUrl = '';
+
+    try {
+      const tab = await chrome.tabs.get(tabId);
+      tabUrl = tab.url || '';
+    } catch (e) {
+      console.warn(`WebMCP: Could not get tab URL for injection (tabId: ${tabId})`, e);
+    }
+
+    // Filter out disabled user tools AND tools not allowed on this domain
+    const enabledUserTools = Array.isArray(userWebMCPTools)
+      ? userWebMCPTools.filter((t: any) => {
+        if (t.enabled === false) return false;
+        return isDomainAllowed(tabUrl, t.allowedDomains);
+      })
+      : [];
+
+    chrome.scripting.executeScript({
+      target: { tabId: tabId },
+      world: 'MAIN',
+      func: registerDynamicToolFromScripting,
+      args: [enabledUserTools],
+    }).then((result) => {
+      console.log("WebMCP: tools registered", result);
+    }).catch((error) => {
+      console.error("WebMCP: Error injecting user tools", error);
+    });
+
+    async function registerDynamicToolFromScripting(tools: any) {
+      //@ts-expect-error -- window.navigator.modelContext is injected dynamically
+      const mcp = window.navigator.modelContext;
+      for (const toolWrapper of tools) {
+        try {
+          // 1. Create a Blob from the code string
+          const blob = new Blob([toolWrapper.code], { type: 'text/javascript' });
+          const url = URL.createObjectURL(blob);
+
+          // 2. Dynamically import the blob as a module
+          // This works because we stripped CSP headers
+          const module = await import(url);
+
+          // 3. Construct the tool object
+          const toolToRegister = {
+            ...module.metadata,
+            execute: module.execute
+          };
+          console.log(mcp);
+          console.log("WebMCP: Tool to register:", toolToRegister);
+          // 4. Register
+          if (mcp) {
+            await mcp.registerTool(toolToRegister);
+            console.log("WebMCP: User tool registered successfully:", toolToRegister.name);
+          } else {
+            console.log("WebMCP: Cannot register tool, mcp missing");
+          }
+
+          // Clean up
+          URL.revokeObjectURL(url);
+        } catch (err) {
+          console.log('WebMCP: Failed to register user tool:', toolWrapper.name, err);
+        }
+      }
+    }
   }
 }
 

@@ -15,6 +15,7 @@
 		"tabs",
 		"webNavigation",
 		"scripting",
+		"activeTab",
 		"sidePanel"
 	],
 	"host_permissions": ["*://*/*"],
@@ -32,8 +33,19 @@
 	},
 	"content_scripts": [
 		{
-			"js": ["contentScript.js"],
+			"js": ["contentScript/contentScript.js"],
 			"matches": ["*://*/*"]
 		}
-	]
+	],
+	"web_accessible_resources": [
+		{
+			"resources": [
+				"contentScript/webmcp-polyfill.js",
+				"contentScript/registerTools.js"
+			],
+			"matches": [
+				"<all_urls>"
+			]
+		}
+  	]
 }

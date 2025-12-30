@@ -6,6 +6,7 @@ z.config({ jitless: true });
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { type CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { ExtensionServerTransport } from '@mcp-b/transports';
+
 /**
  * Internal dependencies
  */
@@ -23,7 +24,7 @@ chrome.sidePanel
 // Initialize the MCP Server and Hub
 const mcpHub = new McpHub(sharedServer);
 
-chrome.runtime.onConnect.addListener((port) => {
+chrome.runtime.onConnect.addListener(async (port) => {
   if (port.name !== CONNECTION_NAMES.MCP_HOST) {
     return;
   }
@@ -32,8 +33,9 @@ chrome.runtime.onConnect.addListener((port) => {
     keepAlive: true,
     keepAliveInterval: 25_000,
   });
+
   try {
-    //Why this is being done look herehttps://github.com/modelcontextprotocol/typescript-sdk/issues/893
+    //Why this is being done look here https://github.com/modelcontextprotocol/typescript-sdk/issues/893
     sharedServer.registerTool('dummyTool', {}, () =>
     ({
       content: [{ type: 'text', text: `Failed to execute tool: Tab connection lost or closed.` }],
@@ -44,8 +46,10 @@ chrome.runtime.onConnect.addListener((port) => {
     //supress error
     logger(['warn', 'error'], [`Error registering tool: ${_error}`]);
   }
+
   sharedServer.connect(transport);
   mcpHub.setupConnections();
+
   if (mcpHub.registeredTools.size > 0) {
     sharedServer.server?.transport?.send({
       jsonrpc: '2.0',
