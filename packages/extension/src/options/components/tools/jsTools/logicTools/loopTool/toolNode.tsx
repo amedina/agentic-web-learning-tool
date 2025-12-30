@@ -3,14 +3,14 @@
  */
 import { useMemo } from 'react';
 import { Handle, Position, useNodeId } from '@xyflow/react';
-import { FileSearch } from 'lucide-react';
+import { Repeat } from 'lucide-react';
 
 /**
  * Internal dependencies
  */
 import { ToolNodeContainer } from '../../../../ui';
 import { useApi, useFlow } from '../../../../../store';
-import type { ConditionConfig } from './conditionTool';
+import type { LoopConfig } from './loopTool';
 
 const ToolNode = () => {
 	const nodeId = useNodeId();
@@ -38,7 +38,7 @@ const ToolNode = () => {
 
 		if (!node) return undefined;
 
-		const _config = node.config as ConditionConfig;
+		const _config = node.config as LoopConfig;
 
 		return {
 			title: _config.title,
@@ -50,7 +50,7 @@ const ToolNode = () => {
 	return (
 		<ToolNodeContainer
 			title={config?.title || ''}
-			Icon={FileSearch}
+			Icon={Repeat}
 			type={config?.type || ''}
 			selected={selectedNode === nodeId}
 			status={nodeStatus}
@@ -64,17 +64,17 @@ const ToolNode = () => {
 			}}
 		>
 			<div className="h-fit w-full flex flex-col relative">
-				<div className="w-full bg-linear-to-br from-blue-50 to-indigo-50 rounded-md px-3 py-1 my-6 border border-blue-100">
+				<div className="w-full bg-linear-to-br from-indigo-50 to-purple-50 rounded-md px-3 py-1 my-6 border border-indigo-100">
 					<p className="truncate text-sm text-slate-700 leading-relaxed">
-						{config?.description || ''}
+						{config?.description || 'Loop through input data'}
 					</p>
 				</div>
 
-				{/* Input */}
+				{/* Input Handle */}
 				<Handle
 					type="target"
 					position={Position.Left}
-					id="inputA"
+					id="in"
 					style={{
 						background: 'none',
 						border: 'none',
@@ -87,42 +87,43 @@ const ToolNode = () => {
 					</div>
 				</Handle>
 
-				{/* Output */}
+				{/* ITEM Handle - Fires once per item */}
 				<Handle
 					type="source"
 					position={Position.Right}
-					id="outputTrue"
+					id="item"
 					style={{
 						background: 'none',
 						border: 'none',
-						top: '7%',
+						top: '15%',
 						right: '-9px',
 					}}
 				>
 					<div className="flex items-center gap-2 w-fit absolute translate-y-[-50%] -translate-x-[78%] top-[2.5px]">
 						<span className="text-[10px] text-slate-600 font-bold tracking-tight">
-							TRUE
+							ITEM
 						</span>
-						<div className="min-w-3 h-3 bg-green-600 rounded-full shadow-sm"></div>
+						<div className="min-w-3 h-3 bg-indigo-600 rounded-full shadow-sm"></div>
 					</div>
 				</Handle>
 
+				{/* DONE Handle - Fires when loop is complete */}
 				<Handle
 					type="source"
 					position={Position.Right}
-					id="outputFalse"
+					id="done"
 					style={{
 						background: 'none',
 						border: 'none',
-						top: '95%',
+						top: '85%',
 						right: '-9px',
 					}}
 				>
-					<div className="flex items-center gap-2 w-fit absolute translate-y-[-50%] -translate-x-[80%] top-[2.5px]">
+					<div className="flex items-center gap-2 w-fit absolute translate-y-[-50%] -translate-x-[78%] top-[2.5px]">
 						<span className="text-[10px] text-slate-600 font-bold tracking-tight">
-							FALSE
+							DONE
 						</span>
-						<div className="min-w-3 h-3 bg-red-600 rounded-full shadow-sm"></div>
+						<div className="min-w-3 h-3 bg-green-600 rounded-full shadow-sm"></div>
 					</div>
 				</Handle>
 			</div>

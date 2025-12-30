@@ -28,6 +28,7 @@ import {
 	DomInputToolNode,
 	ConditionToolNode,
 	StaticInputToolNode,
+	LoopToolNode,
 } from '../../components';
 
 const FlowProvider = ({ children }: PropsWithChildren) => {
@@ -46,6 +47,7 @@ const FlowProvider = ({ children }: PropsWithChildren) => {
 			domInput: DomInputToolNode,
 			condition: ConditionToolNode,
 			staticInput: StaticInputToolNode,
+			loop: LoopToolNode,
 		}),
 		[]
 	);

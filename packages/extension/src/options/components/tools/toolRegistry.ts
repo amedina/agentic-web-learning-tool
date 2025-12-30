@@ -108,6 +108,13 @@ export const TOOL_CONFIGS: Record<
 			comparisonValue: '',
 		},
 	},
+	loop: {
+		label: 'Loop',
+		config: {
+			title: 'Loop',
+			description: 'Iterate over an array of items.',
+		},
+	},
 	alertNotification: {
 		label: 'Alert Notification',
 		config: {

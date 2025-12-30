@@ -30,6 +30,7 @@ import { proofreaderApiExecutor } from "./proofreaderApiExecutor";
 import { translatorApiExecutor } from "./translatorApiExecutor";
 import { languageDetectorApiExecutor } from "./languageDetectorApiExecutor";
 import { summarizerApiExecutor } from "./summarizerApiExecutor";
+import { loopExecutor } from "./loopExecutor";
 
 /**
  * Register all built-in node executors with the NodeRegistry.
@@ -41,6 +42,7 @@ export function registerBuiltinExecutors(): void {
   NodeRegistry.register("domInput", domInputExecutor);
   NodeRegistry.register("alertNotification", alertNotificationExecutor);
   NodeRegistry.register("condition", conditionExecutor);
+  NodeRegistry.register("loop", loopExecutor);
 
   // Built-in AI API Nodes
   NodeRegistry.register("promptApi", promptApiExecutor);

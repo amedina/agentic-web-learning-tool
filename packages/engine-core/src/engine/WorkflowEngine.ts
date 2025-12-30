@@ -69,8 +69,11 @@ export class WorkflowEngine {
       const executionPlan = this.parser.getExecutionPlan(this.parsedGraph);
       this.context = this.createContext(json.meta.id, options.initialVariables);
 
+      const executedNodes = new Set<string>();
+
       for (const node of executionPlan) {
-        await this.executeNode(node);
+        if (executedNodes.has(node.id)) continue;
+        await this.executeNode(node, executedNodes);
       }
 
       this.context.status = "completed";
@@ -116,7 +119,12 @@ export class WorkflowEngine {
   /**
    * Execute a single node.
    */
-  private async executeNode(node: NodeConfig): Promise<void> {
+  private async executeNode(
+    node: NodeConfig,
+    executedNodes: Set<string>
+  ): Promise<void> {
+    if (executedNodes.has(node.id)) return;
+
     this.runtime.onNodeStart(node.id);
     this.context.steps[node.id] = { status: "running" };
 
@@ -132,18 +140,64 @@ export class WorkflowEngine {
       const resolvedConfig = this.resolveVariables(configWithInput, inputData);
 
       const executor = NodeRegistry.get(node.type);
-      const result = await executor(resolvedConfig, this.runtime, this.context);
+      const result = await executor(
+        resolvedConfig,
+        this.runtime,
+        this.context,
+        (handle, input) => this.executeBranch(node.id, handle, input)
+      );
 
       const output: NodeOutput = { status: "success", data: result };
       this.context.steps[node.id] = output;
       this.runtime.onNodeFinish(node.id, output);
+      executedNodes.add(node.id);
+
+      if (node.type === "loop") {
+        const itemNodes = this.parser.getReachableNodes(
+          this.parsedGraph,
+          node.id,
+          "item"
+        );
+        itemNodes.forEach((n) => executedNodes.add(n.id));
+      }
     } catch (err) {
       const error = err instanceof Error ? err : new Error(String(err));
       const output: NodeOutput = { status: "error", error: error.message };
       this.context.steps[node.id] = output;
       this.runtime.onNodeFinish(node.id, output);
+      executedNodes.add(node.id);
       throw error;
     }
+  }
+
+  /**
+   * Execute a branch of the workflow.
+   * This is used by executors (like Loop) to run sub-graphs.
+   */
+  private async executeBranch(
+    nodeId: string,
+    handle: string,
+    input: unknown
+  ): Promise<unknown> {
+    const branchNodes = this.parser.getReachableNodes(
+      this.parsedGraph,
+      nodeId,
+      handle
+    );
+
+    if (branchNodes.length === 0) return input;
+
+    const branchExecutedNodes = new Set<string>();
+    this.context.steps[nodeId] = { status: "success", data: input };
+	
+    let lastResult: unknown = input;
+
+    for (const node of branchNodes) {
+      await this.executeNode(node, branchExecutedNodes);
+      lastResult = this.context.steps[node.id]?.data ?? lastResult;
+    }
+
+    return lastResult;
   }
 
   /**

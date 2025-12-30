@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import { DomInput, StaticInput } from './inputTools';
-import { Condition } from './logicTools';
+import { Condition, Loop } from './logicTools';
 import { AlertNotification } from './outputTools';
 
 interface JSToolsProps {
@@ -36,6 +36,7 @@ const JSTools = ({ collapsed }: JSToolsProps) => {
 				)}
 				<div className="space-y-1">
 					<Condition />
+					<Loop />
 				</div>
 			</div>
 
