@@ -11,8 +11,7 @@ import { ToolListChangedNotificationSchema, type Tool } from "@modelcontextproto
 import { CONNECTION_NAMES, MESSAGE_TYPES } from "../utils/constants";
 import logger from "../utils/logger";
 import setLogLevelFromSyncSettings from "../utils/setLogLevelFromSyncSettings";
-//Run this when content script is injected to enable log level.
-(async () => { await setLogLevelFromSyncSettings(); })();
+
 await setLogLevelFromSyncSettings();
 
 let connectionStarted = false;

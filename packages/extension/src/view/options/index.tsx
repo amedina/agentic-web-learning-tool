@@ -13,13 +13,13 @@ import Options from './options';
 import { SettingsProvider } from '../stateProviders';
 
 createRoot(document.getElementById('root')!).render(
-	<div className="w-screen h-screen">
-		<SettingsProvider view='options'>
-			<SidebarProvider>
-				<StrictMode>
+	<StrictMode>
+		<div className="w-screen h-screen">
+			<SettingsProvider view="options">
+				<SidebarProvider>
 					<Options />
-				</StrictMode>
-			</SidebarProvider>
-		</SettingsProvider>
-	</div>
+				</SidebarProvider>
+			</SettingsProvider>
+		</div>
+	</StrictMode>
 );
