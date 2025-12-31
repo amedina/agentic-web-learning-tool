@@ -23,9 +23,10 @@ import {
 } from '../../store';
 import { Flow } from '../ui';
 import { TOOL_CONFIGS } from '../tools/toolRegistry';
+import { saveWorkflow, loadWorkflow } from '../../../utils/storage';
+import SavedWorkflowsDialog from '../ui/flow/SavedWorkflowsDialog';
 
 const ID_PREFIX = 'wf_';
-const STORAGE_PREFIX = 'workflow-';
 
 const generateId = () =>
 	`${ID_PREFIX}${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -37,6 +38,7 @@ const FlowContainer = () => {
 	const [workflowId, setWorkflowId] = useState<string | null>(null);
 	const [tabs, setTabs] = useState<chrome.tabs.Tab[]>([]);
 	const [selectedTabId, setSelectedTabId] = useState<number | null>(null);
+	const [showSavedWorkflows, setShowSavedWorkflows] = useState(false);
 	const [toast, setToast] = useState<{
 		message: string;
 		type: 'success' | 'error';
@@ -196,32 +198,34 @@ const FlowContainer = () => {
 	}, [addNode, addApiNode]);
 
 	useEffect(() => {
-		const params = new URLSearchParams(window.location.search);
-		const idFromUrl = params.get('id');
+		(async () => {
+			const params = new URLSearchParams(window.location.search);
+			const idFromUrl = params.get('id');
 
-		if (idFromUrl) {
-			setWorkflowId(idFromUrl);
+			if (idFromUrl) {
+				setWorkflowId(idFromUrl);
 
-			const savedData = localStorage.getItem(
-				`${STORAGE_PREFIX}${idFromUrl}`
-			);
-			if (savedData) {
 				try {
-					const parsed = JSON.parse(savedData);
-					loadWorkflowData(parsed);
-					return;
-				} catch (e) {
-					console.error('Failed to load workflow from storage', e);
-				}
-			}
-		}
+					const savedData = await loadWorkflow(idFromUrl);
 
-		const newId = generateId();
-		setWorkflowId(newId);
-		const newUrl = new URL(window.location.href);
-		newUrl.searchParams.set('id', newId);
-		window.history.replaceState({}, '', newUrl.toString());
-		addPlaceholderNode();
+					if (savedData) {
+						loadWorkflowData(savedData);
+					}
+				} catch (error) {
+					console.error(
+						'Failed to load workflow from storage',
+						error
+					);
+				}
+			} else {
+				const newId = generateId();
+				setWorkflowId(newId);
+				const newUrl = new URL(window.location.href);
+				newUrl.searchParams.set('id', newId);
+				window.history.replaceState({}, '', newUrl.toString());
+				addPlaceholderNode();
+			}
+		})();
 	}, [loadWorkflowData, addNode, addApiNode, addPlaceholderNode]);
 
 	const serializeWorkflow = useCallback(
@@ -268,18 +272,19 @@ const FlowContainer = () => {
 	useEffect(() => {
 		if (!workflowId) return;
 
-		const workflowData = serializeWorkflow(
-			workflowId,
-			workflowTitle,
-			nodes,
-			edges,
-			nodesApiData
-		);
+		const timeoutId = setTimeout(() => {
+			const workflowData = serializeWorkflow(
+				workflowId,
+				workflowTitle,
+				nodes,
+				edges,
+				nodesApiData
+			);
 
-		localStorage.setItem(
-			`${STORAGE_PREFIX}${workflowId}`,
-			JSON.stringify(workflowData)
-		);
+			saveWorkflow(workflowId, workflowData);
+		}, 1000); // Debounce save by 1s
+
+		return () => clearTimeout(timeoutId);
 	}, [
 		workflowId,
 		workflowTitle,
@@ -346,13 +351,11 @@ const FlowContainer = () => {
 
 			loadWorkflowData(workflowData);
 
-			localStorage.setItem(
-				`${STORAGE_PREFIX}${newId}`,
-				JSON.stringify({
-					...workflowData,
-					meta: { ...workflowData.meta, id: newId },
-				})
-			);
+			const newWorkflowData = {
+				...workflowData,
+				meta: { ...workflowData.meta, id: newId },
+			};
+			saveWorkflow(newId, newWorkflowData);
 
 			setShowImportDialog(false);
 			setImportJson('');
@@ -465,13 +468,33 @@ const FlowContainer = () => {
 				},
 				graph: { nodes: [], edges: [] },
 			};
-			localStorage.setItem(
-				`${STORAGE_PREFIX}${newId}`,
-				JSON.stringify(initialData)
-			);
+			saveWorkflow(newId, initialData);
 			showToast('New workflow creating!', 'success');
 		}
 	}, [clearFlow, showToast]);
+
+	const handleLoadSaved = useCallback(() => {
+		setShowSavedWorkflows(true);
+	}, []);
+
+	const handleWorkflowLoad = useCallback(
+		async (id: string) => {
+			const newUrl = new URL(window.location.href);
+			newUrl.searchParams.set('id', id);
+			window.history.pushState({}, '', newUrl.toString());
+
+			setWorkflowId(id);
+
+			const data = await loadWorkflow(id);
+			if (data) {
+				loadWorkflowData(data);
+				showToast('Workflow loaded successfully', 'success');
+			} else {
+				showToast('Failed to load workflow', 'error');
+			}
+		},
+		[loadWorkflowData, showToast]
+	);
 
 	return (
 		<div className="h-full flex-1 flex flex-col rounded bg-gray-100 relative">
@@ -523,6 +546,12 @@ const FlowContainer = () => {
 				</div>
 			)}
 
+			<SavedWorkflowsDialog
+				isOpen={showSavedWorkflows}
+				onClose={() => setShowSavedWorkflows(false)}
+				onLoad={handleWorkflowLoad}
+			/>
+
 			{/* Toast Notification */}
 			{toast && (
 				<div
@@ -559,6 +588,7 @@ const FlowContainer = () => {
 						onNew: handleNewWorkflow,
 						onRun: handleRun,
 						onDrop: handleDrop,
+						onLoadSaved: handleLoadSaved,
 					}}
 				/>
 			</div>

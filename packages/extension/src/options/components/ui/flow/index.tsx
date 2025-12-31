@@ -41,6 +41,7 @@ export interface FlowProps<
 		onNew: () => void;
 		onRun: () => void;
 		onDrop: (event: React.DragEvent) => void;
+		onLoadSaved: () => void;
 	};
 }
 
@@ -66,10 +67,13 @@ const Flow = <NodeType extends Node, EdgeType extends Edge>({
 		event.dataTransfer.dropEffect = 'move';
 	}, []);
 
-	const onDrop = useCallback((event: React.DragEvent) => {
-		event.preventDefault();
-		actions.onDrop(event);
-	}, [actions]);
+	const onDrop = useCallback(
+		(event: React.DragEvent) => {
+			event.preventDefault();
+			actions.onDrop(event);
+		},
+		[actions]
+	);
 
 	return (
 		<div className="h-full flex-1 flex flex-col rounded bg-gray-100 relative min-h-[500px]">
@@ -115,6 +119,7 @@ const Flow = <NodeType extends Node, EdgeType extends Edge>({
 						onImport={actions.onImport}
 						onExport={actions.onExport}
 						onClear={actions.onClear}
+						onLoadSaved={actions.onLoadSaved}
 					/>
 
 					<div className="w-px h-6 bg-slate-200 mx-2"></div>
