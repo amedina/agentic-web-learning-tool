@@ -64,6 +64,7 @@ export default function SingleProviderAccordion({
 		if(!apiKey){
 			return true;
 		}
+
 		if (
 			apiKey === storedData?.apiKey &&
 			thinkingMode === storedData?.thinkingMode &&
@@ -71,6 +72,7 @@ export default function SingleProviderAccordion({
 		) {
 			return true;
 		}
+
 		return false;
 	}, [storedData, apiKey, thinkingMode, status]);
 
