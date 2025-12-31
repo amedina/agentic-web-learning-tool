@@ -7,19 +7,18 @@ import {
 	type Dispatch,
 	type SetStateAction,
 	useCallback,
+	type HTMLInputTypeAttribute,
+	type ChangeEvent,
 } from 'react';
-import {
-	Download,
-	Upload,
-	AlertTriangle,
-	Loader2,
-} from 'lucide-react';
+import { Download, Upload, AlertTriangle, Loader2 } from 'lucide-react';
 import { Button, OptionsPageTabSection } from '@google-awlt/design-system';
 
 /**
  * Internal dependencies
  */
 import type { SettingsState } from '../../../../types';
+import { logger } from '@/utils';
+import settingsValidatorAndApplier from '@/utils/settingsValidator';
 
 type DataManagementSectionProps = {
 	settings: SettingsState;
@@ -47,6 +46,62 @@ export default function DataManagementSection({
 		}, 600);
 	}, []);
 
+	const handleImport = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+		const file = event.target.files?.[0];
+
+		if (file) {
+			const reader = new FileReader();
+			reader.onload = async (_event) => {
+				if (!_event.target) {
+					logger(['error'], ['Invalid file.']);
+					return;
+				}
+
+				if (!_event.target?.result) {
+					logger(['error'], ['Empty file content']);
+					return;
+				}
+
+				const settings = JSON.parse(
+					(_event.target.result ?? '{}') as string
+				);
+
+				const validationResult =
+					settingsValidatorAndApplier(settings);
+				if(typeof validationResult === 'boolean'){
+					logger(['error'], ['Invalid json file']);
+					return;
+				}
+
+				await chrome.storage.local.clear();
+				await chrome.storage.sync.clear();
+
+				await chrome.storage.sync.set({
+					extensionSettings: validationResult.extensionSettings,
+				});
+				await chrome.storage.sync.set({ apiKeys: validationResult.apiKeys });
+				await chrome.storage.local.set({ userWebMCPTools: validationResult.userWebMCPTools });
+
+				logger(['info', 'debug', 'trace'], ['Validation successfull, settings have been imported reloading options page']);
+
+				setTimeout(() => {
+					window.location.reload();
+				}, 1000);
+			};
+
+			reader.onerror = (_event) => {
+				if (_event.target?.error) {
+					logger(
+						['error'],
+						['Error reading file: ', _event.target.error]
+					);
+				}
+			};
+
+			reader.readAsText(file);
+		}
+	}, []);
+
 	return (
 		<OptionsPageTabSection title="Data & Storage">
 			<div className="gap-5 flex flex-col sm:flex-row">
@@ -71,6 +126,7 @@ export default function DataManagementSection({
 					Import Configuration
 				</Button>
 				<input
+					onChange={handleImport}
 					type="file"
 					ref={fileInputRef}
 					className="hidden"

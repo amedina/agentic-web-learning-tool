@@ -15,7 +15,7 @@ export type AgentType = {
 	modelProvider: string;
 };
 
-export type APIKeys ={
+export type APIKeys = {
     apiKey: string;
     thinkingMode?: boolean;
     status: boolean;
