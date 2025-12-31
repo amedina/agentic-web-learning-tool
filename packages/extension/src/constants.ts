@@ -89,4 +89,4 @@ export const DEFAULT_SETTINGS: SettingsState = {
     logLevel: 'SILENT'
 }
 
-export const EXPORT_JSON_VERSION = '1.0'
+export const EXPORT_JSON_VERSION = '1.0';
