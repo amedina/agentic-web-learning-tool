@@ -103,7 +103,7 @@ export function EditMacroDialog({ open, onOpenChange, macro, onSave, onDelete, e
                             <textarea
                                 value={instructions}
                                 onChange={(e) => setInstructions(e.target.value)}
-                                className="flex min-h-[120px] w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 disabled:cursor-not-allowed disabled:opacity-50 resize-y font-mono"
+                                className="flex min-h-[120px] w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 disabled:cursor-not-allowed disabled:opacity-50 resize-y"
                                 placeholder="Act as a Socratic tutor. Instead of giving the answer, guide me with hints to solve this problem myself: $ARGUMENTS"
                             />
                             <p className="text-xs text-gray-500">
