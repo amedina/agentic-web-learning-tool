@@ -87,11 +87,11 @@ export function EditMacroDialog({ open, onOpenChange, macro, onSave, onDelete, e
 
                     <div className="flex flex-col gap-5">
                         <div className="flex flex-col gap-1.5">
-                            <label className="text-sm font-medium text-gray-700">Macro Name *</label>
+                            <label className="text-sm font-medium text-gray-700">Macro Name</label>
                             <Input
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
-                                placeholder="e.g., pr-reviewer, sql-expert"
+                                placeholder="e.g., react-tutor, summarize-pdf"
                             />
                             <p className="text-xs text-gray-500">
                                 Letters, numbers, hyphens, and underscores only. No slashes or spaces. (1-50 characters)
@@ -99,12 +99,12 @@ export function EditMacroDialog({ open, onOpenChange, macro, onSave, onDelete, e
                         </div>
 
                         <div className="flex flex-col gap-1.5">
-                            <label className="text-sm font-medium text-gray-700">Instructions Template *</label>
+                            <label className="text-sm font-medium text-gray-700">Agent Persona & Prompt</label>
                             <textarea
                                 value={instructions}
                                 onChange={(e) => setInstructions(e.target.value)}
                                 className="flex min-h-[120px] w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 disabled:cursor-not-allowed disabled:opacity-50 resize-y font-mono"
-                                placeholder="You are an expert software developer. Review this code focusing on: $ARGUMENTS"
+                                placeholder="Act as a Socratic tutor. Instead of giving the answer, guide me with hints to solve this problem myself: $ARGUMENTS"
                             />
                             <p className="text-xs text-gray-500">
                                 Use $ARGUMENTS where you want the macro arguments to be inserted
