@@ -9,10 +9,9 @@ import { type CallToolResult, type Tool } from '@modelcontextprotocol/sdk/types.
 /**
  * Internal dependencies
  */
-import { RequestManager, sanitizeToolName } from './utils';
+import { RequestManager, sanitizeToolName, isDomainAllowed } from './utils';
 import { MESSAGE_TYPES, CONNECTION_NAMES, logger } from '../utils';
 import type { ContentScriptMessage, TabData } from './types';
-import { isDomainAllowed } from './utils/domainMatcher';
 
 /**
  * The central hub managing connections between the MCP Server and Chrome Tabs.
