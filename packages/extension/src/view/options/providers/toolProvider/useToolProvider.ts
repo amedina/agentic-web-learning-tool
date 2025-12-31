@@ -10,11 +10,6 @@ import Context, { type ToolProviderStoreContext } from './context';
 export function useToolProvider(): ToolProviderStoreContext;
 export function useToolProvider<T>(selector: (state: ToolProviderStoreContext) => T): T;
 
-/**
- * Cookie store hook.
- * @param selector Selector function to partially select state.
- * @returns selected part of the state
- */
 export function useToolProvider<T>(
   selector: (state: ToolProviderStoreContext) => T | ToolProviderStoreContext = (state) =>
     state

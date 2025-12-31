@@ -11,7 +11,7 @@ import type { GeminiNanoChatTransport } from '../../transports/geminiNano';
 
 export interface ModelProviderStoreContext {
   state: {
-    apiKeys: {[key: string]: APIKeys},
+    apiKeys: { [key: string]: APIKeys },
     selectedAgent: AgentType,
     transport: GeminiNanoChatTransport | CloudHostedTransport | null;
   };

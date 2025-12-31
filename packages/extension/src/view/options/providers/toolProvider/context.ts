@@ -4,9 +4,6 @@
 import { createContext, noop } from '@google-awlt/common';
 import type { WebMCPTool } from '@google-awlt/design-system';
 import type { Dispatch, SetStateAction } from 'react';
-/**
- * Internal dependencies.
- */
 
 export interface ToolProviderStoreContext {
   state: {

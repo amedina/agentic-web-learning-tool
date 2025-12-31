@@ -90,7 +90,7 @@ const Provider = ({ children }: PropsWithChildren) => {
 				onLocalStorageChangedListener
 			);
 		};
-	}, [intitialSync]);
+	}, [intitialSync, onLocalStorageChangedListener]);
 
 	const saveUserTools = useCallback((tools: WebMCPTool[]) => {
 		setUserTools(tools);

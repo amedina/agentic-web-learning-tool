@@ -44,7 +44,7 @@ function Options() {
 	);
 
 	useEffect(() => {
-		if(!selectedMenuItem){
+		if(!selectedMenuItem) {
 			setSelectedMenuItem(Items[0].id);
 		}
 	}, [selectedMenuItem]);

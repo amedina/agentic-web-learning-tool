@@ -19,10 +19,6 @@ const Provider = ({ children }: PropsWithChildren) => {
 	const [apiKeys, setApiKeys] = useState<{ [key: string]: APIKeys }>({});
 	const initialFetchDone = useRef<boolean>(false);
 
-	/**
-	 * Sets current frames for sidebar, detected if the current tab is to be analysed,
-	 * parses data currently in store, set current tab URL.
-	 */
 	const intitialSync = useCallback(async () => {
 		const { apiKeys = {} }: { apiKeys: { [key: string]: APIKeys } } =
 			await chrome.storage.sync.get('apiKeys');

@@ -32,13 +32,13 @@ export default function DataManagementSection({
 
 	const handleExport = useCallback(() => {
 		setIsExporting(true);
-	
+
 		const now = new Date();
-		const date = now.toISOString().split('T')[0]; // 2025-01-08
+		const date = now.toISOString().split('T')[0];
 		const hours = String(now.getHours()).padStart(2, '0');
 		const minutes = String(now.getMinutes()).padStart(2, '0');
 		const filename = `AWL-backup-${date}-${hours}-${minutes}.json`;
-	
+
 		setTimeout(() => {
 			const dataStr =
 				'data:text/json;charset=utf-8,' +
@@ -49,70 +49,74 @@ export default function DataManagementSection({
 			a.click();
 			setIsExporting(false);
 		}, 600);
-	}, []);
+	}, [settings]);
 
 	const handleImport = useCallback((event: ChangeEvent<HTMLInputElement>) => {
 		const file = event.target.files?.[0];
 
-		if (file) {
-			const reader = new FileReader();
-			reader.onload = async (_event) => {
-				if (!_event.target) {
-					logger(['error'], ['Invalid file.']);
-					return;
-				}
-
-				if (!_event.target?.result) {
-					logger(['error'], ['Empty file content']);
-					return;
-				}
-
-				const settings = JSON.parse(
-					(_event.target.result ?? '{}') as string
-				);
-
-				const validationResult = settingsValidator(settings);
-				if (typeof validationResult === 'boolean') {
-					logger(['error'], ['Invalid json file']);
-					return;
-				}
-
-				await chrome.storage.local.clear();
-				await chrome.storage.sync.clear();
-
-				await chrome.storage.sync.set({
-					extensionSettings: JSON.stringify(validationResult.extensionSettings),
-				});
-				await chrome.storage.sync.set({
-					apiKeys: validationResult.apiKeys,
-				});
-				await chrome.storage.local.set({
-					userWebMCPTools: validationResult.userWebMCPTools,
-				});
-
-				logger(
-					['info', 'debug', 'trace'],
-					[
-						'Validation successfull, settings have been imported reloading options page',
-					]
-				);
-
-				setTimeout(() => {
-					window.location.reload();
-				}, 1000);
-			};
-
-			reader.onerror = (_event) => {
-				if (_event.target?.error) {
-					logger(
-						['error'],
-						['Error reading file: ', _event.target.error]
-					);
-				}
-			};
-
-			reader.readAsText(file);
+		if (!file) {
+			return;
 		}
+	
+		const reader = new FileReader();
+		reader.onload = async (_event) => {
+			if (!_event.target) {
+				logger(['error'], ['Invalid file.']);
+				return;
+			}
+
+			if (!_event.target?.result) {
+				logger(['error'], ['Empty file content']);
+				return;
+			}
+
+			const settings = JSON.parse(
+				(_event.target.result ?? '{}') as string
+			);
+
+			const validationResult = settingsValidator(settings);
+			if (typeof validationResult === 'boolean') {
+				logger(['error'], ['Invalid json file']);
+				return;
+			}
+
+			await chrome.storage.local.clear();
+			await chrome.storage.sync.clear();
+
+			await chrome.storage.sync.set({
+				extensionSettings: JSON.stringify(
+					validationResult.extensionSettings
+				),
+			});
+			await chrome.storage.sync.set({
+				apiKeys: validationResult.apiKeys,
+			});
+			await chrome.storage.local.set({
+				userWebMCPTools: validationResult.userWebMCPTools,
+			});
+
+			logger(
+				['info', 'debug', 'trace'],
+				[
+					'Validation successfull, settings have been imported reloading options page',
+				]
+			);
+
+			setTimeout(() => {
+				window.location.reload();
+			}, 1000);
+		};
+
+		reader.onerror = (_event) => {
+			if (_event.target?.error) {
+				logger(
+					['error'],
+					['Error reading file: ', _event.target.error]
+				);
+			}
+		};
+
+		reader.readAsText(file);
 	}, []);
 
 	return (

@@ -42,6 +42,7 @@ chrome.runtime.onConnect.addListener(async (port) => {
     } as CallToolResult)
     );
   } catch (_error) {
+    //supress error
     logger(['warn', 'error'], ['Error registering tool:', _error]);
   }
 
