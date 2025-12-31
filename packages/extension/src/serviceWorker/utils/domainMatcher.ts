@@ -53,4 +53,4 @@ function isDomainAllowed(url: string, allowedDomains?: string[]): boolean {
     }
 }
 
-export default isDomainAllowed
+export default isDomainAllowed;
