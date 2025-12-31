@@ -3,7 +3,7 @@
  */
 import syncStorageChangeCallback from "./syncStorageChangeCallback";
 import onInstalledCallback from "./onInstalledCallback";
-import onActionClickedCallback from "./onActionClickCallback";
+import onActionClickedCallback from "./onActionClickedCallback";
 import tabOnActivatedCallback from "./tabOnActivatedCallback";
 import tabOnCreatedCallback from "./tabOnCreatedCallback";
 
