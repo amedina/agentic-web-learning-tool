@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import type { AgentType } from "./types";
-import type { PromptMacro } from "@google-awlt/design-system";
+import type { PromptCommand } from "@google-awlt/design-system";
 
 export const INITIAL_PROVIDERS = [
     {
@@ -103,7 +103,7 @@ export const DEFAULT_AGENTS: AgentType[] = [
     },
 ];
 
-export const BUILT_IN_MACROS: PromptMacro[] = [
+export const BUILT_IN_COMMANDS: PromptCommand[] = [
     {
         name: 'fix-bugs',
         description: 'Analyze code for bugs and propose fixes.',

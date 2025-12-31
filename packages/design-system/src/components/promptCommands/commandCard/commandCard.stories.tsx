@@ -6,21 +6,21 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 /**
  * Internal dependencies.
  */
-import { MacroCard } from './index';
-import type { PromptMacro } from '../types';
+import { CommandCard } from './index';
+import type { PromptCommand } from '../types';
 
-const meta: Meta<typeof MacroCard> = {
-    title: 'Components/PromptMacros/MacroCard',
-    component: MacroCard,
+const meta: Meta<typeof CommandCard> = {
+    title: 'Components/PromptCommands/CommandCard',
+    component: CommandCard,
     parameters: {
         layout: 'centered',
     },
 };
 
 export default meta;
-type Story = StoryObj<typeof MacroCard>;
+type Story = StoryObj<typeof CommandCard>;
 
-const sampleMacro: PromptMacro = {
+const sampleCommand: PromptCommand = {
     name: "react-tutor",
     instructions: "You are a react tutor...",
     description: "Helps you learn React.",
@@ -28,17 +28,17 @@ const sampleMacro: PromptMacro = {
     enabled: true
 };
 
-export const UserMacro: Story = {
+export const UserCommand: Story = {
     args: {
-        macro: sampleMacro,
+        command: sampleCommand,
         onToggle: () => { },
         onEdit: () => { }
     },
 };
 
-export const BuiltInMacro: Story = {
+export const BuiltInCommand: Story = {
     args: {
-        macro: { ...sampleMacro, isBuiltIn: true, name: "fix-bugs", description: "Fix bugs in code." },
+        command: { ...sampleCommand, isBuiltIn: true, name: "fix-bugs", description: "Fix bugs in code." },
         onToggle: () => { },
         onEdit: () => { }
     },

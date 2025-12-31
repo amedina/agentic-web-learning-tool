@@ -23,7 +23,7 @@ import {
 	Dropdown,
 	getToolNameWithoutPrefix,
 	OwlIcon,
-	type PromptMacro,
+	type PromptCommand,
 } from '@google-awlt/design-system';
 import type { Tool as McpTool } from '@modelcontextprotocol/sdk/types.js';
 
@@ -36,7 +36,7 @@ import AssistantMessage from './assistantMessage';
 import EditComposer from './editComposer';
 import UserMessage from './userMessage';
 import type { AgentType } from '../../../../types';
-import { BUILT_IN_MACROS } from '../../../../constants';
+import { BUILT_IN_COMMANDS } from '../../../../constants';
 
 type SingleGroupTool = {
 	group: string;
@@ -58,19 +58,19 @@ type ChatBotUIProps = {
 
 const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 	const { client, tools } = useMcpClient();
-	const [allMacros, setAllMacros] = useState<PromptMacro[]>([]);
+	const [allCommands, setAllCommands] = useState<PromptCommand[]>([]);
 
 	useEffect(() => {
-		chrome.storage.local.get(['promptMacros', 'builtInPromptMacros'], (result) => {
-			const userMacros = (result.promptMacros as PromptMacro[]) || [];
-			const storedBuiltIns = (result.builtInPromptMacros as PromptMacro[]) || [];
+		chrome.storage.local.get(['promptCommands', 'builtInPromptCommands'], (result) => {
+			const userCommands = (result.promptCommands as PromptCommand[]) || [];
+			const storedBuiltIns = (result.builtInPromptCommands as PromptCommand[]) || [];
 
-			const mergedBuiltIns = BUILT_IN_MACROS.map((m) => {
+			const mergedBuiltIns = BUILT_IN_COMMANDS.map((m) => {
 				const found = storedBuiltIns.find((s) => s.name === m.name);
 				return { ...m, enabled: found ? found.enabled : true };
 			});
 
-			setAllMacros([...userMacros, ...mergedBuiltIns]);
+			setAllCommands([...userCommands, ...mergedBuiltIns]);
 		});
 	}, []);
 
@@ -84,13 +84,13 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 			const match = textBeforeCursor.match(/\/([\w-]+)$/);
 
 			if (match) {
-				const macroName = match[1];
-				const macro = allMacros.find((m) => m.name === macroName && m.enabled);
+				const commandName = match[1];
+				const command = allCommands.find((m) => m.name === commandName && m.enabled);
 
-				if (macro) {
+				if (command) {
 					e.preventDefault();
 
-					const expansion = macro.instructions;
+					const expansion = command.instructions;
 					const newValue =
 						value.slice(0, selectionStart - match[0].length) +
 						expansion +

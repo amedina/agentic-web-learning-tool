@@ -8,34 +8,34 @@ import { EditIcon } from 'lucide-react';
  */
 import { Button } from '../../button';
 import ToggleSwitch from '../../toggleSwitch';
-import type { PromptMacro } from '../types';
+import type { PromptCommand } from '../types';
 
-interface MacroCardProps {
-    macro: PromptMacro;
+interface CommandCardProps {
+    command: PromptCommand;
     onToggle: (enabled: boolean) => void;
     onEdit: () => void;
 }
 
-export function MacroCard({ macro, onToggle, onEdit }: MacroCardProps) {
+export function CommandCard({ command, onToggle, onEdit }: CommandCardProps) {
     return (
         <div className="flex flex-col p-5 bg-[var(--surface-color)] rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 h-full">
             <div className="flex justify-between items-start mb-3">
                 <div>
-                    <h3 className="text-lg font-bold text-gray-800">/{macro.name}</h3>
+                    <h3 className="text-lg font-bold text-gray-800">/{command.name}</h3>
                 </div>
                 <ToggleSwitch
-                    checked={macro.enabled}
+                    checked={command.enabled}
                     onCheckedChange={onToggle}
                     className="data-[state=checked]:bg-gray-900"
                 />
             </div>
 
             <p className="text-sm text-gray-600 mb-5 flex-grow leading-relaxed whitespace-pre-wrap line-clamp-3">
-                {macro.description || macro.instructions}
+                {command.description || command.instructions}
             </p>
 
             <div className="flex justify-end items-center mt-auto pt-3 border-t border-gray-200 min-h-[53px]">
-                {!macro.isBuiltIn && (
+                {!command.isBuiltIn && (
                     <Button
                         variant="ghost"
                         size="sm"

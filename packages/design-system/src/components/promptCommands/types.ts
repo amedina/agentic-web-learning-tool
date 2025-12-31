@@ -1,4 +1,4 @@
-export interface PromptMacro {
+export interface PromptCommand {
     name: string;
     instructions: string;
     description?: string;

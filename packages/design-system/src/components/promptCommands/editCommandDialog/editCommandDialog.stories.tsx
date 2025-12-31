@@ -7,22 +7,22 @@ import { useState } from 'react';
 /**
  * Internal dependencies.
  */
-import { EditMacroDialog } from './index';
-import type { PromptMacro } from '../types';
+import { EditCommandDialog } from './index';
+import type { PromptCommand } from '../types';
 import { Button } from '../../button';
 
-const meta: Meta<typeof EditMacroDialog> = {
-    title: 'Components/PromptMacros/EditMacroDialog',
-    component: EditMacroDialog,
+const meta: Meta<typeof EditCommandDialog> = {
+    title: 'Components/PromptCommands/EditCommandDialog',
+    component: EditCommandDialog,
     parameters: {
         layout: 'centered',
     },
 };
 
 export default meta;
-type Story = StoryObj<typeof EditMacroDialog>;
+type Story = StoryObj<typeof EditCommandDialog>;
 
-const sampleMacro: PromptMacro = {
+const sampleCommand: PromptCommand = {
     name: "react-tutor",
     instructions: "You are a react tutor...",
     description: "Helps you learn React.",
@@ -35,12 +35,12 @@ const DialogWrapper = (args: any) => {
     return (
         <div className="p-4">
             <Button onClick={() => setOpen(true)}>Open Dialog</Button>
-            <EditMacroDialog
+            <EditCommandDialog
                 {...args}
                 open={open}
                 onOpenChange={setOpen}
-                onSave={(macro) => {
-                    console.log("Saved", macro);
+                onSave={(command) => {
+                    console.log("Saved", command);
                     setOpen(false);
                 }}
             />
@@ -53,14 +53,14 @@ export const CreateNew: Story = {
     args: {
         onSave: () => { },
         onDelete: undefined,
-        existingNames: ['existing-macro']
+        existingNames: ['existing-command']
     }
 };
 
 export const EditExisting: Story = {
     render: (args) => <DialogWrapper {...args} />,
     args: {
-        macro: sampleMacro,
+        command: sampleCommand,
         onSave: () => { },
         onDelete: () => { },
         existingNames: ['react-tutor']

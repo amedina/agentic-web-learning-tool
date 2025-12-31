@@ -12,7 +12,7 @@ import { useEffect } from 'react';
 /**
  * Internal dependencies
  */
-import { AgentStudioTab, WebMCPToolsTab, SettingsTab, PromptMacrosTab } from './components';
+import { AgentStudioTab, WebMCPToolsTab, SettingsTab, PromptCommandsTab } from './components';
 
 const Items = [
 	{
@@ -22,10 +22,10 @@ const Items = [
 		component: <AgentStudioTab />,
 	},
 	{
-		title: 'Prompt Macros',
-		id: 'prompt-macros',
+		title: 'Prompt Commands',
+		id: 'prompt-commands',
 		icon: () => <MessageSquare />,
-		component: <PromptMacrosTab />,
+		component: <PromptCommandsTab />,
 	},
 	{
 		title: 'WebMCP Tools',
