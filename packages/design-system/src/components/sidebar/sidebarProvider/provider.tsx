@@ -5,7 +5,6 @@ import {
 	useCallback,
 	useEffect,
 	useMemo,
-	useRef,
 	useState,
 	type ComponentProps,
 	type CSSProperties,
@@ -43,8 +42,7 @@ function SidebarProvider({
 	const [_open, _setOpen] = useState(defaultOpen);
 	const isMobile = useIsMobile();
 	const open = openProp ?? _open;
-	const [selectedMenuItem, setSelectedMenuItem] = useState('');
-	const initialFetch = useRef(false);
+	const [selectedMenuItem, setSelectedMenuItem] = useState(localStorage.getItem('sidebarSelectedMenuItem') ?? '');
 	const setOpen = useCallback(
 		(value: boolean | ((value: boolean) => boolean)) => {
 			const openState = typeof value === 'function' ? value(open) : value;
@@ -83,19 +81,8 @@ function SidebarProvider({
 
 
 	useEffect(() => {
-		if(!initialFetch.current) {
-			return;
-		}
 		localStorage.setItem('sidebarSelectedMenuItem', selectedMenuItem);
 	}, [selectedMenuItem]);
-
-	useEffect(() => {
-		const menuItemPreference = localStorage.getItem('sidebarSelectedMenuItem');
-		if (menuItemPreference) {
-			setSelectedMenuItem(menuItemPreference);
-		}
-		initialFetch.current = true;
-	}, []);
 
 	// We add a state so that we can do data-state="expanded" or "collapsed".
 	// This makes it easier to style the sidebar with Tailwind classes.

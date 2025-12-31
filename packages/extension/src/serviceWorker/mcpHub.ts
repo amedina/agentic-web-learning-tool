@@ -9,8 +9,7 @@ import { type CallToolResult, type Tool } from '@modelcontextprotocol/sdk/types.
 /**
  * Internal dependencies
  */
-import { RequestManager, sanitizeToolName } from './utils';
-import { isDomainAllowed } from './utils/domainMatcher';
+import { RequestManager, sanitizeToolName, isDomainAllowed } from './utils';
 import { MESSAGE_TYPES, CONNECTION_NAMES } from '../utils/constants';
 import type { ContentScriptMessage, TabData } from './types';
 import logger from '../utils/logger';
