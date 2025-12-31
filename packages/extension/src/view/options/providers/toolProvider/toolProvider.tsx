@@ -67,8 +67,32 @@ const Provider = ({ children }: PropsWithChildren) => {
 		);
 	}, []);
 
+	const onLocalStorageChangedListener = useCallback(async () => {
+		const {
+			userWebMCPTools = [],
+			builtInWebMCPToolsState = [],
+		}: {
+			userWebMCPTools: WebMCPTool[];
+			builtInWebMCPToolsState: WebMCPTool[];
+		} = await chrome.storage.sync.get([
+			'userWebMCPTools',
+			'builtInWebMCPToolsState',
+		]);
+
+		setUserTools(userWebMCPTools);
+		setBuiltInTools(builtInWebMCPToolsState);
+	}, []);
+
 	useEffect(() => {
 		intitialSync();
+		chrome.storage.local.onChanged.addListener(
+			onLocalStorageChangedListener
+		);
+		return () => {
+			chrome.storage.local.onChanged.removeListener(
+				onLocalStorageChangedListener
+			);
+		};
 	}, [intitialSync]);
 
 	const saveUserTools = useCallback((tools: WebMCPTool[]) => {
