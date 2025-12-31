@@ -12,7 +12,7 @@ import { formatInputText } from "../utils/executorUtils";
 export async function summarizerApiExecutor(
   config: Record<string, unknown>,
   _runtime: RuntimeInterface,
-  _context: ExecutionContext
+  context: ExecutionContext
 ): Promise<string> {
   const input = config.input;
   const type = config.type as
@@ -55,6 +55,14 @@ export async function summarizerApiExecutor(
     }
     if (outputLanguage) {
       options.outputLanguage = outputLanguage;
+    }
+
+    if (outputLanguage) {
+      options.outputLanguage = outputLanguage;
+    }
+
+    if (context.signal) {
+      options.signal = context.signal;
     }
 
     // @ts-ignore

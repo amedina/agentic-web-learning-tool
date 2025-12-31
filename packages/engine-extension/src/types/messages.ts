@@ -128,9 +128,11 @@ export interface CheckCapabilitiesMessage {
 /**
  * Request to cancel a running workflow.
  */
-export interface CancelWorkflowMessage {
-  type: "CANCEL_WORKFLOW";
-  workflowId: string;
+/**
+ * Request to stop the currently running workflow.
+ */
+export interface StopWorkflowMessage {
+  type: "STOP_WORKFLOW";
 }
 
 /**
@@ -139,7 +141,7 @@ export interface CancelWorkflowMessage {
 export type ServiceWorkerMessage =
   | RunWorkflowMessage
   | CheckCapabilitiesMessage
-  | CancelWorkflowMessage;
+  | StopWorkflowMessage;
 
 // Response Types
 

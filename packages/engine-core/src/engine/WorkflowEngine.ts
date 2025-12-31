@@ -37,6 +37,7 @@ export class WorkflowEngine {
   private parsedGraph!: ParsedGraph;
 
   private runtime: RuntimeInterface;
+  private abortController: AbortController | null = null;
 
   constructor(runtime: RuntimeInterface) {
     this.runtime = runtime;
@@ -50,6 +51,15 @@ export class WorkflowEngine {
   }
 
   /**
+   * Abort the current execution.
+   */
+  public abort(): void {
+    if (this.abortController) {
+      this.abortController.abort();
+    }
+  }
+
+  /**
    * Execute a workflow from its JSON representation.
    * @param json - The workflow JSON
    * @param options - Execution options
@@ -60,6 +70,7 @@ export class WorkflowEngine {
     options: ExecutionOptions = {}
   ): Promise<ExecutionContext> {
     try {
+      this.abortController = new AbortController();
       this.parsedGraph = this.parser.parse(json);
       const requiredCaps = this.parser.getRequiredCapabilities(
         this.parsedGraph
@@ -72,6 +83,9 @@ export class WorkflowEngine {
       const executedNodes = new Set<string>();
 
       for (const node of executionPlan) {
+        if (this.abortController.signal.aborted) {
+          throw new Error("Workflow aborted");
+        }
         if (executedNodes.has(node.id)) continue;
         await this.executeNode(node, executedNodes);
       }
@@ -80,8 +94,18 @@ export class WorkflowEngine {
       return this.context;
     } catch (error) {
       const err = error instanceof Error ? error : new Error(String(error));
+
+      if (
+        this.abortController?.signal.aborted ||
+        err.message === "Workflow aborted"
+      ) {
+        this.context.status = "failed";
+      }
+
       this.runtime.onError(err);
       throw err;
+    } finally {
+      this.abortController = null;
     }
   }
 
@@ -97,6 +121,7 @@ export class WorkflowEngine {
       steps: {},
       variables: initialVariables ?? {},
       status: "running",
+      signal: this.abortController?.signal,
     };
   }
 
@@ -123,6 +148,10 @@ export class WorkflowEngine {
     node: NodeConfig,
     executedNodes: Set<string>
   ): Promise<void> {
+    if (this.abortController?.signal.aborted) {
+      throw new Error("Workflow aborted");
+    }
+
     if (executedNodes.has(node.id)) return;
 
     this.runtime.onNodeStart(node.id);
@@ -189,10 +218,13 @@ export class WorkflowEngine {
 
     const branchExecutedNodes = new Set<string>();
     this.context.steps[nodeId] = { status: "success", data: input };
-	
+
     let lastResult: unknown = input;
 
     for (const node of branchNodes) {
+      if (this.abortController?.signal.aborted) {
+        throw new Error("Workflow aborted");
+      }
       await this.executeNode(node, branchExecutedNodes);
       lastResult = this.context.steps[node.id]?.data ?? lastResult;
     }

@@ -9,7 +9,7 @@ import { formatInputText } from "../utils/executorUtils";
 export async function proofreaderApiExecutor(
   config: Record<string, unknown>,
   _runtime: RuntimeInterface,
-  _context: ExecutionContext
+  context: ExecutionContext
 ): Promise<string> {
   const input = config.input;
   const expectedInputLanguages = config.expectedInputLanguages as
@@ -26,6 +26,7 @@ export async function proofreaderApiExecutor(
     // @ts-ignore
     const proofreader = await Proofreader.create({
       expectedInputLanguages,
+      signal: context.signal,
     });
 
     const results = await proofreader.proofread(formattedInput);

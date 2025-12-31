@@ -12,7 +12,7 @@ import { formatInputText } from "../utils/executorUtils";
 export async function promptApiExecutor(
   config: Record<string, unknown>,
   _runtime: RuntimeInterface,
-  _context: ExecutionContext
+  context: ExecutionContext
 ): Promise<string> {
   const {
     input,
@@ -59,6 +59,14 @@ export async function promptApiExecutor(
 
     if (expectedOutputsLanguages) {
       sessionOptions.expectedOutputsLanguages = expectedOutputsLanguages;
+    }
+
+    if (expectedOutputsLanguages) {
+      sessionOptions.expectedOutputsLanguages = expectedOutputsLanguages;
+    }
+
+    if (context.signal) {
+      sessionOptions.signal = context.signal;
     }
 
     // @ts-ignore

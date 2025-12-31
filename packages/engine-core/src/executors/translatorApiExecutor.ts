@@ -12,7 +12,7 @@ import { formatInputText } from "../utils/executorUtils";
 export async function translatorApiExecutor(
   config: Record<string, unknown>,
   _runtime: RuntimeInterface,
-  _context: ExecutionContext
+  context: ExecutionContext
 ): Promise<string> {
   const input = config.input;
   const sourceLanguage = config.sourceLanguage as string | undefined;
@@ -33,6 +33,7 @@ export async function translatorApiExecutor(
     const translator = await Translator.create({
       sourceLanguage: sourceLanguage || "en",
       targetLanguage,
+      signal: context.signal,
     });
 
     const result = await translator.translate(formattedInput);

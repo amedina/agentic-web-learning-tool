@@ -39,6 +39,7 @@ const FlowContainer = () => {
 	const [tabs, setTabs] = useState<chrome.tabs.Tab[]>([]);
 	const [selectedTabId, setSelectedTabId] = useState<number | null>(null);
 	const [showSavedWorkflows, setShowSavedWorkflows] = useState(false);
+	const [isStopping, setIsStopping] = useState(false);
 	const [toast, setToast] = useState<{
 		message: string;
 		type: 'success' | 'error';
@@ -404,17 +405,20 @@ const FlowContainer = () => {
 				},
 				onComplete: (context: ExecutionContext) => {
 					setIsRunning(false);
+					setIsStopping(false);
 					showToast('Workflow completed successfully!', 'success');
 					console.log('Workflow context:', context);
 				},
 				onError: (error: string) => {
 					setIsRunning(false);
+					setIsStopping(false);
 					showToast(`Workflow failed: ${error}`, 'error');
 					console.error('Workflow error:', error);
 				},
 			});
 		} catch (error) {
 			setIsRunning(false);
+			setIsStopping(false);
 			const msg = error instanceof Error ? error.message : String(error);
 			showToast(`Failed to start workflow: ${msg}`, 'error');
 		}
@@ -431,6 +435,20 @@ const FlowContainer = () => {
 		workflowId,
 		workflowTitle,
 	]);
+
+	const handleStop = useCallback(async () => {
+		const client = new WorkflowClient();
+
+		try {
+			setIsStopping(true);
+			await client.stopWorkflow();
+			showToast('Stopping workflow...', 'success');
+		} catch (error) {
+			setIsStopping(false);
+			const msg = error instanceof Error ? error.message : String(error);
+			showToast(`Failed to stop workflow: ${msg}`, 'error');
+		}
+	}, [showToast]);
 
 	const handleClear = useCallback(() => {
 		if (
@@ -581,12 +599,14 @@ const FlowContainer = () => {
 					setSelectedTabId={setSelectedTabId}
 					tabs={tabs}
 					isRunning={isRunning}
+					isStopping={isStopping}
 					actions={{
 						onImport: handleImport,
 						onExport: handleExport,
 						onClear: handleClear,
 						onNew: handleNewWorkflow,
 						onRun: handleRun,
+						onStop: handleStop,
 						onDrop: handleDrop,
 						onLoadSaved: handleLoadSaved,
 					}}
