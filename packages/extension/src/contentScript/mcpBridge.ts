@@ -12,7 +12,7 @@ import { CONNECTION_NAMES, MESSAGE_TYPES } from "../utils/constants";
 import logger from "../utils/logger";
 import setLogLevelFromSyncSettings from "../utils/setLogLevelFromSyncSettings";
 
-await setLogLevelFromSyncSettings();
+(async () => await setLogLevelFromSyncSettings())();
 
 let connectionStarted = false;
 
