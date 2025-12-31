@@ -8,7 +8,7 @@
  * @param url The current URL to check
  * @param allowedDomains List of allowed domain patterns
  */
-export function isDomainAllowed(url: string, allowedDomains?: string[]): boolean {
+function isDomainAllowed(url: string, allowedDomains?: string[]): boolean {
     if (!allowedDomains || allowedDomains.length === 0) {
         return false;
     }
@@ -52,3 +52,5 @@ export function isDomainAllowed(url: string, allowedDomains?: string[]): boolean
         return false;
     }
 }
+
+export default isDomainAllowed
