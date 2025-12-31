@@ -29,6 +29,7 @@ export default function DataManagementSection({
 }: DataManagementSectionProps) {
 	const [isExporting, setIsExporting] = useState(false);
 	const fileInputRef = useRef<HTMLInputElement>(null);
+	const [isImporting, setIsImporting] = useState(false);
 
 	const handleExport = useCallback(() => {
 		setIsExporting(true);
@@ -57,7 +58,7 @@ export default function DataManagementSection({
 		if (!file) {
 			return;
 		}
-	
+		setIsImporting(true);
 		const reader = new FileReader();
 		reader.onload = async (_event) => {
 			if (!_event.target) {
@@ -105,6 +106,7 @@ export default function DataManagementSection({
 			setTimeout(() => {
 				window.location.reload();
 			}, 1000);
+			setIsImporting(false);
 		};
 
 		reader.onerror = (_event) => {
@@ -123,6 +125,7 @@ export default function DataManagementSection({
 		<OptionsPageTabSection title="Data & Storage">
 			<div className="gap-5 flex flex-col sm:flex-row">
 				<Button
+					disabled={isExporting}
 					variant="outline"
 					onClick={handleExport}
 					className="flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium transition-colors max-w-[200px]"
@@ -135,11 +138,16 @@ export default function DataManagementSection({
 					Export Configuration
 				</Button>
 				<Button
+					disabled={isImporting}
 					variant="outline"
 					onClick={() => fileInputRef.current?.click()}
 					className="flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium transition-colors max-w-[200px]"
 				>
-					<Upload size={16} />
+					{isImporting ? (
+						<Loader2 size={16} className="animate-spin" />
+					) : (
+						<Upload size={16} />
+					)}
 					Import Configuration
 				</Button>
 				<input
