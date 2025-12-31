@@ -26,7 +26,7 @@ const Provider = ({ children }: PropsWithChildren) => {
 	const intitialSync = useCallback(async () => {
 		const { apiKeys = {} }: { apiKeys: { [key: string]: APIKeys } } =
 			await chrome.storage.sync.get('apiKeys');
-		console.log(apiKeys)
+
 		setApiKeys(apiKeys);
 		initialFetchDone.current = true;
 	}, []);

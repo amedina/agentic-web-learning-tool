@@ -28,6 +28,7 @@ export default function AgentDashboard() {
 					<SingleProviderAccordion
 						provider={provider}
 						storedData={apiKeys?.[provider.id]}
+						apiKeys={apiKeys}
 					/>
 				))}
 			</div>

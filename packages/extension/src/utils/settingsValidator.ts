@@ -1,26 +1,9 @@
 /**
- * External dependencies
- */
-import type { WebMCPTool } from '@google-awlt/design-system';
-/**
  * Internal dependencies
  */
-import type { APIKeys, LogLevel, ThemeMode } from '../types';
+import type { SettingsType } from '../types';
 import logger from './logger';
 
-type SettingsType = {
-    config: {
-        apiKeys?: Record<string, APIKeys>;
-        extensionSettings?: {
-            theme?: ThemeMode;
-            logLevel?: LogLevel;
-        };
-        userWebMCPTools?: WebMCPTool[];
-    };
-    version: string;
-    extensionVersion: string;
-    timestamp: number;
-};
 
 function settingsValidator(settings: SettingsType): boolean | SettingsType['config'] {
     const { config } = settings;

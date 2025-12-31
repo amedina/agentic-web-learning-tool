@@ -1,4 +1,8 @@
 /**
+ * External dependencies
+ */
+import type { WebMCPTool } from "@google-awlt/design-system";
+/**
  * Internal dependencies
  */
 import type { LOG_OPTS } from "./utils/constants";
@@ -20,3 +24,17 @@ export type APIKeys = {
     thinkingMode?: boolean;
     status: boolean;
 }
+
+export type SettingsType = {
+    config: {
+        apiKeys?: Record<string, APIKeys>;
+        extensionSettings?: {
+            theme?: ThemeMode;
+            logLevel?: LogLevel;
+        };
+        userWebMCPTools?: WebMCPTool[];
+    };
+    version: string;
+    extensionVersion: string;
+    timestamp: number;
+};

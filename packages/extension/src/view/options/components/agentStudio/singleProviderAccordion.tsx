@@ -20,11 +20,13 @@ import type { APIKeys } from '../../../../types';
 type SingleProviderAccordion = {
 	provider: (typeof INITIAL_PROVIDERS)[0];
 	storedData: APIKeys;
+	apiKeys: Record<string, APIKeys>
 };
 
 export default function SingleProviderAccordion({
 	provider,
 	storedData,
+	apiKeys
 }: SingleProviderAccordion) {
 	const [apiKey, setAPIKey] = useState<string>('');
 	const [thinkingMode, setThinkingMode] = useState<boolean>(false);
@@ -37,6 +39,7 @@ export default function SingleProviderAccordion({
 			setSavedStatus(true);
 			chrome.storage.sync.set({
 				apiKeys: {
+					...apiKeys,
 					[provider]: {
 						apiKey,
 						thinkingMode,
@@ -45,7 +48,7 @@ export default function SingleProviderAccordion({
 				},
 			});
 		},
-		[apiKey, thinkingMode, status]
+		[apiKey, thinkingMode, status, apiKeys]
 	);
 
 	useEffect(() => {
@@ -58,10 +61,13 @@ export default function SingleProviderAccordion({
 	}, [storedData]);
 
 	const shouldSubmitButtonBeDisabled = useMemo(() => {
+		if(!apiKey){
+			return true;
+		}
 		if (
-			apiKey === storedData.apiKey &&
-			thinkingMode === storedData.thinkingMode &&
-			status === storedData.status
+			apiKey === storedData?.apiKey &&
+			thinkingMode === storedData?.thinkingMode &&
+			status === storedData?.status
 		) {
 			return true;
 		}
@@ -73,7 +79,6 @@ export default function SingleProviderAccordion({
 			triggerText={`${provider.id}`}
 			type="single"
 			collapsible
-			value=""
 			onValueChange={() => {
 				if (!hasSaved) {
 					setAPIKey('');

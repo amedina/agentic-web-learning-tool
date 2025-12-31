@@ -15,11 +15,11 @@ import { Button, OptionsPageTabSection } from '@google-awlt/design-system';
 /**
  * Internal dependencies
  */
-import type { SettingsState } from '../../../../types';
+import type { SettingsType } from '../../../../types';
 import { logger, settingsValidator } from '../../../../utils';
 
 type DataManagementSectionProps = {
-	settings: SettingsState;
+	settings: SettingsType;
 	setIsResetModalOpen: Dispatch<SetStateAction<boolean>>;
 };
 
@@ -32,13 +32,20 @@ export default function DataManagementSection({
 
 	const handleExport = useCallback(() => {
 		setIsExporting(true);
+	
+		const now = new Date();
+		const date = now.toISOString().split('T')[0]; // 2025-01-08
+		const hours = String(now.getHours()).padStart(2, '0');
+		const minutes = String(now.getMinutes()).padStart(2, '0');
+		const filename = `AWL-backup-${date}-${hours}-${minutes}.json`;
+	
 		setTimeout(() => {
 			const dataStr =
 				'data:text/json;charset=utf-8,' +
 				encodeURIComponent(JSON.stringify(settings, null, 2));
 			const a = document.createElement('a');
 			a.href = dataStr;
-			a.download = 'config-backup.json';
+			a.download = filename;
 			a.click();
 			setIsExporting(false);
 		}, 600);
@@ -64,9 +71,8 @@ export default function DataManagementSection({
 					(_event.target.result ?? '{}') as string
 				);
 
-				const validationResult =
-					settingsValidator(settings);
-				if(typeof validationResult === 'boolean'){
+				const validationResult = settingsValidator(settings);
+				if (typeof validationResult === 'boolean') {
 					logger(['error'], ['Invalid json file']);
 					return;
 				}
@@ -75,12 +81,21 @@ export default function DataManagementSection({
 				await chrome.storage.sync.clear();
 
 				await chrome.storage.sync.set({
-					extensionSettings: validationResult.extensionSettings,
+					extensionSettings: JSON.stringify(validationResult.extensionSettings),
 				});
-				await chrome.storage.sync.set({ apiKeys: validationResult.apiKeys });
-				await chrome.storage.local.set({ userWebMCPTools: validationResult.userWebMCPTools });
+				await chrome.storage.sync.set({
+					apiKeys: validationResult.apiKeys,
+				});
+				await chrome.storage.local.set({
+					userWebMCPTools: validationResult.userWebMCPTools,
+				});
 
-				logger(['info', 'debug', 'trace'], ['Validation successfull, settings have been imported reloading options page']);
+				logger(
+					['info', 'debug', 'trace'],
+					[
+						'Validation successfull, settings have been imported reloading options page',
+					]
+				);
 
 				setTimeout(() => {
 					window.location.reload();

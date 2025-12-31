@@ -88,3 +88,5 @@ export const DEFAULT_SETTINGS: SettingsState = {
     theme: 'auto',
     logLevel: 'SILENT'
 }
+
+export const EXPORT_JSON_VERSION = '1.0'
