@@ -17,43 +17,78 @@ interface PromptMacrosTabProps {
     userMacros: PromptMacro[];
     builtInMacros?: PromptMacro[];
     onSaveMacros: (macros: PromptMacro[]) => void;
+    onSaveBuiltInState?: (macros: PromptMacro[]) => void;
 }
 
-export function PromptMacrosTab({ userMacros, builtInMacros = [], onSaveMacros }: PromptMacrosTabProps) {
+export function PromptMacrosTab({
+    userMacros,
+    builtInMacros = [],
+    onSaveMacros,
+    onSaveBuiltInState
+}: PromptMacrosTabProps) {
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
     const [editingMacro, setEditingMacro] = useState<PromptMacro | undefined>(undefined);
 
-    const handleSaveMacro = useCallback((macro: PromptMacro) => {
-        let newMacros = [...userMacros];
+    const handleSaveMacro = useCallback(
+        (macro: PromptMacro) => {
+            let newMacros = [...userMacros];
 
-        if (editingMacro) {
-            const index = newMacros.findIndex(m => m.name === editingMacro.name);
-            if (index >= 0) {
-                newMacros[index] = macro;
+            if (editingMacro) {
+                const index = newMacros.findIndex((m) => m.name === editingMacro.name);
+                if (index >= 0) {
+                    newMacros[index] = macro;
+                } else {
+                    newMacros.push(macro);
+                }
             } else {
                 newMacros.push(macro);
             }
-        } else {
-            newMacros.push(macro);
-        }
 
-        onSaveMacros(newMacros);
-        setIsEditDialogOpen(false);
-    }, [editingMacro, userMacros, onSaveMacros]);
+            onSaveMacros(newMacros);
+            setIsEditDialogOpen(false);
+        },
+        [editingMacro, userMacros, onSaveMacros]
+    );
 
-    const handleDeleteMacro = useCallback((macro: PromptMacro) => {
-        const newMacros = userMacros.filter(m => m.name !== macro.name);
-        onSaveMacros(newMacros);
-        setIsEditDialogOpen(false);
-    }, [userMacros, onSaveMacros]);
+    const handleToggleMacro = useCallback(
+        (macro: PromptMacro, enabled: boolean) => {
+            if (macro.isBuiltIn) {
+                if (onSaveBuiltInState) {
+                    const newMacros = builtInMacros.map((m) =>
+                        m.name === macro.name ? { ...m, enabled } : m
+                    );
+                    onSaveBuiltInState(newMacros);
+                }
+            } else {
+                const newMacros = userMacros.map((m) =>
+                    m.name === macro.name ? { ...m, enabled } : m
+                );
+                onSaveMacros(newMacros);
+            }
+        },
+        [onSaveBuiltInState, onSaveMacros, builtInMacros, userMacros]
+    );
 
-    const existingNames = userMacros.map(m => m.name);
+    const handleDeleteMacro = useCallback(
+        (macro: PromptMacro) => {
+            const newMacros = userMacros.filter((m) => m.name !== macro.name);
+            onSaveMacros(newMacros);
+            setIsEditDialogOpen(false);
+        },
+        [userMacros, onSaveMacros]
+    );
+
+    const existingNames = userMacros.map((m) => m.name);
 
     return (
-        <OptionsPageTab title="Prompt Macros" description="Manage your frequent prompt templates and macros.">
+        <OptionsPageTab
+            title="Prompt Macros"
+            description="Manage your frequent prompt templates and macros."
+        >
             <MacroList
                 userMacros={userMacros}
                 builtInMacros={builtInMacros}
+                onToggleMacro={handleToggleMacro}
                 onEditMacro={(macro) => {
                     setEditingMacro(macro);
                     setIsEditDialogOpen(true);

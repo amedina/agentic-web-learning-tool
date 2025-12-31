@@ -3,4 +3,5 @@ export interface PromptMacro {
     instructions: string;
     description?: string;
     isBuiltIn?: boolean;
+    enabled?: boolean;
 }
