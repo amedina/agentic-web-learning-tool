@@ -67,7 +67,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 
 	useEffect(() => {
 		(async () => {
-			if(client){
+			if(client.transport){
 				return;
 			}
 
