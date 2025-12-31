@@ -67,6 +67,10 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 
 	useEffect(() => {
 		(async () => {
+			if(client){
+				return;
+			}
+
 			await client.connect(transport);
 		})();
 
@@ -167,6 +171,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 
 		setSelectedAgent(agent);
 	}, []);
+
 	//Only shows models whose apiKeys have been and have been enabled
 	const modelOptions = useMemo(() => {
 		const availableModelProviders = Object.keys(apiKeys).filter(
@@ -199,6 +204,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 				],
 			};
 		});
+
 		return modelProviders.filter(
 			({ items }) => items[0]?.submenu && items[0]?.submenu.length >= 1
 		);

@@ -33,34 +33,33 @@ const Provider = ({ children }: PropsWithChildren) => {
 	const initialFetchDone = useRef(false);
 
 	const intitialSync = useCallback(async () => {
-		chrome.storage.local.get(
-			['userWebMCPTools', 'builtInWebMCPToolsState'],
-			(result) => {
-				if (
-					result.userWebMCPTools &&
-					Array.isArray(result.userWebMCPTools)
-				) {
-					setUserTools(result.userWebMCPTools as WebMCPTool[]);
-				}
+		const {
+			userWebMCPTools = [],
+			builtInWebMCPToolsState = {},
+		}: {
+			userWebMCPTools: WebMCPTool[];
+			builtInWebMCPToolsState: Record<string, boolean>;
+		} = await chrome.storage.sync.get([
+			'userWebMCPTools',
+			'builtInWebMCPToolsState',
+		]);
 
-				if (result.builtInWebMCPToolsState) {
-					const states = result.builtInWebMCPToolsState as Record<
-						string,
-						boolean
-					>;
-					setBuiltInTools((prev) =>
-						prev.map((t) => ({
-							...t,
-							enabled:
-								states[t.name] !== undefined
-									? states[t.name]
-									: true,
-						}))
-					);
-				}
-				initialFetchDone.current = true;
-			}
-		);
+		if (userWebMCPTools && Array.isArray(userWebMCPTools)) {
+			setUserTools(userWebMCPTools as WebMCPTool[]);
+		}
+
+		if (builtInWebMCPToolsState) {
+			const states = builtInWebMCPToolsState;
+			setBuiltInTools((prev) =>
+				prev.map((t) => ({
+					...t,
+					enabled:
+						states[t.name] !== undefined ? states[t.name] : true,
+				}))
+			);
+		}
+
+		initialFetchDone.current = true;
 	}, []);
 
 	const onLocalStorageChangedListener = useCallback(async () => {
