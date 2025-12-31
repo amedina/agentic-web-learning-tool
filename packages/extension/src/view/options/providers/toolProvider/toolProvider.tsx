@@ -32,10 +32,6 @@ const Provider = ({ children }: PropsWithChildren) => {
 		useState<WebMCPTool[]>(builtInWebMCPTools);
 	const initialFetchDone = useRef(false);
 
-	/**
-	 * Sets current frames for sidebar, detected if the current tab is to be analysed,
-	 * parses data currently in store, set current tab URL.
-	 */
 	const intitialSync = useCallback(async () => {
 		chrome.storage.local.get(
 			['userWebMCPTools', 'builtInWebMCPToolsState'],
