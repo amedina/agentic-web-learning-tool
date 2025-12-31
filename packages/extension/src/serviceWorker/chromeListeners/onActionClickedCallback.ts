@@ -7,6 +7,7 @@ import { configureTabPanel } from "../utils";
 const onActionClickedCallback = (tab: chrome.tabs.Tab) => {
   if (tab?.id) {
     const tabId = tab.id;
+
     // Using callback instead of async/await because we need to handle chrome.runtime.lastError
     // Try to open immediately (synchronously) - panel might already be configured
     chrome.sidePanel.open({ tabId }, () => {
