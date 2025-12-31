@@ -22,35 +22,39 @@ const Items = [
 		component: <AgentStudioTab />,
 	},
 	{
+		title: 'WebMCP Tools',
+		id: 'webmcp-tools',
+		icon: () => <CodeIcon />,
+		component: <WebMCPToolsTab />,
+	},
+	{
 		title: 'Settings',
 		id: 'settings',
 		icon: () => <Settings2 />,
 		component: <SettingsTab />,
 	},
-	{
-		title: 'WebMCP Tools',
-		id: 'webmcp-tools',
-		icon: () => <CodeIcon />,
-		component: <WebMCPToolsTab />,
-	}
 ];
 
 function Options() {
-	const { selectedMenuItem, setSelectedMenuItem } = useSidebar(({ state, actions }) => ({
-		selectedMenuItem: state.selectedMenuItem,
-		setSelectedMenuItem: actions.setSelectedMenuItem,
-	}));
+	const { selectedMenuItem, setSelectedMenuItem } = useSidebar(
+		({ state, actions }) => ({
+			selectedMenuItem: state.selectedMenuItem,
+			setSelectedMenuItem: actions.setSelectedMenuItem,
+		})
+	);
 
 	useEffect(() => {
-		setSelectedMenuItem(Items[0].id);
-	}, []);
+		if (!selectedMenuItem) {
+			setSelectedMenuItem(Items[0].id);
+		}
+	}, [selectedMenuItem]);
 
 	return (
 		<>
 			<div className="fixed top-0 left-0 z-20 md:hidden pl-4 shadow bg-sidebar rounded-md">
 				<SidebarTrigger />
 			</div>
-			<Sidebar items={Items} collapsible='icon' />
+			<Sidebar items={Items} collapsible="icon" />
 			{Items.find((item) => item.id === selectedMenuItem)?.component}
 		</>
 	);
