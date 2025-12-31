@@ -33,10 +33,12 @@ function SettingsProvider({
 		setLogLevel(_logLevel);
 	}, []);
 
-	const clearSettings = useCallback(() => {
+	const clearSettings = useCallback(async () => {
+		await chrome.storage.local.clear();
+		await chrome.storage.session.clear();
+		await chrome.storage.sync.clear();
 		setTheme('auto');
 		setLogLevel('SILENT');
-		chrome.storage.sync.clear();
 	}, []);
 
 	const syncStorageChangedListener = useCallback(() => {

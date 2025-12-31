@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { ShieldCheck } from 'lucide-react';
 import {
 	Accordion,
@@ -18,11 +18,14 @@ import { INITIAL_PROVIDERS } from '../../../../constants';
 import type { APIKeys } from '../../../../types';
 
 type SingleProviderAccordion = {
-    provider: typeof INITIAL_PROVIDERS[0];
-    storedData: APIKeys;
-}
+	provider: (typeof INITIAL_PROVIDERS)[0];
+	storedData: APIKeys;
+};
 
-export default function SingleProviderAccordion({provider, storedData}: SingleProviderAccordion) {
+export default function SingleProviderAccordion({
+	provider,
+	storedData,
+}: SingleProviderAccordion) {
 	const [apiKey, setAPIKey] = useState<string>('');
 	const [thinkingMode, setThinkingMode] = useState<boolean>(false);
 	const [inputType, setInputType] = useState<string>('passoword');
@@ -45,20 +48,32 @@ export default function SingleProviderAccordion({provider, storedData}: SinglePr
 		[apiKey, thinkingMode, status]
 	);
 
-    useEffect(() => {
-        if(storedData?.apiKey){
-            setAPIKey(storedData.apiKey);
-            setThinkingMode(storedData.thinkingMode ?? false);
-            setStatus(storedData.status);
-            setSavedStatus(true);
-        }
-    }, [storedData])
+	useEffect(() => {
+		if (storedData?.apiKey) {
+			setAPIKey(storedData.apiKey);
+			setThinkingMode(storedData.thinkingMode ?? false);
+			setStatus(storedData.status);
+			setSavedStatus(true);
+		}
+	}, [storedData]);
+
+	const shouldSubmitButtonBeDisabled = useMemo(() => {
+		if (
+			apiKey === storedData.apiKey &&
+			thinkingMode === storedData.thinkingMode &&
+			status === storedData.status
+		) {
+			return true;
+		}
+		return false;
+	}, [storedData, apiKey, thinkingMode, status]);
 
 	return (
 		<Accordion
 			triggerText={`${provider.id}`}
 			type="single"
 			collapsible
+			value=""
 			onValueChange={() => {
 				if (!hasSaved) {
 					setAPIKey('');
@@ -127,7 +142,7 @@ export default function SingleProviderAccordion({provider, storedData}: SinglePr
 						onClick={() =>
 							handleSetModelProviderDetails(provider.id)
 						}
-						disabled={!apiKey}
+						disabled={shouldSubmitButtonBeDisabled}
 					>
 						Set
 					</Button>

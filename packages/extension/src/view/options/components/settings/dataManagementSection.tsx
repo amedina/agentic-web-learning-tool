@@ -7,7 +7,6 @@ import {
 	type Dispatch,
 	type SetStateAction,
 	useCallback,
-	type HTMLInputTypeAttribute,
 	type ChangeEvent,
 } from 'react';
 import { Download, Upload, AlertTriangle, Loader2 } from 'lucide-react';
@@ -17,8 +16,7 @@ import { Button, OptionsPageTabSection } from '@google-awlt/design-system';
  * Internal dependencies
  */
 import type { SettingsState } from '../../../../types';
-import { logger } from '@/utils';
-import settingsValidatorAndApplier from '@/utils/settingsValidator';
+import { logger, settingsValidator } from '../../../../utils';
 
 type DataManagementSectionProps = {
 	settings: SettingsState;
@@ -67,7 +65,7 @@ export default function DataManagementSection({
 				);
 
 				const validationResult =
-					settingsValidatorAndApplier(settings);
+					settingsValidator(settings);
 				if(typeof validationResult === 'boolean'){
 					logger(['error'], ['Invalid json file']);
 					return;
