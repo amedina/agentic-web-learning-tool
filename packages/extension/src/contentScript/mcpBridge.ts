@@ -12,6 +12,8 @@ import { CONNECTION_NAMES, MESSAGE_TYPES } from "../utils/constants";
 import logger from "../utils/logger";
 import setLogLevelFromSyncSettings from "../utils/setLogLevelFromSyncSettings";
 
+// Inject it in the content script before everything to get loglevel settings.
+// Using IIFE to prevent content script from breaking due to top level await.
 (async () => await setLogLevelFromSyncSettings())();
 
 let connectionStarted = false;
