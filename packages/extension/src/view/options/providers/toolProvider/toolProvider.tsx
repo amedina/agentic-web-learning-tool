@@ -88,6 +88,7 @@ const Provider = ({ children }: PropsWithChildren) => {
 		chrome.storage.local.onChanged.addListener(
 			onLocalStorageChangedListener
 		);
+
 		return () => {
 			chrome.storage.local.onChanged.removeListener(
 				onLocalStorageChangedListener
