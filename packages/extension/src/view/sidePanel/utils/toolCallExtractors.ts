@@ -66,7 +66,7 @@ export function extractToolCalls(text: string) {
             // Strategy 1: Try to parse the entire block as standard JSON
             try {
                 const parsed = JSON.parse(jsonString);
-                
+
                 // Handle both a single object or an array of objects
                 const items = Array.isArray(parsed) ? parsed : [parsed];
 

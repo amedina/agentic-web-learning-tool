@@ -6,12 +6,13 @@ import {
 	SidebarTrigger,
 	useSidebar,
 } from '@google-awlt/design-system';
-import { CpuIcon, Settings2 } from 'lucide-react';
+import { CpuIcon, CodeIcon, Settings2 } from 'lucide-react';
 import { useEffect } from 'react';
+
 /**
  * Internal dependencies
  */
-import { AgentStudioTab, SettingsTab } from './components';
+import { AgentStudioTab, WebMCPToolsTab, SettingsTab } from './components';
 
 const Items = [
 	{
@@ -26,7 +27,14 @@ const Items = [
 		icon: () => <Settings2 />,
 		component: <SettingsTab />,
 	},
+	{
+		title: 'WebMCP Tools',
+		id: 'webmcp-tools',
+		icon: () => <CodeIcon />,
+		component: <WebMCPToolsTab />,
+	}
 ];
+
 function Options() {
 	const { selectedMenuItem, setSelectedMenuItem } = useSidebar(({ state, actions }) => ({
 		selectedMenuItem: state.selectedMenuItem,
@@ -35,7 +43,7 @@ function Options() {
 
 	useEffect(() => {
 		setSelectedMenuItem(Items[0].id);
-	}, []);	
+	}, []);
 
 	return (
 		<>

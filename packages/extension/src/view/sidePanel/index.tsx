@@ -12,11 +12,11 @@ import { ModelProvider } from './providers';
 import { SettingsProvider } from '../stateProviders';
 
 createRoot(document.getElementById('root')!).render(
-	<ModelProvider>
-		<SettingsProvider view="sidepanel">
-			<StrictMode>
+	<StrictMode>
+		<ModelProvider>
+			<SettingsProvider view="sidepanel">
 				<SidePanel />
-			</StrictMode>
-		</SettingsProvider>
-	</ModelProvider>
+			</SettingsProvider>
+		</ModelProvider>
+	</StrictMode>
 );

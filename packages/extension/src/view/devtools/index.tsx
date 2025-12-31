@@ -11,9 +11,9 @@ import DevTools from './devtools';
 import { SettingsProvider } from '../stateProviders';
 
 createRoot(document.getElementById('root')!).render(
-	<SettingsProvider view='devtools'>
-		<StrictMode>
+	<StrictMode>
+		<SettingsProvider view="devtools">
 			<DevTools />
-		</StrictMode>
-	</SettingsProvider>
+		</SettingsProvider>
+	</StrictMode>
 );

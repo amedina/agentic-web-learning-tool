@@ -76,6 +76,8 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 	}, [client]);
 
 	useEffect(() => {
+		// Synchronization Mechanism: This block listens for a "Tool Changed" event from the 
+		// Service Worker, and client.listTools() performs the actual "Refresh" to get the new data.
 		transport.onmessage = async (message: JSONRPCMessage) => {
 			if ('method' in message && message.method === 'get/Tools') {
 				await client.listTools();
@@ -252,7 +254,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 					<ComposerPrimitive.Root className="relative flex flex-col gap-2 rounded-md border border-zinc-200 bg-background shadow-xl shadow-subtle-zinc/20 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all overflow-hidden">
 						<ComposerPrimitive.Input
 							placeholder="Ask anything..."
-							className="w-full max-h-40 min-h-[56px] resize-none bg-transparent px-4 py-4 text-sm outline-none placeholder:text-zinc-400 text-zinc-800"
+							className="w-full max-h-40 min-h-[56px] resize-none bg-transparent px-4 py-4 text-sm outline-none placeholder:exclusive-plum text-primary"
 						/>
 						<div className="flex items-center justify-between gap-2 px-3">
 							<div className="flex items-center">

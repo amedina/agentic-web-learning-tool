@@ -14,15 +14,15 @@ import { SettingsProvider } from '../stateProviders';
 import { ModelProvider } from './providers';
 
 createRoot(document.getElementById('root')!).render(
-	<div className="w-screen h-screen">
-		<ModelProvider>
-		<SettingsProvider view='options'>
-			<SidebarProvider>
-				<StrictMode>
-					<Options />
-				</StrictMode>
-			</SidebarProvider>
-		</SettingsProvider>
-		</ModelProvider>
-	</div>
+	<StrictMode>
+		<div className="w-screen h-screen">
+			<ModelProvider>
+				<SettingsProvider view="options">
+					<SidebarProvider>
+						<Options />
+					</SidebarProvider>
+				</SettingsProvider>
+			</ModelProvider>
+		</div>
+	</StrictMode>
 );
