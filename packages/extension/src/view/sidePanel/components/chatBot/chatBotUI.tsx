@@ -8,7 +8,7 @@ import {
 	type AssistantRuntime,
 } from '@assistant-ui/react';
 import { useMcpClient } from '@mcp-b/mcp-react-hooks';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { JSONRPCMessage } from '@modelcontextprotocol/sdk/types.js';
 import {
 	Paperclip,
@@ -23,6 +23,7 @@ import {
 	Dropdown,
 	getToolNameWithoutPrefix,
 	OwlIcon,
+	type PromptMacro,
 } from '@google-awlt/design-system';
 import type { Tool as McpTool } from '@modelcontextprotocol/sdk/types.js';
 
@@ -35,6 +36,7 @@ import AssistantMessage from './assistantMessage';
 import EditComposer from './editComposer';
 import UserMessage from './userMessage';
 import type { AgentType } from '../../../../types';
+import { BUILT_IN_MACROS } from '../../../../constants';
 
 type SingleGroupTool = {
 	group: string;
@@ -56,6 +58,57 @@ type ChatBotUIProps = {
 
 const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 	const { client, tools } = useMcpClient();
+	const [allMacros, setAllMacros] = useState<PromptMacro[]>([]);
+
+	useEffect(() => {
+		chrome.storage.local.get(['promptMacros', 'builtInPromptMacros'], (result) => {
+			const userMacros = (result.promptMacros as PromptMacro[]) || [];
+			const storedBuiltIns = (result.builtInPromptMacros as PromptMacro[]) || [];
+
+			const mergedBuiltIns = BUILT_IN_MACROS.map((m) => {
+				const found = storedBuiltIns.find((s) => s.name === m.name);
+				return { ...m, enabled: found ? found.enabled : true };
+			});
+
+			setAllMacros([...userMacros, ...mergedBuiltIns]);
+		});
+	}, []);
+
+	const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+		if (e.key === 'Tab') {
+			const target = e.target as HTMLTextAreaElement;
+			const value = target.value;
+			const selectionStart = target.selectionStart;
+
+			const textBeforeCursor = value.slice(0, selectionStart);
+			const match = textBeforeCursor.match(/\/([\w-]+)$/);
+
+			if (match) {
+				const macroName = match[1];
+				const macro = allMacros.find((m) => m.name === macroName && m.enabled);
+
+				if (macro) {
+					e.preventDefault();
+
+					const expansion = macro.instructions;
+					const newValue =
+						value.slice(0, selectionStart - match[0].length) +
+						expansion +
+						value.slice(selectionStart);
+
+					target.value = newValue;
+
+					// Trigger React change
+					const tracker = (target as any)._valueTracker;
+					if (tracker) {
+						tracker.setValue(newValue);
+					}
+					const event = new Event('input', { bubbles: true });
+					target.dispatchEvent(event);
+				}
+			}
+		}
+	};
 	const {
 		agents = [],
 		setSelectedAgent,
@@ -200,6 +253,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 						<ComposerPrimitive.Input
 							placeholder="Ask anything..."
 							className="w-full max-h-40 min-h-[56px] resize-none bg-transparent px-4 py-4 text-sm outline-none placeholder:exclusive-plum text-primary"
+							onKeyDown={handleKeyDown}
 						/>
 						<div className="flex items-center justify-between gap-2 px-3">
 							<div className="flex items-center">

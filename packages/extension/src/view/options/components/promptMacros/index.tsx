@@ -3,39 +3,7 @@
  */
 import { useState, useEffect, useCallback } from 'react';
 import { PromptMacrosTab as PromptMacrosUI, type PromptMacro } from '@google-awlt/design-system';
-
-const BUILT_IN_MACROS: PromptMacro[] = [
-    {
-        name: 'fix-bugs',
-        description: 'Analyze code for bugs and propose fixes.',
-        instructions:
-            'Analyze the following code for bugs or potential issues and provide a fixed version:\n\n$ARGUMENTS',
-        isBuiltIn: true,
-        enabled: true
-    },
-    {
-        name: 'explain-code',
-        description: 'Explain code step-by-step.',
-        instructions: 'Explain how the following code works step-by-step:\n\n$ARGUMENTS',
-        isBuiltIn: true,
-        enabled: true
-    },
-    {
-        name: 'optimize',
-        description: 'Optimize code for performance/readability.',
-        instructions: 'Optimize the following code for performance and readability:\n\n$ARGUMENTS',
-        isBuiltIn: true,
-        enabled: true
-    },
-    {
-        name: 'generate-tests',
-        description: 'Write unit tests for code.',
-        instructions:
-            'Write comprehensive unit tests for the following code using preferred testing framework:\n\n$ARGUMENTS',
-        isBuiltIn: true,
-        enabled: true
-    }
-];
+import { BUILT_IN_MACROS } from '../../../../constants';
 
 export function PromptMacrosTab() {
     const [userMacros, setUserMacros] = useState<PromptMacro[]>([]);
