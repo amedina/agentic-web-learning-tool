@@ -10,7 +10,6 @@ const onActionClickedCallback = (tab: chrome.tabs.Tab) => {
 
     // Try to open immediately (synchronously) - panel might already be configured
     chrome.sidePanel.open({ tabId }, () => {
-      console.log(chrome.runtime.lastError)
       if (chrome.runtime.lastError) {
         logger(['debug'], ['Panel not configured yet, configuring now:', chrome.runtime.lastError.message]);
 
