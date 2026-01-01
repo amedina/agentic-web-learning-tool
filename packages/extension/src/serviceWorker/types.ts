@@ -39,14 +39,6 @@ export interface TabData {
   port?: chrome.runtime.Port;
   isClosed: boolean;
 }
-export interface MCPServerConfig {
-  transport: 'http' | 'sse';
-  url: string;
-  authToken?: string;
-}
-export interface MCPConfig {
-  mcpServers: Record<string, MCPServerConfig>;
-}
 
 export type ContentScriptMessage =
   | { type: typeof MESSAGE_TYPES.REGISTER; tools: Tool[] }

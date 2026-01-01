@@ -7,8 +7,8 @@ export type LogLevel = typeof LOG_OPTS[number]['id'];
 export type ThemeMode = 'light' | 'dark' | 'auto';
 
 export interface SettingsState {
-    logLevel: LogLevel;
-    theme: ThemeMode;
+	logLevel: LogLevel;
+	theme: ThemeMode;
 }
 export type AgentType = {
 	id: string;

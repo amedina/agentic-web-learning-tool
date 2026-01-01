@@ -9,7 +9,10 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 import { Client } from '@modelcontextprotocol/sdk/client';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
-
+import type {
+	MCPConfig,
+	MCPServerConfig
+} from '@google-awlt/common';
 /**
  * Internal dependencies
  */
@@ -17,8 +20,6 @@ import { RequestManager, sanitizeToolName, isDomainAllowed } from './utils';
 import { MESSAGE_TYPES, CONNECTION_NAMES } from '../utils/constants';
 import type {
 	ContentScriptMessage,
-	MCPConfig,
-	MCPServerConfig,
 	TabData,
 } from './types';
 import logger from '../utils/logger';
@@ -83,7 +84,7 @@ class McpHub {
 				}
 			);
 
-			client.connect(transport);
+			await client.connect(transport);
 			const toolsList = await client.listTools();
 			this.clientList.set(serverName, {
 				client,
@@ -95,7 +96,7 @@ class McpHub {
 				serverName,
 				'',
 				null,
-				toolsList as unknown as Tool[],
+				toolsList.tools as unknown as Tool[],
 				false,
 				true
 			);
@@ -144,6 +145,9 @@ class McpHub {
 			async ({ mcpServers }: MCPConfig) => {
 				await Promise.all(
 					Object.keys(mcpServers).map(async (serverName) => {
+						if (!mcpServers[serverName].enabled) {
+							return Promise.resolve();
+						}
 						await this.addNewServer(
 							mcpServers[serverName],
 							serverName

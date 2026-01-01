@@ -6,13 +6,14 @@ import {
 	SidebarTrigger,
 	useSidebar,
 } from '@google-awlt/design-system';
-import { CpuIcon, CodeIcon, Settings2 } from 'lucide-react';
+import { CpuIcon, CodeIcon, Settings2, Server } from 'lucide-react';
 import { useEffect } from 'react';
 
 /**
  * Internal dependencies
  */
 import { AgentStudioTab, WebMCPToolsTab, SettingsTab } from './components';
+import MCPServersTab from './components/mcpServers';
 
 const Items = [
 	{
@@ -20,6 +21,12 @@ const Items = [
 		id: 'agent-studio',
 		icon: () => <CpuIcon />,
 		component: <AgentStudioTab />,
+	},
+	{
+		title: 'MCP Server',
+		id: 'mcp-server',
+		icon: () => <Server />,
+		component: <MCPServersTab />,
 	},
 	{
 		title: 'WebMCP Tools',
