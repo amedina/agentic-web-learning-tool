@@ -3,6 +3,7 @@ export interface MCPServerConfig {
     url: string;
     authToken?: string;
     enabled: boolean;
+    name: string
 }
 export interface MCPConfig {
     mcpServers: Record<string, MCPServerConfig>;

@@ -24,7 +24,7 @@ interface MCPServerDialogProps {
 		config: MCPServerConfig,
 		serverName: string
 	) => { isValid: boolean; errors: string[] };
-	serverName: string;
+	serverId: string;
 }
 
 const initialState: MCPServerConfig = {
@@ -32,42 +32,41 @@ const initialState: MCPServerConfig = {
 	url: '',
 	authToken: '',
 	enabled: true,
+	name: '',
 };
 
 export function MCPServerDialog({
 	open,
 	onOpenChange,
 	server,
-	serverName,
+	serverId,
 	onSave,
 	onDelete,
 	validator,
 }: MCPServerDialogProps) {
 	const [config, setConfig] = useState(initialState);
-	const [_serverName, setServerName] = useState('');
 	const [errors, setErrors] = useState<string[]>([]);
 	const [isValidConfig, setIsValidConfig] = useState<boolean>(false);
-
+	console.log(isValidConfig, JSON.stringify(config), JSON.stringify(server));
 	useEffect(() => {
 		if (open) {
-			if (serverName) {
+			if (serverId) {
 				setConfig(server);
-				setServerName(serverName);
 			}
 		}
-	}, [open, server, serverName]);
+	}, [open, server]);
 
 	const handleValidate = useCallback(() => {
-		const { errors, isValid } = validator(config, _serverName);
+		const { errors, isValid } = validator(config, config.name);
 		setErrors(errors);
 		setIsValidConfig(isValid);
-	}, [config, _serverName]);
+	}, [config]);
 
 	const handleSave = useCallback(() => {
-		onSave(config, _serverName);
+		onSave(config, !server?.name ? crypto.randomUUID() : serverId);
 		onOpenChange(false);
-	}, [config, _serverName]);
-	console.log(errors);
+	}, [config, server]);
+
 	return (
 		<Dialog.Root open={open} onOpenChange={onOpenChange}>
 			<Dialog.Portal>
@@ -80,7 +79,7 @@ export function MCPServerDialog({
 					<div className="flex items-center justify-between px-6 py-4 bg-white">
 						<div className="flex items-center gap-3">
 							<Dialog.Title className="text-lg font-bold">
-								{serverName
+								{serverId
 									? 'Edit MCP Server Config'
 									: 'New MCP Server'}
 							</Dialog.Title>
@@ -98,9 +97,12 @@ export function MCPServerDialog({
 								<div className="relative">
 									<Input
 										type="text"
-										value={_serverName}
+										value={config.name}
 										onChange={(e) =>
-											setServerName(e.target.value)
+											setConfig((prev) => ({
+												...prev,
+												name: e.target.value,
+											}))
 										}
 										className="bg-transparent border-darth-vader text-accent-foreground transition-all w-full pl-3 pr-9 py-2 rounded-md text-sm font-mono"
 										placeholder="www.github.com"
@@ -164,7 +166,7 @@ export function MCPServerDialog({
 									<Button
 										variant="ghost"
 										className="text-red-500 hover:text-red-700 hover:bg-red-50 gap-2"
-										onClick={() => onDelete(serverName)}
+										onClick={() => onDelete(serverId)}
 									>
 										<TrashIcon size={16} /> Delete
 									</Button>
@@ -184,7 +186,11 @@ export function MCPServerDialog({
 								<Button
 									className={`${isValidConfig ? 'bg-blue-600 hover:bg-blue-700' : 'bg-blue-600 hover:bg-blue-700'} ${JSON.stringify(config) === JSON.stringify(server) ? 'opacity-50 cursor-not-allowed' : ''} gap-2`}
 									onClick={handleSave}
-									disabled={!isValidConfig}
+									disabled={
+										!isValidConfig &&
+										JSON.stringify(config) ===
+											JSON.stringify(server)
+									}
 								>
 									<SaveIcon size={16} /> Add Server
 								</Button>

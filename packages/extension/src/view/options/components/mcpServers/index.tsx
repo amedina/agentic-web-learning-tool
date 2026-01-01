@@ -53,7 +53,6 @@ export default function MCPServersTab() {
 						<MCPServerCard
 							server={serverConfigs[server]}
 							key={server}
-							serverName={server}
 							tools={toolList[server] ?? []}
 							onEdit={() => {
 								setIsDialogOpen(true);
@@ -69,7 +68,7 @@ export default function MCPServersTab() {
 					onSave={addServer}
 					validator={validator}
 					onOpenChange={(value) => setIsDialogOpen(value)}
-					serverName={selectedServer}
+					serverId={selectedServer}
 					server={serverConfigs?.[selectedServer]}
 				/>
 			</OptionsPageTabSection>

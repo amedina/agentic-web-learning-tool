@@ -8,7 +8,6 @@ import type { MCPServerConfig } from '@google-awlt/common';
 
 interface MCPServerCardProps {
 	server: MCPServerConfig;
-	serverName: string;
 	tools: Tool[];
 	onToggle: (enabled: boolean) => void;
 	onEdit: () => void;
@@ -17,7 +16,6 @@ interface MCPServerCardProps {
 export function MCPServerCard({
 	server,
 	onToggle,
-	serverName,
 	tools,
 	onEdit,
 }: MCPServerCardProps) {
@@ -26,7 +24,7 @@ export function MCPServerCard({
 			<div className="flex justify-between items-start mb-3">
 				<div>
 					<h3 className="text-lg font-bold text-gray-800">
-						{serverName}
+						{server.name}
 					</h3>
 				</div>
 				<ToggleSwitch
