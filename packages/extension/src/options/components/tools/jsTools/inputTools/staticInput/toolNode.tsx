@@ -70,6 +70,20 @@ const ToolNode = () => {
 					</p>
 				</div>
 				<Handle
+					type="target"
+					position={Position.Left}
+					style={{
+						background: 'none',
+						border: 'none',
+						top: '50%',
+						left: '-10px',
+					}}
+				>
+					<div className="flex items-center gap-2 w-fit absolute -translate-x-[30%] translate-y-[-50%] top-[2.5px]">
+						<div className="min-w-3 h-3 bg-blue-500 rounded-full shadow-sm"></div>
+					</div>
+				</Handle>
+				<Handle
 					type="source"
 					position={Position.Right}
 					style={{

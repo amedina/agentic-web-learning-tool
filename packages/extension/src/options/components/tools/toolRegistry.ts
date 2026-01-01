@@ -160,4 +160,18 @@ export const TOOL_CONFIGS: Record<
 			selector: '',
 		},
 	},
+	start: {
+		label: 'Start',
+		config: {
+			title: 'Start',
+			description: 'Workflow entry point.',
+		},
+	},
+	end: {
+		label: 'End',
+		config: {
+			title: 'End',
+			description: 'Workflow exit point.',
+		},
+	},
 };

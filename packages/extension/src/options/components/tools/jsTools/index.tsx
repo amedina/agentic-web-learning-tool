@@ -60,4 +60,5 @@ const JSTools = ({ collapsed }: JSToolsProps) => {
 		</>
 	);
 };
+
 export default JSTools;

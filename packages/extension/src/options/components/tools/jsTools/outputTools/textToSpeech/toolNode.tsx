@@ -55,6 +55,20 @@ const ToolNode = () => {
 						<div className="min-w-3 h-3 bg-blue-500 rounded-full shadow-sm"></div>
 					</div>
 				</Handle>
+				<Handle
+					type="source"
+					position={Position.Right}
+					style={{
+						background: 'none',
+						border: 'none',
+						top: '50%',
+						right: '-10px',
+					}}
+				>
+					<div className="flex items-center gap-2 w-fit absolute translate-y-[-50%] -translate-x-[10%] top-[2.5px]">
+						<div className="min-w-3 h-3 bg-green-600 rounded-full shadow-sm"></div>
+					</div>
+				</Handle>
 			</div>
 		</ToolNodeContainer>
 	);

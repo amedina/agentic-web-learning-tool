@@ -1,10 +1,8 @@
-import {
-	ChevronsLeft,
-	ChevronsRight,
-} from 'lucide-react';
+import { ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { ToolSidebarProvider } from './ToolSidebarContext';
 import BuiltInAIToolsBar from './builtinAITools';
 import JSToolsBar from './jsTools';
+import FlowToolsBar from './flowTools';
 
 interface ToolsBarProps {
 	collapsed?: boolean;
@@ -63,6 +61,7 @@ const ToolsBar = ({ collapsed = false, onToggle }: ToolsBarProps) => {
 						collapsed ? 'p-2' : 'p-4'
 					}`}
 				>
+					<FlowToolsBar collapsed={collapsed} />
 					<BuiltInAIToolsBar collapsed={collapsed} />
 					<JSToolsBar collapsed={collapsed} />
 				</div>

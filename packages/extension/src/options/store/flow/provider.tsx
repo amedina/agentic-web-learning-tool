@@ -34,6 +34,8 @@ import {
 	DomReplacementNode,
 	FileCreatorNode,
 	TooltipNode,
+	StartNode,
+	EndNode,
 } from '../../components';
 
 const FlowProvider = ({ children }: PropsWithChildren) => {
@@ -58,6 +60,8 @@ const FlowProvider = ({ children }: PropsWithChildren) => {
 			domReplacement: DomReplacementNode,
 			fileCreator: FileCreatorNode,
 			tooltip: TooltipNode,
+			start: StartNode,
+			end: EndNode,
 		}),
 		[]
 	);
