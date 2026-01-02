@@ -63,6 +63,7 @@ export default function MCPServersTab() {
 					))}
 				</div>
 				<MCPServerDialog
+					toolList={toolList[selectedServer]}
 					open={isDialogOpen}
 					onDelete={selectedServer ? removeConfig : undefined}
 					onSave={addServer}

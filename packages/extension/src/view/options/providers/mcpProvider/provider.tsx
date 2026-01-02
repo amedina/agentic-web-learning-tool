@@ -68,11 +68,12 @@ const Provider = ({ children }: PropsWithChildren) => {
 
 	const handleToggle = useCallback((serverName: string, value: boolean) => {
 		setServerConfigs((prev) => {
-			prev[serverName] = {
-				...prev[serverName],
+			const newValue = structuredClone(prev);
+			newValue[serverName] = {
+				...newValue[serverName],
 				enabled: value,
 			};
-			return prev;
+			return newValue;
 		});
 	}, []);
 
@@ -83,7 +84,7 @@ const Provider = ({ children }: PropsWithChildren) => {
 				[serverName]: config,
 			}));
 
-			createClientAndListTools(config, serverName);
+			await createClientAndListTools(config, serverName);
 		},
 		[createClientAndListTools]
 	);

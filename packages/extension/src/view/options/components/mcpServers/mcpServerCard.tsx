@@ -23,14 +23,14 @@ export function MCPServerCard({
 		<div className="flex flex-col p-5 bg-[var(--surface-color)] rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
 			<div className="flex justify-between items-start mb-3">
 				<div>
-					<h3 className="text-lg font-bold text-gray-800">
+					<h3 className="text-lg font-bold text-primary">
 						{server.name}
 					</h3>
 				</div>
 				<ToggleSwitch
 					checked={server.enabled}
 					onCheckedChange={onToggle}
-					className="data-[state=checked]:bg-gray-900"
+					className="data-[state=checked]:bg-green-400"
 				/>
 			</div>
 			<div className="flex justify-between items-center mt-auto pt-3 border-t border-gray-200">
