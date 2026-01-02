@@ -1,3 +1,4 @@
+
 /**
  * Hash function to create consistent, shorter identifiers for tool names
  * that exceed the 64 character limit.

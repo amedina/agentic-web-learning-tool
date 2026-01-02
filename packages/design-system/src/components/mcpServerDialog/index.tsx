@@ -120,7 +120,7 @@ export function MCPServerDialog({
 							</Tabs>
 						</div>
 
-						<div className="p-6 border-t border-gray-200 bg-background flex-none flex items-center justify-between gap-4">
+						<div className="p-6 max-md:flex-col max-md:items-start bg-background flex-none flex items-center justify-between gap-4">
 							<div className="flex-1">
 								{server && onDelete && (
 									<Button

@@ -12,6 +12,7 @@ import {
 } from "ai";
 import { type LanguageModelV2 } from '@ai-sdk/provider';
 import type { AssistantRuntime } from "@assistant-ui/react";
+import { getToolNameWithoutPrefix } from "@google-awlt/design-system";
 /**
  * Internal dependencies
  */
@@ -99,12 +100,15 @@ export class GeminiNanoChatTransport implements ChatTransport<UIMessage> {
 
         const { tools } = this.runtime.thread.getModelContext();
 
-        this.formattedTools = Object.entries(tools ?? []).map(([key, value]) => [key, {
-            description: value.description,
-            execute: value.execute,
-            name: key,
-            type: "function"
-        }]);
+        this.formattedTools = Object.entries(tools ?? []).map(([key, value]) => {
+            const toolName = getToolNameWithoutPrefix(key);
+            return [key, {
+                description: value.description,
+                execute: value.execute,
+                name: toolName,
+                type: "function"
+            }]
+        });
 
         return createUIMessageStream({
             execute: async ({ writer }) => {

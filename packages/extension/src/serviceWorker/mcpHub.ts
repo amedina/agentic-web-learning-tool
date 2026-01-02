@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { z } from 'zod';
+import { safeParseAsync, z } from 'zod';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import {
 	type CallToolResult,
@@ -269,7 +269,10 @@ class McpHub {
 			const config = {
 				title: tool.title,
 				description: tool.description,
-				inputSchema: tool.inputSchema as any, // Cast required due to SDK constraints vs dynamic schema
+				inputSchema: {
+					_zod: z,
+					...tool.inputSchema
+				} as any, // Cast required due to SDK constraints vs dynamic schema
 				annotations: tool.annotations,
 			};
 			const prefixedToolName = `${serverName}_mcp_${tool.name}`;
@@ -518,7 +521,8 @@ class McpHub {
 					isError: true,
 				};
 			}
-
+			console.log(serverName, toolName)
+			console.log(args)
 			const response = await connector.client.callTool({
 				name: toolName,
 				arguments: args ?? {},
@@ -560,7 +564,7 @@ class McpHub {
 					isError: true,
 				};
 			}
-
+			console.log(domain)
 			// Forward request to content script using RequestManager
 			const response = await this.requestManager.create(port, {
 				type: MESSAGE_TYPES.EXECUTE,

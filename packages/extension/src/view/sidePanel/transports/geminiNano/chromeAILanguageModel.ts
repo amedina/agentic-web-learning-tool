@@ -2,7 +2,7 @@
  * External dependencies
  */
 import type { AssistantRuntime } from "@assistant-ui/react";
-
+import { getToolNameWithoutPrefix } from "@google-awlt/design-system";
 /**
  * Internal dependencies
  */
@@ -111,13 +111,16 @@ class ChromeAILanguageModel {
         const { tools } = this.runtime.thread.getModelContext();
 
         // Transform tools into OpenAI-like JSON schema for the system prompt
-        this.formattedTools = Object.entries(tools ?? []).map(([key, value]) => [key, {
-            name: key,
-            description: value.description,
-            inputSchema: value.parameters,
-            execute: value.execute,
-            type: "function"
-        }]);
+        this.formattedTools = Object.entries(tools ?? []).map(([key, value]) => {
+            const toolName = getToolNameWithoutPrefix(key);
+            return [key, {
+                name: toolName,
+                description: value.description,
+                inputSchema: value.parameters,
+                execute: value.execute,
+                type: "function"
+            }]
+        });
 
         // Create session if it doesn't exist
         // Note: In a real app, you might want to manage session lifecycle more aggressively (destroying old ones)

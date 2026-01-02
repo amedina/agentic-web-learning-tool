@@ -5,11 +5,11 @@ import { tool, type AssistantRuntime } from '@assistant-ui/react';
 import type { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import type { Tool as McpTool, CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { useEffect, useMemo } from 'react';
-
+import { getToolNameWithoutPrefix } from '@google-awlt/design-system';
 /**
  * Internal dependencies
  */
-import { cleanArguments, formatToolResult, getToolNameForUI, mcpToolToJSONSchema, validateToolPreferences } from '../utils';
+import { cleanArguments, formatToolResult, mcpToolToJSONSchema, validateToolPreferences } from '../utils';
 import type { ToolExecutionArgs } from '../types';
 import logger from '../../../utils/logger';
 
@@ -62,14 +62,9 @@ export function useAssistantMCP(
 
     // Transform MCP tools into Assistant UI tools
     const assistantTools = filteredTools.map((mcpT) => {
-      // Generate a clean name for the UI (handles length limits & hashing if needed)
-      const uiToolName = mcpT.name === 'dummyTool' ? mcpT.name : getToolNameForUI(mcpT.name);
-
-      // Extract a human-readable name for logging (removes "tab123_" prefix)
-      const match = mcpT.name.match(/^tab\d+_(.+)$/);
-      const logName = match ? match[1] : mcpT.name;
+      const cleanToolName = getToolNameWithoutPrefix(mcpT.name)
       return {
-        name: uiToolName,
+        name: cleanToolName,
         // The Assistant UI 'tool' definition
         assistantTool: tool({
           type: 'frontend',
@@ -78,7 +73,7 @@ export function useAssistantMCP(
           execute: async (args, { abortSignal: signal }) => {
             try {
               const cleanedArgs = cleanArguments(args as ToolExecutionArgs);
-
+              console.log(cleanedArgs)
               // Execute against the MCP Client using the *Original* name
               const toolResult = await client.callTool(
                 {
@@ -91,7 +86,7 @@ export function useAssistantMCP(
 
               return formatToolResult(toolResult.content as CallToolResult['content']);
             } catch (error) {
-              logger(['error'], [`[useAssistantMCP] Tool execution failed for '${logName}': ${error}`]);
+              logger(['error'], [`[useAssistantMCP] Tool execution failed for '${cleanToolName}': ${error}`]);
             }
           },
         }),
