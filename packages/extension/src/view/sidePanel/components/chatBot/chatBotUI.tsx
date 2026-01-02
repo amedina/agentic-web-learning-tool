@@ -77,7 +77,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 	}, [client]);
 
 	useEffect(() => {
-		// Synchronization Mechanism: This block listens for a "Tool Changed" event from the 
+		// Synchronization Mechanism: This block listens for a "Tool Changed" event from the
 		// Service Worker, and client.listTools() performs the actual "Refresh" to get the new data.
 		transport.onmessage = async (message: JSONRPCMessage) => {
 			if ('method' in message && message.method === 'get/Tools') {
@@ -122,7 +122,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 				}
 				return acc;
 			} else {
-				if (acc['other']) {
+				if (acc['others']) {
 					acc['others'].items.push(tool);
 				} else {
 					acc['others'] = {

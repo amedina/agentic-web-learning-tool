@@ -50,7 +50,7 @@ export function MCPServerDialog({
 	const [config, setConfig] = useState(initialState);
 	const [errors, setErrors] = useState<string[]>([]);
 	const [isValidConfig, setIsValidConfig] = useState<boolean>(false);
-	console.log(isValidConfig, JSON.stringify(config), JSON.stringify(server));
+
 	useEffect(() => {
 		if (open) {
 			if (serverId) {

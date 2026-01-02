@@ -31,7 +31,7 @@ const Provider = ({ children }: PropsWithChildren) => {
 
 	const createClientAndListTools = useCallback(
 		async (config: MCPServerConfig, serverName: string) => {
-			if (!config.enabled) {
+			if (!config.enabled || toolList[serverName]?.length > 0) {
 				return;
 			}
 
@@ -63,7 +63,7 @@ const Provider = ({ children }: PropsWithChildren) => {
 				[serverName]: toolsList.tools,
 			}));
 		},
-		[]
+		[toolList]
 	);
 
 	const handleToggle = useCallback((serverName: string, value: boolean) => {
@@ -97,7 +97,14 @@ const Provider = ({ children }: PropsWithChildren) => {
 		chrome.storage.local.set({
 			mcpServers: serverConfigs,
 		});
-	}, [serverConfigs]);
+
+		Object.keys(serverConfigs).map(async (serverName) => {
+			await createClientAndListTools(
+				serverConfigs[serverName],
+				serverName
+			);
+		});
+	}, [serverConfigs, createClientAndListTools]);
 
 	const initialSync = useCallback(() => {
 		chrome.storage.local.get(

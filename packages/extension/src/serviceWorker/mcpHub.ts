@@ -36,6 +36,7 @@ class McpHub {
 			client: Client;
 			transport: StreamableHTTPClientTransport;
 			connected: boolean;
+			toolsFetched: boolean;
 		}
 	>();
 
@@ -59,6 +60,12 @@ class McpHub {
 
 	async addNewServer(serverConfig: MCPServerConfig, serverName: string) {
 		try {
+			const storedConfig = this.clientList.get(serverName);
+
+			if (storedConfig?.toolsFetched) {
+				return;
+			}
+
 			const requestInit: RequestInit = {};
 
 			if (serverConfig.authToken) {
@@ -90,6 +97,7 @@ class McpHub {
 				client,
 				transport,
 				connected: true,
+				toolsFetched: true
 			});
 
 			this.registerOrUpdateTools(

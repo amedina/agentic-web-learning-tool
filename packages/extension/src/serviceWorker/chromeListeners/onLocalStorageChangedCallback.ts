@@ -1,8 +1,11 @@
 /**
+ * External dependencies
+ */
+import type { MCPConfig } from "@google-awlt/common";
+/**
  * Internal dependencies
  */
 import type McpHub from "../mcpHub";
-import type { MCPConfig } from "../types";
 
 
 const onLocalStorageChangedCallback = (mcpHub: McpHub) => {
@@ -11,6 +14,9 @@ const onLocalStorageChangedCallback = (mcpHub: McpHub) => {
         async ({ mcpServers }: MCPConfig) => {
             await Promise.all(
                 Object.keys(mcpServers).map(async (serverName) => {
+                    if (!mcpServers[serverName].enabled) {
+                        return
+                    }
                     await mcpHub.addNewServer(
                         mcpServers[serverName],
                         serverName
