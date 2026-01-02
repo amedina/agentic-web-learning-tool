@@ -44,6 +44,7 @@ export interface FlowProps<
 		onStop: () => void;
 		onDrop: (event: React.DragEvent) => void;
 		onLoadSaved: () => void;
+		onRefreshTabs: () => void;
 	};
 }
 
@@ -80,7 +81,10 @@ const Flow = <NodeType extends Node, EdgeType extends Edge>({
 
 	return (
 		<div className="h-full flex-1 flex flex-col rounded bg-gray-100 relative min-h-[500px]">
-			<div className="h-15 bg-gray-200 flex items-center justify-between px-2 m-4 mb-0 border-b border-slate-300 rounded p-2">
+			<div
+				className="h-15 bg-gray-200 flex items-center justify-between px-2 m-4 mb-0 border-b border-slate-300 rounded p-2"
+				onMouseEnter={actions.onRefreshTabs}
+			>
 				<div className="flex items-center gap-2">
 					<WorkflowDropdown
 						onNew={actions.onNew}
@@ -111,7 +115,9 @@ const Flow = <NodeType extends Node, EdgeType extends Edge>({
 						onChange={(e) =>
 							setSelectedTabId(Number(e.target.value))
 						}
-						className="text-sm bg-transparent border-none focus:ring-0 text-slate-700 font-medium max-w-[200px]"
+						onFocus={actions.onRefreshTabs}
+						onMouseEnter={actions.onRefreshTabs}
+						className="text-sm bg-transparent border-none focus:ring-0 text-slate-700 font-medium w-[200px] truncate"
 					>
 						<option value="" disabled>
 							Select a tab

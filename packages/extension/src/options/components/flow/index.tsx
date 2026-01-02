@@ -118,19 +118,36 @@ const FlowContainer = () => {
 		[addNode, addApiNode, screenToFlowPosition]
 	);
 
-	// Fetch tabs on mount
-	useEffect(() => {
+	const refetchTabs = useCallback(() => {
 		if (typeof chrome !== 'undefined' && chrome.tabs?.query) {
 			chrome.tabs.query({}, (result) => {
 				setTabs(result);
-				// Select active tab if found
-				const activeTab = result.find((t) => t.active);
-				if (activeTab?.id) {
-					setSelectedTabId(activeTab.id);
+
+				const currentTabExists = result.some(
+					(t) => t.id === selectedTabId
+				);
+
+				if (!currentTabExists || !selectedTabId) {
+					const optionsTab = result.find((t) =>
+						t.url?.includes('options.html')
+					);
+
+					const activeTab = result.find((t) => t.active);
+
+					const fallbackId =
+						optionsTab?.id || activeTab?.id || result[0]?.id;
+
+					if (fallbackId) {
+						setSelectedTabId(fallbackId);
+					}
 				}
 			});
 		}
-	}, []);
+	}, [selectedTabId]);
+
+	useEffect(() => {
+		refetchTabs();
+	}, []); // eslint-disable-line react-hooks/exhaustive-deps -- Fetch on first render only
 
 	const handleImport = useCallback(() => {
 		setShowImportDialog(true);
@@ -636,6 +653,7 @@ const FlowContainer = () => {
 						onStop: handleStop,
 						onDrop: handleDrop,
 						onLoadSaved: handleLoadSaved,
+						onRefreshTabs: refetchTabs,
 					}}
 				/>
 			</div>
