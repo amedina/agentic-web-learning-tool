@@ -6,13 +6,7 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineConfig({
 	plugins: [
 		react(),
-		tailwindcss({
-			// Ensure Tailwind scans the design-system package
-			content: [
-				'./src/**/*.{js,ts,jsx,tsx}',
-				'../design-system/src/**/*.{js,ts,jsx,tsx}',
-			],
-		}),
+		tailwindcss(),
 	],
 	server: {
 		port: 6007,     // Use unique port to avoid conflict with docs-design-system (5173)
