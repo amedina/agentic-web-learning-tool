@@ -177,23 +177,39 @@ const FlowContainer = () => {
 		[clearFlow, addNode, addApiNode, onConnect]
 	);
 
-	const addPlaceholderNode = useCallback(() => {
-		const id = new Date().getTime().toString();
+	const initializeStandardNodes = useCallback(() => {
+		const startId = new Date().getTime().toString() + 'start';
+		const endId = new Date().getTime().toString() + 'end';
 
 		addNode({
-			id,
-			type: 'staticInput',
-			position: { x: 10, y: 10 },
-			data: { label: 'Static Input' },
+			id: startId,
+			type: 'start',
+			position: { x: 50, y: 50 },
+			data: { label: 'Start' },
 		});
 
 		addApiNode({
-			id,
-			type: 'staticInput',
+			id: startId,
+			type: 'start',
 			config: {
-				title: 'Static Input',
-				description: 'Provide a static text input.',
-				inputValue: '',
+				title: 'Start',
+				description: 'Workflow entry point.',
+			},
+		});
+
+		addNode({
+			id: endId,
+			type: 'end',
+			position: { x: 750, y: 500 },
+			data: { label: 'End' },
+		});
+
+		addApiNode({
+			id: endId,
+			type: 'end',
+			config: {
+				title: 'End',
+				description: 'Workflow exit point.',
 			},
 		});
 	}, [addNode, addApiNode]);
@@ -224,10 +240,10 @@ const FlowContainer = () => {
 				const newUrl = new URL(window.location.href);
 				newUrl.searchParams.set('id', newId);
 				window.history.replaceState({}, '', newUrl.toString());
-				addPlaceholderNode();
+				initializeStandardNodes();
 			}
 		})();
-	}, [loadWorkflowData, addNode, addApiNode, addPlaceholderNode]);
+	}, [loadWorkflowData, addNode, addApiNode, initializeStandardNodes]);
 
 	const serializeWorkflow = useCallback(
 		(
@@ -475,6 +491,7 @@ const FlowContainer = () => {
 			window.history.replaceState({}, '', newUrl.toString());
 
 			clearFlow();
+			initializeStandardNodes();
 
 			const initialData = {
 				meta: {
@@ -484,12 +501,26 @@ const FlowContainer = () => {
 					version: '1.0.0',
 					savedAt: new Date().toISOString(),
 				},
-				graph: { nodes: [], edges: [] },
+				graph: {
+					nodes: [
+						{
+							id: 'start_node',
+							type: 'start',
+							label: 'Start',
+							config: {
+								title: 'Start',
+								description: 'Workflow entry point.',
+							},
+							ui: { position: { x: 100, y: 100 } },
+						},
+					],
+					edges: [],
+				},
 			};
 			saveWorkflow(newId, initialData);
-			showToast('New workflow creating!', 'success');
+			showToast('New workflow created!', 'success');
 		}
-	}, [clearFlow, showToast]);
+	}, [clearFlow, initializeStandardNodes, showToast]);
 
 	const handleLoadSaved = useCallback(() => {
 		setShowSavedWorkflows(true);

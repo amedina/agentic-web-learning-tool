@@ -42,6 +42,8 @@ import { clipboardWriterExecutor } from "./clipboardWriterExecutor";
 import { fileCreatorExecutor } from "./fileCreatorExecutor";
 import { textToSpeechExecutor } from "./textToSpeechExecutor";
 import { tooltipExecutor } from "./tooltipExecutor";
+import { startExecutor } from "./start";
+import { endExecutor } from "./end";
 
 /**
  * Register all built-in node executors with the NodeRegistry.
@@ -68,4 +70,7 @@ export function registerBuiltinExecutors(): void {
   NodeRegistry.register("translatorApi", translatorApiExecutor);
   NodeRegistry.register("languageDetectorApi", languageDetectorApiExecutor);
   NodeRegistry.register("summarizerApi", summarizerApiExecutor);
+
+  NodeRegistry.register("start", startExecutor);
+  NodeRegistry.register("end", endExecutor);
 }
