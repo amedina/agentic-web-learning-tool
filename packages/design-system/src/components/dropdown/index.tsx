@@ -17,7 +17,7 @@ import { ChevronDown } from 'lucide-react';
 
 const itemStyles = `
   group relative flex items-center h-9 px-2.5 w-full
-  text-[13px] font-medium leading-none text-stone-600 
+  text-[13px] font-medium leading-none text-muted-foreground 
   rounded-[6px] outline-none select-none cursor-default
   data-[highlighted]:bg-stone-100 data-[highlighted]:text-stone-900
   transition-colors duration-200
@@ -180,7 +180,7 @@ export default function DropDown({
 							sideOffset={4}
 						>
 							{item.mainLabel && (
-								<DropDownMenuLabel className="px-2.5 py-2 w-full text-stone-400">
+								<DropDownMenuLabel className="px-2.5 py-2 w-full text-muted">
 									{item.mainLabel}
 								</DropDownMenuLabel>
 							)}
@@ -189,7 +189,7 @@ export default function DropDown({
 									<div key={submenuGroup.key}>
 										{submenuGroup.group &&
 											!submenuGroup.hideLabel && (
-												<DropDownMenuLabel className="px-2.5 py-2 text-[11px] w-full  font-bold text-stone-400 uppercase tracking-widest">
+												<DropDownMenuLabel className="px-2.5 py-2 text-[11px] w-full  font-bold text-secondary-foreground uppercase tracking-widest">
 													{submenuGroup.group}
 												</DropDownMenuLabel>
 											)}
@@ -261,7 +261,7 @@ export default function DropDown({
 										(item) => item.id === selectedValue
 									)?.label ?? placeholder}
 							</span>
-							<ChevronDown className="ml-auto w-3.5 h-3.5 text-stone-400" />
+							<ChevronDown className="ml-auto w-3.5 h-3.5 text-secondary-foreground" />
 						</div>
 					)}
 				</DropdownMenuTrigger>
@@ -273,14 +273,14 @@ export default function DropDown({
 					>
 						{' '}
 						{mainLabel && (
-							<DropDownMenuLabel className="px-2.5 py-2 w-full text-stone-400">
+							<DropDownMenuLabel className="px-2.5 py-2 w-full text-secondary-foreground">
 								{mainLabel}
 							</DropDownMenuLabel>
 						)}
 						{groups.map((group) => (
 							<div key={group.key}>
 								{group.group && !group.hideLabel && (
-									<DropDownMenuLabel className="px-2.5 py-2 text-[11px] w-full text-stone-400 tracking-widest">
+									<DropDownMenuLabel className="px-2.5 py-2 text-[11px] w-full text-secondary-foreground tracking-widest">
 										{group.group}
 									</DropDownMenuLabel>
 								)}

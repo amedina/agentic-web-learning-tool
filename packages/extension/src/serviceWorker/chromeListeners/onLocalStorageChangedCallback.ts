@@ -15,6 +15,7 @@ const onLocalStorageChangedCallback = (mcpHub: McpHub) => {
             await Promise.all(
                 Object.keys(mcpServers).map(async (serverName) => {
                     if (!mcpServers[serverName].enabled) {
+                        mcpHub.disableMCPServerTools(serverName);
                         return
                     }
                     await mcpHub.addNewServer(

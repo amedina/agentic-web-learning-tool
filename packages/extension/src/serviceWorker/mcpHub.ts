@@ -63,6 +63,7 @@ class McpHub {
 			const storedConfig = this.clientList.get(serverName);
 
 			if (storedConfig?.toolsFetched) {
+				this.enableMCPServerTools(serverName);
 				return;
 			}
 
@@ -111,6 +112,31 @@ class McpHub {
 		} catch (_error) {
 			logger(['error'], ['Failed to register the server and list the tools', _error]);
 		}
+	}
+
+	async disableMCPServerTools(serverId: string) {
+		Array.from(this.registeredTools.entries()).forEach(([toolName, registeredTool]) => {
+			if (toolName.startsWith(`${serverId}_mcp`)) {
+				registeredTool.disable();
+			}
+		});
+		this.server.server?.transport?.send({
+			jsonrpc: '2.0',
+			method: 'get/Tools',
+		});
+	}
+
+
+	async enableMCPServerTools(serverId: string) {
+		Array.from(this.registeredTools.entries()).forEach(([toolName, registeredTool]) => {
+			if (toolName.startsWith(`${serverId}_mcp`)) {
+				registeredTool.enable();
+			}
+		});
+		this.server.server?.transport?.send({
+			jsonrpc: '2.0',
+			method: 'get/Tools',
+		});
 	}
 
 	/**
@@ -246,19 +272,21 @@ class McpHub {
 				inputSchema: tool.inputSchema as any, // Cast required due to SDK constraints vs dynamic schema
 				annotations: tool.annotations,
 			};
+			const prefixedToolName = `${serverName}_mcp_${tool.name}`;
 
-			if (this.registeredTools.has(tool.name)) {
+			if (this.registeredTools.has(prefixedToolName)) {
 				// Update existing tool
-				this.registeredTools.get(tool.name)!.update(config);
+				this.registeredTools.get(prefixedToolName)!.update(config);
 			} else {
 				// Register new tool
 				const mcpTool = this.server.registerTool(
-					tool.name,
+					prefixedToolName,
 					config,
 					async (args: any) =>
 						this.executeTool(serverName, '', tool.name, args, true)
 				);
-				this.registeredTools.set(tool.name, mcpTool);
+				console.log(mcpTool)
+				this.registeredTools.set(prefixedToolName, mcpTool);
 			}
 
 			this.server.server?.transport?.send({
