@@ -7,7 +7,7 @@ import { initContentScriptBridge } from '@google-awlt/engine-extension';
 /**
  * Internal dependencies
  */
-import { ApiProvider, FlowProvider } from './store';
+import { ApiProvider, FlowProvider } from './stateProviders';
 import Panel from './panel';
 
 // Initialize the bridge so workflows can run on the Options page itself

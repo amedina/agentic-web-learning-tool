@@ -1,5 +1,5 @@
 import { ChevronsLeft, ChevronsRight } from 'lucide-react';
-import { ToolSidebarProvider } from './ToolSidebarContext';
+import { ToolSidebarProvider } from './toolSidebarContext';
 import BuiltInAIToolsBar from './builtinAITools';
 import JSToolsBar from './jsTools';
 import FlowToolsBar from './flowTools';

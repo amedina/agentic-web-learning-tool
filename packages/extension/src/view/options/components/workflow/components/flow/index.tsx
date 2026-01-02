@@ -20,11 +20,10 @@ import {
 	useFlow,
 	useApi,
 	type NodeConfig,
-} from '../../store';
-import { Flow, Toast } from '../ui';
+} from '../../stateProviders';
+import { Flow, Toast, SavedWorkflowsDialog } from '../ui';
 import { TOOL_CONFIGS } from '../tools/toolRegistry';
 import { saveWorkflow, loadWorkflow } from '../../../../utils/storage';
-import SavedWorkflowsDialog from '../ui/flow/SavedWorkflowsDialog';
 
 const ID_PREFIX = 'wf_';
 

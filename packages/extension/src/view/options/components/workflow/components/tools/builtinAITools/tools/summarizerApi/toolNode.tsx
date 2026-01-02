@@ -9,7 +9,7 @@ import { NotepadTextDashed } from 'lucide-react';
  * Internal dependencies
  */
 import { ToolNodeContainer } from '../../../../ui';
-import { useApi, useFlow } from '../../../../../store';
+import { useApi, useFlow } from '../../../../../stateProviders';
 import type { SummarizerApiConfig } from './summarizerApi';
 
 const ToolNode = () => {

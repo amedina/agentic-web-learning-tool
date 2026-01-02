@@ -8,7 +8,7 @@ import { BookCheck } from 'lucide-react';
 /**
  * Internal dependencies
  */
-import { useApi, useFlow } from '../../../../../store';
+import { useApi, useFlow } from '../../../../../stateProviders';
 import { ToolNodeContainer } from '../../../../ui';
 import type { ProofreaderApiConfig } from './proofreaderApi';
 

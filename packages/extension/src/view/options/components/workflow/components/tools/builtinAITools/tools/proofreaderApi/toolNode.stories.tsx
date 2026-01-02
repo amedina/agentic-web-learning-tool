@@ -6,7 +6,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 /**
  * Internal dependencies
  */
-import { withStore } from '../../../../../stories/StoreDecorator';
+import { withStore } from '../../../../../stories/storeDecorator';
 import ToolNode from './toolNode';
 
 const meta = {
@@ -20,7 +20,8 @@ const meta = {
 					type: 'proofreaderApi',
 					config: {
 						title: 'Grammar & Tone Checker',
-						description: 'Check grammar, spelling, and tone of your text.',
+						description:
+							'Check grammar, spelling, and tone of your text.',
 						expectedInputLanguages: ['en', 'es', 'fr'],
 					},
 				},

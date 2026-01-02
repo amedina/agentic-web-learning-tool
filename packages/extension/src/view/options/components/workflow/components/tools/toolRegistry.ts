@@ -1,4 +1,4 @@
-import type { NodeConfig } from '../../store';
+import type { NodeConfig } from '../../stateProviders';
 
 export const TOOL_CONFIGS: Record<
 	string,

@@ -8,7 +8,7 @@ import z from 'zod';
 /**
  * Internal dependencies
  */
-import { useFlow } from '../../../../../store';
+import { useFlow } from '../../../../../stateProviders';
 import { ToolItem } from '../../../../ui';
 
 export const StartSchema = z.object({

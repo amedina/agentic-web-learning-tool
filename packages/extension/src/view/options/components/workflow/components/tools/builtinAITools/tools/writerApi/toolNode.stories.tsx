@@ -6,7 +6,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 /**
  * Internal dependencies
  */
-import { withStore } from '../../../../../stories/StoreDecorator';
+import { withStore } from '../../../../../stories/storeDecorator';
 import ToolNode from './toolNode';
 
 const meta = {

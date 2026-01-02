@@ -9,7 +9,7 @@ import { ClipboardCopy } from 'lucide-react';
  * Internal dependencies
  */
 import { ToolNodeContainer } from '../../../../ui';
-import { useApi, useFlow } from '../../../../../store';
+import { useApi, useFlow } from '../../../../../stateProviders';
 
 const ToolNode = () => {
 	const nodeId = useNodeId();

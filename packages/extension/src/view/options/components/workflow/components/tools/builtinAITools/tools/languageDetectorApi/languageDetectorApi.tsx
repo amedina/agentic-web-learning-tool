@@ -9,7 +9,7 @@ import z from 'zod';
  * Internal dependencies
  */
 import { ToolItem } from '../../../../ui';
-import { useApi } from '../../../../../store';
+import { useApi } from '../../../../../stateProviders';
 
 export const LanguageDetectorApiSchema = z.object({
 	title: z.string(),

@@ -5,7 +5,7 @@ import z from 'zod';
 /**
  * Internal dependencies
  */
-import { useApi } from '../../../../../store';
+import { useApi } from '../../../../../stateProviders';
 import { ToolItem } from '../../../../ui';
 
 export const ProofreaderApiSchema = z.object({

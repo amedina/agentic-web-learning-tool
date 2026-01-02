@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useEdgesState, useNodesState } from '@xyflow/react';
-import Flow from './index';
+import { Flow } from '.';
 import { useCallback } from 'react';
 
 const meta: Meta<typeof Flow> = {
@@ -108,6 +108,7 @@ export const Default: Story = {
 			onStop: () => {},
 			onDrop: () => {},
 			onLoadSaved: () => {},
+			onRefreshTabs: () => {},
 		},
 		nodes: [
 			{

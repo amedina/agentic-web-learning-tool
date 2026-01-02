@@ -6,7 +6,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 /**
  * Internal dependencies
  */
-import { useApi } from '../../store';
+import { useApi } from '../../stateProviders';
 import {
 	PromptApiToolConfig,
 	ProofreaderApiToolConfig,
