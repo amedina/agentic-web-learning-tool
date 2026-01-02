@@ -18,6 +18,7 @@ export function ToolDisplay({ toolList = [] }: ToolDisplayProps) {
 			{toolList.map((tool) => {
 				return (
 					<Accordion
+						key={tool.name}
 						triggerText={tool.name}
 						type="single"
 						collapsible
