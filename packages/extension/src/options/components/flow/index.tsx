@@ -21,7 +21,7 @@ import {
 	useApi,
 	type NodeConfig,
 } from '../../store';
-import { Flow } from '../ui';
+import { Flow, Toast } from '../ui';
 import { TOOL_CONFIGS } from '../tools/toolRegistry';
 import { saveWorkflow, loadWorkflow } from '../../../utils/storage';
 import SavedWorkflowsDialog from '../ui/flow/SavedWorkflowsDialog';
@@ -603,15 +603,11 @@ const FlowContainer = () => {
 
 			{/* Toast Notification */}
 			{toast && (
-				<div
-					className={`fixed top-4 right-4 z-50 p-4 rounded-md shadow-lg ${
-						toast.type === 'success'
-							? 'bg-green-500 text-white'
-							: 'bg-red-500 text-white'
-					}`}
-				>
-					{toast.message}
-				</div>
+				<Toast
+					message={toast.message}
+					type={toast.type === 'success' ? 'success' : 'error'}
+					onClose={() => setToast(null)}
+				/>
 			)}
 
 			<div className="flex-1 w-full h-full">
