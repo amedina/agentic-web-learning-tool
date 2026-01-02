@@ -69,7 +69,7 @@ export function useAssistantMCP(
         assistantTool: tool({
           type: 'frontend',
           description: mcpT.description,
-          parameters: mcpToolToJSONSchema(mcpT.inputSchema),
+          parameters: mcpT.inputSchema,
           execute: async (args, { abortSignal: signal }) => {
             try {
               const cleanedArgs = cleanArguments(args as ToolExecutionArgs);

@@ -10,25 +10,22 @@ import {
     type UIMessage,
     type UIMessageChunk,
 } from "ai";
-import { type LanguageModelV2 } from '@ai-sdk/provider';
+import { type JSONSchema7, type LanguageModelV2 } from '@ai-sdk/provider';
 import type { AssistantRuntime } from "@assistant-ui/react";
 import { createOllama, type OllamaProviderSettings } from "ollama-ai-provider-v2";
 import { type createOpenAI, type OpenAIProviderSettings } from "@ai-sdk/openai";
 import type { AnthropicProviderSettings, createAnthropic } from "@ai-sdk/anthropic";
 import type { createGoogleGenerativeAI, GoogleGenerativeAIProviderSettings } from "@ai-sdk/google";
+import z from "zod";
+import { getToolNameWithoutPrefix } from "@google-awlt/design-system";
 /**
  * Internal dependencies
  */
 import logger from "../../../../utils/logger";
-import { getToolNameWithoutPrefix } from "@google-awlt/design-system";
-
+import { jsonSchemaToZod } from "../../../../utils/jsonSchemaToZod";
 
 type JsonSchemaObject = Record<string, unknown>;
 type SchemaInput = JsonSchemaObject | (() => JsonSchemaObject);
-
-interface JsonSchemaOptions<T> {
-    validate?: (value: unknown) => T | { value: T; error?: unknown };
-}
 
 type SendMessagesParams = {
     /** The type of message submission - either new message or regeneration */
@@ -85,18 +82,18 @@ export class CloudHostedTransport implements ChatTransport<UIMessage> {
      * @param schema - A JSON Schema object OR a function returning one.
      * @param options - Optional validation logic.
      */
-    jsonSchema<T = unknown>(schema: SchemaInput, options: JsonSchemaOptions<T> = {}) {
-        return {
-            [Symbol.for("vercel.ai.schema")]: true,
-            _type: undefined,
-            get jsonSchema() {
-                if (typeof schema === "function") {
-                    schema = schema();
-                }
-                return schema;
-            },
-            validate: options?.validate
-        };
+    jsonSchema(schema: SchemaInput) {
+        let zodSchema;
+        try {
+            zodSchema = schema
+                ? jsonSchemaToZod(schema as JSONSchema7)
+                : z.object({});
+        } catch (error) {
+            logger(['error'], [`Failed to convert schema for:`, error]);
+            // Fallback to empty object schema
+            zodSchema = z.object({});
+        }
+        return zodSchema;
     }
 
     /**

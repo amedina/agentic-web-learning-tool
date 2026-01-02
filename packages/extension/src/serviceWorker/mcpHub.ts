@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { safeParseAsync, z } from 'zod';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import {
 	type CallToolResult,
@@ -23,6 +22,7 @@ import type {
 	TabData,
 } from './types';
 import logger from '../utils/logger';
+import { jsonSchemaToZod } from '../utils/jsonSchemaToZod';
 
 /**
  * The central hub managing connections between the MCP Server and Chrome Tabs.
@@ -267,24 +267,20 @@ class McpHub {
 	private registerMCPServerTools(serverName: string, tools: Tool[]) {
 		for (const tool of tools) {
 			const config = {
-				title: tool.title,
-				description: tool.description,
-				inputSchema: {
-					_zod: z,
-					...tool.inputSchema
-				} as any, // Cast required due to SDK constraints vs dynamic schema
-				annotations: tool.annotations,
+				...tool,
+				inputSchema: jsonSchemaToZod(tool.inputSchema)
 			};
+
 			const prefixedToolName = `${serverName}_mcp_${tool.name}`;
 
 			if (this.registeredTools.has(prefixedToolName)) {
 				// Update existing tool
-				this.registeredTools.get(prefixedToolName)!.update(config);
+				this.registeredTools.get(prefixedToolName)!.update(config as any);
 			} else {
 				// Register new tool
 				const mcpTool = this.server.registerTool(
 					prefixedToolName,
-					config,
+					config as any,
 					async (args: any) =>
 						this.executeTool(serverName, '', tool.name, args, true)
 				);
@@ -414,17 +410,10 @@ class McpHub {
 				tool.description || ''
 			);
 
-			// Create Zod schema dynamically based on tool definition
-			// Note: We use z.any() because we are proxying JSON schemas we cannot strictly validate at build time
-			const inputSchema: Record<string, z.ZodTypeAny> = {};
-			for (const key in tool.inputSchema.properties ?? {}) {
-				inputSchema[key] = z.any();
-			}
-
 			const config = {
 				title: tool.title,
 				description,
-				inputSchema: inputSchema as any, // Cast required due to SDK constraints vs dynamic schema
+				inputSchema: jsonSchemaToZod(tool.inputSchema),
 				annotations: tool.annotations,
 			};
 
