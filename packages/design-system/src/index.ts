@@ -1,6 +1,3 @@
-// Export all components from the design system
-export { Button } from './components/button';
-export { Tabs } from './components/tabs';
-
-// Export utilities
-export * from './lib/utils';
+export * from './components';
+export * from './lib';
+export * from './icons';

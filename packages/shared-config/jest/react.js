@@ -12,7 +12,6 @@ export default {
 		"^.+\\.(ts|tsx)$": ["ts-jest", { tsconfig: "<rootDir>/tsconfig.app.json" }],
 	},
 	extensionsToTreatAsEsm: [".ts", ".tsx"],
-	
 	moduleNameMapper: {
 		"^@/(.*)$": "<rootDir>/src/$1",
 		"\\.(css|less|scss|sass)$": "identity-obj-proxy",
