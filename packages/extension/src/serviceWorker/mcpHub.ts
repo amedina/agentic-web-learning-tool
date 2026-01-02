@@ -285,7 +285,6 @@ class McpHub {
 					async (args: any) =>
 						this.executeTool(serverName, '', tool.name, args, true)
 				);
-				console.log(mcpTool)
 				this.registeredTools.set(prefixedToolName, mcpTool);
 			}
 
