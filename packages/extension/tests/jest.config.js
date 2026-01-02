@@ -4,8 +4,9 @@ import baseConfig from '@google-awlt/shared-config/jest/react';
 const config = {
 	...baseConfig,
 	testEnvironment: 'jsdom',
-	displayName: 'app',
-	rootDir: '.',
+	displayName: 'extension',
+	rootDir: '../',
+	setupFilesAfterEnv: ["<rootDir>/tests/jest.setup.cjs"],
 	testMatch: ['<rootDir>/src/**/*.test.{ts,tsx}'],
 };
 
