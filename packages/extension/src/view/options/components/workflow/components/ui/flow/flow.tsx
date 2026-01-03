@@ -13,7 +13,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { Play, Square, Loader } from 'lucide-react';
-import WorkflowDropdown from './workflowDropdown';
+import WorkflowDropdown from './WorkflowDropdown';
 import { useCallback } from 'react';
 
 export interface FlowProps<
