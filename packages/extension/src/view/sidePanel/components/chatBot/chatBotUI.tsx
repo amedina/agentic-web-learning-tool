@@ -301,7 +301,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 										variant="ghost"
 										className="rounded-2xl"
 									>
-										<span className="text-[10px] flex flex-row items-center">
+										<span className="text-[11px] flex flex-row items-center">
 											{selectedAgent.model}{' '}
 											<ChevronDown className="w-4 h-4" />
 										</span>
