@@ -119,7 +119,7 @@ export default function SingleProviderAccordion({
 						{inputType === 'password' ? 'Show' : 'Hide'}
 					</Button>
 				</div>
-				<div className="flex flex-col gap-2 justify-between">
+				<div className="flex flex-col gap-2 justify-between pr-[76px] my-2">
 					<div className="flex items-center gap-5 justify-between">
 						<div>
 							<div className="text-[13px] font-medium text-accent-foreground">

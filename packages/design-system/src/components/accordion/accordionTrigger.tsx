@@ -20,7 +20,7 @@ function AccordionTrigger({
       <Trigger
         data-slot="accordion-trigger"
         className={cn(
-          "focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none [&[data-state=open]>svg]:rotate-180",
+          "hover:bg-zinc-50 px-4 focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none [&[data-state=open]>svg]:rotate-180",
           className
         )}
         {...props}
