@@ -1,11 +1,7 @@
 /**
  * External dependencies.
  */
-import { useEffect, useCallback } from 'react';
-import {
-	WebMCPToolsTab as WebMCPToolsUI,
-	type WebMCPTool,
-} from '@google-awlt/design-system';
+import { WebMCPToolsTab as WebMCPToolsUI } from '@google-awlt/design-system';
 
 /**
  * Internal Dependencies.
@@ -18,7 +14,7 @@ export function WebMCPToolsTab() {
 			userTools: state.userTools,
 			builtInTools: state.builtInTools,
 			saveUserTools: actions.saveUserTools,
-			saveBuiltInState: actions.saveBuiltInState
+			saveBuiltInState: actions.saveBuiltInState,
 		}));
 
 	return (
