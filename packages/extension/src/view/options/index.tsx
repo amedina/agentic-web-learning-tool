@@ -1,7 +1,7 @@
 /**
  * External dependecies
  */
-import { SidebarProvider, Toaster } from '@google-awlt/design-system';
+import { SidebarProvider } from '@google-awlt/design-system';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 
@@ -19,7 +19,6 @@ createRoot(document.getElementById('root')!).render(
 			<ModelProvider>
 				<ToolProvider>
 					<SettingsProvider view="options">
-						<Toaster position="top-center" />
 						<SidebarProvider>
 							<Options />
 						</SidebarProvider>
