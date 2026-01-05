@@ -8,9 +8,20 @@ import {
 	type SetStateAction,
 	useCallback,
 	type ChangeEvent,
+	useEffect,
 } from 'react';
-import { Download, Upload, AlertTriangle, Loader2 } from 'lucide-react';
-import { Button, OptionsPageTabSection } from '@google-awlt/design-system';
+import {
+	Download,
+	Upload,
+	AlertTriangle,
+	Loader2,
+	CircleAlert,
+} from 'lucide-react';
+import {
+	Button,
+	OptionsPageTabSection,
+	toast,
+} from '@google-awlt/design-system';
 
 /**
  * Internal dependencies
@@ -30,6 +41,7 @@ export default function DataManagementSection({
 	const [isExporting, setIsExporting] = useState(false);
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const [isImporting, setIsImporting] = useState(false);
+	const [errors, setErrors] = useState<string[]>([]);
 
 	const handleExport = useCallback(() => {
 		setIsExporting(true);
@@ -52,22 +64,38 @@ export default function DataManagementSection({
 		}, 600);
 	}, [settings]);
 
+	useEffect(() => {
+		if (errors.length > 0) {
+			setTimeout(() => {
+				setErrors([]);
+			}, 2500);
+		}
+	}, [errors]);
+
 	const handleImport = useCallback((event: ChangeEvent<HTMLInputElement>) => {
 		const file = event.target.files?.[0];
 
 		if (!file) {
 			return;
 		}
+
 		setIsImporting(true);
 		const reader = new FileReader();
+
 		reader.onload = async (_event) => {
 			if (!_event.target) {
 				logger(['error'], ['Invalid file.']);
+				setIsImporting(false);
+				setErrors((prev) => [...prev, 'Invalid file']);
+				toast.error('Invalid file');
 				return;
 			}
 
 			if (!_event.target?.result) {
 				logger(['error'], ['Empty file content']);
+				setIsImporting(false);
+				setErrors((prev) => [...prev, 'Empty file content']);
+				toast.error('Empty file content');
 				return;
 			}
 
@@ -78,6 +106,9 @@ export default function DataManagementSection({
 			const validationResult = settingsValidator(settings);
 			if (typeof validationResult === 'boolean') {
 				logger(['error'], ['Invalid json file']);
+				setIsImporting(false);
+				setErrors((prev) => [...prev, 'Invalid json file']);
+				toast.error('Invalid json file');
 				return;
 			}
 
@@ -102,6 +133,9 @@ export default function DataManagementSection({
 					'Validation successfull, settings have been imported reloading options page',
 				]
 			);
+			toast.success(
+				'Validation successfull, settings have been imported reloading options page'
+			);
 
 			setTimeout(() => {
 				window.location.reload();
@@ -115,6 +149,8 @@ export default function DataManagementSection({
 					['error'],
 					['Error reading file: ', _event.target.error]
 				);
+
+				toast.error('Error reading file: ' + _event.target.error);
 			}
 		};
 
@@ -145,6 +181,8 @@ export default function DataManagementSection({
 				>
 					{isImporting ? (
 						<Loader2 size={16} className="animate-spin" />
+					) : errors.length > 0 ? (
+						<CircleAlert size={16} className="text-red-500" />
 					) : (
 						<Upload size={16} />
 					)}

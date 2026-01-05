@@ -8,6 +8,9 @@ import logger from './logger';
 function settingsValidator(settings: SettingsType): boolean | SettingsType['config'] {
     const { config } = settings;
     // Checkpoint 1: Check if it has all the keys
+    console.log(!config.apiKeys,
+        !config.extensionSettings,
+        !config.userWebMCPTools, config)
     if (
         !config.apiKeys ||
         !config.extensionSettings ||
@@ -30,7 +33,7 @@ function settingsValidator(settings: SettingsType): boolean | SettingsType['conf
         defaultConfig['theme'] = 'auto';
     }
 
-    return { userWebMCPTools: config.userWebMCPTools, apiKeys: config.apiKeys, extensionSettings: defaultConfig};
+    return { userWebMCPTools: config.userWebMCPTools, apiKeys: config.apiKeys, extensionSettings: defaultConfig };
 }
 
 export default settingsValidator;
