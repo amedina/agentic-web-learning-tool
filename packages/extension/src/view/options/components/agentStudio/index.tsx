@@ -25,6 +25,7 @@ export default function AgentDashboard() {
 					(provider) => provider.id !== 'browser-ai'
 				).map((provider) => (
 					<SingleProviderAccordion
+						key={provider.id}
 						provider={provider}
 						storedData={apiKeys?.[provider.id]}
 						apiKeys={apiKeys}
