@@ -128,7 +128,11 @@ export const ToolFallback: ToolCallMessagePartComponent = ({
 							</div>
 							<div className="bg-accent border border-neutral-800 rounded-lg p-3 shadow-sm">
 								<pre className="text-xs leading-relaxed text-primary overflow-x-auto">
-									{JSON.stringify(argsText, null, 2)}
+									{JSON.stringify(
+										JSON.parse(argsText),
+										null,
+										2
+									)}
 								</pre>
 							</div>
 						</div>
@@ -148,7 +152,7 @@ export const ToolFallback: ToolCallMessagePartComponent = ({
 											{typeof result === 'string'
 												? result
 												: JSON.stringify(
-														result,
+														JSON.parse(result),
 														null,
 														2
 													)}
