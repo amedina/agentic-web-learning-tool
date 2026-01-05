@@ -22,6 +22,7 @@ import {
 	TooltipToolConfig,
 	LoopToolConfig,
 	DataTransformerToolConfig,
+	AlertNotificationToolConfig,
 } from '../tools';
 import { ToolsConfig as ToolsConfigComponent } from '../ui';
 
@@ -33,7 +34,7 @@ const TOOLS = {
 	translatorApi: TranslatorApiToolConfig,
 	languageDetectorApi: null,
 	summarizerApi: SummarizerApiToolConfig,
-	alertNotification: null,
+	alertNotification: AlertNotificationToolConfig,
 	domInput: DomInputToolConfig,
 	condition: ConditionToolConfig,
 	dataTransformer: DataTransformerToolConfig,

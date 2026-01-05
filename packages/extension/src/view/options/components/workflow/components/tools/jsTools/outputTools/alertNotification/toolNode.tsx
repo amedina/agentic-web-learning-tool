@@ -49,7 +49,7 @@ const ToolNode = () => {
 
 	return (
 		<ToolNodeContainer
-			title={config?.title || ''}
+			title={config?.title || 'Alert Notification'}
 			Icon={BellRing}
 			type={config?.type || ''}
 			selected={selectedNode === nodeId}
@@ -66,7 +66,7 @@ const ToolNode = () => {
 			<div className="h-fit w-full flex flex-col relative">
 				<div className="w-full bg-linear-to-br from-blue-50 to-indigo-50 rounded-md p-3 my-2 border border-blue-100">
 					<p className="truncate text-sm text-slate-700 leading-relaxed">
-						{config?.description || ''}
+						{config?.description || 'Alert Notification'}
 					</p>
 				</div>
 				<Handle
