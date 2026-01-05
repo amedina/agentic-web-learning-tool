@@ -15,7 +15,8 @@
       "@modelcontextprotocol/sdk": "^1.24.0"
     },
     "patchedDependencies": {
-      "zod@4.1.13": "patches/zod@4.1.13.patch"
+      "zod@4.1.13": "patches/zod@4.1.13.patch",
+      "@assistant-ui/react": "patches/@assistant-ui__react.patch"
     }
   },
   "scripts": {
