@@ -345,10 +345,20 @@ const FlowContainer = () => {
 				nodesApiData
 			);
 
-			await navigator.clipboard.writeText(
-				JSON.stringify(workflowData, null, 2)
-			);
-			showToast('Workflow exported to clipboard!', 'success');
+			const blob = new Blob([JSON.stringify(workflowData, null, 2)], {
+				type: 'application/json',
+			});
+			const url = URL.createObjectURL(blob);
+			const link = document.createElement('a');
+			link.href = url;
+			link.download = `${workflowTitle.toLowerCase().replace(/\s+/g, '-') || 'workflow'}.json`;
+			document.body.appendChild(link);
+			link.click();
+
+			document.body.removeChild(link);
+			URL.revokeObjectURL(url);
+
+			showToast('Workflow exported as JSON file!', 'success');
 		} catch (error) {
 			console.error('Failed to export workflow:', error);
 			showToast('Failed to export workflow', 'error');
