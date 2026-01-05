@@ -119,7 +119,7 @@ export default function SingleProviderAccordion({
 						{inputType === 'password' ? 'Show' : 'Hide'}
 					</Button>
 				</div>
-				<div className="flex flex-row max-md:flex-col max-md:gap-2 justify-between">
+				<div className="flex flex-col gap-2 justify-between">
 					<div className="flex items-center gap-5 justify-between">
 						<div>
 							<div className="text-[13px] font-medium text-accent-foreground">
@@ -140,6 +140,9 @@ export default function SingleProviderAccordion({
 								{status === true
 									? 'Disable Provider'
 									: 'Enable Provider'}
+							</div>
+							<div className="text-[11px] text-amethyst-haze">
+								Availability status of the provider.
 							</div>
 						</div>
 						<ToggleSwitch
