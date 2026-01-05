@@ -17,6 +17,7 @@ import {
 	ToolCaseIcon,
 	CpuIcon,
 	Settings,
+	ChevronDown,
 } from 'lucide-react';
 import {
 	Button,
@@ -67,7 +68,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 
 	useEffect(() => {
 		(async () => {
-			if(client.transport){
+			if (client.transport) {
 				return;
 			}
 
@@ -281,16 +282,6 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 										<ToolCaseIcon className="w-4 h-4" />
 									</Button>
 								</Dropdown>
-								<Dropdown
-									options={modelOptions}
-									onSelect={(id) => handleSelect(id)}
-									mainLabel="Providers"
-									selectedValue={selectedAgent.model}
-								>
-									<Button variant="ghost" size="icon">
-										<CpuIcon className="w-4 h-4" />
-									</Button>
-								</Dropdown>
 								<Button
 									size="icon"
 									variant="ghost"
@@ -300,6 +291,22 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 								>
 									<Settings className="w-4 h-4" />
 								</Button>
+								<Dropdown
+									options={modelOptions}
+									onSelect={(id) => handleSelect(id)}
+									mainLabel="Providers"
+									selectedValue={selectedAgent.model}
+								>
+									<Button
+										variant="ghost"
+										className="rounded-2xl"
+									>
+										<span className="text-[10px] flex flex-row items-center">
+											{selectedAgent.model}{' '}
+											<ChevronDown className="w-4 h-4" />
+										</span>
+									</Button>
+								</Dropdown>
 							</div>
 							<ThreadPrimitive.If running={false}>
 								<ComposerPrimitive.Send className="h-9 w-9 flex items-center justify-center rounded-lg bg-background hover:text-ring text-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
