@@ -21,7 +21,6 @@ export default function AgentDashboard() {
 			description="Manage your LLM keys, configure provider settings, and fine-tune inference parameters."
 		>
 			<div className="w-full flex flex-col flex-1">
-				{/* Dashboard Grid */}
 				{INITIAL_PROVIDERS.filter(
 					(provider) => provider.id !== 'browser-ai'
 				).map((provider) => (
