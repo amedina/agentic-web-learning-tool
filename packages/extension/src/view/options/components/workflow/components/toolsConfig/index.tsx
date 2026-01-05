@@ -6,7 +6,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 /**
  * Internal dependencies
  */
-import { useApi } from '../../stateProviders';
+import { useApi, type NodeConfig } from '../../stateProviders';
 import {
 	PromptApiToolConfig,
 	ProofreaderApiToolConfig,
@@ -21,6 +21,7 @@ import {
 	FileCreatorToolConfig,
 	TooltipToolConfig,
 	LoopToolConfig,
+	DataTransformerToolConfig,
 } from '../tools';
 import { ToolsConfig as ToolsConfigComponent } from '../ui';
 
@@ -35,6 +36,7 @@ const TOOLS = {
 	alertNotification: null,
 	domInput: DomInputToolConfig,
 	condition: ConditionToolConfig,
+	dataTransformer: DataTransformerToolConfig,
 	staticInput: StaticInputToolConfig,
 	loop: LoopToolConfig,
 	domReplacement: DomReplacementToolConfig,
@@ -58,11 +60,11 @@ const ToolsConfig = ({ collapsed = false, onToggle }: ToolsConfigProps) => {
 		})
 	);
 
-	const [node, setNode] = useState<ReturnType<typeof getNode>>();
-	const [config, setConfig] = useState<any>();
+	const [node, setNode] = useState<NodeConfig>();
+	const [config, setConfig] = useState<NodeConfig['config']>();
 
 	const toolNodeRef = useRef<{
-		getConfig: (formData: FormData) => any;
+		getConfig: (formData: FormData) => NodeConfig['config'] | undefined;
 	}>(null);
 
 	useEffect(() => {
@@ -105,23 +107,23 @@ const ToolsConfig = ({ collapsed = false, onToggle }: ToolsConfigProps) => {
 	);
 
 	const Tool = node?.type
-		? (TOOLS[node.type as keyof typeof TOOLS] as any)
+		? (TOOLS[node.type as keyof typeof TOOLS] as React.ElementType)
 		: null;
 
 	return (
 		<ToolsConfigComponent
 			selectedNodeId={selectedNode}
 			nodeType={node?.type}
-			nodeLabel={config?.title || ''}
-			nodeContext={config?.context}
+			nodeLabel={(config as any)?.title || ''}
+			nodeContext={(config as any)?.context}
 			nodeDescription={(node?.config as any)?.description}
 			onLabelChange={(value) =>
 				setConfig((prev: any) => ({ ...prev, title: value }))
 			}
 			onContextChange={
-				config?.context !== undefined
+				(config as any)?.context !== undefined
 					? (value) =>
-							setConfig((prev: any) => ({
+							setConfig((prev) => ({
 								...prev,
 								context: value,
 							}))

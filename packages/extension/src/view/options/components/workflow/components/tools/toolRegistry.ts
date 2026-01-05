@@ -115,6 +115,15 @@ export const TOOL_CONFIGS: Record<
 			description: 'Iterate over an array of items.',
 		},
 	},
+	dataTransformer: {
+		label: 'Data Transformer',
+		config: {
+			title: 'Data Transformer',
+			description: 'Transform strings using Regex, JSON, or templates.',
+			operation: 'format',
+			formatType: 'trim',
+		},
+	},
 	alertNotification: {
 		label: 'Alert Notification',
 		config: {

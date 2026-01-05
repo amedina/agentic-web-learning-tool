@@ -42,6 +42,7 @@ import { clipboardWriterExecutor } from "./clipboardWriterExecutor";
 import { fileCreatorExecutor } from "./fileCreatorExecutor";
 import { textToSpeechExecutor } from "./textToSpeechExecutor";
 import { tooltipExecutor } from "./tooltipExecutor";
+import { dataTransformerExecutor } from "./dataTransformerExecutor";
 import { startExecutor } from "./start";
 import { endExecutor } from "./end";
 
@@ -56,6 +57,7 @@ export function registerBuiltinExecutors(): void {
   NodeRegistry.register("alertNotification", alertNotificationExecutor);
   NodeRegistry.register("condition", conditionExecutor);
   NodeRegistry.register("loop", loopExecutor);
+  NodeRegistry.register("dataTransformer", dataTransformerExecutor);
   NodeRegistry.register("domReplacement", domReplacementExecutor);
   NodeRegistry.register("clipboardWriter", clipboardWriterExecutor);
   NodeRegistry.register("fileCreator", fileCreatorExecutor);

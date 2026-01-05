@@ -36,6 +36,7 @@ import {
 	TooltipNode,
 	StartNode,
 	EndNode,
+	DataTransformerToolNode,
 } from '../../components';
 
 const FlowProvider = ({ children }: PropsWithChildren) => {
@@ -62,6 +63,7 @@ const FlowProvider = ({ children }: PropsWithChildren) => {
 			tooltip: TooltipNode,
 			start: StartNode,
 			end: EndNode,
+			dataTransformer: DataTransformerToolNode,
 		}),
 		[]
 	);

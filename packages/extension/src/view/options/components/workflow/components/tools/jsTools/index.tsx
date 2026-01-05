@@ -2,8 +2,15 @@
  * Internal dependencies
  */
 import { DomInput, StaticInput } from './inputTools';
-import { Condition, Loop } from './logicTools';
-import { AlertNotification, ClipboardWriter, DomReplacement, FileCreator, TextToSpeech, Tooltip } from './outputTools';
+import { Condition, Loop, DataTransformer } from './logicTools';
+import {
+	AlertNotification,
+	ClipboardWriter,
+	DomReplacement,
+	FileCreator,
+	TextToSpeech,
+	Tooltip,
+} from './outputTools';
 
 interface JSToolsProps {
 	collapsed?: boolean;
@@ -37,6 +44,7 @@ const JSTools = ({ collapsed }: JSToolsProps) => {
 				<div className="space-y-1">
 					<Condition />
 					<Loop />
+					<DataTransformer />
 				</div>
 			</div>
 
@@ -50,7 +58,7 @@ const JSTools = ({ collapsed }: JSToolsProps) => {
 				)}
 				<div className="space-y-1">
 					<AlertNotification />
-					<DomReplacement	/>
+					<DomReplacement />
 					<Tooltip />
 					<TextToSpeech />
 					<ClipboardWriter />

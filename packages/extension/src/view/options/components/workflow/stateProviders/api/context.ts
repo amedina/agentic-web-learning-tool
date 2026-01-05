@@ -23,6 +23,7 @@ import {
 	type DomReplacementConfig,
 	type FileCreatorConfig,
 	type TooltipConfig,
+	type DataTransformerConfig,
 } from './../../components';
 
 export type NodeConfig = {
@@ -43,6 +44,7 @@ export type NodeConfig = {
 		| DomReplacementConfig
 		| FileCreatorConfig
 		| TooltipConfig
+		| DataTransformerConfig
 	>;
 };
 
