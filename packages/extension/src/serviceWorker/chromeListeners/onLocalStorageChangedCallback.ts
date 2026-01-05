@@ -14,6 +14,7 @@ const onLocalStorageChangedCallback = (mcpHub: McpHub) => {
         async ({ mcpServers }: MCPConfig) => {
             await Promise.all(
                 Object.keys(mcpServers ?? {}).map(async (serverName) => {
+                    console.log(mcpServers)
                     if (!serverName) {
                         return Promise.resolve();
                     }
