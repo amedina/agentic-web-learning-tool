@@ -135,7 +135,9 @@ export default function SingleProviderAccordion({
 					<div className="flex items-center gap-2 justify-between">
 						<div>
 							<div className="text-[13px] font-medium text-accent-foreground">
-								Status
+								{status === true
+									? 'Disable Provider'
+									: 'Enable Provider'}
 							</div>
 						</div>
 						<ToggleSwitch

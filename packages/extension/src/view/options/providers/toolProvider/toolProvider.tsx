@@ -39,7 +39,7 @@ const Provider = ({ children }: PropsWithChildren) => {
 		}: {
 			userWebMCPTools: WebMCPTool[];
 			builtInWebMCPToolsState: Record<string, boolean>;
-		} = await chrome.storage.sync.get([
+		} = await chrome.storage.local.get([
 			'userWebMCPTools',
 			'builtInWebMCPToolsState',
 		]);
@@ -65,17 +65,23 @@ const Provider = ({ children }: PropsWithChildren) => {
 	const onLocalStorageChangedListener = useCallback(async () => {
 		const {
 			userWebMCPTools = [],
-			builtInWebMCPToolsState = [],
+			builtInWebMCPToolsState = {},
 		}: {
 			userWebMCPTools: WebMCPTool[];
-			builtInWebMCPToolsState: WebMCPTool[];
-		} = await chrome.storage.sync.get([
+			builtInWebMCPToolsState: Record<string, boolean>;
+		} = await chrome.storage.local.get([
 			'userWebMCPTools',
 			'builtInWebMCPToolsState',
 		]);
 
 		setUserTools(userWebMCPTools);
-		setBuiltInTools(builtInWebMCPToolsState);
+		const states = builtInWebMCPToolsState;
+		setBuiltInTools((prev) =>
+			prev.map((t) => ({
+				...t,
+				enabled: states[t.name] !== undefined ? states[t.name] : true,
+			}))
+		);
 	}, []);
 
 	useEffect(() => {
