@@ -14,14 +14,10 @@ function Panel() {
 			{/* Left Sidebar: Tools */}
 			<div
 				className={`relative flex transition-all duration-300 ease-in-out border-r border-slate-200 bg-slate-50 ${
-					leftCollapsed ? 'w-20' : 'w-74'
+					leftCollapsed ? 'w-20' : 'w-65'
 				}`}
 			>
-				<div
-					className={`${
-						leftCollapsed ? 'w-20' : 'w-74'
-					} h-full shrink-0 flex flex-col overflow-hidden transition-all duration-300`}
-				>
+				<div className="h-full w-full flex flex-col overflow-hidden transition-all duration-300">
 					<ToolsBar
 						collapsed={leftCollapsed}
 						onToggle={() => setLeftCollapsed(!leftCollapsed)}
