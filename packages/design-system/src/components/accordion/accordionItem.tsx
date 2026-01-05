@@ -15,7 +15,7 @@ function AccordionItem({
   return (
     <Item
       data-slot="accordion-item"
-      className={cn("border-b last:border-b-0", className)}
+      className={cn("border-b", className)}
       {...props}
     />
   )
