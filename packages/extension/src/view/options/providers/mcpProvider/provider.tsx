@@ -111,8 +111,11 @@ const Provider = ({ children }: PropsWithChildren) => {
 			'mcpServers',
 			async ({ mcpServers }: MCPConfig) => {
 				await Promise.all(
-					Object.keys(mcpServers).map(async (serverName) => {
-						await addConfig(mcpServers[serverName], serverName);
+					Object.keys(mcpServers ?? {}).map(async (serverName) => {
+						if (!serverName) {
+							return Promise.resolve();
+						}
+						await addConfig(mcpServers?.[serverName], serverName);
 					})
 				);
 			}

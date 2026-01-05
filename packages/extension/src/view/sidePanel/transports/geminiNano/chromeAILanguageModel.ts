@@ -14,7 +14,6 @@ import {
     extractToolCalls,
     extractToolName,
     mergeSystemAndMessages,
-    systemPromptTemplate
 } from "../../utils";
 import type { ToolCallRequest } from "../../types";
 
@@ -47,13 +46,14 @@ declare global {
         LanguageModel: LanguageModelFactory;
     }
 }
-interface LanguageModelV1CallOptions {
+interface LanguageModelV2CallOptions {
     temperature?: number;
     topK?: number;
     responseFormat?: { type: "json"; schema?: any };
     tools?: ToolCallRequest[];
     prompt: any; // Standard AI SDK message format
     abortSignal?: AbortSignal;
+    systemPrompt: string;
 }
 
 /**
@@ -97,7 +97,7 @@ class ChromeAILanguageModel {
      * Initializes or retrieves the Chrome AI session.
      * Converts AssistantUI tools into a JSON schema format understandable by the model.
      */
-    private async getSession() {
+    private async getSession(callOptions: LanguageModelV2CallOptions) {
         if (!this.runtime) {
             return;
         }
@@ -122,21 +122,28 @@ class ChromeAILanguageModel {
             }]
         });
 
+        const { systemPrompt } = this.getArgs(callOptions);
+
         // Create session if it doesn't exist
         // Note: In a real app, you might want to manage session lifecycle more aggressively (destroying old ones)
-        this.session = await lm.create({});
+        this.session = await lm.create({
+            initialPrompts: [{
+                role: "system",
+                content: systemPrompt
+            }]
+        });
     }
 
     /**
      * Prepares arguments, validates settings, and formats system prompts.
      */
-    private getArgs(args: LanguageModelV1CallOptions) {
+    private getArgs(args: LanguageModelV2CallOptions) {
         const {
             temperature,
             topK,
             responseFormat,
             tools,
-            prompt
+            prompt,
         } = args;
 
         const functionTools = (tools ?? []).filter((tool) => tool.type === 'function');
@@ -149,12 +156,12 @@ class ChromeAILanguageModel {
         if (temperature !== undefined) promptOptions.temperature = temperature;
         if (topK !== undefined) promptOptions.topK = topK;
 
-        const { messages } = convertMessages(prompt);
-
+        const { messages, systemMessage } = convertMessages(prompt);
         // Provide the transformed messages and options
         return {
             promptOptions,
             functionTools,
+            systemPrompt: systemMessage,
             messages
         };
     }
@@ -162,15 +169,14 @@ class ChromeAILanguageModel {
     /**
      * Handles non-streaming generation (Unary call).
      */
-    async doGenerate(callOptions: LanguageModelV1CallOptions) {
+    async doGenerate(callOptions: LanguageModelV2CallOptions) {
         const { promptOptions, messages } = this.getArgs(callOptions);
 
-        await this.getSession();
+        await this.getSession(callOptions);
         if (!this.session) return;
 
         // Merge the System Prompt (with tool definitions) into the message history
-        const systemMessage = systemPromptTemplate(JSON.stringify(this.formattedTools, null, 2));
-        const finalMessages = mergeSystemAndMessages(messages, systemMessage);
+        const finalMessages = mergeSystemAndMessages(messages, '');
 
         // Execute prompt
         const responseText = await this.session.prompt([...finalMessages], promptOptions);
@@ -218,16 +224,15 @@ class ChromeAILanguageModel {
      * This is complex because we must scan the stream for ` ```tool_call ` fences.
      * If a fence is detecting, we suppress the raw text and emit `tool-call` events instead.
      */
-    async doStream(callOptions: LanguageModelV1CallOptions) {
+    async doStream(callOptions: LanguageModelV2CallOptions) {
         const { messages, promptOptions } = this.getArgs(callOptions);
 
-        await this.getSession();
+        await this.getSession(callOptions);
         if (!this.session) {
             return;
         }
 
-        const systemMessage = systemPromptTemplate(JSON.stringify(this.formattedTools, null, 2));
-        const finalMessages = mergeSystemAndMessages(messages, systemMessage);
+        const finalMessages = mergeSystemAndMessages(messages, '');
 
         const messageContext = [...finalMessages];
         const textPartId = "text-0";

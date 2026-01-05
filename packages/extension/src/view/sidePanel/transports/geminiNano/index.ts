@@ -125,7 +125,6 @@ export class GeminiNanoChatTransport implements ChatTransport<UIMessage> {
                         },
                         stopWhen: ({ steps }) => steps.length === 100,
                         system: systemPromptTemplate(JSON.stringify(this.formattedTools, null, 2)),
-
                         onError: (err) => {
                             logger(['error'], ["AI SDK error [chatId=]: " + err.error]);
                         },

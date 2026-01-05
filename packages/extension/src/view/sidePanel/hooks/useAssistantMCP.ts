@@ -73,7 +73,7 @@ export function useAssistantMCP(
           execute: async (args, { abortSignal: signal }) => {
             try {
               const cleanedArgs = cleanArguments(args as ToolExecutionArgs);
-              console.log(cleanedArgs)
+              console.log(cleanedArgs, mcpT.name)
               // Execute against the MCP Client using the *Original* name
               const toolResult = await client.callTool(
                 {
@@ -83,7 +83,7 @@ export function useAssistantMCP(
                 undefined,
                 { signal }
               );
-
+              console.log(toolResult)
               return formatToolResult(toolResult.content as CallToolResult['content']);
             } catch (error) {
               logger(['error'], [`[useAssistantMCP] Tool execution failed for '${cleanToolName}': ${error}`]);

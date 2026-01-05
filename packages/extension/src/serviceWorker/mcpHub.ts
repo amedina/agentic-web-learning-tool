@@ -178,10 +178,15 @@ class McpHub {
 			'mcpServers',
 			async ({ mcpServers }: MCPConfig) => {
 				await Promise.all(
-					Object.keys(mcpServers).map(async (serverName) => {
+					Object.keys(mcpServers ?? {}).map(async (serverName) => {
+						if (!serverName) {
+							return Promise.resolve();
+						}
+
 						if (!mcpServers[serverName].enabled) {
 							return Promise.resolve();
 						}
+
 						await this.addNewServer(
 							mcpServers[serverName],
 							serverName
