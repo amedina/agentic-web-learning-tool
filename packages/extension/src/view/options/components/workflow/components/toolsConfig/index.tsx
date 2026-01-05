@@ -47,6 +47,8 @@ const TOOLS = {
 	fileCreator: FileCreatorToolConfig,
 	textToSpeech: null,
 	tooltip: TooltipToolConfig,
+	start: null,
+	end: null,
 };
 
 interface ToolsConfigProps {

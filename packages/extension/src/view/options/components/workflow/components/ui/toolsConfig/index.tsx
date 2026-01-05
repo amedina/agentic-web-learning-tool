@@ -104,7 +104,7 @@ const ToolsConfig = ({
 							</label>
 							<input
 								type="text"
-								className="w-full p-3 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-white"
+								className="w-full p-3 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-white disabled:text-slate-600 disabled:border-none"
 								value={nodeLabel}
 								onChange={(e) =>
 									onLabelChange?.(e.target.value)
@@ -112,6 +112,7 @@ const ToolsConfig = ({
 								id="title"
 								name="title"
 								placeholder="Enter node label..."
+								disabled={!children}
 							/>
 						</div>
 
