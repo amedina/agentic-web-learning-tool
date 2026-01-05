@@ -20,17 +20,17 @@ import type { APIKeys } from '../../../../types';
 type SingleProviderAccordion = {
 	provider: (typeof INITIAL_PROVIDERS)[0];
 	storedData: APIKeys;
-	apiKeys: Record<string, APIKeys>
+	apiKeys: Record<string, APIKeys>;
 };
 
 export default function SingleProviderAccordion({
 	provider,
 	storedData,
-	apiKeys
+	apiKeys,
 }: SingleProviderAccordion) {
 	const [apiKey, setAPIKey] = useState<string>('');
 	const [thinkingMode, setThinkingMode] = useState<boolean>(false);
-	const [inputType, setInputType] = useState<string>('passoword');
+	const [inputType, setInputType] = useState<string>('password');
 	const [status, setStatus] = useState<boolean>(true);
 	const [hasSaved, setSavedStatus] = useState<boolean>(false);
 
@@ -61,7 +61,7 @@ export default function SingleProviderAccordion({
 	}, [storedData]);
 
 	const shouldSubmitButtonBeDisabled = useMemo(() => {
-		if(!apiKey){
+		if (!apiKey) {
 			return true;
 		}
 
