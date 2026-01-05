@@ -46,10 +46,6 @@ function Options() {
 	);
 
 	useEffect(() => {
-		console.log(
-			selectedMenuItem,
-			!Items.map((item) => item.id).includes(selectedMenuItem)
-		);
 		if (!selectedMenuItem) {
 			setSelectedMenuItem(Items[0].id);
 		} else if (!Items.map((item) => item.id).includes(selectedMenuItem)) {

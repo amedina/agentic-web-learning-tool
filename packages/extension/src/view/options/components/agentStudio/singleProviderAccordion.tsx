@@ -8,6 +8,7 @@ import {
 	Button,
 	Input,
 	InputGroup,
+	toast,
 	ToggleSwitch,
 } from '@google-awlt/design-system';
 
@@ -47,6 +48,7 @@ export default function SingleProviderAccordion({
 					},
 				},
 			});
+			toast.success('Provider settings have been updated.');
 		},
 		[apiKey, thinkingMode, status, apiKeys]
 	);
@@ -153,7 +155,7 @@ export default function SingleProviderAccordion({
 						}
 						disabled={shouldSubmitButtonBeDisabled}
 					>
-						Set
+						{storedData?.apiKey ? 'Update' : 'Set'}
 					</Button>
 				</div>
 			</div>
