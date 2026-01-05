@@ -95,14 +95,14 @@ export const ToolFallback: ToolCallMessagePartComponent = ({
 								</span>
 								<div
 									className={`
-                  flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-sm uppercase mr-2
+                  flex items-center gap-1.5 px-2.5 py-0.5 rounded-full tracking-tight uppercase mr-2 text-xxs
                   ${currentStatus?.badge}
                 `}
 								>
 									{currentStatus?.icon}
 									<span>{currentStatus?.text}</span>
 								</div>
-								<div className="text-xs font-medium text-exclusive-plum tracking-tight">
+								<div className="text-tiny font-medium text-exclusive-plum tracking-tight">
 									{timing}
 								</div>
 							</div>
