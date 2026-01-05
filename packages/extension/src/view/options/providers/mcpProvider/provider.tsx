@@ -31,37 +31,41 @@ const Provider = ({ children }: PropsWithChildren) => {
 
 	const createClientAndListTools = useCallback(
 		async (config: MCPServerConfig, serverName: string) => {
-			if (!config.enabled || toolList[serverName]?.length > 0) {
-				return;
-			}
-
-			const requestInit: RequestInit = {};
-
-			if (config.authToken) {
-				requestInit.headers = {
-					Authorization: `Bearer ${config.authToken}`,
-				};
-			}
-
-			const client = new Client({
-				name: 'chrome-options-page-client',
-				version: '1.0',
-			});
-
-			const transport = new StreamableHTTPClientTransport(
-				new URL(config.url),
-				{
-					requestInit,
+			try {
+				if (!config.enabled || toolList[serverName]?.length > 0) {
+					return;
 				}
-			);
 
-			await client.connect(transport);
-			const toolsList = await client.listTools();
+				const requestInit: RequestInit = {};
 
-			setToolList((prev) => ({
-				...prev,
-				[serverName]: toolsList.tools,
-			}));
+				if (config.authToken) {
+					requestInit.headers = {
+						Authorization: `Bearer ${config.authToken}`,
+					};
+				}
+
+				const client = new Client({
+					name: 'chrome-options-page-client',
+					version: '1.0',
+				});
+
+				const transport = new StreamableHTTPClientTransport(
+					new URL(config.url),
+					{
+						requestInit,
+					}
+				);
+
+				await client.connect(transport);
+				const toolsList = await client.listTools();
+
+				setToolList((prev) => ({
+					...prev,
+					[serverName]: toolsList.tools,
+				}));
+			} catch (error) {
+				//catch error
+			}
 		},
 		[toolList]
 	);
@@ -79,12 +83,11 @@ const Provider = ({ children }: PropsWithChildren) => {
 
 	const addConfig = useCallback(
 		async (config: MCPServerConfig, serverName: string) => {
+			await createClientAndListTools(config, serverName);
 			setServerConfigs((prev) => ({
 				...prev,
 				[serverName]: config,
 			}));
-
-			await createClientAndListTools(config, serverName);
 		},
 		[createClientAndListTools]
 	);
@@ -94,16 +97,19 @@ const Provider = ({ children }: PropsWithChildren) => {
 			return;
 		}
 
-		chrome.storage.local.set({
-			mcpServers: serverConfigs,
-		});
-
-		Object.keys(serverConfigs).map(async (serverName) => {
-			await createClientAndListTools(
-				serverConfigs[serverName],
-				serverName
-			);
-		});
+		chrome.storage.local.set(
+			{
+				mcpServers: serverConfigs,
+			},
+			() => {
+				Object.keys(serverConfigs).map(async (serverName) => {
+					await createClientAndListTools(
+						serverConfigs[serverName],
+						serverName
+					);
+				});
+			}
+		);
 	}, [serverConfigs, createClientAndListTools]);
 
 	const initialSync = useCallback(() => {
@@ -118,9 +124,9 @@ const Provider = ({ children }: PropsWithChildren) => {
 						await addConfig(mcpServers?.[serverName], serverName);
 					})
 				);
+				initialFetch.current = true;
 			}
 		);
-		initialFetch.current = true;
 	}, [addConfig]);
 
 	useEffect(() => {
@@ -132,8 +138,9 @@ const Provider = ({ children }: PropsWithChildren) => {
 	 */
 	const removeConfig = useCallback((serverName: string) => {
 		setServerConfigs((prev) => {
-			delete prev[serverName];
-			return prev;
+			const newConfig = structuredClone(prev);
+			delete newConfig[serverName];
+			return newConfig;
 		});
 	}, []);
 

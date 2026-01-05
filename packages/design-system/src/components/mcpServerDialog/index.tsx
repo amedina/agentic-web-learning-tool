@@ -68,6 +68,14 @@ export function MCPServerDialog({
 		onOpenChange(false);
 	}, [config, server]);
 
+	const handleDelete = useCallback(async () => {
+		if (!onDelete) {
+			return;
+		}
+		onOpenChange(false);
+		onDelete(serverId);
+	}, [serverId, onDelete]);
+
 	return (
 		<Dialog.Root open={open} onOpenChange={onOpenChange}>
 			<Dialog.Portal>
@@ -123,7 +131,7 @@ export function MCPServerDialog({
 								{server && onDelete && (
 									<Button
 										variant="destructive"
-										onClick={() => onDelete(serverId)}
+										onClick={handleDelete}
 									>
 										<TrashIcon size={16} /> Delete
 									</Button>
