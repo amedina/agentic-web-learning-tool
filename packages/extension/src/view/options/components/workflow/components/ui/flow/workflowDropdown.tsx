@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React, { useState, useRef, useEffect } from 'react';
-import { Menu, Plus, Upload, Download, Trash2, FolderOpen } from 'lucide-react';
+import { Plus, Upload, Download, Trash2, FolderOpen, Settings2 } from 'lucide-react';
 
 interface WorkflowDropdownProps {
 	onNew: () => void;
@@ -22,7 +22,6 @@ const WorkflowDropdown: React.FC<WorkflowDropdownProps> = ({
 	const [isOpen, setIsOpen] = useState(false);
 	const dropdownRef = useRef<HTMLDivElement>(null);
 
-	// Close dropdown when clicking outside
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
 			if (
@@ -57,7 +56,7 @@ const WorkflowDropdown: React.FC<WorkflowDropdownProps> = ({
 				}`}
 				title="Workflow Actions"
 			>
-				<Menu size={20} />
+				<Settings2 size={20} />
 			</button>
 
 			{isOpen && (

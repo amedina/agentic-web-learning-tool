@@ -25,7 +25,7 @@ const ToolsBar = ({ collapsed = false, onToggle }: ToolsBarProps) => {
 								className="w-10 h-10 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold text-xl shadow-sm hover:scale-105 transition-transform cursor-pointer"
 								title="Expand Sidebar"
 							>
-								A
+								W
 							</button>
 							<button
 								onClick={onToggle}

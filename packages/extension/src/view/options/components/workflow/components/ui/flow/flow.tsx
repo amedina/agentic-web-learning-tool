@@ -82,7 +82,7 @@ const Flow = <NodeType extends Node, EdgeType extends Edge>({
 	return (
 		<div className="h-full flex-1 flex flex-col rounded bg-gray-100 relative min-h-[500px]">
 			<div
-				className="h-15 bg-gray-200 flex items-center justify-between px-2 m-4 mb-0 border-b border-slate-300 rounded p-2"
+				className="h-15 bg-gray-200 flex items-center justify-between px-2 border-b border-slate-300 p-2"
 				onMouseEnter={actions.onRefreshTabs}
 			>
 				<div className="flex items-center gap-2">
@@ -134,7 +134,7 @@ const Flow = <NodeType extends Node, EdgeType extends Edge>({
 					<button
 						onClick={isRunning ? actions.onStop : actions.onRun}
 						disabled={isStopping}
-						className={`flex items-center justify-center w-8 h-8 rounded-full shadow-sm transition-all duration-200 ${
+						className={`flex items-center justify-center w-8 h-8 rounded-full shadow-sm transition-all duration-200 m-2 ${
 							isStopping
 								? 'bg-red-400 cursor-wait text-white shadow-none'
 								: isRunning
