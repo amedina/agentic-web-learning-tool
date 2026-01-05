@@ -24,6 +24,7 @@ import {
 	type FileCreatorConfig,
 	type TooltipConfig,
 	type DataTransformerConfig,
+	type MathConfig,
 } from './../../components';
 
 export type NodeConfig = {
@@ -45,6 +46,7 @@ export type NodeConfig = {
 		| FileCreatorConfig
 		| TooltipConfig
 		| DataTransformerConfig
+		| MathConfig
 	>;
 };
 

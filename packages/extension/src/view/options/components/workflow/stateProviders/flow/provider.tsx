@@ -37,6 +37,7 @@ import {
 	StartNode,
 	EndNode,
 	DataTransformerToolNode,
+	MathToolNode,
 } from '../../components';
 
 const FlowProvider = ({ children }: PropsWithChildren) => {
@@ -64,6 +65,7 @@ const FlowProvider = ({ children }: PropsWithChildren) => {
 			start: StartNode,
 			end: EndNode,
 			dataTransformer: DataTransformerToolNode,
+			math: MathToolNode,
 		}),
 		[]
 	);

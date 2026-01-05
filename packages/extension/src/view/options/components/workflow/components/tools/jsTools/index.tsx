@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import { DomInput, StaticInput } from './inputTools';
-import { Condition, Loop, DataTransformer } from './logicTools';
+import { Condition, Loop, DataTransformer, MathTool } from './logicTools';
 import {
 	AlertNotification,
 	ClipboardWriter,
@@ -45,6 +45,7 @@ const JSTools = ({ collapsed }: JSToolsProps) => {
 					<Condition />
 					<Loop />
 					<DataTransformer />
+					<MathTool />
 				</div>
 			</div>
 

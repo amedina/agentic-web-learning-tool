@@ -22,6 +22,7 @@ import {
 	TooltipToolConfig,
 	LoopToolConfig,
 	DataTransformerToolConfig,
+	MathToolConfig,
 	AlertNotificationToolConfig,
 } from '../tools';
 import { ToolsConfig as ToolsConfigComponent } from '../ui';
@@ -38,6 +39,7 @@ const TOOLS = {
 	domInput: DomInputToolConfig,
 	condition: ConditionToolConfig,
 	dataTransformer: DataTransformerToolConfig,
+	math: MathToolConfig,
 	staticInput: StaticInputToolConfig,
 	loop: LoopToolConfig,
 	domReplacement: DomReplacementToolConfig,

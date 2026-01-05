@@ -14,6 +14,7 @@ export { clipboardWriterExecutor } from "./clipboardWriterExecutor";
 export { fileCreatorExecutor } from "./fileCreatorExecutor";
 export { textToSpeechExecutor } from "./textToSpeechExecutor";
 export { tooltipExecutor } from "./tooltipExecutor";
+export { mathExecutor } from "./mathExecutor";
 
 // Built-in AI API Executors
 export { promptApiExecutor } from "./promptApiExecutor";
@@ -43,6 +44,7 @@ import { fileCreatorExecutor } from "./fileCreatorExecutor";
 import { textToSpeechExecutor } from "./textToSpeechExecutor";
 import { tooltipExecutor } from "./tooltipExecutor";
 import { dataTransformerExecutor } from "./dataTransformerExecutor";
+import { mathExecutor } from "./mathExecutor";
 import { startExecutor } from "./start";
 import { endExecutor } from "./end";
 
@@ -58,6 +60,7 @@ export function registerBuiltinExecutors(): void {
   NodeRegistry.register("condition", conditionExecutor);
   NodeRegistry.register("loop", loopExecutor);
   NodeRegistry.register("dataTransformer", dataTransformerExecutor);
+  NodeRegistry.register("math", mathExecutor);
   NodeRegistry.register("domReplacement", domReplacementExecutor);
   NodeRegistry.register("clipboardWriter", clipboardWriterExecutor);
   NodeRegistry.register("fileCreator", fileCreatorExecutor);

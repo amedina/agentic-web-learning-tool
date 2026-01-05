@@ -108,6 +108,15 @@ export const TOOL_CONFIGS: Record<
 			comparisonValue: '',
 		},
 	},
+	math: {
+		label: 'Math',
+		config: {
+			title: 'Math',
+			description: 'Perform basic math operations.',
+			operation: 'add',
+			operand: '0',
+		},
+	},
 	loop: {
 		label: 'Loop',
 		config: {
@@ -129,6 +138,8 @@ export const TOOL_CONFIGS: Record<
 		config: {
 			title: 'Alert Notification',
 			description: 'Display an alert notification to the user.',
+			useCustomMessage: false,
+			message: '',
 		},
 	},
 	domReplacement: {
