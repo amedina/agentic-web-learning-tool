@@ -120,14 +120,14 @@ export const ToolFallback: ToolCallMessagePartComponent = ({
 
 				{/* Content Area - Warm Gray Background */}
 				{isOpen && (
-					<div className="border-t border-neutral-800 bg-[#111111]">
+					<div className="border-t border-neutral-800 bg-background">
 						{/* Input Arguments */}
 						<div className="px-5 py-4">
-							<div className="flex items-center gap-2 mb-2 text-stone-500 text-xs font-medium uppercase tracking-wider">
+							<div className="flex items-center gap-2 mb-2 text-amethyst-haze text-xs font-medium uppercase tracking-wider">
 								<Code2 size={12} /> Arguments
 							</div>
-							<div className="bg-[#1a1a1a] border border-neutral-800 rounded-lg p-3 shadow-sm">
-								<pre className="font-mono text-xs leading-relaxed text-stone-300 overflow-x-auto">
+							<div className="bg-accent border border-neutral-800 rounded-lg p-3 shadow-sm">
+								<pre className="text-xs leading-relaxed text-primary overflow-x-auto">
 									{JSON.stringify(argsText, null, 2)}
 								</pre>
 							</div>
@@ -136,15 +136,15 @@ export const ToolFallback: ToolCallMessagePartComponent = ({
 						{/* Result Output (if available) */}
 						{result && (
 							<div className="px-5 pb-5 animate-in fade-in slide-in-from-top-1 duration-300">
-								<div className="flex items-center gap-2 mb-2 text-stone-500 text-xs font-medium uppercase tracking-wider">
+								<div className="flex items-center gap-2 mb-2 text-amethyst-haze text-xs font-medium uppercase tracking-wider">
 									<ArrowRight size={12} /> Output
 								</div>
 
 								{/* The Result Block: Looks like a printed document or strict code block */}
 								<div className="relative group/code">
-									<div className="absolute left-0 top-0 bottom-0 w-1 bg-stone-700 rounded-l-lg"></div>
-									<div className="bg-[#1a1a1a] border border-neutral-800 border-l-0 rounded-r-lg p-3 shadow-sm overflow-x-auto">
-										<pre className="font-mono text-xs leading-relaxed text-stone-400">
+									<div className="absolute left-0 top-0 bottom-0 w-1 bg-accent"></div>
+									<div className="bg-background border border-neutral-800 border-l-0 rounded-r-lg p-3 shadow-sm overflow-x-auto">
+										<pre className="text-xs leading-relaxed text-primary">
 											{typeof result === 'string'
 												? result
 												: JSON.stringify(
