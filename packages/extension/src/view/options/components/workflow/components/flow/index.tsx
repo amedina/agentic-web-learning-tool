@@ -26,6 +26,7 @@ import { TOOL_CONFIGS } from '../tools/toolRegistry';
 import { saveWorkflow, loadWorkflow } from '../../../../utils/storage';
 
 const ID_PREFIX = 'wf_';
+const STORAGE_KEY_SELECTED_TAB = 'awl_wc_selected_tab_id';
 
 const generateId = () =>
 	`${ID_PREFIX}${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -36,7 +37,19 @@ const FlowContainer = () => {
 	const [importJson, setImportJson] = useState('');
 	const [workflowId, setWorkflowId] = useState<string | null>(null);
 	const [tabs, setTabs] = useState<chrome.tabs.Tab[]>([]);
-	const [selectedTabId, setSelectedTabId] = useState<number | null>(null);
+	const [selectedTabId, _setSelectedTabId] = useState<number | null>(() => {
+		const saved = localStorage.getItem(STORAGE_KEY_SELECTED_TAB);
+		return saved ? Number(saved) : null;
+	});
+
+	const setSelectedTabId = useCallback((id: number | null) => {
+		_setSelectedTabId(id);
+		if (id !== null) {
+			localStorage.setItem(STORAGE_KEY_SELECTED_TAB, String(id));
+		} else {
+			localStorage.removeItem(STORAGE_KEY_SELECTED_TAB);
+		}
+	}, []);
 	const [showSavedWorkflows, setShowSavedWorkflows] = useState(false);
 	const [isStopping, setIsStopping] = useState(false);
 	const [toast, setToast] = useState<{
@@ -142,7 +155,7 @@ const FlowContainer = () => {
 				}
 			});
 		}
-	}, [selectedTabId]);
+	}, [selectedTabId, setSelectedTabId]);
 
 	useEffect(() => {
 		refetchTabs();

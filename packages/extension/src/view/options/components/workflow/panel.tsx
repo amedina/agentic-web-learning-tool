@@ -6,8 +6,26 @@ import { useState } from 'react';
 import { Flow, ToolsBar, ToolsConfig } from './components';
 
 function Panel() {
-	const [leftCollapsed, setLeftCollapsed] = useState(false);
-	const [rightCollapsed, setRightCollapsed] = useState(false);
+	const [leftCollapsed, setLeftCollapsed] = useState(() => {
+		const saved = localStorage.getItem('awl_wc_left_collapsed');
+		return saved === 'true';
+	});
+	const [rightCollapsed, setRightCollapsed] = useState(() => {
+		const saved = localStorage.getItem('awl_wc_right_collapsed');
+		return saved === 'true';
+	});
+
+	const toggleLeft = () => {
+		const newState = !leftCollapsed;
+		setLeftCollapsed(newState);
+		localStorage.setItem('awl_wc_left_collapsed', String(newState));
+	};
+
+	const toggleRight = () => {
+		const newState = !rightCollapsed;
+		setRightCollapsed(newState);
+		localStorage.setItem('awl_wc_right_collapsed', String(newState));
+	};
 
 	return (
 		<div className="h-dvh w-dvw flex overflow-hidden bg-slate-100 font-sans text-slate-900 antialiased">
@@ -18,10 +36,7 @@ function Panel() {
 				}`}
 			>
 				<div className="h-full w-full flex flex-col overflow-hidden transition-all duration-300">
-					<ToolsBar
-						collapsed={leftCollapsed}
-						onToggle={() => setLeftCollapsed(!leftCollapsed)}
-					/>
+					<ToolsBar collapsed={leftCollapsed} onToggle={toggleLeft} />
 				</div>
 			</div>
 
@@ -41,7 +56,7 @@ function Panel() {
 				>
 					<ToolsConfig
 						collapsed={rightCollapsed}
-						onToggle={() => setRightCollapsed(!rightCollapsed)}
+						onToggle={toggleRight}
 					/>
 				</div>
 			</div>
