@@ -6,7 +6,7 @@ import { useState } from 'react';
 /**
  * Internal dependencies
  */
-import { useToolSidebar } from '../../tools/ToolSidebarContext';
+import { useToolSidebar } from '../../tools/toolSidebarContext1';
 
 interface ToolItemProps {
 	label: string;
