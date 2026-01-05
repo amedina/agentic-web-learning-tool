@@ -82,7 +82,7 @@ const Provider = ({ children }: PropsWithChildren) => {
 		}: { apiKeys: { [key: string]: APIKeys }; selectedAgent: AgentType } =
 			await chrome.storage.sync.get(['apiKeys', 'selectedAgent']);
 
-		setApiKeys(apiKeys);
+		setApiKeys(_apiKeys);
 		if (_selectedAgent.modelProvider === 'browser-ai') {
 			setSelectedAgent(_selectedAgent);
 			setTransport(FALLBACK_AGENT);
