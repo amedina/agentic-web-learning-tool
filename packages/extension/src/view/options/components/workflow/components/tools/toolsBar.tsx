@@ -39,7 +39,7 @@ const ToolsBar = ({ collapsed = false, onToggle }: ToolsBarProps) => {
 						<div className="flex items-center justify-between">
 							<div>
 								<h1 className="font-bold text-slate-800 text-lg">
-									AWL Workflow Composer
+									Workflow Composer
 								</h1>
 								<p className="text-xs text-slate-500">
 									AI-Powered Workflows
