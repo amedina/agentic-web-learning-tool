@@ -48,6 +48,7 @@ export const ToolFallback: ToolCallMessagePartComponent = ({
 			badge: 'bg-red-50 text-red-700',
 			border: 'border-red-100',
 			icon: <div className="h-1.5 w-1.5 rounded-full bg-red-500" />,
+			//@ts-expect-error -- Some status have reason as well.
 			text: status?.reason,
 		},
 	};

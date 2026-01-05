@@ -9,7 +9,7 @@ import { getToolNameWithoutPrefix } from '@google-awlt/design-system';
 /**
  * Internal dependencies
  */
-import { cleanArguments, formatToolResult, mcpToolToJSONSchema, validateToolPreferences } from '../utils';
+import { cleanArguments, formatToolResult, validateToolPreferences } from '../utils';
 import type { ToolExecutionArgs } from '../types';
 import logger from '../../../utils/logger';
 

@@ -48,7 +48,6 @@ export function MCPServerDialog({
 	validator,
 }: MCPServerDialogProps) {
 	const [config, setConfig] = useState(initialState);
-	const [errors, setErrors] = useState<string[]>([]);
 	const [isValidConfig, setIsValidConfig] = useState<boolean>(false);
 
 	useEffect(() => {
@@ -60,8 +59,7 @@ export function MCPServerDialog({
 	}, [open, server]);
 
 	const handleValidate = useCallback(() => {
-		const { errors, isValid } = validator(config, config.name);
-		setErrors(errors);
+		const { isValid } = validator(config, config.name);
 		setIsValidConfig(isValid);
 	}, [config]);
 
