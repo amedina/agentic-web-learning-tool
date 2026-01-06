@@ -10,13 +10,17 @@ import { Speech } from 'lucide-react';
  */
 import { ToolNodeContainer } from '../../../../ui';
 import { useApi, useFlow } from '../../../../../stateProviders';
+import type { TextToSpeechConfig } from './textToSpeech';
 
 const ToolNode = () => {
 	const nodeId = useNodeId();
-	const { selectedNode, setSelectedNode } = useApi(({ state, actions }) => ({
-		selectedNode: state.selectedNode,
-		setSelectedNode: actions.setSelectedNode,
-	}));
+	const { getNode, selectedNode, setSelectedNode } = useApi(
+		({ state, actions }) => ({
+			selectedNode: state.selectedNode,
+			getNode: actions.getNode,
+			setSelectedNode: actions.setSelectedNode,
+		})
+	);
 
 	const { nodes, deleteNode } = useFlow(({ state, actions }) => ({
 		nodes: state.nodes,
@@ -26,6 +30,15 @@ const ToolNode = () => {
 	const nodeStatus = useMemo(() => {
 		return nodes.find((n) => n.id === nodeId)?.status;
 	}, [nodes, nodeId]);
+
+	const config = useMemo(() => {
+		if (!nodeId) return undefined;
+		const node = getNode(nodeId);
+	
+		if(!node) return undefined;
+
+		return node?.config as TextToSpeechConfig;
+	}, [getNode, nodeId]);
 
 	return (
 		<ToolNodeContainer
@@ -37,10 +50,15 @@ const ToolNode = () => {
 			onEdit={() => setSelectedNode(nodeId)}
 			onRemove={() => nodeId && deleteNode(nodeId)}
 		>
-			<div className="h-fit w-full flex flex-col relative py-2">
-				<p className="text-xs text-slate-500 italic px-1">
-					Reads text aloud
-				</p>
+			<div className="h-fit w-full flex flex-col relative px-2">
+				<div className="w-full bg-linear-to-br from-blue-50/50 to-indigo-50/50 rounded-md px-3 py-2 my-2 border border-blue-100/50">
+					<p className="text-[10px] font-bold text-blue-600 uppercase tracking-widest mb-1">
+						Audio Output
+					</p>
+					<p className="truncate text-xs text-slate-600 italic">
+						{config?.description || 'Reads text aloud'}
+					</p>
+				</div>
 				<Handle
 					type="target"
 					position={Position.Left}

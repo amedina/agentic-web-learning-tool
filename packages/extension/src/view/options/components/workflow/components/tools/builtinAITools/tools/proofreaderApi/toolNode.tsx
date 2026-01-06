@@ -63,14 +63,21 @@ const ToolNode = () => {
 				}
 			}}
 		>
-			<div className="h-fit w-full flex flex-col relative">
-				<div className="w-full flex items-center justify-between gap-2 bg-linear-to-br from-blue-50 to-indigo-50 rounded-md p-3 my-2 border border-blue-100">
-					<p className="text-sm font-medium text-slate-500">
-						Input Language(s)
+			<div className="h-fit w-full flex flex-col relative px-2">
+				<div className="w-full bg-linear-to-br from-indigo-50/50 to-blue-50/50 rounded-md px-3 py-2 my-2 border border-indigo-100/50">
+					<p className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest mb-1">
+						Proofreader API
 					</p>
-					<p className="text-slate-700">
-						{config?.expectedInputLanguages?.join(', ') || 'None'}
-					</p>
+					<div className="flex justify-between items-center ">
+						<p className="text-[10px] font-medium text-slate-500 uppercase tracking-tight">
+							Expects
+						</p>
+						<p className="text-xs text-slate-700 italic">
+							{config?.expectedInputLanguages
+								?.join(', ')
+								.toUpperCase() || 'AUTO'}
+						</p>
+					</div>
 				</div>
 				<Handle
 					type="target"
@@ -78,7 +85,7 @@ const ToolNode = () => {
 					style={{
 						background: 'none',
 						border: 'none',
-						top: '50%x',
+						top: '50%',
 						left: '-10px',
 					}}
 				>

@@ -3,11 +3,20 @@
  */
 import { useCallback } from 'react';
 import { Pencil } from 'lucide-react';
+import z from 'zod';
 
 /**
  * Internal dependencies
  */
 import { ToolItem } from '../../../../ui';
+
+export const DomReplacementSchema = z.object({
+	title: z.string(),
+	description: z.string().optional(),
+	selector: z.string(),
+});
+
+export type DomReplacementConfig = z.infer<typeof DomReplacementSchema>;
 
 const DomReplacement = () => {
 	const handleDragStart = useCallback((event: React.DragEvent) => {

@@ -63,10 +63,13 @@ const ToolNode = () => {
 				}
 			}}
 		>
-			<div className="h-fit w-full flex flex-col relative">
-				<div className="w-full bg-linear-to-br from-blue-50 to-indigo-50 rounded-md px-3 py-1 my-6 border border-blue-100">
-					<p className="truncate text-sm text-slate-700 leading-relaxed">
-						{config?.description || ''}
+			<div className="h-fit w-full flex flex-col relative px-2">
+				<div className="w-full bg-linear-to-br from-indigo-50/50 to-blue-50/50 rounded-md px-3 py-2 my-2 border border-indigo-100/50">
+					<p className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest mb-1">
+						Logic Branch
+					</p>
+					<p className="truncate text-xs text-slate-600 italic">
+						{config?.description || 'Branch based on condition'}
 					</p>
 				</div>
 

@@ -6,6 +6,7 @@ import { Pencil } from 'lucide-react';
 import z from 'zod';
 
 export const DomReplacementSchema = z.object({
+	description: z.string().optional(),
 	selector: z.string().min(1, 'Selector is required'),
 	isMultiple: z.boolean().optional(),
 });

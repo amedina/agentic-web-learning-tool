@@ -353,8 +353,8 @@ export function initContentScriptBridge(): void {
         tooltip.appendChild(closeBtn);
 
         const rect = el.getBoundingClientRect();
-        tooltip.style.top = `${rect.top + window.scrollY - 30}px`;
-        tooltip.style.left = `${rect.left + window.scrollX}px`;
+        tooltip.style.top = `${Math.max(rect.top + window.scrollY - 30, 0)}px`;
+        tooltip.style.left = `${Math.max(rect.left + window.scrollX, 0)}px`;
 
         document.body.appendChild(tooltip);
       });
