@@ -65,7 +65,9 @@ const Provider = ({ children }: PropsWithChildren) => {
 				) {
 					//@ts-expect-error -- this is being done to avoid delays for communication with LLM transports.
 					window.command = command.name;
-					return command.instructions;
+					return command.instructions.trim().length > 1
+						? command.instructions.trim()
+						: `/${command.name}`;
 				}
 			}
 		},
