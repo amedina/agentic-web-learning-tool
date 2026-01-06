@@ -4,11 +4,12 @@
 import {
 	ComposerPrimitive,
 	ThreadPrimitive,
+	useAssistantApi,
 	useAssistantState,
 	type AssistantRuntime,
 } from '@assistant-ui/react';
 import { useMcpClient } from '@mcp-b/mcp-react-hooks';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import type { JSONRPCMessage } from '@modelcontextprotocol/sdk/types.js';
 import {
 	Paperclip,
@@ -60,6 +61,7 @@ type ChatBotUIProps = {
 const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 	const { client, tools } = useMcpClient();
 	const [allCommands, setAllCommands] = useState<PromptCommand[]>([]);
+	const api = useAssistantApi();
 
 	useEffect(() => {
 		chrome.storage.local.get(
@@ -80,43 +82,61 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 		);
 	}, []);
 
-	const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-		if (e.key === 'Tab') {
-			const target = e.target as HTMLTextAreaElement;
-			const value = target.value;
-			const selectionStart = target.selectionStart;
-
-			const textBeforeCursor = value.slice(0, selectionStart);
-			const match = textBeforeCursor.match(/\/([\w-]+)$/);
-
+	const extractMatchAndReturnMessage = useCallback(
+		(currentValue: string) => {
+			const match = currentValue.match(/^\/([\w.-]+)(?:\s+(.*))?$/);
 			if (match) {
 				const commandName = match[1];
 				const command = allCommands.find(
 					(m) => m.name === commandName && m.enabled
 				);
-
-				if (command) {
-					e.preventDefault();
-
-					const expansion = command.instructions;
-					const newValue =
-						value.slice(0, selectionStart - match[0].length) +
-						expansion +
-						value.slice(selectionStart);
-
-					target.value = newValue;
-
-					// Trigger React change
-					const tracker = (target as any)._valueTracker;
-					if (tracker) {
-						tracker.setValue(newValue);
-					}
-					const event = new Event('input', { bubbles: true });
-					target.dispatchEvent(event);
+				if (command && command?.instructions.includes('$ARGUMENTS')) {
+					let expansion = command.instructions;
+					expansion = expansion.replaceAll('$ARGUMENTS', match[2]);
+					return expansion;
+				} else if (
+					command &&
+					!command?.instructions.includes('$ARGUMENTS')
+				) {
+					return command.instructions;
 				}
 			}
-		}
-	};
+		},
+		[allCommands, api]
+	);
+
+	const handleKeyDown = useCallback(
+		(
+			event:
+				| React.KeyboardEvent<HTMLTextAreaElement>
+				| React.MouseEvent<HTMLButtonElement>
+		) => {
+			if (event.type === 'click') {
+				event.preventDefault();
+				const currentValue = api.composer().getState().text;
+				const finalText = extractMatchAndReturnMessage(currentValue);
+				if (!finalText) {
+					return;
+				}
+				api.composer().setText(finalText);
+				api.composer().send();
+				return;
+			}
+
+			if (
+				(event as React.KeyboardEvent<HTMLTextAreaElement>).key ===
+				'Enter'
+			) {
+				const currentValue = api.composer().getState().text;
+				const finalText = extractMatchAndReturnMessage(currentValue);
+				if (!finalText) {
+					return;
+				}
+				api.composer().setText(finalText);
+			}
+		},
+		[api, extractMatchAndReturnMessage]
+	);
 
 	const { apiKeys, setSelectedAgent, selectedAgent } = useModelProvider(
 		({ state, actions }) => ({
@@ -321,8 +341,8 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 					<ComposerPrimitive.Root className="relative flex flex-col gap-2 rounded-md border border-zinc-200 bg-background shadow-xl shadow-subtle-zinc/20 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all overflow-hidden">
 						<ComposerPrimitive.Input
 							placeholder="Ask anything..."
-							className="w-full max-h-40 min-h-[56px] resize-none bg-transparent px-4 py-4 text-sm outline-none placeholder:exclusive-plum text-primary"
 							onKeyDown={handleKeyDown}
+							className="w-full max-h-40 min-h-[56px] resize-none bg-transparent px-4 py-4 text-sm outline-none placeholder:exclusive-plum text-primary"
 						/>
 						<div className="flex items-center justify-between gap-2 px-3">
 							<div className="flex items-center">
@@ -370,7 +390,10 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 								</Dropdown>
 							</div>
 							<ThreadPrimitive.If running={false}>
-								<ComposerPrimitive.Send className="h-9 w-9 flex items-center justify-center rounded-lg bg-background hover:text-ring text-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+								<ComposerPrimitive.Send
+									onClick={handleKeyDown}
+									className="h-9 w-9 flex items-center justify-center rounded-lg bg-background hover:text-ring text-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+								>
 									<SendHorizontal size={18} />
 								</ComposerPrimitive.Send>
 							</ThreadPrimitive.If>
