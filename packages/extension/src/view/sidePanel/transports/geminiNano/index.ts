@@ -154,7 +154,7 @@ export class GeminiNanoChatTransport implements ChatTransport<UIMessage> {
 						writer.write({
 							type: 'text-delta',
 							id: textPartId,
-							delta: '---',
+							delta: '---\n\n',
 						});
 
 						writer.write({
