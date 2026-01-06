@@ -98,6 +98,8 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 					command &&
 					!command?.instructions.includes('$ARGUMENTS')
 				) {
+					//@ts-expect-error -- this is being done to avoid delays for communication with LLM transports.
+					window.command = command.name;
 					return command.instructions;
 				}
 			}
@@ -119,7 +121,10 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 					return;
 				}
 				api.composer().setText(finalText);
-				api.composer().send();
+				setTimeout(() => {
+					api.composer().send();
+				}, 1000);
+
 				return;
 			}
 

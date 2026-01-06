@@ -44,6 +44,7 @@ export class GeminiNanoChatTransport implements ChatTransport<UIMessage> {
     private isInitializing: boolean = false;
     private runtime: AssistantRuntime | null = null;
     formattedTools: any[] = [];
+
     constructor() { }
 
     setRuntime(runtime: AssistantRuntime) {
@@ -106,6 +107,36 @@ export class GeminiNanoChatTransport implements ChatTransport<UIMessage> {
             type: "function"
         }]);
 
+        //@ts-expect-error -- the command is being set from the chatbot
+        const _command = window.command;
+
+        if (_command) {
+            return createUIMessageStream({
+                execute: async ({ writer }) => {
+                    const textPartId = "text-0";
+                    writer.write({ type: "text-start", id: textPartId });
+
+                    if (_command === 'settings') {
+                        writer.write({ type: "text-delta", id: textPartId, delta: ' Opening Settings page' });
+                        setTimeout(() => {
+                            chrome.runtime.openOptionsPage();
+                        }, 500)
+
+                    }
+                    writer.write({ type: "text-end", id: textPartId });
+                    writer.write({
+                        type: "finish",
+                        finishReason: 'stop',
+                    });
+
+                    //@ts-expect-error -- the command is being set from the chatbot
+                    window.command = ''
+                }
+            })
+
+        }
+
+
         return createUIMessageStream({
             execute: async ({ writer }) => {
                 try {
@@ -121,7 +152,6 @@ export class GeminiNanoChatTransport implements ChatTransport<UIMessage> {
                         },
                         stopWhen: ({ steps }) => steps.length === 100,
                         system: systemPromptTemplate(JSON.stringify(this.formattedTools, null, 2)),
-
                         onError: (err) => {
                             logger(['error'], ["AI SDK error [chatId=]: ", err.error]);
                         },
