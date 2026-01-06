@@ -15,7 +15,6 @@ import {
 	SendHorizontal,
 	CircleStop,
 	ToolCaseIcon,
-	CpuIcon,
 	Settings,
 	ChevronDown,
 } from 'lucide-react';
