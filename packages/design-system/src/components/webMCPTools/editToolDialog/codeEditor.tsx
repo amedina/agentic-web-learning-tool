@@ -7,7 +7,7 @@ import { useRef } from 'react';
  * Internal dependencies.
  */
 import SyntaxHighlighter from './syntaxHighlighter';
-import { vs, vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { vs, dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 interface CodeEditorProps {
     code: string;
@@ -46,11 +46,11 @@ export function CodeEditor({ code, onChange, isDarkMode = false }: CodeEditorPro
     const lines = code.split('\n');
     const lineNumbers = lines.map((_, index) => index + 1);
 
-    const activeStyle = isDarkMode ? vscDarkPlus : vs;
-    const backgroundColor = isDarkMode ? '#1E1E1E' : 'white';
-    const caretColor = isDarkMode ? 'white' : 'black';
-    const gutterBg = isDarkMode ? '#252526' : '#f3f4f6'; // dark VS Code gutter vs light gray
-    const gutterText = isDarkMode ? '#858585' : '#9ca3af';
+    const activeStyle = isDarkMode ? dracula : vs;
+    const backgroundColor = isDarkMode ? '#282a36' : 'white'; // Dracula bg
+    const caretColor = isDarkMode ? '#f8f8f2' : 'black'; // Dracula fg
+    const gutterBg = isDarkMode ? '#21222c' : '#f3f4f6'; // Dracula gutter
+    const gutterText = isDarkMode ? '#6272a4' : '#9ca3af'; // Dracula comment/selection
 
     return (
         <div className="flex-1 relative flex">

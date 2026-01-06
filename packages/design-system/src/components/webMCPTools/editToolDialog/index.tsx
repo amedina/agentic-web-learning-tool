@@ -135,7 +135,7 @@ export function EditToolDialog({ open, onOpenChange, tool, onSave, onDelete, isD
         <Dialog.Root open={open} onOpenChange={onOpenChange}>
             <Dialog.Portal>
                 <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50" />
-                <Dialog.Content aria-describedby={undefined} className="fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] w-[95vw] h-[90vh] bg-extreme-zinc border border-gray-200 rounded-xl shadow-2xl z-50 flex flex-col overflow-hidden">
+                <Dialog.Content aria-describedby={undefined} className={`fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] w-[95vw] h-[90vh] bg-extreme-zinc border border-gray-200 rounded-xl shadow-2xl z-50 flex flex-col overflow-hidden ${isDarkMode ? 'dark' : ''}`}>
 
                     {/* Header */}
                     <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-extreme-zinc">
@@ -153,57 +153,59 @@ export function EditToolDialog({ open, onOpenChange, tool, onSave, onDelete, isD
 
                     <div className="flex-grow flex flex-row overflow-hidden relative">
                         {/* Toolbar overlay for editor */}
-                        <div className="absolute top-4 right-[420px] z-20 flex gap-2">
-                            <Button
-                                size="sm"
-                                variant="outline"
-                                className={`bg-extreme-zinc h-8 text-xs font-medium gap-1.5 ${code === initialCode ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                onClick={handleInsertTemplateRequest}
-                                disabled={code === initialCode}
-                            >
-                                <LayoutTemplateIcon size={12} /> Insert Template
-                            </Button>
-                            <Button
-                                size="sm"
-                                variant="outline"
-                                className={`bg-extreme-zinc h-8 text-xs font-medium gap-1.5 ${!code?.trim() ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                onClick={handleCopy}
-                                disabled={!code?.trim()}
-                            >
-                                {isCopied ? <CheckIcon size={12} className="text-green-600" /> : <CopyIcon size={12} />}
-                                {isCopied ? 'Copied' : 'Copy'}
-                            </Button>
-                        </div>
-
-                        {/* Template Warning Toast/Overlay */}
-                        {showTemplateWarning && (
-                            <div className="absolute top-16 left-4 right-[420px] z-30 mx-auto w-max max-w-[90%]">
-                                <div className="bg-extreme-zinc text-white p-3 rounded-lg shadow-xl flex items-center gap-4 animate-in fade-in slide-in-from-top-2 border border-gray-700">
-                                    <AlertTriangleIcon className="text-yellow-400" size={16} />
-                                    <span className="text-sm font-medium">Overwriting code with template. Are you sure?</span>
-                                    <div className="flex gap-2 ml-2">
-                                        <button
-                                            onClick={confirmInsertTemplate}
-                                            className="text-xs bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded transition-colors"
-                                        >
-                                            Overwrite
-                                        </button>
-                                        <button
-                                            onClick={() => setShowTemplateWarning(false)}
-                                            className="text-xs bg-gray-700 hover:bg-gray-600 text-gray-200 px-2 py-1 rounded transition-colors"
-                                        >
-                                            Cancel
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
                         {/* Editor Side */}
                         <div className="flex-1 flex flex-col p-0 border-r border-gray-200 relative bg-extreme-zinc overflow-auto">
-                            <div className="px-4 py-2 bg-extreme-zinc border-b border-gray-100 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                Script Code
+                            <div className="px-4 py-2 bg-extreme-zinc border-b border-gray-100 flex items-center justify-between">
+                                <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                    Script Code
+                                </span>
+                                <div className="flex gap-2">
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className={`bg-extreme-zinc h-6 text-[10px] font-medium gap-1.5 px-2 ${code === initialCode ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                        onClick={handleInsertTemplateRequest}
+                                        disabled={code === initialCode}
+                                    >
+                                        <LayoutTemplateIcon size={12} /> Insert Template
+                                    </Button>
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className={`bg-extreme-zinc h-6 text-[10px] font-medium gap-1.5 px-2 ${!code?.trim() ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                        onClick={handleCopy}
+                                        disabled={!code?.trim()}
+                                    >
+                                        {isCopied ? <CheckIcon size={12} className="text-green-600" /> : <CopyIcon size={12} />}
+                                        {isCopied ? 'Copied' : 'Copy'}
+                                    </Button>
+                                </div>
                             </div>
+
+                            {/* Template Warning Toast/Overlay */}
+                            {showTemplateWarning && (
+                                <div className="absolute top-14 left-4 right-4 z-30 mx-auto w-max max-w-[90%]">
+                                    <div className="bg-extreme-zinc text-white p-3 rounded-lg shadow-xl flex items-center gap-4 animate-in fade-in slide-in-from-top-2 border border-gray-700">
+                                        <AlertTriangleIcon className="text-yellow-400" size={16} />
+                                        <span className="text-sm font-medium">Overwriting code with template. Are you sure?</span>
+                                        <div className="flex gap-2 ml-2">
+                                            <button
+                                                onClick={confirmInsertTemplate}
+                                                className="text-xs bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded transition-colors"
+                                            >
+                                                Overwrite
+                                            </button>
+                                            <button
+                                                onClick={() => setShowTemplateWarning(false)}
+                                                className="text-xs bg-gray-700 hover:bg-gray-600 text-gray-200 px-2 py-1 rounded transition-colors"
+                                            >
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
                             <CodeEditor code={code} onChange={handleCodeChange} isDarkMode={isDarkMode} />
                         </div>
 
