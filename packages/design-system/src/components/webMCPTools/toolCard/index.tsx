@@ -29,7 +29,6 @@ export function ToolCard({ tool, onToggle, onEdit }: ToolCardProps) {
                 <ToggleSwitch
                     checked={tool.enabled}
                     onCheckedChange={onToggle}
-                    className="data-[state=checked]:bg-gray-900"
                 />
             </div>
 
