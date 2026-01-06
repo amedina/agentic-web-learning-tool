@@ -20,6 +20,7 @@ import ChromeAILanguageModel from './chromeAILanguageModel';
 import { systemPromptTemplate } from '../../utils';
 import logger from '../../../../utils/logger';
 import { BUILT_IN_COMMANDS } from '../../../../constants';
+import replaceSlashCommands from '../replaceSlashCommands';
 
 type SendMessagesParams = {
 	/** The type of message submission - either new message or regeneration */
@@ -108,101 +109,7 @@ export class GeminiNanoChatTransport implements ChatTransport<UIMessage> {
 		}
 
 		if (_command) {
-			return createUIMessageStream({
-				execute: async ({ writer }) => {
-					const textPartId = 'text-0';
-					writer.write({ type: 'text-start', id: textPartId });
-
-					if (_command === 'settings') {
-						writer.write({
-							type: 'text-delta',
-							id: textPartId,
-							delta: 'Opening Settings page',
-						});
-						setTimeout(() => {
-							console.log(_command);
-							chrome.runtime.openOptionsPage();
-						}, 500);
-					}
-
-					if (_command === 'help') {
-						writer.write({
-							type: 'text-delta',
-							id: textPartId,
-							delta: '##### Available Commands\n\n',
-						});
-
-						writer.write({
-							type: 'text-delta',
-							id: textPartId,
-							delta: '###### Built-In Commands \n\n',
-						});
-
-						BUILT_IN_COMMANDS.forEach((cmd) => {
-							writer.write({
-								type: 'text-delta',
-								id: textPartId,
-								delta:
-									'> **`/' +
-									cmd.name +
-									'`** - ' +
-									cmd.description +
-									'\n\n',
-							});
-						});
-
-						writer.write({
-							type: 'text-delta',
-							id: textPartId,
-							delta: '---\n\n',
-						});
-
-						writer.write({
-							type: 'text-delta',
-							id: textPartId,
-							delta: '###### User Generated Commands \n\n',
-						});
-
-						const {
-							promptCommands,
-						}: { promptCommands: PromptCommand[] } =
-							await chrome.storage.local.get('promptCommands');
-
-						promptCommands.forEach((cmd) => {
-							writer.write({
-								type: 'text-delta',
-								id: textPartId,
-								delta:
-									'**`/' +
-									cmd.name +
-									'`** - ' +
-									cmd.description +
-									'\n\n',
-							});
-						});
-					}
-
-					if (_command === 'clear') {
-						writer.write({
-							type: 'text-delta',
-							id: textPartId,
-							delta: 'Clearing the current conversation',
-						});
-						setTimeout(() => {
-							this.runtime?.thread.reset();
-						}, 500);
-					}
-
-					writer.write({ type: 'text-end', id: textPartId });
-					writer.write({
-						type: 'finish',
-						finishReason: 'stop',
-					});
-
-					//@ts-expect-error -- the command is being set from the chatbot
-					window.command = '';
-				},
-			});
+			return replaceSlashCommands(_command, this.runtime);
 		}
 		const { messages, abortSignal } = params;
 
