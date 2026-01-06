@@ -28,10 +28,10 @@ function Panel() {
 	};
 
 	return (
-		<div className="h-dvh w-dvw flex overflow-hidden bg-slate-100 font-sans text-slate-900 antialiased">
+		<div className="h-dvh w-dvw flex overflow-hidden bg-slate-100 dark:bg-background font-sans text-slate-900 dark:text-foreground antialiased">
 			{/* Left Sidebar: Tools */}
 			<div
-				className={`relative flex transition-all duration-300 ease-in-out border-r border-slate-200 bg-slate-50 ${
+				className={`relative flex transition-all duration-300 ease-in-out border-r border-slate-200 dark:border-border bg-slate-50 dark:bg-zinc-900 ${
 					leftCollapsed ? 'w-20' : 'w-65'
 				}`}
 			>
@@ -47,7 +47,7 @@ function Panel() {
 
 			{/* Right Sidebar: Configuration */}
 			<div
-				className={`relative flex transition-all duration-300 ease-in-out border-l border-slate-200 bg-white ${
+				className={`relative flex transition-all duration-300 ease-in-out border-l border-slate-200 dark:border-border bg-white dark:bg-zinc-900 ${
 					rightCollapsed ? 'w-14' : 'w-74'
 				}`}
 			>

@@ -66,14 +66,14 @@ const MathToolNode = () => {
 			}}
 		>
 			<div className="h-fit w-full flex flex-col relative px-2">
-				<div className="w-full bg-slate-50 rounded-md px-3 py-2 my-4 border border-slate-100">
-					<p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">
-						{config?.operation || 'add'}
+				<div className="w-full bg-slate-50 dark:bg-zinc-800 rounded-md px-3 py-2 mt-4 mb-3 border border-slate-100 dark:border-border">
+					<p className="text-[10px] font-bold text-slate-400 dark:text-indigo-400 uppercase tracking-widest mb-1">
+						{config?.operation || 'addition'}
 					</p>
-					<p className="truncate text-xs text-slate-600 italic">
-						{config?.operand
-							? `Operand: ${config.operand}`
-							: 'Unary operation'}
+					<p className="truncate text-xs text-slate-700 dark:text-zinc-300 font-medium italic">
+						{config?.operand !== undefined
+							? `Using value: ${config.operand}`
+							: 'Waiting for input...'}
 					</p>
 				</div>
 

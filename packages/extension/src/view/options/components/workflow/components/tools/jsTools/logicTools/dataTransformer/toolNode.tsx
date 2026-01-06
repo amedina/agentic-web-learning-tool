@@ -65,11 +65,11 @@ const DataTransformerToolNode = () => {
 			}}
 		>
 			<div className="h-fit w-full flex flex-col relative px-2">
-				<div className="w-full bg-slate-50 rounded-md px-3 py-2 my-4 border border-slate-100">
-					<p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">
+				<div className="w-full bg-slate-50 dark:bg-zinc-800 rounded-md px-3 py-2 my-4 border border-slate-100 dark:border-border">
+					<p className="text-[10px] font-bold text-slate-400 dark:text-indigo-400 uppercase tracking-widest mb-1">
 						{config?.operation || 'format'}
 					</p>
-					<p className="truncate text-xs text-slate-600">
+					<p className="truncate text-xs text-slate-600 dark:text-zinc-300 font-medium">
 						{config?.description || 'Transform data...'}
 					</p>
 				</div>

@@ -28,20 +28,36 @@ const Toast = ({ message, type, duration = 3000, onClose }: ToastProps) => {
 	}, [duration, onClose]);
 
 	const icons = {
-		success: <CheckCircle2 size={18} className="text-emerald-500" />,
-		error: <AlertCircle size={18} className="text-rose-500" />,
-		info: <Loader2 size={18} className="text-indigo-500 animate-spin" />,
+		success: (
+			<CheckCircle2
+				size={18}
+				className="text-emerald-500 dark:text-emerald-400"
+			/>
+		),
+		error: (
+			<AlertCircle
+				size={18}
+				className="text-rose-500 dark:text-rose-400"
+			/>
+		),
+		info: (
+			<Loader2
+				size={18}
+				className="text-indigo-500 dark:text-indigo-400 animate-spin"
+			/>
+		),
 	};
 
 	const backgrounds = {
-		success: 'bg-emerald-50/90 border-emerald-200/50',
-		error: 'bg-rose-50/90 border-rose-200/50',
-		info: 'bg-indigo-50/90 border-indigo-200/50',
+		success:
+			'bg-emerald-50/90 dark:bg-emerald-950/90 border-emerald-200/50 dark:border-emerald-800/50',
+		error: 'bg-rose-50/90 dark:bg-rose-950/90 border-rose-200/50 dark:border-rose-800/50',
+		info: 'bg-indigo-50/90 dark:bg-indigo-950/90 border-indigo-200/50 dark:border-indigo-800/50',
 	};
 
 	return (
 		<div
-			className={`fixed top-6 left-1/2 -translate-x-1/2 z-9999 px-4 py-3 rounded-xl border shadow-xl backdrop-blur-md transition-all duration-300 ease-out flex items-center gap-3 min-w-[320px] max-w-md ${
+			className={`fixed top-6 left-1/2 -translate-x-1/2 z-[9999] px-4 py-3 rounded-xl border shadow-xl backdrop-blur-md transition-all duration-300 ease-out flex items-center gap-3 min-w-[320px] max-w-md ${
 				backgrounds[type]
 			} ${
 				isVisible
@@ -50,7 +66,7 @@ const Toast = ({ message, type, duration = 3000, onClose }: ToastProps) => {
 			}`}
 		>
 			<div className="shrink-0">{icons[type]}</div>
-			<p className="flex-1 text-sm font-medium text-slate-700 leading-tight">
+			<p className="flex-1 text-sm font-medium text-slate-700 dark:text-slate-200 leading-tight">
 				{message}
 			</p>
 			<button
@@ -58,7 +74,7 @@ const Toast = ({ message, type, duration = 3000, onClose }: ToastProps) => {
 					setIsVisible(false);
 					setTimeout(onClose, 300);
 				}}
-				className="p-1 hover:bg-black/5 rounded-full text-slate-400 hover:text-slate-600 transition-colors"
+				className="p-1 hover:bg-black/5 dark:hover:bg-white/10 rounded-full text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
 			>
 				<X size={14} />
 			</button>

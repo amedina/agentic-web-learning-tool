@@ -98,9 +98,12 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 
 	return (
 		<div className="space-y-6">
-			<div className="bg-slate-100 rounded-lg p-4">
-				<h3 className="text-sm font-semibold text-slate-800 mb-4 flex items-center gap-2">
-					<Settings size={16} className="text-indigo-600" />
+			<div className="bg-slate-100 dark:bg-slate-800/50 rounded-lg p-4">
+				<h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-2">
+					<Settings
+						size={16}
+						className="text-indigo-600 dark:text-indigo-400"
+					/>
 					Transformer Configuration
 				</h3>
 
@@ -108,7 +111,7 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 					<div>
 						<label
 							htmlFor="transformer-operation"
-							className="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-2"
+							className="block text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2"
 						>
 							Operation
 						</label>
@@ -122,7 +125,7 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 										.value as DataTransformerConfig['operation']
 								)
 							}
-							className="w-full p-2 bg-white border border-slate-200 rounded-md text-sm focus:ring-2 focus:ring-indigo-500"
+							className="w-full p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md text-sm focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 dark:text-slate-100"
 						>
 							<option value="regex">Regex Extraction</option>
 							<option value="jsonParse">JSON Parse / Path</option>
@@ -139,13 +142,13 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 						</select>
 					</div>
 
-					<div className="p-3 bg-white border border-slate-200 rounded-md space-y-3">
+					<div className="p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md space-y-3">
 						{operation === 'regex' && (
 							<>
 								<div>
 									<label
 										htmlFor="regex-pattern"
-										className="block text-xs font-medium text-slate-700 mb-1"
+										className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1"
 									>
 										Regex Pattern
 									</label>
@@ -154,13 +157,13 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 										name="pattern"
 										defaultValue={config.pattern}
 										placeholder="e.g. (\d+)"
-										className="w-full p-2 border border-slate-200 rounded text-sm font-mono"
+										className="w-full p-2 border border-slate-200 dark:border-slate-700 rounded text-sm font-mono bg-white dark:bg-slate-800 dark:text-slate-100"
 									/>
 								</div>
 								<div>
 									<label
 										htmlFor="regex-flags"
-										className="block text-xs font-medium text-slate-700 mb-1"
+										className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1"
 									>
 										Flags
 									</label>
@@ -169,7 +172,7 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 										name="flags"
 										defaultValue={config.flags}
 										placeholder="e.g. g, i"
-										className="w-full p-2 border border-slate-200 rounded text-sm font-mono"
+										className="w-full p-2 border border-slate-200 dark:border-slate-700 rounded text-sm font-mono bg-white dark:bg-slate-800 dark:text-slate-100"
 									/>
 								</div>
 							</>
@@ -179,7 +182,7 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 							<div>
 								<label
 									htmlFor="json-path"
-									className="block text-xs font-medium text-slate-700 mb-1"
+									className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1"
 								>
 									JSON Path
 								</label>
@@ -188,7 +191,7 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 									name="path"
 									defaultValue={config.path}
 									placeholder="e.g. data.user.name"
-									className="w-full p-2 border border-slate-200 rounded text-sm font-mono"
+									className="w-full p-2 border border-slate-200 dark:border-slate-700 rounded text-sm font-mono bg-white dark:bg-slate-800 dark:text-slate-100"
 								/>
 							</div>
 						)}
@@ -197,7 +200,7 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 							<div>
 								<label
 									htmlFor="format-type"
-									className="block text-xs font-medium text-slate-700 mb-1"
+									className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1"
 								>
 									Format Type
 								</label>
@@ -205,7 +208,7 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 									id="format-type"
 									name="formatType"
 									defaultValue={config.formatType}
-									className="w-full p-2 border border-slate-200 rounded text-sm"
+									className="w-full p-2 border border-slate-200 dark:border-slate-700 rounded text-sm bg-white dark:bg-slate-800 dark:text-slate-100"
 								>
 									<option value="lowercase">Lowercase</option>
 									<option value="uppercase">Uppercase</option>
@@ -224,7 +227,7 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 								<div>
 									<label
 										htmlFor="transformer-separator"
-										className="block text-xs font-medium text-slate-700 mb-1"
+										className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1"
 									>
 										Separator
 									</label>
@@ -233,14 +236,14 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 										name="separator"
 										defaultValue={config.separator}
 										placeholder="e.g. , or ;"
-										className="w-full p-2 border border-slate-200 rounded text-sm"
+										className="w-full p-2 border border-slate-200 dark:border-slate-700 rounded text-sm bg-white dark:bg-slate-800 dark:text-slate-100"
 									/>
 								</div>
 								{operation === 'split' && (
 									<div>
 										<label
 											htmlFor="split-index"
-											className="block text-xs font-medium text-slate-700 mb-1"
+											className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1"
 										>
 											Target Index
 										</label>
@@ -250,7 +253,7 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 											type="number"
 											defaultValue={config.index}
 											placeholder="0"
-											className="w-full p-2 border border-slate-200 rounded text-sm"
+											className="w-full p-2 border border-slate-200 dark:border-slate-700 rounded text-sm bg-white dark:bg-slate-800 dark:text-slate-100"
 										/>
 									</div>
 								)}
@@ -261,7 +264,7 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 							<div>
 								<label
 									htmlFor="transformer-template"
-									className="block text-xs font-medium text-slate-700 mb-1"
+									className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1"
 								>
 									Template
 								</label>
@@ -271,9 +274,9 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 									defaultValue={config.template}
 									rows={3}
 									placeholder="The result is: {{input}}"
-									className="w-full p-2 border border-slate-200 rounded text-sm"
+									className="w-full p-2 border border-slate-200 dark:border-slate-700 rounded text-sm bg-white dark:bg-slate-800 dark:text-slate-100"
 								/>
-								<p className="text-[10px] text-slate-400 mt-1">
+								<p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1">
 									Use {'{{input}}'} as a placeholder
 								</p>
 							</div>
@@ -284,7 +287,7 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 								<div>
 									<label
 										htmlFor="filter-key"
-										className="block text-xs font-medium text-slate-700 mb-1"
+										className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1"
 									>
 										Filter Key (Object Property)
 									</label>
@@ -293,13 +296,13 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 										name="filterKey"
 										defaultValue={config.filterKey}
 										placeholder="e.g. status"
-										className="w-full p-2 border border-slate-200 rounded text-sm font-mono"
+										className="w-full p-2 border border-slate-200 dark:border-slate-700 rounded text-sm font-mono bg-white dark:bg-slate-800 dark:text-slate-100"
 									/>
 								</div>
 								<div>
 									<label
 										htmlFor="filter-value"
-										className="block text-xs font-medium text-slate-700 mb-1"
+										className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1"
 									>
 										Filter Value (Matches)
 									</label>
@@ -308,7 +311,7 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 										name="filterValue"
 										defaultValue={config.filterValue}
 										placeholder="e.g. active"
-										className="w-full p-2 border border-slate-200 rounded text-sm font-mono"
+										className="w-full p-2 border border-slate-200 dark:border-slate-700 rounded text-sm font-mono bg-white dark:bg-slate-800 dark:text-slate-100"
 									/>
 								</div>
 							</div>
@@ -318,7 +321,7 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 							<div>
 								<label
 									htmlFor="map-path"
-									className="block text-xs font-medium text-slate-700 mb-1"
+									className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1"
 								>
 									Map Path (Pick Property)
 								</label>
@@ -327,14 +330,14 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 									name="mapPath"
 									defaultValue={config.mapPath}
 									placeholder="e.g. user.id"
-									className="w-full p-2 border border-slate-200 rounded text-sm font-mono"
+									className="w-full p-2 border border-slate-200 dark:border-slate-700 rounded text-sm font-mono bg-white dark:bg-slate-800 dark:text-slate-100"
 								/>
 							</div>
 						)}
 
 						{(operation === 'objectKeys' ||
 							operation === 'objectValues') && (
-							<div className="text-[10px] text-slate-500 italic">
+							<div className="text-[10px] text-slate-500 dark:text-slate-400 italic">
 								No additional configuration needed.
 							</div>
 						)}

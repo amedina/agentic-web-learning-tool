@@ -12,9 +12,9 @@ interface ToolsBarProps {
 const ToolsBar = ({ collapsed = false, onToggle }: ToolsBarProps) => {
 	return (
 		<ToolSidebarProvider collapsed={collapsed}>
-			<div className="bg-slate-50 border-r border-slate-200 h-full flex flex-col overflow-y-auto overflow-x-hidden">
+			<div className="bg-slate-50 dark:bg-zinc-900 border-r border-slate-200 dark:border-border h-full flex flex-col overflow-y-auto overflow-x-hidden">
 				<div
-					className={`border-b border-slate-200 bg-white transition-all duration-300 relative ${
+					className={`border-b border-slate-200 dark:border-border bg-white dark:bg-zinc-950 transition-all duration-300 relative ${
 						collapsed ? 'p-2 flex justify-center' : 'p-4'
 					}`}
 				>
@@ -29,7 +29,7 @@ const ToolsBar = ({ collapsed = false, onToggle }: ToolsBarProps) => {
 							</button>
 							<button
 								onClick={onToggle}
-								className="absolute -right-1 top-1/2 -translate-y-1/2 p-1 hover:bg-slate-100 rounded-md text-slate-400 hover:text-slate-600 transition-colors"
+								className="absolute -right-1 top-1/2 -translate-y-1/2 p-1 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-md text-slate-400 dark:text-zinc-500 hover:text-slate-600 dark:hover:text-zinc-300 transition-colors"
 								title="Expand Sidebar"
 							>
 								<ChevronsRight size={16} />
@@ -38,16 +38,16 @@ const ToolsBar = ({ collapsed = false, onToggle }: ToolsBarProps) => {
 					) : (
 						<div className="flex items-center justify-between">
 							<div>
-								<h1 className="font-bold text-slate-800 text-lg">
+								<h1 className="font-bold text-slate-800 dark:text-foreground text-lg">
 									Workflow Composer
 								</h1>
-								<p className="text-xs text-slate-500">
+								<p className="text-xs text-slate-500 dark:text-zinc-400">
 									AI-Powered Workflows
 								</p>
 							</div>
 							<button
 								onClick={onToggle}
-								className="p-1.5 hover:bg-slate-100 rounded-md text-slate-400 hover:text-slate-600 transition-colors"
+								className="p-1.5 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-md text-slate-400 dark:text-zinc-500 hover:text-slate-600 dark:hover:text-zinc-300 transition-colors"
 								title="Collapse Sidebar"
 							>
 								<ChevronsLeft size={18} />

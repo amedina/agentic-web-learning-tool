@@ -64,15 +64,15 @@ const ToolNode = () => {
 			}}
 		>
 			<div className="h-fit w-full flex flex-col relative px-2">
-				<div className="w-full bg-linear-to-br from-indigo-50/50 to-blue-50/50 rounded-md px-3 py-2 my-2 border border-indigo-100/50">
-					<p className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest mb-1">
+				<div className="w-full bg-linear-to-br from-indigo-50/50 to-blue-50/50 dark:from-zinc-800/80 dark:to-zinc-900/80 rounded-md px-3 py-2 my-2 border border-indigo-100/50 dark:border-border">
+					<p className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest mb-1">
 						Proofreader API
 					</p>
 					<div className="flex justify-between items-center ">
-						<p className="text-[10px] font-medium text-slate-500 uppercase tracking-tight">
+						<p className="text-[10px] font-medium text-slate-500 dark:text-zinc-500 uppercase tracking-tight">
 							Expects
 						</p>
-						<p className="text-xs text-slate-700 italic">
+						<p className="text-xs text-slate-700 dark:text-zinc-200 italic font-medium">
 							{config?.expectedInputLanguages
 								?.join(', ')
 								.toUpperCase() || 'AUTO'}
