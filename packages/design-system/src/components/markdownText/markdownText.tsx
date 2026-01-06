@@ -209,7 +209,7 @@ const defaultComponents = memoizeMarkdownComponents({
 	th: ({ className, children, ...props }) => (
 		<th
 			className={cn(
-				'aui-md-th bg-muted px-4 py-2 text-left font-bold first:rounded-tl-lg last:rounded-tr-lg [&[align=center]]:text-center [&[align=right]]:text-right',
+				'aui-md-th bg-muted px-4 py-2 text-left font-bold text-xs first:rounded-tl-lg last:rounded-tr-lg [&[align=center]]:text-center [&[align=right]]:text-right',
 				className
 			)}
 			{...props}
@@ -220,7 +220,7 @@ const defaultComponents = memoizeMarkdownComponents({
 	td: ({ className, children, ...props }) => (
 		<td
 			className={cn(
-				'aui-md-td border-b border-l px-4 py-2 text-left last:border-r [&[align=center]]:text-center [&[align=right]]:text-right',
+				'aui-md-td border-b border-l px-4 py-2 text-left text-xs last:border-r [&[align=center]]:text-center [&[align=right]]:text-right',
 				className
 			)}
 			{...props}
