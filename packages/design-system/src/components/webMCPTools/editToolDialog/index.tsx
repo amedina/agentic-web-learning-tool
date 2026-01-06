@@ -21,6 +21,7 @@ interface EditToolDialogProps {
     tool?: WebMCPTool;
     onSave: (tool: WebMCPTool) => void;
     onDelete?: (tool: WebMCPTool) => void;
+    isDarkMode?: boolean;
 }
 
 const DEFAULT_SCRIPT_TEMPLATE = `export const metadata = {
@@ -42,7 +43,7 @@ export async function execute(args) {
 }
 `;
 
-export function EditToolDialog({ open, onOpenChange, tool, onSave, onDelete }: EditToolDialogProps) {
+export function EditToolDialog({ open, onOpenChange, tool, onSave, onDelete, isDarkMode }: EditToolDialogProps) {
     const [code, setCode] = useState(DEFAULT_SCRIPT_TEMPLATE);
     const [initialCode, setInitialCode] = useState(DEFAULT_SCRIPT_TEMPLATE);
     const [validationState, setValidationState] = useState<'idle' | 'valid' | 'invalid'>('idle');
@@ -203,7 +204,7 @@ export function EditToolDialog({ open, onOpenChange, tool, onSave, onDelete }: E
                             <div className="px-4 py-2 bg-extreme-zinc border-b border-gray-100 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                                 Script Code
                             </div>
-                            <CodeEditor code={code} onChange={handleCodeChange} />
+                            <CodeEditor code={code} onChange={handleCodeChange} isDarkMode={isDarkMode} />
                         </div>
 
                         {/* Sidebar/Metadata Side */}
