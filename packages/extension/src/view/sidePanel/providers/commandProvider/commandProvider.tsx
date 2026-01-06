@@ -103,9 +103,6 @@ const Provider = ({ children }: PropsWithChildren) => {
 					return;
 				}
 				api.composer().setText(finalText);
-				setTimeout(() => {
-					api.composer().send();
-				}, 1000);
 			}
 		},
 		[api, extractMatchAndReturnMessage]

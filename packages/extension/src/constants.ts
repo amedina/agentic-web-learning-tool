@@ -104,6 +104,27 @@ export const BUILT_IN_COMMANDS: PromptCommand[] = [
         enabled: true
     },
     {
+        name: 'settings',
+        description: 'Open the settings page',
+        instructions: ' ',
+        isBuiltIn: true,
+        enabled: true
+    },
+    {
+        name: 'clear',
+        description: 'Clears the chat history.',
+        instructions: ' ',
+        isBuiltIn: true,
+        enabled: true
+    },
+    {
+        name: 'help',
+        description: 'Show the available list of commands.',
+        instructions: ' ',
+        isBuiltIn: true,
+        enabled: true,
+    },
+    {
         name: 'optimize',
         description: 'Optimize code for performance/readability.',
         instructions: 'Optimize the following code for performance and readability:\n\n$ARGUMENTS',

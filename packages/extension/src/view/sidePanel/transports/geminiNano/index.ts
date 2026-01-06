@@ -12,12 +12,14 @@ import {
 } from "ai";
 import { type LanguageModelV2 } from '@ai-sdk/provider';
 import type { AssistantRuntime } from "@assistant-ui/react";
+import type { PromptCommand } from "@google-awlt/design-system";
 /**
  * Internal dependencies
  */
 import ChromeAILanguageModel from "./chromeAILanguageModel";
 import { systemPromptTemplate } from "../../utils";
 import logger from "../../../../utils/logger";
+import { BUILT_IN_COMMANDS } from "../../../../constants";
 
 type SendMessagesParams = {
     /** The type of message submission - either new message or regeneration */
@@ -92,23 +94,12 @@ export class GeminiNanoChatTransport implements ChatTransport<UIMessage> {
     async sendMessages(
         params: SendMessagesParams,
     ): Promise<ReadableStream<UIMessageChunk>> {
-        const { messages, abortSignal } = params;
+        //@ts-expect-error -- the command is being set from the chatbot
+        const _command = window.command;
 
         if (!this.runtime) {
             return new ReadableStream();
         }
-
-        const { tools } = this.runtime.thread.getModelContext();
-
-        this.formattedTools = Object.entries(tools ?? []).map(([key, value]) => [key, {
-            description: value.description,
-            execute: value.execute,
-            name: key,
-            type: "function"
-        }]);
-
-        //@ts-expect-error -- the command is being set from the chatbot
-        const _command = window.command;
 
         if (_command) {
             return createUIMessageStream({
@@ -121,9 +112,33 @@ export class GeminiNanoChatTransport implements ChatTransport<UIMessage> {
                         setTimeout(() => {
                             console.log(_command)
                             chrome.runtime.openOptionsPage();
-                        }, 500)
+                        }, 500);
 
                     }
+
+                    if (_command === 'help') {
+
+                        writer.write({ type: "text-delta", id: textPartId, delta: "| Command | Description |\n|---|---|\n" });
+
+                        BUILT_IN_COMMANDS.forEach(cmd => {
+                            writer.write({ type: "text-delta", id: textPartId, delta: "| `/" + cmd.name + "` | " + cmd.description + "|\n" });
+                        });
+
+                        const { promptCommands }: { promptCommands: PromptCommand[] } = await chrome.storage.local.get('promptCommands')
+
+                        promptCommands.forEach(cmd => {
+                            writer.write({ type: "text-delta", id: textPartId, delta: "| `/" + cmd.name + "` | " + cmd.description + "|\n" });
+                        });
+
+                    }
+
+                    if (_command === 'clear') {
+                        writer.write({ type: "text-delta", id: textPartId, delta: 'Clearing the current conversation' });
+                        setTimeout(() => {
+                            this.runtime?.thread.reset();
+                        }, 500);
+                    }
+
                     writer.write({ type: "text-end", id: textPartId });
                     writer.write({
                         type: "finish",
@@ -135,7 +150,16 @@ export class GeminiNanoChatTransport implements ChatTransport<UIMessage> {
                 }
             });
         }
-        console.log(messages)
+        const { messages, abortSignal } = params;
+
+        const { tools } = this.runtime.thread.getModelContext();
+
+        this.formattedTools = Object.entries(tools ?? []).map(([key, value]) => [key, {
+            description: value.description,
+            execute: value.execute,
+            name: key,
+            type: "function"
+        }]);
 
 
         return createUIMessageStream({
