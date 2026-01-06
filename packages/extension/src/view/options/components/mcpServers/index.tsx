@@ -30,7 +30,6 @@ export default function MCPServersTab() {
 		handleToggle: actions.handleToggle,
 	}));
 	const [selectedServer, setSelectedServer] = useState<string>('');
-
 	return (
 		<OptionsPageTab
 			title="MCPServers"
@@ -42,6 +41,7 @@ export default function MCPServersTab() {
 						className="shadow-sm hover:shadow-md transition-all gap-2 bg-gray-900 hover:bg-gray-800 text-white"
 						onClick={() => {
 							setIsDialogOpen(true);
+							setSelectedServer('');
 						}}
 					>
 						<PlusIcon size={16} />
@@ -62,16 +62,23 @@ export default function MCPServersTab() {
 						/>
 					))}
 				</div>
-				<MCPServerDialog
-					toolList={toolList[selectedServer]}
-					open={isDialogOpen}
-					onDelete={selectedServer ? removeConfig : undefined}
-					onSave={addServer}
-					validator={validator}
-					onOpenChange={(value) => setIsDialogOpen(value)}
-					serverId={selectedServer}
-					server={serverConfigs?.[selectedServer]}
-				/>
+				{isDialogOpen && (
+					<MCPServerDialog
+						toolList={toolList[selectedServer]}
+						open={isDialogOpen}
+						onDelete={selectedServer ? removeConfig : undefined}
+						onSave={addServer}
+						validator={validator}
+						onOpenChange={(value) => {
+							setIsDialogOpen(value);
+							if (!value) {
+								setSelectedServer('');
+							}
+						}}
+						serverId={selectedServer}
+						server={serverConfigs?.[selectedServer]}
+					/>
+				)}
 			</OptionsPageTabSection>
 		</OptionsPageTab>
 	);

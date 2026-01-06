@@ -11,11 +11,15 @@ import {
 } from 'react';
 import { Client } from '@modelcontextprotocol/sdk/client';
 import type { MCPConfig, MCPServerConfig } from '@google-awlt/common';
-import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
+import {
+	StreamableHTTPClientTransport,
+	StreamableHTTPError,
+} from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 /**
  * Internal dependencies
  */
 import MCPContext, { type MCPProviderContextType } from './context';
+import { toast } from '@google-awlt/design-system';
 
 const Provider = ({ children }: PropsWithChildren) => {
 	// We use a functional update to ensure we always have a fresh Map
@@ -30,7 +34,11 @@ const Provider = ({ children }: PropsWithChildren) => {
 	const initialFetch = useRef(false);
 
 	const createClientAndListTools = useCallback(
-		async (config: MCPServerConfig, serverName: string) => {
+		async (
+			config: MCPServerConfig,
+			serverName: string,
+			doNotStoreTools = false
+		) => {
 			try {
 				if (!config.enabled || toolList[serverName]?.length > 0) {
 					return;
@@ -59,12 +67,17 @@ const Provider = ({ children }: PropsWithChildren) => {
 				await client.connect(transport);
 				const toolsList = await client.listTools();
 
+				if (doNotStoreTools) {
+					return false;
+				}
+
 				setToolList((prev) => ({
 					...prev,
 					[serverName]: toolsList.tools,
 				}));
 			} catch (error) {
-				//catch error
+				//@ts-expect-error -- message extends error
+				return (error as typeof StreamableHTTPError)?.message;
 			}
 		},
 		[toolList]
@@ -149,7 +162,7 @@ const Provider = ({ children }: PropsWithChildren) => {
 	 * Checks for required fields and valid URL formats.
 	 */
 	const validateConfig = useCallback(
-		(config: MCPServerConfig, serverName: string) => {
+		async (config: MCPServerConfig, serverName: string) => {
 			const errors: string[] = [];
 
 			if (!serverName || serverName.trim().length === 0) {
@@ -165,9 +178,25 @@ const Provider = ({ children }: PropsWithChildren) => {
 			} else {
 				try {
 					new URL(config.url);
-				} catch (_) {
-					errors.push('Invalid URL format.');
+				} catch (_error) {
+					console.log(_error);
+					errors.push('Invalid URL format.' + _error);
 				}
+			}
+
+			const result = await createClientAndListTools(
+				config,
+				serverName,
+				true
+			);
+
+			if (typeof result === 'boolean' || typeof result === 'string') {
+				const message =
+					typeof result === 'boolean'
+						? 'There was some error in the MCP configuration'
+						: result;
+				toast.error(message);
+				errors.push(message);
 			}
 
 			return {

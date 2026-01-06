@@ -25,7 +25,7 @@ interface MCPServerDialogProps {
 	validator: (
 		config: MCPServerConfig,
 		serverName: string
-	) => { isValid: boolean; errors: string[] };
+	) => Promise<{ isValid: boolean; errors: string[] }>;
 	serverId: string;
 }
 
@@ -58,9 +58,9 @@ export function MCPServerDialog({
 		}
 	}, [open, server]);
 
-	const handleValidate = useCallback(() => {
-		const { isValid } = validator(config, config.name);
-		setIsValidConfig(isValid);
+	const handleValidate = useCallback(async () => {
+		const { isValid } = await validator(config, config.name);
+		setIsValidConfig(!isValid);
 	}, [config]);
 
 	const handleSave = useCallback(async () => {
@@ -75,6 +75,18 @@ export function MCPServerDialog({
 		onOpenChange(false);
 		onDelete(serverId);
 	}, [serverId, onDelete]);
+
+	useEffect(() => {
+		if (!server || !config) {
+			return;
+		}
+
+		if (JSON.stringify(config) !== JSON.stringify(server)) {
+			setIsValidConfig(false);
+		} else {
+			setIsValidConfig(true);
+		}
+	}, [config, server]);
 
 	return (
 		<Dialog.Root open={open} onOpenChange={onOpenChange}>
@@ -157,7 +169,8 @@ export function MCPServerDialog({
 											JSON.stringify(server)
 									}
 								>
-									<SaveIcon size={16} /> Add Server
+									<SaveIcon size={16} />{' '}
+									{serverId ? 'Update Server' : 'Add Server'}
 								</Button>
 							</div>
 						</div>

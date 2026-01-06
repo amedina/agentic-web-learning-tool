@@ -12,7 +12,7 @@ export interface MCPProviderContextType {
     actions: {
         addConfig: (config: MCPServerConfig, serverName: string) => Promise<void>;
         removeConfig: (serverName: string) => void;
-        validateConfig: (config: MCPServerConfig, serverName: string) => { isValid: boolean; errors: string[] };
+        validateConfig: (config: MCPServerConfig, serverName: string) => Promise<{ isValid: boolean; errors: string[] }>;
         handleToggle: (serverName: string, value: boolean) => void;
     }
 }
@@ -25,7 +25,7 @@ const initialState: MCPProviderContextType = {
     actions: {
         addConfig: () => Promise.resolve(),
         removeConfig: noop,
-        validateConfig: () => ({ isValid: true, errors: [] }),
+        validateConfig: () => Promise.resolve({ isValid: true, errors: [] }),
         handleToggle: noop,
     }
 }
