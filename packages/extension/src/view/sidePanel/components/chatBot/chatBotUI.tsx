@@ -4,12 +4,11 @@
 import {
 	ComposerPrimitive,
 	ThreadPrimitive,
-	useAssistantApi,
 	useAssistantState,
 	type AssistantRuntime,
 } from '@assistant-ui/react';
 import { useMcpClient } from '@mcp-b/mcp-react-hooks';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import type { JSONRPCMessage } from '@modelcontextprotocol/sdk/types.js';
 import {
 	Paperclip,
@@ -24,7 +23,6 @@ import {
 	Dropdown,
 	getToolNameWithoutPrefix,
 	OwlIcon,
-	type PromptCommand,
 } from '@google-awlt/design-system';
 import type { Tool as McpTool } from '@modelcontextprotocol/sdk/types.js';
 
@@ -38,7 +36,7 @@ import EditComposer from './editComposer';
 import UserMessage from './userMessage';
 import { INITIAL_PROVIDERS } from '../../../../constants';
 import type { AgentType } from '../../../../types';
-import { BUILT_IN_COMMANDS } from '../../../../constants';
+import { useCommandProvider } from '../../providers/commandProvider';
 
 type SingleGroupTool = {
 	group: string;
@@ -60,91 +58,6 @@ type ChatBotUIProps = {
 
 const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 	const { client, tools } = useMcpClient();
-	const [allCommands, setAllCommands] = useState<PromptCommand[]>([]);
-	const api = useAssistantApi();
-
-	useEffect(() => {
-		chrome.storage.local.get(
-			['promptCommands', 'builtInPromptCommands'],
-			(result) => {
-				const userCommands =
-					(result.promptCommands as PromptCommand[]) || [];
-				const storedBuiltIns =
-					(result.builtInPromptCommands as PromptCommand[]) || [];
-
-				const mergedBuiltIns = BUILT_IN_COMMANDS.map((m) => {
-					const found = storedBuiltIns.find((s) => s.name === m.name);
-					return { ...m, enabled: found ? found.enabled : true };
-				});
-
-				setAllCommands([...userCommands, ...mergedBuiltIns]);
-			}
-		);
-	}, []);
-
-	const extractMatchAndReturnMessage = useCallback(
-		(currentValue: string) => {
-			const match = currentValue.match(/^\/([\w.-]+)(?:\s+(.*))?$/);
-			if (match) {
-				const commandName = match[1];
-				const command = allCommands.find(
-					(m) => m.name === commandName && m.enabled
-				);
-				if (command && command?.instructions.includes('$ARGUMENTS')) {
-					let expansion = command.instructions;
-					expansion = expansion.replaceAll(
-						'$ARGUMENTS',
-						match[2] ?? ''
-					);
-					return expansion;
-				} else if (
-					command &&
-					!command?.instructions.includes('$ARGUMENTS')
-				) {
-					//@ts-expect-error -- this is being done to avoid delays for communication with LLM transports.
-					window.command = command.name;
-					return command.instructions;
-				}
-			}
-		},
-		[allCommands, api]
-	);
-
-	const handleKeyDown = useCallback(
-		(
-			event:
-				| React.KeyboardEvent<HTMLTextAreaElement>
-				| React.MouseEvent<HTMLButtonElement>
-		) => {
-			if (event.type === 'click') {
-				event.preventDefault();
-				const currentValue = api.composer().getState().text;
-				const finalText = extractMatchAndReturnMessage(currentValue);
-				if (!finalText) {
-					return;
-				}
-				api.composer().setText(finalText);
-				setTimeout(() => {
-					api.composer().send();
-				}, 1000);
-
-				return;
-			}
-
-			if (
-				(event as React.KeyboardEvent<HTMLTextAreaElement>).key ===
-				'Enter'
-			) {
-				const currentValue = api.composer().getState().text;
-				const finalText = extractMatchAndReturnMessage(currentValue);
-				if (!finalText) {
-					return;
-				}
-				api.composer().setText(finalText);
-			}
-		},
-		[api, extractMatchAndReturnMessage]
-	);
 
 	const { apiKeys, setSelectedAgent, selectedAgent } = useModelProvider(
 		({ state, actions }) => ({
@@ -183,6 +96,10 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 	);
 
 	useAssistantMCP(tools, client, threadId, runtime);
+
+	const { handleMessageChange } = useCommandProvider(({ actions }) => ({
+		handleMessageChange: actions.handleMessageChange,
+	}));
 
 	const groupedTools = useMemo(() => {
 		const toolGroups: SingleGroupTool[] = [];
@@ -349,7 +266,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 					<ComposerPrimitive.Root className="relative flex flex-col gap-2 rounded-md border border-zinc-200 bg-background shadow-xl shadow-subtle-zinc/20 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all overflow-hidden">
 						<ComposerPrimitive.Input
 							placeholder="Ask anything..."
-							onKeyDown={handleKeyDown}
+							onKeyDown={handleMessageChange}
 							className="w-full max-h-40 min-h-[56px] resize-none bg-transparent px-4 py-4 text-sm outline-none placeholder:exclusive-plum text-primary"
 						/>
 						<div className="flex items-center justify-between gap-2 px-3">
@@ -399,7 +316,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 							</div>
 							<ThreadPrimitive.If running={false}>
 								<ComposerPrimitive.Send
-									onClick={handleKeyDown}
+									onClick={handleMessageChange}
 									className="h-9 w-9 flex items-center justify-center rounded-lg bg-background hover:text-ring text-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
 								>
 									<SendHorizontal size={18} />

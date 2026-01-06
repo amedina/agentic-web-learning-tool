@@ -117,8 +117,9 @@ export class GeminiNanoChatTransport implements ChatTransport<UIMessage> {
                     writer.write({ type: "text-start", id: textPartId });
 
                     if (_command === 'settings') {
-                        writer.write({ type: "text-delta", id: textPartId, delta: ' Opening Settings page' });
+                        writer.write({ type: "text-delta", id: textPartId, delta: 'Opening Settings page' });
                         setTimeout(() => {
+                            console.log(_command)
                             chrome.runtime.openOptionsPage();
                         }, 500)
 
@@ -132,9 +133,9 @@ export class GeminiNanoChatTransport implements ChatTransport<UIMessage> {
                     //@ts-expect-error -- the command is being set from the chatbot
                     window.command = ''
                 }
-            })
-
+            });
         }
+        console.log(messages)
 
 
         return createUIMessageStream({

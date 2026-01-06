@@ -3,7 +3,7 @@
  */
 import { useChatRuntime } from '@assistant-ui/react-ai-sdk';
 import { ChatBotUI } from './components';
-import { useModelProvider } from './providers';
+import { CommandProvider, useModelProvider } from './providers';
 import {
 	AssistantRuntimeProvider,
 	type AssistantRuntime,
@@ -37,7 +37,9 @@ const SidePanel = () => {
 
 	return (
 		<AssistantRuntimeProvider runtime={runtimeRef.current}>
-			<ChatBotUI runtime={runtimeRef.current} />
+			<CommandProvider>
+				<ChatBotUI runtime={runtimeRef.current} />
+			</CommandProvider>
 		</AssistantRuntimeProvider>
 	);
 };
