@@ -134,12 +134,12 @@ export function EditToolDialog({ open, onOpenChange, tool, onSave, onDelete }: E
         <Dialog.Root open={open} onOpenChange={onOpenChange}>
             <Dialog.Portal>
                 <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50" />
-                <Dialog.Content aria-describedby={undefined} className="fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] w-[95vw] h-[90vh] bg-white text-gray-900 border border-gray-200 rounded-xl shadow-2xl z-50 flex flex-col overflow-hidden">
+                <Dialog.Content aria-describedby={undefined} className="fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] w-[95vw] h-[90vh] bg-extreme-zinc border border-gray-200 rounded-xl shadow-2xl z-50 flex flex-col overflow-hidden">
 
                     {/* Header */}
-                    <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-white">
+                    <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-extreme-zinc">
                         <div className="flex items-center gap-3">
-                            <Dialog.Title className="text-lg font-bold">
+                            <Dialog.Title className="text-lg font-bold text-gray">
                                 {tool ? 'Edit WebMCP Script' : 'New WebMCP Script'}
                             </Dialog.Title>
                         </div>
@@ -156,7 +156,7 @@ export function EditToolDialog({ open, onOpenChange, tool, onSave, onDelete }: E
                             <Button
                                 size="sm"
                                 variant="outline"
-                                className={`bg-white h-8 text-xs font-medium gap-1.5 ${code === initialCode ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                className={`bg-extreme-zinc h-8 text-xs font-medium gap-1.5 ${code === initialCode ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 onClick={handleInsertTemplateRequest}
                                 disabled={code === initialCode}
                             >
@@ -165,7 +165,7 @@ export function EditToolDialog({ open, onOpenChange, tool, onSave, onDelete }: E
                             <Button
                                 size="sm"
                                 variant="outline"
-                                className={`bg-white h-8 text-xs font-medium gap-1.5 ${!code?.trim() ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                className={`bg-extreme-zinc h-8 text-xs font-medium gap-1.5 ${!code?.trim() ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 onClick={handleCopy}
                                 disabled={!code?.trim()}
                             >
@@ -177,7 +177,7 @@ export function EditToolDialog({ open, onOpenChange, tool, onSave, onDelete }: E
                         {/* Template Warning Toast/Overlay */}
                         {showTemplateWarning && (
                             <div className="absolute top-16 left-4 right-[420px] z-30 mx-auto w-max max-w-[90%]">
-                                <div className="bg-gray-900/95 text-white p-3 rounded-lg shadow-xl flex items-center gap-4 animate-in fade-in slide-in-from-top-2 border border-gray-700">
+                                <div className="bg-extreme-zinc text-white p-3 rounded-lg shadow-xl flex items-center gap-4 animate-in fade-in slide-in-from-top-2 border border-gray-700">
                                     <AlertTriangleIcon className="text-yellow-400" size={16} />
                                     <span className="text-sm font-medium">Overwriting code with template. Are you sure?</span>
                                     <div className="flex gap-2 ml-2">
@@ -199,15 +199,15 @@ export function EditToolDialog({ open, onOpenChange, tool, onSave, onDelete }: E
                         )}
 
                         {/* Editor Side */}
-                        <div className="flex-1 flex flex-col p-0 border-r border-gray-200 relative bg-white overflow-auto">
-                            <div className="px-4 py-2 bg-gray-50 border-b border-gray-100 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                        <div className="flex-1 flex flex-col p-0 border-r border-gray-200 relative bg-extreme-zinc overflow-auto">
+                            <div className="px-4 py-2 bg-extreme-zinc border-b border-gray-100 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                                 Script Code
                             </div>
                             <CodeEditor code={code} onChange={handleCodeChange} />
                         </div>
 
                         {/* Sidebar/Metadata Side */}
-                        <div className="w-[400px] bg-gray-50 flex flex-col overflow-hidden">
+                        <div className="w-[400px] bg-extreme-zinc flex flex-col overflow-hidden">
                             <MetadataPanel
                                 code={code}
                                 activeTab={activeTab}
@@ -218,7 +218,7 @@ export function EditToolDialog({ open, onOpenChange, tool, onSave, onDelete }: E
                             />
 
                             {/* Footer Buttons */}
-                            <div className="p-6 border-t border-gray-200 bg-white flex-none flex items-center justify-between gap-4">
+                            <div className="p-6 border-t border-gray-200 bg-extreme-zinc flex-none flex items-center justify-between gap-4">
                                 <div className="flex-1">
                                     {tool && onDelete && (
                                         <Button variant="ghost" className="text-red-500 hover:text-red-700 hover:bg-red-50 gap-2" onClick={() => onDelete(tool)}>

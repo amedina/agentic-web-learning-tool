@@ -32,7 +32,7 @@ export function MetadataPanel({
     return (
         <Tabs value={activeTab} onValueChange={onTabChange} className="flex flex-col flex-1 overflow-hidden">
             {/* Tabs Header */}
-            <div className="bg-white px-4 border-b border-gray-200 flex-none">
+            <div className="bg-extreme-zinc px-4 border-b border-gray-200 flex-none">
                 <TabsList className="w-full grid grid-cols-2 bg-transparent h-12 p-0 gap-8">
                     <TabsTrigger value="metadata" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none h-full px-0">Metadata</TabsTrigger>
                     <TabsTrigger value="validation" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none h-full px-0">Validation</TabsTrigger>
@@ -46,22 +46,22 @@ export function MetadataPanel({
                         <div className="space-y-4">
                             <div>
                                 <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Name</label>
-                                <div className="px-3 py-2 bg-white border border-gray-200 rounded font-mono text-sm text-gray-700">{metadata.name || "—"}</div>
+                                <div className="px-3 py-2 bg-extreme-zinc border border-gray-200 rounded font-mono text-sm text-gray-700">{metadata.name || "—"}</div>
                                 <p className="text-[10px] text-gray-400 mt-1">Unique identifier for the tool (e.g. "search_web")</p>
                             </div>
                             <div>
                                 <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Namespace</label>
-                                <div className="px-3 py-2 bg-white border border-gray-200 rounded font-mono text-sm text-gray-700">{metadata.namespace || "—"}</div>
+                                <div className="px-3 py-2 bg-extreme-zinc border border-gray-200 rounded font-mono text-sm text-gray-700">{metadata.namespace || "—"}</div>
                                 <p className="text-[10px] text-gray-400 mt-1">Grouping identifier to escape naming collisions</p>
                             </div>
                             <div>
                                 <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Description</label>
-                                <div className="px-3 py-2 bg-white border border-gray-200 rounded text-sm text-gray-700">{metadata.description || "—"}</div>
+                                <div className="px-3 py-2 bg-extreme-zinc border border-gray-200 rounded text-sm text-gray-700">{metadata.description || "—"}</div>
                                 <p className="text-[10px] text-gray-400 mt-1">Human-readable description of what the tool does</p>
                             </div>
                             <div>
                                 <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Allowed Domains</label>
-                                <div className="px-3 py-2 bg-white border border-gray-200 rounded font-mono text-xs text-gray-700 bg-gray-50">
+                                <div className="px-3 py-2 bg-extreme-zinc border border-gray-200 rounded font-mono text-xs text-gray-700">
                                     {(() => {
                                         const patterns = metadata.allowedDomains;
                                         if (!patterns) return "—";
@@ -75,7 +75,7 @@ export function MetadataPanel({
                             </div>
                             <div>
                                 <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Input Schema</label>
-                                <div className="px-3 py-2 bg-white border border-gray-200 rounded font-mono text-xs text-gray-700 whitespace-pre-wrap">
+                                <div className="px-3 py-2 bg-extreme-zinc border border-gray-200 rounded font-mono text-xs text-gray-700 whitespace-pre-wrap">
                                     {(() => {
                                         const schema = metadata.inputSchema;
                                         if (!schema) return "—";
@@ -90,7 +90,7 @@ export function MetadataPanel({
                 </TabsContent>
 
                 <TabsContent value="validation" className="m-0 p-0 border-0 bg-transparent space-y-4">
-                    <div className={`border rounded p-4 ${validationState === 'valid' ? 'bg-green-50 border-green-200' : validationState === 'invalid' ? 'bg-red-50 border-red-200' : 'bg-white'}`}>
+                    <div className={`border rounded p-4 ${validationState === 'valid' ? 'bg-green-50 border-green-200' : validationState === 'invalid' ? 'bg-red-50 border-red-200' : 'bg-extreme-zinc'}`}>
                         {validationState === 'idle' && <span className="text-gray-500 text-sm">Not yet validated.</span>}
                         {validationState === 'valid' && (
                             <div className="flex items-center gap-2 text-green-700 text-sm font-medium">
@@ -105,7 +105,7 @@ export function MetadataPanel({
                         )}
                     </div>
 
-                    <Button className="w-full bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 gap-2" onClick={onValidate}>
+                    <Button className="w-full bg-extreme-zinc border border-gray-300 text-gray-700 hover:bg-gray-50 gap-2" onClick={onValidate}>
                         <PlayIcon size={16} /> Validate Syntax
                     </Button>
 

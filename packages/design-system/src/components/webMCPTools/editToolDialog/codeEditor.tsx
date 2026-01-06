@@ -49,7 +49,7 @@ export function CodeEditor({ code, onChange }: CodeEditorProps) {
             {/* Line Numbers Gutter */}
             <div
                 ref={gutterRef}
-                className="select-none text-right bg-white text-gray-300 overflow-hidden border-r border-gray-100 flex-shrink-0"
+                className="select-none text-right bg-extreme-zinc text-gray-300 overflow-hidden border-r border-gray-100 flex-shrink-0"
                 style={{
                     ...commonStyle,
                     padding: '1.5rem 0.5rem',
@@ -77,7 +77,7 @@ export function CodeEditor({ code, onChange }: CodeEditorProps) {
                 />
                 <div
                     ref={backdropRef}
-                    className="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-hidden bg-white"
+                    className="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-hidden bg-extreme-zinc"
                 >
                     <SyntaxHighlighterAny
                         language="javascript"
