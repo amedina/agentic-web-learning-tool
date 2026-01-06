@@ -92,7 +92,10 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 				);
 				if (command && command?.instructions.includes('$ARGUMENTS')) {
 					let expansion = command.instructions;
-					expansion = expansion.replaceAll('$ARGUMENTS', match[2]);
+					expansion = expansion.replaceAll(
+						'$ARGUMENTS',
+						match[2] ?? ''
+					);
 					return expansion;
 				} else if (
 					command &&
