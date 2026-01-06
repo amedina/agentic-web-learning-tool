@@ -10,7 +10,7 @@ import {
     type UIMessage,
     type UIMessageChunk,
 } from "ai";
-import { type JSONSchema7, type LanguageModelV2 } from '@ai-sdk/provider';
+import { type LanguageModelV2, type SharedV2ProviderOptions, type JSONSchema7 } from '@ai-sdk/provider';
 import type { AssistantRuntime } from "@assistant-ui/react";
 import { createOllama, type OllamaProviderSettings } from "ollama-ai-provider-v2";
 import { type createOpenAI, type OpenAIProviderSettings } from "@ai-sdk/openai";
@@ -46,15 +46,18 @@ export class CloudHostedTransport implements ChatTransport<UIMessage> {
     private model: LanguageModelV2 | null = null;
     private isInitializing: boolean = false;
     private runtime: AssistantRuntime | null = null;
+    private providerOptions: SharedV2ProviderOptions = {}
     formattedTools: any = {};
     private modelId: string = ""
-    constructor(modelId: string) {
+    constructor(modelId: string, providerOptions: SharedV2ProviderOptions) {
         this.modelId = modelId;
+        this.providerOptions = providerOptions;
     }
 
     setRuntime(runtime: AssistantRuntime) {
         this.runtime = runtime;
     }
+
     /**
      * Initializes the on-device model session.
      * This checks for API availability and creates a session.
@@ -129,11 +132,7 @@ export class CloudHostedTransport implements ChatTransport<UIMessage> {
                         model: this.model as unknown as LanguageModelV2,
                         messages: convertToModelMessages(messages),
                         tools: this.formattedTools,
-                        providerOptions: {
-                            openai: {
-                                reasoningEffort: "medium",
-                            }
-                        },
+                        providerOptions: this.providerOptions,
                         abortSignal,
                         stopWhen: ({ steps }) => steps.length === 100,
                         onError: (err) => {

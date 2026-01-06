@@ -1,75 +1,21 @@
 /**
  * External dependencies.
  */
-import { useState, useEffect, useCallback } from 'react';
-import {
-	WebMCPToolsTab as WebMCPToolsUI,
-	type WebMCPTool,
-} from '@google-awlt/design-system';
+import { WebMCPToolsTab as WebMCPToolsUI } from '@google-awlt/design-system';
 
 /**
  * Internal Dependencies.
  */
-import { tools } from '../../../../contentScript/tools';
-
-const builtInWebMCPTools: WebMCPTool[] = tools.map((tool) => ({
-	name: tool.name,
-	namespace: 'built_in',
-	description: tool.description,
-	allowedDomains: tool.allowedDomains,
-	inputSchema: tool.inputSchema,
-	enabled: true,
-	isBuiltIn: true,
-}));
+import { useToolProvider } from '../../providers';
 
 export function WebMCPToolsTab() {
-	const [userTools, setUserTools] = useState<WebMCPTool[]>([]);
-	const [builtInTools, setBuiltInTools] =
-		useState<WebMCPTool[]>(builtInWebMCPTools);
-
-	useEffect(() => {
-		chrome.storage.local.get(
-			['userWebMCPTools', 'builtInWebMCPToolsState'],
-			(result) => {
-				if (
-					result.userWebMCPTools &&
-					Array.isArray(result.userWebMCPTools)
-				) {
-					setUserTools(result.userWebMCPTools as WebMCPTool[]);
-				}
-
-				if (result.builtInWebMCPToolsState) {
-					const states = result.builtInWebMCPToolsState as Record<
-						string,
-						boolean
-					>;
-					setBuiltInTools((prev) =>
-						prev.map((t) => ({
-							...t,
-							enabled:
-								states[t.name] !== undefined
-									? states[t.name]
-									: true,
-						}))
-					);
-				}
-			}
-		);
-	}, []);
-
-	const saveUserTools = useCallback((tools: WebMCPTool[]) => {
-		setUserTools(tools);
-		chrome.storage.local.set({ userWebMCPTools: tools });
-	}, []);
-
-	const saveBuiltInState = useCallback((tools: WebMCPTool[]) => {
-		setBuiltInTools(tools);
-		const states = tools.reduce<Record<string, boolean>>(
-			(acc, t) => ({ ...acc, [t.name]: t.enabled }),
-			{}
-		);
-		chrome.storage.local.set({ builtInWebMCPToolsState: states });
-	}, []);
+	const { userTools, builtInTools, saveUserTools, saveBuiltInState } =
+		useToolProvider(({ state, actions }) => ({
+			userTools: state.userTools,
+			builtInTools: state.builtInTools,
+			saveUserTools: actions.saveUserTools,
+			saveBuiltInState: actions.saveBuiltInState,
+		}));
 
 	return (
 		<WebMCPToolsUI

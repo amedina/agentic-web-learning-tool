@@ -78,7 +78,7 @@ export class GeminiNanoChatTransport implements ChatTransport<UIMessage> {
             }
 
         } catch (error) {
-            logger(['error'], ["Failed to initialize Gemini Nano session: " + error]);
+            logger(['error'], ["Failed to initialize Gemini Nano session: ", error]);
             this.model = null; // Ensure model is null on failure
         } finally {
             this.isInitializing = false;
@@ -126,23 +126,23 @@ export class GeminiNanoChatTransport implements ChatTransport<UIMessage> {
                         stopWhen: ({ steps }) => steps.length === 100,
                         system: systemPromptTemplate(JSON.stringify(this.formattedTools, null, 2)),
                         onError: (err) => {
-                            logger(['error'], ["AI SDK error [chatId=]: " + err.error]);
+                            logger(['error'], ["AI SDK error [chatId=]: ", err.error]);
                         },
                         onAbort: (res) => {
                             logger(['warn', 'debug', 'trace', 'info'], [`Stream aborted after ${res.steps.length} steps [chatId=]`]);
                         },
                         onStepFinish: (res) => {
-                            logger(['info', 'debug'], [`Step finished: ${JSON.stringify({
+                            logger(['info', 'debug'], [`Step finished: `, {
                                 finishReason: res.finishReason,
                                 toolCalls: res.toolCalls?.length,
                                 tokens: res.usage.totalTokens
-                            }, null, 2)}`]);
+                            }]);
                         }
                     });
                     try {
                         writer.merge(result.toUIMessageStream());
                     } catch (mergeError) {
-                        logger(['error'], [` Error merging stream [chatId=]: ${mergeError}`]);
+                        logger(['error'], [`Error merging stream [chatId=]: ${mergeError}`]);
                         const errorMessage = mergeError instanceof Error ? mergeError.message : "An error occurred while processing the response";
 
                         writer.write({
@@ -154,11 +154,11 @@ export class GeminiNanoChatTransport implements ChatTransport<UIMessage> {
 
                 } catch (executionError) {
                     if (executionError instanceof Error) {
-                        logger(['error'], [` Stream execution error [chatId=]: ${JSON.stringify({
+                        logger(['error'], [`Stream execution error [chatId=]: `, {
                             message: executionError.message,
                             name: executionError.name,
                             stack: executionError.stack
-                        }, null, 2)}`]);
+                        }]);
 
                         writer.write({
                             type: "text-delta",

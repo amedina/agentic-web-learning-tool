@@ -9,3 +9,4 @@ export * from './toolPreferences';
 export * from './systemPromptTemplate';
 export { default as cleanArguments } from './cleanArguments';
 export { default as formatToolResult } from './formatToolResult';
+export { default as buildProviderOptions } from './buildProviderOptions';

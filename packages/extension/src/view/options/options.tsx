@@ -4,6 +4,7 @@
 import {
 	Sidebar,
 	SidebarTrigger,
+	Toaster,
 	useSidebar,
 } from '@google-awlt/design-system';
 import { CpuIcon, CodeIcon, Settings2, Server } from 'lucide-react';
@@ -14,6 +15,7 @@ import { useEffect } from 'react';
  */
 import { AgentStudioTab, WebMCPToolsTab, SettingsTab } from './components';
 import MCPServersTab from './components/mcpServers';
+import { useSettings } from '../stateProviders';
 
 const Items = [
 	{
@@ -53,11 +55,19 @@ function Options() {
 	useEffect(() => {
 		if (!selectedMenuItem) {
 			setSelectedMenuItem(Items[0].id);
+		} else if (!Items.map((item) => item.id).includes(selectedMenuItem)) {
+			setSelectedMenuItem(Items[0].id);
 		}
 	}, [selectedMenuItem]);
 
+	const { theme } = useSettings(({ state }) => ({ theme: state.theme }));
+
 	return (
 		<>
+			<Toaster
+				position="top-center"
+				theme={theme === 'auto' ? 'system' : theme}
+			/>
 			<div className="fixed top-0 left-0 z-20 md:hidden pl-4 shadow bg-sidebar rounded-md">
 				<SidebarTrigger />
 			</div>

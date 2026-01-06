@@ -16,7 +16,8 @@
     },
     "patchedDependencies": {
       "zod@4.1.13": "patches/zod@4.1.13.patch",
-      "@assistant-ui/react": "patches/@assistant-ui__react.patch"
+      "@assistant-ui/react": "patches/@assistant-ui__react.patch",
+      "zod@4.3.5": "patches/zod@4.3.5.patch"
     }
   },
   "scripts": {
