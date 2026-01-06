@@ -1,8 +1,11 @@
 /**
+ * External dependencies
+ */
+import type { PromptCommand } from "@google-awlt/design-system";
+/**
  * Internal dependencies
  */
-import type { AgentType } from "./types";
-import type { PromptCommand } from "@google-awlt/design-system";
+import type { SettingsState } from "./types";
 
 export const INITIAL_PROVIDERS = [
     {
@@ -85,24 +88,6 @@ export const INITIAL_PROVIDERS = [
     },
 ];
 
-export const DEFAULT_AGENTS: AgentType[] = [
-    {
-        id: 'browser-ai',
-        name: 'Broswer AI Default',
-        modelProvider: 'browser-ai',
-        model: 'prompt-api',
-        status: true,
-        temperature: 3,
-        apiKey: '',
-        providerUrl: '',
-        maxTokens: 4096,
-        thinkingMode: false,
-        extraConfig: '',
-        reasoningEffort: '',
-        reasoningSummary: ''
-    },
-];
-
 export const BUILT_IN_COMMANDS: PromptCommand[] = [
     {
         name: 'fix-bugs',
@@ -133,3 +118,10 @@ export const BUILT_IN_COMMANDS: PromptCommand[] = [
         enabled: true
     }
 ];
+
+export const DEFAULT_SETTINGS: SettingsState = {
+    theme: 'auto',
+    logLevel: 'SILENT'
+}
+
+export const EXPORT_JSON_VERSION = '1.0';

@@ -23,7 +23,7 @@ export default function ResetConfirmationDialog({
 	setIsResetModalOpen,
 }: ResetConfirmationDialogProps) {
 	const handleReset = useCallback(async () => {
-		clearSettings();
+		await clearSettings();
 		setIsResetModalOpen(false);
 	}, []);
 
