@@ -8,15 +8,15 @@ import {
 	type AssistantRuntime,
 } from '@assistant-ui/react';
 import { useMcpClient } from '@mcp-b/mcp-react-hooks';
-import { useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import type { JSONRPCMessage } from '@modelcontextprotocol/sdk/types.js';
 import {
 	Paperclip,
 	SendHorizontal,
 	CircleStop,
 	ToolCaseIcon,
-	CpuIcon,
 	Settings,
+	ChevronDown,
 } from 'lucide-react';
 import {
 	Button,
@@ -34,6 +34,7 @@ import { transport, useModelProvider } from '../../providers';
 import AssistantMessage from './assistantMessage';
 import EditComposer from './editComposer';
 import UserMessage from './userMessage';
+import { INITIAL_PROVIDERS } from '../../../../constants';
 import type { AgentType } from '../../../../types';
 
 type SingleGroupTool = {
@@ -56,18 +57,20 @@ type ChatBotUIProps = {
 
 const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 	const { client, tools } = useMcpClient();
-	const {
-		agents = [],
-		setSelectedAgent,
-		selectedAgent,
-	} = useModelProvider(({ state, actions }) => ({
-		agents: state.agents,
-		setSelectedAgent: actions.setSelectedAgent,
-		selectedAgent: state.selectedAgent,
-	}));
+	const { apiKeys, setSelectedAgent, selectedAgent } = useModelProvider(
+		({ state, actions }) => ({
+			apiKeys: state.apiKeys,
+			setSelectedAgent: actions.setSelectedAgent,
+			selectedAgent: state.selectedAgent,
+		})
+	);
 
 	useEffect(() => {
 		(async () => {
+			if (client.transport) {
+				return;
+			}
+
 			await client.connect(transport);
 		})();
 
@@ -77,7 +80,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 	}, [client]);
 
 	useEffect(() => {
-		// Synchronization Mechanism: This block listens for a "Tool Changed" event from the 
+		// Synchronization Mechanism: This block listens for a "Tool Changed" event from the
 		// Service Worker, and client.listTools() performs the actual "Refresh" to get the new data.
 		transport.onmessage = async (message: JSONRPCMessage) => {
 			if ('method' in message && message.method === 'get/Tools') {
@@ -148,6 +151,64 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 
 		return toolGroups;
 	}, [tools]);
+
+	const handleSelect = useCallback((selectedId: string) => {
+		const agent: AgentType = {
+			modelProvider: '',
+			model: '',
+		};
+
+		INITIAL_PROVIDERS.forEach((provider) => {
+			const selectedModel = provider.models.find(
+				(model) => model.id === selectedId
+			);
+
+			if (selectedModel) {
+				agent.modelProvider = provider.id;
+				agent.model = selectedModel.id;
+			}
+		});
+
+		setSelectedAgent(agent);
+	}, []);
+
+	//Only shows models whose apiKeys have been and have been enabled
+	const modelOptions = useMemo(() => {
+		const availableModelProviders = Object.keys(apiKeys).filter(
+			(key) => apiKeys[key].status
+		);
+		//Add browser-ai by default since it doesnt require apiKeys
+		availableModelProviders.push('browser-ai');
+
+		const modelProviders = availableModelProviders.map((provider) => {
+			const {
+				id = '',
+				name = '',
+				models = [],
+			} = INITIAL_PROVIDERS.find(
+				({ id }) => provider === id
+			) as (typeof INITIAL_PROVIDERS)[1];
+
+			return {
+				id,
+				label: name,
+				hideLabel: true,
+				group: id,
+				items: [
+					{
+						id,
+						label: name,
+						mainLabel: 'Models',
+						submenu: models,
+					},
+				],
+			};
+		});
+
+		return modelProviders.filter(
+			({ items }) => items[0]?.submenu && items[0]?.submenu.length >= 1
+		);
+	}, [apiKeys]);
 
 	const messages = useAssistantState(({ thread }) => thread.messages);
 
@@ -220,26 +281,6 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 										<ToolCaseIcon className="w-4 h-4" />
 									</Button>
 								</Dropdown>
-								<Dropdown
-									options={agents
-										.filter(({ status }) => status)
-										.map((agent) => ({
-											id: agent.id,
-											label: agent.name,
-										}))}
-									onSelect={(id) =>
-										setSelectedAgent(
-											agents.find(
-												(agent) => agent.id === id
-											) as AgentType
-										)
-									}
-									selectedValue={selectedAgent.id}
-								>
-									<Button variant="ghost" size="icon">
-										<CpuIcon className="w-4 h-4" />
-									</Button>
-								</Dropdown>
 								<Button
 									size="icon"
 									variant="ghost"
@@ -249,6 +290,22 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 								>
 									<Settings className="w-4 h-4" />
 								</Button>
+								<Dropdown
+									options={modelOptions}
+									onSelect={(id) => handleSelect(id)}
+									mainLabel="Providers"
+									selectedValue={selectedAgent.model}
+								>
+									<Button
+										variant="ghost"
+										className="rounded-2xl"
+									>
+										<span className="text-[11px] flex flex-row items-center">
+											{selectedAgent.model}{' '}
+											<ChevronDown className="w-4 h-4" />
+										</span>
+									</Button>
+								</Dropdown>
 							</div>
 							<ThreadPrimitive.If running={false}>
 								<ComposerPrimitive.Send className="h-9 w-9 flex items-center justify-center rounded-lg bg-background hover:text-ring text-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-colors">

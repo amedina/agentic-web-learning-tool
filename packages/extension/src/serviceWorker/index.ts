@@ -17,7 +17,7 @@ import './chromeListeners';
 const sharedServer = new McpServer({ name: 'Extension-Hub', version: '1.0.0' }, { capabilities: { tools: { listChanged: true } } });
 
 chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false }).catch((error) => {
-  logger(['error'],['Failed to set panel behavior:', error]);
+  logger(['error'], ['Failed to set panel behavior:', error]);
 });
 
 // Initialize the MCP Server and Hub

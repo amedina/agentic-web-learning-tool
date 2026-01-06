@@ -10,7 +10,7 @@ import {
     type UIMessage,
     type UIMessageChunk,
 } from "ai";
-import { type LanguageModelV2 } from '@ai-sdk/provider';
+import { type LanguageModelV2, type SharedV2ProviderOptions } from '@ai-sdk/provider';
 import type { AssistantRuntime } from "@assistant-ui/react";
 import { createOllama, type OllamaProviderSettings } from "ollama-ai-provider-v2";
 import { type createOpenAI, type OpenAIProviderSettings } from "@ai-sdk/openai";
@@ -48,15 +48,18 @@ export class CloudHostedTransport implements ChatTransport<UIMessage> {
     private model: LanguageModelV2 | null = null;
     private isInitializing: boolean = false;
     private runtime: AssistantRuntime | null = null;
+    private providerOptions: SharedV2ProviderOptions = {}
     formattedTools: any = {};
     private modelId: string = ""
-    constructor(modelId: string) {
+    constructor(modelId: string, providerOptions: SharedV2ProviderOptions) {
         this.modelId = modelId;
+        this.providerOptions = providerOptions;
     }
 
     setRuntime(runtime: AssistantRuntime) {
         this.runtime = runtime;
     }
+
     /**
      * Initializes the on-device model session.
      * This checks for API availability and creates a session.
@@ -71,7 +74,7 @@ export class CloudHostedTransport implements ChatTransport<UIMessage> {
             //@ts-expect-error -- Gemini provider has different headers type than the Ollama provider
             this.model = modelInitializerFunction(config).languageModel(this.modelId);
         } catch (error) {
-            logger(['error'],["Failed to initialize Gemini Nano session:", error]);
+            logger(['error'], ["Failed to initialize Gemini Nano session:", error]);
             this.model = null; // Ensure model is null on failure
         } finally {
             this.isInitializing = false;
@@ -132,21 +135,17 @@ export class CloudHostedTransport implements ChatTransport<UIMessage> {
                         model: this.model as unknown as LanguageModelV2,
                         messages: convertToModelMessages(messages),
                         tools: this.formattedTools,
-                        providerOptions: {
-                            openai: {
-                                reasoningEffort: "medium",
-                            }
-                        },
+                        providerOptions: this.providerOptions,
                         abortSignal,
                         stopWhen: ({ steps }) => steps.length === 100,
                         onError: (err) => {
-                            logger(['error'],[`AI SDK error [chatId=]:`, err.error]);
+                            logger(['error'], [`AI SDK error [chatId=]:`, err.error]);
                         },
                         onAbort: (res) => {
-                            logger(['log', 'trace', 'info'],[`Stream aborted after ${res.steps.length} steps [chatId=]`]);
+                            logger(['log', 'trace', 'info'], [`Stream aborted after ${res.steps.length} steps [chatId=]`]);
                         },
                         onStepFinish: (res) => {
-                            logger(['log', 'trace', 'debug'],[`Step finished:`, {
+                            logger(['log', 'trace', 'debug'], [`Step finished:`, {
                                 finishReason: res.finishReason,
                                 toolCalls: res.toolCalls?.length,
                                 tokens: res.usage.totalTokens
@@ -156,7 +155,7 @@ export class CloudHostedTransport implements ChatTransport<UIMessage> {
                     try {
                         writer.merge(result.toUIMessageStream());
                     } catch (mergeError) {
-                        logger(['error'],[` Error merging stream [chatId=]:`, mergeError]);
+                        logger(['error'], [` Error merging stream [chatId=]:`, mergeError]);
                         const errorMessage = mergeError instanceof Error ? mergeError.message : "An error occurred while processing the response";
 
                         writer.write({
@@ -168,7 +167,7 @@ export class CloudHostedTransport implements ChatTransport<UIMessage> {
 
                 } catch (executionError) {
                     if (executionError instanceof Error) {
-                        logger(['error'],[` Stream execution error [chatId=]:`, {
+                        logger(['error'], [` Stream execution error [chatId=]:`, {
                             message: executionError.message,
                             name: executionError.name,
                             stack: executionError.stack
@@ -182,7 +181,7 @@ export class CloudHostedTransport implements ChatTransport<UIMessage> {
                         return;
                     }
 
-                    logger(['error'],[`Unknown stream error [chatId=]:`, executionError]);
+                    logger(['error'], [`Unknown stream error [chatId=]:`, executionError]);
                     writer.write({
                         type: "text-delta",
                         delta: `An unexpected error occurred. Please try again.`,

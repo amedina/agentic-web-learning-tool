@@ -5,7 +5,7 @@ import type { ThemeMode, LogLevel, SettingsState } from '../types';
 
 async function settingsGetter() {
 	const { theme = 'auto', logLevel = 'silent' } =
-		JSON.parse((await chrome.storage.sync.get('extensionSettings')).extensionSettings as string);
+		JSON.parse((await chrome.storage.sync.get('extensionSettings'))?.extensionSettings as string ?? '{}');
 
 	return { theme, logLevel } as SettingsState
 }

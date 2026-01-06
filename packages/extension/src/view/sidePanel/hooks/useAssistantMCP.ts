@@ -11,7 +11,7 @@ import { useEffect, useMemo } from 'react';
  */
 import { cleanArguments, formatToolResult, getToolNameForUI, mcpToolToJSONSchema, validateToolPreferences } from '../utils';
 import type { ToolExecutionArgs } from '../types';
-import logger from '../../../utils/logger';
+import { logger } from '../../../utils';
 
 /**
  * Hook that bridges MCP tools with the Assistant UI framework.

@@ -21,8 +21,7 @@ import type { CloudHostedTransport } from '../../transports/cloudHosted';
 import { GeminiNanoChatTransport } from '../../transports/geminiNano';
 import Context from './context';
 import { CONNECTION_NAMES } from '../../../../utils';
-import type { AgentType } from '../../../../types';
-import { DEFAULT_AGENTS } from '../../../../constants';
+import type { AgentType, APIKeys } from '../../../../types';
 
 export const transport = new ExtensionClientTransport({
 	portName: CONNECTION_NAMES.MCP_HOST,
@@ -34,13 +33,15 @@ export const client = new Client({
 	version: '1.0.0',
 });
 
-const FALLBACK_AGENT = transportGenerator(DEFAULT_AGENTS[0].modelProvider, DEFAULT_AGENTS[0].model, {})
+const FALLBACK_AGENT = transportGenerator('browser-ai', 'prompt-api', {});
 
 const Provider = ({ children }: PropsWithChildren) => {
-	const [_agents, setAgents] = useState<AgentType[]>([]);
-	const [selectedAgent, setSelectedAgent] = useState<AgentType>(
-		DEFAULT_AGENTS[0]
-	);
+	const [apiKeys, setApiKeys] = useState<{ [key: string]: APIKeys }>({});
+	const [selectedAgent, setSelectedAgent] = useState<AgentType>({
+		modelProvider: 'browser-ai',
+		model: 'prompt-api',
+	});
+
 	const [_transport, setTransport] = useState<
 		GeminiNanoChatTransport | CloudHostedTransport | null
 	>(FALLBACK_AGENT);
@@ -51,39 +52,62 @@ const Provider = ({ children }: PropsWithChildren) => {
 			return;
 		}
 
-		if (selectedAgent) {
+		if (selectedAgent && selectedAgent?.modelProvider !== 'browser-ai') {
 			setTransport(
 				transportGenerator(
 					selectedAgent?.modelProvider,
 					selectedAgent?.model,
 					{
-						apiKey: selectedAgent?.apiKey,
-					}
+						...apiKeys[selectedAgent?.modelProvider],
+					},
+					apiKeys[selectedAgent.modelProvider]?.thinkingMode
 				)
 			);
 		} else {
 			setTransport(transportGenerator('browser-ai', 'prompt-api', {}));
 		}
-	}, [selectedAgent]);
 
+		chrome.storage.sync.set({
+			selectedAgent,
+		});
+	}, [selectedAgent]);
 	/**
 	 * Sets current frames for sidebar, detected if the current tab is to be analysed,
 	 * parses data currently in store, set current tab URL.
 	 */
 	const intitialSync = useCallback(async () => {
-		const { agents = [] }: { agents: AgentType[] } =
-			await chrome.storage.sync.get('agents');
+		const {
+			apiKeys: _apiKeys = {},
+			selectedAgent: _selectedAgent,
+		}: { apiKeys: { [key: string]: APIKeys }; selectedAgent: AgentType } =
+			await chrome.storage.sync.get(['apiKeys', 'selectedAgent']);
 
-		setAgents(agents);
-		(FALLBACK_AGENT as GeminiNanoChatTransport).initializeSession();
+		setApiKeys(_apiKeys);
+		if (_selectedAgent.modelProvider === 'browser-ai') {
+			setSelectedAgent(_selectedAgent);
+			setTransport(FALLBACK_AGENT);
+			(FALLBACK_AGENT as GeminiNanoChatTransport).initializeSession();
+		} else {
+			setSelectedAgent(_selectedAgent);
+			setTransport(
+				transportGenerator(
+					_selectedAgent?.modelProvider,
+					_selectedAgent?.model,
+					{
+						..._apiKeys[_selectedAgent?.modelProvider],
+					},
+					_apiKeys[_selectedAgent.modelProvider]?.thinkingMode
+				)
+			);
+		}
 		initialFetchDone.current = true;
 	}, []);
 
 	const onSyncStorageChangedListener = useCallback(async () => {
-		const { agents = [] }: { agents: AgentType[] } =
-			await chrome.storage.sync.get('agents');
+		const { apiKeys = {} }: { apiKeys: { [key: string]: APIKeys } } =
+			await chrome.storage.sync.get('apiKeys');
 
-		setAgents(agents);
+		setApiKeys(apiKeys);
 	}, []);
 
 	useEffect(() => {
@@ -111,7 +135,7 @@ const Provider = ({ children }: PropsWithChildren) => {
 	const memoisedValue = useMemo(() => {
 		return {
 			state: {
-				agents: _agents,
+				apiKeys,
 				selectedAgent,
 				transport: _transport,
 			},
@@ -119,7 +143,8 @@ const Provider = ({ children }: PropsWithChildren) => {
 				setSelectedAgent,
 			},
 		};
-	}, [_agents, selectedAgent, _transport]);
+	}, [apiKeys, selectedAgent, _transport]);
+
 	return (
 		<Context.Provider value={memoisedValue}>
 			<McpClientProvider client={client} transport={transport} opts={{}}>

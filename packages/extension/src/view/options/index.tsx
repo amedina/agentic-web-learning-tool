@@ -11,15 +11,20 @@ import { createRoot } from 'react-dom/client';
 import './index.css';
 import Options from './options';
 import { SettingsProvider } from '../stateProviders';
+import { ModelProvider, ToolProvider } from './providers';
 
 createRoot(document.getElementById('root')!).render(
 	<StrictMode>
 		<div className="w-screen h-screen">
-			<SettingsProvider view="options">
-				<SidebarProvider>
-					<Options />
-				</SidebarProvider>
-			</SettingsProvider>
+			<ModelProvider>
+				<ToolProvider>
+					<SettingsProvider view="options">
+						<SidebarProvider>
+							<Options />
+						</SidebarProvider>
+					</SettingsProvider>
+				</ToolProvider>
+			</ModelProvider>
 		</div>
 	</StrictMode>
 );
