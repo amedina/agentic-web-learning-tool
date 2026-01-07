@@ -70,6 +70,10 @@ export function EditCommandDialog({
 			setError('Instructions Template is required');
 			return;
 		}
+		if (!description.trim()) {
+			setError('Description is required');
+			return;
+		}
 
 		onSave({ name: trimmedName, instructions, description });
 		onOpenChange(false);
