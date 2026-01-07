@@ -8,7 +8,9 @@ import { createContext, noop } from '@google-awlt/common';
 import type { SettingsState } from '../../../types';
 
 export type SettingsContextProps = {
-	state: SettingsState;
+	state: SettingsState & {
+		isDarkMode: boolean;
+	};
 	actions: {
 		clearSettings: () => void;
 		toggleSettings: (
@@ -22,6 +24,7 @@ const initialState: SettingsContextProps = {
 	state: {
 		theme: 'auto',
 		logLevel: 'SILENT',
+		isDarkMode: false,
 	},
 	actions: {
 		clearSettings: noop,

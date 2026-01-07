@@ -1,15 +1,18 @@
 /**
- * Internal dependencies
+ * External dependencies
  */
 import { useChatRuntime } from '@assistant-ui/react-ai-sdk';
-import { ChatBotUI } from './components';
-import { useModelProvider } from './providers';
 import {
 	AssistantRuntimeProvider,
 	type AssistantRuntime,
 } from '@assistant-ui/react';
 import { lastAssistantMessageIsCompleteWithToolCalls } from 'ai';
 import { useEffect, useRef } from 'react';
+/**
+ * Internal dependencies
+ */
+import { ChatBotUI } from './components';
+import { CommandProvider, useModelProvider } from './providers';
 
 const SidePanel = () => {
 	const { transport } = useModelProvider(({ state }) => ({
@@ -37,7 +40,9 @@ const SidePanel = () => {
 
 	return (
 		<AssistantRuntimeProvider runtime={runtimeRef.current}>
-			<ChatBotUI runtime={runtimeRef.current} />
+			<CommandProvider>
+				<ChatBotUI runtime={runtimeRef.current} />
+			</CommandProvider>
 		</AssistantRuntimeProvider>
 	);
 };
