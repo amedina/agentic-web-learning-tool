@@ -31,12 +31,14 @@ export function EditCommandDialog({
 }: EditCommandDialogProps) {
 	const [name, setName] = useState('');
 	const [instructions, setInstructions] = useState('');
+	const [description, setDescription] = useState('');
 	const [error, setError] = useState('');
 
 	useEffect(() => {
 		if (open) {
 			setName(command ? command.name : '');
 			setInstructions(command ? command.instructions : '');
+			setDescription(command ? command.description : '');
 			setError('');
 		}
 	}, [open, command]);
@@ -69,7 +71,7 @@ export function EditCommandDialog({
 			return;
 		}
 
-		onSave({ name: trimmedName, instructions });
+		onSave({ name: trimmedName, instructions, description });
 		onOpenChange(false);
 	};
 
@@ -111,6 +113,17 @@ export function EditCommandDialog({
 								Letters, numbers, hyphens, and underscores only.
 								No slashes or spaces. (1-50 characters)
 							</p>
+						</div>
+
+						<div className="flex flex-col gap-1.5">
+							<label className="text-sm font-medium text-gray-700">
+								Description
+							</label>
+							<Input
+								value={description}
+								onChange={(e) => setDescription(e.target.value)}
+								placeholder="This command teaches you react"
+							/>
 						</div>
 
 						<div className="flex flex-col gap-1.5">
