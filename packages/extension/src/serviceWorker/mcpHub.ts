@@ -50,18 +50,18 @@ class McpHub {
 		this.setupConnections();
 		this.trackActiveTab();
 		this.apiTools = [
-			//new BookmarksApiTools(this.server),
-			// new StorageApiTools(this.server),
+			new BookmarksApiTools(this.server),
+			new StorageApiTools(this.server),
 			new HistoryApiTools(this.server),
-			// new TabGroupsApiTools(this.server),
-			// new TabsApiTools(this.server, {
-			// 	getAllTabs: true,
-			// 	createTab: true,
-			// 	closeTabs: true,
-			// 	updateTab: true,
-			// }),
+			new TabGroupsApiTools(this.server),
+			new TabsApiTools(this.server, {
+				getAllTabs: true,
+				createTab: true,
+				closeTabs: true,
+				updateTab: true,
+			}),
 			new DomExtractionTools(this.server),
-			//new WindowsApiTools(this.server),
+			new WindowsApiTools(this.server),
 			new ScriptingApiTools(this.server, {
 				executeScript: true,
 				executeUserScript: true,

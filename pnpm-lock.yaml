@@ -15,6 +15,9 @@ patchedDependencies:
   '@assistant-ui/react':
     hash: 65e5055efb454710635e55478f96cdbe208e5c8a8d5a8d0c55e8aaa07aec670e
     path: patches/@assistant-ui__react.patch
+  '@mcp-b/extension-tools@0.2.3':
+    hash: de61710e62afdb10e9b1aa256f697615f6f694df3f7c35e4aa0ea8ee2eb930fd
+    path: patches/@mcp-b__extension-tools@0.2.3.patch
   zod@4.1.13:
     hash: c114f207fef77f3edf0ad5c47ed131bfab96b9d7160773333de731bf592ee1e7
     path: patches/zod@4.1.13.patch
@@ -269,7 +272,7 @@ importers:
         version: link:../design-system
       '@mcp-b/extension-tools':
         specifier: ^0.2.3
-        version: 0.2.3(hono@4.11.3)
+        version: 0.2.3(patch_hash=de61710e62afdb10e9b1aa256f697615f6f694df3f7c35e4aa0ea8ee2eb930fd)(hono@4.11.3)
       '@mcp-b/mcp-react-hooks':
         specifier: ^0.2.2
         version: 0.2.2(@assistant-ui/react@0.11.41(patch_hash=65e5055efb454710635e55478f96cdbe208e5c8a8d5a8d0c55e8aaa07aec670e)(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(use-sync-external-store@1.6.0(react@19.2.3)))(hono@4.11.3)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
@@ -8069,7 +8072,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@mcp-b/extension-tools@0.2.3(hono@4.11.3)':
+  '@mcp-b/extension-tools@0.2.3(patch_hash=de61710e62afdb10e9b1aa256f697615f6f694df3f7c35e4aa0ea8ee2eb930fd)(hono@4.11.3)':
     dependencies:
       '@mcp-b/smart-dom-reader': 1.0.2(@modelcontextprotocol/sdk@1.25.1(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))
       '@modelcontextprotocol/sdk': 1.25.1(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
