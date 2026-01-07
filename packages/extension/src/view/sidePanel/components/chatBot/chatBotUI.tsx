@@ -103,7 +103,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 
 	const groupedTools = useMemo(() => {
 		const toolGroups: SingleGroupTool[] = [];
-		console.log(tools);
+
 		const websiteTools = tools.reduce((acc, tool) => {
 			const WEBSITE_TOOL_PREFIX = 'website_tool_';
 			const EXTENSION_TOOL_PREFIX = 'extension_tool_';
@@ -173,7 +173,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 				})),
 			});
 		});
-		console.log(toolGroups);
+
 		return toolGroups;
 	}, [tools]);
 

@@ -22,7 +22,12 @@ import {
  * Internal dependencies
  */
 import { RequestManager, sanitizeToolName, isDomainAllowed } from './utils';
-import { MESSAGE_TYPES, CONNECTION_NAMES, logger } from '../utils';
+import {
+	MESSAGE_TYPES,
+	CONNECTION_NAMES,
+	logger,
+	jsonSchemaToZod,
+} from '../utils';
 import type { ContentScriptMessage, TabData } from './types';
 
 /**
@@ -70,7 +75,6 @@ class McpHub {
 			}),
 		];
 		this.registerAllExtensionTools();
-		console.log(this.server);
 	}
 
 	/**
@@ -92,7 +96,6 @@ class McpHub {
 		for (const tool of this.apiTools) {
 			tool.register();
 		}
-		console.log(this.server);
 	}
 
 	private registerApiCheckTool() {
@@ -366,7 +369,7 @@ class McpHub {
 			const config = {
 				title: tool.title,
 				description,
-				inputSchema: inputSchema as any, // Cast required due to SDK constraints vs dynamic schema
+				inputSchema: jsonSchemaToZod(inputSchema),
 				annotations: tool.annotations,
 			};
 
