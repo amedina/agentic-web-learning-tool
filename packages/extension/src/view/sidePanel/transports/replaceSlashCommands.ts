@@ -73,7 +73,7 @@ const replaceSlashCommands = (_command: string, runtime: AssistantRuntime) => {
 						type: 'text-delta',
 						id: textPartId,
 						delta:
-							'**`/' +
+							'> **`/' +
 							cmd.name +
 							'`** - ' +
 							cmd.description +
