@@ -23,8 +23,8 @@ import { useSettings } from '../stateProviders';
 
 const Items = [
 	{
-		title: 'Agent Studio',
-		id: 'agent-studio',
+		title: 'Agents',
+		id: 'agents',
 		icon: () => <CpuIcon />,
 		component: <AgentStudioTab />,
 	},
