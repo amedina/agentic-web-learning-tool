@@ -9,6 +9,7 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 import {
 	BookmarksApiTools,
+	DomExtractionTools,
 	HistoryApiTools,
 	ScriptingApiTools,
 	StorageApiTools,
@@ -59,6 +60,7 @@ class McpHub {
 				closeTabs: true,
 				updateTab: true,
 			}),
+			new DomExtractionTools(this.server),
 			new WindowsApiTools(this.server),
 			new ScriptingApiTools(this.server, {
 				executeScript: true,

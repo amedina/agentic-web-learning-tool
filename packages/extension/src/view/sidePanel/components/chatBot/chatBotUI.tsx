@@ -97,9 +97,10 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 
 	const groupedTools = useMemo(() => {
 		const toolGroups: SingleGroupTool[] = [];
-
+		console.log(tools);
 		const websiteTools = tools.reduce((acc, tool) => {
 			const WEBSITE_TOOL_PREFIX = 'website_tool_';
+			const EXTENSION_TOOL_PREFIX = 'extension_tool_';
 			if (getToolNameWithoutPrefix(tool.name) === 'dummyTool') {
 				return acc;
 			}
@@ -124,6 +125,25 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 					};
 				}
 				return acc;
+			} else if (tool.name.startsWith(EXTENSION_TOOL_PREFIX)) {
+				const toolNameWithoutHardCodePrefix = tool.name.substring(
+					EXTENSION_TOOL_PREFIX.length
+				);
+				const pieces = toolNameWithoutHardCodePrefix.split('_');
+				const cleanToolName = pieces.join('_');
+				const result = cleanToolName
+					.split('_tab')[0]
+					.replaceAll('_', '.');
+
+				if (acc[result]) {
+					acc[result].items.push(tool);
+				} else {
+					acc[result] = {
+						group: result,
+						key: result,
+						items: [tool],
+					};
+				}
 			} else {
 				if (acc['other']) {
 					acc['others'].items.push(tool);
