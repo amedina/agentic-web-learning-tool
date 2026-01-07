@@ -150,7 +150,7 @@ const Provider = ({ children }: PropsWithChildren) => {
 				handleMessageChange,
 			},
 		};
-	}, [handleMessageChange]);
+	}, [allCommands, handleMessageChange]);
 
 	return (
 		<Context.Provider value={memoisedValue}>{children}</Context.Provider>
