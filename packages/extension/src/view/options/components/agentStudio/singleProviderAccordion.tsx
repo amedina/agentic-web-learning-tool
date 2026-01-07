@@ -101,7 +101,7 @@ export default function SingleProviderAccordion({
 								value={apiKey}
 								onChange={(e) => setAPIKey(e.target.value)}
 								className="bg-transparent border-darth-vader text-accent-foreground transition-all w-full pl-3 pr-9 py-2 rounded-md text-sm"
-								placeholder="sk-..."
+								placeholder="Enter key.."
 							/>
 							<ShieldCheck className="absolute right-3 top-2.5 w-4 h-4 text-exclusive-plum" />
 						</div>

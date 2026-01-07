@@ -21,19 +21,18 @@ export function ToolCard({ tool, onToggle, onEdit }: ToolCardProps) {
         <div className="flex flex-col p-5 bg-[var(--surface-color)] rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
             <div className="flex justify-between items-start mb-3">
                 <div>
-                    <h3 className="text-lg font-bold text-gray-800">{tool.name}</h3>
-                    <div className="text-xs text-gray-500 font-mono opacity-80 mb-1">
+                    <h3 className="text-lg font-bold text-accent-foreground">{tool.name}</h3>
+                    <div className="text-xs text-amethyst-haze font-mono opacity-80 mb-1">
                         {tool.namespace}
                     </div>
                 </div>
                 <ToggleSwitch
                     checked={tool.enabled}
                     onCheckedChange={onToggle}
-                    className="data-[state=checked]:bg-gray-900"
                 />
             </div>
 
-            <p className="text-sm text-gray-600 mb-5 flex-grow leading-relaxed">
+            <p className="text-sm text-amethyst-haze mb-5 flex-grow leading-relaxed">
                 {tool.description}
             </p>
 
