@@ -157,7 +157,6 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 			}
 			return acc;
 		}, {} as GroupedTool);
-
 		Object.keys(websiteTools).forEach((key) => {
 			toolGroups.push({
 				group: websiteTools[key].group,
@@ -168,7 +167,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 				})),
 			});
 		});
-
+		console.log(toolGroups);
 		return toolGroups;
 	}, [tools]);
 

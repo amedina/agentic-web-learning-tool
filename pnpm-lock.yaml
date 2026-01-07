@@ -8,15 +8,13 @@ overrides:
   glob@^10: ^10.5.0
   js-yaml@^3: ^3.14.2
   js-yaml@^4: ^4.1.1
+  '@modelcontextprotocol/sdk': ^1.25.0
   zod: ^4.1.13
 
 patchedDependencies:
   '@assistant-ui/react':
     hash: 65e5055efb454710635e55478f96cdbe208e5c8a8d5a8d0c55e8aaa07aec670e
     path: patches/@assistant-ui__react.patch
-  '@mcp-b/extension-tools@0.2.3':
-    hash: d9a429f833d076a3e2c293d9d347353de46aa40b495435ca896ee0cf0211b213
-    path: patches/@mcp-b__extension-tools@0.2.3.patch
   zod@4.1.13:
     hash: c114f207fef77f3edf0ad5c47ed131bfab96b9d7160773333de731bf592ee1e7
     path: patches/zod@4.1.13.patch
@@ -271,15 +269,15 @@ importers:
         version: link:../design-system
       '@mcp-b/extension-tools':
         specifier: ^0.2.3
-        version: 0.2.3(patch_hash=d9a429f833d076a3e2c293d9d347353de46aa40b495435ca896ee0cf0211b213)
+        version: 0.2.3(hono@4.11.3)
       '@mcp-b/mcp-react-hooks':
         specifier: ^0.2.2
-        version: 0.2.2(@assistant-ui/react@0.11.41(patch_hash=65e5055efb454710635e55478f96cdbe208e5c8a8d5a8d0c55e8aaa07aec670e)(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(use-sync-external-store@1.6.0(react@19.2.3)))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 0.2.2(@assistant-ui/react@0.11.41(patch_hash=65e5055efb454710635e55478f96cdbe208e5c8a8d5a8d0c55e8aaa07aec670e)(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(use-sync-external-store@1.6.0(react@19.2.3)))(hono@4.11.3)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
       '@mcp-b/transports':
         specifier: ^1.2.0
         version: 1.2.0(@modelcontextprotocol/sdk@1.25.1(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))
       '@modelcontextprotocol/sdk':
-        specifier: ^1.23.0
+        specifier: ^1.25.0
         version: 1.25.1(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
       '@radix-ui/react-icons':
         specifier: ^1.3.2
@@ -1990,7 +1988,7 @@ packages:
   '@mcp-b/smart-dom-reader@1.0.2':
     resolution: {integrity: sha512-mXTn1SSvHWUcyWSYTS1bowLM7idDCbePpsWbfqCxytnFmfEsgS5Z44K4egiwqRRTA/gLLqDAKXjYcxvXSbo0/A==}
     peerDependencies:
-      '@modelcontextprotocol/sdk': ^1.15.0
+      '@modelcontextprotocol/sdk': ^1.25.0
     peerDependenciesMeta:
       '@modelcontextprotocol/sdk':
         optional: true
@@ -1998,22 +1996,18 @@ packages:
   '@mcp-b/transports@1.0.3':
     resolution: {integrity: sha512-zAGIvo7r2rqrZQtoTrH21PZZkh49AFy2FwOx4gPDqxgVb074PRPb4JtJwUgTa0g399v9zLbU8ep6f1r7c4MQfg==}
     peerDependencies:
-      '@modelcontextprotocol/sdk': ^1.15.0
+      '@modelcontextprotocol/sdk': ^1.25.0
 
   '@mcp-b/transports@1.2.0':
     resolution: {integrity: sha512-YMKv7K3QFWu1xPxKCXGGUU2coSf6Z0OcbsckriA+SfeHdTO7gDUqDXPp88Y4jSvczKdfZuuL64gV9v8StP7RJQ==}
     peerDependencies:
-      '@modelcontextprotocol/sdk': ^1.15.0
+      '@modelcontextprotocol/sdk': ^1.25.0
 
   '@mdx-js/react@3.1.1':
     resolution: {integrity: sha512-f++rKLQgUVYDAtECQ6fn/is15GkEH9+nZPM3MS0RcxVqoTfawHvDlSCH7JbMhAM6uJ32v3eXLvLmLvjGu7PTQw==}
     peerDependencies:
       '@types/react': '>=16'
       react: '>=16'
-
-  '@modelcontextprotocol/sdk@1.15.0':
-    resolution: {integrity: sha512-67hnl/ROKdb03Vuu0YOr+baKTvf1/5YBHBm9KnZdjdAh8hjt4FRCPD5ucwxGB237sBpzlqQsLy1PFu7z/ekZ9Q==}
-    engines: {node: '>=18'}
 
   '@modelcontextprotocol/sdk@1.25.1':
     resolution: {integrity: sha512-yO28oVFFC7EBoiKdAn+VqRm+plcfv4v0xp6osG/VsCB0NlPZWi87ajbCZZ8f/RvOFLEu7//rSRmuZZ7lMoe3gQ==}
@@ -8075,33 +8069,38 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@mcp-b/extension-tools@0.2.3(patch_hash=d9a429f833d076a3e2c293d9d347353de46aa40b495435ca896ee0cf0211b213)':
+  '@mcp-b/extension-tools@0.2.3(hono@4.11.3)':
     dependencies:
-      '@mcp-b/smart-dom-reader': 1.0.2(@modelcontextprotocol/sdk@1.15.0)
-      '@modelcontextprotocol/sdk': 1.15.0
+      '@mcp-b/smart-dom-reader': 1.0.2(@modelcontextprotocol/sdk@1.25.1(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))
+      '@modelcontextprotocol/sdk': 1.25.1(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
       zod: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
       zod-to-json-schema: 3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
     transitivePeerDependencies:
+      - '@cfworker/json-schema'
+      - hono
       - supports-color
 
-  '@mcp-b/mcp-react-hooks@0.2.2(@assistant-ui/react@0.11.41(patch_hash=65e5055efb454710635e55478f96cdbe208e5c8a8d5a8d0c55e8aaa07aec670e)(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(use-sync-external-store@1.6.0(react@19.2.3)))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
+  '@mcp-b/mcp-react-hooks@0.2.2(@assistant-ui/react@0.11.41(patch_hash=65e5055efb454710635e55478f96cdbe208e5c8a8d5a8d0c55e8aaa07aec670e)(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(use-sync-external-store@1.6.0(react@19.2.3)))(hono@4.11.3)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))':
     dependencies:
-      '@mcp-b/transports': 1.0.3(@modelcontextprotocol/sdk@1.15.0)
-      '@modelcontextprotocol/sdk': 1.15.0
+      '@mcp-b/transports': 1.0.3(@modelcontextprotocol/sdk@1.25.1(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))
+      '@modelcontextprotocol/sdk': 1.25.1(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
       react: 19.2.3
       react-dom: 19.2.3(react@19.2.3)
     optionalDependencies:
       '@assistant-ui/react': 0.11.41(patch_hash=65e5055efb454710635e55478f96cdbe208e5c8a8d5a8d0c55e8aaa07aec670e)(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(use-sync-external-store@1.6.0(react@19.2.3))
     transitivePeerDependencies:
+      - '@cfworker/json-schema'
+      - hono
       - supports-color
+      - zod
 
-  '@mcp-b/smart-dom-reader@1.0.2(@modelcontextprotocol/sdk@1.15.0)':
+  '@mcp-b/smart-dom-reader@1.0.2(@modelcontextprotocol/sdk@1.25.1(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))':
     optionalDependencies:
-      '@modelcontextprotocol/sdk': 1.15.0
+      '@modelcontextprotocol/sdk': 1.25.1(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
 
-  '@mcp-b/transports@1.0.3(@modelcontextprotocol/sdk@1.15.0)':
+  '@mcp-b/transports@1.0.3(@modelcontextprotocol/sdk@1.25.1(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))':
     dependencies:
-      '@modelcontextprotocol/sdk': 1.15.0
+      '@modelcontextprotocol/sdk': 1.25.1(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
       zod: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
 
   '@mcp-b/transports@1.2.0(@modelcontextprotocol/sdk@1.25.1(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))':
@@ -8114,23 +8113,6 @@ snapshots:
       '@types/mdx': 2.0.13
       '@types/react': 19.2.7
       react: 19.2.3
-
-  '@modelcontextprotocol/sdk@1.15.0':
-    dependencies:
-      ajv: 6.12.6
-      content-type: 1.0.5
-      cors: 2.8.5
-      cross-spawn: 7.0.6
-      eventsource: 3.0.7
-      eventsource-parser: 3.0.6
-      express: 5.2.1
-      express-rate-limit: 7.5.1(express@5.2.1)
-      pkce-challenge: 5.0.1
-      raw-body: 3.0.2
-      zod: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
-      zod-to-json-schema: 3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
-    transitivePeerDependencies:
-      - supports-color
 
   '@modelcontextprotocol/sdk@1.25.1(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))':
     dependencies:
