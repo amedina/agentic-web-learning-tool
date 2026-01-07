@@ -13,9 +13,7 @@ export const TOOL_CONFIGS: Record<
 			temperature: 1,
 			expectedInputsLanguages: ['en'],
 			expectedOutputsLanguages: ['en'],
-			initialPrompts: [
-				{ role: 'system', content: 'You are a helpful assistant.' },
-			],
+			initialPrompts: [],
 		},
 	},
 	writerApi: {

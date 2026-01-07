@@ -12,7 +12,7 @@ import { formatInputText } from "../utils/executorUtils";
 export async function domReplacementExecutor(
   config: Record<string, unknown>,
   runtime: RuntimeInterface,
-  _context: ExecutionContext
+  context: ExecutionContext
 ): Promise<string> {
   const input = config.input;
   const selector = config.selector as string;
@@ -28,7 +28,12 @@ export async function domReplacementExecutor(
     throw new Error("DOM Replacement requires input text");
   }
 
-  await runtime.replaceDOM(selector, formattedInput, isMultiple);
+  await runtime.replaceDOM(
+    selector,
+    formattedInput,
+    isMultiple,
+    context.loop?.index
+  );
 
   return formattedInput;
 }

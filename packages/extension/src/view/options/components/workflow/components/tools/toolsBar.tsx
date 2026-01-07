@@ -12,7 +12,7 @@ interface ToolsBarProps {
 const ToolsBar = ({ collapsed = false, onToggle }: ToolsBarProps) => {
 	return (
 		<ToolSidebarProvider collapsed={collapsed}>
-			<div className="bg-slate-50 dark:bg-zinc-900 border-r border-slate-200 dark:border-border h-full flex flex-col overflow-y-auto overflow-x-hidden">
+			<div className="bg-slate-50 dark:bg-zinc-900 border-r border-slate-200 dark:border-border h-full flex flex-col  overflow-hidden">
 				<div
 					className={`border-b border-slate-200 dark:border-border bg-white dark:bg-zinc-950 transition-all duration-300 relative ${
 						collapsed ? 'p-2 flex justify-center' : 'p-4'
@@ -57,7 +57,7 @@ const ToolsBar = ({ collapsed = false, onToggle }: ToolsBarProps) => {
 				</div>
 
 				<div
-					className={`flex-1 space-y-6 transition-all duration-300 ${
+					className={`flex-1 space-y-6 transition-all duration-300 overflow-y-auto ${
 						collapsed ? 'p-2' : 'p-4'
 					}`}
 				>

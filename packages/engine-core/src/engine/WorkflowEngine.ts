@@ -176,7 +176,15 @@ export class WorkflowEngine {
         (handle, input) => this.executeBranch(node.id, handle, input)
       );
 
-      const output: NodeOutput = { status: "success", data: result };
+      const output: NodeOutput = {
+        status: "success",
+        data: result,
+        metadata: {
+          type: node.type,
+          label: node.label,
+          config: node.config,
+        },
+      };
       this.context.steps[node.id] = output;
       this.runtime.onNodeFinish(node.id, output);
       executedNodes.add(node.id);
@@ -191,7 +199,15 @@ export class WorkflowEngine {
       }
     } catch (err) {
       const error = err instanceof Error ? err : new Error(String(err));
-      const output: NodeOutput = { status: "error", error: error.message };
+      const output: NodeOutput = {
+        status: "error",
+        error: error.message,
+        metadata: {
+          type: node.type,
+          label: node.label,
+          config: node.config,
+        },
+      };
       this.context.steps[node.id] = output;
       this.runtime.onNodeFinish(node.id, output);
       executedNodes.add(node.id);

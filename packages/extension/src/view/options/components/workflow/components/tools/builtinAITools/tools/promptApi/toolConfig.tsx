@@ -64,7 +64,7 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 					parsedInitialPrompts = JSON.parse(initialPrompts);
 				} catch (error) {
 					console.error('Invalid JSON for initialPrompts:', error);
-					return undefined;
+					parsedInitialPrompts = [];
 				}
 
 				const configResult = {

@@ -88,15 +88,6 @@ const ToolNodeContainer = ({
 
 				<div className="flex items-center gap-1">
 					<button
-						onClick={(e) => {
-							e.stopPropagation();
-							onEdit();
-						}}
-						className="p-1 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-full text-slate-400 dark:text-zinc-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
-					>
-						<Edit2 size={14} />
-					</button>
-					<button
 						onClick={handleRemove}
 						className="p-1 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-full text-slate-400 dark:text-zinc-500 hover:text-rose-600 dark:hover:text-rose-400 transition-colors"
 					>
