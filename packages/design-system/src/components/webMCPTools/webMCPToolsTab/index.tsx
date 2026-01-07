@@ -18,13 +18,15 @@ interface WebMCPToolsTabProps {
     builtInTools: WebMCPTool[];
     onSaveUserTools: (tools: WebMCPTool[]) => void;
     onSaveBuiltInState: (tools: WebMCPTool[]) => void;
+    isDarkMode?: boolean;
 }
 
 export function WebMCPToolsTab({
     userTools,
     builtInTools,
     onSaveUserTools,
-    onSaveBuiltInState
+    onSaveBuiltInState,
+    isDarkMode
 }: WebMCPToolsTabProps) {
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
     const [editingTool, setEditingTool] = useState<WebMCPTool | undefined>(undefined);
@@ -85,7 +87,7 @@ export function WebMCPToolsTab({
                 }}
                 newScriptButton={
                     <Button
-                        className="shadow-sm hover:shadow-md transition-all gap-2 bg-gray-900 hover:bg-gray-800 text-white"
+                        className="shadow-sm hover:shadow-md transition-all gap-2"
                         onClick={() => {
                             setEditingTool(undefined);
                             setIsEditDialogOpen(true);
@@ -103,6 +105,7 @@ export function WebMCPToolsTab({
                 tool={editingTool}
                 onSave={handleSaveTool}
                 onDelete={editingTool ? handleDeleteTool : undefined}
+                isDarkMode={isDarkMode}
             />
 
         </OptionsPageTab>
