@@ -6,9 +6,9 @@ import { useEffect, useState } from 'react';
 /**
  * Internal dependencies
  */
-import { useSettings } from '../view/stateProviders';
+import { useSettings } from '..';
 
-export function useIsDarkMode(): boolean {
+export default function useIsDarkMode(): boolean {
     const { theme } = useSettings(({ state }) => ({
         theme: state.theme,
     }));

@@ -4,7 +4,7 @@ import { WebMCPToolsTab as WebMCPToolsUI } from '@google-awlt/design-system';
  * Internal Dependencies.
  */
 import { useToolProvider } from '../../providers';
-import { useIsDarkMode } from '../../../../hooks/useIsDarkMode';
+import { useIsDarkMode } from '../../../stateProviders';
 
 export function WebMCPToolsTab() {
 	const { userTools, builtInTools, saveUserTools, saveBuiltInState } =
