@@ -58,13 +58,21 @@ const Provider = ({ children }: PropsWithChildren) => {
 						'$ARGUMENTS',
 						match[2] ?? ''
 					);
+
+					if (command.isBuiltIn) {
+						//@ts-expect-error -- this is being done to avoid delays for communication with LLM transports.
+						window.command = command.name;
+					}
+
 					return expansion;
 				} else if (
 					command &&
 					!command?.instructions.includes('$ARGUMENTS')
 				) {
-					//@ts-expect-error -- this is being done to avoid delays for communication with LLM transports.
-					window.command = command.name;
+					if (command.isBuiltIn) {
+						//@ts-expect-error -- this is being done to avoid delays for communication with LLM transports.
+						window.command = command.name;
+					}
 					return command.instructions.trim().length > 1
 						? command.instructions.trim()
 						: `/${command.name}`;
