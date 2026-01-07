@@ -24,8 +24,18 @@ const itemStyles = `
   transition-colors duration-200
 `;
 
+const scrollBarStyles = `
+  [&::-webkit-scrollbar]:w-1.5
+  [&::-webkit-scrollbar-track]:bg-transparent
+  [&::-webkit-scrollbar-thumb]:bg-stone-200
+  [&::-webkit-scrollbar-thumb]:rounded-full
+  [&::-webkit-scrollbar-thumb]:hover:bg-stone-300
+`;
+
 const menuContentStyles = `
-  max-w-max max-h-[400px]
+  max-w-max
+  flex flex-col 
+  max-h-[--radix-dropdown-menu-content-available-height]
   bg-dark-brown rounded-xl p-[5px]
   border
   shadow-[0_10px_38px_-10px_rgba(22,23,24,0.35),0_10px_20px_-15px_rgba(22,23,24,0.2)]
@@ -34,11 +44,7 @@ const menuContentStyles = `
   data-[side=right]:animate-slideLeftAndFade 
   data-[side=bottom]:animate-slideUpAndFade 
   data-[side=left]:animate-slideRightAndFade
-  [&::-webkit-scrollbar]:w-1.5
-  [&::-webkit-scrollbar-track]:bg-transparent
-  [&::-webkit-scrollbar-thumb]:bg-stone-200
-  [&::-webkit-scrollbar-thumb]:rounded-full
-  [&::-webkit-scrollbar-thumb]:hover:bg-stone-300
+  ${scrollBarStyles}
 `;
 
 type DropDownProps = PropsWithChildren & {
@@ -297,29 +303,34 @@ export default function DropDown({
 						sideOffset={5}
 						className={menuContentStyles}
 					>
-						{mainLabel && (
-							<DropDownMenuLabel className="px-2.5 py-2 w-full text-amethyst-haze">
-								{mainLabel}
-							</DropDownMenuLabel>
-						)}
-						{groups.map((group) => (
-							<div key={group.key}>
-								{group.group && !group.hideLabel && (
-									<DropDownMenuLabel className="px-2.5 py-2 text-[11px] w-full text-amethyst-haze tracking-widest">
-										{group.group}
-									</DropDownMenuLabel>
-								)}
-								{group.items.map((item) => (
-									<div
-										data-testid="dropdown-item"
-										key={item.label}
-									>
-										{renderDropDownMenu(item)}
-									</div>
-								))}
-							</div>
-						))}
-						<DropdownMenuArrow className="fill-dark-brown w-4 h-2" />
+						<div
+							className={`overflow-auto flex-1 max-h-[400px] ${scrollBarStyles}`}
+						>
+							{mainLabel && (
+								<DropDownMenuLabel className="px-2.5 py-2 w-full text-amethyst-haze">
+									{mainLabel}
+								</DropDownMenuLabel>
+							)}
+							{groups.map((group) => (
+								<div key={group.key}>
+									{group.group && !group.hideLabel && (
+										<DropDownMenuLabel className="px-2.5 py-2 text-[11px] w-full text-amethyst-haze tracking-widest">
+											{group.group}
+										</DropDownMenuLabel>
+									)}
+									{group.items.map((item) => (
+										<div
+											data-testid="dropdown-item"
+											key={item.label}
+										>
+											{renderDropDownMenu(item)}
+										</div>
+									))}
+								</div>
+							))}
+
+							<DropdownMenuArrow className="fill-dark-brown w-4 h-2" />
+						</div>
 					</DropDownMenuContent>
 				</DropDownMenuPortal>
 			</DropDownMenuRoot>
