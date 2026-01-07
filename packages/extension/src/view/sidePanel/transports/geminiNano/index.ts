@@ -12,14 +12,13 @@ import {
 } from 'ai';
 import { type LanguageModelV2 } from '@ai-sdk/provider';
 import type { AssistantRuntime } from '@assistant-ui/react';
-import type { PromptCommand } from '@google-awlt/design-system';
+
 /**
  * Internal dependencies
  */
 import ChromeAILanguageModel from './chromeAILanguageModel';
 import { systemPromptTemplate } from '../../utils';
 import logger from '../../../../utils/logger';
-import { BUILT_IN_COMMANDS } from '../../../../constants';
 import replaceSlashCommands from '../replaceSlashCommands';
 
 type SendMessagesParams = {
@@ -48,7 +47,7 @@ export class GeminiNanoChatTransport implements ChatTransport<UIMessage> {
 	private runtime: AssistantRuntime | null = null;
 	formattedTools: any[] = [];
 
-	constructor() {}
+	constructor() { }
 
 	setRuntime(runtime: AssistantRuntime) {
 		this.runtime = runtime;
