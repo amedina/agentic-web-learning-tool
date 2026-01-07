@@ -87,7 +87,7 @@ export function WebMCPToolsTab({
                 }}
                 newScriptButton={
                     <Button
-                        className="shadow-sm hover:shadow-md transition-all gap-2 bg-extreme-zinc hover:bg-gray-800 text-white"
+                        className="shadow-sm hover:shadow-md transition-all gap-2"
                         onClick={() => {
                             setEditingTool(undefined);
                             setIsEditDialogOpen(true);
