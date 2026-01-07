@@ -1,4 +1,8 @@
 /**
+ * External dependencies
+ */
+import type { PromptCommand } from "@google-awlt/design-system";
+/**
  * Internal dependencies
  */
 import type { SettingsState } from "./types";
@@ -8,7 +12,7 @@ export const INITIAL_PROVIDERS = [
         id: 'browser-ai',
         name: 'Browser AI',
         models: [
-            { id: 'prompt-api', label: 'Prompt API'}
+            { id: 'prompt-api', label: 'Prompt API' }
         ],
     },
     {
@@ -82,6 +86,58 @@ export const INITIAL_PROVIDERS = [
             { id: 'gemma-3-27b-it', label: 'gemma-3-27b-it' }
         ],
     },
+];
+
+export const BUILT_IN_COMMANDS: PromptCommand[] = [
+    {
+        name: 'fix-bugs',
+        description: 'Analyze code for bugs and propose fixes.',
+        instructions: 'Analyze the following code for bugs or potential issues and provide a fixed version:\n\n$ARGUMENTS',
+        isBuiltIn: true,
+        enabled: true
+    },
+    {
+        name: 'explain-code',
+        description: 'Explain code step-by-step.',
+        instructions: 'Explain how the following code works step-by-step:\n\n$ARGUMENTS',
+        isBuiltIn: true,
+        enabled: true
+    },
+    {
+        name: 'settings',
+        description: 'Open the settings page',
+        instructions: ' ',
+        isBuiltIn: true,
+        enabled: true
+    },
+    {
+        name: 'clear',
+        description: 'Clears the chat history.',
+        instructions: ' ',
+        isBuiltIn: true,
+        enabled: true
+    },
+    {
+        name: 'help',
+        description: 'Show the available list of commands.',
+        instructions: ' ',
+        isBuiltIn: true,
+        enabled: true,
+    },
+    {
+        name: 'optimize',
+        description: 'Optimize code for performance/readability.',
+        instructions: 'Optimize the following code for performance and readability:\n\n$ARGUMENTS',
+        isBuiltIn: true,
+        enabled: true
+    },
+    {
+        name: 'generate-tests',
+        description: 'Write unit tests for code.',
+        instructions: 'Write comprehensive unit tests for the following code using preferred testing framework:\n\n$ARGUMENTS',
+        isBuiltIn: true,
+        enabled: true
+    }
 ];
 
 export const DEFAULT_SETTINGS: SettingsState = {

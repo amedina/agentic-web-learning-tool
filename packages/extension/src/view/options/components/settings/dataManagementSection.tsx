@@ -158,7 +158,7 @@ export default function DataManagementSection({
 	}, []);
 
 	return (
-		<OptionsPageTabSection title="Data & Storage">
+		<OptionsPageTabSection title="Backup & Restore">
 			<div className="gap-5 flex flex-col sm:flex-row">
 				<Button
 					disabled={isExporting}

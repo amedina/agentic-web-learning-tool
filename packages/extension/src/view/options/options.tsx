@@ -7,21 +7,32 @@ import {
 	Toaster,
 	useSidebar,
 } from '@google-awlt/design-system';
-import { CpuIcon, CodeIcon, Settings2 } from 'lucide-react';
+import { CpuIcon, CodeIcon, Settings2, MessageSquare } from 'lucide-react';
 import { useEffect } from 'react';
 
 /**
  * Internal dependencies
  */
-import { AgentStudioTab, WebMCPToolsTab, SettingsTab } from './components';
+import {
+	AgentStudioTab,
+	WebMCPToolsTab,
+	SettingsTab,
+	PromptCommandsTab,
+} from './components';
 import { useSettings } from '../stateProviders';
 
 const Items = [
 	{
-		title: 'Agent Studio',
-		id: 'agent-studio',
+		title: 'Agents',
+		id: 'agents',
 		icon: () => <CpuIcon />,
 		component: <AgentStudioTab />,
+	},
+	{
+		title: 'Prompt Commands',
+		id: 'prompt-commands',
+		icon: () => <MessageSquare />,
+		component: <PromptCommandsTab />,
 	},
 	{
 		title: 'WebMCP Tools',

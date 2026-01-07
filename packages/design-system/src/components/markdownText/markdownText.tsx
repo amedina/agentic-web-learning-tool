@@ -10,7 +10,7 @@ import {
 import remarkGfm from 'remark-gfm';
 import { type FC, memo, useState } from 'react';
 import { CheckIcon, CopyIcon } from 'lucide-react';
-import "@assistant-ui/react-markdown/styles/dot.css";
+import '@assistant-ui/react-markdown/styles/dot.css';
 /**
  * Internal dependencies
  */
@@ -140,7 +140,7 @@ const defaultComponents = memoizeMarkdownComponents({
 	p: ({ className, children, ...props }) => (
 		<p
 			className={cn(
-				'aui-md-p mt-5 mb-5 leading-7 first:mt-0 last:mb-0',
+				'aui-md-p my-2 leading-7 first:mt-0 last:mb-0',
 				className
 			)}
 			{...props}
@@ -209,7 +209,7 @@ const defaultComponents = memoizeMarkdownComponents({
 	th: ({ className, children, ...props }) => (
 		<th
 			className={cn(
-				'aui-md-th bg-muted px-4 py-2 text-left font-bold first:rounded-tl-lg last:rounded-tr-lg [&[align=center]]:text-center [&[align=right]]:text-right',
+				'aui-md-th bg-muted px-4 py-2 text-left font-bold text-xs first:rounded-tl-lg last:rounded-tr-lg [&[align=center]]:text-center [&[align=right]]:text-right',
 				className
 			)}
 			{...props}
@@ -220,7 +220,7 @@ const defaultComponents = memoizeMarkdownComponents({
 	td: ({ className, children, ...props }) => (
 		<td
 			className={cn(
-				'aui-md-td border-b border-l px-4 py-2 text-left last:border-r [&[align=center]]:text-center [&[align=right]]:text-right',
+				'aui-md-td border-b border-l px-4 py-2 text-left text-xs last:border-r [&[align=center]]:text-center [&[align=right]]:text-right',
 				className
 			)}
 			{...props}
@@ -267,7 +267,7 @@ const defaultComponents = memoizeMarkdownComponents({
 			<code
 				className={cn(
 					!isCodeBlock &&
-					'aui-md-inline-code font-semibold rounded text-amber-600',
+						'aui-md-inline-code font-semibold rounded text-amber-600',
 					className
 				)}
 				{...props}
