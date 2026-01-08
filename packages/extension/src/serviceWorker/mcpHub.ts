@@ -71,27 +71,8 @@ class McpHub {
 
     this.apiTools = [];
 
-    const {
-      extensionToolsState,
-    }: {
-      extensionToolsState: {
-        [key in keys]: {
-          enabled: boolean;
-        };
-      };
-    } = await chrome.storage.local.get('extensionToolsState');
+    await this.fetchLocalStorageAndRegisterTools();
 
-    Object.keys(extensionToolsState ?? {}).forEach((toolKey) => {
-      if (extensionToolsState?.[toolKey as keys]?.enabled) {
-        this.apiTools.push(
-          new builtInTools[toolKey as keys].instance(this.server)
-        );
-      }
-    });
-
-    for (const tool of this.apiTools) {
-      tool.register();
-    }
     this.registerApiCheckTool();
     this.server.server?.transport?.send({
       jsonrpc: '2.0',
@@ -99,9 +80,7 @@ class McpHub {
     });
   }
 
-  async registerAllExtensionTools() {
-    logger(['debug', 'log', 'trace'], ['Registering extension tools...']);
-
+  async fetchLocalStorageAndRegisterTools() {
     const {
       extensionToolsState,
     }: {
@@ -126,6 +105,12 @@ class McpHub {
     for (const tool of this.apiTools) {
       tool.register();
     }
+  }
+
+  async registerAllExtensionTools() {
+    logger(['debug', 'log', 'trace'], ['Registering extension tools...']);
+
+    await this.fetchLocalStorageAndRegisterTools();
   }
 
   private registerApiCheckTool() {
