@@ -8,9 +8,7 @@ import { useContextSelector } from '@google-awlt/common';
 import Context, { type SettingsContextProps } from './context';
 
 export function useSettings(): SettingsContextProps;
-export function useSettings<T>(
-  selector: (state: SettingsContextProps) => T
-): T;
+export function useSettings<T>(selector: (state: SettingsContextProps) => T): T;
 
 /**
  * Allowed list hook.

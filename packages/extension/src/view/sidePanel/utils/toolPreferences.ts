@@ -8,7 +8,10 @@ import { z } from 'zod';
 import { logger } from '../../../utils';
 
 // Zod schemas for validation
-export const ThreadToolPreferencesSchema = z.record(z.string(), z.array(z.string()));
+export const ThreadToolPreferencesSchema = z.record(
+  z.string(),
+  z.array(z.string())
+);
 
 export const ThreadToolPreferencesItemSchema = z.object({
   threadId: z.string(),
@@ -17,7 +20,9 @@ export const ThreadToolPreferencesItemSchema = z.object({
 
 // Type definitions derived from schemas
 export type ThreadToolPreferences = z.infer<typeof ThreadToolPreferencesSchema>;
-export type ThreadToolPreferencesItem = z.infer<typeof ThreadToolPreferencesItemSchema>;
+export type ThreadToolPreferencesItem = z.infer<
+  typeof ThreadToolPreferencesItemSchema
+>;
 
 // Storage key for WXT storage
 export const TOOL_PREFERENCES_STORAGE_KEY = 'local:mcp-thread-tools';
@@ -28,7 +33,7 @@ export const TOOL_PREFERENCES_STORAGE_KEY = 'local:mcp-thread-tools';
 export function validateToolPreferences(data: unknown): ThreadToolPreferences {
   const result = ThreadToolPreferencesSchema.safeParse(data);
   if (!result.success) {
-    logger(['warn'], ['Invalid tool preferences data:'+ result.error]);
+    logger(['warn'], ['Invalid tool preferences data:' + result.error]);
     return {};
   }
   return result.data;
@@ -37,13 +42,16 @@ export function validateToolPreferences(data: unknown): ThreadToolPreferences {
 /**
  * Validates a single thread's tool preferences
  */
-export function validateThreadToolPreferences(threadId: string, toolNames: unknown): string[] {
+export function validateThreadToolPreferences(
+  threadId: string,
+  toolNames: unknown
+): string[] {
   const result = ThreadToolPreferencesItemSchema.safeParse({
     threadId,
     toolNames,
   });
   if (!result.success) {
-    logger(['warn'],['Invalid thread tool preferences:', result.error]);
+    logger(['warn'], ['Invalid thread tool preferences:', result.error]);
     return [];
   }
   return result.data.toolNames;
@@ -68,7 +76,9 @@ export function getToolPreferencesStorageKey(): string {
 /**
  * Safely parses tool preferences from storage
  */
-export function parseStoredToolPreferences(stored: unknown): ThreadToolPreferences {
+export function parseStoredToolPreferences(
+  stored: unknown
+): ThreadToolPreferences {
   if (stored === null || stored === undefined) {
     return {};
   }
@@ -84,11 +94,14 @@ export function parseStoredToolPreferences(stored: unknown): ThreadToolPreferenc
       const parsed = JSON.parse(stored);
       return validateToolPreferences(parsed);
     } catch (error) {
-      logger(['warn'],['Failed to parse stored tool preferences:',error]);
+      logger(['warn'], ['Failed to parse stored tool preferences:', error]);
       return {};
     }
   }
 
-  logger(['warn'],['Unexpected stored tool preferences format:', typeof stored]);
+  logger(
+    ['warn'],
+    ['Unexpected stored tool preferences format:', typeof stored]
+  );
   return {};
 }

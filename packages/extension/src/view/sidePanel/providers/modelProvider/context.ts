@@ -11,12 +11,12 @@ import type { GeminiNanoChatTransport } from '../../transports/geminiNano';
 
 export interface ModelProviderStoreContext {
   state: {
-    apiKeys: { [key: string]: APIKeys },
-    selectedAgent: AgentType,
+    apiKeys: { [key: string]: APIKeys };
+    selectedAgent: AgentType;
     transport: GeminiNanoChatTransport | CloudHostedTransport | null;
   };
   actions: {
-    setSelectedAgent: React.Dispatch<React.SetStateAction<AgentType>>,
+    setSelectedAgent: React.Dispatch<React.SetStateAction<AgentType>>;
   };
 }
 
@@ -27,10 +27,10 @@ const initialState: ModelProviderStoreContext = {
       modelProvider: 'browser-ai',
       model: 'prompt-api',
     },
-    transport: null
+    transport: null,
   },
   actions: {
-    setSelectedAgent: noop
+    setSelectedAgent: noop,
   },
 };
 

@@ -6,10 +6,14 @@ import type { PromptCommand } from '@google-awlt/design-system';
 
 export interface CommandProviderContextType {
   state: {
-    allCommands: PromptCommand[],
+    allCommands: PromptCommand[];
   };
   actions: {
-    handleMessageChange: (event: React.KeyboardEvent<HTMLTextAreaElement> | React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
+    handleMessageChange: (
+      event:
+        | React.KeyboardEvent<HTMLTextAreaElement>
+        | React.MouseEvent<HTMLButtonElement, MouseEvent>
+    ) => void;
   };
 }
 
@@ -18,7 +22,7 @@ const initialState: CommandProviderContextType = {
     allCommands: [],
   },
   actions: {
-    handleMessageChange: noop
+    handleMessageChange: noop,
   },
 };
 
