@@ -37,6 +37,7 @@ import UserMessage from './userMessage';
 import { INITIAL_PROVIDERS } from '../../../../constants';
 import type { AgentType } from '../../../../types';
 import { useCommandProvider } from '../../providers/commandProvider';
+import { ToolNameMap } from '../../../../contentScript/tools/builtInTools';
 
 type SingleGroupTool = {
   group: string;
@@ -48,6 +49,8 @@ type GroupedTool = {
   [key: string]: {
     group: string;
     key: string;
+    isWebSiteTool: boolean;
+    isExtensionTool: boolean;
     items: McpTool[];
   };
 };
@@ -123,6 +126,8 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
           acc[result] = {
             group: result,
             key: result,
+            isWebSiteTool: true,
+            isExtensionTool: false,
             items: [tool],
           };
         }
@@ -131,41 +136,62 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
         const toolNameWithoutHardCodePrefix = tool.name.substring(
           EXTENSION_TOOL_PREFIX.length
         );
-        const pieces = toolNameWithoutHardCodePrefix.split('_');
-        const cleanToolName = pieces.join('_');
-        const result = cleanToolName.split('_tab')[0].replaceAll('_', '.');
-
+        const result =
+          ToolNameMap[
+            toolNameWithoutHardCodePrefix as keyof typeof ToolNameMap
+          ];
+        console.log(tool.name);
         if (acc[result]) {
           acc[result].items.push(tool);
         } else {
           acc[result] = {
             group: result,
             key: result,
+            isWebSiteTool: false,
+            isExtensionTool: true,
             items: [tool],
           };
         }
       } else {
-        if (acc['other']) {
+        if (acc['others']) {
           acc['others'].items.push(tool);
         } else {
           acc['others'] = {
             group: 'others',
             key: 'others',
+            isWebSiteTool: true,
+            isExtensionTool: false,
             items: [tool],
           };
         }
       }
       return acc;
     }, {} as GroupedTool);
+
     Object.keys(websiteTools).forEach((key) => {
-      toolGroups.push({
-        group: websiteTools[key].group,
-        key: websiteTools[key].key,
-        items: websiteTools[key].items.map((tool) => ({
-          id: tool.name,
-          label: getToolNameWithoutPrefix(tool.name) ?? '',
-        })),
-      });
+      if (websiteTools[key].isWebSiteTool) {
+        toolGroups.push({
+          group: websiteTools[key].group,
+          key: websiteTools[key].key,
+          items: websiteTools[key].items.map((tool) => ({
+            id: tool.name,
+            label: getToolNameWithoutPrefix(tool.name) ?? '',
+          })),
+        });
+      }
+    });
+
+    Object.keys(websiteTools).forEach((key) => {
+      if (websiteTools[key].isExtensionTool) {
+        toolGroups.push({
+          group: websiteTools[key].group,
+          key: websiteTools[key].key,
+          items: websiteTools[key].items.map((tool) => ({
+            id: tool.name,
+            label: getToolNameWithoutPrefix(tool.name) ?? '',
+          })),
+        });
+      }
     });
 
     return toolGroups;

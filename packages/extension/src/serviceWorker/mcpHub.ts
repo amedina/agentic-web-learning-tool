@@ -92,7 +92,7 @@ class McpHub {
     for (const tool of this.apiTools) {
       tool.register();
     }
-
+    this.registerApiCheckTool();
     this.server.server?.transport?.send({
       jsonrpc: '2.0',
       method: 'get/Tools',
