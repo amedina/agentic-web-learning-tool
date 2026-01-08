@@ -2,8 +2,8 @@
  * External dependencies
  */
 import { type AssistantRuntime } from '@assistant-ui/react';
-import { getToolNameWithoutPrefix } from '@google-awlt/design-system';
 import type { Tool } from 'ai';
+
 /**
  * Internal dependencies
  */
@@ -338,7 +338,7 @@ class ChromeAILanguageModel {
 					const handleAbort = () => {
 						if (!isAborted) {
 							isAborted = true;
-							activeStreamReader?.cancel().catch(() => {});
+							activeStreamReader?.cancel().catch(() => { });
 							finishStream('stop');
 						}
 					};
@@ -602,7 +602,7 @@ class ChromeAILanguageModel {
 										) {
 											await activeStreamReader
 												.cancel()
-												.catch(() => {});
+												.catch(() => { });
 											break; // Break the inner Read Loop
 										}
 
