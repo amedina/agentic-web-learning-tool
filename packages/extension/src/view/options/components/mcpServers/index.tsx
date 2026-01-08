@@ -13,7 +13,7 @@ import { useMcpProvider } from '../../providers';
 import { MCPServerCard } from './mcpServerCard';
 
 export default function MCPServersTab() {
-	const [isDialogOpen, setIsDialogOpen] = useState(false);
+	const [isDialogOpen, setIsDialogOpen] = useState('');
 	const {
 		serverConfigs,
 		addServer,
@@ -40,7 +40,7 @@ export default function MCPServersTab() {
 					<Button
 						className="shadow-sm hover:shadow-md transition-all gap-2 bg-gray-900 hover:bg-gray-800 text-white"
 						onClick={() => {
-							setIsDialogOpen(true);
+							setIsDialogOpen('config');
 							setSelectedServer('');
 						}}
 					>
@@ -51,11 +51,15 @@ export default function MCPServersTab() {
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 					{Object.keys(serverConfigs).map((server) => (
 						<MCPServerCard
+							onView={() => {
+								setIsDialogOpen('tools');
+								setSelectedServer(server);
+							}}
 							server={serverConfigs[server]}
 							key={server}
 							tools={toolList[server] ?? []}
 							onEdit={() => {
-								setIsDialogOpen(true);
+								setIsDialogOpen('config');
 								setSelectedServer(server);
 							}}
 							onToggle={(value) => handleToggle(server, value)}
@@ -65,12 +69,13 @@ export default function MCPServersTab() {
 				{isDialogOpen && (
 					<MCPServerDialog
 						toolList={toolList[selectedServer]}
-						open={isDialogOpen}
+						open={Boolean(isDialogOpen)}
+						defaultTab={isDialogOpen}
 						onDelete={selectedServer ? removeConfig : undefined}
 						onSave={addServer}
 						validator={validator}
 						onOpenChange={(value) => {
-							setIsDialogOpen(value);
+							setIsDialogOpen('');
 							if (!value) {
 								setSelectedServer('');
 							}

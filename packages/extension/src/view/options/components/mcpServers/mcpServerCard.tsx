@@ -1,7 +1,7 @@
 /**
  * External dependencies.
  */
-import { EditIcon } from 'lucide-react';
+import { EditIcon, ToolCaseIcon } from 'lucide-react';
 import { Button, ToggleSwitch } from '@google-awlt/design-system';
 import type { Tool } from '@modelcontextprotocol/sdk/types.js';
 import type { MCPServerConfig } from '@google-awlt/common';
@@ -11,6 +11,7 @@ interface MCPServerCardProps {
 	tools: Tool[];
 	onToggle: (enabled: boolean) => void;
 	onEdit: () => void;
+	onView: () => void;
 }
 
 export function MCPServerCard({
@@ -18,6 +19,7 @@ export function MCPServerCard({
 	onToggle,
 	tools,
 	onEdit,
+	onView,
 }: MCPServerCardProps) {
 	return (
 		<div className="flex flex-col p-5 bg-[var(--surface-color)] rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
@@ -37,16 +39,27 @@ export function MCPServerCard({
 				<div className="flex gap-2 flex-wrap">
 					Total Tools: {tools.length}
 				</div>
+				<div className="flex flex-col gap-2">
+					<Button
+						variant="ghost"
+						size="sm"
+						onClick={onView}
+						className="text-[var(--primary-color)] hover:text-[var(--primary-hover)] hover:bg-[var(--surface-active)]"
+					>
+						<ToolCaseIcon size={14} />
+						View Tools
+					</Button>
 
-				<Button
-					variant="ghost"
-					size="sm"
-					onClick={onEdit}
-					className="text-[var(--primary-color)] hover:text-[var(--primary-hover)] hover:bg-[var(--surface-active)]"
-				>
-					<EditIcon size={14} />
-					Edit
-				</Button>
+					<Button
+						variant="ghost"
+						size="sm"
+						onClick={onEdit}
+						className="text-[var(--primary-color)] hover:text-[var(--primary-hover)] hover:bg-[var(--surface-active)]"
+					>
+						<EditIcon size={14} />
+						Edit
+					</Button>
+				</div>
 			</div>
 		</div>
 	);

@@ -27,6 +27,7 @@ interface MCPServerDialogProps {
 		serverName: string
 	) => Promise<{ isValid: boolean; errors: string[] }>;
 	serverId: string;
+	defaultTab: string;
 }
 
 const initialState: MCPServerConfig = {
@@ -46,6 +47,7 @@ export function MCPServerDialog({
 	onSave,
 	onDelete,
 	validator,
+	defaultTab = 'config',
 }: MCPServerDialogProps) {
 	const [config, setConfig] = useState(initialState);
 	const [isValidConfig, setIsValidConfig] = useState<boolean>(false);
@@ -122,7 +124,7 @@ export function MCPServerDialog({
 
 					<div className="flex-grow flex flex-col p-5 overflow-hidden relative">
 						<div className="flex-1 flex flex-col p-0 gap-2 relative bg-background overflow-auto">
-							<Tabs defaultValue="config">
+							<Tabs defaultValue={defaultTab}>
 								<TabsList>
 									<TabsTrigger value="config">
 										Config
