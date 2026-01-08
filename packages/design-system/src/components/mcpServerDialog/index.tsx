@@ -3,7 +3,7 @@
  */
 import { useState, useEffect, useCallback } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
-import { X, TrashIcon, SaveIcon, FlaskConical } from 'lucide-react';
+import { X, TrashIcon, SaveIcon, FlaskConical, Loader2 } from 'lucide-react';
 import type { MCPServerConfig } from '@google-awlt/common';
 import type { Tool } from '@modelcontextprotocol/sdk/types.js';
 
@@ -49,6 +49,9 @@ export function MCPServerDialog({
 }: MCPServerDialogProps) {
 	const [config, setConfig] = useState(initialState);
 	const [isValidConfig, setIsValidConfig] = useState<boolean>(false);
+	const [isAddingConfig, setIsAddingConfig] = useState<boolean>(false);
+	const [isValidatingConfig, setIsValidatingConfig] =
+		useState<boolean>(false);
 
 	useEffect(() => {
 		if (open) {
@@ -59,13 +62,19 @@ export function MCPServerDialog({
 	}, [open, server]);
 
 	const handleValidate = useCallback(async () => {
+		setIsValidatingConfig(true);
 		const { isValid } = await validator(config, config.name);
+		setIsValidatingConfig(false);
 		setIsValidConfig(isValid);
 	}, [config]);
 
 	const handleSave = useCallback(async () => {
+		setIsAddingConfig(true);
 		await onSave(config, !server?.name ? crypto.randomUUID() : serverId);
-		onOpenChange(false);
+		setIsAddingConfig(false);
+		setTimeout(() => {
+			onOpenChange(false);
+		}, 500);
 	}, [config, server]);
 
 	const handleDelete = useCallback(async () => {
@@ -156,9 +165,16 @@ export function MCPServerDialog({
 								<Button
 									className={`${!isValidConfig ? 'bg-amber-600 hover:bg-amber-500' : 'bg-green-600 hover:bg-green-700'} gap-2`}
 									onClick={handleValidate}
-									disabled={isValidConfig}
+									disabled={
+										isValidConfig || isValidatingConfig
+									}
 								>
-									<FlaskConical size={16} /> Validate
+									{isAddingConfig ? (
+										<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+									) : (
+										<FlaskConical size={16} />
+									)}
+									Validate
 								</Button>
 								<Button
 									className={`${isValidConfig ? 'bg-blue-600 hover:bg-blue-700' : 'bg-blue-600 hover:bg-blue-700'} ${JSON.stringify(config) === JSON.stringify(server) ? 'opacity-50 cursor-not-allowed' : ''} gap-2`}
@@ -169,7 +185,11 @@ export function MCPServerDialog({
 											JSON.stringify(server)
 									}
 								>
-									<SaveIcon size={16} />{' '}
+									{isAddingConfig ? (
+										<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+									) : (
+										<SaveIcon size={16} />
+									)}
 									{serverId ? 'Update Server' : 'Add Server'}
 								</Button>
 							</div>

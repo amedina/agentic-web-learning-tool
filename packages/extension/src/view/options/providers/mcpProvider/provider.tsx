@@ -169,7 +169,10 @@ const Provider = ({ children }: PropsWithChildren) => {
 				errors.push('Server name is required.');
 			}
 
-			if (!config.authToken || config.authToken.trim().length === 0) {
+			if (
+				(!config.authToken || config.authToken.trim().length === 0) &&
+				config.url.startsWith('http://localhost')
+			) {
 				errors.push('authToken is required.');
 			}
 

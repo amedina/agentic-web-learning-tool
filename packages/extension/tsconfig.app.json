@@ -5,13 +5,16 @@
 		"esModuleInterop": true,
 		"allowSyntheticDefaultImports": true,
 		"typeRoots": ["./node_modules/@types"],
-		"types": ["jest", "chrome"],
+		"types": ["jest", "chrome", "dom-chromium-ai"],
 		"tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
-		"baseUrl": ".",
-		"paths": {
-			"@/*": ["./src/*"]
-		}
+		"baseUrl": "."
 	},
-	"include": ["src", "tests/setupTests.d.ts", "node_modules/jest-extended/types/index.d.ts", "node_modules/@types/chrome/index.d.ts"],
+	"include": [
+		"src",
+		"tests/setupTests.d.ts",
+		"node_modules/jest-extended/types/index.d.ts",
+		"node_modules/@types/chrome/index.d.ts",
+		"node_modules/@types/dom-chromium-ai/index.d.ts"
+	],
 	"exclude": ["dist", "build", "tests", "node_modules"]
 }
