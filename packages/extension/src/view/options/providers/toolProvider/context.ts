@@ -9,7 +9,7 @@ export interface ToolProviderStoreContext {
   state: {
     userTools: WebMCPTool[];
     builtInTools: WebMCPTool[];
-    extensionTools: {
+    chromeAPIBuiltInToolsState: {
       [key: string]: {
         enabled: boolean;
       };
@@ -28,7 +28,7 @@ const initialState: ToolProviderStoreContext = {
   state: {
     userTools: [],
     builtInTools: [],
-    extensionTools: {},
+    chromeAPIBuiltInToolsState: {},
   },
   actions: {
     setBuiltInTools: noop,

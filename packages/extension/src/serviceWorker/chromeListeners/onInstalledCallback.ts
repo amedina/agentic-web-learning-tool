@@ -19,17 +19,18 @@ const onInstalledCallback = async (
           await settingsSetter(key as keyof SettingsState, value)
       )
     );
-    const extensionToolsState: { [key: string]: { enabled: boolean } } = {};
+    const chromeAPIBuiltInToolsState: { [key: string]: { enabled: boolean } } =
+      {};
 
     Object.keys(chromeApiBuiltInTools).forEach(
       (tool) =>
-        (extensionToolsState[tool] = {
+        (chromeAPIBuiltInToolsState[tool] = {
           enabled: true,
         })
     );
 
     await chrome.storage.local.set({
-      extensionToolsState,
+      chromeAPIBuiltInToolsState,
     });
   }
 
@@ -56,22 +57,24 @@ const onInstalledCallback = async (
       }
     });
 
-    const { extensionToolsState } = await chrome.storage.local.get(
-      'extensionToolsState'
+    const { chromeAPIBuiltInToolsState } = await chrome.storage.local.get(
+      'chromeAPIBuiltInToolsState'
     );
 
-    if (!extensionToolsState) {
-      const extensionToolsState: { [key: string]: { enabled: boolean } } = {};
+    if (!chromeAPIBuiltInToolsState) {
+      const chromeAPIBuiltInToolsState: {
+        [key: string]: { enabled: boolean };
+      } = {};
 
       Object.keys(chromeApiBuiltInTools).forEach(
         (tool) =>
-          (extensionToolsState[tool] = {
+          (chromeAPIBuiltInToolsState[tool] = {
             enabled: true,
           })
       );
 
       await chrome.storage.local.set({
-        extensionToolsState,
+        chromeAPIBuiltInToolsState,
       });
     }
   }

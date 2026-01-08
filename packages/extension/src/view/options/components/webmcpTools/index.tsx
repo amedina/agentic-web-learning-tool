@@ -19,14 +19,14 @@ export function WebMCPToolsTab() {
     builtInTools,
     saveUserTools,
     saveBuiltInState,
-    extensionToolsState,
+    chromeAPIBuiltInToolsState,
     saveExtensionToolsState,
   } = useToolProvider(({ state, actions }) => ({
     userTools: state.userTools,
     builtInTools: state.builtInTools,
     saveUserTools: actions.saveUserTools,
     saveBuiltInState: actions.saveBuiltInState,
-    extensionToolsState: state.extensionTools,
+    chromeAPIBuiltInToolsState: state.chromeAPIBuiltInToolsState,
     saveExtensionToolsState: actions.saveExtensionToolsState,
   }));
 
@@ -36,13 +36,12 @@ export function WebMCPToolsTab() {
 
   const extensionTools = useMemo(() => {
     return Object.keys(chromeApiBuiltInTools).map((toolkey) => {
-      console.log(extensionToolsState[toolkey].enabled);
       return {
         ...chromeApiBuiltInTools[toolkey as keys],
-        enabled: extensionToolsState[toolkey].enabled,
+        enabled: chromeAPIBuiltInToolsState[toolkey].enabled,
       };
     });
-  }, [extensionToolsState, builtInTools]);
+  }, [chromeAPIBuiltInToolsState, builtInTools]);
 
   return (
     <WebMCPToolsUI

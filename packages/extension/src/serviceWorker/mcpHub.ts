@@ -65,17 +65,17 @@ class McpHub {
 
   async fetchLocalStorageAndRegisterTools() {
     const {
-      extensionToolsState,
+      chromeAPIBuiltInToolsState,
     }: {
-      extensionToolsState: {
+      chromeAPIBuiltInToolsState: {
         [key in keys]: {
           enabled: boolean;
         };
       };
-    } = await chrome.storage.local.get('extensionToolsState');
+    } = await chrome.storage.local.get('chromeAPIBuiltInToolsState');
 
-    Object.keys(extensionToolsState ?? {}).forEach((toolKey) => {
-      if (extensionToolsState?.[toolKey as keys]?.enabled) {
+    Object.keys(chromeAPIBuiltInToolsState ?? {}).forEach((toolKey) => {
+      if (chromeAPIBuiltInToolsState?.[toolKey as keys]?.enabled) {
         this.apiTools.push(
           new chromeApiBuiltInTools[toolKey as keys].instance(this.server)
         );

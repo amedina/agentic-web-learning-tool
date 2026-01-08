@@ -30,11 +30,11 @@ const builtInWebMCPTools: WebMCPTool[] = tools.map((tool) => ({
   isBuiltIn: true,
 }));
 
-const _extensionToolsState: { [key: string]: { enabled: boolean } } = {};
+const _chromeAPIBuiltInToolsState: { [key: string]: { enabled: boolean } } = {};
 
 Object.keys(chromeApiBuiltInTools).forEach(
   (toolKey) =>
-    (_extensionToolsState[toolKey] = {
+    (_chromeAPIBuiltInToolsState[toolKey] = {
       enabled: true,
     })
 );
@@ -43,18 +43,20 @@ const Provider = ({ children }: PropsWithChildren) => {
   const [userTools, setUserTools] = useState<WebMCPTool[]>([]);
   const [builtInTools, setBuiltInTools] =
     useState<WebMCPTool[]>(builtInWebMCPTools);
-  const [extensionTools, setExtensionTools] = useState(_extensionToolsState);
+  const [chromeAPIBuiltInToolsState, setChromeAPIBuiltInToolsState] = useState(
+    _chromeAPIBuiltInToolsState
+  );
   const initialFetchDone = useRef(false);
 
   const intitialSync = useCallback(async () => {
     const {
       userWebMCPTools = [],
       builtInWebMCPToolsState = {},
-      extensionToolsState = {},
+      chromeAPIBuiltInToolsState = {},
     }: {
       userWebMCPTools: WebMCPTool[];
       builtInWebMCPToolsState: Record<string, boolean>;
-      extensionToolsState: {
+      chromeAPIBuiltInToolsState: {
         [key: string]: {
           enabled: boolean;
         };
@@ -62,15 +64,15 @@ const Provider = ({ children }: PropsWithChildren) => {
     } = await chrome.storage.local.get([
       'userWebMCPTools',
       'builtInWebMCPToolsState',
-      'extensionToolsState',
+      'chromeAPIBuiltInToolsState',
     ]);
 
     if (userWebMCPTools && Array.isArray(userWebMCPTools)) {
       setUserTools(userWebMCPTools as WebMCPTool[]);
     }
 
-    if (Object.keys(extensionToolsState).length > 1) {
-      setExtensionTools(extensionToolsState);
+    if (Object.keys(chromeAPIBuiltInToolsState).length > 1) {
+      setChromeAPIBuiltInToolsState(chromeAPIBuiltInToolsState);
     }
 
     if (builtInWebMCPToolsState) {
@@ -90,11 +92,11 @@ const Provider = ({ children }: PropsWithChildren) => {
     const {
       userWebMCPTools = [],
       builtInWebMCPToolsState = {},
-      extensionToolsState = {},
+      chromeAPIBuiltInToolsState = {},
     }: {
       userWebMCPTools: WebMCPTool[];
       builtInWebMCPToolsState: Record<string, boolean>;
-      extensionToolsState: {
+      chromeAPIBuiltInToolsState: {
         [key: string]: {
           enabled: boolean;
         };
@@ -102,7 +104,7 @@ const Provider = ({ children }: PropsWithChildren) => {
     } = await chrome.storage.local.get([
       'userWebMCPTools',
       'builtInWebMCPToolsState',
-      'extensionToolsState',
+      'chromeAPIBuiltInToolsState',
     ]);
 
     setUserTools(userWebMCPTools);
@@ -113,7 +115,7 @@ const Provider = ({ children }: PropsWithChildren) => {
         enabled: states[t.name] !== undefined ? states[t.name] : true,
       }))
     );
-    setExtensionTools(extensionToolsState);
+    setChromeAPIBuiltInToolsState(chromeAPIBuiltInToolsState);
   }, []);
 
   useEffect(() => {
@@ -134,13 +136,13 @@ const Provider = ({ children }: PropsWithChildren) => {
 
   const saveExtensionToolsState = useCallback(
     (toolName: string, value: boolean) => {
-      setExtensionTools((prev) => {
+      setChromeAPIBuiltInToolsState((prev) => {
         const newValue = structuredClone(prev);
         const keyToChange = Object.keys(chromeApiBuiltInTools).filter(
           (key) => chromeApiBuiltInTools[key as keys].name === toolName
         );
         newValue[keyToChange[0]].enabled = value;
-        chrome.storage.local.set({ extensionToolsState: newValue });
+        chrome.storage.local.set({ chromeAPIBuiltInToolsState: newValue });
         return newValue;
       });
     },
@@ -161,7 +163,7 @@ const Provider = ({ children }: PropsWithChildren) => {
       state: {
         userTools,
         builtInTools,
-        extensionTools,
+        chromeAPIBuiltInToolsState,
       },
       actions: {
         setUserTools,
@@ -174,7 +176,7 @@ const Provider = ({ children }: PropsWithChildren) => {
   }, [
     builtInTools,
     userTools,
-    extensionTools,
+    chromeAPIBuiltInToolsState,
     saveBuiltInState,
     saveUserTools,
     saveExtensionToolsState,
