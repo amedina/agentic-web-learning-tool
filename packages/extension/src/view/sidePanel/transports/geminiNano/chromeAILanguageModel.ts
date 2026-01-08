@@ -360,9 +360,9 @@ class ChromeAILanguageModel {
               }
 
               // Start the browser stream
-              //@ts-expect-error -- api unavailable hence the error
               activeStreamReader = this.session
                 .promptStreaming(messageContext)
+                //@ts-expect-error -- api unavailable hence the error
                 .getReader();
 
               // Parsing State

@@ -4,7 +4,7 @@
 import wordpressConfig from '@wordpress/prettier-config';
 
 export default {
-	...wordpressConfig,
-	useTabs: false,
-	tabWidth: 2,
+  ...wordpressConfig,
+  useTabs: false,
+  tabWidth: 2,
 };

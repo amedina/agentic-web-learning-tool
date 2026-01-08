@@ -48,6 +48,17 @@
     "packages/*"
   ],
   "devDependencies": {
-    "husky": "^9.1.7"
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7"
+  },
+  "lint-staged": {
+    "*.(cjs|js|ts|tsx)": [
+      "eslint --fix"
+    ],
+    "*.json": [
+      "prettier --write"
+    ],
+    "*.(xml|xml.dist)": "prettier --write",
+    "*.yml": "prettier --write"
   }
 }
