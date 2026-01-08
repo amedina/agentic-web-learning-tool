@@ -15,7 +15,10 @@ type ThemeToggleSectionProps = {
 	theme: SettingsContextProps['state']['theme'];
 };
 
-export default function ThemeToggleSection({ theme, toggleSettings}: ThemeToggleSectionProps) {
+export default function ThemeToggleSection({
+	theme,
+	toggleSettings,
+}: ThemeToggleSectionProps) {
 	return (
 		<OptionsPageTabSection title="Interface">
 			<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -36,7 +39,12 @@ export default function ThemeToggleSection({ theme, toggleSettings}: ThemeToggle
 							<Button
 								key={mode.id}
 								variant="ghost"
-								onClick={() => toggleSettings('theme', mode.id as ThemeMode)}
+								onClick={() =>
+									toggleSettings(
+										'theme',
+										mode.id as ThemeMode
+									)
+								}
 								className={cn(
 									'relative flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ease-out',
 									isActive

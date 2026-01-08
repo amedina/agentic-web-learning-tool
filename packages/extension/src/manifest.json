@@ -22,8 +22,8 @@
 	"devtools_page": "devtools/devtools.html",
 	"options_page": "options/options.html",
 	"action": {
-    	"default_title": "Click to open panel"
-  	},
+		"default_title": "Click to open panel"
+	},
 	"background": {
 		"service_worker": "serviceWorker/serviceWorker.js",
 		"type": "module"
@@ -40,9 +40,7 @@
 				"contentScript/webmcp-polyfill.js",
 				"contentScript/registerTools.js"
 			],
-			"matches": [
-				"<all_urls>"
-			]
+			"matches": ["<all_urls>"]
 		}
-  	]
+	]
 }

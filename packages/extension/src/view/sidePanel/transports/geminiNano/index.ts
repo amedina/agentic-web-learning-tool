@@ -47,7 +47,7 @@ export class GeminiNanoChatTransport implements ChatTransport<UIMessage> {
 	private runtime: AssistantRuntime | null = null;
 	formattedTools: any[] = [];
 
-	constructor() { }
+	constructor() {}
 
 	setRuntime(runtime: AssistantRuntime) {
 		this.runtime = runtime;

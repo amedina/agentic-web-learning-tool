@@ -1,10 +1,7 @@
 /**
  * External dependencies
  */
-import {
-	MessagePrimitive,
-	ActionBarPrimitive,
-} from '@assistant-ui/react';
+import { MessagePrimitive, ActionBarPrimitive } from '@assistant-ui/react';
 import { Pencil1Icon } from '@radix-ui/react-icons';
 /**
  * Internal dependencies

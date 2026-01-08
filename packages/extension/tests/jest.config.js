@@ -6,7 +6,7 @@ const config = {
 	testEnvironment: 'jsdom',
 	displayName: 'extension',
 	rootDir: '../',
-	setupFilesAfterEnv: ["<rootDir>/tests/jest.setup.cjs"],
+	setupFilesAfterEnv: ['<rootDir>/tests/jest.setup.cjs'],
 	testMatch: ['<rootDir>/src/**/*.test.{ts,tsx}'],
 };
 

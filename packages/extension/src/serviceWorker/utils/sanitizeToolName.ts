@@ -19,7 +19,7 @@
  * The function is pure and has no side effects.
  */
 function sanitizeToolName(name: string): string {
-  return name.replace(/[^a-zA-Z0-9_]/g, '_');
+	return name.replace(/[^a-zA-Z0-9_]/g, '_');
 }
 
 export default sanitizeToolName;
