@@ -15,7 +15,7 @@ import { useEffect, useRef, useState } from 'react';
 /**
  * Internal dependencies
  */
-import { getToolNameWithoutPrefix } from '../../lib';
+import { getToolNameWithoutPrefix, isJson } from '../../lib';
 
 export const ToolFallback: ToolCallMessagePartComponent = ({
 	toolName,
@@ -128,11 +128,13 @@ export const ToolFallback: ToolCallMessagePartComponent = ({
 							</div>
 							<div className="bg-accent border border-neutral-800 rounded-lg p-3 shadow-sm">
 								<pre className="text-xs leading-relaxed text-primary overflow-x-auto">
-									{JSON.stringify(
-										JSON.parse(argsText),
-										null,
-										2
-									)}
+									{isJson(argsText)
+										? JSON.stringify(
+												JSON.parse(argsText),
+												null,
+												2
+											)
+										: argsText}
 								</pre>
 							</div>
 						</div>
@@ -149,13 +151,13 @@ export const ToolFallback: ToolCallMessagePartComponent = ({
 									<div className="absolute left-0 top-0 bottom-0 w-1 bg-accent"></div>
 									<div className="bg-background border border-neutral-800 border-l-0 rounded-r-lg p-3 shadow-sm overflow-x-auto">
 										<pre className="text-xs leading-relaxed text-primary">
-											{typeof result === 'string'
-												? result
-												: JSON.stringify(
+											{isJson(result)
+												? JSON.stringify(
 														JSON.parse(result),
 														null,
 														2
-													)}
+													)
+												: result}
 										</pre>
 									</div>
 								</div>
