@@ -2,8 +2,8 @@
  * External dependencies
  */
 import { type AssistantRuntime } from '@assistant-ui/react';
-import { getToolNameWithoutPrefix } from '@google-awlt/design-system';
 import type { Tool } from 'ai';
+
 /**
  * Internal dependencies
  */
