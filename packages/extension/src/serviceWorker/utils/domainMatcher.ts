@@ -37,16 +37,12 @@ function isDomainAllowed(url: string, allowedDomains?: string[]): boolean {
         return regex.test(fullUrl) || regex.test(fullUrl.replace(/\/$/, '')); // Match with or without trailing slash
       }
 
-      // 2. Exact hostname match
-      if (pattern === hostname) return true;
+      // 2. Exact hostname match or subdomain match
+      // Treat simple domains (e.g. "google.com") as implicitly allowing subdomains
+      // Also handles explicit wildcards (e.g. "*.google.com")
+      const suffix = pattern.startsWith('*.') ? pattern.slice(2) : pattern;
+      return hostname === suffix || hostname.endsWith('.' + suffix);
 
-      // 3. Wildcard domain match (e.g. *.google.com)
-      if (pattern.startsWith('*.')) {
-        const suffix = pattern.slice(2); // remove *.
-        return hostname === suffix || hostname.endsWith('.' + suffix);
-      }
-
-      return false;
     });
   } catch {
     return false;
