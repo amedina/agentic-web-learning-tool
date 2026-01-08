@@ -7,15 +7,15 @@ import type { Dispatch, SetStateAction } from 'react';
 
 export interface ToolProviderStoreContext {
   state: {
-    userTools: WebMCPTool[],
-    builtInTools: WebMCPTool[]
+    userTools: WebMCPTool[];
+    builtInTools: WebMCPTool[];
   };
   actions: {
     setUserTools: Dispatch<SetStateAction<WebMCPTool[]>>;
     setBuiltInTools: Dispatch<SetStateAction<WebMCPTool[]>>;
     saveBuiltInState: (tools: WebMCPTool[]) => void;
-    saveUserTools: (tools: WebMCPTool[]) => void
-  }
+    saveUserTools: (tools: WebMCPTool[]) => void;
+  };
 }
 
 const initialState: ToolProviderStoreContext = {
@@ -28,7 +28,7 @@ const initialState: ToolProviderStoreContext = {
     setUserTools: noop,
     saveBuiltInState: noop,
     saveUserTools: noop,
-  }
+  },
 };
 
 export default createContext<ToolProviderStoreContext>(initialState);

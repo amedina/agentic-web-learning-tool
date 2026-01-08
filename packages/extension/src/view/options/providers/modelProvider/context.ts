@@ -9,7 +9,7 @@ import type { APIKeys } from '../../../../types';
 
 export interface ModelProviderStoreContext {
   state: {
-    apiKeys: {[key: string]: APIKeys},
+    apiKeys: { [key: string]: APIKeys };
   };
 }
 

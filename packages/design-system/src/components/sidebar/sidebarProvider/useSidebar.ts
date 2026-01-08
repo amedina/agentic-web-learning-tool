@@ -8,9 +8,7 @@ import { useContextSelector } from '@google-awlt/common';
 import Context, { type SidebarContextProps } from './context';
 
 export function useSidebar(): SidebarContextProps;
-export function useSidebar<T>(
-  selector: (state: SidebarContextProps) => T
-): T;
+export function useSidebar<T>(selector: (state: SidebarContextProps) => T): T;
 
 /**
  * Allowed list hook.
@@ -18,9 +16,8 @@ export function useSidebar<T>(
  * @returns selected part of the state
  */
 export function useSidebar<T>(
-  selector: (state: SidebarContextProps) => T | SidebarContextProps = (
+  selector: (state: SidebarContextProps) => T | SidebarContextProps = (state) =>
     state
-  ) => state
 ) {
   return useContextSelector(Context, selector);
 }

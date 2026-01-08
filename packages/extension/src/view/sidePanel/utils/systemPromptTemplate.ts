@@ -44,4 +44,4 @@ Important:
 - Use exact tool and parameter names from the schema above
 - Arguments must be a valid JSON object matching the tool's parameters
 - You can include brief reasoning before or after the tool call
-- If no tool is needed, respond directly without tool_call fences"`;
+- If no tool is needed, respond directly without tool_call fences`;
