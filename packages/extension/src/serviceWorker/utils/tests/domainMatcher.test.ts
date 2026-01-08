@@ -27,6 +27,12 @@ describe('isDomainAllowed', () => {
     });
   });
 
+  describe('Single Page Access', () => {
+    it('should return true if a single page is allowed', () => {
+      expect(isDomainAllowed('https://www.allrecipes.com/recipe/68813/spicy-basil-chicken/', ['allrecipes.com'])).toBe(true);
+    });
+  });
+
   // Test Case 3: Exact & Subdomain Matching
   describe('Exact & Subdomain Matching', () => {
     const allowed = ['google.com', 'example.org'];
