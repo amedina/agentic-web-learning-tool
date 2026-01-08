@@ -19,9 +19,7 @@ import {
   jsonSchemaToZod,
 } from '../utils';
 import type { ContentScriptMessage, TabData } from './types';
-import { builtInTools } from '../contentScript/tools/builtInTools';
-
-type keys = keyof typeof builtInTools;
+import { builtInTools, type keys } from '../contentScript/tools/builtInTools';
 /**
  * The central hub managing connections between the MCP Server and Chrome Tabs.
  * It acts as a proxy, registering tools found in browser tabs and forwarding execution requests.
@@ -60,6 +58,12 @@ class McpHub {
   }
 
   async onLocalStoreChangedListener() {
+    Object.keys(this.server._registeredTools).forEach((toolName) => {
+      if (toolName.startsWith('extension_tool_')) {
+        this.server._registeredTools[toolName].remove();
+      }
+    });
+
     const {
       extensionToolsState,
     }: {
@@ -97,6 +101,7 @@ class McpHub {
         this.apiTools.push(
           new builtInTools[toolKey as keys].instance(this.server)
         );
+        console.log(this.apiTools);
       }
     });
 

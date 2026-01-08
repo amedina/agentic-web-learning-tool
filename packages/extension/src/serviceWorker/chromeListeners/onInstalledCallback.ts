@@ -4,7 +4,7 @@
 import { settingsSetter, setLogLevelFromSyncSettings } from '../../utils';
 import type { AgentType, SettingsState } from '../../types';
 import { DEFAULT_SETTINGS } from '../../constants';
-import { builtInTools } from '@/contentScript/tools/builtInTools';
+import { builtInTools } from '../../contentScript/tools/builtInTools';
 
 const onInstalledCallback = async (
   details: chrome.runtime.InstalledDetails
@@ -22,7 +22,10 @@ const onInstalledCallback = async (
     const extensionToolsState: { [key: string]: { enabled: boolean } } = {};
 
     Object.keys(builtInTools).forEach(
-      (tool) => (extensionToolsState[tool].enabled = true)
+      (tool) =>
+        (extensionToolsState[tool] = {
+          enabled: true,
+        })
     );
 
     await chrome.storage.local.set({
@@ -61,7 +64,10 @@ const onInstalledCallback = async (
       const extensionToolsState: { [key: string]: { enabled: boolean } } = {};
 
       Object.keys(builtInTools).forEach(
-        (tool) => (extensionToolsState[tool].enabled = true)
+        (tool) =>
+          (extensionToolsState[tool] = {
+            enabled: true,
+          })
       );
 
       await chrome.storage.local.set({

@@ -15,6 +15,7 @@ import type { WebMCPTool } from '@google-awlt/design-system';
  */
 import Context from './context';
 import { tools } from '../../../../contentScript/tools';
+import { builtInTools as builtInExtensionTools } from '../../../../contentScript/tools/builtInTools';
 
 const builtInWebMCPTools: WebMCPTool[] = tools.map((tool) => ({
   name: tool.name,
@@ -26,10 +27,20 @@ const builtInWebMCPTools: WebMCPTool[] = tools.map((tool) => ({
   isBuiltIn: true,
 }));
 
+const extensionToolsState: { [key: string]: { enabled: boolean } } = {};
+
+Object.keys(builtInExtensionTools).forEach(
+  (toolKey) =>
+    (extensionToolsState[toolKey] = {
+      enabled: true,
+    })
+);
+
 const Provider = ({ children }: PropsWithChildren) => {
   const [userTools, setUserTools] = useState<WebMCPTool[]>([]);
   const [builtInTools, setBuiltInTools] =
     useState<WebMCPTool[]>(builtInWebMCPTools);
+  const [extensionTools, setExtensionTools] = useState(extensionToolsState);
   const initialFetchDone = useRef(false);
 
   const intitialSync = useCallback(async () => {
@@ -65,12 +76,19 @@ const Provider = ({ children }: PropsWithChildren) => {
     const {
       userWebMCPTools = [],
       builtInWebMCPToolsState = {},
+      extensionToolsState = {},
     }: {
       userWebMCPTools: WebMCPTool[];
       builtInWebMCPToolsState: Record<string, boolean>;
+      extensionToolsState: {
+        [key: string]: {
+          enabled: boolean;
+        };
+      };
     } = await chrome.storage.local.get([
       'userWebMCPTools',
       'builtInWebMCPToolsState',
+      'extensionToolsState',
     ]);
 
     setUserTools(userWebMCPTools);
@@ -81,6 +99,7 @@ const Provider = ({ children }: PropsWithChildren) => {
         enabled: states[t.name] !== undefined ? states[t.name] : true,
       }))
     );
+    setExtensionTools(extensionToolsState);
   }, []);
 
   useEffect(() => {
@@ -99,6 +118,18 @@ const Provider = ({ children }: PropsWithChildren) => {
     chrome.storage.local.set({ userWebMCPTools: tools });
   }, []);
 
+  const saveExtensionToolsState = useCallback(
+    (toolName: string, value: boolean) => {
+      setExtensionTools((prev) => {
+        const newValue = structuredClone(prev);
+        newValue[toolName].enabled = value;
+        chrome.storage.local.set({ extensionTools: newValue });
+        return newValue;
+      });
+    },
+    []
+  );
+
   const saveBuiltInState = useCallback((tools: WebMCPTool[]) => {
     setBuiltInTools(tools);
     const states = tools.reduce<Record<string, boolean>>(
@@ -113,15 +144,24 @@ const Provider = ({ children }: PropsWithChildren) => {
       state: {
         userTools,
         builtInTools,
+        extensionTools,
       },
       actions: {
         setUserTools,
         setBuiltInTools,
         saveUserTools,
         saveBuiltInState,
+        saveExtensionToolsState,
       },
     };
-  }, [builtInTools, userTools, saveBuiltInState, saveUserTools]);
+  }, [
+    builtInTools,
+    userTools,
+    extensionTools,
+    saveBuiltInState,
+    saveUserTools,
+    saveExtensionToolsState,
+  ]);
 
   return <Context.Provider value={memoisedValue}>{children}</Context.Provider>;
 };
