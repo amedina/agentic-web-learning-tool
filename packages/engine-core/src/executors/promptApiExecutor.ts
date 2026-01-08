@@ -55,15 +55,15 @@ export async function promptApiExecutor(
     }
 
     if (expectedInputsLanguages) {
-      sessionOptions.expectedInputsLanguages = expectedInputsLanguages;
+      sessionOptions.expectedInputs = [
+				{type: "text", languages: expectedInputsLanguages}
+			]
     }
 
     if (expectedOutputsLanguages) {
-      sessionOptions.expectedOutputsLanguages = expectedOutputsLanguages;
-    }
-
-    if (expectedOutputsLanguages) {
-      sessionOptions.expectedOutputsLanguages = expectedOutputsLanguages;
+      sessionOptions.expectedOutputs = [
+				{type: "text", languages: expectedOutputsLanguages}
+			]
     }
 
     if (context.signal) {

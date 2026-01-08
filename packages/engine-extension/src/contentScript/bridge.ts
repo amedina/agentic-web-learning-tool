@@ -242,7 +242,12 @@ export function initContentScriptBridge(): void {
     sendResponse: (response: ContentScriptResponse) => void
   ): Promise<void> {
     try {
-      await navigator.clipboard.writeText(text);
+      const textarea = document.createElement("textarea");
+      textarea.textContent = text;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand("copy");
+      // document.body.removeChild(textarea);
       sendResponse({ success: true });
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);

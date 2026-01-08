@@ -31,7 +31,7 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 	);
 
 	useEffect(() => {
-		setCssSelector(config.cssSelector || 'body');
+		setCssSelector(config.cssSelector || '');
 		setExtract(config.extract || 'textContent');
 		setDefaultValue(config.defaultValue || '');
 		setIsMultiple(config.isMultiple || false);
