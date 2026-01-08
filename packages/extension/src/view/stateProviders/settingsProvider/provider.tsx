@@ -25,6 +25,7 @@ function SettingsProvider({
 	const [theme, setTheme] = useState<SettingsState['theme']>('auto');
 	const [logLevel, setLogLevel] =
 		useState<SettingsState['logLevel']>('SILENT');
+	const [isDarkMode, setIsDarkMode] = useState(false);
 
 	const fetchAndUpdateSettings = useCallback(async () => {
 		const { theme: _theme, logLevel: _logLevel } = await settingsGetter();
@@ -49,22 +50,45 @@ function SettingsProvider({
 		fetchAndUpdateSettings();
 	}, [fetchAndUpdateSettings]);
 
+	const handleChange = useCallback(() => {
+		if (!window.matchMedia) {
+			return;
+		}
+
+		const _isDarkMode = window.matchMedia(
+			'(prefers-color-scheme: dark)'
+		).matches;
+
+		setIsDarkMode(_isDarkMode);
+	}, []);
+
 	useEffect(() => {
 		if (theme === 'auto') {
-			const isDarkMode =
-				window.matchMedia &&
-				window.matchMedia('(prefers-color-scheme: dark)').matches;
-			if (isDarkMode) {
-				document.documentElement.classList.add('dark');
-			} else {
-				document.documentElement.classList.remove('dark');
-			}
+			handleChange();
+
+			window
+				.matchMedia('(prefers-color-scheme: dark)')
+				.addEventListener('change', handleChange);
 		} else if (theme === 'dark') {
+			setIsDarkMode(true);
+		} else {
+			setIsDarkMode(false);
+		}
+
+		return () => {
+			window
+				.matchMedia('(prefers-color-scheme: dark)')
+				.removeEventListener('change', handleChange);
+		};
+	}, [theme, handleChange]);
+
+	useEffect(() => {
+		if (isDarkMode) {
 			document.documentElement.classList.add('dark');
 		} else {
 			document.documentElement.classList.remove('dark');
 		}
-	}, [theme]);
+	}, [isDarkMode]);
 
 	useEffect(() => {
 		Logger.setLevel(logLevel.toLowerCase() as LogLevelDesc);
@@ -91,10 +115,12 @@ function SettingsProvider({
 			initialFetch.current = true;
 		})();
 
-		chrome.storage.onChanged.addListener(syncStorageChangedListener);
+		chrome.storage.sync.onChanged.addListener(syncStorageChangedListener);
 
 		return () => {
-			chrome.storage.onChanged.removeListener(syncStorageChangedListener);
+			chrome.storage.sync.onChanged.removeListener(
+				syncStorageChangedListener
+			);
 		};
 	}, [fetchAndUpdateSettings, syncStorageChangedListener]);
 
@@ -103,13 +129,14 @@ function SettingsProvider({
 			state: {
 				theme,
 				logLevel,
+				isDarkMode,
 			},
 			actions: {
 				clearSettings,
 				toggleSettings,
 			},
 		}),
-		[logLevel, theme, clearSettings]
+		[logLevel, theme, clearSettings, isDarkMode]
 	);
 
 	return (

@@ -36,6 +36,7 @@ import EditComposer from './editComposer';
 import UserMessage from './userMessage';
 import { INITIAL_PROVIDERS } from '../../../../constants';
 import type { AgentType } from '../../../../types';
+import { useCommandProvider } from '../../providers/commandProvider';
 
 type SingleGroupTool = {
 	group: string;
@@ -57,6 +58,7 @@ type ChatBotUIProps = {
 
 const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 	const { client, tools } = useMcpClient();
+
 	const { apiKeys, setSelectedAgent, selectedAgent } = useModelProvider(
 		({ state, actions }) => ({
 			apiKeys: state.apiKeys,
@@ -94,6 +96,10 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 	);
 
 	useAssistantMCP(tools, client, threadId, runtime);
+
+	const { handleMessageChange } = useCommandProvider(({ actions }) => ({
+		handleMessageChange: actions.handleMessageChange,
+	}));
 
 	const groupedTools = useMemo(() => {
 		const toolGroups: SingleGroupTool[] = [];
@@ -260,6 +266,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 					<ComposerPrimitive.Root className="relative flex flex-col gap-2 rounded-md border border-zinc-200 bg-background shadow-xl shadow-subtle-zinc/20 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all overflow-hidden">
 						<ComposerPrimitive.Input
 							placeholder="Ask anything..."
+							onKeyDown={handleMessageChange}
 							className="w-full max-h-40 min-h-[56px] resize-none bg-transparent px-4 py-4 text-sm outline-none placeholder:exclusive-plum text-primary"
 						/>
 						<div className="flex items-center justify-between gap-2 px-3">
@@ -308,7 +315,10 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 								</Dropdown>
 							</div>
 							<ThreadPrimitive.If running={false}>
-								<ComposerPrimitive.Send className="h-9 w-9 flex items-center justify-center rounded-lg bg-background hover:text-ring text-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+								<ComposerPrimitive.Send
+									onClick={handleMessageChange}
+									className="h-9 w-9 flex items-center justify-center rounded-lg bg-background hover:text-ring text-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+								>
 									<SendHorizontal size={18} />
 								</ComposerPrimitive.Send>
 							</ThreadPrimitive.If>
