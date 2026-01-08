@@ -1,5 +1,5 @@
 export {
-	default as Tooltip,
-	type TooltipProps,
-	type TooltipPlacement,
+  default as Tooltip,
+  type TooltipProps,
+  type TooltipPlacement,
 } from './tooltip';

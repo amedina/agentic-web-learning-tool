@@ -8,14 +8,14 @@ import type { ComponentProps } from 'react';
 import { cn } from '../../../lib';
 
 function SidebarHeader({ className, ...props }: ComponentProps<'div'>) {
-	return (
-		<div
-			data-slot="sidebar-header"
-			data-sidebar="header"
-			className={cn('flex p-2', className)}
-			{...props}
-		/>
-	);
+  return (
+    <div
+      data-slot="sidebar-header"
+      data-sidebar="header"
+      className={cn('flex p-2', className)}
+      {...props}
+    />
+  );
 }
 
 export default SidebarHeader;

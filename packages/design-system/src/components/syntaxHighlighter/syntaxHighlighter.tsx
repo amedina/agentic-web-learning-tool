@@ -14,13 +14,13 @@ PrismAsyncLight.registerLanguage('tsx', tsx);
 PrismAsyncLight.registerLanguage('python', python);
 
 const SyntaxHighlighter = makePrismAsyncLightSyntaxHighlighter({
-	style: coldarkDark,
-	customStyle: {
-		margin: 0,
-		width: '100%',
-		background: 'black',
-		padding: '1.5rem 1rem',
-	},
+  style: coldarkDark,
+  customStyle: {
+    margin: 0,
+    width: '100%',
+    background: 'black',
+    padding: '1.5rem 1rem',
+  },
 });
 
 export default SyntaxHighlighter;
