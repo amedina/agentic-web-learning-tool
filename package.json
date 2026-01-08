@@ -23,9 +23,9 @@
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "lint": "pnpm --filter extension lint",
-    "format:extension": "pnpm --filter extension format",
-    "format:design-system": "pnpm --filter design-system format",
     "format:common": "pnpm --filter common format",
+    "format:design-system": "pnpm --filter design-system format",
+    "format:extension": "pnpm --filter extension format",
     "format:storybook-config": "pnpm --filter storybook-config format",
     "format:shared-config": "pnpm --filter shared-config format",
     "dev": "pnpm --filter extension dev",
@@ -40,9 +40,13 @@
     "test:extension": "pnpm --filter extension test",
     "test:design-system": "pnpm --filter design-system test",
     "test:e2e": "pnpm --filter extension test:e2e",
-    "test:e2e-ui": "pnpm --filter extension test:e2e-ui"
+    "test:e2e-ui": "pnpm --filter extension test:e2e-ui",
+    "prepare": "husky"
   },
   "workspaces": [
     "packages/*"
-  ]
+  ],
+  "devDependencies": {
+    "husky": "^9.1.7"
+  }
 }
