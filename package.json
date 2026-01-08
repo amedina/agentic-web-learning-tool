@@ -23,6 +23,7 @@
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "lint": "pnpm --filter extension lint",
+    "format": "pnpm format:common && pnpm format:design-system && pnpm format:extension && pnpm format:storybook-config && pnpm format:shared-config",
     "format:common": "pnpm --filter common format",
     "format:design-system": "pnpm --filter design-system format",
     "format:extension": "pnpm --filter extension format",
