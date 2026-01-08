@@ -19,8 +19,9 @@ export const builtInTools = {
     description: '',
     enabled: true,
     isBuiltIn: true,
+    isExtension: true,
   },
-  domExtraction: {
+  dom_extraction: {
     name: 'Dom Extraction',
     namespace: 'Dom Extraction',
     allowedDomains: ['<all_urls>'],
@@ -29,6 +30,7 @@ export const builtInTools = {
     description: '',
     enabled: true,
     isBuiltIn: true,
+    isExtension: true,
   },
   history: {
     name: 'History',
@@ -39,6 +41,7 @@ export const builtInTools = {
     inputSchema: {},
     enabled: true,
     isBuiltIn: true,
+    isExtension: true,
   },
   scripting: {
     name: 'Scripting',
@@ -55,6 +58,7 @@ export const builtInTools = {
     },
     enabled: true,
     isBuiltIn: true,
+    isExtension: true,
   },
   storage: {
     name: 'Storage',
@@ -65,8 +69,9 @@ export const builtInTools = {
     inputSchema: {},
     enabled: true,
     isBuiltIn: true,
+    isExtension: true,
   },
-  tabGroups: {
+  tab_group: {
     name: 'Tab Groups',
     namespace: 'Tab Groups',
     instance: TabGroupsApiTools,
@@ -75,6 +80,7 @@ export const builtInTools = {
     inputSchema: {},
     enabled: true,
     isBuiltIn: true,
+    isExtension: true,
   },
   tabs: {
     name: 'Tabs',
@@ -91,6 +97,7 @@ export const builtInTools = {
     },
     enabled: true,
     isBuiltIn: true,
+    isExtension: true,
   },
   windows: {
     name: 'Windows',
@@ -101,6 +108,7 @@ export const builtInTools = {
     description: '',
     enabled: true,
     isBuiltIn: true,
+    isExtension: true,
   },
 };
 

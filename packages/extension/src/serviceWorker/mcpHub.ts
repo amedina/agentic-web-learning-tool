@@ -45,6 +45,9 @@ class McpHub {
     this.setupConnections();
     this.trackActiveTab();
     this.registerAllExtensionTools();
+    chrome.storage.local.onChanged.addListener(() =>
+      this.onLocalStoreChangedListener()
+    );
   }
 
   /**
@@ -58,11 +61,15 @@ class McpHub {
   }
 
   async onLocalStoreChangedListener() {
+    //@ts-expect-error -- we are accessing a private variable as private variable are only available in TS annotations
     Object.keys(this.server._registeredTools).forEach((toolName) => {
       if (toolName.startsWith('extension_tool_')) {
+        //@ts-expect-error -- we are accessing a private variable as private variable are only available in TS annotations
         this.server._registeredTools[toolName].remove();
       }
     });
+
+    this.apiTools = [];
 
     const {
       extensionToolsState,
@@ -80,6 +87,15 @@ class McpHub {
           new builtInTools[toolKey as keys].instance(this.server)
         );
       }
+    });
+
+    for (const tool of this.apiTools) {
+      tool.register();
+    }
+
+    this.server.server?.transport?.send({
+      jsonrpc: '2.0',
+      method: 'get/Tools',
     });
   }
 
@@ -101,7 +117,6 @@ class McpHub {
         this.apiTools.push(
           new builtInTools[toolKey as keys].instance(this.server)
         );
-        console.log(this.apiTools);
       }
     });
 

@@ -19,6 +19,7 @@ interface WebMCPToolsTabProps {
   onSaveUserTools: (tools: WebMCPTool[]) => void;
   onSaveBuiltInState: (tools: WebMCPTool[]) => void;
   isDarkMode?: boolean;
+  saveExtensionToolsState: (toolName: string, value: boolean) => void;
 }
 
 export function WebMCPToolsTab({
@@ -27,6 +28,7 @@ export function WebMCPToolsTab({
   onSaveUserTools,
   onSaveBuiltInState,
   isDarkMode,
+  saveExtensionToolsState,
 }: WebMCPToolsTabProps) {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingTool, setEditingTool] = useState<WebMCPTool | undefined>(
@@ -62,6 +64,11 @@ export function WebMCPToolsTab({
   const handleToggleTool = useCallback(
     (tool: WebMCPTool, enabled: boolean) => {
       if (tool.isBuiltIn) {
+        if (tool.isExtension) {
+          saveExtensionToolsState(tool.name, enabled);
+          return;
+        }
+
         const newTools = builtInTools.map((t) =>
           t.name === tool.name ? { ...t, enabled } : t
         );

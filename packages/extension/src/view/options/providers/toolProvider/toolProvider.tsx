@@ -15,7 +15,10 @@ import type { WebMCPTool } from '@google-awlt/design-system';
  */
 import Context from './context';
 import { tools } from '../../../../contentScript/tools';
-import { builtInTools as builtInExtensionTools } from '../../../../contentScript/tools/builtInTools';
+import {
+  builtInTools as builtInExtensionTools,
+  type keys,
+} from '../../../../contentScript/tools/builtInTools';
 
 const builtInWebMCPTools: WebMCPTool[] = tools.map((tool) => ({
   name: tool.name,
@@ -27,11 +30,11 @@ const builtInWebMCPTools: WebMCPTool[] = tools.map((tool) => ({
   isBuiltIn: true,
 }));
 
-const extensionToolsState: { [key: string]: { enabled: boolean } } = {};
+const _extensionToolsState: { [key: string]: { enabled: boolean } } = {};
 
 Object.keys(builtInExtensionTools).forEach(
   (toolKey) =>
-    (extensionToolsState[toolKey] = {
+    (_extensionToolsState[toolKey] = {
       enabled: true,
     })
 );
@@ -40,23 +43,34 @@ const Provider = ({ children }: PropsWithChildren) => {
   const [userTools, setUserTools] = useState<WebMCPTool[]>([]);
   const [builtInTools, setBuiltInTools] =
     useState<WebMCPTool[]>(builtInWebMCPTools);
-  const [extensionTools, setExtensionTools] = useState(extensionToolsState);
+  const [extensionTools, setExtensionTools] = useState(_extensionToolsState);
   const initialFetchDone = useRef(false);
 
   const intitialSync = useCallback(async () => {
     const {
       userWebMCPTools = [],
       builtInWebMCPToolsState = {},
+      extensionToolsState = {},
     }: {
       userWebMCPTools: WebMCPTool[];
       builtInWebMCPToolsState: Record<string, boolean>;
+      extensionToolsState: {
+        [key: string]: {
+          enabled: boolean;
+        };
+      };
     } = await chrome.storage.local.get([
       'userWebMCPTools',
       'builtInWebMCPToolsState',
+      'extensionToolsState',
     ]);
 
     if (userWebMCPTools && Array.isArray(userWebMCPTools)) {
       setUserTools(userWebMCPTools as WebMCPTool[]);
+    }
+
+    if (Object.keys(extensionToolsState).length > 1) {
+      setExtensionTools(extensionToolsState);
     }
 
     if (builtInWebMCPToolsState) {
@@ -122,8 +136,11 @@ const Provider = ({ children }: PropsWithChildren) => {
     (toolName: string, value: boolean) => {
       setExtensionTools((prev) => {
         const newValue = structuredClone(prev);
-        newValue[toolName].enabled = value;
-        chrome.storage.local.set({ extensionTools: newValue });
+        const keyToChange = Object.keys(builtInExtensionTools).filter(
+          (key) => builtInExtensionTools[key as keys].name === toolName
+        );
+        newValue[keyToChange[0]].enabled = value;
+        chrome.storage.local.set({ extensionToolsState: newValue });
         return newValue;
       });
     },
