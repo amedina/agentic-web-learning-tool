@@ -60,26 +60,6 @@ class McpHub {
     return this.domains.get(domain)!;
   }
 
-  async onLocalStoreChangedListener() {
-    //@ts-expect-error -- we are accessing a private variable as private variable are only available in TS annotations
-    Object.keys(this.server._registeredTools).forEach((toolName) => {
-      if (toolName.startsWith('extension_tool_')) {
-        //@ts-expect-error -- we are accessing a private variable as private variable are only available in TS annotations
-        this.server._registeredTools[toolName].remove();
-      }
-    });
-
-    this.apiTools = [];
-
-    await this.fetchLocalStorageAndRegisterTools();
-
-    this.registerApiCheckTool();
-    this.server.server?.transport?.send({
-      jsonrpc: '2.0',
-      method: 'get/Tools',
-    });
-  }
-
   async fetchLocalStorageAndRegisterTools() {
     const {
       extensionToolsState,
@@ -105,6 +85,26 @@ class McpHub {
     for (const tool of this.apiTools) {
       tool.register();
     }
+  }
+
+  async onLocalStoreChangedListener() {
+    //@ts-expect-error -- we are accessing a private variable as private variable are only available in TS annotations
+    Object.keys(this.server._registeredTools).forEach((toolName) => {
+      if (toolName.startsWith('extension_tool_')) {
+        //@ts-expect-error -- we are accessing a private variable as private variable are only available in TS annotations
+        this.server._registeredTools[toolName].remove();
+      }
+    });
+
+    this.apiTools = [];
+
+    await this.fetchLocalStorageAndRegisterTools();
+
+    this.registerApiCheckTool();
+    this.server.server?.transport?.send({
+      jsonrpc: '2.0',
+      method: 'get/Tools',
+    });
   }
 
   async registerAllExtensionTools() {
