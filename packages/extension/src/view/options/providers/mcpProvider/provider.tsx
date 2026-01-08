@@ -68,7 +68,7 @@ const Provider = ({ children }: PropsWithChildren) => {
 				const toolsList = await client.listTools();
 
 				if (doNotStoreTools) {
-					return false;
+					return;
 				}
 
 				setToolList((prev) => ({

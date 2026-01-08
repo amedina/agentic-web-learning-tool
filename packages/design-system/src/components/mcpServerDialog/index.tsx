@@ -60,7 +60,7 @@ export function MCPServerDialog({
 
 	const handleValidate = useCallback(async () => {
 		const { isValid } = await validator(config, config.name);
-		setIsValidConfig(!isValid);
+		setIsValidConfig(isValid);
 	}, [config]);
 
 	const handleSave = useCallback(async () => {
