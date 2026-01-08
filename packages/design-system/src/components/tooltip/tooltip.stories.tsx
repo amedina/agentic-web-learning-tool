@@ -27,16 +27,16 @@ export default meta;
 type Story = StoryObj<typeof TooltipComponent>;
 
 export const WithText: Story = {
-  render: (args) => {
-    return (
-      <TooltipComponent text={args.text} placement={args.placement}>
-        <Button>Delete</Button>
-      </TooltipComponent>
-    );
-  },
-  args: {
-    text: "This action cannot be undone",
-    placement: "top",
-    body: null,
-  },
+	render: (args) => {
+		return (
+			<TooltipComponent text={args.text} placement={args.placement}>
+				<Button>Delete</Button>
+			</TooltipComponent>
+		);
+	},
+	args: {
+		text: 'This action cannot be undone',
+		placement: 'top',
+		body: null,
+	},
 };

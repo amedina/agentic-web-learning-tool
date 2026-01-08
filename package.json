@@ -23,7 +23,8 @@
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "lint": "pnpm --filter extension lint",
-    "format": "pnpm --filter extension format",
+    "format:extension": "pnpm --filter extension format",
+    "format:design-system": "pnpm --filter design-system format",
     "dev": "pnpm --filter extension dev",
     "check-types": "pnpm --filter extension check-types",
     "build:extension": "pnpm --filter extension build",

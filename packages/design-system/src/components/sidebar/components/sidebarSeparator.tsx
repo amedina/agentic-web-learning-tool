@@ -1,12 +1,12 @@
 /**
  * External dependencies
  */
-import type { ComponentProps } from "react";
+import type { ComponentProps } from 'react';
 /**
  * Internal dependencies
  */
-import { cn } from "../../../lib";
-import Separator from "../../separator";
+import { cn } from '../../../lib';
+import Separator from '../../separator';
 
 function SidebarSeparator({
 	className,

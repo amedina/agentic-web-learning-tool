@@ -1,11 +1,11 @@
 /**
  * External dependencies
  */
-import type { ComponentProps } from "react";
+import type { ComponentProps } from 'react';
 /**
  * Internal dependencies
  */
-import { cn } from "../../../lib";
+import { cn } from '../../../lib';
 
 function SidebarContent({ className, ...props }: ComponentProps<'div'>) {
 	return (

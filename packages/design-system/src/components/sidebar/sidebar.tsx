@@ -27,24 +27,43 @@ type MenuItem = {
 
 type SidebarProps = {
 	items: MenuItem[];
-	side?: "left" | "right";
-	sidebarVariant?: "sidebar" | "floating" | "inset";
-	collapsible?: "offcanvas" | "icon" | "none";
+	side?: 'left' | 'right';
+	sidebarVariant?: 'sidebar' | 'floating' | 'inset';
+	collapsible?: 'offcanvas' | 'icon' | 'none';
 };
 
-export function Sidebar({ items, sidebarVariant = 'sidebar', collapsible = 'offcanvas', side = 'left' }: SidebarProps) {
-	const { setSelectedMenuItem, sidebarState, selectedMenuItem } = useSidebar(({ state, actions }) => ({
-		setSelectedMenuItem: actions.setSelectedMenuItem,
-		sidebarState: state.sidebarState,
-		selectedMenuItem: state.selectedMenuItem,
-	}));
+export function Sidebar({
+	items,
+	sidebarVariant = 'sidebar',
+	collapsible = 'offcanvas',
+	side = 'left',
+}: SidebarProps) {
+	const { setSelectedMenuItem, sidebarState, selectedMenuItem } = useSidebar(
+		({ state, actions }) => ({
+			setSelectedMenuItem: actions.setSelectedMenuItem,
+			sidebarState: state.sidebarState,
+			selectedMenuItem: state.selectedMenuItem,
+		})
+	);
 
 	return (
-		<SidebarMain variant={sidebarVariant} collapsible={collapsible} side={side}>
+		<SidebarMain
+			variant={sidebarVariant}
+			collapsible={collapsible}
+			side={side}
+		>
 			<SidebarHeader className="flex justify-between items-center w-full">
 				<div className="flex items-center gap-2">
-					<div className={`ml-2 ${sidebarState === 'expanded' ? '' : 'hidden'}`}><OwlIcon className={`h-6 w-6`} /></div>
-					<span className={`text-lg font-bold ${sidebarState === 'expanded' ? '' : 'hidden'}`}>AWLT</span>
+					<div
+						className={`ml-2 ${sidebarState === 'expanded' ? '' : 'hidden'}`}
+					>
+						<OwlIcon className={`h-6 w-6`} />
+					</div>
+					<span
+						className={`text-lg font-bold ${sidebarState === 'expanded' ? '' : 'hidden'}`}
+					>
+						AWLT
+					</span>
 				</div>
 				<SidebarTrigger />
 			</SidebarHeader>
@@ -54,7 +73,11 @@ export function Sidebar({ items, sidebarVariant = 'sidebar', collapsible = 'offc
 						<SidebarMenu>
 							{items.map(({ id, title, icon }) => (
 								<SidebarMenuItem key={title}>
-									<SidebarMenuButton asChild isActive={selectedMenuItem === id} className="w-full cursor-pointer">
+									<SidebarMenuButton
+										asChild
+										isActive={selectedMenuItem === id}
+										className="w-full cursor-pointer"
+									>
 										<div
 											onClick={() => {
 												setSelectedMenuItem(id);

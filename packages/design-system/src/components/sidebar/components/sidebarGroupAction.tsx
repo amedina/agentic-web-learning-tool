@@ -1,12 +1,12 @@
 /**
  * External dependencies
  */
-import type { ComponentProps } from "react";
-import { Slot } from "@radix-ui/react-slot";
+import type { ComponentProps } from 'react';
+import { Slot } from '@radix-ui/react-slot';
 /**
  * Internal dependencies
  */
-import { cn } from "../../../lib";
+import { cn } from '../../../lib';
 
 function SidebarGroupAction({
 	className,

@@ -12,16 +12,16 @@ const meta = {
 	component: Accordion,
 	tags: ['autodocs'],
 	argTypes: {
-        triggerText: {
-            control: 'text',
-        },
+		triggerText: {
+			control: 'text',
+		},
 		children: {
 			control: 'text',
 		},
 	},
 	args: {
-        type: 'single',
-        collapsible: true,
+		type: 'single',
+		collapsible: true,
 		triggerText: 'default',
 		children: 'Yes. It adheres to the WAI-ARIA design pattern.',
 	},
@@ -35,10 +35,11 @@ type Story = StoryObj<typeof meta>;
  * The default form of the button, used for primary actions and commands.
  */
 export const Default: Story = {
-    args: {
-        type: 'single',
-        collapsible: true,
-        triggerText: 'What is an accordion?',
-        children: 'An accordion is a vertically stacked list of items that can be expanded or collapsed to reveal or hide content associated with them. It is commonly used in user interfaces to manage large amounts of content in a limited space, allowing users to focus on specific sections without being overwhelmed by information.'
-    }
+	args: {
+		type: 'single',
+		collapsible: true,
+		triggerText: 'What is an accordion?',
+		children:
+			'An accordion is a vertically stacked list of items that can be expanded or collapsed to reveal or hide content associated with them. It is commonly used in user interfaces to manage large amounts of content in a limited space, allowing users to focus on specific sections without being overwhelmed by information.',
+	},
 };

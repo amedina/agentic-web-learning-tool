@@ -1,12 +1,12 @@
 /**
  * External dependencies
  */
-import { useMemo, type ComponentProps, type CSSProperties } from "react";
+import { useMemo, type ComponentProps, type CSSProperties } from 'react';
 /**
  * Internal dependencies
  */
-import { cn } from "../../../lib";
-import Skeleton from "../../skeleton";
+import { cn } from '../../../lib';
+import Skeleton from '../../skeleton';
 
 function SidebarMenuSkeleton({
 	className,

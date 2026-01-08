@@ -42,7 +42,9 @@ function SidebarProvider({
 	const [_open, _setOpen] = useState(defaultOpen);
 	const isMobile = useIsMobile();
 	const open = openProp ?? _open;
-	const [selectedMenuItem, setSelectedMenuItem] = useState(localStorage.getItem('sidebarSelectedMenuItem') ?? '');
+	const [selectedMenuItem, setSelectedMenuItem] = useState(
+		localStorage.getItem('sidebarSelectedMenuItem') ?? ''
+	);
 	const setOpen = useCallback(
 		(value: boolean | ((value: boolean) => boolean)) => {
 			const openState = typeof value === 'function' ? value(open) : value;
@@ -79,7 +81,6 @@ function SidebarProvider({
 		return () => window.removeEventListener('keydown', handleKeyDown);
 	}, [toggleSidebar]);
 
-
 	useEffect(() => {
 		localStorage.setItem('sidebarSelectedMenuItem', selectedMenuItem);
 	}, [selectedMenuItem]);
@@ -90,7 +91,7 @@ function SidebarProvider({
 
 	const contextValue = useMemo<SidebarContextProps>(
 		() => ({
-			state:{
+			state: {
 				open,
 				selectedMenuItem,
 				sidebarState: state,
@@ -100,7 +101,7 @@ function SidebarProvider({
 				setOpen,
 				toggleSidebar,
 				setSelectedMenuItem,
-			}
+			},
 		}),
 		[state, open, setOpen, toggleSidebar, selectedMenuItem, isMobile]
 	);

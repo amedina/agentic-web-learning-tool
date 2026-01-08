@@ -1,35 +1,35 @@
 /**
  * External dependencies
  */
-import { type Dispatch, type SetStateAction } from "react";
-import { createContext, noop } from "@google-awlt/common";
+import { type Dispatch, type SetStateAction } from 'react';
+import { createContext, noop } from '@google-awlt/common';
 
 export interface SidebarContextProps {
-  state: {
-    sidebarState: 'expanded' | 'collapsed';
-    open: boolean;
-    selectedMenuItem: string;
-    isMobile: boolean;
-  };
-  actions: {
-    setOpen: (open: boolean) => void;
-    toggleSidebar: () => void;
-    setSelectedMenuItem: Dispatch<SetStateAction<string>>;
-  };
+	state: {
+		sidebarState: 'expanded' | 'collapsed';
+		open: boolean;
+		selectedMenuItem: string;
+		isMobile: boolean;
+	};
+	actions: {
+		setOpen: (open: boolean) => void;
+		toggleSidebar: () => void;
+		setSelectedMenuItem: Dispatch<SetStateAction<string>>;
+	};
 }
 
 const initialState: SidebarContextProps = {
-  state: {
-    sidebarState: 'expanded',
-    open: true,
-    selectedMenuItem: '',
-    isMobile: false,
-  },
-  actions: {
-    setOpen: noop,
-    toggleSidebar: noop,
-    setSelectedMenuItem: noop,
-  },
+	state: {
+		sidebarState: 'expanded',
+		open: true,
+		selectedMenuItem: '',
+		isMobile: false,
+	},
+	actions: {
+		setOpen: noop,
+		toggleSidebar: noop,
+		setSelectedMenuItem: noop,
+	},
 };
 const SidebarContext = createContext<SidebarContextProps>(initialState);
 

@@ -19,9 +19,7 @@ function Accordion({ triggerText, children, ...props }: AccordionProps) {
 		<Root data-slot="accordion" className="w-full" {...props}>
 			<AccordionItem value="item-1">
 				<AccordionTrigger>{triggerText}</AccordionTrigger>
-				<AccordionContent>
-					{children}
-				</AccordionContent>
+				<AccordionContent>{children}</AccordionContent>
 			</AccordionItem>
 		</Root>
 	);

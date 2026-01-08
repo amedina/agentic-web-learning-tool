@@ -1,16 +1,13 @@
 /**
  * External dependencies
  */
-import type { ComponentProps } from "react";
+import type { ComponentProps } from 'react';
 /**
  * Internal dependencies
  */
-import { cn } from "../../../lib";
+import { cn } from '../../../lib';
 
-function SidebarMenuSubItem({
-	className,
-	...props
-}: ComponentProps<'li'>) {
+function SidebarMenuSubItem({ className, ...props }: ComponentProps<'li'>) {
 	return (
 		<li
 			data-slot="sidebar-menu-sub-item"
@@ -20,6 +17,5 @@ function SidebarMenuSubItem({
 		/>
 	);
 }
-
 
 export default SidebarMenuSubItem;

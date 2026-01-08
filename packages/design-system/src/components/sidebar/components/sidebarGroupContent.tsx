@@ -1,16 +1,13 @@
 /**
  * External dependencies
  */
-import type { ComponentProps } from "react";
+import type { ComponentProps } from 'react';
 /**
  * Internal dependencies
  */
-import { cn } from "../../../lib";
+import { cn } from '../../../lib';
 
-function SidebarGroupContent({
-	className,
-	...props
-}: ComponentProps<'div'>) {
+function SidebarGroupContent({ className, ...props }: ComponentProps<'div'>) {
 	return (
 		<div
 			data-slot="sidebar-group-content"
