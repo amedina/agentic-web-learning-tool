@@ -93,7 +93,10 @@ class McpHub {
   async onLocalStoreChangedListener() {
     //@ts-expect-error -- we are accessing a private variable as private variable are only available in TS annotations
     Object.keys(this.server._registeredTools).forEach((toolName) => {
-      if (toolName.startsWith('extension_tool_')) {
+      if (
+        toolName.startsWith('extension_tool_') ||
+        toolName.startsWith('dom_extract_')
+      ) {
         //@ts-expect-error -- we are accessing a private variable as private variable are only available in TS annotations
         this.server._registeredTools[toolName].remove();
       }
@@ -117,7 +120,10 @@ class McpHub {
   }
 
   private registerApiCheckTool() {
-    // Check available Chrome APIs
+    //@ts-expect-error -- we are accessing a private variable as private variable are only available in TS annotations
+    if (this.server._registeredTools['extension_tool_check_available_apis']) {
+      return;
+    }
     this.server.registerTool(
       'extension_tool_check_available_apis',
       {

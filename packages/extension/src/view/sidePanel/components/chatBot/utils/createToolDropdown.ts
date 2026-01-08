@@ -30,6 +30,7 @@ const createToolDropdown = (tools: McpTool[]) => {
   const toolToTypeMap = tools.reduce((acc, tool) => {
     const WEBSITE_TOOL_PREFIX = 'website_tool_';
     const EXTENSION_TOOL_PREFIX = 'extension_tool_';
+    const DOM_TOOL_NAME_PREFIX = 'dom_extract_';
     if (getToolNameWithoutPrefix(tool.name) === 'dummyTool') {
       return acc;
     }
@@ -54,9 +55,15 @@ const createToolDropdown = (tools: McpTool[]) => {
         };
       }
       return acc;
-    } else if (tool.name.startsWith(EXTENSION_TOOL_PREFIX)) {
+    } else if (
+      tool.name.startsWith(EXTENSION_TOOL_PREFIX) ||
+      tool.name.startsWith(DOM_TOOL_NAME_PREFIX)
+    ) {
+      const prefixToUse = tool.name.startsWith(EXTENSION_TOOL_PREFIX)
+        ? EXTENSION_TOOL_PREFIX
+        : '';
       const toolNameWithoutHardCodePrefix = tool.name.substring(
-        EXTENSION_TOOL_PREFIX.length
+        prefixToUse.length
       );
       const result =
         ToolNameMap[toolNameWithoutHardCodePrefix as keyof typeof ToolNameMap];
