@@ -9,7 +9,7 @@ import {
   WindowsApiTools,
 } from '@mcp-b/extension-tools';
 
-export const builtInTools = {
+export const chromeApiBuiltInTools = {
   bookmarks: {
     name: 'Bookmarks',
     namespace: 'Bookmarks',
@@ -136,4 +136,4 @@ export const ToolNameMap = {
   check_available_apis: 'API Check',
 };
 
-export type keys = keyof typeof builtInTools;
+export type keys = keyof typeof chromeApiBuiltInTools;

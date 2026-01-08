@@ -6,7 +6,7 @@ import type { Tool as McpTool } from '@modelcontextprotocol/sdk/types.js';
 /**
  * Internal dependencies
  */
-import { ToolNameMap } from '../../../../../contentScript/tools';
+import { ToolNameMap } from '../../../../../contentScript/tools/builtInTools';
 
 type SingleGroupTool = {
   group: string;

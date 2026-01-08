@@ -10,7 +10,7 @@ import { useToolProvider } from '../../providers';
 import { useSettings } from '../../../stateProviders';
 import {
   type keys,
-  builtInTools as builtInExtensionTools,
+  chromeApiBuiltInTools,
 } from '../../../../contentScript/tools/builtInTools';
 
 export function WebMCPToolsTab() {
@@ -35,10 +35,10 @@ export function WebMCPToolsTab() {
   }));
 
   const extensionTools = useMemo(() => {
-    return Object.keys(builtInExtensionTools).map((toolkey) => {
+    return Object.keys(chromeApiBuiltInTools).map((toolkey) => {
       console.log(extensionToolsState[toolkey].enabled);
       return {
-        ...builtInExtensionTools[toolkey as keys],
+        ...chromeApiBuiltInTools[toolkey as keys],
         enabled: extensionToolsState[toolkey].enabled,
       };
     });

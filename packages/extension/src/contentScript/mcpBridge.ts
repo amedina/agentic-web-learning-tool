@@ -48,7 +48,7 @@ try {
     try {
       const script = document.createElement('script');
       script.src = chrome.runtime.getURL('contentScript/registerTools.js');
-      script.onload = () => script.remove();
+      script.type = 'module';
       (document.head || document.documentElement).appendChild(script);
       console.log('WebMCP: Injected registerTools.js');
     } catch (e) {
