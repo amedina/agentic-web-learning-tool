@@ -153,11 +153,15 @@ export class GeminiNanoChatTransport implements ChatTransport<UIMessage> {
                 ['info', 'debug'],
                 [
                   `Step finished: `,
-                  {
-                    finishReason: res.finishReason,
-                    toolCalls: res.toolCalls?.length,
-                    tokens: res.usage.totalTokens,
-                  },
+                  JSON.stringify(
+                    {
+                      finishReason: res.finishReason,
+                      toolCalls: res.toolCalls?.length,
+                      tokens: res.usage.totalTokens,
+                    },
+                    null,
+                    2
+                  ),
                 ]
               );
             },
