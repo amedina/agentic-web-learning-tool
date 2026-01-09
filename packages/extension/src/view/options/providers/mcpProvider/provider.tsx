@@ -38,7 +38,8 @@ const Provider = ({ children }: PropsWithChildren) => {
     async (
       config: MCPServerConfig,
       serverName: string,
-      doNotStoreTools = false
+      doNotStoreTools = false,
+      initialSync = false
     ) => {
       try {
         if (!config.enabled || toolList[serverName]?.length > 0) {
@@ -77,12 +78,16 @@ const Provider = ({ children }: PropsWithChildren) => {
           ...prev,
           [serverName]: toolsList.tools,
         }));
-        toast.success('MCP Server successfully added to extension');
+
+        if (!initialSync) {
+          toast.success('MCP Server successfully added to extension');
+        }
       } catch (error) {
-        const errorMessage =
+        const errorMessage = `Couldnt add ${config.name} ${
           //@ts-expect-error -- message extends error
           (error as typeof StreamableHTTPError)?.message ??
-          'Error fetching tools from MCP Server.';
+          'Error fetching tools from MCP Server.'
+        }`;
 
         if (doNotStoreTools) {
           return errorMessage;
@@ -106,8 +111,17 @@ const Provider = ({ children }: PropsWithChildren) => {
   }, []);
 
   const addConfig = useCallback(
-    async (config: MCPServerConfig, serverName: string) => {
-      await createClientAndListTools(config, serverName);
+    async (
+      config: MCPServerConfig,
+      serverName: string,
+      initialSync = false
+    ) => {
+      await createClientAndListTools(
+        config,
+        serverName,
+        undefined,
+        initialSync
+      );
       setServerConfigs((prev) => ({
         ...prev,
         [serverName]: config,
@@ -142,7 +156,7 @@ const Provider = ({ children }: PropsWithChildren) => {
             if (!serverName) {
               return Promise.resolve();
             }
-            await addConfig(mcpServers?.[serverName], serverName);
+            await addConfig(mcpServers?.[serverName], serverName, true);
           })
         );
         initialFetch.current = true;

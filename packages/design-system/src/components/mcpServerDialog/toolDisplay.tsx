@@ -23,8 +23,8 @@ export function ToolDisplay({ toolList = [] }: ToolDisplayProps) {
             type="single"
             collapsible
           >
-            <div className="mb-1 w-full text-foreground">
-              <span className="font-bold">Tool Description:</span>
+            <div className="mb-2 w-full text-foreground">
+              <span className="font-bold mr-1">Tool Description:</span>
               <span>{tool.description}</span>
             </div>
             <div className="w-full text-foreground">
