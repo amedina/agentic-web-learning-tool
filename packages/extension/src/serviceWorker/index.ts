@@ -29,7 +29,7 @@ chrome.sidePanel
 // Initialize the MCP Server and Hub
 const mcpHub = new McpHub(sharedServer);
 chrome.storage.local.onChanged.addListener(
-  (changes: { [key: string]: chrome.storage.StorageChange }) => {
+  async (changes: { [key: string]: chrome.storage.StorageChange }) => {
     if (!changes?.mcpServers) {
       return;
     }
@@ -38,13 +38,17 @@ chrome.storage.local.onChanged.addListener(
       newValue: Record<string, any>;
       oldValue: Record<string, any>;
     };
-
-    console.log(oldValue, changes?.mcpServers, Object.keys(oldValue));
-    Object.keys(oldValue).map((key) => {
-      if (!newValue?.[key]) {
-        mcpHub.removeMCPServer(key);
-      }
-    });
+    //If old value has more keys then deletion has happened else insertion has happened, if value is equal then updation has happened
+    if (Object.keys(oldValue).length > Object.keys(newValue).length) {
+      await Promise.all(
+        Object.keys(oldValue).map((key) => {
+          if (!newValue?.[key]) {
+            mcpHub.removeMCPServer(key);
+          }
+        })
+      );
+      return;
+    }
 
     onLocalStorageChangedCallback(mcpHub);
   }
