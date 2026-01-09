@@ -45,13 +45,13 @@ export default function SettingsTab() {
 					theme,
 					logLevel,
 				},
-				userWebMCPTools: userTools
+				userWebMCPTools: userTools,
 			},
 			version: EXPORT_JSON_VERSION,
 			extensionVersion: json.version,
 			timestamp: Date.now(),
-		}
-	}, [userTools, logLevel, theme, apiKeys])
+		};
+	}, [userTools, logLevel, theme, apiKeys]);
 
 	return (
 		<OptionsPageTab

@@ -8,15 +8,17 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 import { Client } from '@modelcontextprotocol/sdk/client';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
-import type {
-	MCPConfig,
-	MCPServerConfig
-} from '@google-awlt/common';
+import type { MCPConfig, MCPServerConfig } from '@google-awlt/common';
 /**
  * Internal dependencies
  */
 import { RequestManager, sanitizeToolName, isDomainAllowed } from './utils';
-import { MESSAGE_TYPES, CONNECTION_NAMES, logger, jsonSchemaToZod } from '../utils';
+import {
+	MESSAGE_TYPES,
+	CONNECTION_NAMES,
+	logger,
+	jsonSchemaToZod,
+} from '../utils';
 import type { ContentScriptMessage, TabData } from './types';
 
 /**
@@ -93,7 +95,7 @@ class McpHub {
 				client,
 				transport,
 				connected: true,
-				toolsFetched: true
+				toolsFetched: true,
 			});
 
 			this.registerOrUpdateTools(
@@ -105,29 +107,35 @@ class McpHub {
 				true
 			);
 		} catch (_error) {
-			logger(['error'], ['Failed to register the server and list the tools', _error]);
+			logger(
+				['error'],
+				['Failed to register the server and list the tools', _error]
+			);
 		}
 	}
 
 	async disableMCPServerTools(serverId: string) {
-		Array.from(this.registeredTools.entries()).forEach(([toolName, registeredTool]) => {
-			if (toolName.startsWith(`${serverId}_mcp`)) {
-				registeredTool.disable();
+		Array.from(this.registeredTools.entries()).forEach(
+			([toolName, registeredTool]) => {
+				if (toolName.startsWith(`${serverId}_mcp`)) {
+					registeredTool.disable();
+				}
 			}
-		});
+		);
 		this.server.server?.transport?.send({
 			jsonrpc: '2.0',
 			method: 'get/Tools',
 		});
 	}
 
-
 	async enableMCPServerTools(serverId: string) {
-		Array.from(this.registeredTools.entries()).forEach(([toolName, registeredTool]) => {
-			if (toolName.startsWith(`${serverId}_mcp`)) {
-				registeredTool.enable();
+		Array.from(this.registeredTools.entries()).forEach(
+			([toolName, registeredTool]) => {
+				if (toolName.startsWith(`${serverId}_mcp`)) {
+					registeredTool.enable();
+				}
 			}
-		});
+		);
 		this.server.server?.transport?.send({
 			jsonrpc: '2.0',
 			method: 'get/Tools',
@@ -268,14 +276,16 @@ class McpHub {
 		for (const tool of tools) {
 			const config = {
 				...tool,
-				inputSchema: jsonSchemaToZod(tool.inputSchema)
+				inputSchema: jsonSchemaToZod(tool.inputSchema),
 			};
 
 			const prefixedToolName = `${serverName}_mcp_${tool.name}`;
 
 			if (this.registeredTools.has(prefixedToolName)) {
 				// Update existing tool
-				this.registeredTools.get(prefixedToolName)!.update(config as any);
+				this.registeredTools
+					.get(prefixedToolName)!
+					.update(config as any);
 			} else {
 				// Register new tool
 				const mcpTool = this.server.registerTool(
@@ -510,8 +520,8 @@ class McpHub {
 					isError: true,
 				};
 			}
-			console.log(serverName, toolName)
-			console.log(args)
+			console.log(serverName, toolName);
+			console.log(args);
 			const response = await connector.client.callTool({
 				name: toolName,
 				arguments: args ?? {},
@@ -553,7 +563,7 @@ class McpHub {
 					isError: true,
 				};
 			}
-			console.log(domain)
+			console.log(domain);
 			// Forward request to content script using RequestManager
 			const response = await this.requestManager.create(port, {
 				type: MESSAGE_TYPES.EXECUTE,
@@ -765,9 +775,9 @@ class McpHub {
 		// Filter out disabled user tools AND tools not allowed on this domain
 		const enabledUserTools = Array.isArray(userWebMCPTools)
 			? userWebMCPTools.filter((t: any) => {
-				if (t.enabled === false) return false;
-				return isDomainAllowed(tabUrl, t.allowedDomains);
-			})
+					if (t.enabled === false) return false;
+					return isDomainAllowed(tabUrl, t.allowedDomains);
+				})
 			: [];
 
 		chrome.scripting

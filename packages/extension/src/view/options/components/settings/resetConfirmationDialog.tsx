@@ -1,11 +1,7 @@
 /**
  * External dependencies
  */
-import {
-	useCallback,
-	type Dispatch,
-	type SetStateAction,
-} from 'react';
+import { useCallback, type Dispatch, type SetStateAction } from 'react';
 import { AlertOctagon } from 'lucide-react';
 import { Button } from '@google-awlt/design-system';
 /**
@@ -49,15 +45,10 @@ export default function ResetConfirmationDialog({
 
 				<div className="space-y-4">
 					<div className="grid grid-cols-2 gap-3 pt-2">
-						<Button
-							onClick={() => setIsResetModalOpen(false)}
-						>
+						<Button onClick={() => setIsResetModalOpen(false)}>
 							Cancel
 						</Button>
-						<Button
-							variant="destructive"
-							onClick={handleReset}
-						>
+						<Button variant="destructive" onClick={handleReset}>
 							Confirm Reset
 						</Button>
 					</div>

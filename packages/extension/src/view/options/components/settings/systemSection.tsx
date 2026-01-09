@@ -15,19 +15,21 @@ type SystemsSectionProps = {
 	logLevel: SettingsContextProps['state']['logLevel'];
 };
 
-export default function SystemSection({ logLevel, toggleSettings} : SystemsSectionProps) {
+export default function SystemSection({
+	logLevel,
+	toggleSettings,
+}: SystemsSectionProps) {
 	return (
-		<OptionsPageTabSection title='Developer Logs' >
+		<OptionsPageTabSection title="Developer Logs">
 			<div className="grid grid-cols-2 md:grid-cols-3 gap-4">
 				{LOG_OPTS.map((opt) => {
-					const active = logLevel.toLowerCase() === opt.id.toLowerCase();
+					const active =
+						logLevel.toLowerCase() === opt.id.toLowerCase();
 					return (
 						<Button
 							size="lg"
 							key={opt.id}
-							onClick={() =>
-								toggleSettings('logLevel', opt.id)
-							}
+							onClick={() => toggleSettings('logLevel', opt.id)}
 							variant="ghost"
 							className={cn(
 								'group relative p-7 flex items-center justify-between rounded-xl border text-left transition-all duration-200 min-w-fit',

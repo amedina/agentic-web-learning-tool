@@ -8,7 +8,9 @@ import { useContextSelector } from '@google-awlt/common';
 import Context, { type MCPProviderContextType } from './context';
 
 export function useMcpProvider(): MCPProviderContextType;
-export function useMcpProvider<T>(selector: (state: MCPProviderContextType) => T): T;
+export function useMcpProvider<T>(
+	selector: (state: MCPProviderContextType) => T
+): T;
 
 /**
  * Allowed list hook.

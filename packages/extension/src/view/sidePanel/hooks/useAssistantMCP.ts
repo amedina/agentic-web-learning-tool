@@ -3,13 +3,20 @@
  */
 import { tool, type AssistantRuntime } from '@assistant-ui/react';
 import type { Client } from '@modelcontextprotocol/sdk/client/index.js';
-import type { Tool as McpTool, CallToolResult } from '@modelcontextprotocol/sdk/types.js';
+import type {
+	Tool as McpTool,
+	CallToolResult,
+} from '@modelcontextprotocol/sdk/types.js';
 import { useEffect, useMemo } from 'react';
 import { getToolNameWithoutPrefix } from '@google-awlt/design-system';
 /**
  * Internal dependencies
  */
-import { cleanArguments, formatToolResult, validateToolPreferences } from '../utils';
+import {
+	cleanArguments,
+	formatToolResult,
+	validateToolPreferences,
+} from '../utils';
 import type { ToolExecutionArgs } from '../types';
 import { logger } from '../../../utils';
 
@@ -28,83 +35,96 @@ import { logger } from '../../../utils';
  * @param runtime - The Assistant UI runtime instance.
  */
 export function useAssistantMCP(
-  mcpTools: McpTool[],
-  client: Client | null, // Allow null for initial loading states
-  threadId: string,
-  runtime: AssistantRuntime
+	mcpTools: McpTool[],
+	client: Client | null, // Allow null for initial loading states
+	threadId: string,
+	runtime: AssistantRuntime
 ): void {
-  // 1. Filter tools based on thread preferences
-  const filteredTools = useMemo(() => {
-    if (!threadId) return mcpTools;
+	// 1. Filter tools based on thread preferences
+	const filteredTools = useMemo(() => {
+		if (!threadId) return mcpTools;
 
-    // Retrieve preferences (Assuming validateToolPreferences handles storage retrieval internally)
-    const validatedPreferences = validateToolPreferences({});
-    const preferences = validatedPreferences[threadId];
+		// Retrieve preferences (Assuming validateToolPreferences handles storage retrieval internally)
+		const validatedPreferences = validateToolPreferences({});
+		const preferences = validatedPreferences[threadId];
 
-    if (!preferences || preferences.length === 0) {
-      // If no preferences set, allow all tools
-      return mcpTools;
-    }
+		if (!preferences || preferences.length === 0) {
+			// If no preferences set, allow all tools
+			return mcpTools;
+		}
 
-    // Only include tools present in the whitelist
-    return mcpTools.filter((tool) => preferences.includes(tool.name));
-  }, [mcpTools, threadId]);
+		// Only include tools present in the whitelist
+		return mcpTools.filter((tool) => preferences.includes(tool.name));
+	}, [mcpTools, threadId]);
 
-  // Create a stable dependency key for the effect based on tool names
-  const toolSignature = useMemo(
-    () => filteredTools.map((t) => t.name).join(','),
-    [filteredTools]
-  );
+	// Create a stable dependency key for the effect based on tool names
+	const toolSignature = useMemo(
+		() => filteredTools.map((t) => t.name).join(','),
+		[filteredTools]
+	);
 
-  // 2. Register tools with the Assistant Runtime
-  useEffect(() => {
-    if (!client) return;
+	// 2. Register tools with the Assistant Runtime
+	useEffect(() => {
+		if (!client) return;
 
-    // Transform MCP tools into Assistant UI tools
-    const assistantTools = filteredTools.map((mcpT) => {
-      const cleanToolName = getToolNameWithoutPrefix(mcpT.name)
-      return {
-        name: cleanToolName,
-        // The Assistant UI 'tool' definition
-        assistantTool: tool({
-          type: 'frontend',
-          description: mcpT.description,
-          parameters: mcpT.inputSchema,
-          execute: async (args, { abortSignal: signal }) => {
-            try {
-              const cleanedArgs = cleanArguments(args as ToolExecutionArgs);
-              console.log(cleanedArgs, mcpT.name)
-              // Execute against the MCP Client using the *Original* name
-              const toolResult = await client.callTool(
-                {
-                  name: mcpT.name,
-                  arguments: cleanedArgs,
-                },
-                undefined,
-                { signal }
-              );
-              console.log(toolResult)
-              return formatToolResult(toolResult.content as CallToolResult['content']);
-            } catch (error) {
-              logger(['error'], [`[useAssistantMCP] Tool execution failed for '${cleanToolName}': ${error}`]);
-            }
-          },
-        }),
-      };
-    }).filter((singleTool) => singleTool.name !== 'dummyTool');
+		// Transform MCP tools into Assistant UI tools
+		const assistantTools = filteredTools
+			.map((mcpT) => {
+				const cleanToolName = getToolNameWithoutPrefix(mcpT.name);
+				return {
+					name: cleanToolName,
+					// The Assistant UI 'tool' definition
+					assistantTool: tool({
+						type: 'frontend',
+						description: mcpT.description,
+						parameters: mcpT.inputSchema,
+						execute: async (args, { abortSignal: signal }) => {
+							try {
+								const cleanedArgs = cleanArguments(
+									args as ToolExecutionArgs
+								);
+								console.log(cleanedArgs, mcpT.name);
+								// Execute against the MCP Client using the *Original* name
+								const toolResult = await client.callTool(
+									{
+										name: mcpT.name,
+										arguments: cleanedArgs,
+									},
+									undefined,
+									{ signal }
+								);
+								console.log(toolResult);
+								return formatToolResult(
+									toolResult.content as CallToolResult['content']
+								);
+							} catch (error) {
+								logger(
+									['error'],
+									[
+										`[useAssistantMCP] Tool execution failed for '${cleanToolName}': ${error}`,
+									]
+								);
+							}
+						},
+					}),
+				};
+			})
+			.filter((singleTool) => singleTool.name !== 'dummyTool');
 
-    // Register the Context Provider with the Runtime
-    const unregister = runtime.registerModelContextProvider({
-      getModelContext: () => ({
-        // Hint to the model that tools are available
-        system: filteredTools.length > 0 ? 'TOOLS:' : '',
-        // Map: { [uiName]: ToolDefinition } 
-        tools: Object.fromEntries(assistantTools.map((t) => [t.name, t.assistantTool])),
-      }),
-    });
+		// Register the Context Provider with the Runtime
+		const unregister = runtime.registerModelContextProvider({
+			getModelContext: () => ({
+				// Hint to the model that tools are available
+				system: filteredTools.length > 0 ? 'TOOLS:' : '',
+				// Map: { [uiName]: ToolDefinition }
+				tools: Object.fromEntries(
+					assistantTools.map((t) => [t.name, t.assistantTool])
+				),
+			}),
+		});
 
-    return () => {
-      unregister();
-    };
-  }, [client, toolSignature, runtime, filteredTools]);
+		return () => {
+			unregister();
+		};
+	}, [client, toolSignature, runtime, filteredTools]);
 }

@@ -12,7 +12,6 @@ import { MarkdownText, ToolFallback } from '@google-awlt/design-system';
  */
 import ActionButton from './actionButton';
 
-
 const AssistantMessage: FC = () => {
 	return (
 		<MessagePrimitive.Root className="relative mx-auto flex w-full max-w-screen-md gap-3">

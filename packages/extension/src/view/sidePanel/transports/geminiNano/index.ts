@@ -63,7 +63,7 @@ export class GeminiNanoChatTransport implements ChatTransport<UIMessage> {
 
 		this.isInitializing = true;
 		try {
-			const lm = window.LanguageModel;
+			const lm = LanguageModel;
 			if (!lm) {
 				throw new Error(
 					'Gemini Nano API (window.ai.languageModel) is not available.'

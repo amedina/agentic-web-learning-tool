@@ -37,8 +37,15 @@ function DevTools() {
 					</a>
 				</Button>
 			</div>
-			<Button variant="outline" onClick={openSidePanel}>Open SidePanel</Button>
-			<Button variant="outline" onClick={() => chrome.runtime.openOptionsPage()}>Open Options page</Button>
+			<Button variant="outline" onClick={openSidePanel}>
+				Open SidePanel
+			</Button>
+			<Button
+				variant="outline"
+				onClick={() => chrome.runtime.openOptionsPage()}
+			>
+				Open Options page
+			</Button>
 			<h1 className="text-2xl">Vite + React</h1>
 			<div className="flex flex-col items-center justify-center">
 				<button onClick={() => setCount((count) => count + 1)}>
