@@ -11,15 +11,9 @@
  * @returns {Array} The updated message history.
  */
 function mergeSystemAndMessages(
-  messages: {
-    role: string;
-    content: any;
-  }[],
+  messages: LanguageModelMessage[],
   textToInject: string
-): {
-  role: string;
-  content: any;
-}[] {
+): LanguageModelMessage[] {
   // 1. If the text to inject is empty or just whitespace, do nothing.
   if (!textToInject.trim()) {
     return messages;
