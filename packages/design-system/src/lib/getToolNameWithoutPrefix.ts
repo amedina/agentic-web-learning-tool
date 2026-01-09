@@ -40,9 +40,7 @@ function getToolNameWithoutPrefix(toolName: string) {
     toolNameWithoutHardCodePrefix = toolName.substring(
       extensionToolNamePrefix.length - 1
     );
-    const pieces = toolNameWithoutHardCodePrefix.split('_');
-    pieces.shift();
-    return pieces.join('_').match(/_tab[^_]+_(.+)$/)?.[1];
+    return toolNameWithoutHardCodePrefix;
   }
 
   if (toolName.includes('_mcp')) {
