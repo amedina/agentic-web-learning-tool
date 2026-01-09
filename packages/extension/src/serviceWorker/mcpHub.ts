@@ -114,7 +114,7 @@ class McpHub {
   }
 
   async registerAllExtensionTools() {
-    logger(['debug', 'log', 'trace'], ['Registering extension tools...']);
+    logger(['debug'], ['Registering extension tools...']);
 
     await this.fetchLocalStorageAndRegisterTools();
   }

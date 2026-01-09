@@ -144,13 +144,13 @@ export class GeminiNanoChatTransport implements ChatTransport<UIMessage> {
             },
             onAbort: (res) => {
               logger(
-                ['warn', 'debug', 'trace', 'info'],
+                ['warn'],
                 [`Stream aborted after ${res.steps.length} steps [chatId=]`]
               );
             },
             onStepFinish: (res) => {
               logger(
-                ['info', 'debug'],
+                ['debug'],
                 [
                   `Step finished: `,
                   JSON.stringify(

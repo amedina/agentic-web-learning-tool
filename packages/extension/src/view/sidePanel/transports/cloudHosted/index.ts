@@ -171,13 +171,13 @@ export class CloudHostedTransport implements ChatTransport<UIMessage> {
             },
             onAbort: (res) => {
               logger(
-                ['log', 'trace', 'info'],
+                ['debug'],
                 [`Stream aborted after ${res.steps.length} steps [chatId=]`]
               );
             },
             onStepFinish: (res) => {
               logger(
-                ['log', 'trace', 'debug'],
+                ['debug'],
                 [
                   `Step finished:`,
                   JSON.stringify(
