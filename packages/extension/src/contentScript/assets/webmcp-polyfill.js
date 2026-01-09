@@ -18443,13 +18443,11 @@ ${e}`
 				}
 			}
 			listTools() {
-				return this.bridge.modelContext
-					.listTools()
-					.map((e) => ({
-						name: e.name,
-						description: e.description,
-						inputSchema: JSON.stringify(e.inputSchema),
-					}));
+				return this.bridge.modelContext.listTools().map((e) => ({
+					name: e.name,
+					description: e.description,
+					inputSchema: JSON.stringify(e.inputSchema),
+				}));
 			}
 			registerToolsChangedCallback(e) {
 				(this.toolsChangedCallbacks.add(e),
