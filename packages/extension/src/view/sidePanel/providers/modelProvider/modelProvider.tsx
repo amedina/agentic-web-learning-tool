@@ -48,6 +48,7 @@ const Provider = ({ children }: PropsWithChildren) => {
   const initialFetchDone = useRef<boolean>(false);
 
   useEffect(() => {
+    console.log(selectedAgent, initialFetchDone.current);
     if (!initialFetchDone.current) {
       return;
     }
@@ -66,7 +67,7 @@ const Provider = ({ children }: PropsWithChildren) => {
     } else {
       setTransport(transportGenerator('browser-ai', 'prompt-api', {}));
     }
-
+    console.log(selectedAgent);
     chrome.storage.sync.set({
       selectedAgent,
     });
@@ -83,7 +84,16 @@ const Provider = ({ children }: PropsWithChildren) => {
       await chrome.storage.sync.get(['apiKeys', 'selectedAgent']);
 
     setApiKeys(_apiKeys);
-    if (_selectedAgent.modelProvider === 'browser-ai') {
+
+    if (!_selectedAgent) {
+      setSelectedAgent({ model: 'prompt-api', modelProvider: 'browser-ai' });
+      setTransport(FALLBACK_AGENT);
+      (FALLBACK_AGENT as GeminiNanoChatTransport).initializeSession();
+      initialFetchDone.current = true;
+      return;
+    }
+
+    if (_selectedAgent?.modelProvider === 'browser-ai') {
       setSelectedAgent(_selectedAgent);
       setTransport(FALLBACK_AGENT);
       (FALLBACK_AGENT as GeminiNanoChatTransport).initializeSession();
