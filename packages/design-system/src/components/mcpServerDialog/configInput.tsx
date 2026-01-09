@@ -2,7 +2,7 @@
  * External dependencies.
  */
 import { type Dispatch, type SetStateAction } from 'react';
-import { Link, Lock } from 'lucide-react';
+import { Link, Lock, Text } from 'lucide-react';
 import type { MCPServerConfig } from '@google-awlt/common';
 
 /**
@@ -34,7 +34,7 @@ export function ConfigInput({ config, setConfig }: MCPServerConfigInput) {
             className="bg-transparent border-darth-vader text-accent-foreground transition-all w-full pl-3 pr-9 py-2 rounded-md text-sm font-mono"
             placeholder="Github"
           />
-          <Link className="absolute right-3 top-2.5 w-4 h-4 text-exclusive-plum" />
+          <Text className="absolute right-3 top-2.5 w-4 h-4 text-exclusive-plum" />
         </div>
       </InputGroup>
       <InputGroup label="MCP Server URL">
