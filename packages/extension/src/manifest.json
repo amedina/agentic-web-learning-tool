@@ -16,7 +16,11 @@
     "webNavigation",
     "scripting",
     "activeTab",
-    "sidePanel"
+    "sidePanel",
+    "tabGroups",
+    "history",
+    "bookmarks",
+    "userScripts"
   ],
   "host_permissions": ["*://*/*"],
   "devtools_page": "devtools/devtools.html",

@@ -93,8 +93,8 @@ export const ToolFallback: ToolCallMessagePartComponent = ({
                   ${currentStatus?.badge}
                 `}
                 >
-                  {currentStatus.icon}
-                  <span>{currentStatus.text}</span>
+                  {currentStatus?.icon}
+                  <span>{currentStatus?.text}</span>
                 </div>
               </div>
             </div>

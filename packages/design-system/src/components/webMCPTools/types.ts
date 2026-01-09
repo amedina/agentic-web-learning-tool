@@ -7,4 +7,5 @@ export interface WebMCPTool {
   code?: string;
   enabled: boolean;
   isBuiltIn?: boolean;
+  isExtension?: boolean;
 }

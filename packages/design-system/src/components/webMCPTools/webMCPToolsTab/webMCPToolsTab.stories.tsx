@@ -52,6 +52,7 @@ const DefaultRender = () => {
         builtInTools={builtInTools}
         onSaveUserTools={setUserTools}
         onSaveBuiltInState={setBuiltInTools}
+        saveExtensionToolsState={() => {}}
       />
     </div>
   );

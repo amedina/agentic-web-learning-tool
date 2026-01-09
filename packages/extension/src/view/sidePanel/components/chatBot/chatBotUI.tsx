@@ -18,13 +18,7 @@ import {
   Settings,
   ChevronDown,
 } from 'lucide-react';
-import {
-  Button,
-  Dropdown,
-  getToolNameWithoutPrefix,
-  OwlIcon,
-} from '@google-awlt/design-system';
-import type { Tool as McpTool } from '@modelcontextprotocol/sdk/types.js';
+import { Button, Dropdown, OwlIcon } from '@google-awlt/design-system';
 
 /**
  * Internal dependencies
@@ -37,20 +31,7 @@ import UserMessage from './userMessage';
 import { INITIAL_PROVIDERS } from '../../../../constants';
 import type { AgentType } from '../../../../types';
 import { useCommandProvider } from '../../providers/commandProvider';
-
-type SingleGroupTool = {
-  group: string;
-  key: string;
-  items: { id: string; label: string }[];
-};
-
-type GroupedTool = {
-  [key: string]: {
-    group: string;
-    key: string;
-    items: McpTool[];
-  };
-};
+import { createModelDropdown, createToolDropdown } from './utils';
 
 type ChatBotUIProps = {
   runtime: AssistantRuntime;
@@ -99,60 +80,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
     handleMessageChange: actions.handleMessageChange,
   }));
 
-  const groupedTools = useMemo(() => {
-    const toolGroups: SingleGroupTool[] = [];
-
-    const websiteTools = tools.reduce((acc, tool) => {
-      const WEBSITE_TOOL_PREFIX = 'website_tool_';
-      if (getToolNameWithoutPrefix(tool.name) === 'dummyTool') {
-        return acc;
-      }
-
-      if (tool.name.startsWith(WEBSITE_TOOL_PREFIX)) {
-        const toolNameWithoutHardCodePrefix = tool.name.substring(
-          WEBSITE_TOOL_PREFIX.length
-        );
-        const pieces = toolNameWithoutHardCodePrefix.split('_');
-        const cleanToolName = pieces.join('_');
-        const result = cleanToolName.split('_tab')[0].replaceAll('_', '.');
-
-        if (acc[result]) {
-          acc[result].items.push(tool);
-        } else {
-          acc[result] = {
-            group: result,
-            key: result,
-            items: [tool],
-          };
-        }
-        return acc;
-      } else {
-        if (acc['other']) {
-          acc['others'].items.push(tool);
-        } else {
-          acc['others'] = {
-            group: 'others',
-            key: 'others',
-            items: [tool],
-          };
-        }
-      }
-      return acc;
-    }, {} as GroupedTool);
-
-    Object.keys(websiteTools).forEach((key) => {
-      toolGroups.push({
-        group: websiteTools[key].group,
-        key: websiteTools[key].key,
-        items: websiteTools[key].items.map((tool) => ({
-          id: tool.name,
-          label: getToolNameWithoutPrefix(tool.name) ?? '',
-        })),
-      });
-    });
-
-    return toolGroups;
-  }, [tools]);
+  const groupedTools = useMemo(() => createToolDropdown(tools), [tools]);
 
   const handleSelect = useCallback((selectedId: string) => {
     const agent: AgentType = {
@@ -175,42 +103,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
   }, []);
 
   //Only shows models whose apiKeys have been and have been enabled
-  const modelOptions = useMemo(() => {
-    const availableModelProviders = Object.keys(apiKeys).filter(
-      (key) => apiKeys[key].status
-    );
-    //Add browser-ai by default since it doesnt require apiKeys
-    availableModelProviders.push('browser-ai');
-
-    const modelProviders = availableModelProviders.map((provider) => {
-      const {
-        id = '',
-        name = '',
-        models = [],
-      } = INITIAL_PROVIDERS.find(
-        ({ id }) => provider === id
-      ) as (typeof INITIAL_PROVIDERS)[1];
-
-      return {
-        id,
-        label: name,
-        hideLabel: true,
-        group: id,
-        items: [
-          {
-            id,
-            label: name,
-            mainLabel: 'Models',
-            submenu: models,
-          },
-        ],
-      };
-    });
-
-    return modelProviders.filter(
-      ({ items }) => items[0]?.submenu && items[0]?.submenu.length >= 1
-    );
-  }, [apiKeys]);
+  const modelOptions = useMemo(() => createModelDropdown(apiKeys), [apiKeys]);
 
   const messages = useAssistantState(({ thread }) => thread.messages);
 

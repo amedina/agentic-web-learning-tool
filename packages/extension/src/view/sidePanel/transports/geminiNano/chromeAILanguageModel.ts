@@ -1,7 +1,8 @@
 /**
  * External dependencies
  */
-import type { AssistantRuntime } from '@assistant-ui/react';
+import { type AssistantRuntime } from '@assistant-ui/react';
+import type { Tool } from 'ai';
 
 /**
  * Internal dependencies
@@ -16,7 +17,11 @@ import {
   mergeSystemAndMessages,
   systemPromptTemplate,
 } from '../../utils';
-import type { ToolCallRequest } from '../../types';
+
+type ToolType = Tool & {
+  name: string;
+  parameters?: Tool['inputSchema'];
+};
 
 interface PromptOptions {
   temperature?: number;
@@ -54,11 +59,11 @@ declare global {
     LanguageModel: LanguageModelFactory;
   }
 }
-interface LanguageModelV1CallOptions {
+interface LanguageModelV2CallOptions {
   temperature?: number;
   topK?: number;
   responseFormat?: { type: 'json'; schema?: any };
-  tools?: ToolCallRequest[];
+  tools?: ToolType[];
   prompt: any; // Standard AI SDK message format
   abortSignal?: AbortSignal;
 }
@@ -104,7 +109,7 @@ class ChromeAILanguageModel {
    * Initializes or retrieves the Chrome AI session.
    * Converts AssistantUI tools into a JSON schema format understandable by the model.
    */
-  private async getSession() {
+  private async getSession(callOptions: LanguageModelV2CallOptions) {
     if (!this.runtime) {
       return;
     }
@@ -117,29 +122,37 @@ class ChromeAILanguageModel {
       );
     }
 
-    const { tools } = this.runtime.thread.getModelContext();
+    const { functionTools } = this.getArgs(callOptions);
 
     // Transform tools into OpenAI-like JSON schema for the system prompt
-    this.formattedTools = Object.entries(tools ?? []).map(([key, value]) => [
-      key,
-      {
-        name: key,
-        description: value.description,
-        inputSchema: value.parameters,
-        execute: value.execute,
+    this.formattedTools = functionTools.map((tool) => {
+      return {
+        name: tool.name,
+        description: tool.description ?? 'No description Provided',
+        parameters: tool?.parameters ?? tool?.inputSchema,
+        execute: tool.execute,
         type: 'function',
-      },
-    ]);
+      };
+    });
 
-    // Create session if it doesn't exist
-    // Note: In a real app, you might want to manage session lifecycle more aggressively (destroying old ones)
-    this.session = await lm.create({});
+    const initialSystemPrompt = systemPromptTemplate(
+      JSON.stringify(this.formattedTools, null, 2)
+    );
+
+    this.session = await lm.create({
+      initialPrompts: [
+        {
+          role: 'system',
+          content: initialSystemPrompt,
+        },
+      ],
+    });
   }
 
   /**
    * Prepares arguments, validates settings, and formats system prompts.
    */
-  private getArgs(args: LanguageModelV1CallOptions) {
+  private getArgs(args: LanguageModelV2CallOptions) {
     const { temperature, topK, responseFormat, tools, prompt } = args;
 
     const functionTools = (tools ?? []).filter(
@@ -154,12 +167,12 @@ class ChromeAILanguageModel {
     if (temperature !== undefined) promptOptions.temperature = temperature;
     if (topK !== undefined) promptOptions.topK = topK;
 
-    const { messages } = convertMessages(prompt);
-
+    const { messages, systemMessage } = convertMessages(prompt);
     // Provide the transformed messages and options
     return {
       promptOptions,
       functionTools,
+      systemPrompt: systemMessage,
       messages,
     };
   }
@@ -167,17 +180,14 @@ class ChromeAILanguageModel {
   /**
    * Handles non-streaming generation (Unary call).
    */
-  async doGenerate(callOptions: LanguageModelV1CallOptions) {
+  async doGenerate(callOptions: LanguageModelV2CallOptions) {
     const { promptOptions, messages } = this.getArgs(callOptions);
 
-    await this.getSession();
+    await this.getSession(callOptions);
     if (!this.session) return;
 
     // Merge the System Prompt (with tool definitions) into the message history
-    const systemMessage = systemPromptTemplate(
-      JSON.stringify(this.formattedTools, null, 2)
-    );
-    const finalMessages = mergeSystemAndMessages(messages, systemMessage);
+    const finalMessages = mergeSystemAndMessages(messages, '');
 
     // Execute prompt
     const responseText = await this.session.prompt(
@@ -241,18 +251,15 @@ class ChromeAILanguageModel {
    * This is complex because we must scan the stream for ` ```tool_call ` fences.
    * If a fence is detecting, we suppress the raw text and emit `tool-call` events instead.
    */
-  async doStream(callOptions: LanguageModelV1CallOptions) {
+  async doStream(callOptions: LanguageModelV2CallOptions) {
     const { messages, promptOptions } = this.getArgs(callOptions);
 
-    await this.getSession();
+    await this.getSession(callOptions);
     if (!this.session) {
       return;
     }
 
-    const systemMessage = systemPromptTemplate(
-      JSON.stringify(this.formattedTools, null, 2)
-    );
-    const finalMessages = mergeSystemAndMessages(messages, systemMessage);
+    const finalMessages = mergeSystemAndMessages(messages, '');
 
     const messageContext = [...finalMessages];
     const textPartId = 'text-0';
@@ -318,7 +325,6 @@ class ChromeAILanguageModel {
                 },
               });
               controller.close();
-              this.session?.destroy();
             }
           };
 

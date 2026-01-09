@@ -42,7 +42,7 @@ function getToolNameWithoutPrefix(toolName: string) {
     );
     const pieces = toolNameWithoutHardCodePrefix.split('_');
     pieces.shift();
-    return pieces.join('_').match(/_tab[^_]+_(.+)$/)?.[1];
+    return pieces.join('_');
   }
 
   return toolName;

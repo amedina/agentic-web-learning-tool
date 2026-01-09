@@ -12,9 +12,17 @@ import {
  * Internal dependencies
  */
 import { RequestManager, sanitizeToolName, isDomainAllowed } from './utils';
-import { MESSAGE_TYPES, CONNECTION_NAMES, logger } from '../utils';
+import {
+  MESSAGE_TYPES,
+  CONNECTION_NAMES,
+  logger,
+  jsonSchemaToZod,
+} from '../utils';
 import type { ContentScriptMessage, TabData } from './types';
-
+import {
+  chromeApiBuiltInTools,
+  type keys,
+} from '../contentScript/tools/builtInTools';
 /**
  * The central hub managing connections between the MCP Server and Chrome Tabs.
  * It acts as a proxy, registering tools found in browser tabs and forwarding execution requests.
@@ -27,6 +35,7 @@ class McpHub {
 
   private activeTabId: number | null = null;
   private requestManager = new RequestManager();
+  private apiTools: any[] = [];
 
   // Track registered tools to allow updating/removing them dynamically
   registeredTools = new Map<
@@ -38,6 +47,10 @@ class McpHub {
     this.server = server;
     this.setupConnections();
     this.trackActiveTab();
+    this.registerAllExtensionTools();
+    chrome.storage.local.onChanged.addListener(() =>
+      this.onLocalStoreChangedListener()
+    );
   }
 
   /**
@@ -48,6 +61,132 @@ class McpHub {
       this.domains.set(domain, new Map());
     }
     return this.domains.get(domain)!;
+  }
+
+  async fetchLocalStorageAndRegisterTools() {
+    const {
+      chromeAPIBuiltInToolsState,
+    }: {
+      chromeAPIBuiltInToolsState: {
+        [key in keys]: {
+          enabled: boolean;
+        };
+      };
+    } = await chrome.storage.local.get('chromeAPIBuiltInToolsState');
+
+    Object.keys(chromeAPIBuiltInToolsState ?? {}).forEach((toolKey) => {
+      if (chromeAPIBuiltInToolsState?.[toolKey as keys]?.enabled) {
+        this.apiTools.push(
+          new chromeApiBuiltInTools[toolKey as keys].instance(this.server)
+        );
+      }
+    });
+
+    this.registerApiCheckTool();
+
+    // Register all API tools
+    for (const tool of this.apiTools) {
+      tool.register();
+    }
+  }
+
+  async onLocalStoreChangedListener() {
+    //@ts-expect-error -- we are accessing a private variable as private variable are only available in TS annotations
+    Object.keys(this.server._registeredTools).forEach((toolName) => {
+      if (
+        toolName.startsWith('extension_tool_') ||
+        toolName.startsWith('dom_extract_')
+      ) {
+        //@ts-expect-error -- we are accessing a private variable as private variable are only available in TS annotations
+        this.server._registeredTools[toolName].remove();
+      }
+    });
+
+    this.apiTools = [];
+
+    await this.fetchLocalStorageAndRegisterTools();
+
+    this.registerApiCheckTool();
+    this.server.server?.transport?.send({
+      jsonrpc: '2.0',
+      method: 'get/Tools',
+    });
+  }
+
+  async registerAllExtensionTools() {
+    logger(['debug', 'log', 'trace'], ['Registering extension tools...']);
+
+    await this.fetchLocalStorageAndRegisterTools();
+  }
+
+  private registerApiCheckTool() {
+    //@ts-expect-error -- we are accessing a private variable as private variable are only available in TS annotations
+    if (this.server._registeredTools['extension_tool_check_available_apis']) {
+      return;
+    }
+    this.server.registerTool(
+      'extension_tool_check_available_apis',
+      {
+        description:
+          'Check which Chrome Extension APIs are available to the extension',
+        inputSchema: {},
+      },
+      async () => {
+        const apis = this.getAvailableApis();
+        let permissions = null;
+
+        // Only try to get permissions if the API is available
+        if (
+          chrome.permissions &&
+          typeof chrome.permissions.getAll === 'function'
+        ) {
+          try {
+            permissions = await chrome.permissions.getAll();
+          } catch (error) {
+            console.error('Failed to get permissions:', error);
+          }
+        }
+
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(
+                {
+                  availableApis: apis,
+                  permissions: permissions
+                    ? {
+                        permissions: permissions.permissions || [],
+                        origins: permissions.origins || [],
+                      }
+                    : 'Permissions API not available',
+                },
+                null,
+                2
+              ),
+            },
+          ],
+        };
+      }
+    );
+  }
+
+  /**
+   * Get a summary of available Chrome APIs
+   */
+  getAvailableApis(): Record<string, any> {
+    const apiStatuses: Record<string, any> = {};
+
+    for (const tool of this.apiTools) {
+      const availability = tool.checkAvailability();
+      apiStatuses[tool.apiName.toLowerCase()] = {
+        available: availability.available,
+        message: availability.message,
+        details: availability.details,
+      };
+    }
+
+    return apiStatuses;
   }
 
   /**
@@ -238,7 +377,7 @@ class McpHub {
       const config = {
         title: tool.title,
         description,
-        inputSchema: inputSchema as any, // Cast required due to SDK constraints vs dynamic schema
+        inputSchema: jsonSchemaToZod(inputSchema),
         annotations: tool.annotations,
       };
 

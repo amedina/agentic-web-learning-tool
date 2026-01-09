@@ -17,9 +17,10 @@ import type { AssistantRuntime } from '@assistant-ui/react';
  * Internal dependencies
  */
 import ChromeAILanguageModel from './chromeAILanguageModel';
-import { systemPromptTemplate } from '../../utils';
+import { SYSTEM_PROMPT_START } from '../../utils';
 import logger from '../../../../utils/logger';
 import replaceSlashCommands from '../replaceSlashCommands';
+import { jsonSchemaToZod } from '../../../../utils';
 
 type SendMessagesParams = {
   /** The type of message submission - either new message or regeneration */
@@ -116,6 +117,8 @@ export class GeminiNanoChatTransport implements ChatTransport<UIMessage> {
       {
         description: value.description,
         execute: value.execute,
+        inputSchema: jsonSchemaToZod(value.parameters),
+        parameters: value.parameters,
         name: key,
         type: 'function',
       },
@@ -134,10 +137,8 @@ export class GeminiNanoChatTransport implements ChatTransport<UIMessage> {
                 parallelToolExecution: false,
               },
             },
-            stopWhen: ({ steps }) => steps.length === 100,
-            system: systemPromptTemplate(
-              JSON.stringify(this.formattedTools, null, 2)
-            ),
+            stopWhen: ({ steps }) => steps.length === 10,
+            system: SYSTEM_PROMPT_START,
             onError: (err) => {
               logger(['error'], ['AI SDK error [chatId=]: ', err.error]);
             },

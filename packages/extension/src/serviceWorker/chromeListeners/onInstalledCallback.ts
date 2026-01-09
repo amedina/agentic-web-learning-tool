@@ -4,6 +4,7 @@
 import { settingsSetter, setLogLevelFromSyncSettings } from '../../utils';
 import type { AgentType, SettingsState } from '../../types';
 import { DEFAULT_SETTINGS } from '../../constants';
+import { chromeApiBuiltInTools } from '../../contentScript/tools/builtInTools';
 
 const onInstalledCallback = async (
   details: chrome.runtime.InstalledDetails
@@ -18,6 +19,19 @@ const onInstalledCallback = async (
           await settingsSetter(key as keyof SettingsState, value)
       )
     );
+    const chromeAPIBuiltInToolsState: { [key: string]: { enabled: boolean } } =
+      {};
+
+    Object.keys(chromeApiBuiltInTools).forEach(
+      (tool) =>
+        (chromeAPIBuiltInToolsState[tool] = {
+          enabled: true,
+        })
+    );
+
+    await chrome.storage.local.set({
+      chromeAPIBuiltInToolsState,
+    });
   }
 
   if (details.reason === 'update') {
@@ -31,7 +45,7 @@ const onInstalledCallback = async (
         },
       });
     }
-    await chrome.storage.sync.get('extensionSettings').then(async (data) => {
+    chrome.storage.sync.get('extensionSettings').then(async (data) => {
       const json = JSON.parse((data.extensionSettings ?? '{}') as string);
       if (!json.theme && !json.logLevel) {
         await chrome.storage.sync.set({
@@ -42,7 +56,29 @@ const onInstalledCallback = async (
         });
       }
     });
+
+    const { chromeAPIBuiltInToolsState } = await chrome.storage.local.get(
+      'chromeAPIBuiltInToolsState'
+    );
+
+    if (!chromeAPIBuiltInToolsState) {
+      const chromeAPIBuiltInToolsState: {
+        [key: string]: { enabled: boolean };
+      } = {};
+
+      Object.keys(chromeApiBuiltInTools).forEach(
+        (tool) =>
+          (chromeAPIBuiltInToolsState[tool] = {
+            enabled: true,
+          })
+      );
+
+      await chrome.storage.local.set({
+        chromeAPIBuiltInToolsState,
+      });
+    }
   }
+
   await setLogLevelFromSyncSettings();
 };
 
