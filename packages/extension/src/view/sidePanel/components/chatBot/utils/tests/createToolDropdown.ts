@@ -7,7 +7,7 @@ describe('createToolDropdown', () => {
   it('should filter out tools named "dummyTool" (ignoring prefix)', () => {
     const tools = [{ name: 'dummyTool', inputSchema: {} }];
 
-    const result = createToolDropdown(tools as any[]);
+    const result = createToolDropdown(tools as any[], {});
     expect(result).toEqual([]);
   });
 
@@ -17,7 +17,7 @@ describe('createToolDropdown', () => {
       { name: 'website_tool_tab_extra_google_com', inputSchema: {} },
     ];
 
-    const result = createToolDropdown(tools as any[]);
+    const result = createToolDropdown(tools as any[], {});
 
     expect(result).toHaveLength(2);
     expect(result[0]).toEqual({
@@ -32,7 +32,7 @@ describe('createToolDropdown', () => {
       { name: 'extension_tool_check_available_apis', inputSchema: {} },
     ];
 
-    const result = createToolDropdown(tools as any[]);
+    const result = createToolDropdown(tools as any[], {});
 
     expect(result).toHaveLength(1);
     expect(result[0]).toEqual({
@@ -53,7 +53,7 @@ describe('createToolDropdown', () => {
       { name: 'random_tool_2', inputSchema: {} },
     ];
 
-    const result = createToolDropdown(tools as any[]);
+    const result = createToolDropdown(tools as any[], {});
 
     expect(result).toHaveLength(1); // One group
     expect(result[0].key).toBe('others');
@@ -70,7 +70,7 @@ describe('createToolDropdown', () => {
       { name: 'website_tool_google_com_tab', inputSchema: {}, isWebsite: true },
     ];
 
-    const result = createToolDropdown(tools as any[]);
+    const result = createToolDropdown(tools as any[], {});
 
     expect(result).toHaveLength(2);
     expect(result[0].key).toBe('google.com'); // Website tool first
@@ -89,7 +89,7 @@ describe('createToolDropdown', () => {
       { name: 'website_tool_docs_google_com_tab', inputSchema: {} },
     ];
 
-    const result = createToolDropdown(tools as any[]);
+    const result = createToolDropdown(tools as any[], {});
 
     expect(result[0].key).toBe('docs.google.com');
   });

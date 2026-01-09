@@ -36,7 +36,7 @@ const Items = [
     component: <AgentStudioTab />,
   },
   {
-    title: 'MCP Server',
+    title: 'MCP Servers',
     id: 'mcp-server',
     icon: () => <Server />,
     component: <MCPServersTab />,

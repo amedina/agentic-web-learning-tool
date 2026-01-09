@@ -192,6 +192,15 @@ const Provider = ({ children }: PropsWithChildren) => {
       }
 
       if (
+        Object.keys(serverConfigs).find(
+          (key) => serverConfigs[key]?.name === serverName
+        ) &&
+        errors.length === 0
+      ) {
+        errors.push('Server name is already in use.');
+      }
+
+      if (
         (!config.authToken || config.authToken.trim().length === 0) &&
         config.url.startsWith('http://localhost') &&
         errors.length === 0

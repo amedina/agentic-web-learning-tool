@@ -40,13 +40,13 @@ type ChatBotUIProps = {
 const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
   const { client, tools } = useMcpClient();
 
-  const { apiKeys, setSelectedAgent, selectedAgent } = useModelProvider(
-    ({ state, actions }) => ({
+  const { apiKeys, setSelectedAgent, selectedAgent, toolNameToMCPMap } =
+    useModelProvider(({ state, actions }) => ({
       apiKeys: state.apiKeys,
+      toolNameToMCPMap: state.toolNameToMCPMap,
       setSelectedAgent: actions.setSelectedAgent,
       selectedAgent: state.selectedAgent,
-    })
-  );
+    }));
 
   useEffect(() => {
     (async () => {
@@ -80,7 +80,10 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
     handleMessageChange: actions.handleMessageChange,
   }));
 
-  const groupedTools = useMemo(() => createToolDropdown(tools), [tools]);
+  const groupedTools = useMemo(
+    () => createToolDropdown(tools, toolNameToMCPMap),
+    [tools, toolNameToMCPMap]
+  );
 
   const handleSelect = useCallback((selectedId: string) => {
     const agent: AgentType = {
