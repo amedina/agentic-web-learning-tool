@@ -41,9 +41,8 @@ const mockTools: Tool[] = [
   },
 ];
 
-// --- Meta Configuration ---
-const meta = {
-  title: 'Features/MCP/MCPServerDialog',
+const meta: Meta<typeof MCPServerDialog> = {
+  title: 'components/MCPServerDialog',
   component: MCPServerDialog,
   parameters: {
     layout: 'centered',
@@ -55,23 +54,21 @@ const meta = {
     },
   },
   tags: ['autodocs'],
-  // Use 'fn' to spy on actions in the Actions panel
   args: {
     onOpenChange: fn(),
     onSave: fn(),
     onDelete: fn(),
-    validator: async (config, name) => {
-      await new Promise((resolve) => setTimeout(resolve, 800));
-      return { isValid: true, errors: [] };
-    },
+    open: false,
   },
   argTypes: {
-    transport: {
-      control: { type: 'select' },
-      options: ['http', 'stdio'],
+    server: {
+      transport: {
+        control: { type: 'select' },
+        options: ['http', 'stdio'],
+      },
     },
   },
-} satisfies Meta<typeof MCPServerDialog>;
+};
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -137,7 +134,7 @@ export const EditServer: Story = {
 export const ViewTools: Story = {
   render: (args) => <DialogWrapper {...args} />,
   args: {
-    open: true, // Auto open for this story
+    open: false, // Auto open for this story
     serverId: 'srv-123-abc',
     server: filledConfig,
     toolList: mockTools,
@@ -152,7 +149,7 @@ export const ViewTools: Story = {
 export const ValidationFailure: Story = {
   render: (args) => <DialogWrapper {...args} />,
   args: {
-    open: true,
+    open: false,
     serverId: '',
     server: { ...emptyConfig, name: 'Invalid Server' },
     toolList: [],
