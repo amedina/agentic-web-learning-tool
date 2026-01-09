@@ -42,9 +42,9 @@ try {
       );
       polyfillScript.onload = () => polyfillScript.remove();
       (document.head || document.documentElement).appendChild(polyfillScript);
-      console.log('WebMCP: Injected webmcp-polyfill.js');
+      logger(['debug'], ['WebMCP: Injected webmcp-polyfill.js']);
     } catch (e) {
-      console.error('WebMCP: Failed to inject webmcp-polyfill.js', e);
+      logger(['error'], ['WebMCP: Failed to inject webmcp-polyfill.js', e]);
     }
 
     try {
@@ -52,9 +52,9 @@ try {
       script.src = chrome.runtime.getURL('contentScript/registerTools.js');
       script.onload = () => script.remove();
       (document.head || document.documentElement).appendChild(script);
-      console.log('WebMCP: Injected registerTools.js');
+      logger(['debug'], ['WebMCP: Injected registerTools.js']);
     } catch (e) {
-      console.error('WebMCP: Failed to inject registerTools.js', e);
+      logger(['error'], ['WebMCP: Failed to inject registerTools.js', e]);
     }
 
     async function setupToolChangeListener() {
@@ -64,14 +64,20 @@ try {
 
       const capabilities = client.getServerCapabilities();
 
-      console.log(
-        '[MCP Proxy] Server supports tool list change notifications',
-        capabilities
+      logger(
+        ['debug'],
+        [
+          '[MCP Proxy] Server supports tool list change notifications',
+          capabilities,
+        ]
       );
       client.setNotificationHandler(
         ToolListChangedNotificationSchema,
         async () => {
-          console.log('[MCP Proxy] Received tool list change notification');
+          logger(
+            ['error'],
+            ['[MCP Proxy] Received tool list change notification']
+          );
           await sendToolUpdate(MESSAGE_TYPES.UPDATE);
         }
       );
@@ -83,15 +89,19 @@ try {
      */
     async function sendToolUpdate(updateType: string) {
       if (!backgroundPort) {
-        console.log('[MCP Proxy] No background port to send tool update');
+        logger(
+          ['warn'],
+          ['[MCP Proxy] No background port to send tool update']
+        );
         return;
       }
 
       try {
         const { tools } = await client.listTools();
 
-        console.log(
-          `[MCP Proxy] Sending ${tools.length} tools with type: ${updateType}`
+        logger(
+          ['debug'],
+          [`[MCP Proxy] Sending ${tools.length} tools with type: ${updateType}`]
         );
 
         const message: ToolUpdateMessage = {
@@ -106,7 +116,7 @@ try {
 
         backgroundPort.postMessage(message);
       } catch (error) {
-        console.error('[MCP Proxy] Failed to send tool update:', error);
+        logger(['error'], ['[MCP Proxy] Failed to send tool update:', error]);
       }
     }
 
