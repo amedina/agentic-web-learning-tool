@@ -9,11 +9,17 @@ import {
 } from '@google-awlt/design-system';
 import { PlusIcon } from 'lucide-react';
 import { useState } from 'react';
+/**
+ * Internal dependencies
+ */
 import { useMcpProvider } from '../../providers';
 import { MCPServerCard } from './mcpServerCard';
 
 export default function MCPServersTab() {
-  const [isDialogOpen, setIsDialogOpen] = useState('');
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [dialogType, setDialogType] = useState('');
+  const [selectedServer, setSelectedServer] = useState<string>('');
+
   const {
     serverConfigs,
     addServer,
@@ -29,7 +35,7 @@ export default function MCPServersTab() {
     removeConfig: actions.removeConfig,
     handleToggle: actions.handleToggle,
   }));
-  const [selectedServer, setSelectedServer] = useState<string>('');
+
   return (
     <OptionsPageTab
       title="MCPServers"
@@ -40,8 +46,8 @@ export default function MCPServersTab() {
           <Button
             className="shadow-sm hover:shadow-md transition-all gap-2 bg-gray-900 hover:bg-gray-800 text-white"
             onClick={() => {
-              setIsDialogOpen('config');
-              setSelectedServer('');
+              setIsDialogOpen(true);
+              setDialogType('config');
             }}
           >
             <PlusIcon size={16} />
@@ -52,14 +58,16 @@ export default function MCPServersTab() {
           {Object.keys(serverConfigs).map((server) => (
             <MCPServerCard
               onView={() => {
-                setIsDialogOpen('tools');
+                setIsDialogOpen(true);
+                setDialogType('tools');
                 setSelectedServer(server);
               }}
               server={serverConfigs[server]}
               key={server}
               tools={toolList[server] ?? []}
               onEdit={() => {
-                setIsDialogOpen('config');
+                setIsDialogOpen(true);
+                setDialogType('config');
                 setSelectedServer(server);
               }}
               onToggle={(value) => handleToggle(server, value)}
@@ -69,14 +77,15 @@ export default function MCPServersTab() {
         {isDialogOpen && (
           <MCPServerDialog
             toolList={toolList[selectedServer]}
-            open={Boolean(isDialogOpen)}
-            defaultTab={isDialogOpen}
+            open={isDialogOpen}
+            defaultTab={dialogType}
             onDelete={selectedServer ? removeConfig : undefined}
             onSave={addServer}
             validator={validator}
             onOpenChange={(value) => {
-              setIsDialogOpen('');
               if (!value) {
+                setIsDialogOpen(false);
+                setDialogType('');
                 setSelectedServer('');
               }
             }}

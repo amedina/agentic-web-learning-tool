@@ -679,7 +679,6 @@ class McpHub {
           isError: true,
         };
       }
-      console.log(domain);
       // Forward request to content script using RequestManager
       const response = await this.requestManager.create(port, {
         type: MESSAGE_TYPES.EXECUTE,
