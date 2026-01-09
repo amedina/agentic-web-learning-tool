@@ -108,23 +108,30 @@ const Provider = ({ children }: PropsWithChildren) => {
     [api, extractMatchAndReturnMessage]
   );
 
-  const onLocalStorageChangedListener = useCallback(async () => {
-    chrome.storage.local.get(
-      ['promptCommands', 'builtInPromptCommands'],
-      (result) => {
-        const userCommands = (result.promptCommands as PromptCommand[]) || [];
-        const storedBuiltIns =
-          (result.builtInPromptCommands as PromptCommand[]) || [];
-
-        const mergedBuiltIns = BUILT_IN_COMMANDS.map((m) => {
-          const found = storedBuiltIns.find((s) => s.name === m.name);
-          return { ...m, enabled: found ? found.enabled : true };
-        });
-
-        setAllCommands([...userCommands, ...mergedBuiltIns]);
+  const onLocalStorageChangedListener = useCallback(
+    async (changes: { [key: string]: chrome.storage.StorageChange }) => {
+      if (!changes?.builtInPromptCommands && !changes?.promptCommands) {
+        return;
       }
-    );
-  }, []);
+
+      chrome.storage.local.get(
+        ['promptCommands', 'builtInPromptCommands'],
+        (result) => {
+          const userCommands = (result.promptCommands as PromptCommand[]) || [];
+          const storedBuiltIns =
+            (result.builtInPromptCommands as PromptCommand[]) || [];
+
+          const mergedBuiltIns = BUILT_IN_COMMANDS.map((m) => {
+            const found = storedBuiltIns.find((s) => s.name === m.name);
+            return { ...m, enabled: found ? found.enabled : true };
+          });
+
+          setAllCommands([...userCommands, ...mergedBuiltIns]);
+        }
+      );
+    },
+    []
+  );
 
   useEffect(() => {
     intitialSync();

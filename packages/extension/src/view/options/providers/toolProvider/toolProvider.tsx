@@ -88,35 +88,46 @@ const Provider = ({ children }: PropsWithChildren) => {
     initialFetchDone.current = true;
   }, []);
 
-  const onLocalStorageChangedListener = useCallback(async () => {
-    const {
-      userWebMCPTools = [],
-      builtInWebMCPToolsState = {},
-      chromeAPIBuiltInToolsState = {},
-    }: {
-      userWebMCPTools: WebMCPTool[];
-      builtInWebMCPToolsState: Record<string, boolean>;
-      chromeAPIBuiltInToolsState: {
-        [key: string]: {
-          enabled: boolean;
-        };
-      };
-    } = await chrome.storage.local.get([
-      'userWebMCPTools',
-      'builtInWebMCPToolsState',
-      'chromeAPIBuiltInToolsState',
-    ]);
+  const onLocalStorageChangedListener = useCallback(
+    async (changes: { [key: string]: chrome.storage.StorageChange }) => {
+      if (
+        !changes?.userWebMCPTools &&
+        !changes?.builtInWebMCPToolsState &&
+        !changes?.chromeAPIBuiltInToolsState
+      ) {
+        return;
+      }
 
-    setUserTools(userWebMCPTools);
-    const states = builtInWebMCPToolsState;
-    setBuiltInTools((prev) =>
-      prev.map((t) => ({
-        ...t,
-        enabled: states[t.name] !== undefined ? states[t.name] : true,
-      }))
-    );
-    setChromeAPIBuiltInToolsState(chromeAPIBuiltInToolsState);
-  }, []);
+      const {
+        userWebMCPTools = [],
+        builtInWebMCPToolsState = {},
+        chromeAPIBuiltInToolsState = {},
+      }: {
+        userWebMCPTools: WebMCPTool[];
+        builtInWebMCPToolsState: Record<string, boolean>;
+        chromeAPIBuiltInToolsState: {
+          [key: string]: {
+            enabled: boolean;
+          };
+        };
+      } = await chrome.storage.local.get([
+        'userWebMCPTools',
+        'builtInWebMCPToolsState',
+        'chromeAPIBuiltInToolsState',
+      ]);
+
+      setUserTools(userWebMCPTools);
+      const states = builtInWebMCPToolsState;
+      setBuiltInTools((prev) =>
+        prev.map((t) => ({
+          ...t,
+          enabled: states[t.name] !== undefined ? states[t.name] : true,
+        }))
+      );
+      setChromeAPIBuiltInToolsState(chromeAPIBuiltInToolsState);
+    },
+    []
+  );
 
   useEffect(() => {
     intitialSync();

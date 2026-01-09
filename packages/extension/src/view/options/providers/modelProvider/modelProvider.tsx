@@ -27,12 +27,19 @@ const Provider = ({ children }: PropsWithChildren) => {
     initialFetchDone.current = true;
   }, []);
 
-  const onSyncStorageChangedListener = useCallback(async () => {
-    const { apiKeys = {} }: { apiKeys: { [key: string]: APIKeys } } =
-      await chrome.storage.sync.get('apiKeys');
+  const onSyncStorageChangedListener = useCallback(
+    async (changes: { [key: string]: chrome.storage.StorageChange }) => {
+      if (!changes.apiKeys) {
+        return;
+      }
 
-    setApiKeys(apiKeys);
-  }, []);
+      const { apiKeys = {} }: { apiKeys: { [key: string]: APIKeys } } =
+        await chrome.storage.sync.get('apiKeys');
+
+      setApiKeys(apiKeys);
+    },
+    []
+  );
 
   useEffect(() => {
     intitialSync();
