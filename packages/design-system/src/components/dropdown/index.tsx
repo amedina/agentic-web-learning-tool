@@ -196,7 +196,7 @@ export default function DropDown({
                   )}
                   {submenuGroup.items.map((subItem) => (
                     <DropDownMenuItem
-                      key={subItem.label}
+                      key={subItem.id}
                       className="leading-[1.2]"
                       asChild
                       onSelect={() => handleSelect(subItem.id)}
@@ -298,7 +298,7 @@ export default function DropDown({
                     </DropDownMenuLabel>
                   )}
                   {group.items.map((item) => (
-                    <div data-testid="dropdown-item" key={item.label}>
+                    <div data-testid="dropdown-item" key={item.id}>
                       {renderDropDownMenu(item)}
                     </div>
                   ))}

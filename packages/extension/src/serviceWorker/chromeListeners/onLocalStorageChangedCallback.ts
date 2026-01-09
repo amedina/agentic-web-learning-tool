@@ -11,7 +11,6 @@ const onLocalStorageChangedCallback = (mcpHub: McpHub) => {
   chrome.storage.local.get('mcpServers', async ({ mcpServers }: MCPConfig) => {
     await Promise.all(
       Object.keys(mcpServers ?? {}).map(async (serverName) => {
-        console.log(mcpServers);
         if (!serverName) {
           return Promise.resolve();
         }

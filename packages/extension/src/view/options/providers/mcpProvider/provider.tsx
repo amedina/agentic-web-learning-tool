@@ -15,11 +15,12 @@ import {
   StreamableHTTPClientTransport,
   StreamableHTTPError,
 } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
+import { toast } from '@google-awlt/design-system';
 /**
  * Internal dependencies
  */
 import MCPContext, { type MCPProviderContextType } from './context';
-import { toast } from '@google-awlt/design-system';
+import { logger } from '../../../../utils';
 
 const Provider = ({ children }: PropsWithChildren) => {
   // We use a functional update to ensure we always have a fresh Map
@@ -68,6 +69,7 @@ const Provider = ({ children }: PropsWithChildren) => {
         const toolsList = await client.listTools();
 
         if (doNotStoreTools) {
+          toast.success('Config successfully validated.');
           return;
         }
 
@@ -75,9 +77,18 @@ const Provider = ({ children }: PropsWithChildren) => {
           ...prev,
           [serverName]: toolsList.tools,
         }));
+        toast.success('MCP Server successfully added to extension');
       } catch (error) {
-        //@ts-expect-error -- message extends error
-        return (error as typeof StreamableHTTPError)?.message;
+        const errorMessage =
+          //@ts-expect-error -- message extends error
+          (error as typeof StreamableHTTPError)?.message ??
+          'Error fetching tools from MCP Server.';
+
+        if (doNotStoreTools) {
+          return errorMessage;
+        }
+
+        toast.error(errorMessage);
       }
     },
     [toolList]
@@ -168,20 +179,28 @@ const Provider = ({ children }: PropsWithChildren) => {
 
       if (
         (!config.authToken || config.authToken.trim().length === 0) &&
-        config.url.startsWith('http://localhost')
+        config.url.startsWith('http://localhost') &&
+        errors.length === 0
       ) {
         errors.push('authToken is required.');
       }
 
-      if (!config.url) {
+      if (!config.url && errors.length === 0) {
         errors.push('Server URL is required.');
       } else {
         try {
           new URL(config.url);
         } catch (_error) {
-          console.log(_error);
+          logger(['error'], [_error]);
           errors.push('Invalid URL format.' + _error);
         }
+      }
+
+      if (errors.length > 1) {
+        return {
+          errors,
+          isValid: errors.length === 0,
+        };
       }
 
       const result = await createClientAndListTools(config, serverName, true);

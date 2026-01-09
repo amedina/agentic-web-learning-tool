@@ -1,12 +1,11 @@
 /**
  * External dependencies.
  */
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { X, TrashIcon, SaveIcon, FlaskConical, Loader2 } from 'lucide-react';
 import type { MCPServerConfig } from '@google-awlt/common';
 import type { Tool } from '@modelcontextprotocol/sdk/types.js';
-
 /**
  * Internal dependencies.
  */
@@ -14,6 +13,7 @@ import { Button } from '../button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../tabs';
 import { ConfigInput } from './configInput';
 import { ToolDisplay } from './toolDisplay';
+import { toast } from 'sonner';
 
 interface MCPServerDialogProps {
   open: boolean;
@@ -41,7 +41,7 @@ const initialState: MCPServerConfig = {
 export function MCPServerDialog({
   open,
   onOpenChange,
-  server,
+  server = initialState,
   serverId,
   toolList = [],
   onSave,
@@ -49,22 +49,19 @@ export function MCPServerDialog({
   validator,
   defaultTab = 'config',
 }: MCPServerDialogProps) {
-  const [config, setConfig] = useState(initialState);
+  const [config, setConfig] = useState({ ...server });
   const [isValidConfig, setIsValidConfig] = useState<boolean>(false);
   const [isAddingConfig, setIsAddingConfig] = useState<boolean>(false);
   const [isValidatingConfig, setIsValidatingConfig] = useState<boolean>(false);
 
-  useEffect(() => {
-    if (open) {
-      if (serverId) {
-        setConfig(server);
-      }
-    }
-  }, [open, server]);
-
   const handleValidate = useCallback(async () => {
     setIsValidatingConfig(true);
-    const { isValid } = await validator(config, config.name);
+    const { isValid, errors } = await validator(config, config.name);
+    if (errors.length > 0) {
+      errors.forEach((errorMessage) => {
+        toast.error(errorMessage);
+      });
+    }
     setIsValidatingConfig(false);
     setIsValidConfig(isValid);
   }, [config]);
@@ -86,17 +83,40 @@ export function MCPServerDialog({
     onDelete(serverId);
   }, [serverId, onDelete]);
 
-  useEffect(() => {
-    if (!server || !config) {
+  const criticalFieldsChanged = useMemo(() => {
+    if (!server || Object.keys(config).length === 0) {
       return;
     }
 
-    if (JSON.stringify(config) !== JSON.stringify(server)) {
-      setIsValidConfig(false);
-    } else {
-      setIsValidConfig(true);
-    }
+    return (
+      config.name !== server.name ||
+      config.authToken !== server.authToken ||
+      config.url !== server.url
+    );
   }, [config, server]);
+
+  const updateEnabled = useMemo(() => {
+    if (criticalFieldsChanged) {
+      return isValidConfig;
+    }
+
+    // Only non-critical changes (enabled / Transport)
+    return config.enabled !== server.enabled;
+  }, [criticalFieldsChanged, isValidConfig, config, server]);
+
+  const handleChange = useCallback((key: string, value: string | boolean) => {
+    setConfig((prev) => {
+      const updated = { ...prev, [key]: value };
+
+      if (['name', 'authToken', 'url'].includes(key)) {
+        setIsValidConfig(false);
+      }
+
+      return updated;
+    });
+  }, []);
+
+  const validateEnabled = criticalFieldsChanged && !isValidConfig;
 
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
@@ -133,7 +153,7 @@ export function MCPServerDialog({
                   </TabsTrigger>
                 </TabsList>
                 <TabsContent value="config">
-                  <ConfigInput config={config} setConfig={setConfig} />
+                  <ConfigInput config={config} setConfig={handleChange} />
                 </TabsContent>
                 <TabsContent value="tools">
                   <ToolDisplay toolList={toolList} />
@@ -154,11 +174,11 @@ export function MCPServerDialog({
                   <Button variant="outline">Cancel</Button>
                 </Dialog.Close>
                 <Button
-                  className={`${!isValidConfig ? 'bg-amber-600 hover:bg-amber-500' : 'bg-green-600 hover:bg-green-700'} gap-2`}
+                  className={`${validateEnabled ? 'bg-amber-600 hover:bg-amber-500' : 'bg-green-600 hover:bg-green-700'} gap-2`}
                   onClick={handleValidate}
-                  disabled={isValidConfig || isValidatingConfig}
+                  disabled={!validateEnabled || isValidatingConfig}
                 >
-                  {isAddingConfig ? (
+                  {isValidatingConfig ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   ) : (
                     <FlaskConical size={16} />
@@ -166,12 +186,9 @@ export function MCPServerDialog({
                   Validate
                 </Button>
                 <Button
-                  className={`${isValidConfig ? 'bg-blue-600 hover:bg-blue-700' : 'bg-blue-600 hover:bg-blue-700'} ${JSON.stringify(config) === JSON.stringify(server) ? 'opacity-50 cursor-not-allowed' : ''} gap-2`}
+                  className={`bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed gap-2`}
                   onClick={handleSave}
-                  disabled={
-                    !isValidConfig &&
-                    JSON.stringify(config) === JSON.stringify(server)
-                  }
+                  disabled={!updateEnabled}
                 >
                   {isAddingConfig ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

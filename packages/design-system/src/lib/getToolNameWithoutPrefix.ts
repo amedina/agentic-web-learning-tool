@@ -38,7 +38,7 @@ function getToolNameWithoutPrefix(toolName: string) {
 
   if (toolName.startsWith(extensionToolNamePrefix)) {
     toolNameWithoutHardCodePrefix = toolName.substring(
-      extensionToolNamePrefix.length - 1
+      extensionToolNamePrefix.length
     );
     return toolNameWithoutHardCodePrefix;
   }

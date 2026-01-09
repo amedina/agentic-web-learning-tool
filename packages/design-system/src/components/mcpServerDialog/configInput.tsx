@@ -1,7 +1,6 @@
 /**
  * External dependencies.
  */
-import { type Dispatch, type SetStateAction } from 'react';
 import { Link, Lock, Text } from 'lucide-react';
 import type { MCPServerConfig } from '@google-awlt/common';
 
@@ -14,7 +13,7 @@ import ToggleSwitch from '../toggleSwitch';
 
 interface MCPServerConfigInput {
   config: MCPServerConfig;
-  setConfig: Dispatch<SetStateAction<MCPServerConfig>>;
+  setConfig: (key: string, value: string | boolean) => void;
 }
 
 export function ConfigInput({ config, setConfig }: MCPServerConfigInput) {
@@ -25,12 +24,7 @@ export function ConfigInput({ config, setConfig }: MCPServerConfigInput) {
           <Input
             type="text"
             value={config.name}
-            onChange={(e) =>
-              setConfig((prev) => ({
-                ...prev,
-                name: e.target.value,
-              }))
-            }
+            onChange={(e) => setConfig('name', e.target.value)}
             className="bg-transparent border-darth-vader text-accent-foreground transition-all w-full pl-3 pr-9 py-2 rounded-md text-sm font-mono"
             placeholder="Github"
           />
@@ -42,12 +36,7 @@ export function ConfigInput({ config, setConfig }: MCPServerConfigInput) {
           <Input
             type="text"
             value={config.url}
-            onChange={(e) =>
-              setConfig((prev) => ({
-                ...prev,
-                url: e.target.value,
-              }))
-            }
+            onChange={(e) => setConfig('url', e.target.value)}
             className="bg-transparent border-darth-vader text-accent-foreground transition-all w-full pl-3 pr-9 py-2 rounded-md text-sm font-mono"
             placeholder="https://api.githubcopilot.com/mcp"
           />
@@ -59,12 +48,7 @@ export function ConfigInput({ config, setConfig }: MCPServerConfigInput) {
           <Input
             type="text"
             value={config.authToken}
-            onChange={(e) =>
-              setConfig((prev) => ({
-                ...prev,
-                authToken: e.target.value,
-              }))
-            }
+            onChange={(e) => setConfig('authToken', e.target.value)}
             className="bg-transparent border-darth-vader text-accent-foreground transition-all w-full pl-3 pr-9 py-2 rounded-md text-sm font-mono"
             placeholder="github_pa..."
           />
@@ -76,13 +60,7 @@ export function ConfigInput({ config, setConfig }: MCPServerConfigInput) {
           <ToggleSwitch
             checked={config.enabled}
             className="data-[state=checked]:bg-green-400"
-            onCheckedChange={(value) =>
-              setConfig((prev) => {
-                const newValue = prev;
-                newValue['enabled'] = value;
-                return newValue;
-              })
-            }
+            onCheckedChange={(value) => setConfig('enabled', value)}
           />
         </div>
       </InputGroup>
