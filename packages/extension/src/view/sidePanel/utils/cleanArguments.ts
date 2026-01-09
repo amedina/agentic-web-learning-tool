@@ -8,9 +8,9 @@ import type { ToolExecutionArgs } from '../types';
  * specific LLMs/Transports fail if nulls are passed explicitly.
  */
 function cleanArguments(args: ToolExecutionArgs): ToolExecutionArgs {
-	return Object.fromEntries(
-		Object.entries(args).filter(([, v]) => v !== null && v !== undefined)
-	);
+  return Object.fromEntries(
+    Object.entries(args).filter(([, v]) => v !== null && v !== undefined)
+  );
 }
 
 export default cleanArguments;

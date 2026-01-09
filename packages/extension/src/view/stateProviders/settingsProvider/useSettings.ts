@@ -16,11 +16,11 @@ export function useSettings<T>(selector: (state: SettingsContextProps) => T): T;
  * @returns selected part of the state
  */
 export function useSettings<T>(
-	selector: (state: SettingsContextProps) => T | SettingsContextProps = (
-		state
-	) => state
+  selector: (state: SettingsContextProps) => T | SettingsContextProps = (
+    state
+  ) => state
 ) {
-	return useContextSelector(Context, selector);
+  return useContextSelector(Context, selector);
 }
 
 export default useSettings;

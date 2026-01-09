@@ -9,7 +9,7 @@ import Context, { type MCPProviderContextType } from './context';
 
 export function useMcpProvider(): MCPProviderContextType;
 export function useMcpProvider<T>(
-	selector: (state: MCPProviderContextType) => T
+  selector: (state: MCPProviderContextType) => T
 ): T;
 
 /**
@@ -18,11 +18,11 @@ export function useMcpProvider<T>(
  * @returns selected part of the state
  */
 export function useMcpProvider<T>(
-	selector: (state: MCPProviderContextType) => T | MCPProviderContextType = (
-		state
-	) => state
+  selector: (state: MCPProviderContextType) => T | MCPProviderContextType = (
+    state
+  ) => state
 ) {
-	return useContextSelector(Context, selector);
+  return useContextSelector(Context, selector);
 }
 
 export default useMcpProvider;
