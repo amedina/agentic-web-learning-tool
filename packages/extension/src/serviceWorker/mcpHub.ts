@@ -30,7 +30,7 @@ import {
  */
 class McpHub {
   private server: McpServer;
-  private clientList = new Map<
+  clientList = new Map<
     string,
     {
       client: Client;
@@ -58,9 +58,11 @@ class McpHub {
     this.setupConnections();
     this.trackActiveTab();
     this.registerAllExtensionTools();
-    chrome.storage.local.onChanged.addListener(() =>
-      this.onLocalStoreChangedListener()
-    );
+    chrome.storage.local.onChanged.addListener((changes) => {
+      if (changes?.chromeAPIBuiltInToolsState) {
+        this.onLocalStoreChangedListener();
+      }
+    });
   }
 
   async fetchLocalStorageAndRegisterTools() {
@@ -187,6 +189,22 @@ class McpHub {
     }
 
     return apiStatuses;
+  }
+
+  async removeMCPServer(serverName: string) {
+    Array.from(this.registeredTools.entries()).map(
+      ([toolName, registeredTool]) => {
+        if (toolName.startsWith(serverName)) {
+          this.registeredTools.delete(toolName);
+          registeredTool.remove();
+        }
+      }
+    );
+    this.clientList.delete(serverName);
+    this.server.server?.transport?.send({
+      jsonrpc: '2.0',
+      method: 'get/Tools',
+    });
   }
 
   async addNewServer(serverConfig: MCPServerConfig, serverName: string) {
@@ -636,8 +654,7 @@ class McpHub {
           isError: true,
         };
       }
-      console.log(serverName, toolName);
-      console.log(args);
+
       const response = await connector.client.callTool({
         name: toolName,
         arguments: args ?? {},
@@ -915,7 +932,6 @@ class McpHub {
             ...module.metadata,
             execute: module.execute,
           };
-          console.log(mcp);
           console.log('WebMCP: Tool to register:', toolToRegister);
           // 4. Register
           if (mcp) {

@@ -28,8 +28,26 @@ chrome.sidePanel
 
 // Initialize the MCP Server and Hub
 const mcpHub = new McpHub(sharedServer);
-chrome.storage.local.onChanged.addListener(() =>
-  onLocalStorageChangedCallback(mcpHub)
+chrome.storage.local.onChanged.addListener(
+  (changes: { [key: string]: chrome.storage.StorageChange }) => {
+    if (!changes?.mcpServers) {
+      return;
+    }
+
+    const { newValue = {}, oldValue = {} } = changes?.mcpServers as unknown as {
+      newValue: Record<string, any>;
+      oldValue: Record<string, any>;
+    };
+
+    console.log(oldValue, changes?.mcpServers, Object.keys(oldValue));
+    Object.keys(oldValue).map((key) => {
+      if (!newValue?.[key]) {
+        mcpHub.removeMCPServer(key);
+      }
+    });
+
+    onLocalStorageChangedCallback(mcpHub);
+  }
 );
 
 chrome.runtime.onConnect.addListener(async (port) => {
