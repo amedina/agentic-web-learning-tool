@@ -104,7 +104,7 @@ export function MCPServerDialog({
         <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50" />
         <Dialog.Content
           aria-describedby={undefined}
-          className="fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] w-[90vw] max-h-[90vh] bg-background text-foreground border border-gray-200 rounded-xl shadow-2xl z-50 flex flex-col overflow-hidden"
+          className="fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] w-[70vw] max-h-[90vh] bg-background text-foreground border border-gray-200 rounded-xl shadow-2xl z-50 flex flex-col overflow-hidden"
         >
           <div className="flex items-center justify-between px-6 py-4 bg-background">
             <div className="flex items-center gap-3">
@@ -141,7 +141,7 @@ export function MCPServerDialog({
               </Tabs>
             </div>
 
-            <div className="p-6 max-md:flex-col max-md:items-start bg-background flex-none flex items-center justify-between gap-4">
+            <div className="py-6 max-md:flex-col max-md:items-start bg-background flex-none flex items-center justify-between gap-4">
               <div className="flex-1">
                 {server && onDelete && (
                   <Button variant="destructive" onClick={handleDelete}>

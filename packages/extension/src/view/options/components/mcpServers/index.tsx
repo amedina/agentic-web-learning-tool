@@ -39,7 +39,7 @@ export default function MCPServersTab() {
   return (
     <OptionsPageTab
       title="MCPServers"
-      description="Add MCP Servers and use them in sidepanel."
+      description="Add MCP servers and use them in sidepanel."
     >
       <OptionsPageTabSection title="MCP Servers">
         <div className="flex justify-end">

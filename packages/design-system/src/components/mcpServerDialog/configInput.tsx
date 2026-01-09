@@ -32,7 +32,7 @@ export function ConfigInput({ config, setConfig }: MCPServerConfigInput) {
               }))
             }
             className="bg-transparent border-darth-vader text-accent-foreground transition-all w-full pl-3 pr-9 py-2 rounded-md text-sm font-mono"
-            placeholder="www.github.com"
+            placeholder="Github"
           />
           <Link className="absolute right-3 top-2.5 w-4 h-4 text-exclusive-plum" />
         </div>
@@ -49,7 +49,7 @@ export function ConfigInput({ config, setConfig }: MCPServerConfigInput) {
               }))
             }
             className="bg-transparent border-darth-vader text-accent-foreground transition-all w-full pl-3 pr-9 py-2 rounded-md text-sm font-mono"
-            placeholder="www.github.com"
+            placeholder="https://api.githubcopilot.com/mcp"
           />
           <Link className="absolute right-3 top-2.5 w-4 h-4 text-exclusive-plum" />
         </div>
@@ -66,12 +66,12 @@ export function ConfigInput({ config, setConfig }: MCPServerConfigInput) {
               }))
             }
             className="bg-transparent border-darth-vader text-accent-foreground transition-all w-full pl-3 pr-9 py-2 rounded-md text-sm font-mono"
-            placeholder="sk-..."
+            placeholder="github_pa..."
           />
           <Lock className="absolute right-3 top-2.5 w-4 h-4 text-exclusive-plum" />
         </div>
       </InputGroup>
-      <InputGroup label="Status">
+      <InputGroup label="Status" className="flex gap-2 items-center mt-3">
         <div className="relative">
           <ToggleSwitch
             checked={config.enabled}
