@@ -10,7 +10,7 @@ import './index.css';
 import Popup from './popup';
 
 createRoot(document.getElementById('root')!).render(
-	<StrictMode>
-		<Popup />
-	</StrictMode>
+  <StrictMode>
+    <Popup />
+  </StrictMode>
 );

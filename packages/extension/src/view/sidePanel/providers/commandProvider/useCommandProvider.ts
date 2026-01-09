@@ -9,7 +9,7 @@ import Context, { type CommandProviderContextType } from './context';
 
 export function useCommandProvider(): CommandProviderContextType;
 export function useCommandProvider<T>(
-	selector: (state: CommandProviderContextType) => T
+  selector: (state: CommandProviderContextType) => T
 ): T;
 
 /**
@@ -18,11 +18,11 @@ export function useCommandProvider<T>(
  * @returns selected part of the state
  */
 export function useCommandProvider<T>(
-	selector: (
-		state: CommandProviderContextType
-	) => T | CommandProviderContextType = (state) => state
+  selector: (
+    state: CommandProviderContextType
+  ) => T | CommandProviderContextType = (state) => state
 ) {
-	return useContextSelector(Context, selector);
+  return useContextSelector(Context, selector);
 }
 
 export default useCommandProvider;

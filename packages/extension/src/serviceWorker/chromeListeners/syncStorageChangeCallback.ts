@@ -4,5 +4,5 @@
 import { setLogLevelFromSyncSettings } from '../../utils';
 
 export default async function syncStorageChangeCallback() {
-	await setLogLevelFromSyncSettings();
+  await setLogLevelFromSyncSettings();
 }

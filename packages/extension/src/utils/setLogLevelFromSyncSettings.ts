@@ -8,6 +8,6 @@ import Logger from 'loglevel';
 import { settingsGetter } from './settingsGetter';
 
 export default async function setLogLevelFromSyncSettings() {
-	const { logLevel } = await settingsGetter();
-	Logger.setLevel(logLevel);
+  const { logLevel } = await settingsGetter();
+  Logger.setLevel(logLevel);
 }

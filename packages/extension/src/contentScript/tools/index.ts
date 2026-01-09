@@ -1,3 +1,6 @@
+/**
+ * Internal dependencies
+ */
 import changeBgColor from './changeBgColor';
 import getPageTitle from './getPageTitle';
 

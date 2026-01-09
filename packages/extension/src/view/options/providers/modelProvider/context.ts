@@ -8,15 +8,15 @@ import { createContext } from '@google-awlt/common';
 import type { APIKeys } from '../../../../types';
 
 export interface ModelProviderStoreContext {
-	state: {
-		apiKeys: { [key: string]: APIKeys };
-	};
+  state: {
+    apiKeys: { [key: string]: APIKeys };
+  };
 }
 
 const initialState: ModelProviderStoreContext = {
-	state: {
-		apiKeys: {},
-	},
+  state: {
+    apiKeys: {},
+  },
 };
 
 export default createContext<ModelProviderStoreContext>(initialState);

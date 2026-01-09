@@ -4,3 +4,4 @@ export { default as setLogLevelFromSyncSettings } from './setLogLevelFromSyncSet
 export * from './settingsGetter';
 export * from './jsonSchemaToZod';
 export { default as settingsValidator } from './settingsValidator';
+export * from './jsonSchemaToZod';
