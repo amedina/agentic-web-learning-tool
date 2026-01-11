@@ -41,13 +41,20 @@ function SettingsProvider({
     setLogLevel('SILENT');
   }, []);
 
-  const syncStorageChangedListener = useCallback(() => {
-    if (!initialFetch.current || view === 'options') {
-      return;
-    }
+  const syncStorageChangedListener = useCallback(
+    (changes: { [key: string]: chrome.storage.StorageChange }) => {
+      if (!initialFetch.current || view === 'options') {
+        return;
+      }
 
-    fetchAndUpdateSettings();
-  }, [fetchAndUpdateSettings]);
+      if (!changes.logLevel && !changes.theme) {
+        return;
+      }
+
+      fetchAndUpdateSettings();
+    },
+    [fetchAndUpdateSettings]
+  );
 
   const handleChange = useCallback(() => {
     if (!window.matchMedia) {

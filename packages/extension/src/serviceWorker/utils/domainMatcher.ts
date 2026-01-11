@@ -42,7 +42,6 @@ function isDomainAllowed(url: string, allowedDomains?: string[]): boolean {
       // Also handles explicit wildcards (e.g. "*.google.com")
       const suffix = pattern.startsWith('*.') ? pattern.slice(2) : pattern;
       return hostname === suffix || hostname.endsWith('.' + suffix);
-
     });
   } catch {
     return false;

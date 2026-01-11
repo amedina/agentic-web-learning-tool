@@ -30,8 +30,8 @@ export default function ThemeToggleSection({
         <div className="flex p-1 bg-extreme-zinc rounded-lg">
           {[
             { id: 'light', icon: Sun, label: 'Light' },
-            { id: 'auto', icon: Monitor, label: 'Auto' },
             { id: 'dark', icon: Moon, label: 'Dark' },
+            { id: 'auto', icon: Monitor, label: 'Auto' },
           ].map((mode) => {
             const isActive = theme === mode.id;
             const Icon = mode.icon;

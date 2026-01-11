@@ -13,18 +13,11 @@ export const MESSAGE_TYPES = {
 
 export const LOG_OPTS = [
   {
-    id: 'TRACE',
-    label: 'Trace',
-    color: 'bg-status-trace',
-    desc: 'All events',
-  },
-  {
     id: 'DEBUG',
     label: 'Debug',
     color: 'bg-status-debug',
     desc: 'Detailed ops',
   },
-  { id: 'INFO', label: 'Info', color: 'bg-status-info', desc: 'Key events' },
   {
     id: 'WARN',
     label: 'Warn',

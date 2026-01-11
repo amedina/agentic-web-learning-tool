@@ -15,4 +15,5 @@ export { default as OptionsPageTab } from './optionsPageTab';
 export { default as OptionsPageTabSection } from './optionsPageTab/optionsPageTabSection';
 export * from './promptCommands';
 export { default as Accordion } from './accordion';
+export * from './mcpServerDialog';
 export { default as Toaster, toast } from './toast';

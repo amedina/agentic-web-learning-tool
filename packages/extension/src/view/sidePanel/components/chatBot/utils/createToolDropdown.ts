@@ -20,11 +20,15 @@ type GroupedTool = {
     key: string;
     isWebSiteTool: boolean;
     isExtensionTool: boolean;
+    isMCPTool: boolean;
     items: McpTool[];
   };
 };
 
-const createToolDropdown = (tools: McpTool[]) => {
+const createToolDropdown = (
+  tools: McpTool[],
+  toolNameToMCPMap: Record<string, string>
+) => {
   const toolGroups: SingleGroupTool[] = [];
 
   const toolToTypeMap = tools.reduce((acc, tool) => {
@@ -49,6 +53,7 @@ const createToolDropdown = (tools: McpTool[]) => {
         acc[result] = {
           group: result,
           key: result,
+          isMCPTool: false,
           isWebSiteTool: true,
           isExtensionTool: false,
           items: [tool],
@@ -74,8 +79,28 @@ const createToolDropdown = (tools: McpTool[]) => {
         acc[result] = {
           group: result,
           key: result,
+          isMCPTool: false,
           isWebSiteTool: false,
           isExtensionTool: true,
+          items: [tool],
+        };
+      }
+    } else if (tool.name.includes('_mcp')) {
+      const match = tool.name.match(/^.*?(?=_mcp_)/);
+      const mcpServerName =
+        match && toolNameToMCPMap[match[0]]
+          ? toolNameToMCPMap[match[0]]
+          : 'others';
+
+      if (acc[mcpServerName]) {
+        acc[mcpServerName].items.push(tool);
+      } else {
+        acc[mcpServerName] = {
+          group: mcpServerName,
+          key: mcpServerName,
+          isMCPTool: true,
+          isWebSiteTool: false,
+          isExtensionTool: false,
           items: [tool],
         };
       }
@@ -87,6 +112,7 @@ const createToolDropdown = (tools: McpTool[]) => {
           group: 'others',
           key: 'others',
           isWebSiteTool: true,
+          isMCPTool: false,
           isExtensionTool: false,
           items: [tool],
         };
@@ -97,6 +123,19 @@ const createToolDropdown = (tools: McpTool[]) => {
 
   Object.keys(toolToTypeMap).forEach((key) => {
     if (toolToTypeMap[key].isWebSiteTool) {
+      toolGroups.push({
+        group: toolToTypeMap[key].group,
+        key: toolToTypeMap[key].key,
+        items: toolToTypeMap[key].items.map((tool) => ({
+          id: tool.name,
+          label: getToolNameWithoutPrefix(tool.name) ?? '',
+        })),
+      });
+    }
+  });
+
+  Object.keys(toolToTypeMap).forEach((key) => {
+    if (toolToTypeMap[key].isMCPTool) {
       toolGroups.push({
         group: toolToTypeMap[key].group,
         key: toolToTypeMap[key].key,

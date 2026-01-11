@@ -29,36 +29,6 @@ interface PromptOptions {
   responseConstraint?: any;
 }
 
-interface LanguageModelSession {
-  promptStreaming(
-    prompt: {
-      role: string;
-      content: any;
-    }[]
-  ): AsyncIterable<string>;
-  prompt(
-    prompt: {
-      role: string;
-      content: any;
-    }[],
-    promptOptions: Record<string, any>
-  ): Promise<string>;
-  destroy: () => void;
-}
-
-interface LanguageModelFactory {
-  availability(): Promise<
-    'available' | 'readily' | 'after-download' | 'unavailable'
-  >;
-  create(args: Record<string, any>): Promise<LanguageModelSession>;
-}
-
-declare global {
-  interface Window {
-    // Current experimental API shape
-    LanguageModel: LanguageModelFactory;
-  }
-}
 interface LanguageModelV2CallOptions {
   temperature?: number;
   topK?: number;
@@ -76,7 +46,7 @@ interface LanguageModelV2CallOptions {
  * 3. Streaming parsing to detect those fences and emit structured tool events instead of raw text
  */
 class ChromeAILanguageModel {
-  private session: LanguageModelSession | null = null;
+  private session: LanguageModel | null = null;
   private runtime: AssistantRuntime | null = null;
   private formattedTools: any[] = [];
 
@@ -115,7 +85,7 @@ class ChromeAILanguageModel {
     }
 
     // Use global window object for Chrome AI
-    const lm = window.LanguageModel;
+    const lm = LanguageModel;
     if (!lm) {
       throw new Error(
         'Chrome LanguageModel API is not available in this browser.'
@@ -368,7 +338,6 @@ class ChromeAILanguageModel {
               // Start the browser stream
               activeStreamReader = this.session
                 .promptStreaming(messageContext)
-                //@ts-expect-error -- api unavailable hence the error
                 .getReader();
 
               // Parsing State

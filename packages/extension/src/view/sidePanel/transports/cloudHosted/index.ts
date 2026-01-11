@@ -11,9 +11,9 @@ import {
   type UIMessageChunk,
 } from 'ai';
 import {
-  type JSONSchema7,
   type LanguageModelV2,
   type SharedV2ProviderOptions,
+  type JSONSchema7,
 } from '@ai-sdk/provider';
 import type { AssistantRuntime } from '@assistant-ui/react';
 import {
@@ -33,9 +33,8 @@ import z from 'zod';
 /**
  * Internal dependencies
  */
-import logger from '../../../../utils/logger';
+import { jsonSchemaToZod, logger } from '../../../../utils';
 import replaceSlashCommands from '../replaceSlashCommands';
-import { jsonSchemaToZod } from '../../../../utils';
 
 type JsonSchemaObject = Record<string, unknown>;
 type SchemaInput = JsonSchemaObject | (() => JsonSchemaObject);
@@ -58,6 +57,7 @@ export type ModelInitializer =
   | typeof createOpenAI
   | typeof createAnthropic
   | typeof createGoogleGenerativeAI;
+
 export type ProviderSettings =
   | OllamaProviderSettings
   | OpenAIProviderSettings
@@ -131,13 +131,11 @@ export class CloudHostedTransport implements ChatTransport<UIMessage> {
     params: SendMessagesParams
   ): Promise<ReadableStream<UIMessageChunk>> {
     const { messages, abortSignal } = params;
-    //@ts-expect-error -- the command is being set from the chatbot
-    const _command = window.command;
-
     if (!this.runtime) {
       return new ReadableStream();
     }
-
+    //@ts-expect-error -- the command is being set from the chatbot
+    const _command = window.command;
     if (_command) {
       return replaceSlashCommands(_command, this.runtime);
     }
@@ -173,20 +171,24 @@ export class CloudHostedTransport implements ChatTransport<UIMessage> {
             },
             onAbort: (res) => {
               logger(
-                ['log', 'trace', 'info'],
+                ['debug'],
                 [`Stream aborted after ${res.steps.length} steps [chatId=]`]
               );
             },
             onStepFinish: (res) => {
               logger(
-                ['log', 'trace', 'debug'],
+                ['debug'],
                 [
                   `Step finished:`,
-                  {
-                    finishReason: res.finishReason,
-                    toolCalls: res.toolCalls?.length,
-                    tokens: res.usage.totalTokens,
-                  },
+                  JSON.stringify(
+                    {
+                      finishReason: res.finishReason,
+                      toolCalls: res.toolCalls?.length,
+                      tokens: res.usage.totalTokens,
+                    },
+                    null,
+                    2
+                  ),
                 ]
               );
             },

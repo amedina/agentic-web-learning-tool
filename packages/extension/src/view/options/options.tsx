@@ -7,7 +7,13 @@ import {
   Toaster,
   useSidebar,
 } from '@google-awlt/design-system';
-import { CpuIcon, CodeIcon, Settings2, MessageSquare } from 'lucide-react';
+import {
+  CpuIcon,
+  CodeIcon,
+  Settings2,
+  MessageSquare,
+  Server,
+} from 'lucide-react';
 import { useEffect } from 'react';
 
 /**
@@ -19,6 +25,7 @@ import {
   SettingsTab,
   PromptCommandsTab,
 } from './components';
+import MCPServersTab from './components/mcpServers';
 import { useSettings } from '../stateProviders';
 
 const Items = [
@@ -27,6 +34,12 @@ const Items = [
     id: 'agents',
     icon: () => <CpuIcon />,
     component: <AgentStudioTab />,
+  },
+  {
+    title: 'MCP Servers',
+    id: 'mcp-server',
+    icon: () => <Server />,
+    component: <MCPServersTab />,
   },
   {
     title: 'Prompt Commands',

@@ -12,7 +12,7 @@ import {
 } from 'ai';
 import { type LanguageModelV2 } from '@ai-sdk/provider';
 import type { AssistantRuntime } from '@assistant-ui/react';
-
+import { getToolNameWithoutPrefix } from '@google-awlt/design-system';
 /**
  * Internal dependencies
  */
@@ -64,7 +64,7 @@ export class GeminiNanoChatTransport implements ChatTransport<UIMessage> {
 
     this.isInitializing = true;
     try {
-      const lm = window.LanguageModel;
+      const lm = LanguageModel;
       if (!lm) {
         throw new Error(
           'Gemini Nano API (window.ai.languageModel) is not available.'
@@ -119,7 +119,7 @@ export class GeminiNanoChatTransport implements ChatTransport<UIMessage> {
         execute: value.execute,
         inputSchema: jsonSchemaToZod(value.parameters),
         parameters: value.parameters,
-        name: key,
+        name: getToolNameWithoutPrefix(key),
         type: 'function',
       },
     ]);
@@ -144,20 +144,24 @@ export class GeminiNanoChatTransport implements ChatTransport<UIMessage> {
             },
             onAbort: (res) => {
               logger(
-                ['warn', 'debug', 'trace', 'info'],
+                ['warn'],
                 [`Stream aborted after ${res.steps.length} steps [chatId=]`]
               );
             },
             onStepFinish: (res) => {
               logger(
-                ['info', 'debug'],
+                ['debug'],
                 [
                   `Step finished: `,
-                  {
-                    finishReason: res.finishReason,
-                    toolCalls: res.toolCalls?.length,
-                    tokens: res.usage.totalTokens,
-                  },
+                  JSON.stringify(
+                    {
+                      finishReason: res.finishReason,
+                      toolCalls: res.toolCalls?.length,
+                      tokens: res.usage.totalTokens,
+                    },
+                    null,
+                    2
+                  ),
                 ]
               );
             },

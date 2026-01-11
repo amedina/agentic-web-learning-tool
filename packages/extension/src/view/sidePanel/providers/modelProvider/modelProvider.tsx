@@ -12,7 +12,7 @@ import {
 import { McpClientProvider } from '@mcp-b/mcp-react-hooks';
 import { ExtensionClientTransport } from '@mcp-b/transports';
 import { Client } from '@modelcontextprotocol/sdk/client';
-
+import type { MCPServerConfig } from '@google-awlt/common';
 /**
  * Internal dependencies.
  */
@@ -41,6 +41,9 @@ const Provider = ({ children }: PropsWithChildren) => {
     modelProvider: 'browser-ai',
     model: 'prompt-api',
   });
+  const [toolNameToMCPMap, setToolNameToMCPMap] = useState<
+    Record<string, string>
+  >({});
 
   const [_transport, setTransport] = useState<
     GeminiNanoChatTransport | CloudHostedTransport | null
@@ -71,6 +74,20 @@ const Provider = ({ children }: PropsWithChildren) => {
       selectedAgent,
     });
   }, [selectedAgent]);
+
+  const fetchMCPServersAndCreateMapping = useCallback(async () => {
+    const { mcpServers }: { mcpServers: { [key: string]: MCPServerConfig } } =
+      await chrome.storage.local.get('mcpServers');
+
+    const mappedObject: Record<string, string> = {};
+
+    Object.keys(mcpServers).forEach((key) => {
+      mappedObject[key] = mcpServers[key].name;
+    });
+
+    setToolNameToMCPMap(mappedObject);
+  }, []);
+
   /**
    * Sets current frames for sidebar, detected if the current tab is to be analysed,
    * parses data currently in store, set current tab URL.
@@ -82,8 +99,19 @@ const Provider = ({ children }: PropsWithChildren) => {
     }: { apiKeys: { [key: string]: APIKeys }; selectedAgent: AgentType } =
       await chrome.storage.sync.get(['apiKeys', 'selectedAgent']);
 
+    await fetchMCPServersAndCreateMapping();
+
     setApiKeys(_apiKeys);
-    if (_selectedAgent.modelProvider === 'browser-ai') {
+
+    if (!_selectedAgent) {
+      setSelectedAgent({ model: 'prompt-api', modelProvider: 'browser-ai' });
+      setTransport(FALLBACK_AGENT);
+      (FALLBACK_AGENT as GeminiNanoChatTransport).initializeSession();
+      initialFetchDone.current = true;
+      return;
+    }
+
+    if (_selectedAgent?.modelProvider === 'browser-ai') {
       setSelectedAgent(_selectedAgent);
       setTransport(FALLBACK_AGENT);
       (FALLBACK_AGENT as GeminiNanoChatTransport).initializeSession();
@@ -101,14 +129,32 @@ const Provider = ({ children }: PropsWithChildren) => {
       );
     }
     initialFetchDone.current = true;
-  }, []);
+  }, [fetchMCPServersAndCreateMapping]);
 
-  const onSyncStorageChangedListener = useCallback(async () => {
-    const { apiKeys = {} }: { apiKeys: { [key: string]: APIKeys } } =
-      await chrome.storage.sync.get('apiKeys');
+  const onSyncStorageChangedListener = useCallback(
+    async (changes: { [key: string]: chrome.storage.StorageChange }) => {
+      if (!changes.apiKeys) {
+        return;
+      }
 
-    setApiKeys(apiKeys);
-  }, []);
+      const { apiKeys = {} }: { apiKeys: { [key: string]: APIKeys } } =
+        await chrome.storage.sync.get('apiKeys');
+
+      setApiKeys(apiKeys);
+    },
+    []
+  );
+
+  const onLocalStorageChangedListener = useCallback(
+    async (changes: { [key: string]: chrome.storage.StorageChange }) => {
+      if (!changes.mcpServers) {
+        return;
+      }
+
+      fetchMCPServersAndCreateMapping();
+    },
+    []
+  );
 
   useEffect(() => {
     if (!_transport || !initialFetchDone.current) {
@@ -125,12 +171,20 @@ const Provider = ({ children }: PropsWithChildren) => {
   useEffect(() => {
     intitialSync();
     chrome.storage.sync.onChanged.addListener(onSyncStorageChangedListener);
+    chrome.storage.local.onChanged.addListener(onLocalStorageChangedListener);
     return () => {
       chrome.storage.sync.onChanged.removeListener(
         onSyncStorageChangedListener
       );
+      chrome.storage.local.onChanged.removeListener(
+        onLocalStorageChangedListener
+      );
     };
-  }, [intitialSync, onSyncStorageChangedListener]);
+  }, [
+    intitialSync,
+    onSyncStorageChangedListener,
+    onLocalStorageChangedListener,
+  ]);
 
   const memoisedValue = useMemo(() => {
     return {
@@ -138,12 +192,13 @@ const Provider = ({ children }: PropsWithChildren) => {
         apiKeys,
         selectedAgent,
         transport: _transport,
+        toolNameToMCPMap,
       },
       actions: {
         setSelectedAgent,
       },
     };
-  }, [apiKeys, selectedAgent, _transport]);
+  }, [apiKeys, selectedAgent, toolNameToMCPMap, _transport]);
 
   return (
     <Context.Provider value={memoisedValue}>

@@ -1,4 +1,3 @@
-
 /**
  * Internal Dependencies.
  */
@@ -16,20 +15,30 @@ describe('isDomainAllowed', () => {
     });
 
     it('should return false for invalid URLs checks implicitly by not crashing (returns false on error)', () => {
-       expect(isDomainAllowed('invalid-url', ['google.com'])).toBe(false);
+      expect(isDomainAllowed('invalid-url', ['google.com'])).toBe(false);
     });
   });
 
   // Test Case 2: Universal Access
   describe('Universal Access', () => {
     it('should return true if <all_urls> is present', () => {
-      expect(isDomainAllowed('https://any-domain.com/page', ['google.com', '<all_urls>'])).toBe(true);
+      expect(
+        isDomainAllowed('https://any-domain.com/page', [
+          'google.com',
+          '<all_urls>',
+        ])
+      ).toBe(true);
     });
   });
 
   describe('Single Page Access', () => {
     it('should return true if a single page is allowed', () => {
-      expect(isDomainAllowed('https://www.allrecipes.com/recipe/68813/spicy-basil-chicken/', ['allrecipes.com'])).toBe(true);
+      expect(
+        isDomainAllowed(
+          'https://www.allrecipes.com/recipe/68813/spicy-basil-chicken/',
+          ['allrecipes.com']
+        )
+      ).toBe(true);
     });
   });
 
@@ -66,8 +75,8 @@ describe('isDomainAllowed', () => {
       expect(isDomainAllowed('https://en.wikipedia.org', allowed)).toBe(true);
       expect(isDomainAllowed('https://wikipedia.org', allowed)).toBe(true); // Implementation detail: treats *. as suffix check
     });
-    
-    // Note: The implementation: 
+
+    // Note: The implementation:
     // const suffix = pattern.startsWith('*.') ? pattern.slice(2) : pattern;
     // return hostname === suffix || hostname.endsWith('.' + suffix);
     // So *.wikipedia.org becomes wikipedia.org checking.
@@ -77,30 +86,46 @@ describe('isDomainAllowed', () => {
   describe('Full URL Patterns', () => {
     it('should match exact full URL pattern', () => {
       const allowed = ['https://github.com/microsoft/vscode'];
-      expect(isDomainAllowed('https://github.com/microsoft/vscode', allowed)).toBe(true);
+      expect(
+        isDomainAllowed('https://github.com/microsoft/vscode', allowed)
+      ).toBe(true);
     });
 
     it('should match pattern with implicit regex wildcards (glob-like)', () => {
       // pattern with / triggers regex path
       // logic: pattern.replace(/\*/g, '.*')
-      const allowed = ['https://github.com/*/vscode']; 
-      expect(isDomainAllowed('https://github.com/microsoft/vscode', allowed)).toBe(true);
-      expect(isDomainAllowed('https://github.com/other/vscode', allowed)).toBe(true);
-      expect(isDomainAllowed('https://github.com/microsoft/other', allowed)).toBe(false);
+      const allowed = ['https://github.com/*/vscode'];
+      expect(
+        isDomainAllowed('https://github.com/microsoft/vscode', allowed)
+      ).toBe(true);
+      expect(isDomainAllowed('https://github.com/other/vscode', allowed)).toBe(
+        true
+      );
+      expect(
+        isDomainAllowed('https://github.com/microsoft/other', allowed)
+      ).toBe(false);
     });
 
     it('should handle trailing slashes in pattern vs url', () => {
-       // Case A: Pattern has slash, URL matches exact
-       const allowedWithSlash = ['https://example.com/api/'];
-       expect(isDomainAllowed('https://example.com/api/', allowedWithSlash)).toBe(true);
-       // Current implementation implies: if pattern HAS slash, URL MUST have it (or at least match the regex).
-       // So '.../api' expects false if pattern is '.../api/'
-       expect(isDomainAllowed('https://example.com/api', allowedWithSlash)).toBe(false); 
+      // Case A: Pattern has slash, URL matches exact
+      const allowedWithSlash = ['https://example.com/api/'];
+      expect(
+        isDomainAllowed('https://example.com/api/', allowedWithSlash)
+      ).toBe(true);
+      // Current implementation implies: if pattern HAS slash, URL MUST have it (or at least match the regex).
+      // So '.../api' expects false if pattern is '.../api/'
+      expect(isDomainAllowed('https://example.com/api', allowedWithSlash)).toBe(
+        false
+      );
 
-       // Case B: Pattern has NO slash, URL can have it or not
-       const allowedNoSlash = ['https://example.com/api'];
-       expect(isDomainAllowed('https://example.com/api', allowedNoSlash)).toBe(true);
-       expect(isDomainAllowed('https://example.com/api/', allowedNoSlash)).toBe(true);
+      // Case B: Pattern has NO slash, URL can have it or not
+      const allowedNoSlash = ['https://example.com/api'];
+      expect(isDomainAllowed('https://example.com/api', allowedNoSlash)).toBe(
+        true
+      );
+      expect(isDomainAllowed('https://example.com/api/', allowedNoSlash)).toBe(
+        true
+      );
     });
   });
 });

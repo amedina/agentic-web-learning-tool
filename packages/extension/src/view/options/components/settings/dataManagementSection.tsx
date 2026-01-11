@@ -124,7 +124,7 @@ export default function DataManagementSection({
       });
 
       logger(
-        ['info', 'debug', 'trace'],
+        ['debug'],
         [
           'Validation successfull, settings have been imported reloading options page',
         ]

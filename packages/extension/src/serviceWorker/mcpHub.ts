@@ -1,13 +1,14 @@
 /**
  * External dependencies
  */
-import { z } from 'zod';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import {
   type CallToolResult,
   type Tool,
 } from '@modelcontextprotocol/sdk/types.js';
-
+import { Client } from '@modelcontextprotocol/sdk/client';
+import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
+import type { MCPConfig, MCPServerConfig } from '@google-awlt/common';
 /**
  * Internal dependencies
  */
@@ -29,6 +30,15 @@ import {
  */
 class McpHub {
   private server: McpServer;
+  clientList = new Map<
+    string,
+    {
+      client: Client;
+      transport: StreamableHTTPClientTransport;
+      connected: boolean;
+      toolsFetched: boolean;
+    }
+  >();
 
   // Storage: Domain -> DataId (tab-123) -> TabData
   private domains = new Map<string, Map<string, TabData>>();
@@ -48,19 +58,11 @@ class McpHub {
     this.setupConnections();
     this.trackActiveTab();
     this.registerAllExtensionTools();
-    chrome.storage.local.onChanged.addListener(() =>
-      this.onLocalStoreChangedListener()
-    );
-  }
-
-  /**
-   * Retrieves or creates the storage map for a specific domain.
-   */
-  private getDomainData(domain: string): Map<string, TabData> {
-    if (!this.domains.has(domain)) {
-      this.domains.set(domain, new Map());
-    }
-    return this.domains.get(domain)!;
+    chrome.storage.local.onChanged.addListener((changes) => {
+      if (changes?.chromeAPIBuiltInToolsState) {
+        this.onLocalStoreChangedListener();
+      }
+    });
   }
 
   async fetchLocalStorageAndRegisterTools() {
@@ -114,7 +116,7 @@ class McpHub {
   }
 
   async registerAllExtensionTools() {
-    logger(['debug', 'log', 'trace'], ['Registering extension tools...']);
+    logger(['debug'], ['Registering extension tools...']);
 
     await this.fetchLocalStorageAndRegisterTools();
   }
@@ -189,6 +191,119 @@ class McpHub {
     return apiStatuses;
   }
 
+  async removeMCPServer(serverName: string) {
+    Array.from(this.registeredTools.entries()).map(
+      ([toolName, registeredTool]) => {
+        if (toolName.startsWith(serverName)) {
+          this.registeredTools.delete(toolName);
+          registeredTool.remove();
+        }
+      }
+    );
+    this.clientList.delete(serverName);
+    this.server.server?.transport?.send({
+      jsonrpc: '2.0',
+      method: 'get/Tools',
+    });
+  }
+
+  async addNewServer(serverConfig: MCPServerConfig, serverName: string) {
+    try {
+      const storedConfig = this.clientList.get(serverName);
+
+      if (storedConfig?.toolsFetched) {
+        this.enableMCPServerTools(serverName);
+        return;
+      }
+
+      const requestInit: RequestInit = {};
+
+      if (serverConfig.authToken) {
+        requestInit.headers = {
+          Authorization: `Bearer ${serverConfig.authToken}`,
+        };
+      }
+
+      const transport = new StreamableHTTPClientTransport(
+        new URL(serverConfig.url),
+        {
+          requestInit,
+        }
+      );
+
+      const client = new Client(
+        {
+          name: 'chrome-extension-client',
+          version: '1.0.0',
+        },
+        {
+          capabilities: {},
+        }
+      );
+
+      await client.connect(transport);
+      const toolsList = await client.listTools();
+      this.clientList.set(serverName, {
+        client,
+        transport,
+        connected: true,
+        toolsFetched: true,
+      });
+
+      this.registerOrUpdateTools(
+        serverName,
+        '',
+        null,
+        toolsList.tools as unknown as Tool[],
+        false,
+        true
+      );
+    } catch (_error) {
+      logger(
+        ['error'],
+        ['Failed to register the server and list the tools', _error]
+      );
+    }
+  }
+
+  async disableMCPServerTools(serverId: string) {
+    Array.from(this.registeredTools.entries()).forEach(
+      ([toolName, registeredTool]) => {
+        if (toolName.startsWith(`${serverId}_mcp`)) {
+          registeredTool.disable();
+        }
+      }
+    );
+    this.server.server?.transport?.send({
+      jsonrpc: '2.0',
+      method: 'get/Tools',
+    });
+  }
+
+  async enableMCPServerTools(serverId: string) {
+    Array.from(this.registeredTools.entries()).forEach(
+      ([toolName, registeredTool]) => {
+        if (toolName.startsWith(`${serverId}_mcp`)) {
+          registeredTool.enable();
+        }
+      }
+    );
+    this.server.server?.transport?.send({
+      jsonrpc: '2.0',
+      method: 'get/Tools',
+    });
+  }
+
+  /**
+   * Retrieves or creates the storage map for a specific domain.
+   */
+  private getDomainData(domain: string): Map<string, TabData> {
+    if (!this.domains.has(domain)) {
+      this.domains.set(domain, new Map());
+    }
+    return this.domains.get(domain)!;
+  }
+
   /**
    * parsing the domain from a raw URL string.
    * Handles localhost/IP edge cases.
@@ -213,6 +328,25 @@ class McpHub {
         this.handleContentScriptConnection(port);
       }
     });
+    //Gather the MCP server configs from the chrome localStorage
+    chrome.storage.local.get(
+      'mcpServers',
+      async ({ mcpServers }: MCPConfig) => {
+        await Promise.all(
+          Object.keys(mcpServers ?? {}).map(async (serverName) => {
+            if (!serverName) {
+              return Promise.resolve();
+            }
+
+            if (!mcpServers[serverName].enabled) {
+              return Promise.resolve();
+            }
+
+            await this.addNewServer(mcpServers[serverName], serverName);
+          })
+        );
+      }
+    );
   }
 
   /**
@@ -241,6 +375,7 @@ class McpHub {
                 dataId,
                 port,
                 message.tools,
+                false,
                 false
               );
               await this.injectToolsAndRegisterFunction(tabId);
@@ -253,6 +388,7 @@ class McpHub {
                 dataId,
                 port,
                 message.tools,
+                false,
                 false
               );
             }
@@ -276,10 +412,61 @@ class McpHub {
     });
   }
 
+  private registerMCPServerTools(serverName: string, tools: Tool[]) {
+    for (const tool of tools) {
+      const config = {
+        ...tool,
+        inputSchema: jsonSchemaToZod(tool.inputSchema),
+      };
+
+      const prefixedToolName = `${serverName}_mcp_${tool.name}`;
+
+      if (this.registeredTools.has(prefixedToolName)) {
+        // Update existing tool
+        this.registeredTools.get(prefixedToolName)!.update(config as any);
+      } else {
+        // Register new tool
+        const mcpTool = this.server.registerTool(
+          prefixedToolName,
+          config as any,
+          async (args: any) =>
+            this.executeTool(serverName, '', tool.name, args, true)
+        );
+        this.registeredTools.set(prefixedToolName, mcpTool);
+      }
+
+      this.server.server?.transport?.send({
+        jsonrpc: '2.0',
+        method: 'get/Tools',
+      });
+    }
+  }
+
   /**
    * Main logic to register tools from a specific tab into the MCP server.
    */
   private async registerOrUpdateTools(
+    serverOrDomainName: string,
+    dataId: string,
+    port: chrome.runtime.Port | null,
+    tools: Tool[],
+    isRegister: boolean,
+    isMCPServerTool: boolean
+  ) {
+    if (isMCPServerTool) {
+      this.registerMCPServerTools(serverOrDomainName, tools);
+    } else {
+      await this.registerOrUpdateWebMCPTools(
+        serverOrDomainName,
+        dataId,
+        port as chrome.runtime.Port,
+        tools,
+        isRegister
+      );
+    }
+  }
+
+  private async registerOrUpdateWebMCPTools(
     domain: string,
     dataId: string,
     port: chrome.runtime.Port,
@@ -367,17 +554,10 @@ class McpHub {
         tool.description || ''
       );
 
-      // Create Zod schema dynamically based on tool definition
-      // Note: We use z.any() because we are proxying JSON schemas we cannot strictly validate at build time
-      const inputSchema: Record<string, z.ZodTypeAny> = {};
-      for (const key in tool.inputSchema.properties ?? {}) {
-        inputSchema[key] = z.any();
-      }
-
       const config = {
         title: tool.title,
         description,
-        inputSchema: jsonSchemaToZod(inputSchema),
+        inputSchema: jsonSchemaToZod(tool.inputSchema),
         annotations: tool.annotations,
       };
 
@@ -389,7 +569,8 @@ class McpHub {
         const mcpTool = this.server.registerTool(
           uniqueToolName,
           config,
-          async (args: any) => this.executeTool(domain, dataId, tool.name, args)
+          async (args: any) =>
+            this.executeTool(domain, dataId, tool.name, args, false)
         );
         this.server.server?.transport?.send({
           jsonrpc: '2.0',
@@ -454,7 +635,48 @@ class McpHub {
   /**
    * Forwards a tool execution request to the specific Chrome tab via its Port.
    */
-  async executeTool(
+  async executeMCPTool(
+    serverName: string,
+    toolName: string,
+    args: Record<string, unknown>
+  ): Promise<CallToolResult> {
+    try {
+      const connector = this.clientList.get(serverName);
+
+      if (!connector?.client) {
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Failed to execute tool: MCPServer connection lost or closed.`,
+            },
+          ],
+          isError: true,
+        };
+      }
+
+      const response = await connector.client.callTool({
+        name: toolName,
+        arguments: args ?? {},
+      });
+      return response as CallToolResult;
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `Failed to execute tool: ${error instanceof Error ? error.message : String(error)}`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+
+  /**
+   * Forwards a tool execution request to the specific Chrome tab via its Port.
+   */
+  async executeWebMCPTool(
     domain: string,
     dataId: string,
     toolName: string,
@@ -474,7 +696,6 @@ class McpHub {
           isError: true,
         };
       }
-
       // Forward request to content script using RequestManager
       const response = await this.requestManager.create(port, {
         type: MESSAGE_TYPES.EXECUTE,
@@ -493,6 +714,24 @@ class McpHub {
         ],
         isError: true,
       };
+    }
+  }
+
+  async executeTool(
+    serverOrDomainName: string,
+    dataId: string,
+    toolName: string,
+    args: Record<string, unknown> | unknown,
+    isMCPServerTool: boolean
+  ) {
+    if (isMCPServerTool) {
+      return this.executeMCPTool(
+        serverOrDomainName,
+        toolName,
+        args as Record<string, unknown>
+      );
+    } else {
+      return this.executeWebMCPTool(serverOrDomainName, dataId, toolName, args);
     }
   }
 
@@ -693,7 +932,6 @@ class McpHub {
             ...module.metadata,
             execute: module.execute,
           };
-          console.log(mcp);
           console.log('WebMCP: Tool to register:', toolToRegister);
           // 4. Register
           if (mcp) {

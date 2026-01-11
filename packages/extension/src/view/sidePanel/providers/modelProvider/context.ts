@@ -14,6 +14,7 @@ export interface ModelProviderStoreContext {
     apiKeys: { [key: string]: APIKeys };
     selectedAgent: AgentType;
     transport: GeminiNanoChatTransport | CloudHostedTransport | null;
+    toolNameToMCPMap: Record<string, string>;
   };
   actions: {
     setSelectedAgent: React.Dispatch<React.SetStateAction<AgentType>>;
@@ -27,6 +28,7 @@ const initialState: ModelProviderStoreContext = {
       modelProvider: 'browser-ai',
       model: 'prompt-api',
     },
+    toolNameToMCPMap: {},
     transport: null,
   },
   actions: {

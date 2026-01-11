@@ -38,11 +38,15 @@ function getToolNameWithoutPrefix(toolName: string) {
 
   if (toolName.startsWith(extensionToolNamePrefix)) {
     toolNameWithoutHardCodePrefix = toolName.substring(
-      extensionToolNamePrefix.length - 1
+      extensionToolNamePrefix.length
     );
-    const pieces = toolNameWithoutHardCodePrefix.split('_');
-    pieces.shift();
-    return pieces.join('_');
+    return toolNameWithoutHardCodePrefix;
+  }
+
+  if (toolName.includes('_mcp')) {
+    const match = toolName.match(/(?<=_mcp_).*/);
+    const unPrefixedToolName = match ? match[0] : toolName;
+    return unPrefixedToolName;
   }
 
   return toolName;
