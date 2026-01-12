@@ -17,7 +17,7 @@ export default function AgentDashboard() {
 
   return (
     <OptionsPageTab
-      title="Agents"
+      title="Models"
       description="Manage your LLM keys, configure provider settings, and fine-tune inference parameters."
     >
       <div className="w-full flex flex-col flex-1">
