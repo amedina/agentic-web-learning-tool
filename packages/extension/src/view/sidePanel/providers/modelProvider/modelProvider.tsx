@@ -76,7 +76,9 @@ const Provider = ({ children }: PropsWithChildren) => {
   }, [selectedAgent]);
 
   const fetchMCPServersAndCreateMapping = useCallback(async () => {
-    const { mcpServers }: { mcpServers: { [key: string]: MCPServerConfig } } =
+    const {
+      mcpServers = {},
+    }: { mcpServers: { [key: string]: MCPServerConfig } } =
       await chrome.storage.local.get('mcpServers');
 
     const mappedObject: Record<string, string> = {};
