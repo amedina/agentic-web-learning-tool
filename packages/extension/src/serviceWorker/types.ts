@@ -1,7 +1,11 @@
 /**
  * External dependencies
  */
-import type { CallToolRequest, CallToolResult, Tool } from '@modelcontextprotocol/sdk/types.js';
+import type {
+  CallToolRequest,
+  CallToolResult,
+  Tool,
+} from '@modelcontextprotocol/sdk/types.js';
 
 /**
  * External dependencies
@@ -43,4 +47,8 @@ export interface TabData {
 export type ContentScriptMessage =
   | { type: typeof MESSAGE_TYPES.REGISTER; tools: Tool[] }
   | { type: typeof MESSAGE_TYPES.UPDATE; tools: Tool[] }
-  | { type: typeof MESSAGE_TYPES.RESULT; requestId: string; data: { success: boolean; payload: CallToolResult | Error } };
+  | {
+      type: typeof MESSAGE_TYPES.RESULT;
+      requestId: string;
+      data: { success: boolean; payload: CallToolResult | Error };
+    };

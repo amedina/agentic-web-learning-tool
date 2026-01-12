@@ -1,0 +1,163 @@
+diff --git a/dist/legacy-runtime/runtime-cores/assistant-transport/useToolInvocations.js b/dist/legacy-runtime/runtime-cores/assistant-transport/useToolInvocations.js
+index da5947cdc1ad133d01a958177253e197e736c00b..af566bb157ea7ab51f7b19cb392f860fd1465b04 100644
+--- a/dist/legacy-runtime/runtime-cores/assistant-transport/useToolInvocations.js
++++ b/dist/legacy-runtime/runtime-cores/assistant-transport/useToolInvocations.js
+@@ -91,63 +91,146 @@ function useToolInvocations({
+               if (!lastState) {
+                 const toolCallController = controller.addToolCallPart({
+                   toolName: content.toolName,
+-                  toolCallId: content.toolCallId
++                  toolCallId: content.toolCallId,
+                 });
+                 lastState = {
+                   argsText: "",
+                   hasResult: false,
+                   argsComplete: false,
+-                  controller: toolCallController
++                  controller: toolCallController,
+                 };
+                 lastToolStates.current[content.toolCallId] = lastState;
+               }
++
+               if (content.argsText !== lastState.argsText) {
++                // parse once and reuse for both completeness check and comparison
++                let lastParsed = null;
++                let currentParsed = null;
++                let isLastComplete = false;
++                let isCurrentComplete = false;
++
++                try {
++                  lastParsed = JSON.parse(lastState.argsText);
++                  isLastComplete = true;
++                } catch {
++                  // lastState.argsText is not complete JSON
++                }
++
++                try {
++                  currentParsed = JSON.parse(content.argsText);
++                  isCurrentComplete = true;
++                } catch {
++                  // content.argsText is not complete JSON
++                }
++
++                if (isLastComplete && isCurrentComplete) {
++                  // Verify semantic equivalence (reuse already-parsed objects)
++                  let areSemanticallySame = false;
++                  try {
++                    const sortJsonKeys = (obj, depth = 0) => {
++                      if (depth > 100) {
++                        throw new Error(
++                          "Maximum nesting depth exceeded in tool arguments",
++                        );
++                      }
++                      if (typeof obj !== "object" || obj === null) return obj;
++                      if (Array.isArray(obj))
++                        return obj.map((item) => sortJsonKeys(item, depth + 1));
++                      return Object.keys(obj)
++                        .sort()
++                        .reduce((result, key) => {
++                          result[key] = sortJsonKeys(obj[key], depth + 1);
++                          return result;
++                        }, {});
++                    };
++
++                    areSemanticallySame =
++                      JSON.stringify(sortJsonKeys(lastParsed)) ===
++                      JSON.stringify(sortJsonKeys(currentParsed));
++
++                    if (!areSemanticallySame) {
++                      if (process.env["NODE_ENV"] !== "production") {
++                        console.warn(
++                          "Complete argsText updated with different content:",
++                          {
++                            previous: lastState.argsText,
++                            next: content.argsText,
++                          },
++                        );
++                      }
++                    }
++                  } catch (e) {
++                    // Should not happen since we already successfully parsed both
++                    if (process.env["NODE_ENV"] !== "production") {
++                      console.warn("Failed to compare JSON:", e);
++                    }
++                  }
++
++                  if (!lastState.argsComplete) {
++                    lastState.controller.argsText.close();
++                  }
++
++                  lastToolStates.current[content.toolCallId] = {
++                    ...lastState,
++                    argsText: content.argsText,
++                    argsComplete: true,
++                  };
++                  return;
++                }
+                 if (lastState.argsComplete) {
++                  // This case handles updates after the controller is already closed
+                   if (process.env["NODE_ENV"] !== "production") {
+                     console.warn(
+                       "argsText updated after controller was closed:",
+-                      { previous: lastState.argsText, next: content.argsText }
++                      { previous: lastState.argsText, next: content.argsText },
+                     );
+                   }
++                  return;
+                 } else {
+-                  if (!content.argsText.startsWith(lastState.argsText)) {
++                  if (!content.argsText.startsWith(lastState.argsText) && isArgsTextComplete(lastState.argsText)) {
+                     throw new Error(
+-                      `Tool call argsText can only be appended, not updated: ${content.argsText} does not start with ${lastState.argsText}`
++                      `Tool call argsText can only be appended, not updated: ${content.argsText} does not start with ${lastState.argsText}`,
+                     );
+                   }
++
+                   const argsTextDelta = content.argsText.slice(
+-                    lastState.argsText.length
++                    lastState.argsText.length,
+                   );
+                   lastState.controller.argsText.append(argsTextDelta);
++
+                   const shouldClose = isArgsTextComplete(content.argsText);
+                   if (shouldClose) {
+                     lastState.controller.argsText.close();
+                   }
++
+                   lastToolStates.current[content.toolCallId] = {
++                    ...lastState,
+                     argsText: content.argsText,
+-                    hasResult: lastState.hasResult,
+                     argsComplete: shouldClose,
+-                    controller: lastState.controller
+                   };
+                 }
+               }
+-              if (content.result !== void 0 && !lastState.hasResult) {
++
++              if (content.result !== undefined && !lastState.hasResult) {
+                 lastState.controller.setResponse(
+                   new ToolResponse({
+                     result: content.result,
+                     artifact: content.artifact,
+-                    isError: content.isError
+-                  })
++                    isError: content.isError,
++                  }),
+                 );
+                 lastState.controller.close();
++
+                 lastToolStates.current[content.toolCallId] = {
+                   hasResult: true,
+                   argsComplete: true,
+                   argsText: lastState.argsText,
+-                  controller: lastState.controller
++                  controller: lastState.controller,
+                 };
+               }
+             }
++
++            // Recursively process nested messages
+             if (content.messages) {
+               processMessages(content.messages);
+             }
