@@ -1,17 +1,17 @@
 /**
  * External dependencies
  */
-import type { ComponentProps } from "react";
-import { Root } from "@radix-ui/react-separator";
+import type { ComponentProps } from 'react';
+import { Root } from '@radix-ui/react-separator';
 
 /**
  * External dependencies
  */
-import { cn } from "../../lib";
+import { cn } from '../../lib';
 
 function Separator({
   className,
-  orientation = "horizontal",
+  orientation = 'horizontal',
   decorative = true,
   ...props
 }: ComponentProps<typeof Root>) {
@@ -21,12 +21,12 @@ function Separator({
       decorative={decorative}
       orientation={orientation}
       className={cn(
-        "bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px",
+        'bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px',
         className
       )}
       {...props}
     />
-  )
+  );
 }
 
 export default Separator;

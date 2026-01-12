@@ -1,11 +1,11 @@
 /**
  * Internal dependencies
  */
-import syncStorageChangeCallback from "./syncStorageChangeCallback";
-import onInstalledCallback from "./onInstalledListener";
-import onActionClickedCallback from "./onActionClickCallback";
-import tabOnActivatedCallback from "./tabOnActivatedCallback";
-import tabOnCreatedCallback from "./tabOnCreatedCallback";
+import syncStorageChangeCallback from './syncStorageChangeCallback';
+import onInstalledCallback from './onInstalledCallback';
+import onActionClickedCallback from './onActionClickedCallback';
+import tabOnActivatedCallback from './tabOnActivatedCallback';
+import tabOnCreatedCallback from './tabOnCreatedCallback';
 
 chrome.storage.sync.onChanged.addListener(syncStorageChangeCallback);
 chrome.action.onClicked.addListener(onActionClickedCallback);

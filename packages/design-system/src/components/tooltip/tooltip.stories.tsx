@@ -9,18 +9,18 @@ import TooltipComponent from './tooltip';
 import { Button } from '../button';
 
 const meta: Meta<typeof TooltipComponent> = {
-	title: 'ui/Tooltip',
-	component: TooltipComponent,
-	tags: ['autodocs'],
-	parameters: {
-		layout: 'centered',
-	},
-	argTypes: {
-		placement: {
-			control: 'select',
-			options: ['top', 'bottom', 'left', 'right'],
-		},
-	},
+  title: 'ui/Tooltip',
+  component: TooltipComponent,
+  tags: ['autodocs'],
+  parameters: {
+    layout: 'centered',
+  },
+  argTypes: {
+    placement: {
+      control: 'select',
+      options: ['top', 'bottom', 'left', 'right'],
+    },
+  },
 };
 
 export default meta;
@@ -35,8 +35,8 @@ export const WithText: Story = {
     );
   },
   args: {
-    text: "This action cannot be undone",
-    placement: "top",
+    text: 'This action cannot be undone',
+    placement: 'top',
     body: null,
   },
 };

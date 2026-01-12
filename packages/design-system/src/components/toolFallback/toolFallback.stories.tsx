@@ -34,7 +34,7 @@ export const Processing: Story = {
     args: {
       path: './src/components',
       recursive: true,
-      encoding: 'utf-8'
+      encoding: 'utf-8',
     },
   },
 };
@@ -47,11 +47,11 @@ export const SuccessfulCall: Story = {
     args: {
       principal: 300000,
       rate: 3.5,
-      years: 30
+      years: 30,
     },
     result: {
       monthly_payment: 1347.13,
-      total_interest: 184968.23
+      total_interest: 184968.23,
     },
   },
 };
@@ -63,9 +63,10 @@ export const FailedAction: Story = {
     status: { type: 'incomplete', reason: 'error' },
     args: {
       endpoint: 'https://api.example.com/v1/users',
-      method: 'POST'
+      method: 'POST',
     },
-    result: "Error 500: Internal Server Error - Connection timed out after 30000ms",
+    result:
+      'Error 500: Internal Server Error - Connection timed out after 30000ms',
   },
 };
 
@@ -76,15 +77,19 @@ export const LargeDataPayload: Story = {
     status: { type: 'complete' },
     args: {
       url: 'https://example.com',
-      selectors: ['p', 'div.content', 'article']
+      selectors: ['p', 'div.content', 'article'],
     },
     result: {
       metadata: {
         title: 'Example Domain',
-        charset: 'utf-8'
+        charset: 'utf-8',
       },
-      content: Array(20).fill("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.").join("\n"),
-      links: Array(10).fill({ text: "Click here", href: "#" })
+      content: Array(20)
+        .fill(
+          'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
+        )
+        .join('\n'),
+      links: Array(10).fill({ text: 'Click here', href: '#' }),
     },
   },
 };
@@ -95,6 +100,6 @@ export const StringOutput: Story = {
     toolName: 'generate_uuid',
     status: { type: 'complete' },
     args: { version: 4 },
-    result: "550e8400-e29b-41d4-a716-446655440000",
+    result: '550e8400-e29b-41d4-a716-446655440000',
   },
 };
