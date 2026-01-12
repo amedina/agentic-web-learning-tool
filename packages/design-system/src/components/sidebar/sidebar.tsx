@@ -74,7 +74,6 @@ export function Sidebar({
               <SidebarMenuButton
                 tooltip={item.title}
                 isActive={sidebarState === 'collapsed' && isChildSelected}
-                className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
               >
                 {item.icon && item.icon()}
                 <span>{item.title}</span>
