@@ -33,11 +33,12 @@
     "test": "jest --config='tests/jest.config.js'"
   },
   "dependencies": {
-    "@assistant-ui/react": "0.11.41",
-    "@assistant-ui/react-markdown": "^0.11.4",
+    "@assistant-ui/react": "0.11.51",
+    "@assistant-ui/react-markdown": "^0.11.8",
     "@assistant-ui/react-syntax-highlighter": "^0.11.4",
     "@google-awlt/common": "workspace:*",
     "@radix-ui/react-accordion": "^1.2.12",
+    "@radix-ui/react-collapsible": "^1.1.12",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-dropdown-menu": "^2.1.16",
     "@radix-ui/react-separator": "^1.1.8",
