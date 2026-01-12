@@ -19,6 +19,18 @@ const items = [
     title: 'Inbox',
     id: 'inbox',
     icon: () => <Inbox />,
+    items: [
+      {
+        title: 'Unread',
+        id: 'unread',
+        icon: () => <Inbox />,
+      },
+      {
+        title: 'Starred',
+        id: 'starred',
+        icon: () => <Inbox />,
+      },
+    ],
   },
   {
     title: 'Calendar',
@@ -30,6 +42,9 @@ const items = [
     id: 'search',
     icon: () => <Search />,
   },
+];
+
+const footerItems = [
   {
     title: 'Settings',
     id: 'settings',
@@ -55,7 +70,11 @@ export const Default: Story = {
           <div className="fixed top-0 left-0 z-20 md:hidden pl-4 shadow bg-sidebar rounded-md">
             <SidebarTrigger />
           </div>
-          <Sidebar collapsible="icon" items={args.items} />
+          <Sidebar
+            collapsible="icon"
+            items={args.items}
+            footerItems={footerItems}
+          />
         </SidebarProvider>
       </div>
     );
