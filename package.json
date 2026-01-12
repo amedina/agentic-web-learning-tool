@@ -16,7 +16,6 @@
       "zod": "^4.1.13"
     },
     "patchedDependencies": {
-      "zod@4.1.13": "patches/zod@4.1.13.patch",
       "@assistant-ui/react": "patches/@assistant-ui__react.patch",
       "zod@4.3.5": "patches/zod@4.3.5.patch",
       "@mcp-b/extension-tools@0.2.3": "patches/@mcp-b__extension-tools@0.2.3.patch"
