@@ -1,11 +1,13 @@
 /**
  * External dependencies
  */
+
 import {
   Sidebar,
   SidebarTrigger,
   Toaster,
   useSidebar,
+  type MenuItem,
 } from '@google-awlt/design-system';
 import {
   CpuIcon,
@@ -13,35 +15,92 @@ import {
   Settings2,
   MessageSquare,
   Server,
-	WorkflowIcon,
+  WorkflowIcon,
+  Activity,
+  Play,
+  Sparkles,
+  Database,
+  View,
 } from 'lucide-react';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 
 /**
  * Internal dependencies
  */
 import {
-  AgentStudioTab,
+  ModelsTab,
   WebMCPToolsTab,
   SettingsTab,
   PromptCommandsTab,
-	Workflow,
+  Workflow,
+  MCPInspectorTab,
+  APIStatusTab,
+  APIPlaygroundsTab,
 } from './components';
 import MCPServersTab from './components/mcpServers';
 import { useSettings } from '../stateProviders';
 
-const Items = [
+type ExtendedMenuItem = MenuItem & {
+  component?: React.ReactNode;
+  items?: ExtendedMenuItem[];
+};
+
+const Items: ExtendedMenuItem[] = [
   {
-    title: 'Agents',
-    id: 'agents',
+    title: 'Models',
+    id: 'models',
     icon: () => <CpuIcon />,
-    component: <AgentStudioTab />,
+    component: <ModelsTab />,
   },
   {
-    title: 'MCP Servers',
-    id: 'mcp-server',
-    icon: () => <Server />,
-    component: <MCPServersTab />,
+    title: 'MCP',
+    id: 'mcp-group',
+    icon: () => <Database />,
+    items: [
+      {
+        title: 'MCP Servers',
+        id: 'mcp-server',
+        icon: () => <Server />,
+        component: <MCPServersTab />,
+      },
+      {
+        title: 'WebMCP Tools',
+        id: 'webmcp-tools',
+        icon: () => <CodeIcon />,
+        component: <WebMCPToolsTab />,
+      },
+      {
+        title: 'MCP Inspector',
+        id: 'mcp-inspector',
+        icon: () => <View />,
+        component: <MCPInspectorTab />,
+      },
+    ],
+  },
+  {
+    title: 'Built-in AI',
+    id: 'builtin-ai-group',
+    icon: () => <Sparkles />,
+    items: [
+      {
+        title: 'API Status',
+        id: 'api-status',
+        icon: () => <Activity />,
+        component: <APIStatusTab />,
+      },
+      {
+        title: 'API Playgrounds',
+        id: 'api-playgrounds',
+        icon: () => <Play />,
+        component: <APIPlaygroundsTab />,
+      },
+      {
+        title: 'Workflow Composer',
+        id: 'workflow-composer',
+        icon: () => <WorkflowIcon />,
+        component: <Workflow />,
+      },
+    ],
   },
   {
     title: 'Prompt Commands',
@@ -49,18 +108,9 @@ const Items = [
     icon: () => <MessageSquare />,
     component: <PromptCommandsTab />,
   },
-  {
-    title: 'WebMCP Tools',
-    id: 'webmcp-tools',
-    icon: () => <CodeIcon />,
-    component: <WebMCPToolsTab />,
-  },
-	{
-		title: 'Workflow Composer',
-		id: 'workflow-composer',
-		icon: () => <WorkflowIcon />,
-		component: <Workflow />,
-	},
+];
+
+const FooterItems: ExtendedMenuItem[] = [
   {
     title: 'Settings',
     id: 'settings',
@@ -77,13 +127,34 @@ function Options() {
     })
   );
 
+  const flatItems = useMemo(() => {
+    const flatten = (items: ExtendedMenuItem[]): ExtendedMenuItem[] => {
+      return items.reduce((acc: ExtendedMenuItem[], item) => {
+        acc.push(item);
+        if (item.items) {
+          acc.push(...flatten(item.items));
+        }
+        return acc;
+      }, []);
+    };
+    return [...flatten(Items), ...flatten(FooterItems)];
+  }, []);
+
   useEffect(() => {
-    if (!selectedMenuItem) {
-      setSelectedMenuItem(Items[0].id);
-    } else if (!Items.map((item) => item.id).includes(selectedMenuItem)) {
-      setSelectedMenuItem(Items[0].id);
+    // If no item is selected, or the selected item is not in the list of available items (e.g. invalid URL param),
+    // default to the first available item.
+    const isValidSelection = flatItems.some(
+      (item) => item.id === selectedMenuItem
+    );
+
+    if (!selectedMenuItem || !isValidSelection) {
+      // Find the first item that has a component (is a leaf node or a clickable parent)
+      const defaultItem = flatItems.find((item) => item.component);
+      if (defaultItem) {
+        setSelectedMenuItem(defaultItem.id);
+      }
     }
-  }, [selectedMenuItem]);
+  }, [selectedMenuItem, flatItems, setSelectedMenuItem]);
 
   const { theme } = useSettings(({ state }) => ({ theme: state.theme }));
 
@@ -96,8 +167,8 @@ function Options() {
       <div className="fixed top-0 left-0 z-20 md:hidden pl-4 shadow bg-sidebar rounded-md">
         <SidebarTrigger />
       </div>
-      <Sidebar items={Items} collapsible="icon" />
-      {Items.find((item) => item.id === selectedMenuItem)?.component}
+      <Sidebar items={Items} footerItems={FooterItems} collapsible="icon" />
+      {flatItems.find((item) => item.id === selectedMenuItem)?.component}
     </>
   );
 }

@@ -1,7 +1,7 @@
 /**
  * External dependencies.
  */
-import { EditIcon, ToolCaseIcon } from 'lucide-react';
+import { EditIcon, ListMinus } from 'lucide-react';
 import { Button, ToggleSwitch } from '@google-awlt/design-system';
 import type { Tool } from '@modelcontextprotocol/sdk/types.js';
 import type { MCPServerConfig } from '@google-awlt/common';
@@ -42,7 +42,7 @@ export function MCPServerCard({
             onClick={onView}
             className="text-[var(--primary-color)] hover:text-[var(--primary-hover)] hover:bg-[var(--surface-active)]"
           >
-            <ToolCaseIcon size={14} />
+            <ListMinus size={14} />
             View Tools
           </Button>
 
