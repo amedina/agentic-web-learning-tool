@@ -10,14 +10,14 @@ import { INITIAL_PROVIDERS } from '../../../../constants';
 import SingleProviderAccordion from './singleProviderAccordion';
 import { useModelProvider } from '../../providers';
 
-export default function AgentDashboard() {
+export default function Models() {
   const { apiKeys } = useModelProvider(({ state }) => ({
     apiKeys: state.apiKeys,
   }));
 
   return (
     <OptionsPageTab
-      title="Agents"
+      title="Models"
       description="Manage your LLM keys, configure provider settings, and fine-tune inference parameters."
     >
       <div className="w-full flex flex-col flex-1">
