@@ -14,7 +14,7 @@ import {
   Paperclip,
   SendHorizontal,
   CircleStop,
-  ToolCaseIcon,
+  ListMinus,
   Settings,
   ChevronDown,
 } from 'lucide-react';
@@ -168,7 +168,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
                   selectedValue=""
                 >
                   <Button variant="ghost" size="icon">
-                    <ToolCaseIcon className="w-4 h-4" />
+                    <ListMinus className="w-4 h-4" />
                   </Button>
                 </Dropdown>
                 <Button
