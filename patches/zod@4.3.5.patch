@@ -1,0 +1,13 @@
+diff --git a/v4/core/util.js b/v4/core/util.js
+index 3fc99ca9de705ba563a3221f0032f1372b8f8a53..c23002d041e37aeac50c2e12a83f645bb84e2e6d 100644
+--- a/v4/core/util.js
++++ b/v4/core/util.js
+@@ -149,7 +149,7 @@ export function isObject(data) {
+ }
+ export const allowsEval = cached(() => {
+     // @ts-ignore
+-    if (typeof navigator !== "undefined" && navigator?.userAgent?.includes("Cloudflare")) {
++    if (typeof navigator !== "undefined" && (navigator?.userAgent?.includes("Cloudflare") || chrome)) {
+         return false;
+     }
+     try {

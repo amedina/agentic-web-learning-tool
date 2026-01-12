@@ -67,7 +67,7 @@ describe('getToolNameWithoutPrefix', () => {
 
     it('returns undefined if prefix exists but there is no tool name after the tab ID', () => {
       // Regex expects `(.+)` (at least one char) after the tab ID underscore
-      const input = 'website_tool_example.com_tab123_'; 
+      const input = 'website_tool_example.com_tab123_';
       const result = getToolNameWithoutPrefix(input);
       expect(result).toBeUndefined();
     });
