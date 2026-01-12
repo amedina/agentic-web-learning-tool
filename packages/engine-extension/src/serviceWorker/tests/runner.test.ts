@@ -1,7 +1,14 @@
-import { WorkflowRunner, getWorkflowRunner } from "./runner";
-import { ServiceWorkerRuntime } from "./runtime";
+/**
+ * External dependencies
+ */
 import { WorkflowEngine } from "@google-awlt/engine-core";
 import * as engineCore from "@google-awlt/engine-core";
+
+/**
+ * Internal dependencies
+ */
+import { WorkflowRunner, getWorkflowRunner } from "../runner";
+import { ServiceWorkerRuntime } from "../runtime";
 
 jest.mock("./runtime");
 jest.mock("@google-awlt/engine-core", () => {

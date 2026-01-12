@@ -1,6 +1,9 @@
-import { rewriterApiExecutor } from "./rewriterApiExecutor";
-import type { RuntimeInterface } from "../runtime";
-import type { ExecutionContext } from "../types";
+/**
+ * Internal dependencies
+ */
+import { rewriterApiExecutor } from "../rewriterApiExecutor";
+import type { RuntimeInterface } from "../../runtime";
+import type { ExecutionContext } from "../../types";
 
 describe("rewriterApiExecutor", () => {
   let mockRuntime: jest.Mocked<RuntimeInterface>;

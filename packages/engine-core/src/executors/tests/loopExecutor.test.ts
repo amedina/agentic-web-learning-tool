@@ -1,6 +1,9 @@
-import { loopExecutor } from "./loopExecutor";
-import type { RuntimeInterface } from "../runtime";
-import type { ExecutionContext } from "../types";
+/**
+ * Internal dependencies
+ */
+import { loopExecutor } from "../loopExecutor";
+import type { RuntimeInterface } from "../../runtime";
+import type { ExecutionContext } from "../../types";
 
 describe("loopExecutor", () => {
   const mockRuntime = {} as RuntimeInterface;

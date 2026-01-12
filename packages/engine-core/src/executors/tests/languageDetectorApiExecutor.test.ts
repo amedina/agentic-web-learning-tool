@@ -1,6 +1,9 @@
-import { languageDetectorApiExecutor } from "./languageDetectorApiExecutor";
-import type { RuntimeInterface } from "../runtime";
-import type { ExecutionContext } from "../types";
+/**
+ * Internal dependencies
+ */
+import { languageDetectorApiExecutor } from "../languageDetectorApiExecutor";
+import type { RuntimeInterface } from "../../runtime";
+import type { ExecutionContext } from "../../types";
 
 describe("languageDetectorApiExecutor", () => {
   let mockRuntime: jest.Mocked<RuntimeInterface>;

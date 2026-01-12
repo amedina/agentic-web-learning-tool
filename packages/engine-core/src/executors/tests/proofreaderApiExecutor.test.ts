@@ -1,6 +1,9 @@
-import { proofreaderApiExecutor } from "./proofreaderApiExecutor";
-import type { RuntimeInterface } from "../runtime";
-import type { ExecutionContext } from "../types";
+/**
+ * Internal dependencies
+ */
+import { proofreaderApiExecutor } from "../proofreaderApiExecutor";
+import type { RuntimeInterface } from "../../runtime";
+import type { ExecutionContext } from "../../types";
 
 describe("proofreaderApiExecutor", () => {
   let mockRuntime: jest.Mocked<RuntimeInterface>;

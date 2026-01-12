@@ -1,6 +1,9 @@
-import { initServiceWorkerBridge } from "./bridge";
-import { getWorkflowRunner } from "./runner";
-import { initContentScriptBridge } from "../contentScript";
+/**
+ * Internal dependencies
+ */
+import { initServiceWorkerBridge } from "../bridge";
+import { getWorkflowRunner } from "../runner";
+import { initContentScriptBridge } from "../../contentScript";
 
 jest.mock("./runner");
 jest.mock("../contentScript");

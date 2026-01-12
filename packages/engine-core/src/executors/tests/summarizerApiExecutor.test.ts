@@ -1,6 +1,9 @@
-import { summarizerApiExecutor } from "./summarizerApiExecutor";
-import type { RuntimeInterface } from "../runtime";
-import type { ExecutionContext } from "../types";
+/**
+ * Internal dependencies
+ */
+import { summarizerApiExecutor } from "../summarizerApiExecutor";
+import type { RuntimeInterface } from "../../runtime";
+import type { ExecutionContext } from "../../types";
 
 describe("summarizerApiExecutor", () => {
   let mockRuntime: jest.Mocked<RuntimeInterface>;

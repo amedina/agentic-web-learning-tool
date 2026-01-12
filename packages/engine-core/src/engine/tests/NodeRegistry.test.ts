@@ -1,4 +1,7 @@
-import { NodeRegistry } from "./NodeRegistry";
+/**
+ * Internal dependencies
+ */
+import { NodeRegistry } from "../NodeRegistry";
 
 describe("NodeRegistry", () => {
   beforeEach(() => {

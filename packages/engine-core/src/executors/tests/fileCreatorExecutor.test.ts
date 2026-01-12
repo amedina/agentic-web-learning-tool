@@ -1,6 +1,9 @@
-import { fileCreatorExecutor } from "./fileCreatorExecutor";
-import type { RuntimeInterface } from "../runtime";
-import type { ExecutionContext } from "../types";
+/**
+ * Internal dependencies
+ */
+import { fileCreatorExecutor } from "../fileCreatorExecutor";
+import type { RuntimeInterface } from "../../runtime";
+import type { ExecutionContext } from "../../types";
 
 describe("fileCreatorExecutor", () => {
   let mockRuntime: jest.Mocked<RuntimeInterface>;

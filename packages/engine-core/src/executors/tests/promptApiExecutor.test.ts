@@ -1,6 +1,9 @@
-import { promptApiExecutor } from "./promptApiExecutor";
-import type { RuntimeInterface } from "../runtime";
-import type { ExecutionContext } from "../types";
+/**
+ * Internal dependencies
+ */
+import { promptApiExecutor } from "../promptApiExecutor";
+import type { RuntimeInterface } from "../../runtime";
+import type { ExecutionContext } from "../../types";
 
 describe("promptApiExecutor", () => {
   let mockRuntime: jest.Mocked<RuntimeInterface>;

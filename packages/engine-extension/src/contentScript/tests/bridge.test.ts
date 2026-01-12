@@ -1,7 +1,7 @@
 /**
- * @jest-environment jsdom
+ * Internal dependencies
  */
-import { initContentScriptBridge } from "./bridge";
+import { initContentScriptBridge } from "../bridge";
 
 describe("ContentScriptBridge", () => {
   let handleMsg: any;

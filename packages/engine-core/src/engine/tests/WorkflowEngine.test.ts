@@ -1,8 +1,11 @@
-import { WorkflowEngine } from "./WorkflowEngine";
-import { registerBuiltinExecutors } from "../executors";
-import { NodeRegistry } from "./NodeRegistry";
-import type { WorkflowJSON } from "../types";
-import type { RuntimeInterface } from "../runtime";
+/**
+ * Internal dependencies
+ */
+import { WorkflowEngine } from "../WorkflowEngine";
+import { registerBuiltinExecutors } from "../../executors";
+import { NodeRegistry } from "../NodeRegistry";
+import type { WorkflowJSON } from "../../types";
+import type { RuntimeInterface } from "../../runtime";
 
 describe("WorkflowEngine", () => {
   let engine: WorkflowEngine;

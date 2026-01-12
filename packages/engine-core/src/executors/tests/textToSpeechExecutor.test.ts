@@ -1,6 +1,9 @@
-import { textToSpeechExecutor } from "./textToSpeechExecutor";
-import type { RuntimeInterface } from "../runtime";
-import type { ExecutionContext } from "../types";
+/**
+ * Internal dependencies
+ */
+import { textToSpeechExecutor } from "../textToSpeechExecutor";
+import type { RuntimeInterface } from "../../runtime";
+import type { ExecutionContext } from "../../types";
 
 describe("textToSpeechExecutor", () => {
   let mockRuntime: jest.Mocked<RuntimeInterface>;

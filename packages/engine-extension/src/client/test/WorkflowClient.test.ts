@@ -1,4 +1,7 @@
-import { WorkflowClient, getWorkflowClient } from "./WorkflowClient";
+/**
+ * Internal dependencies
+ */
+import { WorkflowClient, getWorkflowClient } from "../WorkflowClient";
 
 describe("WorkflowClient", () => {
   let client: WorkflowClient;

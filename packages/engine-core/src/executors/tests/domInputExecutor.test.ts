@@ -1,6 +1,9 @@
-import { domInputExecutor } from "./domInputExecutor";
-import type { RuntimeInterface } from "../runtime";
-import type { ExecutionContext } from "../types";
+/**
+ * Internal dependencies
+ */
+import { domInputExecutor } from "../domInputExecutor";
+import type { RuntimeInterface } from "../../runtime";
+import type { ExecutionContext } from "../../types";
 
 describe("domInputExecutor", () => {
   let mockRuntime: jest.Mocked<RuntimeInterface>;

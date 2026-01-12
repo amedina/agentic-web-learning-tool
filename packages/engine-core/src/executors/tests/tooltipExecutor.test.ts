@@ -1,6 +1,9 @@
-import { tooltipExecutor } from "./tooltipExecutor";
-import type { RuntimeInterface } from "../runtime";
-import type { ExecutionContext } from "../types";
+/**
+ * Internal dependencies
+ */
+import { tooltipExecutor } from "../tooltipExecutor";
+import type { RuntimeInterface } from "../../runtime";
+import type { ExecutionContext } from "../../types";
 
 describe("tooltipExecutor", () => {
   let mockRuntime: jest.Mocked<RuntimeInterface>;

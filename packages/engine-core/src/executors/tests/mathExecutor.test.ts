@@ -1,6 +1,9 @@
-import { mathExecutor } from "./mathExecutor";
-import type { RuntimeInterface } from "../runtime";
-import type { ExecutionContext } from "../types";
+/**
+ * Internal dependencies
+ */
+import { mathExecutor } from "../mathExecutor";
+import type { RuntimeInterface } from "../../runtime";
+import type { ExecutionContext } from "../../types";
 
 describe("mathExecutor", () => {
   const mockRuntime = {} as RuntimeInterface;

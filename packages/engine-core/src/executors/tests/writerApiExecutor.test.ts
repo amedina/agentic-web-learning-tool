@@ -1,6 +1,9 @@
-import { writerApiExecutor } from "./writerApiExecutor";
-import type { RuntimeInterface } from "../runtime";
-import type { ExecutionContext } from "../types";
+/**
+ * Internal dependencies
+ */
+import { writerApiExecutor } from "../writerApiExecutor";
+import type { RuntimeInterface } from "../../runtime";
+import type { ExecutionContext } from "../../types";
 
 describe("writerApiExecutor", () => {
   let mockRuntime: jest.Mocked<RuntimeInterface>;

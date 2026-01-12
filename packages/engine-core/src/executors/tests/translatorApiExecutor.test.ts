@@ -1,6 +1,9 @@
-import { translatorApiExecutor } from "./translatorApiExecutor";
-import type { RuntimeInterface } from "../runtime";
-import type { ExecutionContext } from "../types";
+/**
+ * Internal dependencies
+ */
+import { translatorApiExecutor } from "../translatorApiExecutor";
+import type { RuntimeInterface } from "../../runtime";
+import type { ExecutionContext } from "../../types";
 
 describe("translatorApiExecutor", () => {
   let mockRuntime: jest.Mocked<RuntimeInterface>;

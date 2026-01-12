@@ -1,6 +1,9 @@
-import { alertNotificationExecutor } from "./alertNotificationExecutor";
-import type { RuntimeInterface } from "../runtime";
-import type { ExecutionContext } from "../types";
+/**
+ * Internal dependencies
+ */
+import { alertNotificationExecutor } from "../alertNotificationExecutor";
+import type { RuntimeInterface } from "../../runtime";
+import type { ExecutionContext } from "../../types";
 
 describe("alertNotificationExecutor", () => {
   let mockRuntime: jest.Mocked<RuntimeInterface>;

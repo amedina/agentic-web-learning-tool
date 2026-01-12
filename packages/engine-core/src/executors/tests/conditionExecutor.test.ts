@@ -1,6 +1,9 @@
-import { conditionExecutor } from "./conditionExecutor";
-import type { ExecutionContext } from "../types";
-import type { RuntimeInterface } from "../runtime";
+/**
+ * Internal dependencies
+ */
+import { conditionExecutor } from "../conditionExecutor";
+import type { ExecutionContext } from "../../types";
+import type { RuntimeInterface } from "../../runtime";
 
 describe("conditionExecutor", () => {
   let mockRuntime: jest.Mocked<RuntimeInterface>;

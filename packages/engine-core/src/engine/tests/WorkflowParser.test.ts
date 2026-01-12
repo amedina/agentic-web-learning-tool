@@ -1,5 +1,9 @@
-import { WorkflowParser } from "./WorkflowParser";
-import type { WorkflowJSON } from "../types";
+/**
+ * Internal dependencies
+ */
+
+import { WorkflowParser } from "../WorkflowParser";
+import type { WorkflowJSON } from "../../types";
 
 describe("WorkflowParser", () => {
   let parser: WorkflowParser;

@@ -1,6 +1,9 @@
-import { clipboardWriterExecutor } from "./clipboardWriterExecutor";
-import type { RuntimeInterface } from "../runtime";
-import type { ExecutionContext } from "../types";
+/**
+ * Internal dependencies
+ */
+import { clipboardWriterExecutor } from "../clipboardWriterExecutor";
+import type { RuntimeInterface } from "../../runtime";
+import type { ExecutionContext } from "../../types";
 
 describe("clipboardWriterExecutor", () => {
   let mockRuntime: jest.Mocked<RuntimeInterface>;

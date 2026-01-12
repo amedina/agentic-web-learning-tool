@@ -1,6 +1,9 @@
-import { dataTransformerExecutor } from "./dataTransformerExecutor";
-import type { ExecutionContext } from "../types";
-import type { RuntimeInterface } from "../runtime";
+/**
+ * Internal dependencies
+ */
+import { dataTransformerExecutor } from "../dataTransformerExecutor";
+import type { ExecutionContext } from "../../types";
+import type { RuntimeInterface } from "../../runtime";
 
 describe("dataTransformerExecutor", () => {
   let mockRuntime: jest.Mocked<RuntimeInterface>;

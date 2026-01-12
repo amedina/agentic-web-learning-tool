@@ -1,6 +1,9 @@
-import { staticInputExecutor } from "./staticInputExecutor";
-import type { RuntimeInterface } from "../runtime";
-import type { ExecutionContext } from "../types";
+/**
+ * Internal dependencies
+ */
+import { staticInputExecutor } from "../staticInputExecutor";
+import type { RuntimeInterface } from "../../runtime";
+import type { ExecutionContext } from "../../types";
 
 describe("staticInputExecutor", () => {
   const mockRuntime = {} as RuntimeInterface;

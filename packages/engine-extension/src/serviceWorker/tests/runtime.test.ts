@@ -1,4 +1,7 @@
-import { ServiceWorkerRuntime } from "./runtime";
+/**
+ * Internal dependencies
+ */
+import { ServiceWorkerRuntime } from "../runtime";
 
 describe("ServiceWorkerRuntime", () => {
   let runtime: ServiceWorkerRuntime;
