@@ -1,8 +1,8 @@
 /**
  * Internal dependencies
  */
-import { logger } from "../../utils";
-import { configureTabPanel } from "../utils";
+import { logger } from '../../utils';
+import { configureTabPanel } from '../utils';
 
 const tabOnCreatedCallback = async (tab: chrome.tabs.Tab) => {
   if (tab.id) {
@@ -11,7 +11,10 @@ const tabOnCreatedCallback = async (tab: chrome.tabs.Tab) => {
       logger(['debug'], ['Pre-configured panel for new tab:', tab.id]);
     } catch (error) {
       // Non-critical - panel will be configured on first click
-      logger(['debug'],['Could not pre-configure panel for tab:', tab.id, error]);
+      logger(
+        ['debug'],
+        ['Could not pre-configure panel for tab:', tab.id, error]
+      );
     }
   }
 };

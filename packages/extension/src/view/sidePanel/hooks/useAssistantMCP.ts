@@ -3,15 +3,23 @@
  */
 import { tool, type AssistantRuntime } from '@assistant-ui/react';
 import type { Client } from '@modelcontextprotocol/sdk/client/index.js';
-import type { Tool as McpTool, CallToolResult } from '@modelcontextprotocol/sdk/types.js';
+import type {
+  Tool as McpTool,
+  CallToolResult,
+} from '@modelcontextprotocol/sdk/types.js';
 import { useEffect, useMemo } from 'react';
-
+import { getToolNameWithoutPrefix } from '@google-awlt/design-system';
 /**
  * Internal dependencies
  */
-import { cleanArguments, formatToolResult, getToolNameForUI, mcpToolToJSONSchema, validateToolPreferences } from '../utils';
+import {
+  cleanArguments,
+  formatToolResult,
+  mcpToolToJSONSchema,
+  validateToolPreferences,
+} from '../utils';
 import type { ToolExecutionArgs } from '../types';
-import logger from '../../../utils/logger';
+import { logger } from '../../../utils';
 
 /**
  * Hook that bridges MCP tools with the Assistant UI framework.
@@ -61,50 +69,64 @@ export function useAssistantMCP(
     if (!client) return;
 
     // Transform MCP tools into Assistant UI tools
-    const assistantTools = filteredTools.map((mcpT) => {
-      // Generate a clean name for the UI (handles length limits & hashing if needed)
-      const uiToolName = mcpT.name === 'dummyTool' ? mcpT.name : getToolNameForUI(mcpT.name);
+    const assistantTools = filteredTools
+      .map((mcpT) => {
+        // Generate a clean name for the UI (handles length limits & hashing if needed)
+        const uiToolName =
+          mcpT.name.length > 64
+            ? getToolNameWithoutPrefix(mcpT.name)
+            : mcpT.name;
 
-      // Extract a human-readable name for logging (removes "tab123_" prefix)
-      const match = mcpT.name.match(/^tab\d+_(.+)$/);
-      const logName = match ? match[1] : mcpT.name;
-      return {
-        name: uiToolName,
-        // The Assistant UI 'tool' definition
-        assistantTool: tool({
-          type: 'frontend',
-          description: mcpT.description,
-          parameters: mcpToolToJSONSchema(mcpT.inputSchema),
-          execute: async (args, { abortSignal: signal }) => {
-            try {
-              const cleanedArgs = cleanArguments(args as ToolExecutionArgs);
+        // Extract a human-readable name for logging (removes "tab123_" prefix)
+        const match = mcpT.name.match(/^tab\d+_(.+)$/);
+        const logName = match ? match[1] : mcpT.name;
+        return {
+          name: uiToolName,
+          // The Assistant UI 'tool' definition
+          assistantTool: tool({
+            type: 'frontend',
+            description: mcpT.description,
+            parameters: mcpToolToJSONSchema(mcpT.inputSchema),
+            execute: async (args, { abortSignal: signal }) => {
+              try {
+                const cleanedArgs = cleanArguments(args as ToolExecutionArgs);
 
-              // Execute against the MCP Client using the *Original* name
-              const toolResult = await client.callTool(
-                {
-                  name: mcpT.name,
-                  arguments: cleanedArgs,
-                },
-                undefined,
-                { signal }
-              );
+                // Execute against the MCP Client using the *Original* name
+                const toolResult = await client.callTool(
+                  {
+                    name: mcpT.name,
+                    arguments: cleanedArgs,
+                  },
+                  undefined,
+                  { signal }
+                );
 
-              return formatToolResult(toolResult.content as CallToolResult['content']);
-            } catch (error) {
-              logger(['error'], [`[useAssistantMCP] Tool execution failed for '${logName}': ${error}`]);
-            }
-          },
-        }),
-      };
-    }).filter((singleTool) => singleTool.name !== 'dummyTool');
+                return formatToolResult(
+                  toolResult.content as CallToolResult['content']
+                );
+              } catch (error) {
+                logger(
+                  ['error'],
+                  [
+                    `[useAssistantMCP] Tool execution failed for '${logName}': ${error}`,
+                  ]
+                );
+              }
+            },
+          }),
+        };
+      })
+      .filter((singleTool) => singleTool.name !== 'dummyTool');
 
     // Register the Context Provider with the Runtime
     const unregister = runtime.registerModelContextProvider({
       getModelContext: () => ({
         // Hint to the model that tools are available
         system: filteredTools.length > 0 ? 'TOOLS:' : '',
-        // Map: { [uiName]: ToolDefinition } 
-        tools: Object.fromEntries(assistantTools.map((t) => [t.name, t.assistantTool])),
+        // Map: { [uiName]: ToolDefinition }
+        tools: Object.fromEntries(
+          assistantTools.map((t) => [t.name, t.assistantTool])
+        ),
       }),
     });
 

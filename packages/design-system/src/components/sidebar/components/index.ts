@@ -19,4 +19,3 @@ export { default as SidebarMenuSubItem } from './sidebarMenuSubItem';
 export { default as SidebarRail } from './sidebarRail';
 export { default as SidebarSeparator } from './sidebarSeparator';
 export { default as SidebarTrigger } from './sidebarTrigger';
-
