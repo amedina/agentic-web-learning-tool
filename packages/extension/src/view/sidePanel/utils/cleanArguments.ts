@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import type { ToolExecutionArgs } from "../types";
+import type { ToolExecutionArgs } from '../types';
 
 /**
  * Removes null or undefined values from the arguments object.

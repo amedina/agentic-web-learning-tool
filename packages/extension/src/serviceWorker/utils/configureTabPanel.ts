@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { logger } from "../../utils";
+import { logger } from '../../utils';
 
 /**
  * Ensure a tab-specific side panel is configured before opening
@@ -25,7 +25,10 @@ async function configureTabPanel(tabId: number): Promise<void> {
       },
     });
   } catch (error) {
-    logger(['error'], [`Failed to configure side panel for tab ${tabId}:`, error]);
+    logger(
+      ['error'],
+      [`Failed to configure side panel for tab ${tabId}:`, error]
+    );
     throw error;
   }
 }

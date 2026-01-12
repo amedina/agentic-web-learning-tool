@@ -32,17 +32,17 @@ const meta = {
   tags: ['autodocs'],
   argTypes: {
     options: {
-        control: 'object',
-        description: 'Array of options to display in the menu',
+      control: 'object',
+      description: 'Array of options to display in the menu',
     },
     label: {
-        control: 'text',
-        description: 'Optional category label shown at the top of the list',
+      control: 'text',
+      description: 'Optional category label shown at the top of the list',
     },
     selectedValue: {
-        control: 'select',
-        options: modelOptions.map(o => o.id),
-        description: 'The ID of the currently selected option',
+      control: 'select',
+      options: modelOptions.map((o) => o.id),
+      description: 'The ID of the currently selected option',
     },
     onSelect: { action: 'selected' },
   },
@@ -80,22 +80,24 @@ export const LongList: Story = {
 
 export const Interactive: Story = {
   render: (args) => {
-    const [currentValue, setCurrentValue] = useState(args.selectedValue || 'gpt-4');
+    const [currentValue, setCurrentValue] = useState(
+      args.selectedValue || 'gpt-4'
+    );
 
     const handleSelect = (id: string) => {
-        setCurrentValue(id);
-        args.onSelect(id);
+      setCurrentValue(id);
+      args.onSelect(id);
     };
 
     return (
       <div className="h-[200px] flex flex-col items-center gap-4">
         <span className="text-sm text-stone-500">
-            Current State: <span className="font-bold">{currentValue}</span>
+          Current State: <span className="font-bold">{currentValue}</span>
         </span>
-        <DropDown 
-            {...args} 
-            selectedValue={currentValue} 
-            onSelect={handleSelect} 
+        <DropDown
+          {...args}
+          selectedValue={currentValue}
+          onSelect={handleSelect}
         />
       </div>
     );

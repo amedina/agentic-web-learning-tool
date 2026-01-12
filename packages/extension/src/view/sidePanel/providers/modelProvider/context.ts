@@ -5,30 +5,34 @@ import { noop, createContext } from '@google-awlt/common';
 /**
  * Internal dependencies.
  */
-import type { AgentType } from '../../../../types';
+import type { AgentType, APIKeys } from '../../../../types';
 import type { CloudHostedTransport } from '../../transports/cloudHosted';
 import type { GeminiNanoChatTransport } from '../../transports/geminiNano';
-import { DEFAULT_AGENTS } from '../../../../constants';
 
 export interface ModelProviderStoreContext {
   state: {
-    agents: AgentType[],
-    selectedAgent: AgentType,
+    apiKeys: { [key: string]: APIKeys };
+    selectedAgent: AgentType;
     transport: GeminiNanoChatTransport | CloudHostedTransport | null;
+    toolNameToMCPMap: Record<string, string>;
   };
   actions: {
-    setSelectedAgent: React.Dispatch<React.SetStateAction<AgentType>>,
+    setSelectedAgent: React.Dispatch<React.SetStateAction<AgentType>>;
   };
 }
 
 const initialState: ModelProviderStoreContext = {
   state: {
-    agents: [],
-    selectedAgent: DEFAULT_AGENTS[0],
-    transport: null
+    apiKeys: {},
+    selectedAgent: {
+      modelProvider: 'browser-ai',
+      model: 'prompt-api',
+    },
+    toolNameToMCPMap: {},
+    transport: null,
   },
   actions: {
-    setSelectedAgent: noop
+    setSelectedAgent: noop,
   },
 };
 

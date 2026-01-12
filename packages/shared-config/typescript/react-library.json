@@ -7,6 +7,6 @@
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "jsx": "react-jsx",
     "typeRoots": ["./typings", "../node_modules/@types"],
-    "types": ["jest", "jest-extended"],
+    "types": ["jest", "jest-extended"]
   }
 }
