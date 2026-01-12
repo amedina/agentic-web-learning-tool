@@ -17,7 +17,6 @@ import {
   mergeSystemAndMessages,
   systemPromptTemplate,
 } from '../../utils';
-import { getToolNameWithoutPrefix } from '@google-awlt/design-system';
 
 type ToolType = Tool & {
   name: string;
@@ -98,7 +97,7 @@ class ChromeAILanguageModel {
     // Transform tools into OpenAI-like JSON schema for the system prompt
     this.formattedTools = functionTools.map((tool) => {
       return {
-        name: getToolNameWithoutPrefix(tool.name),
+        name: tool.name,
         description: tool.description ?? 'No description Provided',
         parameters: tool?.parameters ?? tool?.inputSchema,
         execute: tool.execute,
