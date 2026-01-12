@@ -11,20 +11,18 @@ import AccordionItem from './accordionItem';
 import AccordionTrigger from './accordionTrigger';
 
 type AccordionProps = PropsWithChildren<ComponentProps<typeof Root>> & {
-	triggerText: string;
+  triggerText: string;
 };
 
 function Accordion({ triggerText, children, ...props }: AccordionProps) {
-	return (
-		<Root data-slot="accordion" className="w-full" {...props}>
-			<AccordionItem value="item-1">
-				<AccordionTrigger>{triggerText}</AccordionTrigger>
-				<AccordionContent>
-					{children}
-				</AccordionContent>
-			</AccordionItem>
-		</Root>
-	);
+  return (
+    <Root data-slot="accordion" className="w-full" {...props}>
+      <AccordionItem value="item-1">
+        <AccordionTrigger>{triggerText}</AccordionTrigger>
+        <AccordionContent>{children}</AccordionContent>
+      </AccordionItem>
+    </Root>
+  );
 }
 
 export default Accordion;

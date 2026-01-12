@@ -21,27 +21,35 @@
  * // Returns "unknown_tool" (no prefix match)
  * getToolNameWithoutPrefix("unknown_tool");
  */
-function getToolNameWithoutPrefix(toolName: string){
-    const websiteToolNamePrefix = 'website_tool_';
-    // Incase we decide to add some tools from extension
-    const extensionToolNamePrefix = 'extension_tool_';
-    let toolNameWithoutHardCodePrefix = '';
+function getToolNameWithoutPrefix(toolName: string) {
+  const websiteToolNamePrefix = 'website_tool_';
+  // Incase we decide to add some tools from extension
+  const extensionToolNamePrefix = 'extension_tool_';
+  let toolNameWithoutHardCodePrefix = '';
 
-    if(toolName.startsWith(websiteToolNamePrefix)){
-        toolNameWithoutHardCodePrefix = toolName.substring(websiteToolNamePrefix.length-1);
-        const pieces = toolNameWithoutHardCodePrefix.split('_');
-        pieces.shift();
-        return pieces.join('_').match(/_tab[^_]+_(.+)$/)?.[1];
-    }
+  if (toolName.startsWith(websiteToolNamePrefix)) {
+    toolNameWithoutHardCodePrefix = toolName.substring(
+      websiteToolNamePrefix.length - 1
+    );
+    const pieces = toolNameWithoutHardCodePrefix.split('_');
+    pieces.shift();
+    return pieces.join('_').match(/_tab[^_]+_(.+)$/)?.[1];
+  }
 
-    if(toolName.startsWith(extensionToolNamePrefix)){
-        toolNameWithoutHardCodePrefix = toolName.substring(extensionToolNamePrefix.length-1);
-        const pieces = toolNameWithoutHardCodePrefix.split('_');
-        pieces.shift();
-        return pieces.join('_').match(/_tab[^_]+_(.+)$/)?.[1];
-    }
+  if (toolName.startsWith(extensionToolNamePrefix)) {
+    toolNameWithoutHardCodePrefix = toolName.substring(
+      extensionToolNamePrefix.length
+    );
+    return toolNameWithoutHardCodePrefix;
+  }
 
-    return toolName;
+  if (toolName.includes('_mcp')) {
+    const match = toolName.match(/(?<=_mcp_).*/);
+    const unPrefixedToolName = match ? match[0] : toolName;
+    return unPrefixedToolName;
+  }
+
+  return toolName;
 }
 
 export default getToolNameWithoutPrefix;

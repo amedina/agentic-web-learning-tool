@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import { type Dispatch, type SetStateAction } from "react";
-import { createContext, noop } from "@google-awlt/common";
+import { type Dispatch, type SetStateAction } from 'react';
+import { createContext, noop } from '@google-awlt/common';
 
 export interface SidebarContextProps {
   state: {
