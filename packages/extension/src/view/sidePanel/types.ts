@@ -3,33 +3,33 @@
  * inside the fenced tool call.
  */
 export type ToolCallRequest = {
-    toolName: string;
-    arguments: Record<string, any>;
-    toolCallId: string;
-    type: string;
+  toolName: string;
+  arguments: Record<string, any>;
+  toolCallId: string;
+  type: string;
 };
 
-export type Role = "system" | "user" | "assistant" | "tool";
+export type Role = 'system' | 'user' | 'assistant' | 'tool';
 
 export interface ToolCall {
-  type: "tool-call";
+  type: 'tool-call';
   toolName: string;
   toolCallId?: string;
   input: string | object;
 }
 
 export interface ToolResultInput {
-  type: "tool-result"; // implied context
+  type: 'tool-result'; // implied context
   toolCallId?: string;
   toolName: string;
   output: {
-    type?: "text" | "json" | "error-text" | "error-json" | "content";
+    type?: 'text' | 'json' | 'error-text' | 'error-json' | 'content';
     value: any;
   };
 }
 
 export interface ContentPart {
-  type: "text" | "reasoning" | "tool-call";
+  type: 'text' | 'reasoning' | 'tool-call';
   text?: string;
   // Specific properties for tool calls are handled via union or intersection in real-world apps,
   // but strictly mapping the input structure here:
@@ -44,8 +44,8 @@ export interface InputMessage {
 }
 
 export interface FormattedMessage {
-  role: "user" | "assistant";
-  content: string | { type: "text"; value: string }[];
+  role: 'user' | 'assistant';
+  content: string | { type: 'text'; value: string }[];
 }
 
 export interface ConversionResult {

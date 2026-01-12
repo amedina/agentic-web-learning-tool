@@ -1,33 +1,33 @@
 {
-	"extends": "@google-awlt/shared-config/typescript/react-library",
-	"compilerOptions": {
-		"allowJs": true,
-		"checkJs": true,
-		"outDir": "./dist",
-		"lib": ["dom", "ES2015"],
-		"sourceMap": true,
-		"noEmit": true,
-		"allowImportingTsExtensions": false,
-		"baseUrl": ".",
-		"paths": {
-			"@/*": ["./src/*"]
-		},
-		"types": ["jest"],
-		"typeRoots": ["./node_modules/@types"]
-	},
-	"include": [
-		"src",
-		"tests",
-		"storybook.d.ts",
-		"node_modules/jest-extended/types/index.d.ts",
-		"**/*.test.ts",
-		"**/*.test.tsx"
-	],
-	"exclude": [
-		"dist",
-		"build",
-		"node_modules",
-		"jest.config.cjs",
-		"tests/jest.setup.cjs"
-	]
+  "extends": "@google-awlt/shared-config/typescript/react-library",
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+    "outDir": "./dist",
+    "lib": ["dom", "ESNext"],
+    "sourceMap": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": false,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "types": ["jest"],
+    "typeRoots": ["./node_modules/@types"]
+  },
+  "include": [
+    "src",
+    "tests",
+    "storybook.d.ts",
+    "node_modules/jest-extended/types/index.d.ts",
+    "**/*.test.ts",
+    "**/*.test.tsx"
+  ],
+  "exclude": [
+    "dist",
+    "build",
+    "node_modules",
+    "jest.config.cjs",
+    "tests/jest.setup.cjs"
+  ]
 }

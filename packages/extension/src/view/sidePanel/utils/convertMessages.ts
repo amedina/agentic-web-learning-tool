@@ -1,7 +1,13 @@
 /**
  * Internal dependencies
  */
-import type { InputMessage, ConversionResult, FormattedMessage, ToolCall, ToolResultInput } from "../types";
+import type {
+  InputMessage,
+  ConversionResult,
+  FormattedMessage,
+  ToolCall,
+  ToolResultInput,
+} from '../types';
 
 /**
  * Converts generic chat messages into a format suitable for the Chrome Built-in AI Prompt API.
@@ -11,51 +17,60 @@ import type { InputMessage, ConversionResult, FormattedMessage, ToolCall, ToolRe
  * - Tool Calls are formatted into a Markdown block: ```tool_call ... ``` inside an Assistant message.
  * - Tool Results are formatted into a Markdown block: ```tool_result ... ``` inside a User message.
  */
-export function convertMessages(inputMessages: InputMessage[]): ConversionResult {
+export function convertMessages(
+  inputMessages: InputMessage[]
+): ConversionResult {
   const messagesCopy = [...inputMessages];
   const formattedMessages: FormattedMessage[] = [];
   let systemMessage: any = undefined;
 
   for (const message of messagesCopy) {
     switch (message.role) {
-      case "system": {
+      case 'system': {
         systemMessage = message.content;
         break;
       }
 
-      case "user": {
+      case 'user': {
         const content = message.content.map((part) => {
-          if (part.type === "text") {
-            return { type: "text" as const, value: part.text || "" };
+          if (part.type === 'text') {
+            return {
+              type: 'text' as const,
+              value: part.text || '',
+            };
           }
-          throw new Error(`Unsupported content type in user message: ${part.type ?? "unknown"}`);
+          throw new Error(
+            `Unsupported content type in user message: ${part.type ?? 'unknown'}`
+          );
         });
 
         formattedMessages.push({
-          role: "user",
+          role: 'user',
           content: content,
         });
         break;
       }
 
-      case "assistant": {
-        let textAccumulator = "";
+      case 'assistant': {
+        let textAccumulator = '';
         const toolCalls: ToolCall[] = [];
 
         for (const part of message.content) {
           switch (part.type) {
-            case "text":
-            case "reasoning": {
+            case 'text':
+            case 'reasoning': {
               // Merge standard text and reasoning/thoughts into the main content
               if (part.text) textAccumulator += part.text;
               break;
             }
-            case "tool-call": {
+            case 'tool-call': {
               toolCalls.push(part as ToolCall);
               break;
             }
             default: {
-              throw new Error(`Unsupported assistant part type: ${part.type ?? "unknown"}`);
+              throw new Error(
+                `Unsupported assistant part type: ${part.type ?? 'unknown'}`
+              );
             }
           }
         }
@@ -72,29 +87,29 @@ export function convertMessages(inputMessages: InputMessage[]): ConversionResult
         }
 
         formattedMessages.push({
-          role: "assistant",
-          content: contentParts.join("\n") || "",
+          role: 'assistant',
+          content: contentParts.join('\n') || '',
         });
         break;
       }
 
-      case "tool": {
+      case 'tool': {
         // Process raw tool outputs into a standardized format
         const processedResults = message.content.map(processToolResultEntry);
-        
+
         // Wrap results in the specific Markdown block
         const resultsBlock = formatToolResultsBlock(processedResults);
 
         // Protocol Requirement: Tool results are injected as a USER message
         formattedMessages.push({
-          role: "user",
+          role: 'user',
           content: resultsBlock,
         });
         break;
       }
 
       default: {
-        throw new Error(`Unsupported role: ${message.role ?? "unknown"}`);
+        throw new Error(`Unsupported role: ${message.role ?? 'unknown'}`);
       }
     }
   }
@@ -110,7 +125,7 @@ export function convertMessages(inputMessages: InputMessage[]): ConversionResult
  */
 function safeParseJson(input: string | object | undefined): any {
   if (input === undefined) return {};
-  if (typeof input === "string") {
+  if (typeof input === 'string') {
     try {
       return JSON.parse(input);
     } catch {
@@ -124,7 +139,7 @@ function safeParseJson(input: string | object | undefined): any {
  * Formats an array of tool calls into a Markdown code block.
  */
 function formatToolCalls(toolCalls: ToolCall[]): string {
-  if (!toolCalls.length) return "";
+  if (!toolCalls.length) return '';
 
   const lines = toolCalls.map((call) => {
     const payload: any = {
@@ -137,7 +152,7 @@ function formatToolCalls(toolCalls: ToolCall[]): string {
     return JSON.stringify(payload);
   });
 
-  return `\`\`\`tool_call\n${lines.join("\n")}\n\`\`\``;
+  return `\`\`\`tool_call\n${lines.join('\n')}\n\`\`\``;
 }
 
 /**
@@ -145,12 +160,12 @@ function formatToolCalls(toolCalls: ToolCall[]): string {
  */
 function extractToolOutputValue(output: any): { value: any; isError: boolean } {
   switch (output.type) {
-    case "text":
-    case "json":
-    case "content":
+    case 'text':
+    case 'json':
+    case 'content':
       return { value: output.value, isError: false };
-    case "error-text":
-    case "error-json":
+    case 'error-text':
+    case 'error-json':
       return { value: output.value, isError: true };
     default:
       // Fallback for raw values not wrapped in a type object
@@ -174,7 +189,12 @@ function processToolResultEntry(entry: ToolResultInput) {
 /**
  * Formats a single processed tool result for the final block.
  */
-function formatSingleResultForBlock(entry: { toolName: string; result: any; isError: boolean; toolCallId?: string }) {
+function formatSingleResultForBlock(entry: {
+  toolName: string;
+  result: any;
+  isError: boolean;
+  toolCallId?: string;
+}) {
   const payload: any = {
     name: entry.toolName,
     result: entry.result ?? null,
@@ -190,9 +210,11 @@ function formatSingleResultForBlock(entry: { toolName: string; result: any; isEr
  * Formats an array of processed tool results into a Markdown code block.
  */
 function formatToolResultsBlock(results: any[]): string {
-  if (!results || results.length === 0) return "";
+  if (!results || results.length === 0) return '';
 
-  const lines = results.map((r) => JSON.stringify(formatSingleResultForBlock(r)));
+  const lines = results.map((r) =>
+    JSON.stringify(formatSingleResultForBlock(r))
+  );
 
-  return `\`\`\`tool_result\n${lines.join("\n")}\n\`\`\``;
+  return `\`\`\`tool_result\n${lines.join('\n')}\n\`\`\``;
 }
