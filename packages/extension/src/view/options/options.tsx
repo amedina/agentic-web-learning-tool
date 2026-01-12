@@ -19,6 +19,7 @@ import {
   Play,
   Workflow,
   Sparkles,
+  Database,
   View,
 } from 'lucide-react';
 import { useEffect, useMemo } from 'react';
@@ -50,7 +51,7 @@ const Items: ExtendedMenuItem[] = [
   {
     title: 'MCP',
     id: 'mcp-group',
-    icon: () => <Server />,
+    icon: () => <Database />,
     items: [
       {
         title: 'MCP Servers',
