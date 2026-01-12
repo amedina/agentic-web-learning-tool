@@ -13,7 +13,7 @@ import { ExtensionServerTransport } from '@mcp-b/transports';
 import { CONNECTION_NAMES, logger } from '../utils';
 import McpHub from './mcpHub';
 import './chromeListeners';
-import './engine';
+import './workflowEngine';
 
 const sharedServer = new McpServer({ name: 'Extension-Hub', version: '1.0.0' }, { capabilities: { tools: { listChanged: true } } });
 
