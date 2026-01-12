@@ -32,6 +32,10 @@ import {
   WebMCPToolsTab,
   SettingsTab,
   PromptCommandsTab,
+  MCPInspectorTab,
+  APIStatusTab,
+  APIPlaygroundsTab,
+  WorkflowComposerTab,
 } from './components';
 import MCPServersTab from './components/mcpServers';
 import { useSettings } from '../stateProviders';
@@ -69,11 +73,7 @@ const Items: ExtendedMenuItem[] = [
         title: 'MCP Inspector',
         id: 'mcp-inspector',
         icon: () => <View />,
-        component: (
-          <div className="flex items-center justify-center h-full text-muted-foreground">
-            MCP Inspector (Coming Soon)
-          </div>
-        ),
+        component: <MCPInspectorTab />,
       },
     ],
   },
@@ -86,31 +86,19 @@ const Items: ExtendedMenuItem[] = [
         title: 'API Status',
         id: 'api-status',
         icon: () => <Activity />,
-        component: (
-          <div className="flex items-center justify-center h-full text-muted-foreground">
-            API Status (Coming Soon)
-          </div>
-        ),
+        component: <APIStatusTab />,
       },
       {
         title: 'API Playgrounds',
         id: 'api-playgrounds',
         icon: () => <Play />,
-        component: (
-          <div className="flex items-center justify-center h-full text-muted-foreground">
-            API Playgrounds (Coming Soon)
-          </div>
-        ),
+        component: <APIPlaygroundsTab />,
       },
       {
         title: 'Workflow Composer',
         id: 'workflow-composer',
         icon: () => <Workflow />,
-        component: (
-          <div className="flex items-center justify-center h-full text-muted-foreground">
-            Workflow Composer (Coming Soon)
-          </div>
-        ),
+        component: <WorkflowComposerTab />,
       },
     ],
   },
