@@ -3,10 +3,10 @@
  */
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import {
-	AssistantRuntimeProvider,
-	MessagePrimitive,
-	useLocalRuntime,
-	ThreadPrimitive,
+  AssistantRuntimeProvider,
+  MessagePrimitive,
+  useLocalRuntime,
+  ThreadPrimitive,
 } from '@assistant-ui/react';
 /**
  * Internal dependencies
@@ -14,9 +14,9 @@ import {
 import MarkdownText from './markdownText';
 
 const meta: Meta<typeof MarkdownText> = {
-	title: 'ui/MarkdownText',
-	component: MarkdownText,
-	tags: ['autodocs'],
+  title: 'ui/MarkdownText',
+  component: MarkdownText,
+  tags: ['autodocs'],
 };
 
 export default meta;
@@ -42,138 +42,132 @@ console.log(hello);
 `;
 
 export const Default: Story = {
-	render: (args) => {
-		const content = (args as { content: string }).content;
-		const runtime = useLocalRuntime(
-			{
-				run: () =>
-					Promise.resolve({
-						content: [{ type: 'text', text: content }],
-					}),
-			},
-			{
-				initialMessages: [
-					{
-						id: 'welcome',
-						role: 'assistant',
-						content: [
-							{
-								type: 'text',
-								text: content,
-							},
-						],
-					},
-				],
-			}
-		);
-		return (
-			<AssistantRuntimeProvider runtime={runtime}>
-				<ThreadPrimitive.Messages
-					components={{
-						Message: () => (
-							<MessagePrimitive.Parts
-								components={{ Text: MarkdownText }}
-							/>
-						),
-					}}
-				/>
-			</AssistantRuntimeProvider>
-		);
-	},
-	args: {
-		content: 'Hello **World**',
-	},
+  render: (args) => {
+    const content = (args as { content: string }).content;
+    const runtime = useLocalRuntime(
+      {
+        run: () =>
+          Promise.resolve({
+            content: [{ type: 'text', text: content }],
+          }),
+      },
+      {
+        initialMessages: [
+          {
+            id: 'welcome',
+            role: 'assistant',
+            content: [
+              {
+                type: 'text',
+                text: content,
+              },
+            ],
+          },
+        ],
+      }
+    );
+    return (
+      <AssistantRuntimeProvider runtime={runtime}>
+        <ThreadPrimitive.Messages
+          components={{
+            Message: () => (
+              <MessagePrimitive.Parts components={{ Text: MarkdownText }} />
+            ),
+          }}
+        />
+      </AssistantRuntimeProvider>
+    );
+  },
+  args: {
+    content: 'Hello **World**',
+  },
 };
 
 export const ComplexDocument: Story = {
-	render: (args) => {
-		const content = (args as { content: string }).content;
-		const runtime = useLocalRuntime(
-			{
-				run: () =>
-					Promise.resolve({
-						content: [{ type: 'text', text: content }],
-					}),
-			},
-			{
-				initialMessages: [
-					{
-						id: 'welcome',
-						role: 'assistant',
-						content: [
-							{
-								type: 'text',
-								text: content,
-							},
-						],
-					},
-				],
-			}
-		);
-		return (
-			<AssistantRuntimeProvider runtime={runtime}>
-				<ThreadPrimitive.Messages
-					components={{
-						Message: () => (
-							<MessagePrimitive.Parts
-								components={{ Text: MarkdownText }}
-							/>
-						),
-					}}
-				/>
-			</AssistantRuntimeProvider>
-		);
-	},
-	args: {
-		content: sampleMarkdown,
-	},
+  render: (args) => {
+    const content = (args as { content: string }).content;
+    const runtime = useLocalRuntime(
+      {
+        run: () =>
+          Promise.resolve({
+            content: [{ type: 'text', text: content }],
+          }),
+      },
+      {
+        initialMessages: [
+          {
+            id: 'welcome',
+            role: 'assistant',
+            content: [
+              {
+                type: 'text',
+                text: content,
+              },
+            ],
+          },
+        ],
+      }
+    );
+    return (
+      <AssistantRuntimeProvider runtime={runtime}>
+        <ThreadPrimitive.Messages
+          components={{
+            Message: () => (
+              <MessagePrimitive.Parts components={{ Text: MarkdownText }} />
+            ),
+          }}
+        />
+      </AssistantRuntimeProvider>
+    );
+  },
+  args: {
+    content: sampleMarkdown,
+  },
 };
 
 export const PythonCode: Story = {
-	render: (args) => {
-		const content = (args as { content: string }).content;
-		const runtime = useLocalRuntime(
-			{
-				run: () =>
-					Promise.resolve({
-						content: [{ type: 'text', text: content }],
-					}),
-			},
-			{
-				initialMessages: [
-					{
-						id: 'welcome',
-						role: 'assistant',
-						content: [
-							{
-								type: 'text',
-								text: content,
-							},
-						],
-					},
-				],
-			}
-		);
-		return (
-			<AssistantRuntimeProvider runtime={runtime}>
-				<ThreadPrimitive.Messages
-					components={{
-						Message: () => (
-							<MessagePrimitive.Parts
-								components={{ Text: MarkdownText }}
-							/>
-						),
-					}}
-				/>
-			</AssistantRuntimeProvider>
-		);
-	},
-	args: {
-		content: `
+  render: (args) => {
+    const content = (args as { content: string }).content;
+    const runtime = useLocalRuntime(
+      {
+        run: () =>
+          Promise.resolve({
+            content: [{ type: 'text', text: content }],
+          }),
+      },
+      {
+        initialMessages: [
+          {
+            id: 'welcome',
+            role: 'assistant',
+            content: [
+              {
+                type: 'text',
+                text: content,
+              },
+            ],
+          },
+        ],
+      }
+    );
+    return (
+      <AssistantRuntimeProvider runtime={runtime}>
+        <ThreadPrimitive.Messages
+          components={{
+            Message: () => (
+              <MessagePrimitive.Parts components={{ Text: MarkdownText }} />
+            ),
+          }}
+        />
+      </AssistantRuntimeProvider>
+    );
+  },
+  args: {
+    content: `
 \`\`\`python
 def hello():
     print("Hello from Python")
 \`\`\`
     `,
-	},
+  },
 };
