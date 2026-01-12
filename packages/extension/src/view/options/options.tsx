@@ -28,7 +28,7 @@ import { useEffect, useMemo } from 'react';
  * Internal dependencies
  */
 import {
-  AgentStudioTab,
+  ModelsTab,
   WebMCPToolsTab,
   SettingsTab,
   PromptCommandsTab,
@@ -44,9 +44,9 @@ type ExtendedMenuItem = MenuItem & {
 const Items: ExtendedMenuItem[] = [
   {
     title: 'Models',
-    id: 'agents',
+    id: 'models',
     icon: () => <CpuIcon />,
-    component: <AgentStudioTab />,
+    component: <ModelsTab />,
   },
   {
     title: 'MCP',

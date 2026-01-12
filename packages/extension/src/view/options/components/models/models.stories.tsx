@@ -1,14 +1,21 @@
+/**
+ * External dependencies.
+ */
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { AgentStudioTab } from '..';
+
+/**
+ * Internal dependencies.
+ */
+import { ModelsTab } from '..';
 
 const meta = {
-  title: 'Components/AgentStudio',
-  component: AgentStudioTab,
+  title: 'Components/Models',
+  component: ModelsTab,
   parameters: {
     layout: 'centered',
   },
   tags: ['autodocs'],
-} satisfies Meta<typeof AgentStudioTab>;
+} satisfies Meta<typeof ModelsTab>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
