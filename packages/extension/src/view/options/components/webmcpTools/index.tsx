@@ -41,7 +41,7 @@ export function WebMCPToolsTab() {
         enabled: chromeAPIBuiltInToolsState[toolkey].enabled,
       };
     });
-  }, [chromeAPIBuiltInToolsState, builtInTools]);
+  }, [chromeAPIBuiltInToolsState]);
 
   return (
     <WebMCPToolsUI
