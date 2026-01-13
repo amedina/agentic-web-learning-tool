@@ -110,24 +110,13 @@ const ReasoningTrigger: FC<{ active: boolean; className?: string }> = ({
       {active ? (
         <span
           aria-hidden
-          className={cn(
-            'aui-reasoning-trigger-shimmer pointer-events-none absolute inset-0 bg-clip-text bg-no-repeat text-transparent motion-reduce:animate-none',
-            'animate-shimmer will-change-[background-position]',
-            'bg-size-[200%_100%]'
-          )}
+          className="aui-reasoning-trigger-shimmer pointer-events-none absolute inset-0 bg-clip-text bg-no-repeat text-transparent motion-reduce:animate-none animate-shimmer will-change-[background-position] bg-size-[200%_100%]"
         >
           Reasoning
         </span>
       ) : null}
     </span>
-    <ChevronDownIcon
-      className={cn(
-        'aui-reasoning-trigger-chevron mt-0.5 size-4 shrink-0',
-        'transition-transform duration-(--animation-duration) ease-out',
-        'group-data-[state=closed]/trigger:-rotate-90',
-        'group-data-[state=open]/trigger:rotate-0'
-      )}
-    />
+    <ChevronDownIcon className="aui-reasoning-trigger-chevron mt-0.5 size-4 shrink-0 transition-transform duration-(--animation-duration) ease-out group-data-[state=closed]/trigger:-rotate-90 group-data-[state=open]/trigger:rotate-0" />
   </CollapsibleTrigger>
 );
 
