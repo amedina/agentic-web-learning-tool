@@ -4,7 +4,7 @@ import {
   p as parseOAuthCallbackParams,
   j as jsxRuntimeExports,
   g as generateOAuthErrorDescription,
-} from './index-CZ1fC7sX.js';
+} from './index-CKwJqBsl.js';
 const OAuthDebugCallback = ({ onConnect }) => {
   reactExports.useEffect(() => {
     let isProcessed = false;

@@ -15248,7 +15248,8 @@ function isObject(data2) {
 const allowsEval = cached(() => {
   if (
     typeof navigator !== 'undefined' &&
-    navigator?.userAgent?.includes('Cloudflare')
+    navigator?.userAgent?.includes('Cloudflare') &&
+    chrome
   ) {
     return false;
   }
@@ -40344,8 +40345,8 @@ function requireSchemes() {
   function getSchemeHandler(scheme) {
     return (
       (scheme &&
-        (/** @type {SchemeName} */
-        SCHEMES[scheme] ||
+        /** @type {SchemeName} */
+        (SCHEMES[scheme] ||
           SCHEMES[
             /** @type {SchemeName} */
             scheme.toLowerCase()
@@ -54942,7 +54943,7 @@ const createLucideIcon = (iconName, iconNode) => {
   Component.displayName = toPascalCase(iconName);
   return Component;
 };
-const __iconNode$A = [
+const __iconNode$y = [
   ['path', { d: 'M10.268 21a2 2 0 0 0 3.464 0', key: 'vwvbt9' }],
   [
     'path',
@@ -54952,70 +54953,50 @@ const __iconNode$A = [
     },
   ],
 ];
-const Bell = createLucideIcon('bell', __iconNode$A);
-const __iconNode$z = [
-  ['path', { d: 'm8 2 1.88 1.88', key: 'fmnt4t' }],
-  ['path', { d: 'M14.12 3.88 16 2', key: 'qol33r' }],
-  ['path', { d: 'M9 7.13v-1a3.003 3.003 0 1 1 6 0v1', key: 'd7y7pr' }],
-  [
-    'path',
-    {
-      d: 'M12 20c-3.3 0-6-2.7-6-6v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v3c0 3.3-2.7 6-6 6',
-      key: 'xs1cw7',
-    },
-  ],
-  ['path', { d: 'M12 20v-9', key: '1qisl0' }],
-  ['path', { d: 'M6.53 9C4.6 8.8 3 7.1 3 5', key: '32zzws' }],
-  ['path', { d: 'M6 13H2', key: '82j7cp' }],
-  ['path', { d: 'M3 21c0-2.1 1.7-3.9 3.8-4', key: '4p0ekp' }],
-  ['path', { d: 'M20.97 5c0 2.1-1.6 3.8-3.5 4', key: '18gb23' }],
-  ['path', { d: 'M22 13h-4', key: '1jl80f' }],
-  ['path', { d: 'M17.2 17c2.1.1 3.8 1.9 3.8 4', key: 'k3fwyw' }],
-];
-const Bug = createLucideIcon('bug', __iconNode$z);
-const __iconNode$y = [
+const Bell = createLucideIcon('bell', __iconNode$y);
+const __iconNode$x = [
   ['path', { d: 'M18 6 7 17l-5-5', key: '116fxf' }],
   ['path', { d: 'm22 10-7.5 7.5L13 16', key: 'ke71qq' }],
 ];
-const CheckCheck = createLucideIcon('check-check', __iconNode$y);
-const __iconNode$x = [['path', { d: 'M20 6 9 17l-5-5', key: '1gmf2c' }]];
-const Check = createLucideIcon('check', __iconNode$x);
-const __iconNode$w = [['path', { d: 'm6 9 6 6 6-6', key: 'qrunsl' }]];
-const ChevronDown = createLucideIcon('chevron-down', __iconNode$w);
-const __iconNode$v = [['path', { d: 'm9 18 6-6-6-6', key: 'mthhwq' }]];
-const ChevronRight = createLucideIcon('chevron-right', __iconNode$v);
-const __iconNode$u = [['path', { d: 'm18 15-6-6-6 6', key: '153udz' }]];
-const ChevronUp = createLucideIcon('chevron-up', __iconNode$u);
-const __iconNode$t = [
+const CheckCheck = createLucideIcon('check-check', __iconNode$x);
+const __iconNode$w = [['path', { d: 'M20 6 9 17l-5-5', key: '1gmf2c' }]];
+const Check = createLucideIcon('check', __iconNode$w);
+const __iconNode$v = [['path', { d: 'm6 9 6 6 6-6', key: 'qrunsl' }]];
+const ChevronDown = createLucideIcon('chevron-down', __iconNode$v);
+const __iconNode$u = [['path', { d: 'm9 18 6-6-6-6', key: 'mthhwq' }]];
+const ChevronRight = createLucideIcon('chevron-right', __iconNode$u);
+const __iconNode$t = [['path', { d: 'm18 15-6-6-6 6', key: '153udz' }]];
+const ChevronUp = createLucideIcon('chevron-up', __iconNode$t);
+const __iconNode$s = [
   ['path', { d: 'm7 15 5 5 5-5', key: '1hf1tw' }],
   ['path', { d: 'm7 9 5-5 5 5', key: 'sgt6xg' }],
 ];
-const ChevronsUpDown = createLucideIcon('chevrons-up-down', __iconNode$t);
-const __iconNode$s = [
+const ChevronsUpDown = createLucideIcon('chevrons-up-down', __iconNode$s);
+const __iconNode$r = [
   ['circle', { cx: '12', cy: '12', r: '10', key: '1mglay' }],
   ['line', { x1: '12', x2: '12', y1: '8', y2: '12', key: '1pkeuh' }],
   ['line', { x1: '12', x2: '12.01', y1: '16', y2: '16', key: '4dfq90' }],
 ];
-const CircleAlert = createLucideIcon('circle-alert', __iconNode$s);
-const __iconNode$r = [
+const CircleAlert = createLucideIcon('circle-alert', __iconNode$r);
+const __iconNode$q = [
   ['circle', { cx: '12', cy: '12', r: '10', key: '1mglay' }],
   ['path', { d: 'm9 12 2 2 4-4', key: 'dzmm74' }],
 ];
-const CircleCheck = createLucideIcon('circle-check', __iconNode$r);
-const __iconNode$q = [
+const CircleCheck = createLucideIcon('circle-check', __iconNode$q);
+const __iconNode$p = [
   ['circle', { cx: '12', cy: '12', r: '10', key: '1mglay' }],
   ['path', { d: 'M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3', key: '1u773s' }],
   ['path', { d: 'M12 17h.01', key: 'p32p05' }],
 ];
 const CircleQuestionMark = createLucideIcon(
   'circle-question-mark',
-  __iconNode$q
+  __iconNode$p
 );
-const __iconNode$p = [
+const __iconNode$o = [
   ['circle', { cx: '12', cy: '12', r: '10', key: '1mglay' }],
 ];
-const Circle = createLucideIcon('circle', __iconNode$p);
-const __iconNode$o = [
+const Circle = createLucideIcon('circle', __iconNode$o);
+const __iconNode$n = [
   [
     'rect',
     {
@@ -55036,8 +55017,8 @@ const __iconNode$o = [
     },
   ],
 ];
-const Copy = createLucideIcon('copy', __iconNode$o);
-const __iconNode$n = [
+const Copy = createLucideIcon('copy', __iconNode$n);
+const __iconNode$m = [
   ['path', { d: 'M15 3h6v6', key: '1q9fwt' }],
   ['path', { d: 'M10 14 21 3', key: 'gplh6r' }],
   [
@@ -55048,8 +55029,8 @@ const __iconNode$n = [
     },
   ],
 ];
-const ExternalLink = createLucideIcon('external-link', __iconNode$n);
-const __iconNode$m = [
+const ExternalLink = createLucideIcon('external-link', __iconNode$m);
+const __iconNode$l = [
   [
     'path',
     {
@@ -55067,8 +55048,8 @@ const __iconNode$m = [
   ],
   ['path', { d: 'm2 2 20 20', key: '1ooewy' }],
 ];
-const EyeOff = createLucideIcon('eye-off', __iconNode$m);
-const __iconNode$l = [
+const EyeOff = createLucideIcon('eye-off', __iconNode$l);
+const __iconNode$k = [
   [
     'path',
     {
@@ -55078,8 +55059,8 @@ const __iconNode$l = [
   ],
   ['circle', { cx: '12', cy: '12', r: '3', key: '1v7zrd' }],
 ];
-const Eye = createLucideIcon('eye', __iconNode$l);
-const __iconNode$k = [
+const Eye = createLucideIcon('eye', __iconNode$k);
+const __iconNode$j = [
   [
     'path',
     {
@@ -55092,8 +55073,8 @@ const __iconNode$k = [
   ['path', { d: 'M16 13H8', key: 't4e002' }],
   ['path', { d: 'M16 17H8', key: 'z1uh3a' }],
 ];
-const FileText = createLucideIcon('file-text', __iconNode$k);
-const __iconNode$j = [
+const FileText = createLucideIcon('file-text', __iconNode$j);
+const __iconNode$i = [
   ['path', { d: 'M20 7h-3a2 2 0 0 1-2-2V2', key: 'x099mo' }],
   [
     'path',
@@ -55104,8 +55085,8 @@ const __iconNode$j = [
   ],
   ['path', { d: 'M3 7.6v12.8A1.6 1.6 0 0 0 4.6 22h9.8', key: '1nja0z' }],
 ];
-const Files = createLucideIcon('files', __iconNode$j);
-const __iconNode$i = [
+const Files = createLucideIcon('files', __iconNode$i);
+const __iconNode$h = [
   [
     'path',
     {
@@ -55123,18 +55104,7 @@ const __iconNode$i = [
   ['path', { d: 'M3 5a2 2 0 0 0 2 2h3', key: 'f2jnh7' }],
   ['path', { d: 'M3 3v13a2 2 0 0 0 2 2h3', key: 'k8epm1' }],
 ];
-const FolderTree = createLucideIcon('folder-tree', __iconNode$i);
-const __iconNode$h = [
-  [
-    'path',
-    {
-      d: 'M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4',
-      key: 'tonef',
-    },
-  ],
-  ['path', { d: 'M9 18c-4.51 2-5-2-7-2', key: '9comsn' }],
-];
-const Github = createLucideIcon('github', __iconNode$h);
+const FolderTree = createLucideIcon('folder-tree', __iconNode$h);
 const __iconNode$g = [
   ['path', { d: 'm15 12-8.373 8.373a1 1 0 1 1-3-3L12 9', key: 'eefl8a' }],
   ['path', { d: 'm18 15 4-4', key: '16gjal' }],
@@ -68574,45 +68544,6 @@ const SelectSeparator = reactExports.forwardRef(
     })
 );
 SelectSeparator.displayName = Separator.displayName;
-const useTheme = () => {
-  const [theme, setTheme] = reactExports.useState(() => {
-    const savedTheme = localStorage.getItem('theme');
-    return savedTheme || 'system';
-  });
-  reactExports.useEffect(() => {
-    const darkModeMediaQuery = window.matchMedia(
-      '(prefers-color-scheme: dark)'
-    );
-    const handleDarkModeChange = (e) => {
-      if (theme === 'system') {
-        updateDocumentTheme(e.matches ? 'dark' : 'light');
-      }
-    };
-    const updateDocumentTheme = (newTheme) => {
-      document.documentElement.classList.toggle('dark', newTheme === 'dark');
-    };
-    if (theme === 'system') {
-      updateDocumentTheme(darkModeMediaQuery.matches ? 'dark' : 'light');
-    } else {
-      updateDocumentTheme(theme);
-    }
-    darkModeMediaQuery.addEventListener('change', handleDarkModeChange);
-    return () => {
-      darkModeMediaQuery.removeEventListener('change', handleDarkModeChange);
-    };
-  }, [theme]);
-  const setThemeWithSideEffect = reactExports.useCallback((newTheme) => {
-    setTheme(newTheme);
-    localStorage.setItem('theme', newTheme);
-    if (newTheme !== 'system') {
-      document.documentElement.classList.toggle('dark', newTheme === 'dark');
-    }
-  }, []);
-  return reactExports.useMemo(
-    () => [theme, setThemeWithSideEffect],
-    [theme, setThemeWithSideEffect]
-  );
-};
 const version = '0.0.0';
 var SLOTTABLE_IDENTIFIER = Symbol('radix.slottable');
 // @__NO_SIDE_EFFECTS__
@@ -69630,7 +69561,6 @@ const Sidebar = ({
   setConnectionType,
   serverImplementation,
 }) => {
-  const [theme, setTheme] = useTheme();
   const [showEnvVars, setShowEnvVars] = reactExports.useState(false);
   const [showAuthConfig, setShowAuthConfig] = reactExports.useState(false);
   const [showConfig, setShowConfig] = reactExports.useState(false);
@@ -70689,89 +70619,6 @@ const Sidebar = ({
                       }),
                     ],
                   }),
-              ],
-            }),
-          ],
-        }),
-      }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx('div', {
-        className: 'p-4 border-t',
-        children: /* @__PURE__ */ jsxRuntimeExports.jsxs('div', {
-          className: 'flex items-center justify-between',
-          children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, {
-              value: theme,
-              onValueChange: (value) => setTheme(value),
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, {
-                  className: 'w-[100px]',
-                  id: 'theme-select',
-                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    SelectValue,
-                    {}
-                  ),
-                }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, {
-                  children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, {
-                      value: 'system',
-                      children: 'System',
-                    }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, {
-                      value: 'light',
-                      children: 'Light',
-                    }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, {
-                      value: 'dark',
-                      children: 'Dark',
-                    }),
-                  ],
-                }),
-              ],
-            }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs('div', {
-              className: 'flex items-center space-x-2',
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Button, {
-                  variant: 'ghost',
-                  title: 'Inspector Documentation',
-                  asChild: true,
-                  children: /* @__PURE__ */ jsxRuntimeExports.jsx('a', {
-                    href: 'https://modelcontextprotocol.io/docs/tools/inspector',
-                    target: '_blank',
-                    rel: 'noopener noreferrer',
-                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      CircleQuestionMark,
-                      { className: 'w-4 h-4 text-foreground' }
-                    ),
-                  }),
-                }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Button, {
-                  variant: 'ghost',
-                  title: 'Debugging Guide',
-                  asChild: true,
-                  children: /* @__PURE__ */ jsxRuntimeExports.jsx('a', {
-                    href: 'https://modelcontextprotocol.io/docs/tools/debugging',
-                    target: '_blank',
-                    rel: 'noopener noreferrer',
-                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(Bug, {
-                      className: 'w-4 h-4 text-foreground',
-                    }),
-                  }),
-                }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Button, {
-                  variant: 'ghost',
-                  title: 'Report bugs or contribute on GitHub',
-                  asChild: true,
-                  children: /* @__PURE__ */ jsxRuntimeExports.jsx('a', {
-                    href: 'https://github.com/modelcontextprotocol/inspector',
-                    target: '_blank',
-                    rel: 'noopener noreferrer',
-                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(Github, {
-                      className: 'w-4 h-4 text-foreground',
-                    }),
-                  }),
-                }),
               ],
             }),
           ],
@@ -73457,7 +73304,7 @@ const App = () => {
   if (window.location.pathname === '/oauth/callback') {
     const OAuthCallback = React.lazy(() =>
       __vitePreload(
-        () => import('./OAuthCallback-2eMAGCMJ.js'),
+        () => import('./OAuthCallback-DF01VpX1.js'),
         true ? [] : void 0
       )
     );
@@ -73473,7 +73320,7 @@ const App = () => {
   if (window.location.pathname === '/oauth/callback/debug') {
     const OAuthDebugCallback = React.lazy(() =>
       __vitePreload(
-        () => import('./OAuthDebugCallback-BIxN-ZZj.js'),
+        () => import('./OAuthDebugCallback-BfgGIZ3o.js'),
         true ? [] : void 0
       )
     );
@@ -73962,18 +73809,16 @@ const App = () => {
     ],
   });
 };
-clientExports
-  .createRoot(document.getElementById('root'))
-  .render(
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(reactExports.StrictMode, {
-      children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TooltipProvider, {
-          children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}),
-        }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Toaster, {}),
-      ],
-    })
-  );
+clientExports.createRoot(document.getElementById('root')).render(
+  /* @__PURE__ */ jsxRuntimeExports.jsxs(reactExports.StrictMode, {
+    children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(TooltipProvider, {
+        children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}),
+      }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Toaster, {}),
+    ],
+  })
+);
 export {
   InspectorOAuthClientProvider as I,
   SESSION_KEYS as S,
