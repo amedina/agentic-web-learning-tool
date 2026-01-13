@@ -1,5 +1,4 @@
 import {
-  BookmarksApiTools,
   DomExtractionTools,
   HistoryApiTools,
   ScriptingApiTools,
@@ -10,17 +9,17 @@ import {
 } from '@mcp-b/extension-tools';
 
 export const chromeApiBuiltInTools = {
-  bookmarks: {
-    name: 'Bookmarks',
-    namespace: 'Bookmarks',
-    instance: BookmarksApiTools,
-    allowedDomains: ['<all_urls>'],
-    inputSchema: {},
-    description: '',
-    enabled: true,
-    isBuiltIn: true,
-    isExtension: true,
-  },
+  // bookmarks: {
+  //   name: 'Bookmarks',
+  //   namespace: 'Bookmarks',
+  //   instance: BookmarksApiTools,
+  //   allowedDomains: ['<all_urls>'],
+  //   inputSchema: {},
+  //   description: '',
+  //   enabled: true,
+  //   isBuiltIn: true,
+  //   isExtension: true,
+  // },
   dom_extraction: {
     name: 'Dom Extraction',
     namespace: 'Dom Extraction',
