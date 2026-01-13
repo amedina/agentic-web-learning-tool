@@ -10,7 +10,7 @@ export default function MCPInspectorTab() {
       description="Inspect and debug your MCP servers."
     >
       <iframe
-        className="w-[70vw] h-screen"
+        className="w-[70vw] h-screen ml-[-24px]"
         src={chrome.runtime.getURL('inspector/index.html')}
       />
     </OptionsPageTab>
