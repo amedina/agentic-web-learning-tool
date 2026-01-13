@@ -24,7 +24,6 @@ function transportGenerator(
     ['log'],
     ['Generating transport for provider:', provider, 'model:', model]
   );
-
   switch (provider) {
     case 'broswer-ai':
       return new GeminiNanoChatTransport();
