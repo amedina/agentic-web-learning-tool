@@ -75,7 +75,10 @@ export function EditCommandDialog({
       return;
     }
 
-    onSave({ name: trimmedName, instructions, description });
+    const isEditing = command && command.hasOwnProperty('enabled');
+    const enabled = isEditing ? command?.enabled : true;
+
+    onSave({ name: trimmedName, instructions, description, enabled });
     onOpenChange(false);
   };
 
