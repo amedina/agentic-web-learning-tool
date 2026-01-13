@@ -126,13 +126,13 @@ export function EditCommandDialog({
               <Input
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="This command teaches you react"
+                placeholder="Describe what this command does..."
               />
             </div>
 
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-medium text-gray-700">
-                Agent Persona & Prompt
+                Prompt
               </label>
               <textarea
                 value={instructions}
