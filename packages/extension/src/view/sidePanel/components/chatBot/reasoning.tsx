@@ -78,7 +78,6 @@ const GradientFade: FC<{ className?: string }> = ({ className }) => (
   <div
     className={cn(
       'aui-reasoning-fade pointer-events-none absolute inset-x-0 bottom-0 z-10 h-16',
-      'bg-[linear-gradient(to_top,var(--color-background),transparent)]',
       'animate-in fade-in-0',
       'group-data-[state=open]/collapsible-content:animate-out',
       'group-data-[state=open]/collapsible-content:fade-out-0',
@@ -114,8 +113,7 @@ const ReasoningTrigger: FC<{ active: boolean; className?: string }> = ({
           className={cn(
             'aui-reasoning-trigger-shimmer pointer-events-none absolute inset-0 bg-clip-text bg-no-repeat text-transparent motion-reduce:animate-none',
             'animate-shimmer will-change-[background-position]',
-            'bg-size-[200%_100%]',
-            'bg-[linear-gradient(90deg,transparent_0%,transparent_40%,color-mix(in_oklch,var(--foreground)_75%,transparent)_56%,transparent_80%,transparent_100%)]'
+            'bg-size-[200%_100%]'
           )}
         >
           Reasoning
