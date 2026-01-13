@@ -19,7 +19,6 @@
     "sidePanel",
     "tabGroups",
     "history",
-    "bookmarks",
     "userScripts"
   ],
   "host_permissions": ["*://*/*"],
