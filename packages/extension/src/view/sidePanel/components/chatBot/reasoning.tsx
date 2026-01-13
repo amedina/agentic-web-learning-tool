@@ -246,7 +246,7 @@ const ReasoningGroupImpl: ReasoningGroupComponent = ({
     if (lastType !== 'reasoning') return false;
     return lastIndex >= startIndex && lastIndex <= endIndex;
   });
-  console.log(isReasoningStreaming);
+
   return (
     <ReasoningRoot>
       <ReasoningTrigger active={isReasoningStreaming} />
