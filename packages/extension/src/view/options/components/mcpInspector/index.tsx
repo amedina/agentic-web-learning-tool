@@ -9,9 +9,10 @@ export default function MCPInspectorTab() {
       title="MCP Inspector"
       description="Inspect and debug your MCP servers."
     >
-      <div className="flex items-center justify-center h-full text-muted-foreground text-3xl">
-        Coming Soon
-      </div>
+      <iframe
+        className="w-[70vw] h-screen"
+        src={chrome.runtime.getURL('inspector/index.html')}
+      />
     </OptionsPageTab>
   );
 }
