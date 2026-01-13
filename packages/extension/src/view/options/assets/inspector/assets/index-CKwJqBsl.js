@@ -40346,11 +40346,13 @@ function requireSchemes() {
     return (
       (scheme &&
         /** @type {SchemeName} */
-        (SCHEMES[scheme] ||
-          SCHEMES[
-            /** @type {SchemeName} */
-            scheme.toLowerCase()
-          ])) ||
+        (
+          SCHEMES[scheme] ||
+            SCHEMES[
+              /** @type {SchemeName} */
+              scheme.toLowerCase()
+            ]
+        )) ||
       void 0
     );
   }
@@ -69682,7 +69684,7 @@ const Sidebar = ({
           className: 'flex items-center',
           children: /* @__PURE__ */ jsxRuntimeExports.jsxs('h1', {
             className: 'ml-2 text-lg font-semibold',
-            children: ['AWL Inspector v', version],
+            children: ['AWL MCP Inspector v', version],
           }),
         }),
       }),
