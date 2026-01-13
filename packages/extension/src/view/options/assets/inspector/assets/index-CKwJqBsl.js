@@ -69684,7 +69684,7 @@ const Sidebar = ({
           className: 'flex items-center',
           children: /* @__PURE__ */ jsxRuntimeExports.jsxs('h1', {
             className: 'ml-2 text-lg font-semibold',
-            children: ['AWL MCP Inspector v', version],
+            children: ['MCP Inspector v', version],
           }),
         }),
       }),
