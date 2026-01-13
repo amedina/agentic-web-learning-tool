@@ -54,22 +54,24 @@ const replaceSlashCommands = (_command: string, runtime: AssistantRuntime) => {
           delta: '---\n\n',
         });
 
-        writer.write({
-          type: 'text-delta',
-          id: textPartId,
-          delta: '###### User Generated Commands \n\n',
-        });
-
         const { promptCommands }: { promptCommands: PromptCommand[] } =
           await chrome.storage.local.get('promptCommands');
 
-        promptCommands.forEach((cmd) => {
+        if (promptCommands && promptCommands.length) {
           writer.write({
             type: 'text-delta',
             id: textPartId,
-            delta: '> **`/' + cmd.name + '`** - ' + cmd.description + '\n\n',
+            delta: '###### Custom Commands \n\n',
           });
-        });
+
+          promptCommands.forEach((cmd) => {
+            writer.write({
+              type: 'text-delta',
+              id: textPartId,
+              delta: '> **`/' + cmd.name + '`** - ' + cmd.description + '\n\n',
+            });
+          });
+        }
       }
 
       if (_command === 'clear') {
