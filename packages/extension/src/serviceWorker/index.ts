@@ -21,7 +21,7 @@ const sharedServer = new McpServer(
 );
 
 chrome.sidePanel
-  .setPanelBehavior({ openPanelOnActionClick: false })
+  .setPanelBehavior({ openPanelOnActionClick: true })
   .catch((error) => {
     logger(['error'], ['Failed to set panel behavior:', error]);
   });
