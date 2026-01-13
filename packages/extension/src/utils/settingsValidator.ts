@@ -8,13 +8,7 @@ function settingsValidator(
   settings: SettingsType
 ): boolean | SettingsType['config'] {
   const { config } = settings;
-  // Checkpoint 1: Check if it has all the keys
-  console.log(
-    !config.apiKeys,
-    !config.extensionSettings,
-    !config.userWebMCPTools,
-    config
-  );
+
   if (!config.apiKeys || !config.extensionSettings || !config.userWebMCPTools) {
     logger(['error'], ['Invalid config non existent keys']);
     return false;

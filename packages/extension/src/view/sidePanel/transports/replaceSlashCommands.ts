@@ -21,8 +21,8 @@ const replaceSlashCommands = (_command: string, runtime: AssistantRuntime) => {
           id: textPartId,
           delta: 'Opening Settings page',
         });
+
         setTimeout(() => {
-          console.log(_command);
           chrome.runtime.openOptionsPage();
         }, 500);
       }

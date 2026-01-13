@@ -11,6 +11,7 @@ import { MarkdownText, ToolFallback } from '@google-awlt/design-system';
  * Internal dependencies
  */
 import ActionButton from './actionButton';
+import { Reasoning, ReasoningGroup } from './reasoning';
 
 const AssistantMessage: FC = () => {
   return (
@@ -31,6 +32,8 @@ const AssistantMessage: FC = () => {
             <MessagePrimitive.Parts
               components={{
                 Text: MarkdownText,
+                Reasoning,
+                ReasoningGroup,
                 tools: { Fallback: ToolFallback },
               }}
             />
