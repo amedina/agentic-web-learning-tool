@@ -89,7 +89,6 @@ function SettingsProvider({
   }, [theme, handleChange]);
 
   useEffect(() => {
-    console.log(isDarkMode);
     if (isDarkMode) {
       document.documentElement.classList.add('dark');
     } else {
