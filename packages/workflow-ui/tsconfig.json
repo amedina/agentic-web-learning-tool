@@ -1,0 +1,16 @@
+{
+  "extends": "@google-awlt/shared-config/typescript/react-library",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "lib": ["dom", "ESNext"],
+    "sourceMap": true,
+    "baseUrl": ".",
+    "types": ["chrome"],
+    "typeRoots": ["./node_modules/@types"],
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["src"],
+  "exclude": ["dist", "node_modules"]
+}

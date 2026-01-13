@@ -20,7 +20,7 @@ import { getWorkflowRunner } from "./runner";
 function handleMessage(
   message: ServiceWorkerMessage,
   sender: chrome.runtime.MessageSender,
-  sendResponse: (response: WorkflowResponse | CapabilitiesResponse) => void
+  sendResponse: (response: WorkflowResponse | CapabilitiesResponse) => void,
 ): boolean {
   switch (message.type) {
     case "RUN_WORKFLOW":
@@ -49,7 +49,7 @@ async function handleRunWorkflow(
   workflow: any,
   tabId: number | undefined,
   sender: chrome.runtime.MessageSender,
-  sendResponse: (response: WorkflowResponse) => void
+  sendResponse: (response: WorkflowResponse) => void,
 ) {
   const runner = getWorkflowRunner();
   const targetTabId = tabId ?? sender.tab?.id;
@@ -57,7 +57,7 @@ async function handleRunWorkflow(
   try {
     if (targetTabId) {
       console.log(
-        `[Workflow] Injecting content script into tab ${targetTabId}`
+        `[Workflow] Injecting content script into tab ${targetTabId}`,
       );
 
       // Try-catch to handle cases where content script is not active
@@ -70,6 +70,7 @@ async function handleRunWorkflow(
         await chrome.scripting.executeScript({
           target: { tabId: targetTabId },
           func: initContentScriptBridge,
+          world: "MAIN",
           injectImmediately: true,
         });
       }
@@ -115,7 +116,7 @@ async function handleRunWorkflow(
  */
 async function handleCheckCapabilities(
   capabilities: string[] | Record<string, any>,
-  sendResponse: (response: CapabilitiesResponse) => void
+  sendResponse: (response: CapabilitiesResponse) => void,
 ) {
   const runner = getWorkflowRunner();
 
@@ -132,7 +133,7 @@ async function handleCheckCapabilities(
  * Broadcast status updates.
  */
 function broadcastStatusUpdate(
-  update: NodeStatusUpdate | WorkflowCompleteUpdate | WorkflowErrorUpdate
+  update: NodeStatusUpdate | WorkflowCompleteUpdate | WorkflowErrorUpdate,
 ): void {
   chrome.runtime.sendMessage(update).catch(() => {
     // Ignore errors if no listeners
