@@ -200,7 +200,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
                 </ComposerPrimitive.Send>
               </ThreadPrimitive.If>
               <ThreadPrimitive.If running>
-                <ComposerPrimitive.Cancel className="h-9 w-9 flex items-center justify-center rounded-lg bg-background hover:text-ring bg-destructive text-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                <ComposerPrimitive.Cancel className="h-9 w-9 flex items-center justify-center rounded-lg hover:text-ring bg-destructive text-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
                   <CircleStop size={18} />
                 </ComposerPrimitive.Cancel>
               </ThreadPrimitive.If>
