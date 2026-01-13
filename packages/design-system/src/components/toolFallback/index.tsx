@@ -94,7 +94,7 @@ export const ToolFallback: ToolCallMessagePartComponent = ({
           )}
         </div>
         <Button variant="ghost" size="icon" onClick={() => setIsOpen(!isOpen)}>
-          {!isOpen ? <ChevronUpIcon /> : <ChevronDownIcon />}
+          {isOpen ? <ChevronUpIcon /> : <ChevronDownIcon />}
         </Button>
       </div>
       {isOpen && (
