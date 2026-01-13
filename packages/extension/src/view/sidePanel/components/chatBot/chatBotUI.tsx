@@ -157,7 +157,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
               onKeyDown={handleMessageChange}
               className="w-full max-h-40 min-h-[56px] resize-none bg-transparent px-4 py-4 text-sm outline-none placeholder:exclusive-plum text-primary"
             />
-            <div className="flex items-center justify-between gap-2 px-3">
+            <div className="flex items-center justify-between gap-2 px-3 mb-1">
               <div className="flex items-center">
                 <Button variant="ghost" disabled title="Attach" size="icon">
                   <Paperclip size={18} />
@@ -200,7 +200,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
                 </ComposerPrimitive.Send>
               </ThreadPrimitive.If>
               <ThreadPrimitive.If running>
-                <ComposerPrimitive.Cancel className="h-9 w-9 flex items-center justify-center rounded-lg bg-background hover:text-ring text-foreground hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                <ComposerPrimitive.Cancel className="h-9 w-9 flex items-center justify-center rounded-lg bg-background hover:text-ring bg-destructive text-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
                   <CircleStop size={18} />
                 </ComposerPrimitive.Cancel>
               </ThreadPrimitive.If>

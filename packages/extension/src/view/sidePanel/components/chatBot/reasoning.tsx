@@ -81,7 +81,7 @@ const GradientFade: FC<{ className?: string }> = ({ className }) => (
       'animate-in fade-in-0',
       'group-data-[state=open]/collapsible-content:animate-out',
       'group-data-[state=open]/collapsible-content:fade-out-0',
-      'group-data-[state=open]/collapsible-content:delay-[calc(var(--animation-duration)*0.75)]', // calc for timing the delay
+      'group-data-[state=open]/collapsible-content:delay-[calc(var(--animation-duration)*0.75)]',
       'group-data-[state=open]/collapsible-content:fill-mode-forwards',
       'duration-(--animation-duration)',
       'group-data-[state=open]/collapsible-content:duration-(--animation-duration)',
@@ -189,7 +189,7 @@ const ReasoningText: FC<
       className
     )}
   >
-    <div className="absolute z-[10] left-[10px] bg-muted-forground"></div>
+    <div className="absolute z-[10] left-[10px] bg-border w-[1px] h-full" />
     {children}
   </div>
 );
@@ -246,7 +246,7 @@ const ReasoningGroupImpl: ReasoningGroupComponent = ({
     if (lastType !== 'reasoning') return false;
     return lastIndex >= startIndex && lastIndex <= endIndex;
   });
-
+  console.log(isReasoningStreaming);
   return (
     <ReasoningRoot>
       <ReasoningTrigger active={isReasoningStreaming} />

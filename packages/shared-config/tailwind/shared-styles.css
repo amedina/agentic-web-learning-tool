@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -141,6 +142,17 @@
   --color-status-warn: var(--color-amber-500);
   --color-status-error: var(--color-red-500);
   --color-status-silent: var(--color-zinc-500);
+
+    --animate-shimmer: shimmer-sweep var(--shimmer-duration, 1000ms) linear
+    infinite both;
+  @keyframes shimmer-sweep {
+    from {
+      background-position: 150% 0;
+    }
+    to {
+      background-position: -100% 0;
+    }
+  }
 }
 
 .dark {
