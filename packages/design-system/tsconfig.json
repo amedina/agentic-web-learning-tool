@@ -21,8 +21,7 @@
     "storybook.d.ts",
     "node_modules/jest-extended/types/index.d.ts",
     "**/*.test.ts",
-    "**/*.test.tsx",
-    "../extension/src/view/sidePanel/components/chatBot/reasoning.tsx"
+    "**/*.test.tsx"
   ],
   "exclude": [
     "dist",
