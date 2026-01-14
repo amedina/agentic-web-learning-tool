@@ -4,11 +4,21 @@
 import {
   ComposerPrimitive,
   ThreadPrimitive,
+  useAssistantApi,
   useAssistantState,
+  useRuntimeAdapters,
+  type AssistantApi,
   type AssistantRuntime,
 } from '@assistant-ui/react';
 import { useMcpClient } from '@mcp-b/mcp-react-hooks';
-import { useCallback, useEffect, useMemo } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  type Dispatch,
+  type RefObject,
+  type SetStateAction,
+} from 'react';
 import type { JSONRPCMessage } from '@modelcontextprotocol/sdk/types.js';
 import {
   Paperclip,
@@ -23,9 +33,9 @@ import {
   Dropdown,
   OwlIcon,
   SidebarInset,
+  SidebarTrigger,
   ThreadListSidebar,
 } from '@google-awlt/design-system';
-
 /**
  * Internal dependencies
  */
@@ -41,9 +51,15 @@ import { createModelDropdown, createToolDropdown } from './utils';
 
 type ChatBotUIProps = {
   runtime: AssistantRuntime;
+  setCurrentThreadId: Dispatch<SetStateAction<string>>;
+  assistantRef: RefObject<null | AssistantApi>;
 };
 
-const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
+const ChatBotUI = ({
+  runtime,
+  setCurrentThreadId,
+  assistantRef,
+}: ChatBotUIProps) => {
   const { client, tools } = useMcpClient();
 
   const { apiKeys, setSelectedAgent, selectedAgent, toolNameToMCPMap } =
@@ -53,6 +69,12 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
       setSelectedAgent: actions.setSelectedAgent,
       selectedAgent: state.selectedAgent,
     }));
+
+  assistantRef.current = useAssistantApi();
+
+  assistantRef.current.on('thread-list-item.switched-to', ({ threadId }) =>
+    setCurrentThreadId(threadId)
+  );
 
   useEffect(() => {
     (async () => {
@@ -119,6 +141,9 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 
   return (
     <>
+      <div className="fixed top-0 left-0 z-20 md:hidden pl-4 shadow bg-sidebar rounded-md">
+        <SidebarTrigger />
+      </div>
       <ThreadListSidebar isThreadLoading={isLoading} />
       <SidebarInset>
         <ThreadPrimitive.Root className="h-full flex flex-col">
