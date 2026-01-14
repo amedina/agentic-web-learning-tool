@@ -14,6 +14,7 @@ import { CONNECTION_NAMES, logger } from '../utils';
 import McpHub from './mcpHub';
 import './chromeListeners';
 import onLocalStorageChangedCallback from './chromeListeners/onLocalStorageChangedCallback';
+import type { WebMCPTool } from '@google-awlt/design-system';
 
 const sharedServer = new McpServer(
   { name: 'Extension-Hub', version: '1.0.0' },
@@ -51,6 +52,67 @@ chrome.storage.local.onChanged.addListener(
     }
 
     onLocalStorageChangedCallback(mcpHub);
+  }
+);
+
+chrome.storage.local.onChanged.addListener(
+  async (changes: { [key: string]: chrome.storage.StorageChange }) => {
+    if (changes.builtInWebMCPToolsState) {
+      const newValue =
+        (changes.builtInWebMCPToolsState?.newValue as Record<
+          string,
+          boolean
+        >) ?? {};
+
+      Object.keys(newValue).map((key) => {
+        if (newValue?.[key]) {
+          Array.from(mcpHub.registeredTools.entries()).forEach(
+            ([toolName, registeredTool]) => {
+              if (toolName.includes(key)) {
+                registeredTool.enable();
+              }
+            }
+          );
+        } else {
+          Array.from(mcpHub.registeredTools.entries()).forEach(
+            ([toolName, registeredTool]) => {
+              if (toolName.includes(key)) {
+                registeredTool.disable();
+              }
+            }
+          );
+        }
+      });
+    }
+
+    if (changes.userWebMCPTools) {
+      const newValue =
+        (changes.userWebMCPTools?.newValue as WebMCPTool[]) ?? [];
+
+      newValue.map((tool) => {
+        if (tool.enabled) {
+          Array.from(mcpHub.registeredTools.entries()).forEach(
+            ([toolName, registeredTool]) => {
+              if (toolName.includes(tool.name)) {
+                registeredTool.enable();
+              }
+            }
+          );
+        } else {
+          Array.from(mcpHub.registeredTools.entries()).forEach(
+            ([toolName, registeredTool]) => {
+              if (toolName.includes(tool.name)) {
+                registeredTool.disable();
+              }
+            }
+          );
+        }
+      });
+    }
+    sharedServer.server?.transport?.send({
+      jsonrpc: '2.0',
+      method: 'get/Tools',
+    });
   }
 );
 

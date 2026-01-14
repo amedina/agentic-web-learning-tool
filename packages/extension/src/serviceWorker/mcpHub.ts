@@ -78,6 +78,10 @@ class McpHub {
 
     Object.keys(chromeAPIBuiltInToolsState ?? {}).forEach((toolKey) => {
       if (chromeAPIBuiltInToolsState?.[toolKey as keys]?.enabled) {
+        if (!chromeApiBuiltInTools[toolKey as keys]) {
+          return;
+        }
+
         this.apiTools.push(
           new chromeApiBuiltInTools[toolKey as keys].instance(this.server)
         );
