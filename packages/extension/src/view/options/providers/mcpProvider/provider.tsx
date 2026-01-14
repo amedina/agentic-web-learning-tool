@@ -43,7 +43,7 @@ const Provider = ({ children }: PropsWithChildren) => {
       initialSync = false
     ) => {
       try {
-        if (!config.enabled || toolList[serverName]?.length > 0) {
+        if (!config.enabled || toolList[serverName]?.tools?.length > 0) {
           return;
         }
 
@@ -77,7 +77,10 @@ const Provider = ({ children }: PropsWithChildren) => {
 
         setToolList((prev) => ({
           ...prev,
-          [serverName]: toolsList.tools,
+          [serverName]: {
+            tools: toolsList.tools,
+            isError: false,
+          },
         }));
 
         if (!initialSync) {
@@ -93,6 +96,14 @@ const Provider = ({ children }: PropsWithChildren) => {
         if (doNotStoreTools) {
           return errorMessage;
         }
+
+        setToolList((prev) => ({
+          ...prev,
+          [serverName]: {
+            tools: [],
+            isError: true,
+          },
+        }));
 
         toast.error(errorMessage);
       }
@@ -117,16 +128,17 @@ const Provider = ({ children }: PropsWithChildren) => {
       serverName: string,
       initialSync = false
     ) => {
+      setServerConfigs((prev) => ({
+        ...prev,
+        [serverName]: config,
+      }));
+
       await createClientAndListTools(
         config,
         serverName,
         undefined,
         initialSync
       );
-      setServerConfigs((prev) => ({
-        ...prev,
-        [serverName]: config,
-      }));
     },
     [createClientAndListTools]
   );
