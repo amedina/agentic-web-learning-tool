@@ -1,4 +1,8 @@
 /**
+ * External dependencies
+ */
+import type { PromptCommand } from '@google-awlt/design-system';
+/**
  * Internal dependencies
  */
 import type { LOG_OPTS } from './utils/constants';
@@ -31,6 +35,8 @@ export type SettingsType = {
     userWebMCPTools?: string;
     mcpConfigs?: string;
     builtInToolsState?: Record<string, boolean>;
+    promptCommands?: PromptCommand[];
+    builtInPromptCommands?: PromptCommand[];
     chromeAPIBuiltInToolsState?: {
       [key: string]: {
         enabled: boolean;

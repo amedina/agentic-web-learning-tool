@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import { useMemo, useState } from 'react';
-import { OptionsPageTab } from '@google-awlt/design-system';
+import { useCallback, useState } from 'react';
+import { OptionsPageTab, type PromptCommand } from '@google-awlt/design-system';
 
 /**
  * Internal dependencies
@@ -17,7 +17,6 @@ import {
   useModelProvider,
   useToolProvider,
 } from '../../providers';
-import type { SettingsType } from '../../../../types';
 import json from '../../../../manifest.json';
 import { EXPORT_JSON_VERSION } from '../../../../constants';
 
@@ -39,6 +38,7 @@ export default function SettingsTab() {
       chromeAPIBuiltInToolsState: state.chromeAPIBuiltInToolsState,
       builtInTools: state.builtInTools,
     }));
+
   const { serverConfigs } = useMcpProvider(({ state }) => ({
     serverConfigs: state.serverConfigs,
   }));
@@ -47,7 +47,18 @@ export default function SettingsTab() {
     apiKeys: state.apiKeys,
   }));
 
-  const config: SettingsType = useMemo(() => {
+  const config = useCallback(async () => {
+    const {
+      promptCommands,
+      builtInPromptCommands,
+    }: {
+      promptCommands: PromptCommand[];
+      builtInPromptCommands: PromptCommand[];
+    } = await chrome.storage.local.get([
+      'promptCommands',
+      'builtInPromptCommands',
+    ]);
+
     return {
       config: {
         apiKeys,
@@ -58,6 +69,8 @@ export default function SettingsTab() {
         userWebMCPTools: JSON.stringify(userTools, null, 2),
         mcpConfigs: JSON.stringify(serverConfigs, null, 2),
         chromeAPIBuiltInToolsState: chromeAPIBuiltInToolsState,
+        promptCommands,
+        builtInPromptCommands,
         builtInToolsState: builtInTools.reduce(
           (acc, tool) => {
             acc[tool.name] = tool.enabled;

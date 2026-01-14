@@ -15,7 +15,9 @@ function settingsValidator(
     !config.userWebMCPTools ||
     !config.builtInToolsState ||
     !config.chromeAPIBuiltInToolsState ||
-    !config.mcpConfigs
+    !config.mcpConfigs ||
+    !config.promptCommands ||
+    !config.builtInPromptCommands
   ) {
     logger(['error'], ['Invalid config non existent keys']);
     return false;
@@ -43,6 +45,8 @@ function settingsValidator(
     chromeAPIBuiltInToolsState: config.chromeAPIBuiltInToolsState,
     builtInToolsState: config.builtInToolsState,
     extensionSettings: defaultConfig,
+    builtInPromptCommands: config.builtInPromptCommands,
+    promptCommands: config.promptCommands,
   };
 }
 
