@@ -1,6 +1,6 @@
 export default {
   name: 'change_bg_color',
-  description: 'Changes background color',
+  description: 'Changes background color of the current page',
   allowedDomains: ['<all_urls>'],
   inputSchema: { type: 'object', properties: { color: { type: 'string' } } },
   execute: async (args: any) => {

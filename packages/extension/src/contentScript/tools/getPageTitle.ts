@@ -1,6 +1,6 @@
 export default {
   name: 'get_page_title',
-  description: 'Get page title',
+  description: 'Gets page title of the current page',
   allowedDomains: ['<all_urls>'],
   inputSchema: { type: 'object', properties: {} },
   execute: async () => {
