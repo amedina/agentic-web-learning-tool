@@ -1,82 +1,56 @@
 /**
- * External dependencies.
+ * External dependencies
  */
-import { useState, useEffect, useCallback } from 'react';
-import {
-	WebMCPToolsTab as WebMCPToolsUI,
-	type WebMCPTool,
-} from '@google-awlt/design-system';
-
+import { WebMCPToolsTab as WebMCPToolsUI } from '@google-awlt/design-system';
+import { useMemo } from 'react';
 /**
  * Internal Dependencies.
  */
-import { tools } from '../../../../contentScript/tools';
-
-const builtInWebMCPTools: WebMCPTool[] = tools.map((tool) => ({
-	name: tool.name,
-	namespace: 'built_in',
-	description: tool.description,
-	allowedDomains: tool.allowedDomains,
-	inputSchema: tool.inputSchema,
-	enabled: true,
-	isBuiltIn: true,
-}));
+import { useToolProvider } from '../../providers';
+import { useSettings } from '../../../stateProviders';
+import {
+  type keys,
+  chromeApiBuiltInTools,
+} from '../../../../contentScript/tools/builtInTools';
 
 export function WebMCPToolsTab() {
-	const [userTools, setUserTools] = useState<WebMCPTool[]>([]);
-	const [builtInTools, setBuiltInTools] =
-		useState<WebMCPTool[]>(builtInWebMCPTools);
+  const {
+    userTools,
+    builtInTools,
+    saveUserTools,
+    saveBuiltInState,
+    chromeAPIBuiltInToolsState,
+    saveExtensionToolsState,
+  } = useToolProvider(({ state, actions }) => ({
+    userTools: state.userTools,
+    builtInTools: state.builtInTools,
+    saveUserTools: actions.saveUserTools,
+    saveBuiltInState: actions.saveBuiltInState,
+    chromeAPIBuiltInToolsState: state.chromeAPIBuiltInToolsState,
+    saveExtensionToolsState: actions.saveExtensionToolsState,
+  }));
 
-	useEffect(() => {
-		chrome.storage.local.get(
-			['userWebMCPTools', 'builtInWebMCPToolsState'],
-			(result) => {
-				if (
-					result.userWebMCPTools &&
-					Array.isArray(result.userWebMCPTools)
-				) {
-					setUserTools(result.userWebMCPTools as WebMCPTool[]);
-				}
+  const { isDarkMode } = useSettings(({ state }) => ({
+    isDarkMode: state.isDarkMode,
+  }));
 
-				if (result.builtInWebMCPToolsState) {
-					const states = result.builtInWebMCPToolsState as Record<
-						string,
-						boolean
-					>;
-					setBuiltInTools((prev) =>
-						prev.map((t) => ({
-							...t,
-							enabled:
-								states[t.name] !== undefined
-									? states[t.name]
-									: true,
-						}))
-					);
-				}
-			}
-		);
-	}, []);
+  const extensionTools = useMemo(() => {
+    return Object.keys(chromeApiBuiltInTools).map((toolkey) => {
+      return {
+        ...chromeApiBuiltInTools[toolkey as keys],
+        enabled: chromeAPIBuiltInToolsState[toolkey]?.enabled,
+      };
+    });
+  }, [chromeAPIBuiltInToolsState]);
 
-	const saveUserTools = useCallback((tools: WebMCPTool[]) => {
-		setUserTools(tools);
-		chrome.storage.local.set({ userWebMCPTools: tools });
-	}, []);
-
-	const saveBuiltInState = useCallback((tools: WebMCPTool[]) => {
-		setBuiltInTools(tools);
-		const states = tools.reduce<Record<string, boolean>>(
-			(acc, t) => ({ ...acc, [t.name]: t.enabled }),
-			{}
-		);
-		chrome.storage.local.set({ builtInWebMCPToolsState: states });
-	}, []);
-
-	return (
-		<WebMCPToolsUI
-			userTools={userTools}
-			builtInTools={builtInTools}
-			onSaveUserTools={saveUserTools}
-			onSaveBuiltInState={saveBuiltInState}
-		/>
-	);
+  return (
+    <WebMCPToolsUI
+      userTools={userTools}
+      builtInTools={[...builtInTools, ...extensionTools]}
+      onSaveUserTools={saveUserTools}
+      onSaveBuiltInState={saveBuiltInState}
+      saveExtensionToolsState={saveExtensionToolsState}
+      isDarkMode={isDarkMode}
+    />
+  );
 }

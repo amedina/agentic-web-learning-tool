@@ -2,7 +2,7 @@
  * External depencenies
  */
 import { render, screen, fireEvent } from '@testing-library/react';
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom';
 /**
  * Internal dependencies
  */
@@ -12,18 +12,17 @@ import { ToolFallback } from '..';
 const mockArgs = { query: 'react testing library' };
 
 describe('ClaudeToolCard Component', () => {
-
   it('renders the tool name and execution status correctly', () => {
     render(
       <ToolFallback
         addResult={(_result) => undefined}
         resume={() => undefined}
-        type='tool-call'
-        toolCallId='google_search'
+        type="tool-call"
+        toolCallId="google_search"
         args={mockArgs}
         toolName="google_search"
         argsText={mockArgs.query}
-        status={{ type: "complete" }}
+        status={{ type: 'complete' }}
       />
     );
 
@@ -36,12 +35,12 @@ describe('ClaudeToolCard Component', () => {
       <ToolFallback
         addResult={(_result) => undefined}
         resume={() => undefined}
-        type='tool-call'
+        type="tool-call"
         toolCallId="long_running_process"
         args={mockArgs}
         toolName="quick_task"
         argsText={mockArgs.query}
-        status={{ type: "complete" }}
+        status={{ type: 'complete' }}
         result="Done"
       />
     );
@@ -55,16 +54,17 @@ describe('ClaudeToolCard Component', () => {
       <ToolFallback
         addResult={(_result) => undefined}
         resume={() => undefined}
-        type='tool-call'
+        type="tool-call"
         toolCallId="long_running_process"
         args={mockArgs}
         toolName="toggle_test"
         argsText={mockArgs.query}
-        status={{ type: "complete" }}
+        status={{ type: 'complete' }}
       />
     );
 
-    const header = screen.getByText('toggle_test').closest('div')?.parentElement?.parentElement;
+    const header = screen.getByText('toggle_test').closest('div')
+      ?.parentElement?.parentElement;
 
     // 1. Click to expand
     fireEvent.click(header!);
@@ -73,7 +73,7 @@ describe('ClaudeToolCard Component', () => {
     // 2. Click to collapse
     fireEvent.click(header!);
     // Wait for transition or check immediate removal (depends on implementation)
-    // Note: If using CSS transitions, checking presence might need waitFor, 
+    // Note: If using CSS transitions, checking presence might need waitFor,
     // but standard React conditional rendering removes it from DOM immediately.
     expect(screen.queryByText(`"${mockArgs.query}"`)).not.toBeInTheDocument();
   });

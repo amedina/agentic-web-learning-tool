@@ -17,7 +17,9 @@ export function mcpToolToJSONSchema(inputSchema: {
     properties: (inputSchema.properties as JSONSchema7['properties']) || {},
     required: inputSchema.required || [],
     ...Object.fromEntries(
-      Object.entries(inputSchema).filter(([k]) => !['type', 'properties', 'required'].includes(k))
+      Object.entries(inputSchema).filter(
+        ([k]) => !['type', 'properties', 'required'].includes(k)
+      )
     ),
   } as JSONSchema7;
 }
