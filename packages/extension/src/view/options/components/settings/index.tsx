@@ -49,8 +49,8 @@ export default function SettingsTab() {
 
   const config = useCallback(async () => {
     const {
-      promptCommands,
-      builtInPromptCommands,
+      promptCommands = [],
+      builtInPromptCommands = [],
     }: {
       promptCommands: PromptCommand[];
       builtInPromptCommands: PromptCommand[];
