@@ -25,6 +25,7 @@ function SettingsProvider({
   const [theme, setTheme] = useState<SettingsState['theme']>('auto');
   const [logLevel, setLogLevel] = useState<SettingsState['logLevel']>('SILENT');
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [workflowId, setWorkflowId] = useState<string | null>(null);
 
   const fetchAndUpdateSettings = useCallback(async () => {
     const { theme: _theme, logLevel: _logLevel } = await settingsGetter();
@@ -134,13 +135,15 @@ function SettingsProvider({
         theme,
         logLevel,
         isDarkMode,
+        workflowId,
       },
       actions: {
         clearSettings,
         toggleSettings,
+        setWorkflowId,
       },
     }),
-    [logLevel, theme, clearSettings, isDarkMode]
+    [theme, logLevel, isDarkMode, workflowId, clearSettings, toggleSettings]
   );
 
   return (

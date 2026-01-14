@@ -7,9 +7,11 @@ import { Flow, ToolsBar, ToolsConfig } from "./components";
 
 interface PanelProps {
   theme: "light" | "dark" | "system";
+  workflowId: string | null;
+  setWorkflowId: (id: string | null) => void;
 }
 
-function Panel({ theme }: PanelProps) {
+function Panel({ theme, workflowId, setWorkflowId }: PanelProps) {
   const [leftCollapsed, setLeftCollapsed] = useState(() => {
     const saved = localStorage.getItem("awl_wc_left_collapsed");
     return saved === "true";
@@ -46,7 +48,11 @@ function Panel({ theme }: PanelProps) {
 
       {/* Main Canvas Area */}
       <main className="flex-1 min-w-0 h-full relative z-0">
-        <Flow theme={theme} />
+        <Flow
+          theme={theme}
+          workflowId={workflowId}
+          setWorkflowId={setWorkflowId}
+        />
       </main>
 
       {/* Right Sidebar: Configuration */}

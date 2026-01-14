@@ -33,13 +33,18 @@ const generateId = () =>
 
 interface FlowContainerProps {
   theme: "light" | "dark" | "system";
+  workflowId: string | null;
+  setWorkflowId: (id: string | null) => void;
 }
 
-const FlowContainer = ({ theme }: FlowContainerProps) => {
+const FlowContainer = ({
+  theme,
+  workflowId,
+  setWorkflowId,
+}: FlowContainerProps) => {
   const [workflowTitle, setWorkflowTitle] = useState("Untitled Workflow");
   const [showImportDialog, setShowImportDialog] = useState(false);
   const [importJson, setImportJson] = useState("");
-  const [workflowId, setWorkflowId] = useState<string | null>(null);
   const [tabs, setTabs] = useState<chrome.tabs.Tab[]>([]);
   const [selectedTabId, _setSelectedTabId] = useState<number | null>(() => {
     const saved = localStorage.getItem(STORAGE_KEY_SELECTED_TAB);
@@ -246,14 +251,9 @@ const FlowContainer = ({ theme }: FlowContainerProps) => {
 
   useEffect(() => {
     (async () => {
-      const params = new URLSearchParams(window.location.search);
-      const idFromUrl = params.get("id");
-
-      if (idFromUrl) {
-        setWorkflowId(idFromUrl);
-
+      if (workflowId) {
         try {
-          const savedData = await loadWorkflow(idFromUrl);
+          const savedData = await loadWorkflow(workflowId);
 
           if (savedData) {
             loadWorkflowData(savedData);
@@ -264,13 +264,17 @@ const FlowContainer = ({ theme }: FlowContainerProps) => {
       } else {
         const newId = generateId();
         setWorkflowId(newId);
-        const newUrl = new URL(window.location.href);
-        newUrl.searchParams.set("id", newId);
-        window.history.replaceState({}, "", newUrl.toString());
         initializeStandardNodes();
       }
     })();
-  }, [loadWorkflowData, addNode, addApiNode, initializeStandardNodes]);
+  }, [
+    loadWorkflowData,
+    addNode,
+    addApiNode,
+    initializeStandardNodes,
+    setWorkflowId,
+    workflowId,
+  ]);
 
   const serializeWorkflow = useCallback(
     (
@@ -396,11 +400,6 @@ const FlowContainer = ({ theme }: FlowContainerProps) => {
 
       const newId = generateId();
       setWorkflowId(newId);
-
-      const newUrl = new URL(window.location.href);
-      newUrl.searchParams.set("id", newId);
-      window.history.replaceState({}, "", newUrl.toString());
-
       loadWorkflowData(workflowData);
 
       const newWorkflowData = {
@@ -419,7 +418,7 @@ const FlowContainer = ({ theme }: FlowContainerProps) => {
         "error",
       );
     }
-  }, [clearFlow, importJson, loadWorkflowData, showToast]);
+  }, [clearFlow, importJson, loadWorkflowData, setWorkflowId, showToast]);
 
   const handleRun = useCallback(async () => {
     if (isRunning) return;
@@ -521,10 +520,6 @@ const FlowContainer = ({ theme }: FlowContainerProps) => {
 
       setWorkflowId(newId);
       setWorkflowTitle("Untitled Workflow");
-      const newUrl = new URL(window.location.href);
-      newUrl.searchParams.set("id", newId);
-      window.history.replaceState({}, "", newUrl.toString());
-
       clearFlow();
       initializeStandardNodes();
 
@@ -555,7 +550,7 @@ const FlowContainer = ({ theme }: FlowContainerProps) => {
       saveWorkflow(newId, initialData);
       showToast("New workflow created!", "success");
     }
-  }, [clearFlow, initializeStandardNodes, showToast]);
+  }, [clearFlow, initializeStandardNodes, setWorkflowId, showToast]);
 
   const handleLoadSaved = useCallback(() => {
     setShowSavedWorkflows(true);
@@ -563,10 +558,6 @@ const FlowContainer = ({ theme }: FlowContainerProps) => {
 
   const handleWorkflowLoad = useCallback(
     async (id: string) => {
-      const newUrl = new URL(window.location.href);
-      newUrl.searchParams.set("id", id);
-      window.history.pushState({}, "", newUrl.toString());
-
       setWorkflowId(id);
 
       const data = await loadWorkflow(id);
@@ -577,7 +568,7 @@ const FlowContainer = ({ theme }: FlowContainerProps) => {
         showToast("Failed to load workflow", "error");
       }
     },
-    [loadWorkflowData, showToast],
+    [loadWorkflowData, setWorkflowId, showToast],
   );
 
   return (
