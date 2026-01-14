@@ -19,3 +19,4 @@ export * from './threadList';
 export * from './mcpServerDialog';
 export { default as Toaster, toast } from './toast';
 export * from './collapsible';
+export * from './threadListSidebar';

@@ -8,6 +8,7 @@ import {
 } from '@assistant-ui/react';
 import { lastAssistantMessageIsCompleteWithToolCalls } from 'ai';
 import { useEffect, useRef } from 'react';
+import { SidebarProvider } from '@google-awlt/design-system';
 /**
  * Internal dependencies
  */
@@ -41,7 +42,9 @@ const SidePanel = () => {
   return (
     <AssistantRuntimeProvider runtime={runtimeRef.current}>
       <CommandProvider>
-        <ChatBotUI runtime={runtimeRef.current} />
+        <SidebarProvider>
+          <ChatBotUI runtime={runtimeRef.current} />
+        </SidebarProvider>
       </CommandProvider>
     </AssistantRuntimeProvider>
   );
