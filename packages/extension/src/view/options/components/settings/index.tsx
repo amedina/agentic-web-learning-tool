@@ -12,7 +12,11 @@ import ThemeSection from './themeToggleSection';
 import DataManagementSection from './dataManagementSection';
 import SystemSection from './systemSection';
 import { useSettings } from '../../../stateProviders';
-import { useModelProvider, useToolProvider } from '../../providers';
+import {
+  useMcpProvider,
+  useModelProvider,
+  useToolProvider,
+} from '../../providers';
 import type { SettingsType } from '../../../../types';
 import json from '../../../../manifest.json';
 import { EXPORT_JSON_VERSION } from '../../../../constants';
@@ -29,8 +33,14 @@ export default function SettingsTab() {
 
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
 
-  const { userTools } = useToolProvider(({ state }) => ({
-    userTools: state.userTools,
+  const { userTools, chromeAPIBuiltInToolsState, builtInTools } =
+    useToolProvider(({ state }) => ({
+      userTools: state.userTools,
+      chromeAPIBuiltInToolsState: state.chromeAPIBuiltInToolsState,
+      builtInTools: state.builtInTools,
+    }));
+  const { serverConfigs } = useMcpProvider(({ state }) => ({
+    serverConfigs: state.serverConfigs,
   }));
 
   const { apiKeys } = useModelProvider(({ state }) => ({
@@ -45,7 +55,16 @@ export default function SettingsTab() {
           theme,
           logLevel,
         },
-        userWebMCPTools: userTools,
+        userWebMCPTools: JSON.stringify(userTools, null, 2),
+        mcpConfigs: JSON.stringify(serverConfigs, null, 2),
+        chromeAPIBuiltInToolsState: chromeAPIBuiltInToolsState,
+        builtInToolsState: builtInTools.reduce(
+          (acc, tool) => {
+            acc[tool.name] = tool.enabled;
+            return acc;
+          },
+          {} as Record<string, boolean>
+        ),
       },
       version: EXPORT_JSON_VERSION,
       extensionVersion: json.version,

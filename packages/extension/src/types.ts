@@ -1,8 +1,4 @@
 /**
- * External dependencies
- */
-import type { WebMCPTool } from '@google-awlt/design-system';
-/**
  * Internal dependencies
  */
 import type { LOG_OPTS } from './utils/constants';
@@ -32,7 +28,14 @@ export type SettingsType = {
       theme?: ThemeMode;
       logLevel?: LogLevel;
     };
-    userWebMCPTools?: WebMCPTool[];
+    userWebMCPTools?: string;
+    mcpConfigs?: string;
+    builtInToolsState?: Record<string, boolean>;
+    chromeAPIBuiltInToolsState?: {
+      [key: string]: {
+        enabled: boolean;
+      };
+    };
   };
   version: string;
   extensionVersion: string;

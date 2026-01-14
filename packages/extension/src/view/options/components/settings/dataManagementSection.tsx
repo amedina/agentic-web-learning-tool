@@ -114,13 +114,15 @@ export default function DataManagementSection({
       await chrome.storage.sync.clear();
 
       await chrome.storage.sync.set({
+        apiKeys: validationResult.apiKeys,
         extensionSettings: JSON.stringify(validationResult.extensionSettings),
       });
-      await chrome.storage.sync.set({
-        apiKeys: validationResult.apiKeys,
-      });
+
       await chrome.storage.local.set({
         userWebMCPTools: validationResult.userWebMCPTools,
+        builtInWebMCPToolsState: validationResult.builtInToolsState,
+        chromeAPIBuiltInToolsState: validationResult.chromeAPIBuiltInToolsState,
+        mcpServers: validationResult.mcpConfigs,
       });
 
       logger(

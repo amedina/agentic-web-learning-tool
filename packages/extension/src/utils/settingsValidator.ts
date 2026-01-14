@@ -9,7 +9,14 @@ function settingsValidator(
 ): boolean | SettingsType['config'] {
   const { config } = settings;
 
-  if (!config.apiKeys || !config.extensionSettings || !config.userWebMCPTools) {
+  if (
+    !config.apiKeys ||
+    !config.extensionSettings ||
+    !config.userWebMCPTools ||
+    !config.builtInToolsState ||
+    !config.chromeAPIBuiltInToolsState ||
+    !config.mcpConfigs
+  ) {
     logger(['error'], ['Invalid config non existent keys']);
     return false;
   }
@@ -30,8 +37,11 @@ function settingsValidator(
   }
 
   return {
-    userWebMCPTools: config.userWebMCPTools,
+    userWebMCPTools: JSON.parse(config.userWebMCPTools),
+    mcpConfigs: JSON.parse(config.mcpConfigs),
     apiKeys: config.apiKeys,
+    chromeAPIBuiltInToolsState: config.chromeAPIBuiltInToolsState,
+    builtInToolsState: config.builtInToolsState,
     extensionSettings: defaultConfig,
   };
 }
