@@ -5,7 +5,15 @@ export default {
   inputSchema: { type: 'object', properties: {} },
   execute: async () => {
     console.log('WebMCP: Executing get_page_title');
-    // WORKAROUND: Return string directly to avoid [object Object] from Native API
-    return 'Page Title: ' + document.title;
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: document.title,
+        },
+      ],
+      isError: false,
+    };
   },
 };
