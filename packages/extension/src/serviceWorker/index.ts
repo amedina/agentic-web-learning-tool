@@ -6,7 +6,7 @@ z.config({ jitless: true });
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { type CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { ExtensionServerTransport } from '@mcp-b/transports';
-
+import type { WebMCPTool } from '@google-awlt/design-system';
 /**
  * Internal dependencies
  */
@@ -14,7 +14,6 @@ import { CONNECTION_NAMES, logger } from '../utils';
 import McpHub from './mcpHub';
 import './chromeListeners';
 import onLocalStorageChangedCallback from './chromeListeners/onLocalStorageChangedCallback';
-import type { WebMCPTool } from '@google-awlt/design-system';
 
 const sharedServer = new McpServer(
   { name: 'Extension-Hub', version: '1.0.0' },
@@ -31,32 +30,27 @@ chrome.sidePanel
 const mcpHub = new McpHub(sharedServer);
 chrome.storage.local.onChanged.addListener(
   async (changes: { [key: string]: chrome.storage.StorageChange }) => {
-    if (!changes?.mcpServers) {
-      return;
+    if (changes?.mcpServers) {
+      const { newValue = {}, oldValue = {} } =
+        changes?.mcpServers as unknown as {
+          newValue: Record<string, any>;
+          oldValue: Record<string, any>;
+        };
+      //If old value has more keys then deletion has happened else insertion has happened, if value is equal then updation has happened
+      if (Object.keys(oldValue).length > Object.keys(newValue).length) {
+        await Promise.all(
+          Object.keys(oldValue).map((key) => {
+            if (!newValue?.[key]) {
+              mcpHub.removeMCPServer(key);
+            }
+          })
+        );
+        return;
+      }
+
+      onLocalStorageChangedCallback(mcpHub);
     }
 
-    const { newValue = {}, oldValue = {} } = changes?.mcpServers as unknown as {
-      newValue: Record<string, any>;
-      oldValue: Record<string, any>;
-    };
-    //If old value has more keys then deletion has happened else insertion has happened, if value is equal then updation has happened
-    if (Object.keys(oldValue).length > Object.keys(newValue).length) {
-      await Promise.all(
-        Object.keys(oldValue).map((key) => {
-          if (!newValue?.[key]) {
-            mcpHub.removeMCPServer(key);
-          }
-        })
-      );
-      return;
-    }
-
-    onLocalStorageChangedCallback(mcpHub);
-  }
-);
-
-chrome.storage.local.onChanged.addListener(
-  async (changes: { [key: string]: chrome.storage.StorageChange }) => {
     if (changes.builtInWebMCPToolsState) {
       const newValue =
         (changes.builtInWebMCPToolsState?.newValue as Record<
@@ -109,6 +103,7 @@ chrome.storage.local.onChanged.addListener(
         }
       });
     }
+
     sharedServer.server?.transport?.send({
       jsonrpc: '2.0',
       method: 'get/Tools',
