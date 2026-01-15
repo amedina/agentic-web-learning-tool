@@ -8,6 +8,7 @@ import {
   type PropsWithChildren,
 } from "react";
 import { getWorkflowClient } from "@google-awlt/engine-extension";
+import { type WorkflowMeta } from "@google-awlt/engine-core";
 
 /**
  * Internal dependencies
@@ -21,6 +22,14 @@ const ApiProvider = ({ children }: PropsWithChildren) => {
 
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
   const [capabilities, setCapabilities] = useState<Record<string, boolean>>({});
+  const [workflowMeta, setWorkflowMeta] = useState<WorkflowMeta>({
+    id: `wf_${crypto.randomUUID()}`,
+    name: "New Workflow",
+    description: "",
+    version: "1.0.0",
+    allowedDomains: [],
+    isWebMCP: false,
+  });
 
   const getNode = useCallback(
     (id: string) => {
@@ -90,6 +99,21 @@ const ApiProvider = ({ children }: PropsWithChildren) => {
   const clearApiData = useCallback(() => {
     setNodes({});
     setSelectedNode(null);
+    setWorkflowMeta({
+      id: crypto.randomUUID(),
+      name: "New Workflow",
+      description: "",
+      version: "1.0.0",
+      allowedDomains: [],
+      isWebMCP: false,
+    });
+  }, []);
+
+  const updateWorkflowMeta = useCallback((updates: Partial<WorkflowMeta>) => {
+    setWorkflowMeta((prev) => ({
+      ...prev,
+      ...updates,
+    }));
   }, []);
 
   const checkCapabilities = useCallback(async () => {
@@ -126,6 +150,7 @@ const ApiProvider = ({ children }: PropsWithChildren) => {
             nodes,
             selectedNode,
             capabilities,
+            workflowMeta,
           },
           actions: {
             getNode,
@@ -133,6 +158,7 @@ const ApiProvider = ({ children }: PropsWithChildren) => {
             updateNode,
             removeNode,
             setSelectedNode,
+            updateWorkflowMeta,
             clearApiData,
             checkCapabilities,
           },

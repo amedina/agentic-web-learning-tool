@@ -28,7 +28,14 @@ describe("WorkflowEngine", () => {
 
   it("should execute a simple linear workflow", async () => {
     const workflow: WorkflowJSON = {
-      meta: { id: "test-wf", name: "Test Workflow", version: "1.0" },
+      meta: {
+        id: "test-wf",
+        name: "Test Workflow",
+        description: "Test",
+        version: "1.0",
+        allowedDomains: [],
+        isWebMCP: false,
+      },
       graph: {
         nodes: [
           { id: "start", type: "start", config: {} },
@@ -59,7 +66,14 @@ describe("WorkflowEngine", () => {
 
   it("should resolve variables between steps", async () => {
     const workflow: WorkflowJSON = {
-      meta: { id: "test-var-wf", name: "Variable Workflow", version: "1.0" },
+      meta: {
+        id: "test-var-wf",
+        name: "Variable Workflow",
+        description: "Test",
+        version: "1.0",
+        allowedDomains: [],
+        isWebMCP: false,
+      },
       graph: {
         nodes: [
           { id: "start", type: "start", config: {} },
@@ -91,7 +105,14 @@ describe("WorkflowEngine", () => {
 
   it("should handle execution errors", async () => {
     const workflow: WorkflowJSON = {
-      meta: { id: "test-err-wf", name: "Error Workflow", version: "1.0" },
+      meta: {
+        id: "test-err-wf",
+        name: "Error Workflow",
+        description: "Test",
+        version: "1.0",
+        allowedDomains: [],
+        isWebMCP: false,
+      },
       graph: {
         nodes: [
           { id: "start", type: "start", config: {} },
@@ -123,7 +144,14 @@ describe("WorkflowEngine", () => {
     });
 
     const workflow: WorkflowJSON = {
-      meta: { id: "test-wf", name: "Test", version: "1" },
+      meta: {
+        id: "test-wf",
+        name: "Test",
+        description: "Test",
+        version: "1",
+        allowedDomains: [],
+        isWebMCP: false,
+      },
       graph: {
         nodes: [
           { id: "start", type: "start", config: {} },
@@ -138,13 +166,20 @@ describe("WorkflowEngine", () => {
     };
 
     await expect(engine.execute(workflow)).rejects.toThrow(
-      'Required capability "promptApi" is not available'
+      'Required capability "promptApi" is not available',
     );
   });
 
   it("should execute sub-graph using Loop executor", async () => {
     const workflow: WorkflowJSON = {
-      meta: { id: "loop-wf", name: "Loop", version: "1" },
+      meta: {
+        id: "loop-wf",
+        name: "Loop",
+        description: "Test",
+        version: "1",
+        allowedDomains: [],
+        isWebMCP: false,
+      },
       graph: {
         nodes: [
           { id: "start", type: "start", config: {} },
@@ -179,7 +214,14 @@ describe("WorkflowEngine", () => {
 
   it("should resolve variable from direct inputData using 'input' keyword", async () => {
     const workflow: WorkflowJSON = {
-      meta: { id: "test", name: "t", version: "1" },
+      meta: {
+        id: "test",
+        name: "t",
+        description: "d",
+        version: "1",
+        allowedDomains: [],
+        isWebMCP: false,
+      },
       graph: {
         nodes: [
           { id: "start", type: "start", config: {} },
@@ -209,7 +251,14 @@ describe("WorkflowEngine", () => {
     });
 
     const workflow: WorkflowJSON = {
-      meta: { id: "loop-abort-wf", name: "Loop Abort", version: "1" },
+      meta: {
+        id: "loop-abort-wf",
+        name: "Loop Abort",
+        description: "d",
+        version: "1",
+        allowedDomains: [],
+        isWebMCP: false,
+      },
       graph: {
         nodes: [
           { id: "start", type: "start", config: {} },
@@ -239,7 +288,14 @@ describe("WorkflowEngine", () => {
 
   it("should handle unknown variable property and warn", async () => {
     const workflow: WorkflowJSON = {
-      meta: { id: "test", name: "t", version: "1" },
+      meta: {
+        id: "test",
+        name: "t",
+        description: "d",
+        version: "1",
+        allowedDomains: [],
+        isWebMCP: false,
+      },
       graph: {
         nodes: [
           { id: "start", type: "start", config: {} },
@@ -262,7 +318,7 @@ describe("WorkflowEngine", () => {
     const context = await engine.execute(workflow);
     expect(context.steps["n2"].data).toBe("{{steps.n1.unknown}}");
     expect(consoleSpy).toHaveBeenCalledWith(
-      expect.stringContaining('Unknown property "unknown"')
+      expect.stringContaining('Unknown property "unknown"'),
     );
     consoleSpy.mockRestore();
   });
@@ -274,7 +330,14 @@ describe("WorkflowEngine", () => {
     });
 
     const workflow: WorkflowJSON = {
-      meta: { id: "test", name: "t", version: "1" },
+      meta: {
+        id: "test",
+        name: "t",
+        description: "d",
+        version: "1",
+        allowedDomains: [],
+        isWebMCP: false,
+      },
       graph: {
         nodes: [
           { id: "start", type: "start", config: {} },
@@ -297,7 +360,14 @@ describe("WorkflowEngine", () => {
 
   it("should resolve status and property variables", async () => {
     const workflow: WorkflowJSON = {
-      meta: { id: "t1", name: "t", version: "1" },
+      meta: {
+        id: "t1",
+        name: "t",
+        description: "d",
+        version: "1",
+        allowedDomains: [],
+        isWebMCP: false,
+      },
       graph: {
         nodes: [
           { id: "start", type: "start", config: {} },
@@ -322,7 +392,14 @@ describe("WorkflowEngine", () => {
 
   it("should warn on unknown node reference", async () => {
     const workflow: WorkflowJSON = {
-      meta: { id: "test", name: "t", version: "1" },
+      meta: {
+        id: "test",
+        name: "t",
+        description: "d",
+        version: "1",
+        allowedDomains: [],
+        isWebMCP: false,
+      },
       graph: {
         nodes: [
           { id: "start", type: "start", config: {} },
@@ -342,7 +419,7 @@ describe("WorkflowEngine", () => {
     const consoleSpy = jest.spyOn(console, "warn").mockImplementation();
     await engine.execute(workflow);
     expect(consoleSpy).toHaveBeenCalledWith(
-      expect.stringContaining("Variable reference to unknown node: missing")
+      expect.stringContaining("Variable reference to unknown node: missing"),
     );
     consoleSpy.mockRestore();
   });
@@ -353,7 +430,14 @@ describe("WorkflowEngine", () => {
     });
 
     const workflow: WorkflowJSON = {
-      meta: { id: "nested", name: "n", version: "1" },
+      meta: {
+        id: "nested",
+        name: "n",
+        description: "d",
+        version: "1",
+        allowedDomains: [],
+        isWebMCP: false,
+      },
       graph: {
         nodes: [
           { id: "start", type: "start", config: {} },
@@ -380,7 +464,7 @@ describe("WorkflowEngine", () => {
       expect.objectContaining({
         nested: { key: "Hello World" },
         list: ["World", "other"],
-      })
+      }),
     );
   });
 });

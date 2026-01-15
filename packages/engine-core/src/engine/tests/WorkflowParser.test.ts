@@ -15,7 +15,14 @@ describe("WorkflowParser", () => {
   describe("parse", () => {
     it("should correctly parse a valid workflow", () => {
       const workflow: WorkflowJSON = {
-        meta: { id: "test-wf", name: "Test", version: "1.0" },
+        meta: {
+          id: "test-wf",
+          name: "Test",
+          description: "d",
+          version: "1.0",
+          allowedDomains: [],
+          isWebMCP: false,
+        },
         graph: {
           nodes: [
             { id: "start", type: "start", config: {} },
@@ -46,34 +53,41 @@ describe("WorkflowParser", () => {
     it("should throw error if meta.id is missing", () => {
       const workflow: any = { graph: { nodes: [], edges: [] } };
       expect(() => parser.parse(workflow)).toThrow(
-        "Workflow must have a meta.id"
+        "Workflow must have a meta.id",
       );
     });
 
     it("should throw error if graph is missing", () => {
       const workflow: any = { meta: { id: "test" } };
       expect(() => parser.parse(workflow)).toThrow(
-        "Workflow must have a graph"
+        "Workflow must have a graph",
       );
     });
 
     it("should throw error if nodes array is missing", () => {
       const workflow: any = { meta: { id: "test" }, graph: { edges: [] } };
       expect(() => parser.parse(workflow)).toThrow(
-        "Workflow graph must have a nodes array"
+        "Workflow graph must have a nodes array",
       );
     });
 
     it("should throw error if edges array is missing", () => {
       const workflow: any = { meta: { id: "test" }, graph: { nodes: [] } };
       expect(() => parser.parse(workflow)).toThrow(
-        "Workflow graph must have an edges array"
+        "Workflow graph must have an edges array",
       );
     });
 
     it("should throw error if multiple start nodes are found", () => {
       const workflow: WorkflowJSON = {
-        meta: { id: "test", name: "Test", version: "1" },
+        meta: {
+          id: "test",
+          name: "Test",
+          description: "d",
+          version: "1",
+          allowedDomains: [],
+          isWebMCP: false,
+        },
         graph: {
           nodes: [
             { id: "s1", type: "start", config: {} },
@@ -84,13 +98,20 @@ describe("WorkflowParser", () => {
         },
       };
       expect(() => parser.parse(workflow)).toThrow(
-        "Workflow can only have one Start node"
+        "Workflow can only have one Start node",
       );
     });
 
     it("should throw error if no start node is found", () => {
       const workflow: WorkflowJSON = {
-        meta: { id: "test", name: "Test", version: "1" },
+        meta: {
+          id: "test",
+          name: "Test",
+          description: "d",
+          version: "1",
+          allowedDomains: [],
+          isWebMCP: false,
+        },
         graph: {
           nodes: [
             { id: "node-1", type: "staticInput", config: {} },
@@ -100,13 +121,20 @@ describe("WorkflowParser", () => {
         },
       };
       expect(() => parser.parse(workflow)).toThrow(
-        "Workflow must have at least one Start node"
+        "Workflow must have at least one Start node",
       );
     });
 
     it("should throw error if a node has multiple incoming edges", () => {
       const workflow: WorkflowJSON = {
-        meta: { id: "test", name: "Test", version: "1" },
+        meta: {
+          id: "test",
+          name: "Test",
+          description: "d",
+          version: "1",
+          allowedDomains: [],
+          isWebMCP: false,
+        },
         graph: {
           nodes: [
             { id: "start", type: "start", config: {} },
@@ -122,13 +150,20 @@ describe("WorkflowParser", () => {
         },
       };
       expect(() => parser.parse(workflow)).toThrow(
-        "has multiple incoming edges"
+        "has multiple incoming edges",
       );
     });
 
     it("should throw error if multiple end nodes are found", () => {
       const workflow: WorkflowJSON = {
-        meta: { id: "test", name: "t", version: "1" },
+        meta: {
+          id: "test",
+          name: "t",
+          description: "d",
+          version: "1",
+          allowedDomains: [],
+          isWebMCP: false,
+        },
         graph: {
           nodes: [
             { id: "start", type: "start", config: {} },
@@ -143,7 +178,14 @@ describe("WorkflowParser", () => {
 
     it("should throw error if no end node is found", () => {
       const workflow: WorkflowJSON = {
-        meta: { id: "test", name: "t", version: "1" },
+        meta: {
+          id: "test",
+          name: "t",
+          description: "d",
+          version: "1",
+          allowedDomains: [],
+          isWebMCP: false,
+        },
         graph: {
           nodes: [
             { id: "start", type: "start", config: {} },
@@ -159,7 +201,14 @@ describe("WorkflowParser", () => {
   describe("getExecutionPlan", () => {
     it("should return nodes in topological order", () => {
       const workflow: WorkflowJSON = {
-        meta: { id: "test", name: "Test", version: "1" },
+        meta: {
+          id: "test",
+          name: "Test",
+          description: "d",
+          version: "1",
+          allowedDomains: [],
+          isWebMCP: false,
+        },
         graph: {
           nodes: [
             { id: "start", type: "start", config: {} },
@@ -188,7 +237,14 @@ describe("WorkflowParser", () => {
 
     it("should throw error if cycle is detected", () => {
       const workflowCycle: WorkflowJSON = {
-        meta: { id: "test", name: "Test", version: "1" },
+        meta: {
+          id: "test",
+          name: "Test",
+          description: "d",
+          version: "1",
+          allowedDomains: [],
+          isWebMCP: false,
+        },
         graph: {
           nodes: [
             { id: "start", type: "start", config: {} },
@@ -206,7 +262,7 @@ describe("WorkflowParser", () => {
       };
 
       expect(() => parser.parse(workflowCycle)).toThrow(
-        "has multiple incoming edges"
+        "has multiple incoming edges",
       );
     });
 
@@ -239,7 +295,7 @@ describe("WorkflowParser", () => {
           inDegree,
           edges: [],
           reverseAdjacencyList: new Map(),
-        } as any)
+        } as any),
       ).toThrow("Workflow graph contains cycles");
     });
   });
@@ -247,7 +303,14 @@ describe("WorkflowParser", () => {
   describe("getInputNodes", () => {
     it("should return source nodes for a target node", () => {
       const workflow: WorkflowJSON = {
-        meta: { id: "test", name: "Test", version: "1" },
+        meta: {
+          id: "test",
+          name: "Test",
+          description: "d",
+          version: "1",
+          allowedDomains: [],
+          isWebMCP: false,
+        },
         graph: {
           nodes: [
             { id: "start", type: "start", config: {} },
@@ -270,7 +333,14 @@ describe("WorkflowParser", () => {
   describe("getRequiredCapabilities", () => {
     it("should identify required AI capabilities", () => {
       const workflow: WorkflowJSON = {
-        meta: { id: "test", name: "Test", version: "1" },
+        meta: {
+          id: "test",
+          name: "Test",
+          description: "d",
+          version: "1",
+          allowedDomains: [],
+          isWebMCP: false,
+        },
         graph: {
           nodes: [
             { id: "start", type: "start", config: {} },
@@ -302,7 +372,14 @@ describe("WorkflowParser", () => {
   describe("getReachableNodes", () => {
     it("should return nodes reachable from a node through a specific handle", () => {
       const workflow: WorkflowJSON = {
-        meta: { id: "test", name: "Test", version: "1" },
+        meta: {
+          id: "test",
+          name: "Test",
+          description: "d",
+          version: "1",
+          allowedDomains: [],
+          isWebMCP: false,
+        },
         graph: {
           nodes: [
             { id: "start", type: "start", config: {} },
@@ -366,7 +443,14 @@ describe("WorkflowParser", () => {
 
     it("should throw if edge source is invalid", () => {
       const wf: WorkflowJSON = {
-        meta: { id: "t", name: "t", version: "1" },
+        meta: {
+          id: "t",
+          name: "t",
+          description: "d",
+          version: "1",
+          allowedDomains: [],
+          isWebMCP: false,
+        },
         graph: {
           nodes: [
             { id: "start", type: "start", config: {} },
@@ -376,13 +460,20 @@ describe("WorkflowParser", () => {
         },
       };
       expect(() => parser.parse(wf)).toThrow(
-        "references non-existent source node"
+        "references non-existent source node",
       );
     });
 
     it("should throw if edge target is invalid", () => {
       const wf: WorkflowJSON = {
-        meta: { id: "t", name: "t", version: "1" },
+        meta: {
+          id: "t",
+          name: "t",
+          description: "d",
+          version: "1",
+          allowedDomains: [],
+          isWebMCP: false,
+        },
         graph: {
           nodes: [
             { id: "start", type: "start", config: {} },
@@ -392,7 +483,7 @@ describe("WorkflowParser", () => {
         },
       };
       expect(() => parser.parse(wf)).toThrow(
-        "references non-existent target node"
+        "references non-existent target node",
       );
     });
   });

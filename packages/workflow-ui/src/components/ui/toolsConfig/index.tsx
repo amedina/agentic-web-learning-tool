@@ -14,10 +14,12 @@ export interface ToolsConfigProps {
   children?: ReactNode;
   collapsed?: boolean;
   onToggle?: () => void;
+  tabs?: ReactNode;
+  suppressEmptyState?: boolean;
 }
 
 const ToolsConfig = ({
-  title = "Node Configuration",
+  title = "Configuration",
   selectedNodeId,
   nodeType,
   nodeLabel = "",
@@ -29,6 +31,8 @@ const ToolsConfig = ({
   children,
   collapsed = false,
   onToggle,
+  tabs,
+  suppressEmptyState = false,
 }: ToolsConfigProps) => {
   if (collapsed) {
     return (
@@ -71,7 +75,8 @@ const ToolsConfig = ({
       </div>
 
       <div className="flex-1 overflow-y-auto">
-        {!selectedNodeId ? (
+        {tabs}
+        {!selectedNodeId && !suppressEmptyState ? (
           <div className="p-8 text-center text-slate-500 dark:text-zinc-400">
             <Settings
               size={48}
@@ -86,61 +91,65 @@ const ToolsConfig = ({
             onSubmit={(e) => e.preventDefault()}
             className="p-4 space-y-4"
           >
-            <div className="bg-slate-100 dark:bg-zinc-800/50 rounded-lg p-3 border border-slate-200 dark:border-border">
-              <div className="text-xs text-slate-500 dark:text-zinc-500 mb-1 uppercase tracking-wide">
-                Node Type
-              </div>
-              <div className="text-sm font-medium text-slate-800 dark:text-zinc-200 capitalize">
-                {nodeType?.replace(/([A-Z])/g, " $1").trim()}
-              </div>
-            </div>
+            {selectedNodeId && (
+              <>
+                <div className="bg-slate-100 dark:bg-zinc-800/50 rounded-lg p-3 border border-slate-200 dark:border-border">
+                  <div className="text-xs text-slate-500 dark:text-zinc-500 mb-1 uppercase tracking-wide">
+                    Node Type
+                  </div>
+                  <div className="text-sm font-medium text-slate-800 dark:text-zinc-200 capitalize">
+                    {nodeType?.replace(/([A-Z])/g, " $1").trim()}
+                  </div>
+                </div>
 
-            <div>
-              <label
-                className="block text-sm font-medium text-slate-700 dark:text-zinc-300 mb-2"
-                htmlFor="title"
-              >
-                Node Label
-              </label>
-              <input
-                type="text"
-                className="w-full p-3 border border-slate-300 dark:border-border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-white dark:bg-zinc-950 text-slate-900 dark:text-foreground disabled:text-slate-600 dark:disabled:text-zinc-400 disabled:bg-slate-50 dark:disabled:bg-zinc-900/30 transition-all"
-                value={nodeLabel}
-                onChange={(e) => onLabelChange?.(e.target.value)}
-                id="title"
-                name="title"
-                placeholder="Enter node label..."
-                disabled={!children}
-              />
-            </div>
-
-            <div>
-              {onContextChange ? (
-                <>
+                <div>
                   <label
                     className="block text-sm font-medium text-slate-700 dark:text-zinc-300 mb-2"
-                    htmlFor="context"
+                    htmlFor="title"
                   >
-                    Context
+                    Node Label
                   </label>
-                  <textarea
-                    className="w-full p-3 border border-slate-300 dark:border-border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm resize-none bg-white dark:bg-zinc-950 text-slate-900 dark:text-foreground transition-all"
-                    rows={4}
-                    value={nodeContext}
-                    id="context"
-                    name="context"
-                    onChange={(e) => onContextChange?.(e.target.value)}
-                    placeholder="Enter context for the tool..."
+                  <input
+                    type="text"
+                    className="w-full p-3 border border-slate-300 dark:border-border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-white dark:bg-zinc-950 text-slate-900 dark:text-foreground disabled:text-slate-600 dark:disabled:text-zinc-400 disabled:bg-slate-50 dark:disabled:bg-zinc-900/30 transition-all"
+                    value={nodeLabel}
+                    onChange={(e) => onLabelChange?.(e.target.value)}
+                    id="title"
+                    name="title"
+                    placeholder="Enter node label..."
+                    disabled={!children}
                   />
-                </>
-              ) : (
-                nodeDescription && (
-                  <p className="text-sm text-slate-700 dark:text-zinc-300 mb-2 italic px-1">
-                    {nodeDescription}
-                  </p>
-                )
-              )}
-            </div>
+                </div>
+
+                <div>
+                  {onContextChange ? (
+                    <>
+                      <label
+                        className="block text-sm font-medium text-slate-700 dark:text-zinc-300 mb-2"
+                        htmlFor="context"
+                      >
+                        Context
+                      </label>
+                      <textarea
+                        className="w-full p-3 border border-slate-300 dark:border-border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm resize-none bg-white dark:bg-zinc-950 text-slate-900 dark:text-foreground transition-all"
+                        rows={4}
+                        value={nodeContext}
+                        id="context"
+                        name="context"
+                        onChange={(e) => onContextChange?.(e.target.value)}
+                        placeholder="Enter context for the tool..."
+                      />
+                    </>
+                  ) : (
+                    nodeDescription && (
+                      <p className="text-sm text-slate-700 dark:text-zinc-300 mb-2 italic px-1">
+                        {nodeDescription}
+                      </p>
+                    )
+                  )}
+                </div>
+              </>
+            )}
 
             {children}
           </form>

@@ -3,6 +3,7 @@
  */
 import { createContext } from "react";
 import { createContextSelector } from "react-context-selector";
+import { type WorkflowMeta } from "@google-awlt/engine-core";
 
 /**
  * Internal dependencies
@@ -57,6 +58,7 @@ export interface ApiStoreContext {
     };
     selectedNode: string | null;
     capabilities: Record<string, boolean>;
+    workflowMeta: WorkflowMeta;
   };
   actions: {
     getNode: (id: string) => NodeConfig | undefined;
@@ -70,6 +72,7 @@ export interface ApiStoreContext {
     ) => void;
     removeNode: (id: string) => void;
     setSelectedNode: (id: string | null) => void;
+    updateWorkflowMeta: (updates: Partial<WorkflowMeta>) => void;
     clearApiData: () => void;
     checkCapabilities: () => Promise<void>;
   };
@@ -80,6 +83,14 @@ const initialState: ApiStoreContext = {
     nodes: {},
     selectedNode: null,
     capabilities: {},
+    workflowMeta: {
+      id: "",
+      name: "",
+      description: "",
+      version: "1.0.0",
+      allowedDomains: [],
+      isWebMCP: false,
+    },
   },
   actions: {
     getNode: () => undefined,
@@ -87,6 +98,7 @@ const initialState: ApiStoreContext = {
     updateNode: () => {},
     removeNode: () => {},
     setSelectedNode: () => {},
+    updateWorkflowMeta: () => {},
     clearApiData: () => {},
     checkCapabilities: async () => {},
   },

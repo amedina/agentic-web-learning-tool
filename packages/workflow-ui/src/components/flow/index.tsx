@@ -28,8 +28,10 @@ import { saveWorkflow, loadWorkflow } from "../../utils/storage";
 const ID_PREFIX = "wf_";
 const STORAGE_KEY_SELECTED_TAB = "awl_wc_selected_tab_id";
 
-const generateId = () =>
-  `${ID_PREFIX}${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+const generateId = () => {
+  const id = crypto.randomUUID();
+  return `${ID_PREFIX}${id}`;
+};
 
 interface FlowContainerProps {
   theme: "light" | "dark" | "system";
@@ -42,7 +44,6 @@ const FlowContainer = ({
   workflowId,
   setWorkflowId,
 }: FlowContainerProps) => {
-  const [workflowTitle, setWorkflowTitle] = useState("Untitled Workflow");
   const [showImportDialog, setShowImportDialog] = useState(false);
   const [importJson, setImportJson] = useState("");
   const [tabs, setTabs] = useState<chrome.tabs.Tab[]>([]);
@@ -96,12 +97,17 @@ const FlowContainer = ({
     setIsRunning: actions.setIsRunning,
   }));
 
-  const { nodes: nodesApiData, addNode: addApiNode } = useApi(
-    ({ state, actions }) => ({
-      nodes: state.nodes,
-      addNode: actions.addNode,
-    }),
-  );
+  const {
+    nodes: nodesApiData,
+    addNode: addApiNode,
+    workflowMeta,
+    updateWorkflowMeta,
+  } = useApi(({ state, actions }) => ({
+    nodes: state.nodes,
+    addNode: actions.addNode,
+    workflowMeta: state.workflowMeta,
+    updateWorkflowMeta: actions.updateWorkflowMeta,
+  }));
 
   const { screenToFlowPosition } = useReactFlow();
 
@@ -120,7 +126,7 @@ const FlowContainer = ({
         y: event.clientY,
       });
 
-      const id = new Date().getTime().toString();
+      const id = crypto.randomUUID();
       const toolConfig = TOOL_CONFIGS[type];
 
       addNode({
@@ -175,8 +181,8 @@ const FlowContainer = ({
     (workflowData: WorkflowJSON) => {
       clearFlow();
 
-      if (workflowData.meta?.name) {
-        setWorkflowTitle(workflowData.meta.name);
+      if (workflowData.meta) {
+        updateWorkflowMeta(workflowData.meta);
       }
 
       const graphNodes = workflowData.graph?.nodes;
@@ -209,7 +215,7 @@ const FlowContainer = ({
         });
       }
     },
-    [clearFlow, addNode, addApiNode, onConnect],
+    [clearFlow, addNode, addApiNode, onConnect, updateWorkflowMeta],
   );
 
   const initializeStandardNodes = useCallback(() => {
@@ -279,7 +285,6 @@ const FlowContainer = ({
   const serializeWorkflow = useCallback(
     (
       id: string | null,
-      title: string,
       currentNodes: NodeType[],
       currentEdges: EdgeType[],
       currentApiData: {
@@ -288,10 +293,9 @@ const FlowContainer = ({
     ) => {
       return {
         meta: {
-          id: id || `${ID_PREFIX}${Date.now()}`,
-          name: title,
-          description: "Exported from Agentic Web Learning Tool",
-          version: "1.0.0",
+          ...workflowMeta,
+          id: id || generateId(),
+          name: workflowMeta.name || "Untitled Workflow",
           savedAt: new Date().toISOString(),
         },
         graph: {
@@ -314,7 +318,7 @@ const FlowContainer = ({
         },
       };
     },
-    [],
+    [workflowMeta],
   );
 
   useEffect(() => {
@@ -323,7 +327,6 @@ const FlowContainer = ({
     const timeoutId = setTimeout(() => {
       const workflowData = serializeWorkflow(
         workflowId,
-        workflowTitle,
         nodes,
         edges,
         nodesApiData,
@@ -333,14 +336,7 @@ const FlowContainer = ({
     }, 1000); // Debounce save by 1s
 
     return () => clearTimeout(timeoutId);
-  }, [
-    workflowId,
-    workflowTitle,
-    nodes,
-    edges,
-    nodesApiData,
-    serializeWorkflow,
-  ]);
+  }, [workflowId, nodes, edges, nodesApiData, serializeWorkflow]);
 
   const showToast = useCallback(
     (message: string, type: "success" | "error") => {
@@ -354,7 +350,6 @@ const FlowContainer = ({
     try {
       const workflowData = serializeWorkflow(
         workflowId,
-        workflowTitle,
         nodes,
         edges,
         nodesApiData,
@@ -366,7 +361,9 @@ const FlowContainer = ({
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `${workflowTitle.toLowerCase().replace(/\s+/g, "-") || "workflow"}.json`;
+      link.download = `${
+        workflowMeta.name.toLowerCase().replace(/\s+/g, "-") || "workflow"
+      }.json`;
       document.body.appendChild(link);
       link.click();
 
@@ -385,7 +382,7 @@ const FlowContainer = ({
     serializeWorkflow,
     showToast,
     workflowId,
-    workflowTitle,
+    workflowMeta.name,
   ]);
 
   const handleImportSubmit = useCallback(() => {
@@ -434,7 +431,6 @@ const FlowContainer = ({
 
     const workflowData = serializeWorkflow(
       workflowId,
-      workflowTitle,
       nodes,
       edges,
       nodesApiData,
@@ -483,7 +479,6 @@ const FlowContainer = ({
     showToast,
     updateNodeStatus,
     workflowId,
-    workflowTitle,
   ]);
 
   const handleStop = useCallback(async () => {
@@ -519,7 +514,14 @@ const FlowContainer = ({
       const newId = generateId();
 
       setWorkflowId(newId);
-      setWorkflowTitle("Untitled Workflow");
+      updateWorkflowMeta({
+        id: newId,
+        name: "Untitled Workflow",
+        description: "",
+        version: "1.0.0",
+        allowedDomains: [],
+        isWebMCP: false,
+      });
       clearFlow();
       initializeStandardNodes();
 
@@ -530,6 +532,8 @@ const FlowContainer = ({
           description: "",
           version: "1.0.0",
           savedAt: new Date().toISOString(),
+          allowedDomains: [],
+          isWebMCP: false,
         },
         graph: {
           nodes: [
@@ -550,7 +554,13 @@ const FlowContainer = ({
       saveWorkflow(newId, initialData);
       showToast("New workflow created!", "success");
     }
-  }, [clearFlow, initializeStandardNodes, setWorkflowId, showToast]);
+  }, [
+    clearFlow,
+    initializeStandardNodes,
+    setWorkflowId,
+    showToast,
+    updateWorkflowMeta,
+  ]);
 
   const handleLoadSaved = useCallback(() => {
     setShowSavedWorkflows(true);
@@ -646,8 +656,8 @@ const FlowContainer = ({
           onNodesDelete={onNodesDelete}
           onEdgesDelete={onEdgesDelete}
           onConnect={onConnect}
-          title={workflowTitle}
-          onTitleChange={setWorkflowTitle}
+          title={workflowMeta.name}
+          onTitleChange={(name) => updateWorkflowMeta({ name })}
           selectedTabId={selectedTabId}
           setSelectedTabId={setSelectedTabId}
           tabs={tabs}
