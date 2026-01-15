@@ -26,7 +26,7 @@ import {
   AlertNotificationToolConfig,
 } from "../tools";
 import { ToolsConfig as ToolsConfigComponent } from "../ui";
-import { WorkflowSettings } from "./WorkflowSettings";
+import { WorkflowConfig } from "./workflowConfig";
 
 const TOOLS = {
   promptApi: PromptApiToolConfig,
@@ -173,7 +173,7 @@ const ToolsConfig = ({ collapsed = false, onToggle }: ToolsConfigProps) => {
       tabs={tabs}
     >
       {isWorkflowTab ? (
-        <WorkflowSettings />
+        <WorkflowConfig />
       ) : (
         Tool && node && <Tool ref={toolNodeRef} config={node.config} />
       )}

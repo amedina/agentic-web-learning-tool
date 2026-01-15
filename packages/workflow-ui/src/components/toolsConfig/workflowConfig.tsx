@@ -9,7 +9,7 @@ import { useCallback, useState } from "react";
  */
 import { useApi } from "../../stateProviders";
 
-export const WorkflowSettings = () => {
+export const WorkflowConfig = () => {
   const { workflowMeta, updateWorkflowMeta } = useApi(({ state, actions }) => ({
     workflowMeta: state.workflowMeta,
     updateWorkflowMeta: actions.updateWorkflowMeta,
