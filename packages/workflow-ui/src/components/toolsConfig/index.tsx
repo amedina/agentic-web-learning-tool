@@ -26,7 +26,7 @@ import {
   AlertNotificationToolConfig,
 } from "../tools";
 import { ToolsConfig as ToolsConfigComponent } from "../ui";
-import { WorkflowSettings } from "./workflowSettings1";
+import { WorkflowSettings } from "./WorkflowSettings";
 
 const TOOLS = {
   promptApi: PromptApiToolConfig,
