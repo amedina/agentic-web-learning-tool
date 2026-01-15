@@ -4,21 +4,11 @@
 import {
   ComposerPrimitive,
   ThreadPrimitive,
-  useAssistantApi,
   useAssistantState,
-  useRuntimeAdapters,
-  type AssistantApi,
   type AssistantRuntime,
 } from '@assistant-ui/react';
 import { useMcpClient } from '@mcp-b/mcp-react-hooks';
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  type Dispatch,
-  type RefObject,
-  type SetStateAction,
-} from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import type { JSONRPCMessage } from '@modelcontextprotocol/sdk/types.js';
 import {
   Paperclip,
@@ -50,16 +40,10 @@ import { useCommandProvider } from '../../providers/commandProvider';
 import { createModelDropdown, createToolDropdown } from './utils';
 
 type ChatBotUIProps = {
-  runtime: AssistantRuntime;
-  setCurrentThreadId: Dispatch<SetStateAction<string>>;
-  assistantRef: RefObject<null | AssistantApi>;
+  runtime: AssistantRuntime | null;
 };
 
-const ChatBotUI = ({
-  runtime,
-  setCurrentThreadId,
-  assistantRef,
-}: ChatBotUIProps) => {
+const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
   const { client, tools } = useMcpClient();
 
   const { apiKeys, setSelectedAgent, selectedAgent, toolNameToMCPMap } =
@@ -69,12 +53,6 @@ const ChatBotUI = ({
       setSelectedAgent: actions.setSelectedAgent,
       selectedAgent: state.selectedAgent,
     }));
-
-  assistantRef.current = useAssistantApi();
-
-  assistantRef.current.on('thread-list-item.switched-to', ({ threadId }) =>
-    setCurrentThreadId(threadId)
-  );
 
   useEffect(() => {
     (async () => {

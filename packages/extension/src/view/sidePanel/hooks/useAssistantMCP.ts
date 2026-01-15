@@ -39,7 +39,7 @@ export function useAssistantMCP(
   mcpTools: McpTool[],
   client: Client | null, // Allow null for initial loading states
   threadId: string,
-  runtime: AssistantRuntime
+  runtime: AssistantRuntime | null
 ): void {
   // 1. Filter tools based on thread preferences
   const filteredTools = useMemo(() => {
@@ -66,7 +66,7 @@ export function useAssistantMCP(
 
   // 2. Register tools with the Assistant Runtime
   useEffect(() => {
-    if (!client) return;
+    if (!client || !runtime) return;
 
     // Transform MCP tools into Assistant UI tools
     const assistantTools = filteredTools
@@ -119,7 +119,7 @@ export function useAssistantMCP(
       .filter((singleTool) => singleTool.name !== 'dummyTool');
 
     // Register the Context Provider with the Runtime
-    const unregister = runtime.registerModelContextProvider({
+    const unregister = runtime?.registerModelContextProvider({
       getModelContext: () => ({
         // Hint to the model that tools are available
         system: filteredTools.length > 0 ? 'TOOLS:' : '',
