@@ -219,8 +219,9 @@ const FlowContainer = ({
   );
 
   const initializeStandardNodes = useCallback(() => {
-    const startId = new Date().getTime().toString() + "start";
-    const endId = new Date().getTime().toString() + "end";
+    clearFlow();
+    const startId = crypto.randomUUID() + "start";
+    const endId = crypto.randomUUID() + "end";
 
     addNode({
       id: startId,
