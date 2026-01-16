@@ -439,6 +439,10 @@ const App = () => {
   }, [args]);
 
   useEffect(() => {
+    localStorage.setItem("lastSseUrl", sseUrl);
+  }, [sseUrl]);
+
+  useEffect(() => {
     localStorage.setItem("lastTransportType", transportType);
   }, [transportType]);
 

@@ -848,7 +848,6 @@ export function useConnection({
     await mcpClient?.close();
     const authProvider = new InspectorOAuthClientProvider(sseUrl);
     authProvider.clear();
-
     setMcpClient(null);
     setClientTransport(null);
     setConnectionStatus("disconnected");
