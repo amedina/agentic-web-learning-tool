@@ -1,7 +1,7 @@
 /**
  * External dependencies.
  */
-import { EditIcon, ListMinus, Loader2 } from 'lucide-react';
+import { EditIcon, ListMinus, Loader2, ZapOff } from 'lucide-react';
 import { Button, ToggleSwitch } from '@google-awlt/design-system';
 import type { Tool } from '@modelcontextprotocol/sdk/types.js';
 import type { MCPServerConfig } from '@google-awlt/common';
@@ -37,7 +37,9 @@ export function MCPServerCard({
         <div className="flex gap-2 flex-wrap">
           Total Tools:{' '}
           {!server.enabled ? (
-            'Server is off.'
+            <div title="Server is disabled">
+              <ZapOff className="h-4 w-4" />
+            </div>
           ) : tools?.isError || !tools || !tools.tools ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           ) : (
