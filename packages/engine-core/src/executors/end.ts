@@ -1,6 +1,6 @@
 /**
  * End executor.
  */
-export async function endExecutor() {
-  return true;
+export async function endExecutor({ input }: { input: string }) {
+  return input;
 }
