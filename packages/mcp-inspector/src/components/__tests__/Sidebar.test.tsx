@@ -4,7 +4,7 @@ import { describe, it, beforeEach, jest } from "@jest/globals";
 import Sidebar from "../Sidebar";
 import { DEFAULT_INSPECTOR_CONFIG } from "../../lib/constants";
 import { InspectorConfig } from "../../lib/configurationTypes";
-import { TooltipProvider } from "../../components/ui/tooltip";
+import { TooltipProvider } from "../../components/ui/TooltipRoot";
 
 // Mock theme hook
 jest.mock("../../lib/hooks/useTheme", () => ({

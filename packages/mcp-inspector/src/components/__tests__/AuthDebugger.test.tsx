@@ -8,7 +8,7 @@ import {
 import "@testing-library/jest-dom";
 import { describe, it, beforeEach, jest } from "@jest/globals";
 import AuthDebugger, { AuthDebuggerProps } from "../AuthDebugger";
-import { TooltipProvider } from "../../components/ui/tooltip";
+import { TooltipProvider } from "../../components/ui/TooltipRoot";
 import { SESSION_KEYS } from "../../lib/constants";
 
 const mockOAuthTokens = {

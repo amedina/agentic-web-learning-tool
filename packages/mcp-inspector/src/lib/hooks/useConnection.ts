@@ -90,7 +90,6 @@ interface UseConnectionOptions {
   defaultLoggingLevel?: LoggingLevel;
   serverImplementation?: Implementation;
   metadata?: Record<string, string>;
-  setCustomHeaders: React.Dispatch<React.SetStateAction<CustomHeaders>>;
 }
 
 export function useConnection({
@@ -111,7 +110,6 @@ export function useConnection({
   getRoots,
   defaultLoggingLevel,
   metadata = {},
-  setCustomHeaders,
 }: UseConnectionOptions) {
   const [connectionStatus, setConnectionStatus] =
     useState<ConnectionStatus>("disconnected");
@@ -417,10 +415,6 @@ export function useConnection({
   };
 
   const connect = async (_e?: unknown, retryCount: number = 0) => {
-    if (connectionStatus === "connected") {
-      return;
-    }
-
     const clientCapabilities = {
       capabilities: {
         sampling: {},
@@ -855,13 +849,6 @@ export function useConnection({
     const authProvider = new InspectorOAuthClientProvider(sseUrl);
     authProvider.clear();
 
-    localStorage.removeItem("lastCustomHeaders");
-    localStorage.removeItem("lastArgs");
-    localStorage.removeItem("lastCommand");
-    localStorage.removeItem("lastConnectionType");
-    localStorage.removeItem("lastSseUrl");
-    localStorage.removeItem("lastTransportType");
-    setCustomHeaders([]);
     setMcpClient(null);
     setClientTransport(null);
     setConnectionStatus("disconnected");

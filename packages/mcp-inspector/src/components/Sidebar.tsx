@@ -21,7 +21,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Tooltip,
+  TooltipRoot,
   TooltipTrigger,
   TooltipContent,
 } from "@google-awlt/design-system";
@@ -301,7 +301,7 @@ const Sidebar = ({
                   URL
                 </label>
                 {sseUrl ? (
-                  <Tooltip>
+                  <TooltipRoot>
                     <TooltipTrigger asChild>
                       <Input
                         id="sse-url-input"
@@ -312,7 +312,7 @@ const Sidebar = ({
                       />
                     </TooltipTrigger>
                     <TooltipContent>{sseUrl}</TooltipContent>
-                  </Tooltip>
+                  </TooltipRoot>
                 ) : (
                   <Input
                     id="sse-url-input"
@@ -325,7 +325,7 @@ const Sidebar = ({
               </div>
 
               {/* Connection Type switch - only visible for non-STDIO transport types */}
-              <Tooltip>
+              <TooltipRoot>
                 <TooltipTrigger asChild>
                   <div className="space-y-2">
                     <label
@@ -351,7 +351,7 @@ const Sidebar = ({
                   </div>
                 </TooltipTrigger>
                 <TooltipContent>{connectionTypeTip}</TooltipContent>
-              </Tooltip>
+              </TooltipRoot>
             </>
           )}
 
@@ -482,7 +482,7 @@ const Sidebar = ({
 
           {/* Always show both copy buttons for all transport types */}
           <div className="grid grid-cols-2 gap-2 mt-2">
-            <Tooltip>
+            <TooltipRoot>
               <TooltipTrigger asChild>
                 <Button
                   variant="outline"
@@ -499,8 +499,8 @@ const Sidebar = ({
                 </Button>
               </TooltipTrigger>
               <TooltipContent>Copy Server Entry</TooltipContent>
-            </Tooltip>
-            <Tooltip>
+            </TooltipRoot>
+            <TooltipRoot>
               <TooltipTrigger asChild>
                 <Button
                   variant="outline"
@@ -517,7 +517,7 @@ const Sidebar = ({
                 </Button>
               </TooltipTrigger>
               <TooltipContent>Copy Servers File</TooltipContent>
-            </Tooltip>
+            </TooltipRoot>
           </div>
 
           <div className="space-y-2">
@@ -644,14 +644,14 @@ const Sidebar = ({
                         >
                           {configItem.label}
                         </label>
-                        <Tooltip>
+                        <TooltipRoot>
                           <TooltipTrigger asChild>
                             <HelpCircle className="h-4 w-4 text-muted-foreground" />
                           </TooltipTrigger>
                           <TooltipContent>
                             {configItem.description}
                           </TooltipContent>
-                        </Tooltip>
+                        </TooltipRoot>
                       </div>
                       {typeof configItem.value === "number" ? (
                         <Input

@@ -396,12 +396,7 @@ const App = () => {
     getRoots: () => rootsRef.current,
     defaultLoggingLevel: logLevel,
     metadata,
-    setCustomHeaders,
   });
-
-  useEffect(() => {
-    connectMcpServer();
-  }, [connectMcpServer]);
 
   useEffect(() => {
     if (serverCapabilities) {
