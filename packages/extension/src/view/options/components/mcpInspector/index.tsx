@@ -11,6 +11,7 @@ export default function MCPInspectorTab() {
     <OptionsPageTab
       title="MCP Inspector"
       description="Inspect and debug your MCP servers."
+      className="h-svh"
     >
       <MCPInspectorTabComponent client={MCPClient} />
     </OptionsPageTab>
