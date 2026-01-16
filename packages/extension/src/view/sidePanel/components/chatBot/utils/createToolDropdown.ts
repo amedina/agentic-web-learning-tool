@@ -86,7 +86,7 @@ const createToolDropdown = (
         };
       }
     } else if (tool.name.includes('_mcp')) {
-      const match = tool.name.match(/^.*?(?=_mcp_)/);
+      const match = tool.name.match(/^(.*?)_mcp_/);
       const mcpServerName =
         match && toolNameToMCPMap[match[0]]
           ? toolNameToMCPMap[match[0]]

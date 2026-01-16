@@ -213,14 +213,6 @@ const Provider = ({ children }: PropsWithChildren) => {
         errors.push('Server name is already in use.');
       }
 
-      if (
-        (!config.authToken || config.authToken.trim().length === 0) &&
-        config.url.startsWith('http://localhost') &&
-        errors.length === 0
-      ) {
-        errors.push('authToken is required.');
-      }
-
       if (!config.url && errors.length === 0) {
         errors.push('Server URL is required.');
       } else {
@@ -246,7 +238,6 @@ const Provider = ({ children }: PropsWithChildren) => {
           typeof result === 'boolean'
             ? 'There was some error in the MCP configuration'
             : result;
-        toast.error(message);
         errors.push(message);
       }
 
