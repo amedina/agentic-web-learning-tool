@@ -3,9 +3,7 @@
  */
 import { OptionsPageTab } from '@google-awlt/design-system';
 import { MCPInspectorTab as MCPInspectorTabComponent } from '@google-awlt/mcp-inspector';
-import { Client } from '@modelcontextprotocol/sdk/client';
 
-const MCPClient = new Client({ name: 'MCP Inspector', version: '1.0.0' });
 export default function MCPInspectorTab() {
   return (
     <OptionsPageTab
@@ -13,7 +11,7 @@ export default function MCPInspectorTab() {
       description="Inspect and debug your MCP servers."
       className="h-svh"
     >
-      <MCPInspectorTabComponent client={MCPClient} />
+      <MCPInspectorTabComponent />
     </OptionsPageTab>
   );
 }
