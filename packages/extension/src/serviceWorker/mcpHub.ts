@@ -423,7 +423,7 @@ class McpHub {
         inputSchema: jsonSchemaToZod(tool.inputSchema),
       };
 
-      const prefixedToolName = `${serverName}_mcp_${tool.name}`;
+      const prefixedToolName = `${tool.name}_mcp_${serverName}`;
 
       if (this.registeredTools.has(prefixedToolName)) {
         // Update existing tool
