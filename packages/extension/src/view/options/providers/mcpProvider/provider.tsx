@@ -238,7 +238,6 @@ const Provider = ({ children }: PropsWithChildren) => {
           typeof result === 'boolean'
             ? 'There was some error in the MCP configuration'
             : result;
-        toast.error(message);
         errors.push(message);
       }
 
