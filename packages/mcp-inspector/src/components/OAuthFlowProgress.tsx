@@ -1,9 +1,16 @@
-import type { AuthDebuggerState, OAuthStep } from "../lib/auth-types";
+/**
+ * External dependencies
+ */
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { CheckCircle2, Circle, ExternalLink } from "lucide-react";
 import { Button } from "@google-awlt/design-system";
-import { DebugInspectorOAuthClientProvider } from "../lib/auth";
-import { useEffect, useMemo, useState } from "react";
 import type { OAuthClientInformation } from "@modelcontextprotocol/sdk/shared/auth.js";
+
+/**
+ * Internal dependencies
+ */
+import { DebugInspectorOAuthClientProvider } from "../lib/auth";
+import type { AuthDebuggerState, OAuthStep } from "../lib/auth-types";
 import { validateRedirectUrl } from "../utils/urlValidation";
 import { useToast } from "../lib/hooks/useToast";
 
@@ -111,13 +118,58 @@ export const OAuthFlowProgress = ({
   ]);
 
   // Helper to get step props
-  const getStepProps = (stepName: OAuthStep) => ({
-    isComplete:
-      currentStepIdx > steps.indexOf(stepName) ||
-      currentStepIdx === steps.length - 1, // last step is "complete"
-    isCurrent: authState.oauthStep === stepName,
-    error: authState.oauthStep === stepName ? authState.latestError : null,
-  });
+  const getStepProps = useCallback(
+    (stepName: OAuthStep) => ({
+      isComplete:
+        currentStepIdx > steps.indexOf(stepName) ||
+        currentStepIdx === steps.length - 1, // last step is "complete"
+      isCurrent: authState.oauthStep === stepName,
+      error: authState.oauthStep === stepName ? authState.latestError : null,
+    }),
+    [authState.latestError, authState.oauthStep, currentStepIdx],
+  );
+
+  const handleOpenAuthUrl = useCallback(() => {
+    try {
+      validateRedirectUrl(authState.authorizationUrl!);
+      window.open(authState.authorizationUrl!, "_blank", "noopener noreferrer");
+    } catch (error) {
+      toast({
+        title: "Invalid URL",
+        description:
+          error instanceof Error
+            ? error.message
+            : "The authorization URL is not valid",
+        variant: "destructive",
+      });
+    }
+  }, [authState.authorizationUrl, toast]);
+
+  const handleAuthCodeChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      updateAuthState({
+        authorizationCode: e.target.value,
+        validationError: null,
+      });
+    },
+    [updateAuthState],
+  );
+
+  const handleOpenInNewTab = useCallback(() => {
+    try {
+      validateRedirectUrl(authState.authorizationUrl!);
+      window.open(authState.authorizationUrl!, "_blank");
+    } catch (error) {
+      toast({
+        title: "Invalid URL",
+        description:
+          error instanceof Error
+            ? error.message
+            : "The authorization URL is not valid",
+        variant: "destructive",
+      });
+    }
+  }, [authState.authorizationUrl, toast]);
 
   return (
     <div className="rounded-md border p-6 space-y-4 mt-4">
@@ -243,25 +295,7 @@ export const OAuthFlowProgress = ({
                   {String(authState.authorizationUrl)}
                 </p>
                 <button
-                  onClick={() => {
-                    try {
-                      validateRedirectUrl(authState.authorizationUrl!);
-                      window.open(
-                        authState.authorizationUrl!,
-                        "_blank",
-                        "noopener noreferrer",
-                      );
-                    } catch (error) {
-                      toast({
-                        title: "Invalid URL",
-                        description:
-                          error instanceof Error
-                            ? error.message
-                            : "The authorization URL is not valid",
-                        variant: "destructive",
-                      });
-                    }
-                  }}
+                  onClick={handleOpenAuthUrl}
                   className="flex items-center text-blue-500 hover:text-blue-700"
                   aria-label="Open authorization URL in new tab"
                   title="Open authorization URL"
@@ -292,12 +326,7 @@ export const OAuthFlowProgress = ({
               <input
                 id="authCode"
                 value={authState.authorizationCode}
-                onChange={(e) => {
-                  updateAuthState({
-                    authorizationCode: e.target.value,
-                    validationError: null,
-                  });
-                }}
+                onChange={handleAuthCodeChange}
                 placeholder="Enter the code from the authorization server"
                 className={`flex h-9 w-full rounded-md border bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
                   authState.validationError ? "border-red-500" : "border-input"
@@ -371,24 +400,7 @@ export const OAuthFlowProgress = ({
 
         {authState.oauthStep === "authorization_redirect" &&
           authState.authorizationUrl && (
-            <Button
-              variant="outline"
-              onClick={() => {
-                try {
-                  validateRedirectUrl(authState.authorizationUrl!);
-                  window.open(authState.authorizationUrl!, "_blank");
-                } catch (error) {
-                  toast({
-                    title: "Invalid URL",
-                    description:
-                      error instanceof Error
-                        ? error.message
-                        : "The authorization URL is not valid",
-                    variant: "destructive",
-                  });
-                }
-              }}
-            >
+            <Button variant="outline" onClick={handleOpenInNewTab}>
               Open in New Tab
             </Button>
           )}

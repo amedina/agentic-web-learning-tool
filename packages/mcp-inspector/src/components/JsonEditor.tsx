@@ -1,4 +1,7 @@
-import { useState, useEffect } from "react";
+/**
+ * External dependencies
+ */
+import { useState, useEffect, useCallback } from "react";
 import Editor from "react-simple-code-editor";
 import Prism from "prismjs";
 import "prismjs/components/prism-json";
@@ -26,11 +29,14 @@ const JsonEditor = ({
     setEditorContent(value || "");
   }, [value]);
 
-  const handleEditorChange = (newContent: string) => {
-    setEditorContent(newContent);
-    setInternalError(undefined);
-    onChange(newContent);
-  };
+  const handleEditorChange = useCallback(
+    (newContent: string) => {
+      setEditorContent(newContent);
+      setInternalError(undefined);
+      onChange(newContent);
+    },
+    [onChange],
+  );
 
   const displayError = internalError || externalError;
 

@@ -1,4 +1,7 @@
-import { useState } from "react";
+/**
+ * External dependencies
+ */
+import { useState, useCallback } from "react";
 import {
   Button,
   Input,
@@ -6,6 +9,10 @@ import {
   ToggleSwitch as Switch,
 } from "@google-awlt/design-system";
 import { Plus, Trash2, Eye, EyeOff } from "lucide-react";
+
+/**
+ * Internal dependencies
+ */
 import {
   type CustomHeaders as CustomHeadersType,
   type CustomHeader,
@@ -28,36 +35,40 @@ const CustomHeaders = ({
   const [jsonError, setJsonError] = useState<string | null>(null);
   const [visibleValues, setVisibleValues] = useState<Set<number>>(new Set());
 
-  const updateHeader = (
-    index: number,
-    field: keyof CustomHeader,
-    value: string | boolean,
-  ) => {
-    const newHeaders = [...headers];
-    newHeaders[index] = { ...newHeaders[index], [field]: value };
-    onChange(newHeaders);
-  };
+  const updateHeader = useCallback(
+    (index: number, field: keyof CustomHeader, value: string | boolean) => {
+      const newHeaders = [...headers];
+      newHeaders[index] = { ...newHeaders[index], [field]: value };
+      onChange(newHeaders);
+    },
+    [headers, onChange],
+  );
 
-  const addHeader = () => {
+  const addHeader = useCallback(() => {
     onChange([...headers, createEmptyHeader()]);
-  };
+  }, [headers, onChange]);
 
-  const removeHeader = (index: number) => {
-    const newHeaders = headers.filter((_, i) => i !== index);
-    onChange(newHeaders);
-  };
+  const removeHeader = useCallback(
+    (index: number) => {
+      const newHeaders = headers.filter((_, i) => i !== index);
+      onChange(newHeaders);
+    },
+    [headers, onChange],
+  );
 
-  const toggleValueVisibility = (index: number) => {
-    const newVisible = new Set(visibleValues);
-    if (newVisible.has(index)) {
-      newVisible.delete(index);
-    } else {
-      newVisible.add(index);
-    }
-    setVisibleValues(newVisible);
-  };
+  const toggleValueVisibility = useCallback((index: number) => {
+    setVisibleValues((prev) => {
+      const newVisible = new Set(prev);
+      if (newVisible.has(index)) {
+        newVisible.delete(index);
+      } else {
+        newVisible.add(index);
+      }
+      return newVisible;
+    });
+  }, []);
 
-  const switchToJsonMode = () => {
+  const switchToJsonMode = useCallback(() => {
     const jsonObject: Record<string, string> = {};
     headers.forEach((header) => {
       if (header.enabled && header.name.trim() && header.value.trim()) {
@@ -67,9 +78,9 @@ const CustomHeaders = ({
     setJsonValue(JSON.stringify(jsonObject, null, 2));
     setJsonError(null);
     setIsJsonMode(true);
-  };
+  }, [headers]);
 
-  const switchToFormMode = () => {
+  const switchToFormMode = useCallback(() => {
     try {
       const parsed = JSON.parse(jsonValue);
       if (
@@ -95,12 +106,12 @@ const CustomHeaders = ({
     } catch {
       setJsonError("Invalid JSON format");
     }
-  };
+  }, [jsonValue, onChange]);
 
-  const handleJsonChange = (value: string) => {
+  const handleJsonChange = useCallback((value: string) => {
     setJsonValue(value);
     setJsonError(null);
-  };
+  }, []);
 
   if (isJsonMode) {
     return (

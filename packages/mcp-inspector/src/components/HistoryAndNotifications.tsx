@@ -1,7 +1,14 @@
+/**
+ * External dependencies
+ */
+import { useState, useCallback } from "react";
 import type { ServerNotification } from "@modelcontextprotocol/sdk/types.js";
-import { useState } from "react";
-import JsonView from "./JsonView";
 import { Button } from "@google-awlt/design-system";
+
+/**
+ * Internal dependencies
+ */
+import JsonView from "./JsonView";
 
 const HistoryAndNotifications = ({
   requestHistory,
@@ -21,13 +28,13 @@ const HistoryAndNotifications = ({
     [key: number]: boolean;
   }>({});
 
-  const toggleRequestExpansion = (index: number) => {
+  const toggleRequestExpansion = useCallback((index: number) => {
     setExpandedRequests((prev) => ({ ...prev, [index]: !prev[index] }));
-  };
+  }, []);
 
-  const toggleNotificationExpansion = (index: number) => {
+  const toggleNotificationExpansion = useCallback((index: number) => {
     setExpandedNotifications((prev) => ({ ...prev, [index]: !prev[index] }));
-  };
+  }, []);
 
   return (
     <div className="bg-card overflow-hidden flex h-full">

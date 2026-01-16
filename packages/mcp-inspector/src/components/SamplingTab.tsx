@@ -1,12 +1,19 @@
+/**
+ * External dependencies
+ */
 import {
   Alert,
   AlertDescription,
   TabsContent,
 } from "@google-awlt/design-system";
-import {
-  type CreateMessageRequest,
-  type CreateMessageResult,
+import type {
+  CreateMessageRequest,
+  CreateMessageResult,
 } from "@modelcontextprotocol/sdk/types.js";
+
+/**
+ * Internal dependencies
+ */
 import SamplingRequest from "./SamplingRequest";
 
 export type PendingRequest = {

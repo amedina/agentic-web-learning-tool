@@ -1,4 +1,11 @@
+/**
+ * External dependencies
+ */
 import { useEffect } from "react";
+
+/**
+ * Internal dependencies
+ */
 import { SESSION_KEYS } from "../lib/constants";
 import {
   generateOAuthErrorDescription,

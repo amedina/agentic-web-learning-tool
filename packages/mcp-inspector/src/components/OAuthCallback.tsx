@@ -1,7 +1,14 @@
+/**
+ * External dependencies
+ */
 import { useEffect, useRef } from "react";
+import { auth } from "@modelcontextprotocol/sdk/client/auth.js";
+
+/**
+ * Internal dependencies
+ */
 import { InspectorOAuthClientProvider } from "../lib/auth";
 import { SESSION_KEYS } from "../lib/constants";
-import { auth } from "@modelcontextprotocol/sdk/client/auth.js";
 import { useToast } from "../lib/hooks/useToast";
 import {
   generateOAuthErrorDescription,

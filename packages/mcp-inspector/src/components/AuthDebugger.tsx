@@ -1,7 +1,14 @@
+/**
+ * External dependencies
+ */
 import { useCallback, useMemo, useEffect } from "react";
 import { Button } from "@google-awlt/design-system";
-import { DebugInspectorOAuthClientProvider } from "../lib/auth";
 import { AlertCircle } from "lucide-react";
+
+/**
+ * Internal dependencies
+ */
+import { DebugInspectorOAuthClientProvider } from "../lib/auth";
 import {
   type AuthDebuggerState,
   EMPTY_DEBUGGER_STATE,

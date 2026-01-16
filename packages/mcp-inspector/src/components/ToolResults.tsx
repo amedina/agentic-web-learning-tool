@@ -1,10 +1,17 @@
-import JsonView from "./JsonView";
-import ResourceLinkView from "./ResourceLinkView";
+/**
+ * External dependencies
+ */
 import {
   CallToolResultSchema,
   type CompatibilityCallToolResult,
   type Tool,
 } from "@modelcontextprotocol/sdk/types.js";
+
+/**
+ * Internal dependencies
+ */
+import JsonView from "./JsonView";
+import ResourceLinkView from "./ResourceLinkView";
 import { validateToolOutput, hasOutputSchema } from "../utils/schemaUtils";
 
 interface ToolResultsProps {

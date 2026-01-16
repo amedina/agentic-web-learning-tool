@@ -1,10 +1,17 @@
+/**
+ * External dependencies
+ */
+import { useCallback, useMemo, useState } from "react";
 import { Button } from "@google-awlt/design-system";
-import JsonView from "./JsonView";
-import { useMemo, useState } from "react";
 import {
   type CreateMessageResult,
   CreateMessageResultSchema,
 } from "@modelcontextprotocol/sdk/types.js";
+
+/**
+ * Internal dependencies
+ */
+import JsonView from "./JsonView";
 import type { PendingRequest } from "./SamplingTab";
 import DynamicJsonForm from "./DynamicJsonForm";
 import { useToast } from "../lib/hooks/useToast";
@@ -115,19 +122,34 @@ const SamplingRequest = ({
     return s;
   }, [contentType]);
 
-  const handleApprove = (id: number) => {
-    const validationResult = CreateMessageResultSchema.safeParse(messageResult);
-    if (!validationResult.success) {
-      toast({
-        title: "Error",
-        description: `There was an error validating the message result: ${validationResult.error.message}`,
-        variant: "destructive",
-      });
-      return;
-    }
+  const handleApprove = useCallback(
+    (id: number) => {
+      const validationResult =
+        CreateMessageResultSchema.safeParse(messageResult);
+      if (!validationResult.success) {
+        toast({
+          title: "Error",
+          description: `There was an error validating the message result: ${validationResult.error.message}`,
+          variant: "destructive",
+        });
+        return;
+      }
 
-    onApprove(id, validationResult.data);
-  };
+      onApprove(id, validationResult.data);
+    },
+    [messageResult, onApprove, toast],
+  );
+
+  const handleReject = useCallback(
+    (id: number) => {
+      onReject(id);
+    },
+    [onReject],
+  );
+
+  const handleFormChange = useCallback((newValue: JsonValue) => {
+    setMessageResult(newValue);
+  }, []);
 
   return (
     <div
@@ -142,9 +164,7 @@ const SamplingRequest = ({
           <DynamicJsonForm
             schema={schema}
             value={messageResult}
-            onChange={(newValue: JsonValue) => {
-              setMessageResult(newValue);
-            }}
+            onChange={handleFormChange}
           />
         </div>
         <div className="flex space-x-2 mt-1">
@@ -154,7 +174,7 @@ const SamplingRequest = ({
           <Button
             type="button"
             variant="outline"
-            onClick={() => onReject(request.id)}
+            onClick={() => handleReject(request.id)}
           >
             Reject
           </Button>

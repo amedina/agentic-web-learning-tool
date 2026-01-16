@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import { TabsContent, Button } from "@google-awlt/design-system";
 
 const PingTab = ({ onPingClick }: { onPingClick: () => void }) => {

@@ -1,3 +1,7 @@
+/**
+ * External dependencies
+ */
+import { useEffect, useState, useCallback } from "react";
 import {
   Alert,
   AlertDescription,
@@ -12,16 +16,19 @@ import {
   type Resource,
   type ResourceTemplate,
   type ListResourceTemplatesResult,
-  type ResourceReference,
+  type ResourceTemplateReference,
   type PromptReference,
 } from "@modelcontextprotocol/sdk/types.js";
 import { AlertCircle, ChevronRight, FileText, RefreshCw } from "lucide-react";
-import ListPane from "./ListPane";
-import { useEffect, useState } from "react";
-import { useCompletionState } from "../lib/hooks/useCompletionState";
-import JsonView from "./JsonView";
 import { UriTemplate } from "@modelcontextprotocol/sdk/shared/uriTemplate.js";
+
+/**
+ * Internal dependencies
+ */
+import ListPane from "./ListPane";
+import JsonView from "./JsonView";
 import IconDisplay, { type WithIcons } from "./IconDisplay";
+import { useCompletionState } from "../lib/hooks/useCompletionState";
 
 const ResourcesTab = ({
   resources,
@@ -54,7 +61,7 @@ const ResourcesTab = ({
   selectedResource: Resource | null;
   setSelectedResource: (resource: Resource | null) => void;
   handleCompletion: (
-    ref: ResourceReference | PromptReference,
+    ref: ResourceTemplateReference | PromptReference,
     argName: string,
     value: string,
     context?: Record<string, string>,
@@ -82,37 +89,88 @@ const ResourcesTab = ({
     clearCompletions();
   }, [clearCompletions]);
 
-  const fillTemplate = (
-    template: string,
-    values: Record<string, string>,
-  ): string => {
-    return new UriTemplate(template).expand(values);
-  };
+  const handleTemplateValueChange = useCallback(
+    async (key: string, value: string) => {
+      setTemplateValues((prev) => ({ ...prev, [key]: value }));
 
-  const handleTemplateValueChange = async (key: string, value: string) => {
-    setTemplateValues((prev) => ({ ...prev, [key]: value }));
+      if (selectedTemplate?.uriTemplate) {
+        requestCompletions(
+          {
+            type: "ref/resource",
+            uri: selectedTemplate.uriTemplate,
+          },
+          key,
+          value,
+          templateValues,
+        );
+      }
+    },
+    [requestCompletions, selectedTemplate, templateValues],
+  );
 
-    if (selectedTemplate?.uriTemplate) {
-      requestCompletions(
-        {
-          type: "ref/resource",
-          uri: selectedTemplate.uriTemplate,
-        },
-        key,
-        value,
+  const handleReadTemplateResource = useCallback(() => {
+    if (selectedTemplate) {
+      const uri = new UriTemplate(selectedTemplate.uriTemplate).expand(
         templateValues,
       );
-    }
-  };
-
-  const handleReadTemplateResource = () => {
-    if (selectedTemplate) {
-      const uri = fillTemplate(selectedTemplate.uriTemplate, templateValues);
       readResource(uri);
       // We don't have the full Resource object here, so we create a partial one
       setSelectedResource({ uri, name: uri } as Resource);
     }
-  };
+  }, [readResource, setSelectedResource, selectedTemplate, templateValues]);
+
+  const handleClearResources = useCallback(() => {
+    clearResources();
+    // Condition to check if selected resource is not resource template's resource
+    if (!selectedTemplate) {
+      setSelectedResource(null);
+    }
+  }, [clearResources, selectedTemplate, setSelectedResource]);
+
+  const handleSetSelectedResource = useCallback(
+    (resource: Resource) => {
+      setSelectedResource(resource);
+      readResource(resource.uri);
+      setSelectedTemplate(null);
+    },
+    [readResource, setSelectedResource],
+  );
+
+  const handleClearResourceTemplates = useCallback(() => {
+    clearResourceTemplates();
+    // Condition to check if selected resource is resource template's resource
+    if (selectedTemplate) {
+      setSelectedResource(null);
+    }
+    setSelectedTemplate(null);
+  }, [clearResourceTemplates, selectedTemplate, setSelectedResource]);
+
+  const handleSetSelectedTemplate = useCallback(
+    (template: ResourceTemplate) => {
+      setSelectedTemplate(template);
+      setSelectedResource(null);
+      setTemplateValues({});
+    },
+    [setSelectedResource],
+  );
+
+  const handleSubscribe = useCallback(() => {
+    if (selectedResource) {
+      subscribeToResource(selectedResource.uri);
+    }
+  }, [selectedResource, subscribeToResource]);
+
+  const handleUnsubscribe = useCallback(() => {
+    if (selectedResource) {
+      unsubscribeFromResource(selectedResource.uri);
+    }
+  }, [selectedResource, unsubscribeFromResource]);
+
+  const handleRefresh = useCallback(() => {
+    if (selectedResource) {
+      readResource(selectedResource.uri);
+    }
+  }, [readResource, selectedResource]);
 
   return (
     <TabsContent value="resources">
@@ -120,18 +178,8 @@ const ResourcesTab = ({
         <ListPane
           items={resources}
           listItems={listResources}
-          clearItems={() => {
-            clearResources();
-            // Condition to check if selected resource is not resource template's resource
-            if (!selectedTemplate) {
-              setSelectedResource(null);
-            }
-          }}
-          setSelectedItem={(resource) => {
-            setSelectedResource(resource);
-            readResource(resource.uri);
-            setSelectedTemplate(null);
-          }}
+          clearItems={handleClearResources}
+          setSelectedItem={handleSetSelectedResource}
           renderItem={(resource) => (
             <div className="flex items-center w-full">
               <IconDisplay icons={(resource as WithIcons).icons} size="sm" />
@@ -152,19 +200,8 @@ const ResourcesTab = ({
         <ListPane
           items={resourceTemplates}
           listItems={listResourceTemplates}
-          clearItems={() => {
-            clearResourceTemplates();
-            // Condition to check if selected resource is resource template's resource
-            if (selectedTemplate) {
-              setSelectedResource(null);
-            }
-            setSelectedTemplate(null);
-          }}
-          setSelectedItem={(template) => {
-            setSelectedTemplate(template);
-            setSelectedResource(null);
-            setTemplateValues({});
-          }}
+          clearItems={handleClearResourceTemplates}
+          setSelectedItem={handleSetSelectedTemplate}
           renderItem={(template) => (
             <div className="flex items-center w-full">
               <IconDisplay icons={(template as WithIcons).icons} size="sm" />
@@ -213,7 +250,7 @@ const ResourcesTab = ({
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => subscribeToResource(selectedResource.uri)}
+                      onClick={handleSubscribe}
                     >
                       Subscribe
                     </Button>
@@ -223,18 +260,12 @@ const ResourcesTab = ({
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() =>
-                        unsubscribeFromResource(selectedResource.uri)
-                      }
+                      onClick={handleUnsubscribe}
                     >
                       Unsubscribe
                     </Button>
                   )}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => readResource(selectedResource.uri)}
-                >
+                <Button variant="outline" size="sm" onClick={handleRefresh}>
                   <RefreshCw className="w-4 h-4 mr-2" />
                   Refresh
                 </Button>

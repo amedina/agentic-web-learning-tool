@@ -1,6 +1,13 @@
-import React, { useState } from "react";
+/**
+ * External dependencies
+ */
+import React, { useState, useCallback } from "react";
 import { TabsContent, Button, Input, Label } from "@google-awlt/design-system";
 import { Trash2, Plus } from "lucide-react";
+
+/**
+ * Internal dependencies
+ */
 import { cn } from "../lib/utils";
 import {
   META_NAME_RULES_MESSAGE,
@@ -29,43 +36,52 @@ const MetadataTab: React.FC<MetadataTabProps> = ({
     return Object.entries(metadata).map(([key, value]) => ({ key, value }));
   });
 
-  const addEntry = () => {
-    setEntries([...entries, { key: "", value: "" }]);
-  };
+  const updateMetadata = useCallback(
+    (newEntries: MetadataEntry[]) => {
+      const metadataObject: Record<string, string> = {};
+      newEntries.forEach(({ key, value }) => {
+        const trimmedKey = key.trim();
+        if (
+          trimmedKey &&
+          value.trim() &&
+          hasValidMetaPrefix(trimmedKey) &&
+          !isReservedMetaKey(trimmedKey) &&
+          hasValidMetaName(trimmedKey)
+        ) {
+          metadataObject[trimmedKey] = value.trim();
+        }
+      });
+      onMetadataChange(metadataObject);
+    },
+    [onMetadataChange],
+  );
 
-  const removeEntry = (index: number) => {
-    const newEntries = entries.filter((_, i) => i !== index);
-    setEntries(newEntries);
-    updateMetadata(newEntries);
-  };
+  const addEntry = useCallback(() => {
+    setEntries((prev) => [...prev, { key: "", value: "" }]);
+  }, []);
 
-  const updateEntry = (
-    index: number,
-    field: "key" | "value",
-    value: string,
-  ) => {
-    const newEntries = [...entries];
-    newEntries[index][field] = value;
-    setEntries(newEntries);
-    updateMetadata(newEntries);
-  };
+  const removeEntry = useCallback(
+    (index: number) => {
+      setEntries((prev) => {
+        const newEntries = prev.filter((_, i) => i !== index);
+        updateMetadata(newEntries);
+        return newEntries;
+      });
+    },
+    [updateMetadata],
+  );
 
-  const updateMetadata = (newEntries: MetadataEntry[]) => {
-    const metadataObject: Record<string, string> = {};
-    newEntries.forEach(({ key, value }) => {
-      const trimmedKey = key.trim();
-      if (
-        trimmedKey &&
-        value.trim() &&
-        hasValidMetaPrefix(trimmedKey) &&
-        !isReservedMetaKey(trimmedKey) &&
-        hasValidMetaName(trimmedKey)
-      ) {
-        metadataObject[trimmedKey] = value.trim();
-      }
-    });
-    onMetadataChange(metadataObject);
-  };
+  const updateEntry = useCallback(
+    (index: number, field: "key" | "value", value: string) => {
+      setEntries((prev) => {
+        const newEntries = [...prev];
+        newEntries[index][field] = value;
+        updateMetadata(newEntries);
+        return newEntries;
+      });
+    },
+    [updateMetadata],
+  );
 
   return (
     <TabsContent value="metadata">

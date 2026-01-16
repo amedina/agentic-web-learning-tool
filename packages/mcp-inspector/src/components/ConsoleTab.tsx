@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import { TabsContent } from "@google-awlt/design-system";
 
 const ConsoleTab = () => (

@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import { useState, useCallback } from "react";
 import {
   Play,
@@ -29,6 +32,10 @@ import {
   type LoggingLevel,
   LoggingLevelSchema,
 } from "@modelcontextprotocol/sdk/types.js";
+
+/**
+ * Internal dependencies
+ */
 import type { InspectorConfig } from "../lib/configurationTypes";
 import type { ConnectionStatus } from "../lib/constants";
 import { version } from "../../package.json";
@@ -227,6 +234,195 @@ const Sidebar = ({
     }
   }, [generateMCPServerFile, toast, reportError]);
 
+  const handleToggleEnvVars = useCallback(() => {
+    setShowEnvVars((prev) => !prev);
+  }, []);
+
+  const handleToggleAuthConfig = useCallback(() => {
+    setShowAuthConfig((prev) => !prev);
+  }, []);
+
+  const handleToggleConfig = useCallback(() => {
+    setShowConfig((prev) => !prev);
+  }, []);
+
+  const handleToggleClientSecret = useCallback(() => {
+    setShowClientSecret((prev) => !prev);
+  }, []);
+
+  const handleAddEnvVar = useCallback(() => {
+    const key = "";
+    const newEnv = { ...env };
+    newEnv[key] = "";
+    setEnv(newEnv);
+  }, [env, setEnv]);
+
+  const handleRestartReconnect = useCallback(() => {
+    onDisconnect();
+    onConnect();
+  }, [onDisconnect, onConnect]);
+
+  const handleTransportTypeChange = useCallback(
+    (value: "stdio" | "sse" | "streamable-http") => {
+      setTransportType(value);
+    },
+    [setTransportType],
+  );
+
+  const handleCommandChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => setCommand(e.target.value),
+    [setCommand],
+  );
+
+  const handleCommandBlur = useCallback(
+    (e: React.FocusEvent<HTMLInputElement>) =>
+      setCommand(e.target.value.trim()),
+    [setCommand],
+  );
+
+  const handleArgsChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => setArgs(e.target.value),
+    [setArgs],
+  );
+
+  const handleSseUrlChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => setSseUrl(e.target.value),
+    [setSseUrl],
+  );
+
+  const handleConnectionTypeChange = useCallback(
+    (value: "direct" | "proxy") => {
+      setConnectionType(value);
+    },
+    [setConnectionType],
+  );
+
+  const handleEnvKeyChange = useCallback(
+    (oldKey: string, newKey: string, value: string) => {
+      const newEnv = Object.entries(env).reduce(
+        (acc, [k, v]) => {
+          if (k === oldKey) {
+            acc[newKey] = value;
+          } else {
+            acc[k] = v;
+          }
+          return acc;
+        },
+        {} as Record<string, string>,
+      );
+      setEnv(newEnv);
+      setShownEnvVars((prev) => {
+        const next = new Set(prev);
+        if (next.has(oldKey)) {
+          next.delete(oldKey);
+          next.add(newKey);
+        }
+        return next;
+      });
+    },
+    [env, setEnv],
+  );
+
+  const handleEnvValueChange = useCallback(
+    (key: string, value: string) => {
+      const newEnv = { ...env };
+      newEnv[key] = value;
+      setEnv(newEnv);
+    },
+    [env, setEnv],
+  );
+
+  const handleRemoveEnvVar = useCallback(
+    (key: string) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { [key]: _removed, ...rest } = env;
+      setEnv(rest);
+    },
+    [env, setEnv],
+  );
+
+  const handleToggleEnvVarVisibility = useCallback((key: string) => {
+    setShownEnvVars((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) {
+        next.delete(key);
+      } else {
+        next.add(key);
+      }
+      return next;
+    });
+  }, []);
+
+  const handleOauthClientIdChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) =>
+      setOauthClientId(e.target.value),
+    [setOauthClientId],
+  );
+
+  const handleOauthClientSecretChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) =>
+      setOauthClientSecret(e.target.value),
+    [setOauthClientSecret],
+  );
+
+  const handleOauthScopeChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => setOauthScope(e.target.value),
+    [setOauthScope],
+  );
+
+  const handleConfigNumberChange = useCallback(
+    (
+      configKey: keyof InspectorConfig,
+      configItem: InspectorConfig[keyof InspectorConfig],
+      value: string,
+    ) => {
+      const newConfig = { ...config };
+      newConfig[configKey] = {
+        ...configItem,
+        value: Number(value),
+      };
+      setConfig(newConfig);
+    },
+    [config, setConfig],
+  );
+
+  const handleConfigBooleanChange = useCallback(
+    (
+      configKey: keyof InspectorConfig,
+      configItem: InspectorConfig[keyof InspectorConfig],
+      value: string,
+    ) => {
+      const newConfig = { ...config };
+      newConfig[configKey] = {
+        ...configItem,
+        value: value === "true",
+      };
+      setConfig(newConfig);
+    },
+    [config, setConfig],
+  );
+
+  const handleConfigStringChange = useCallback(
+    (
+      configKey: keyof InspectorConfig,
+      configItem: InspectorConfig[keyof InspectorConfig],
+      value: string,
+    ) => {
+      const newConfig = { ...config };
+      newConfig[configKey] = {
+        ...configItem,
+        value: value,
+      };
+      setConfig(newConfig);
+    },
+    [config, setConfig],
+  );
+
+  const handleLogLevelChange = useCallback(
+    (value: LoggingLevel) => sendLogLevelRequest(value),
+    [sendLogLevelRequest],
+  );
+
   return (
     <div className="bg-card border-r border-border flex flex-col h-full">
       <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-border">
@@ -248,9 +444,7 @@ const Sidebar = ({
             </label>
             <Select
               value={transportType}
-              onValueChange={(value: "stdio" | "sse" | "streamable-http") =>
-                setTransportType(value)
-              }
+              onValueChange={handleTransportTypeChange}
             >
               <SelectTrigger id="transport-type-select">
                 <SelectValue placeholder="Select transport type" />
@@ -273,8 +467,8 @@ const Sidebar = ({
                   id="command-input"
                   placeholder="Command"
                   value={command}
-                  onChange={(e) => setCommand(e.target.value)}
-                  onBlur={(e) => setCommand(e.target.value.trim())}
+                  onChange={handleCommandChange}
+                  onBlur={handleCommandBlur}
                   className="font-mono"
                 />
               </div>
@@ -289,7 +483,7 @@ const Sidebar = ({
                   id="arguments-input"
                   placeholder="Arguments (space-separated)"
                   value={args}
-                  onChange={(e) => setArgs(e.target.value)}
+                  onChange={handleArgsChange}
                   className="font-mono"
                 />
               </div>
@@ -307,7 +501,7 @@ const Sidebar = ({
                         id="sse-url-input"
                         placeholder="URL"
                         value={sseUrl}
-                        onChange={(e) => setSseUrl(e.target.value)}
+                        onChange={handleSseUrlChange}
                         className="font-mono"
                       />
                     </TooltipTrigger>
@@ -318,7 +512,7 @@ const Sidebar = ({
                     id="sse-url-input"
                     placeholder="URL"
                     value={sseUrl}
-                    onChange={(e) => setSseUrl(e.target.value)}
+                    onChange={handleSseUrlChange}
                     className="font-mono"
                   />
                 )}
@@ -336,9 +530,7 @@ const Sidebar = ({
                     </label>
                     <Select
                       value={connectionType}
-                      onValueChange={(value: "direct" | "proxy") =>
-                        setConnectionType(value)
-                      }
+                      onValueChange={handleConnectionTypeChange}
                     >
                       <SelectTrigger id="connection-type-select">
                         <SelectValue placeholder="Select connection type" />
@@ -359,7 +551,7 @@ const Sidebar = ({
             <div className="space-y-2">
               <Button
                 variant="outline"
-                onClick={() => setShowEnvVars(!showEnvVars)}
+                onClick={handleToggleEnvVars}
                 className="flex items-center w-full"
                 data-testid="env-vars-button"
                 aria-expanded={showEnvVars}
@@ -380,40 +572,16 @@ const Sidebar = ({
                           aria-label={`Environment variable key ${idx + 1}`}
                           placeholder="Key"
                           value={key}
-                          onChange={(e) => {
-                            const newKey = e.target.value;
-                            const newEnv = Object.entries(env).reduce(
-                              (acc, [k, v]) => {
-                                if (k === key) {
-                                  acc[newKey] = value;
-                                } else {
-                                  acc[k] = v;
-                                }
-                                return acc;
-                              },
-                              {} as Record<string, string>,
-                            );
-                            setEnv(newEnv);
-                            setShownEnvVars((prev) => {
-                              const next = new Set(prev);
-                              if (next.has(key)) {
-                                next.delete(key);
-                                next.add(newKey);
-                              }
-                              return next;
-                            });
-                          }}
+                          onChange={(e) =>
+                            handleEnvKeyChange(key, e.target.value, value)
+                          }
                           className="font-mono"
                         />
                         <Button
                           variant="destructive"
                           size="icon"
                           className="h-9 w-9 p-0 shrink-0"
-                          onClick={() => {
-                            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                            const { [key]: _removed, ...rest } = env;
-                            setEnv(rest);
-                          }}
+                          onClick={() => handleRemoveEnvVar(key)}
                         >
                           ×
                         </Button>
@@ -424,28 +592,16 @@ const Sidebar = ({
                           type={shownEnvVars.has(key) ? "text" : "password"}
                           placeholder="Value"
                           value={value}
-                          onChange={(e) => {
-                            const newEnv = { ...env };
-                            newEnv[key] = e.target.value;
-                            setEnv(newEnv);
-                          }}
+                          onChange={(e) =>
+                            handleEnvValueChange(key, e.target.value)
+                          }
                           className="font-mono"
                         />
                         <Button
                           variant="outline"
                           size="icon"
                           className="h-9 w-9 p-0 shrink-0"
-                          onClick={() => {
-                            setShownEnvVars((prev) => {
-                              const next = new Set(prev);
-                              if (next.has(key)) {
-                                next.delete(key);
-                              } else {
-                                next.add(key);
-                              }
-                              return next;
-                            });
-                          }}
+                          onClick={() => handleToggleEnvVarVisibility(key)}
                           aria-label={
                             shownEnvVars.has(key) ? "Hide value" : "Show value"
                           }
@@ -466,12 +622,7 @@ const Sidebar = ({
                   <Button
                     variant="outline"
                     className="w-full mt-2"
-                    onClick={() => {
-                      const key = "";
-                      const newEnv = { ...env };
-                      newEnv[key] = "";
-                      setEnv(newEnv);
-                    }}
+                    onClick={handleAddEnvVar}
                   >
                     Add Environment Variable
                   </Button>
@@ -523,7 +674,7 @@ const Sidebar = ({
           <div className="space-y-2">
             <Button
               variant="outline"
-              onClick={() => setShowAuthConfig(!showAuthConfig)}
+              onClick={handleToggleAuthConfig}
               className="flex items-center w-full"
               data-testid="auth-button"
               aria-expanded={showAuthConfig}
@@ -554,7 +705,7 @@ const Sidebar = ({
                       <label className="text-sm font-medium">Client ID</label>
                       <Input
                         placeholder="Client ID"
-                        onChange={(e) => setOauthClientId(e.target.value)}
+                        onChange={handleOauthClientIdChange}
                         value={oauthClientId}
                         data-testid="oauth-client-id-input"
                         className="font-mono"
@@ -566,7 +717,7 @@ const Sidebar = ({
                         <Input
                           type={showClientSecret ? "text" : "password"}
                           placeholder="Client Secret (optional)"
-                          onChange={(e) => setOauthClientSecret(e.target.value)}
+                          onChange={handleOauthClientSecretChange}
                           value={oauthClientSecret}
                           data-testid="oauth-client-secret-input"
                           className="font-mono"
@@ -575,7 +726,7 @@ const Sidebar = ({
                           variant="outline"
                           size="icon"
                           className="h-9 w-9 p-0 shrink-0"
-                          onClick={() => setShowClientSecret(!showClientSecret)}
+                          onClick={handleToggleClientSecret}
                           aria-label={
                             showClientSecret ? "Hide secret" : "Show secret"
                           }
@@ -603,7 +754,7 @@ const Sidebar = ({
                       <label className="text-sm font-medium">Scope</label>
                       <Input
                         placeholder="Scope (space-separated)"
-                        onChange={(e) => setOauthScope(e.target.value)}
+                        onChange={handleOauthScopeChange}
                         value={oauthScope}
                         data-testid="oauth-scope-input"
                         className="font-mono"
@@ -618,7 +769,7 @@ const Sidebar = ({
           <div className="space-y-2">
             <Button
               variant="outline"
-              onClick={() => setShowConfig(!showConfig)}
+              onClick={handleToggleConfig}
               className="flex items-center w-full"
               data-testid="config-button"
               aria-expanded={showConfig}
@@ -659,28 +810,26 @@ const Sidebar = ({
                           type="number"
                           data-testid={`${configKey}-input`}
                           value={configItem.value}
-                          onChange={(e) => {
-                            const newConfig = { ...config };
-                            newConfig[configKey] = {
-                              ...configItem,
-                              value: Number(e.target.value),
-                            };
-                            setConfig(newConfig);
-                          }}
+                          onChange={(e) =>
+                            handleConfigNumberChange(
+                              configKey,
+                              configItem,
+                              e.target.value,
+                            )
+                          }
                           className="font-mono"
                         />
                       ) : typeof configItem.value === "boolean" ? (
                         <Select
                           data-testid={`${configKey}-select`}
                           value={configItem.value.toString()}
-                          onValueChange={(val) => {
-                            const newConfig = { ...config };
-                            newConfig[configKey] = {
-                              ...configItem,
-                              value: val === "true",
-                            };
-                            setConfig(newConfig);
-                          }}
+                          onValueChange={(val) =>
+                            handleConfigBooleanChange(
+                              configKey,
+                              configItem,
+                              val,
+                            )
+                          }
                         >
                           <SelectTrigger id={`${configKey}-input`}>
                             <SelectValue />
@@ -695,14 +844,13 @@ const Sidebar = ({
                           id={`${configKey}-input`}
                           data-testid={`${configKey}-input`}
                           value={configItem.value}
-                          onChange={(e) => {
-                            const newConfig = { ...config };
-                            newConfig[configKey] = {
-                              ...configItem,
-                              value: e.target.value,
-                            };
-                            setConfig(newConfig);
-                          }}
+                          onChange={(e) =>
+                            handleConfigStringChange(
+                              configKey,
+                              configItem,
+                              e.target.value,
+                            )
+                          }
                           className="font-mono"
                         />
                       )}
@@ -718,10 +866,7 @@ const Sidebar = ({
               <div className="grid grid-cols-2 gap-4">
                 <Button
                   data-testid="connect-button"
-                  onClick={() => {
-                    onDisconnect();
-                    onConnect();
-                  }}
+                  onClick={handleRestartReconnect}
                 >
                   <RotateCcw className="w-4 h-4 mr-2" />
                   {transportType === "stdio" ? "Restart" : "Reconnect"}
@@ -822,12 +967,7 @@ const Sidebar = ({
                 >
                   Logging Level
                 </label>
-                <Select
-                  value={logLevel}
-                  onValueChange={(value: LoggingLevel) =>
-                    sendLogLevelRequest(value)
-                  }
-                >
+                <Select value={logLevel} onValueChange={handleLogLevelChange}>
                   <SelectTrigger id="logging-level-select">
                     <SelectValue placeholder="Select logging level" />
                   </SelectTrigger>

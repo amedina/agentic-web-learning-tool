@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import {
   Alert,
   AlertDescription,
@@ -14,14 +17,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@google-awlt/design-system";
-import DynamicJsonForm, { type DynamicJsonFormRef } from "./DynamicJsonForm";
-import type { JsonValue, JsonSchemaType } from "../utils/jsonUtils";
-import {
-  generateDefaultValue,
-  isPropertyRequired,
-  normalizeUnionType,
-  resolveRef,
-} from "../utils/schemaUtils";
 import {
   type CompatibilityCallToolResult,
   type ListToolsResult,
@@ -38,6 +33,17 @@ import {
   CheckCheck,
 } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
+/**
+ * Internal dependencies
+ */
+import DynamicJsonForm, { type DynamicJsonFormRef } from "./DynamicJsonForm";
+import type { JsonValue, JsonSchemaType } from "../utils/jsonUtils";
+import {
+  generateDefaultValue,
+  isPropertyRequired,
+  normalizeUnionType,
+  resolveRef,
+} from "../utils/schemaUtils";
 import ListPane from "./ListPane";
 import JsonView from "./JsonView";
 import ToolResults from "./ToolResults";

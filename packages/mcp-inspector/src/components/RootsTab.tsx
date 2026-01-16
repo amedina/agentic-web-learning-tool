@@ -1,3 +1,7 @@
+/**
+ * External dependencies
+ */
+import { useCallback } from "react";
 import {
   Alert,
   AlertDescription,
@@ -17,25 +21,31 @@ const RootsTab = ({
   setRoots: React.Dispatch<React.SetStateAction<Root[]>>;
   onRootsChange: () => void;
 }) => {
-  const addRoot = () => {
+  const addRoot = useCallback(() => {
     setRoots((currentRoots) => [...currentRoots, { uri: "file://", name: "" }]);
-  };
+  }, [setRoots]);
 
-  const removeRoot = (index: number) => {
-    setRoots((currentRoots) => currentRoots.filter((_, i) => i !== index));
-  };
+  const removeRoot = useCallback(
+    (index: number) => {
+      setRoots((currentRoots) => currentRoots.filter((_, i) => i !== index));
+    },
+    [setRoots],
+  );
 
-  const updateRoot = (index: number, field: keyof Root, value: string) => {
-    setRoots((currentRoots) =>
-      currentRoots.map((root, i) =>
-        i === index ? { ...root, [field]: value } : root,
-      ),
-    );
-  };
+  const updateRoot = useCallback(
+    (index: number, field: keyof Root, value: string) => {
+      setRoots((currentRoots) =>
+        currentRoots.map((root, i) =>
+          i === index ? { ...root, [field]: value } : root,
+        ),
+      );
+    },
+    [setRoots],
+  );
 
-  const handleSave = () => {
+  const handleSave = useCallback(() => {
     onRootsChange();
-  };
+  }, [onRootsChange]);
 
   return (
     <TabsContent value="roots">

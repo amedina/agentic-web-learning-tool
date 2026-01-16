@@ -1,5 +1,13 @@
-import { useState, useEffect } from "react";
+/**
+ * External dependencies
+ */
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { Button } from "@google-awlt/design-system";
+import Ajv from "ajv";
+
+/**
+ * Internal dependencies
+ */
 import DynamicJsonForm from "./DynamicJsonForm";
 import JsonView from "./JsonView";
 import type { JsonSchemaType, JsonValue } from "../utils/jsonUtils";
@@ -8,7 +16,6 @@ import type {
   PendingElicitationRequest,
   ElicitationResponse,
 } from "./ElicitationTab";
-import Ajv from "ajv";
 
 export type ElicitationRequestProps = {
   request: PendingElicitationRequest;
@@ -28,52 +35,52 @@ const ElicitationRequest = ({
     setValidationError(null);
   }, [request.request.requestedSchema]);
 
-  const validateEmailFormat = (email: string): boolean => {
+  const validateEmailFormat = useCallback((email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
-  };
+  }, []);
 
-  const validateFormData = (
-    data: JsonValue,
-    schema: JsonSchemaType,
-  ): boolean => {
-    if (
-      schema.type === "object" &&
-      schema.properties &&
-      typeof data === "object" &&
-      data !== null
-    ) {
-      const dataObj = data as Record<string, unknown>;
+  const validateFormData = useCallback(
+    (data: JsonValue, schema: JsonSchemaType): boolean => {
+      if (
+        schema.type === "object" &&
+        schema.properties &&
+        typeof data === "object" &&
+        data !== null
+      ) {
+        const dataObj = data as Record<string, unknown>;
 
-      if (Array.isArray(schema.required)) {
-        for (const field of schema.required) {
-          const value = dataObj[field];
-          if (value === undefined || value === null || value === "") {
-            setValidationError(`Required field missing: ${field}`);
-            return false;
+        if (Array.isArray(schema.required)) {
+          for (const field of schema.required) {
+            const value = dataObj[field];
+            if (value === undefined || value === null || value === "") {
+              setValidationError(`Required field missing: ${field}`);
+              return false;
+            }
+          }
+        }
+
+        for (const [fieldName, fieldValue] of Object.entries(dataObj)) {
+          const fieldSchema = schema.properties[fieldName];
+          if (
+            fieldSchema &&
+            fieldSchema.format === "email" &&
+            typeof fieldValue === "string"
+          ) {
+            if (!validateEmailFormat(fieldValue)) {
+              setValidationError(`Invalid email format: ${fieldName}`);
+              return false;
+            }
           }
         }
       }
 
-      for (const [fieldName, fieldValue] of Object.entries(dataObj)) {
-        const fieldSchema = schema.properties[fieldName];
-        if (
-          fieldSchema &&
-          fieldSchema.format === "email" &&
-          typeof fieldValue === "string"
-        ) {
-          if (!validateEmailFormat(fieldValue)) {
-            setValidationError(`Invalid email format: ${fieldName}`);
-            return false;
-          }
-        }
-      }
-    }
+      return true;
+    },
+    [validateEmailFormat],
+  );
 
-    return true;
-  };
-
-  const handleAccept = () => {
+  const handleAccept = useCallback(() => {
     try {
       if (!validateFormData(formData, request.request.requestedSchema)) {
         return;
@@ -98,18 +105,32 @@ const ElicitationRequest = ({
         error instanceof Error ? error.message : "Validation failed",
       );
     }
-  };
+  }, [
+    formData,
+    onResolve,
+    request.id,
+    request.request.requestedSchema,
+    validateFormData,
+  ]);
 
-  const handleDecline = () => {
+  const handleDecline = useCallback(() => {
     onResolve(request.id, { action: "decline" });
-  };
+  }, [onResolve, request.id]);
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     onResolve(request.id, { action: "cancel" });
-  };
+  }, [onResolve, request.id]);
 
-  const schemaTitle =
-    request.request.requestedSchema.title || "Information Request";
+  const handleFormChange = useCallback((newValue: JsonValue) => {
+    setFormData(newValue);
+    setValidationError(null);
+  }, []);
+
+  const schemaTitle = useMemo(
+    () => request.request.requestedSchema.title || "Information Request",
+    [request.request.requestedSchema.title],
+  );
+
   const schemaDescription = request.request.requestedSchema.description;
 
   return (
@@ -139,10 +160,7 @@ const ElicitationRequest = ({
           <DynamicJsonForm
             schema={request.request.requestedSchema}
             value={formData}
-            onChange={(newValue: JsonValue) => {
-              setFormData(newValue);
-              setValidationError(null);
-            }}
+            onChange={handleFormChange}
           />
 
           {validationError && (
@@ -169,5 +187,7 @@ const ElicitationRequest = ({
     </div>
   );
 };
+
+ElicitationRequest.displayName = "ElicitationRequest";
 
 export default ElicitationRequest;

@@ -1,8 +1,15 @@
+/**
+ * External dependencies
+ */
 import {
   Alert,
   AlertDescription,
   TabsContent,
 } from "@google-awlt/design-system";
+
+/**
+ * Internal dependencies
+ */
 import type { JsonSchemaType } from "../utils/jsonUtils";
 import ElicitationRequest from "./ElicitationRequest";
 
