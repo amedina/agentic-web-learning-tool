@@ -38,7 +38,7 @@ export function MCPServerCard({
         />
       </div>
       <div className="flex justify-between items-center mt-auto pt-3 border-t border-gray-200">
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex gap-2 flex-wrap items-center">
           Total Tools:{' '}
           {!server.enabled ? (
             <TooltipIconButton tooltip="Server is disabled">
