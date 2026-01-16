@@ -2,16 +2,17 @@
  * External dependencies
  */
 import { OptionsPageTab } from '@google-awlt/design-system';
+import { MCPInspectorTab as MCPInspectorTabComponent } from '@google-awlt/mcp-inspector';
+import { Client } from '@modelcontextprotocol/sdk/client';
 
+const MCPClient = new Client({ name: 'MCP Inspector', version: '1.0.0' });
 export default function MCPInspectorTab() {
   return (
     <OptionsPageTab
       title="MCP Inspector"
       description="Inspect and debug your MCP servers."
     >
-      <div className="flex items-center justify-center h-full text-muted-foreground text-3xl">
-        Coming Soon
-      </div>
+      <MCPInspectorTabComponent client={MCPClient} />
     </OptionsPageTab>
   );
 }

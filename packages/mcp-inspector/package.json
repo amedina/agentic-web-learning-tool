@@ -1,0 +1,42 @@
+{
+  "name": "@google-awlt/mcp-inspector",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "import": "./src/index.ts",
+      "require": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "check-types": "tsc --noEmit",
+    "dev": "tsc --watch",
+    "lint": "eslint src --max-warnings 0",
+    "format": "prettier . --write"
+  },
+  "dependencies": {
+    "@google-awlt/common": "workspace:*",
+    "@modelcontextprotocol/sdk": "^1.24.0",
+    "lucide-react": "^0.379.0"
+  },
+  "peerDependencies": {
+    "react": "^19",
+    "@google-awlt/design-system": "workspace:*"
+  },
+  "devDependencies": {
+    "@babel/plugin-transform-react-jsx": "^7.27.1",
+    "@babel/preset-env": "^7.28.5",
+    "@babel/preset-react": "^7.28.5",
+    "@babel/preset-typescript": "^7.28.5",
+    "@google-awlt/shared-config": "workspace:*",
+    "@types/react": "^19.1.0",
+    "eslint": "^9.33.0",
+    "prettier": "^3.6.2",
+    "typescript": "5.9.2"
+  }
+}
