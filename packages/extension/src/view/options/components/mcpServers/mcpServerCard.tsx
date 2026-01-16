@@ -36,7 +36,9 @@ export function MCPServerCard({
       <div className="flex justify-between items-center mt-auto pt-3 border-t border-gray-200">
         <div className="flex gap-2 flex-wrap">
           Total Tools:{' '}
-          {tools?.isError || !tools || !tools.tools ? (
+          {!server.enabled ? (
+            'Server is off.'
+          ) : tools?.isError || !tools || !tools.tools ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           ) : (
             tools?.tools.length
