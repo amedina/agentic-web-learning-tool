@@ -470,6 +470,9 @@ class McpHub {
     }
   }
 
+  // Storage: ToolName -> ScriptContent
+  private userToolScripts = new Map<string, string>();
+
   private async registerOrUpdateWebMCPTools(
     domain: string,
     dataId: string,
@@ -490,7 +493,16 @@ class McpHub {
       name: string;
       enabled: boolean;
       allowedDomains?: string[];
+      code?: string;
     }>;
+
+    // Cache user tool scripts
+    userTools.forEach((tool) => {
+      if (tool.code) {
+        this.userToolScripts.set(tool.name, tool.code);
+      }
+    });
+
     const userToolsMap = new Map(userTools.map((t) => [t.name, t]));
 
     const currentUrl = port.sender?.tab?.url || '';
@@ -731,6 +743,28 @@ class McpHub {
     const executionId = crypto.randomUUID();
     const startTime = Date.now();
     const type = isMCPServerTool ? 'MCP' : 'WebMCP';
+    let script = !isMCPServerTool
+      ? this.userToolScripts.get(toolName)
+      : undefined;
+
+    if (!isMCPServerTool && !script) {
+      // Fallback: Try to fetch from storage if not in cache
+      try {
+        const storage = await chrome.storage.local.get('userWebMCPTools');
+        const userTools = (storage.userWebMCPTools || []) as Array<{
+          name: string;
+          code?: string;
+        }>;
+        const found = userTools.find((t) => t.name === toolName);
+        if (found && found.code) {
+          script = found.code;
+          // Update cache
+          this.userToolScripts.set(toolName, script);
+        }
+      } catch (e) {
+        console.error('Failed to fetch script from storage:', e);
+      }
+    }
 
     // Broadcast Pending Log
     this.broadcastLog({
@@ -740,6 +774,7 @@ class McpHub {
       args,
       startTime,
       status: 'pending',
+      script,
     });
 
     let result: CallToolResult;
