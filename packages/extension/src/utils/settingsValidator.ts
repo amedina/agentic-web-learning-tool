@@ -8,14 +8,17 @@ function settingsValidator(
   settings: SettingsType
 ): boolean | SettingsType['config'] {
   const { config } = settings;
-  // Checkpoint 1: Check if it has all the keys
-  console.log(
-    !config.apiKeys,
-    !config.extensionSettings,
-    !config.userWebMCPTools,
-    config
-  );
-  if (!config.apiKeys || !config.extensionSettings || !config.userWebMCPTools) {
+
+  if (
+    !config.apiKeys ||
+    !config.extensionSettings ||
+    !config.userWebMCPTools ||
+    !config.builtInToolsState ||
+    !config.chromeAPIBuiltInToolsState ||
+    !config.mcpConfigs ||
+    !config.promptCommands ||
+    !config.builtInPromptCommands
+  ) {
     logger(['error'], ['Invalid config non existent keys']);
     return false;
   }
@@ -36,9 +39,14 @@ function settingsValidator(
   }
 
   return {
-    userWebMCPTools: config.userWebMCPTools,
+    userWebMCPTools: JSON.parse(config.userWebMCPTools),
+    mcpConfigs: JSON.parse(config.mcpConfigs),
     apiKeys: config.apiKeys,
+    chromeAPIBuiltInToolsState: config.chromeAPIBuiltInToolsState,
+    builtInToolsState: config.builtInToolsState,
     extensionSettings: defaultConfig,
+    builtInPromptCommands: config.builtInPromptCommands,
+    promptCommands: config.promptCommands,
   };
 }
 

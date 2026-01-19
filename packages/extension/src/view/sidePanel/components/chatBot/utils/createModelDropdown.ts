@@ -10,7 +10,7 @@ const createModelDropdown = (apiKeys: { [key: string]: APIKeys }) => {
   );
   //Add browser-ai by default since it doesnt require apiKeys
   availableModelProviders.push('browser-ai');
-  console.log(availableModelProviders);
+
   const modelProviders = availableModelProviders.map((provider) => {
     const {
       id = '',

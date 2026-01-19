@@ -38,10 +38,10 @@ export function WebMCPToolsTab() {
     return Object.keys(chromeApiBuiltInTools).map((toolkey) => {
       return {
         ...chromeApiBuiltInTools[toolkey as keys],
-        enabled: chromeAPIBuiltInToolsState[toolkey].enabled,
+        enabled: chromeAPIBuiltInToolsState[toolkey]?.enabled,
       };
     });
-  }, [chromeAPIBuiltInToolsState, builtInTools]);
+  }, [chromeAPIBuiltInToolsState]);
 
   return (
     <WebMCPToolsUI
