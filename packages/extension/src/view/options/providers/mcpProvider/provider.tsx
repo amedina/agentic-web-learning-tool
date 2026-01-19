@@ -246,7 +246,7 @@ const Provider = ({ children }: PropsWithChildren) => {
         isValid: errors.length === 0,
       };
     },
-    []
+    [createClientAndListTools, serverConfigs]
   );
 
   const value = useMemo(
@@ -262,7 +262,14 @@ const Provider = ({ children }: PropsWithChildren) => {
         handleToggle,
       },
     }),
-    [serverConfigs, toolList, addConfig, validateConfig, removeConfig]
+    [
+      serverConfigs,
+      toolList,
+      addConfig,
+      removeConfig,
+      validateConfig,
+      handleToggle,
+    ]
   );
 
   return <MCPContext.Provider value={value}>{children}</MCPContext.Provider>;
