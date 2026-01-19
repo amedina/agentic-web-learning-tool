@@ -36,7 +36,7 @@ const TOOLS = {
   staticInput: StaticInputToolConfig,
 };
 
-const ToolsConfig = () => {
+const ToolsConfigPanel = () => {
   const { selectedNode, getNode, updateNode } = useApi(
     ({ state, actions }) => ({
       selectedNode: state.selectedNode,
@@ -183,4 +183,4 @@ const ToolsConfig = () => {
   );
 };
 
-export default ToolsConfig;
+export default ToolsConfigPanel;

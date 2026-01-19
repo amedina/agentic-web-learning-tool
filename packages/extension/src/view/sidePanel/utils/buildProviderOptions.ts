@@ -23,7 +23,7 @@ function buildProviderOptions(
         },
       };
 
-    case 'openai': {
+    case 'open-ai': {
       // GPT-5 models support reasoningEffort and reasoningSummary
       const openaiConfig: {
         openai: {

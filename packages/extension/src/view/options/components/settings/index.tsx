@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import { useMemo, useState } from 'react';
-import { OptionsPageTab } from '@google-awlt/design-system';
+import { useCallback, useState } from 'react';
+import { OptionsPageTab, type PromptCommand } from '@google-awlt/design-system';
 
 /**
  * Internal dependencies
@@ -12,8 +12,11 @@ import ThemeSection from './themeToggleSection';
 import DataManagementSection from './dataManagementSection';
 import SystemSection from './systemSection';
 import { useSettings } from '../../../stateProviders';
-import { useModelProvider, useToolProvider } from '../../providers';
-import type { SettingsType } from '../../../../types';
+import {
+  useMcpProvider,
+  useModelProvider,
+  useToolProvider,
+} from '../../providers';
 import json from '../../../../manifest.json';
 import { EXPORT_JSON_VERSION } from '../../../../constants';
 
@@ -29,15 +32,33 @@ export default function SettingsTab() {
 
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
 
-  const { userTools } = useToolProvider(({ state }) => ({
-    userTools: state.userTools,
+  const { userTools, chromeAPIBuiltInToolsState, builtInTools } =
+    useToolProvider(({ state }) => ({
+      userTools: state.userTools,
+      chromeAPIBuiltInToolsState: state.chromeAPIBuiltInToolsState,
+      builtInTools: state.builtInTools,
+    }));
+
+  const { serverConfigs } = useMcpProvider(({ state }) => ({
+    serverConfigs: state.serverConfigs,
   }));
 
   const { apiKeys } = useModelProvider(({ state }) => ({
     apiKeys: state.apiKeys,
   }));
 
-  const config: SettingsType = useMemo(() => {
+  const config = useCallback(async () => {
+    const {
+      promptCommands = [],
+      builtInPromptCommands = [],
+    }: {
+      promptCommands: PromptCommand[];
+      builtInPromptCommands: PromptCommand[];
+    } = await chrome.storage.local.get([
+      'promptCommands',
+      'builtInPromptCommands',
+    ]);
+
     return {
       config: {
         apiKeys,
@@ -45,7 +66,18 @@ export default function SettingsTab() {
           theme,
           logLevel,
         },
-        userWebMCPTools: userTools,
+        userWebMCPTools: JSON.stringify(userTools, null, 2),
+        mcpConfigs: JSON.stringify(serverConfigs, null, 2),
+        chromeAPIBuiltInToolsState: chromeAPIBuiltInToolsState,
+        promptCommands,
+        builtInPromptCommands,
+        builtInToolsState: builtInTools.reduce(
+          (acc, tool) => {
+            acc[tool.name] = tool.enabled;
+            return acc;
+          },
+          {} as Record<string, boolean>
+        ),
       },
       version: EXPORT_JSON_VERSION,
       extensionVersion: json.version,
