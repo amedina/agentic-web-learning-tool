@@ -73,7 +73,7 @@ const Provider = ({ children }: PropsWithChildren) => {
     chrome.storage.sync.set({
       selectedAgent,
     });
-  }, [selectedAgent]);
+  }, [apiKeys, selectedAgent]);
 
   const fetchMCPServersAndCreateMapping = useCallback(async () => {
     const { mcpServers }: { mcpServers: { [key: string]: MCPServerConfig } } =
@@ -153,7 +153,7 @@ const Provider = ({ children }: PropsWithChildren) => {
 
       fetchMCPServersAndCreateMapping();
     },
-    []
+    [fetchMCPServersAndCreateMapping]
   );
 
   useEffect(() => {

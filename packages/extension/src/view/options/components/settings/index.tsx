@@ -83,7 +83,15 @@ export default function SettingsTab() {
       extensionVersion: json.version,
       timestamp: Date.now(),
     };
-  }, [userTools, logLevel, theme, apiKeys]);
+  }, [
+    apiKeys,
+    theme,
+    logLevel,
+    userTools,
+    serverConfigs,
+    chromeAPIBuiltInToolsState,
+    builtInTools,
+  ]);
 
   return (
     <OptionsPageTab

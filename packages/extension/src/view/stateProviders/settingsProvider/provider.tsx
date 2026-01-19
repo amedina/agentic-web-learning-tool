@@ -53,7 +53,7 @@ function SettingsProvider({
 
       fetchAndUpdateSettings();
     },
-    [fetchAndUpdateSettings]
+    [fetchAndUpdateSettings, view]
   );
 
   const handleChange = useCallback(() => {
@@ -140,7 +140,7 @@ function SettingsProvider({
         toggleSettings,
       },
     }),
-    [logLevel, theme, clearSettings, isDarkMode]
+    [theme, logLevel, isDarkMode, clearSettings, toggleSettings]
   );
 
   return (
