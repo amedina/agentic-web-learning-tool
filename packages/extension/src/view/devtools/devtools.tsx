@@ -9,7 +9,7 @@ import { Client } from '@modelcontextprotocol/sdk/client';
  * Internal dependencies
  */
 import { CONNECTION_NAMES } from '../../utils';
-import EventLogger from './eventLogger';
+import EventLogger from './components/eventLogger';
 
 export const transport = new ExtensionClientTransport({
   portName: CONNECTION_NAMES.MCP_HOST,
