@@ -39,7 +39,6 @@ type ChatBotUIProps = {
 
 const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
   const { client, tools } = useMcpClient();
-
   const { apiKeys, setSelectedAgent, selectedAgent, toolNameToMCPMap } =
     useModelProvider(({ state, actions }) => ({
       apiKeys: state.apiKeys,
@@ -47,20 +46,6 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
       setSelectedAgent: actions.setSelectedAgent,
       selectedAgent: state.selectedAgent,
     }));
-
-  useEffect(() => {
-    (async () => {
-      if (client.transport) {
-        return;
-      }
-
-      await client.connect(transport);
-    })();
-
-    return () => {
-      client.close();
-    };
-  }, [client]);
 
   useEffect(() => {
     // Synchronization Mechanism: This block listens for a "Tool Changed" event from the

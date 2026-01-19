@@ -116,6 +116,12 @@ class ChromeAILanguageModel {
           content: initialSystemPrompt,
         },
       ],
+      expectedInputs: [
+        {
+          type: 'text',
+          languages: ['en'],
+        },
+      ],
     });
   }
 
