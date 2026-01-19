@@ -46,7 +46,7 @@ const AssistantMessage: FC = () => {
           className="flex items-center gap-1 rounded-lg data-[floating]:absolute data-[floating]:border-2 data-[floating]:p-1"
         >
           <ActionBarPrimitive.Reload asChild>
-            <ActionButton tooltip="Reload">
+            <ActionButton tooltip="Try again">
               <ReloadIcon />
             </ActionButton>
           </ActionBarPrimitive.Reload>
