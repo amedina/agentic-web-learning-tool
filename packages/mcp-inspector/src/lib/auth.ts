@@ -1,4 +1,8 @@
+/**
+ * External dependencies
+ */
 import type { OAuthClientProvider } from "@modelcontextprotocol/sdk/client/auth.js";
+import { discoverAuthorizationServerMetadata } from "@modelcontextprotocol/sdk/client/auth.js";
 import {
   OAuthClientInformationSchema,
   type OAuthClientInformation,
@@ -8,7 +12,10 @@ import {
   type OAuthMetadata,
   type OAuthProtectedResourceMetadata,
 } from "@modelcontextprotocol/sdk/shared/auth.js";
-import { discoverAuthorizationServerMetadata } from "@modelcontextprotocol/sdk/client/auth.js";
+
+/**
+ * Internal dependencies
+ */
 import { SESSION_KEYS, getServerSpecificKey } from "./constants";
 import { generateOAuthState } from "../utils/oauthUtils";
 import { validateRedirectUrl } from "../utils/urlValidation";

@@ -1,4 +1,11 @@
+/**
+ * External dependencies
+ */
 import { toast as sonnerToast } from "@google-awlt/design-system";
+
+/**
+ * Internal dependencies
+ */
 
 export interface ToastProps {
   title?: React.ReactNode;

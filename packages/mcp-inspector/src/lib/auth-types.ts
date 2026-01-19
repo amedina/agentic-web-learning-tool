@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import {
   type OAuthMetadata,
   type OAuthClientInformationFull,
@@ -5,6 +8,10 @@ import {
   type OAuthTokens,
   type OAuthProtectedResourceMetadata,
 } from "@modelcontextprotocol/sdk/shared/auth.js";
+
+/**
+ * Internal dependencies
+ */
 
 // OAuth flow steps
 export type OAuthStep =

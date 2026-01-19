@@ -1,4 +1,11 @@
+/**
+ * External dependencies
+ */
 import { useCallback, useEffect, useRef, useState } from "react";
+
+/**
+ * Internal dependencies
+ */
 
 export function useDraggablePane(initialHeight: number) {
   const [height, setHeight] = useState(initialHeight);

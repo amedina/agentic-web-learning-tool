@@ -1,6 +1,13 @@
 "use client";
 
+/**
+ * External dependencies
+ */
 import { useEffect, useState } from "react";
+
+/**
+ * Internal dependencies
+ */
 
 type UseCopyProps = {
   timeout?: number;

@@ -1,5 +1,6 @@
-import type { OAuthStep, AuthDebuggerState } from "./auth-types";
-import { DebugInspectorOAuthClientProvider, discoverScopes } from "./auth";
+/**
+ * External dependencies
+ */
 import {
   discoverAuthorizationServerMetadata,
   registerClient,
@@ -12,6 +13,12 @@ import {
   OAuthMetadataSchema,
   type OAuthProtectedResourceMetadata,
 } from "@modelcontextprotocol/sdk/shared/auth.js";
+
+/**
+ * Internal dependencies
+ */
+import type { OAuthStep, AuthDebuggerState } from "./auth-types";
+import { DebugInspectorOAuthClientProvider, discoverScopes } from "./auth";
 import { generateOAuthState } from "../utils/oauthUtils";
 
 export interface StateMachineContext {

@@ -1,3 +1,6 @@
+/**
+ * Internal dependencies
+ */
 import type { InspectorConfig } from "./configurationTypes";
 import packageJson from "../../package.json";
 

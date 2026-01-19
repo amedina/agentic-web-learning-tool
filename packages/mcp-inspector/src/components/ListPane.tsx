@@ -1,6 +1,13 @@
+/**
+ * External dependencies
+ */
+import { useState, useMemo, useRef, useCallback } from "react";
 import { Search } from "lucide-react";
 import { Button, Input } from "@google-awlt/design-system";
-import { useState, useMemo, useRef } from "react";
+
+/**
+ * Internal dependencies
+ */
 
 type ListPaneProps<T> = {
   items: T[];
@@ -41,18 +48,25 @@ const ListPane = <T extends object>({
     });
   }, [items, searchQuery]);
 
-  const handleSearchClick = () => {
+  const handleSearchClick = useCallback(() => {
     setIsSearchExpanded(true);
     setTimeout(() => {
       searchInputRef.current?.focus();
     }, 100);
-  };
+  }, []);
 
-  const handleSearchBlur = () => {
+  const handleSearchBlur = useCallback(() => {
     if (!searchQuery.trim()) {
       setIsSearchExpanded(false);
     }
-  };
+  }, [searchQuery]);
+
+  const handleSearchChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setSearchQuery(e.target.value);
+    },
+    [],
+  );
 
   return (
     <div className="bg-card border border-border rounded-lg shadow">
@@ -81,9 +95,7 @@ const ListPane = <T extends object>({
                     type="text"
                     placeholder="Search..."
                     value={searchQuery}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      setSearchQuery(e.target.value)
-                    }
+                    onChange={handleSearchChange}
                     onBlur={handleSearchBlur}
                     className="pl-10 w-full transition-all duration-300 ease-in-out"
                   />

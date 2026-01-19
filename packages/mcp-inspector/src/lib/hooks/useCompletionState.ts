@@ -1,8 +1,15 @@
+/**
+ * External dependencies
+ */
 import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import {
   type ResourceReference,
   type PromptReference,
 } from "@modelcontextprotocol/sdk/types.js";
+
+/**
+ * Internal dependencies
+ */
 
 interface CompletionState {
   completions: Record<string, string[]>;

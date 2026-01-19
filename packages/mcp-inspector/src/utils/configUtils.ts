@@ -1,3 +1,6 @@
+/**
+ * Internal dependencies
+ */
 import type { InspectorConfig } from "../lib/configurationTypes";
 import {
   DEFAULT_MCP_PROXY_LISTEN_PORT,

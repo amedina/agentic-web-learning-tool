@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import {
   useState,
   useEffect,
@@ -6,7 +9,12 @@ import {
   forwardRef,
   useImperativeHandle,
 } from "react";
+import { CheckCheck, Copy } from "lucide-react";
 import { Button, Input } from "@google-awlt/design-system";
+
+/**
+ * Internal dependencies
+ */
 import JsonEditor from "./JsonEditor";
 import { updateValueAtPath } from "../utils/jsonUtils";
 import { generateDefaultValue } from "../utils/schemaUtils";
@@ -16,7 +24,6 @@ import type {
   JsonSchemaConst,
 } from "../utils/jsonUtils";
 import { useToast } from "../lib/hooks/useToast";
-import { CheckCheck, Copy } from "lucide-react";
 
 interface DynamicJsonFormProps {
   schema: JsonSchemaType;
