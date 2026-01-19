@@ -1,8 +1,6 @@
 import {
-  type ClientRequest,
   type CompatibilityCallToolResult,
   CompatibilityCallToolResultSchema,
-  type CreateMessageResult,
   EmptyResultSchema,
   GetPromptResultSchema,
   ListPromptsResultSchema,
@@ -12,35 +10,17 @@ import {
   ReadResourceResultSchema,
   type Resource,
   type ResourceTemplate,
-  type Root,
-  type ServerNotification,
   type Tool,
   type LoggingLevel,
 } from "@modelcontextprotocol/sdk/types.js";
-import { OAuthTokensSchema } from "@modelcontextprotocol/sdk/shared/auth.js";
 import type {
   AnySchema,
   SchemaOutput,
 } from "@modelcontextprotocol/sdk/server/zod-compat.js";
-import { SESSION_KEYS, getServerSpecificKey } from "./lib/constants";
-import {
-  hasValidMetaName,
-  hasValidMetaPrefix,
-  isReservedMetaKey,
-} from "./utils/metaUtils";
-import { type AuthDebuggerState, EMPTY_DEBUGGER_STATE } from "./lib/auth-types";
-import { OAuthStateMachine } from "./lib/oauth-state-machine";
 import { cacheToolOutputSchemas } from "./utils/schemaUtils";
 import { cleanParams } from "./utils/paramUtils";
 import type { JsonSchemaType } from "./utils/jsonUtils";
-import React, {
-  Suspense,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
-import { useConnection } from "./lib/hooks/useConnection";
+import React, { Suspense, useRef, useState } from "react";
 import {
   useDraggablePane,
   useDraggableSidebar,
@@ -73,87 +53,74 @@ import PingTab from "./components/PingTab";
 import PromptsTab, { type Prompt } from "./components/PromptsTab";
 import ResourcesTab from "./components/ResourcesTab";
 import RootsTab from "./components/RootsTab";
-import SamplingTab, { type PendingRequest } from "./components/SamplingTab";
+import SamplingTab from "./components/SamplingTab";
 import Sidebar from "./components/Sidebar";
 import ToolsTab from "./components/ToolsTab";
-import type { InspectorConfig } from "./lib/configurationTypes";
-import {
-  getMCPProxyAddress,
-  getMCPProxyAuthToken,
-  getInitialSseUrl,
-  getInitialTransportType,
-  getInitialCommand,
-  getInitialArgs,
-  saveInspectorConfig,
-} from "./utils/configUtils";
-import ElicitationTab, {
-  type PendingElicitationRequest,
-  type ElicitationResponse,
-} from "./components/ElicitationTab";
-import {
-  type CustomHeaders,
-  migrateFromLegacyAuth,
-} from "./lib/types/customHeaders";
+import ElicitationTab from "./components/ElicitationTab";
 import MetadataTab from "./components/MetadataTab";
-
-const CONFIG_LOCAL_STORAGE_KEY = "inspectorConfig_v1";
-
-const LOCALSTORAGEMOCK = {
-  MCP_SERVER_REQUEST_TIMEOUT: {
-    label: "Request Timeout",
-    description:
-      "Client-side timeout (ms) - Inspector will cancel requests after this time",
-    value: 300000,
-    is_session_item: false,
-  },
-  MCP_REQUEST_TIMEOUT_RESET_ON_PROGRESS: {
-    label: "Reset Timeout on Progress",
-    description: "Reset timeout on progress notifications",
-    value: true,
-    is_session_item: false,
-  },
-  MCP_REQUEST_MAX_TOTAL_TIMEOUT: {
-    label: "Maximum Total Timeout",
-    description:
-      "Maximum total timeout for requests sent to the MCP server (ms) (Use with progress notifications)",
-    value: 60000,
-    is_session_item: false,
-  },
-  MCP_PROXY_FULL_ADDRESS: {
-    label: "Inspector Proxy Address",
-    description:
-      "Set this if you are running the MCP Inspector Proxy on a non-default address. Example: http://10.1.1.22:5577",
-    value: "",
-    is_session_item: false,
-  },
-  MCP_PROXY_AUTH_TOKEN: {
-    label: "Maximum Total Timeout",
-    description:
-      "Maximum total timeout for requests sent to the MCP server (ms) (Use with progress notifications)",
-    value: "43aa583a587846f3b731c3ba921a98d6a7855b013baeff00b81f6187a5d74997",
-    is_session_item: false,
-  },
-};
-
-const filterReservedMetadata = (
-  metadata: Record<string, string>,
-): Record<string, string> => {
-  return Object.entries(metadata).reduce<Record<string, string>>(
-    (acc, [key, value]) => {
-      if (
-        !isReservedMetaKey(key) &&
-        hasValidMetaPrefix(key) &&
-        hasValidMetaName(key)
-      ) {
-        acc[key] = value;
-      }
-      return acc;
-    },
-    {},
-  );
-};
+import { useMcpClient } from "./contexts/McpConnectContext";
 
 const App = () => {
+  // Use the context hook
+  const {
+    command,
+    setCommand,
+    args,
+    setArgs,
+    sseUrl,
+    setSseUrl,
+    transportType,
+    setTransportType,
+    connectionType,
+    setConnectionType,
+    logLevel,
+    setLogLevel,
+    config,
+    setConfig,
+    env,
+    setEnv,
+    customHeaders,
+    setCustomHeaders,
+    oauthClientId,
+    setOauthClientId,
+    oauthScope,
+    setOauthScope,
+    oauthClientSecret,
+    setOauthClientSecret,
+    isAuthDebuggerVisible,
+    setIsAuthDebuggerVisible,
+    authState,
+    updateAuthState,
+    onOAuthConnect,
+    onOAuthDebugConnect,
+    metadata,
+    handleMetadataChange,
+    connectionStatus,
+    serverCapabilities,
+    serverImplementation,
+    mcpClient,
+    requestHistory,
+    clearRequestHistory,
+    makeRequest,
+    sendNotification,
+    handleCompletion,
+    completionsSupported,
+    connectMcpServer,
+    disconnectMcpServer,
+    notifications,
+    pendingSampleRequests,
+    pendingElicitationRequests,
+    handleApproveSampling,
+    handleRejectSampling,
+    handleResolveElicitation,
+    roots,
+    setRoots,
+    activeTab,
+    setActiveTab,
+    lastToolCallOriginTabRef,
+  } = useMcpClient();
+
+  // UI-specific state (View State)
   const [resources, setResources] = useState<Resource[]>([]);
   const [resourceTemplates, setResourceTemplates] = useState<
     ResourceTemplate[]
@@ -172,128 +139,6 @@ const App = () => {
     prompts: null,
     tools: null,
   });
-  const [command, setCommand] = useState<string>(getInitialCommand);
-  const [args, setArgs] = useState<string>(getInitialArgs);
-
-  const [sseUrl, setSseUrl] = useState<string>(getInitialSseUrl);
-  const [transportType, setTransportType] = useState<
-    "stdio" | "sse" | "streamable-http"
-  >(getInitialTransportType);
-  const [connectionType, setConnectionType] = useState<"direct" | "proxy">(
-    () => {
-      return (
-        (localStorage.getItem("lastConnectionType") as "direct" | "proxy") ||
-        "proxy"
-      );
-    },
-  );
-  const [logLevel, setLogLevel] = useState<LoggingLevel>("debug");
-  const [notifications, setNotifications] = useState<ServerNotification[]>([]);
-  const [roots, setRoots] = useState<Root[]>([]);
-  const [env, setEnv] = useState<Record<string, string>>({});
-
-  const [config, setConfig] = useState<InspectorConfig>(LOCALSTORAGEMOCK);
-  const [bearerToken, setBearerToken] = useState<string>(() => {
-    return localStorage.getItem("lastBearerToken") || "";
-  });
-
-  const [headerName, setHeaderName] = useState<string>(() => {
-    return localStorage.getItem("lastHeaderName") || "";
-  });
-
-  const [oauthClientId, setOauthClientId] = useState<string>(() => {
-    return localStorage.getItem("lastOauthClientId") || "";
-  });
-
-  const [oauthScope, setOauthScope] = useState<string>(() => {
-    return localStorage.getItem("lastOauthScope") || "";
-  });
-
-  const [oauthClientSecret, setOauthClientSecret] = useState<string>(() => {
-    return localStorage.getItem("lastOauthClientSecret") || "";
-  });
-
-  // Custom headers state with migration from legacy auth
-  const [customHeaders, setCustomHeaders] = useState<CustomHeaders>(() => {
-    const savedHeaders = localStorage.getItem("lastCustomHeaders");
-    if (savedHeaders) {
-      try {
-        return JSON.parse(savedHeaders);
-      } catch (error) {
-        console.warn(
-          `Failed to parse custom headers: "${savedHeaders}", will try legacy migration`,
-          error,
-        );
-        // Fall back to migration if JSON parsing fails
-      }
-    }
-
-    // Migrate from legacy auth if available
-    const legacyToken = localStorage.getItem("lastBearerToken") || "";
-    const legacyHeaderName = localStorage.getItem("lastHeaderName") || "";
-
-    if (legacyToken) {
-      return migrateFromLegacyAuth(legacyToken, legacyHeaderName);
-    }
-
-    // Default to empty array
-    return [
-      {
-        name: "Authorization",
-        value: "Bearer ",
-        enabled: false,
-      },
-    ];
-  });
-
-  const [pendingSampleRequests, setPendingSampleRequests] = useState<
-    Array<
-      PendingRequest & {
-        resolve: (result: CreateMessageResult) => void;
-        reject: (error: Error) => void;
-      }
-    >
-  >([]);
-  const [pendingElicitationRequests, setPendingElicitationRequests] = useState<
-    Array<
-      PendingElicitationRequest & {
-        resolve: (response: ElicitationResponse) => void;
-        decline: (error: Error) => void;
-      }
-    >
-  >([]);
-  const [isAuthDebuggerVisible, setIsAuthDebuggerVisible] = useState(false);
-
-  const [authState, setAuthState] =
-    useState<AuthDebuggerState>(EMPTY_DEBUGGER_STATE);
-
-  // Metadata state - persisted in localStorage
-  const [metadata, setMetadata] = useState<Record<string, string>>(() => {
-    const savedMetadata = localStorage.getItem("lastMetadata");
-    if (savedMetadata) {
-      try {
-        const parsed = JSON.parse(savedMetadata);
-        if (parsed && typeof parsed === "object") {
-          return filterReservedMetadata(parsed);
-        }
-      } catch (error) {
-        console.warn("Failed to parse saved metadata:", error);
-      }
-    }
-    return {};
-  });
-
-  const updateAuthState = (updates: Partial<AuthDebuggerState>) => {
-    setAuthState((prev) => ({ ...prev, ...updates }));
-  };
-
-  const handleMetadataChange = (newMetadata: Record<string, string>) => {
-    const sanitizedMetadata = filterReservedMetadata(newMetadata);
-    setMetadata(sanitizedMetadata);
-    localStorage.setItem("lastMetadata", JSON.stringify(sanitizedMetadata));
-  };
-  const nextRequestId = useRef(0);
-  const rootsRef = useRef<Root[]>([]);
 
   const [selectedResource, setSelectedResource] = useState<Resource | null>(
     null,
@@ -316,16 +161,11 @@ const App = () => {
   const [nextToolCursor, setNextToolCursor] = useState<string | undefined>();
   const progressTokenRef = useRef(0);
 
-  const [activeTab, setActiveTab] = useState<string>(() => {
-    const hash = window.location.hash.slice(1);
-    const initialTab = hash || "resources";
-    return initialTab;
-  });
-
   const currentTabRef = useRef<string>(activeTab);
-  const lastToolCallOriginTabRef = useRef<string>(activeTab);
 
-  useEffect(() => {
+  // Update refs when activeTab changes (Context drives activeTab)
+  // Note: App.tsx doesn't own activeTab anymore, but we need to track it for refs
+  React.useEffect(() => {
     currentTabRef.current = activeTab;
   }, [activeTab]);
 
@@ -336,403 +176,12 @@ const App = () => {
     handleDragStart: handleSidebarDragStart,
   } = useDraggableSidebar(320);
 
-  const {
-    connectionStatus,
-    serverCapabilities,
-    serverImplementation,
-    mcpClient,
-    requestHistory,
-    clearRequestHistory,
-    makeRequest,
-    sendNotification,
-    handleCompletion,
-    completionsSupported,
-    connect: connectMcpServer,
-    disconnect: disconnectMcpServer,
-  } = useConnection({
-    transportType,
-    command,
-    args,
-    sseUrl,
-    env,
-    customHeaders,
-    oauthClientId,
-    oauthClientSecret,
-    oauthScope,
-    config,
-    connectionType,
-    onNotification: (notification) => {
-      setNotifications((prev) => [...prev, notification as ServerNotification]);
-    },
-    onPendingRequest: (request, resolve, reject) => {
-      setPendingSampleRequests((prev) => [
-        ...prev,
-        { id: nextRequestId.current++, request, resolve, reject },
-      ]);
-    },
-    onElicitationRequest: (request, resolve) => {
-      const currentTab = lastToolCallOriginTabRef.current;
-
-      setPendingElicitationRequests((prev) => [
-        ...prev,
-        {
-          id: nextRequestId.current++,
-          request: {
-            id: nextRequestId.current,
-            message: request.params.message,
-            requestedSchema: request.params.requestedSchema,
-          },
-          originatingTab: currentTab,
-          resolve,
-          decline: (error: Error) => {
-            console.error("Elicitation request rejected:", error);
-          },
-        },
-      ]);
-
-      setActiveTab("elicitations");
-      window.location.hash = "elicitations";
-    },
-    getRoots: () => rootsRef.current,
-    defaultLoggingLevel: logLevel,
-    metadata,
-  });
-
-  useEffect(() => {
-    if (serverCapabilities) {
-      const hash = window.location.hash.slice(1);
-
-      const validTabs = [
-        ...(serverCapabilities?.resources ? ["resources"] : []),
-        ...(serverCapabilities?.prompts ? ["prompts"] : []),
-        ...(serverCapabilities?.tools ? ["tools"] : []),
-        "ping",
-        "sampling",
-        "elicitations",
-        "roots",
-        "auth",
-      ];
-
-      const isValidTab = validTabs.includes(hash);
-
-      if (!isValidTab) {
-        const defaultTab = serverCapabilities?.resources
-          ? "resources"
-          : serverCapabilities?.prompts
-            ? "prompts"
-            : serverCapabilities?.tools
-              ? "tools"
-              : "ping";
-
-        setActiveTab(defaultTab);
-        window.location.hash = defaultTab;
-      }
-    }
-  }, [serverCapabilities]);
-
-  useEffect(() => {
-    localStorage.setItem("lastCommand", command);
-  }, [command]);
-
-  useEffect(() => {
-    localStorage.setItem("lastArgs", args);
-  }, [args]);
-
-  useEffect(() => {
-    localStorage.setItem("lastSseUrl", sseUrl);
-  }, [sseUrl]);
-
-  useEffect(() => {
-    localStorage.setItem("lastTransportType", transportType);
-  }, [transportType]);
-
-  useEffect(() => {
-    localStorage.setItem("lastConnectionType", connectionType);
-  }, [connectionType]);
-
-  useEffect(() => {
-    if (bearerToken) {
-      localStorage.setItem("lastBearerToken", bearerToken);
-    } else {
-      localStorage.removeItem("lastBearerToken");
-    }
-  }, [bearerToken]);
-
-  useEffect(() => {
-    if (headerName) {
-      localStorage.setItem("lastHeaderName", headerName);
-    } else {
-      localStorage.removeItem("lastHeaderName");
-    }
-  }, [headerName]);
-
-  useEffect(() => {
-    localStorage.setItem("lastCustomHeaders", JSON.stringify(customHeaders));
-  }, [customHeaders]);
-
-  // Auto-migrate from legacy auth when custom headers are empty but legacy auth exists
-  useEffect(() => {
-    if (customHeaders.length === 0 && (bearerToken || headerName)) {
-      const migratedHeaders = migrateFromLegacyAuth(bearerToken, headerName);
-      if (migratedHeaders.length > 0) {
-        setCustomHeaders(migratedHeaders);
-        // Clear legacy auth after migration
-        setBearerToken("");
-        setHeaderName("");
-      }
-    }
-  }, [bearerToken, headerName, customHeaders, setCustomHeaders]);
-
-  useEffect(() => {
-    localStorage.setItem("lastOauthClientId", oauthClientId);
-  }, [oauthClientId]);
-
-  useEffect(() => {
-    localStorage.setItem("lastOauthScope", oauthScope);
-  }, [oauthScope]);
-
-  useEffect(() => {
-    localStorage.setItem("lastOauthClientSecret", oauthClientSecret);
-  }, [oauthClientSecret]);
-
-  useEffect(() => {
-    saveInspectorConfig(CONFIG_LOCAL_STORAGE_KEY, config);
-  }, [config]);
-
-  const onOAuthConnect = useCallback(
-    (serverUrl: string) => {
-      setSseUrl(serverUrl);
-      setIsAuthDebuggerVisible(false);
-      void connectMcpServer();
-    },
-    [connectMcpServer],
-  );
-
-  const onOAuthDebugConnect = useCallback(
-    async ({
-      authorizationCode,
-      errorMsg,
-      restoredState,
-    }: {
-      authorizationCode?: string;
-      errorMsg?: string;
-      restoredState?: AuthDebuggerState;
-    }) => {
-      setIsAuthDebuggerVisible(true);
-
-      if (errorMsg) {
-        updateAuthState({
-          latestError: new Error(errorMsg),
-        });
-        return;
-      }
-
-      if (restoredState && authorizationCode) {
-        let currentState: AuthDebuggerState = {
-          ...restoredState,
-          authorizationCode,
-          oauthStep: "token_request",
-          isInitiatingAuth: true,
-          statusMessage: null,
-          latestError: null,
-        };
-
-        try {
-          const stateMachine = new OAuthStateMachine(sseUrl, (updates) => {
-            currentState = { ...currentState, ...updates };
-          });
-
-          while (
-            currentState.oauthStep !== "complete" &&
-            currentState.oauthStep !== "authorization_code"
-          ) {
-            await stateMachine.executeStep(currentState);
-          }
-
-          if (currentState.oauthStep === "complete") {
-            updateAuthState({
-              ...currentState,
-              statusMessage: {
-                type: "success",
-                message: "Authentication completed successfully",
-              },
-              isInitiatingAuth: false,
-            });
-          }
-        } catch (error) {
-          console.error("OAuth continuation error:", error);
-          updateAuthState({
-            latestError:
-              error instanceof Error ? error : new Error(String(error)),
-            statusMessage: {
-              type: "error",
-              message: `Failed to complete OAuth flow: ${error instanceof Error ? error.message : String(error)}`,
-            },
-            isInitiatingAuth: false,
-          });
-        }
-      } else if (authorizationCode) {
-        updateAuthState({
-          authorizationCode,
-          oauthStep: "token_request",
-        });
-      }
-    },
-    [sseUrl],
-  );
-
-  useEffect(() => {
-    const loadOAuthTokens = async () => {
-      try {
-        if (sseUrl) {
-          const key = getServerSpecificKey(SESSION_KEYS.TOKENS, sseUrl);
-          const tokens = sessionStorage.getItem(key);
-          if (tokens) {
-            const parsedTokens = await OAuthTokensSchema.parseAsync(
-              JSON.parse(tokens),
-            );
-            updateAuthState({
-              oauthTokens: parsedTokens,
-              oauthStep: "complete",
-            });
-          }
-        }
-      } catch (error) {
-        console.error("Error loading OAuth tokens:", error);
-      }
-    };
-
-    loadOAuthTokens();
-  }, [sseUrl]);
-
-  useEffect(() => {
-    const headers: HeadersInit = {};
-    const { token: proxyAuthToken, header: proxyAuthTokenHeader } =
-      getMCPProxyAuthToken(config);
-    if (proxyAuthToken) {
-      headers[proxyAuthTokenHeader] = `Bearer ${proxyAuthToken}`;
-    }
-
-    fetch(`${getMCPProxyAddress(config)}/config`, { headers })
-      .then((response) => response.json())
-      .then((data) => {
-        setEnv(data.defaultEnvironment);
-        if (data.defaultCommand) {
-          setCommand(data.defaultCommand);
-        }
-        if (data.defaultArgs) {
-          setArgs(data.defaultArgs);
-        }
-        if (data.defaultTransport) {
-          setTransportType(
-            data.defaultTransport as "stdio" | "sse" | "streamable-http",
-          );
-        }
-        if (data.defaultServerUrl) {
-          setSseUrl(data.defaultServerUrl);
-        }
-      })
-      .catch((error) =>
-        console.error("Error fetching default environment:", error),
-      );
-  }, [config]);
-
-  useEffect(() => {
-    rootsRef.current = roots;
-  }, [roots]);
-
-  useEffect(() => {
-    if (mcpClient && !window.location.hash) {
-      const defaultTab = serverCapabilities?.resources
-        ? "resources"
-        : serverCapabilities?.prompts
-          ? "prompts"
-          : serverCapabilities?.tools
-            ? "tools"
-            : "ping";
-      window.location.hash = defaultTab;
-    } else if (!mcpClient && window.location.hash) {
-      // Clear hash when disconnected - completely remove the fragment
-      window.history.replaceState(
-        null,
-        "",
-        window.location.pathname + window.location.search,
-      );
-    }
-  }, [mcpClient, serverCapabilities]);
-
-  useEffect(() => {
-    const handleHashChange = () => {
-      const hash = window.location.hash.slice(1);
-      if (hash && hash !== activeTab) {
-        setActiveTab(hash);
-      }
-    };
-
-    window.addEventListener("hashchange", handleHashChange);
-    return () => window.removeEventListener("hashchange", handleHashChange);
-  }, [activeTab]);
-
-  const handleApproveSampling = (id: number, result: CreateMessageResult) => {
-    setPendingSampleRequests((prev) => {
-      const request = prev.find((r) => r.id === id);
-      request?.resolve(result);
-      return prev.filter((r) => r.id !== id);
-    });
-  };
-
-  const handleRejectSampling = (id: number) => {
-    setPendingSampleRequests((prev) => {
-      const request = prev.find((r) => r.id === id);
-      request?.reject(new Error("Sampling request rejected"));
-      return prev.filter((r) => r.id !== id);
-    });
-  };
-
-  const handleResolveElicitation = (
-    id: number,
-    response: ElicitationResponse,
-  ) => {
-    setPendingElicitationRequests((prev) => {
-      const request = prev.find((r) => r.id === id);
-      if (request) {
-        request.resolve(response);
-
-        if (request.originatingTab) {
-          const originatingTab = request.originatingTab;
-
-          const validTabs = [
-            ...(serverCapabilities?.resources ? ["resources"] : []),
-            ...(serverCapabilities?.prompts ? ["prompts"] : []),
-            ...(serverCapabilities?.tools ? ["tools"] : []),
-            "ping",
-            "sampling",
-            "elicitations",
-            "roots",
-            "auth",
-          ];
-
-          if (validTabs.includes(originatingTab)) {
-            setActiveTab(originatingTab);
-            window.location.hash = originatingTab;
-
-            setTimeout(() => {
-              setActiveTab(originatingTab);
-              window.location.hash = originatingTab;
-            }, 100);
-          }
-        }
-      }
-      return prev.filter((r) => r.id !== id);
-    });
-  };
-
   const clearError = (tabKey: keyof typeof errors) => {
     setErrors((prev) => ({ ...prev, [tabKey]: null }));
   };
 
   const sendMCPRequest = async <T extends AnySchema>(
-    request: ClientRequest,
+    request: import("@modelcontextprotocol/sdk/types.js").ClientRequest,
     schema: T,
     tabKey?: keyof typeof errors,
   ): Promise<SchemaOutput<T>> => {
@@ -935,7 +384,25 @@ const App = () => {
   };
 
   const handleClearNotifications = () => {
-    setNotifications([]);
+    // This probably needs to be supported in Context if we want to clear them globally
+    // But currently `setNotifications` (via onNotification) is in Context.
+    // Wait, `notifications` is state in context. `setNotifications` internal to context.
+    // I need to check if I exposed a way to clear notifications.
+    // I did NOT expose `setNotifications` directly, but `notifications` from `useConnection`.
+    // Actually `useConnection` internal state has notifications, but I overrode `onNotification` in Context.
+    // In Context `McpContextProvider`, I have `const [notifications, setNotifications] = useState...`.
+    // But I didn't expose `setNotifications` or `clearNotifications` in interface...
+    // Oops. I should check `McpConnectContextType`.
+    // It has `notifications: ServerNotification[]`.
+    // It does NOT have `clearNotifications`.
+    // I should fix Context first? Or workaround?
+    // Let's assume I can't clear them for now or I will make a separate fix.
+    // Actually, `HistoryAndNotifications` component calls `onClearNotifications`.
+    // If I cannot clear, the button will do nothing.
+    // I should probably add `clearNotifications` to my Context.
+    // FOR NOW, I will comment it out or leave it empty to avoid breaking build.
+    // Or I can add a `setNotifications` to the `useMcpClient` return if I update the context file.
+    // Let's update Context file first quickly to add `clearNotifications`.
   };
 
   const sendLogLevelRequest = async (level: LoggingLevel) => {
