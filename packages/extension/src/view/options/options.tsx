@@ -15,9 +15,9 @@ import {
   Settings2,
   MessageSquare,
   Server,
+  WorkflowIcon,
   Activity,
   Play,
-  Workflow,
   Sparkles,
   Database,
   View,
@@ -32,10 +32,10 @@ import {
   WebMCPToolsTab,
   SettingsTab,
   PromptCommandsTab,
+  Workflow,
   MCPInspectorTab,
   APIStatusTab,
   APIPlaygroundsTab,
-  WorkflowComposerTab,
 } from './components';
 import MCPServersTab from './components/mcpServers';
 import { useSettings } from '../stateProviders';
@@ -97,8 +97,8 @@ const Items: ExtendedMenuItem[] = [
       {
         title: 'Workflow Composer',
         id: 'workflow-composer',
-        icon: () => <Workflow />,
-        component: <WorkflowComposerTab />,
+        icon: () => <WorkflowIcon />,
+        component: <Workflow />,
       },
     ],
   },
