@@ -728,14 +728,86 @@ class McpHub {
     args: Record<string, unknown> | unknown,
     isMCPServerTool: boolean
   ) {
-    if (isMCPServerTool) {
-      return this.executeMCPTool(
-        serverOrDomainName,
+    const executionId = crypto.randomUUID();
+    const startTime = Date.now();
+    const type = isMCPServerTool ? 'MCP' : 'WebMCP';
+
+    // Broadcast Pending Log
+    this.broadcastLog({
+      id: executionId,
+      type,
+      toolName,
+      args,
+      startTime,
+      status: 'pending',
+    });
+
+    let result: CallToolResult;
+    try {
+      if (isMCPServerTool) {
+        result = await this.executeMCPTool(
+          serverOrDomainName,
+          toolName,
+          args as Record<string, unknown>
+        );
+      } else {
+        result = await this.executeWebMCPTool(
+          serverOrDomainName,
+          dataId,
+          toolName,
+          args
+        );
+      }
+
+      const endTime = Date.now();
+      const duration = endTime - startTime;
+
+      // Broadcast Success Log (with result or error from tool content)
+      this.broadcastLog({
+        id: executionId,
+        type,
         toolName,
-        args as Record<string, unknown>
-      );
-    } else {
-      return this.executeWebMCPTool(serverOrDomainName, dataId, toolName, args);
+        args,
+        startTime,
+        endTime,
+        duration,
+        status: result.isError ? 'error' : 'success',
+        result: result.content,
+        error: result.isError ? 'Tool returned an error' : undefined,
+      });
+
+      return result;
+    } catch (error) {
+      const endTime = Date.now();
+      const duration = endTime - startTime;
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+
+      // Broadcast Error Log
+      this.broadcastLog({
+        id: executionId,
+        type,
+        toolName,
+        args,
+        startTime,
+        endTime,
+        duration,
+        status: 'error',
+        error: errorMessage,
+      });
+
+      throw error;
+    }
+  }
+
+  private broadcastLog(logEntry: any) {
+    try {
+      chrome.runtime.sendMessage({
+        type: MESSAGE_TYPES.TOOL_LOG,
+        payload: logEntry,
+      });
+    } catch (e) {
+      // Ignore errors if no receivers (e.g., DevTools closed)
     }
   }
 

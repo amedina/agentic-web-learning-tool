@@ -9,6 +9,7 @@ export const MESSAGE_TYPES = {
   RESULT: 'tool-result',
   REFRESH_REQUEST: 'request-tools-refresh',
   EXECUTE: 'execute-tool',
+  TOOL_LOG: 'tool-execution-log',
 } as const;
 
 export const LOG_OPTS = [
