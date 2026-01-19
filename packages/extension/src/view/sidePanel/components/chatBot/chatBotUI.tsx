@@ -85,25 +85,28 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
     [tools, toolNameToMCPMap]
   );
 
-  const handleSelect = useCallback((selectedId: string) => {
-    const agent: AgentType = {
-      modelProvider: '',
-      model: '',
-    };
+  const handleSelect = useCallback(
+    (selectedId: string) => {
+      const agent: AgentType = {
+        modelProvider: '',
+        model: '',
+      };
 
-    INITIAL_PROVIDERS.forEach((provider) => {
-      const selectedModel = provider.models.find(
-        (model) => model.id === selectedId
-      );
+      INITIAL_PROVIDERS.forEach((provider) => {
+        const selectedModel = provider.models.find(
+          (model) => model.id === selectedId
+        );
 
-      if (selectedModel) {
-        agent.modelProvider = provider.id;
-        agent.model = selectedModel.id;
-      }
-    });
+        if (selectedModel) {
+          agent.modelProvider = provider.id;
+          agent.model = selectedModel.id;
+        }
+      });
 
-    setSelectedAgent(agent);
-  }, []);
+      setSelectedAgent(agent);
+    },
+    [setSelectedAgent]
+  );
 
   //Only shows models whose apiKeys have been and have been enabled
   const modelOptions = useMemo(() => createModelDropdown(apiKeys), [apiKeys]);

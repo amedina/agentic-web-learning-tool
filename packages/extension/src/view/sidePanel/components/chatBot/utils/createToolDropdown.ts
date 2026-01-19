@@ -35,6 +35,7 @@ const createToolDropdown = (
     const WEBSITE_TOOL_PREFIX = 'website_tool_';
     const EXTENSION_TOOL_PREFIX = 'extension_tool_';
     const DOM_TOOL_NAME_PREFIX = 'dom_extract_';
+
     if (getToolNameWithoutPrefix(tool.name) === 'dummyTool') {
       return acc;
     }
@@ -87,9 +88,10 @@ const createToolDropdown = (
       }
     } else if (tool.name.includes('_mcp')) {
       const match = tool.name.match(/^(.*?)_mcp_/);
+      const mcpServerId = tool.name.substring(match?.[0].length ?? 0);
       const mcpServerName =
-        match && toolNameToMCPMap[match[0]]
-          ? toolNameToMCPMap[match[0]]
+        mcpServerId && toolNameToMCPMap[mcpServerId]
+          ? toolNameToMCPMap[mcpServerId]
           : 'others';
 
       if (acc[mcpServerName]) {
