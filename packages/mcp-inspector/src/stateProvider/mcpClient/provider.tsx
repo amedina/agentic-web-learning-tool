@@ -1,40 +1,37 @@
-import React, {
-  createContext,
+/**
+ * External dependencies
+ */
+import {
   useCallback,
-  useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
   type ReactNode,
-  type Dispatch,
-  type SetStateAction,
 } from "react";
 import {
-  type ClientRequest,
-  type ClientNotification,
   type CreateMessageResult,
   type LoggingLevel,
   type Root,
   type ServerNotification,
 } from "@modelcontextprotocol/sdk/types.js";
 import { OAuthTokensSchema } from "@modelcontextprotocol/sdk/shared/auth.js";
-import {
-  SESSION_KEYS,
-  getServerSpecificKey,
-  type ConnectionStatus,
-} from "../lib/constants";
+/**
+ * Internal dependencies
+ */
+import { SESSION_KEYS, getServerSpecificKey } from "../../lib/constants";
 import {
   hasValidMetaName,
   hasValidMetaPrefix,
   isReservedMetaKey,
-} from "../utils/metaUtils";
+} from "../../utils/metaUtils";
 import {
   type AuthDebuggerState,
   EMPTY_DEBUGGER_STATE,
-} from "../lib/auth-types";
-import { OAuthStateMachine } from "../lib/oauth-state-machine";
-import { useConnection } from "../lib/hooks/useConnection";
-import type { InspectorConfig } from "../lib/configurationTypes";
+} from "../../lib/auth-types";
+import { OAuthStateMachine } from "../../lib/oauth-state-machine";
+import { useConnection } from "../../lib/hooks/useConnection";
+import type { InspectorConfig } from "../../lib/configurationTypes";
 import {
   getMCPProxyAddress,
   getMCPProxyAuthToken,
@@ -43,54 +40,17 @@ import {
   getInitialCommand,
   getInitialArgs,
   saveInspectorConfig,
-} from "../utils/configUtils";
-import { type PendingElicitationRequest } from "../components/ElicitationTab";
-import { type PendingRequest } from "../components/SamplingTab";
+} from "../../utils/configUtils";
+import { type PendingElicitationRequest } from "../../components/ElicitationTab";
+import { type PendingRequest } from "../../components/SamplingTab";
 import {
   type CustomHeaders,
   migrateFromLegacyAuth,
-} from "../lib/types/customHeaders";
-import type { ElicitationResponse } from "../components/ElicitationTab";
+} from "../../lib/types/customHeaders";
+import type { ElicitationResponse } from "../../components/ElicitationTab";
+import McpConnectionContext, { LOCALSTORAGEMOCK } from "./context";
 
 const CONFIG_LOCAL_STORAGE_KEY = "inspectorConfig_v1";
-
-// Default config from App.tsx
-const LOCALSTORAGEMOCK = {
-  MCP_SERVER_REQUEST_TIMEOUT: {
-    label: "Request Timeout",
-    description:
-      "Client-side timeout (ms) - Inspector will cancel requests after this time",
-    value: 300000,
-    is_session_item: false,
-  },
-  MCP_REQUEST_TIMEOUT_RESET_ON_PROGRESS: {
-    label: "Reset Timeout on Progress",
-    description: "Reset timeout on progress notifications",
-    value: true,
-    is_session_item: false,
-  },
-  MCP_REQUEST_MAX_TOTAL_TIMEOUT: {
-    label: "Maximum Total Timeout",
-    description:
-      "Maximum total timeout for requests sent to the MCP server (ms) (Use with progress notifications)",
-    value: 60000,
-    is_session_item: false,
-  },
-  MCP_PROXY_FULL_ADDRESS: {
-    label: "Inspector Proxy Address",
-    description:
-      "Set this if you are running the MCP Inspector Proxy on a non-default address. Example: http://10.1.1.22:5577",
-    value: "",
-    is_session_item: false,
-  },
-  MCP_PROXY_AUTH_TOKEN: {
-    label: "Maximum Total Timeout",
-    description:
-      "Maximum total timeout for requests sent to the MCP server (ms) (Use with progress notifications)",
-    value: "43aa583a587846f3b731c3ba921a98d6a7855b013baeff00b81f6187a5d74997",
-    is_session_item: false,
-  },
-};
 
 const filterReservedMetadata = (
   metadata: Record<string, string>,
@@ -110,112 +70,7 @@ const filterReservedMetadata = (
   );
 };
 
-export interface McpConnectContextType {
-  // Config State
-  command: string;
-  setCommand: (cmd: string) => void;
-  args: string;
-  setArgs: (args: string) => void;
-  sseUrl: string;
-  setSseUrl: (url: string) => void;
-  transportType: "stdio" | "sse" | "streamable-http";
-  setTransportType: (type: "stdio" | "sse" | "streamable-http") => void;
-  connectionType: "direct" | "proxy";
-  setConnectionType: (type: "direct" | "proxy") => void;
-  logLevel: LoggingLevel;
-  setLogLevel: (level: LoggingLevel) => void;
-  config: InspectorConfig;
-  setConfig: (config: InspectorConfig) => void;
-  env: Record<string, string>;
-  setEnv: (env: Record<string, string>) => void;
-
-  // Auth State
-  bearerToken: string;
-  setBearerToken: (token: string) => void;
-  headerName: string;
-  setHeaderName: (name: string) => void;
-  customHeaders: CustomHeaders;
-  setCustomHeaders: (headers: CustomHeaders) => void;
-  oauthClientId: string;
-  setOauthClientId: (id: string) => void;
-  oauthScope: string;
-  setOauthScope: (scope: string) => void;
-  oauthClientSecret: string;
-  setOauthClientSecret: (secret: string) => void;
-  isAuthDebuggerVisible: boolean;
-  setIsAuthDebuggerVisible: (visible: boolean) => void;
-  authState: AuthDebuggerState;
-  updateAuthState: (updates: Partial<AuthDebuggerState>) => void;
-  onOAuthConnect: (serverUrl: string) => void;
-  onOAuthDebugConnect: (args: {
-    authorizationCode?: string;
-    errorMsg?: string;
-    restoredState?: AuthDebuggerState;
-  }) => Promise<void>;
-
-  // Metadata State
-  metadata: Record<string, string>;
-  handleMetadataChange: (newMetadata: Record<string, string>) => void;
-
-  // Connection Hooks
-  connectionStatus: ConnectionStatus;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  serverCapabilities: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  serverImplementation: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  mcpClient: any;
-  requestHistory: { request: string; response?: string }[];
-  clearRequestHistory: () => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  makeRequest: (request: ClientRequest, schema: any) => Promise<any>;
-  sendNotification: (notification: ClientNotification) => Promise<void>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  handleCompletion: (
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ref: any,
-    argName: string,
-    value: string,
-    context?: Record<string, string>,
-    signal?: AbortSignal,
-  ) => Promise<string[]>;
-  completionsSupported: boolean;
-  connectMcpServer: () => Promise<void>;
-  disconnectMcpServer: () => void;
-
-  // Notifications & Pending Requests
-  notifications: ServerNotification[];
-  pendingSampleRequests: Array<
-    PendingRequest & {
-      resolve: (result: CreateMessageResult) => void;
-      reject: (error: Error) => void;
-    }
-  >;
-  pendingElicitationRequests: Array<
-    PendingElicitationRequest & {
-      resolve: (response: ElicitationResponse) => void;
-      decline: (error: Error) => void;
-    }
-  >;
-  handleApproveSampling: (id: number, result: CreateMessageResult) => void;
-  handleRejectSampling: (id: number) => void;
-  handleResolveElicitation: (id: number, response: ElicitationResponse) => void;
-
-  // Roots
-  roots: Root[];
-  setRoots: Dispatch<SetStateAction<Root[]>>;
-
-  // UI State (persisted here so it survives unmounts)
-  activeTab: string;
-  setActiveTab: (tab: string) => void;
-  lastToolCallOriginTabRef: React.MutableRefObject<string>;
-}
-
-export const McpConnectContext = createContext<McpConnectContextType | null>(
-  null,
-);
-
-export const McpContextProvider = ({ children }: { children: ReactNode }) => {
+const McpConnectionProvider = ({ children }: { children: ReactNode }) => {
   const [command, setCommand] = useState<string>(getInitialCommand);
   const [args, setArgs] = useState<string>(getInitialArgs);
   const [sseUrl, setSseUrl] = useState<string>(getInitialSseUrl);
@@ -713,79 +568,122 @@ export const McpContextProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
-  return (
-    <McpConnectContext.Provider
-      value={{
+  const value = useMemo(() => {
+    return {
+      state: {
         command,
-        setCommand,
         args,
-        setArgs,
         sseUrl,
-        setSseUrl,
-        transportType,
-        setTransportType,
-        connectionType,
-        setConnectionType,
-        logLevel,
-        setLogLevel,
-        config,
-        setConfig,
         env,
-        setEnv,
+        connectionType,
+        transportType,
+        logLevel,
+        config,
         bearerToken,
-        setBearerToken,
         headerName,
-        setHeaderName,
         customHeaders,
-        setCustomHeaders,
         oauthClientId,
-        setOauthClientId,
         oauthScope,
-        setOauthScope,
         oauthClientSecret,
-        setOauthClientSecret,
         isAuthDebuggerVisible,
-        setIsAuthDebuggerVisible,
         authState,
-        updateAuthState,
-        onOAuthConnect,
-        onOAuthDebugConnect,
         metadata,
-        handleMetadataChange,
         connectionStatus,
         serverCapabilities,
         serverImplementation,
         mcpClient,
         requestHistory,
+        completionsSupported,
+        notifications,
+        roots,
+        activeTab,
+        lastToolCallOriginTabRef,
+        pendingSampleRequests,
+        pendingElicitationRequests,
+      },
+      actions: {
+        setCommand,
+        setArgs,
+        setSseUrl,
+        setTransportType,
+        setConnectionType,
+        setLogLevel,
+        setConfig,
+        setEnv,
+        setBearerToken,
+        setHeaderName,
+        setCustomHeaders,
+        setOauthClientId,
+        setOauthScope,
+        setOauthClientSecret,
+        setIsAuthDebuggerVisible,
+        updateAuthState,
+        onOAuthConnect,
+        onOAuthDebugConnect,
+        handleMetadataChange,
         clearRequestHistory,
         makeRequest,
         sendNotification,
         handleCompletion,
-        completionsSupported,
         connectMcpServer,
         disconnectMcpServer,
-        notifications,
-        pendingSampleRequests,
-        pendingElicitationRequests,
         handleApproveSampling,
         handleRejectSampling,
         handleResolveElicitation,
-        roots,
         setRoots,
-        activeTab,
         setActiveTab,
-        lastToolCallOriginTabRef,
-      }}
-    >
+      },
+    };
+  }, [
+    command,
+    args,
+    sseUrl,
+    env,
+    connectionType,
+    transportType,
+    logLevel,
+    config,
+    bearerToken,
+    headerName,
+    customHeaders,
+    oauthClientId,
+    oauthScope,
+    oauthClientSecret,
+    isAuthDebuggerVisible,
+    authState,
+    metadata,
+    connectionStatus,
+    serverCapabilities,
+    serverImplementation,
+    mcpClient,
+    requestHistory,
+    completionsSupported,
+    notifications,
+    roots,
+    activeTab,
+    lastToolCallOriginTabRef,
+    pendingSampleRequests,
+    pendingElicitationRequests,
+    updateAuthState,
+    onOAuthConnect,
+    onOAuthDebugConnect,
+    handleMetadataChange,
+    clearRequestHistory,
+    makeRequest,
+    sendNotification,
+    handleCompletion,
+    connectMcpServer,
+    disconnectMcpServer,
+    handleApproveSampling,
+    handleRejectSampling,
+    handleResolveElicitation,
+  ]);
+
+  return (
+    <McpConnectionContext.Provider value={value}>
       {children}
-    </McpConnectContext.Provider>
+    </McpConnectionContext.Provider>
   );
 };
 
-export const useMcpClient = () => {
-  const context = useContext(McpConnectContext);
-  if (!context) {
-    throw new Error("useMcpClient must be used within a McpContextProvider");
-  }
-  return context;
-};
+export default McpConnectionProvider;
