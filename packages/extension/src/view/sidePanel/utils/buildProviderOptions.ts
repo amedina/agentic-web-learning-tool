@@ -39,7 +39,7 @@ function buildProviderOptions(
       return openaiConfig;
     }
 
-    case 'google': {
+    case 'gemini': {
       // Gemini 2.5 models support thinkingConfig
       return {
         google: {
