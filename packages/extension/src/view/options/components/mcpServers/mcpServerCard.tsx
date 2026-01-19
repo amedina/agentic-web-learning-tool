@@ -50,7 +50,7 @@ export function MCPServerCard({
     }
 
     if (!tools || !tools.tools) {
-      <Loader2 className="mr-2 h-4 w-4 animate-spin" />;
+      return <Loader2 className="mr-2 h-4 w-4 animate-spin" />;
     }
 
     return tools?.tools.length;

@@ -216,7 +216,7 @@ class McpHub {
       const storedConfig = this.clientList.get(serverName);
 
       if (storedConfig?.toolsFetched) {
-        this.enableMCPServerTools();
+        this.enableMCPServerTools(serverName);
         return;
       }
 
@@ -273,7 +273,7 @@ class McpHub {
   async disableMCPServerTools(serverId: string) {
     Array.from(this.registeredTools.entries()).forEach(
       ([toolName, registeredTool]) => {
-        if (toolName.startsWith(`${serverId}_mcp`)) {
+        if (toolName.endsWith(`mcp_${serverId}`)) {
           registeredTool.disable();
         }
       }
@@ -284,10 +284,10 @@ class McpHub {
     });
   }
 
-  async enableMCPServerTools() {
+  async enableMCPServerTools(serverId: string) {
     Array.from(this.registeredTools.entries()).forEach(
       ([toolName, registeredTool]) => {
-        if (toolName.startsWith(`${toolName}_mcp`)) {
+        if (toolName.endsWith(`mcp_${serverId}`)) {
           registeredTool.enable();
         }
       }
@@ -424,7 +424,7 @@ class McpHub {
       };
 
       const prefixedToolName = `${tool.name}_mcp_${serverName}`;
-      console.log(prefixedToolName);
+
       if (this.registeredTools.has(prefixedToolName)) {
         // Update existing tool
         this.registeredTools.get(prefixedToolName)!.update(config as any);
