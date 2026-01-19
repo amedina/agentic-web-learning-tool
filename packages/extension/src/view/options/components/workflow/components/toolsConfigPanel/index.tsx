@@ -15,7 +15,7 @@ import {
   SummarizerApiToolConfig,
   TranslatorApiToolConfig,
   WriterApiToolConfig,
-} from '../tools/builtinAITools/tools';
+} from '../tools/builtinAITools/';
 import {
   DomInputToolConfig,
   StaticInputToolConfig,

@@ -7,7 +7,7 @@ import { Settings } from 'lucide-react';
 /**
  * Internal dependencies
  */
-import { type NodeConfig } from '../../../../../store';
+import { type NodeConfig } from '../../../../store';
 
 interface ToolConfigProps {
   ref: React.Ref<{
