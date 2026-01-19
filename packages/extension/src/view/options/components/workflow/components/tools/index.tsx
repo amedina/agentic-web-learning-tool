@@ -3,44 +3,44 @@
  */
 import BuiltInAITools from './builtinAITools';
 
-const ToolsBar = () => {
-	return (
-		<div className="w-64 bg-slate-50 border-r border-slate-200 h-full flex flex-col overflow-y-auto">
-			<div className="p-4 border-b border-slate-200 bg-white">
-				<h1 className="font-bold text-slate-800 text-lg">
-					AWL Workflow Composer
-				</h1>
-				<p className="text-xs text-slate-500">AI-Powered Workflows</p>
-			</div>
+const ToolsSidebar = () => {
+  return (
+    <div className="w-64 bg-slate-50 border-r border-slate-200 h-full flex flex-col overflow-y-auto">
+      <div className="p-4 border-b border-slate-200 bg-white">
+        <h1 className="font-bold text-slate-800 text-lg">
+          AWL Workflow Composer
+        </h1>
+        <p className="text-xs text-slate-500">AI-Powered Workflows</p>
+      </div>
 
-			<div className="p-4 space-y-6">
-				<div>
-					<h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
-						Gemini Nano APIs
-					</h3>
-					<BuiltInAITools />
-				</div>
+      <div className="p-4 space-y-6">
+        <div>
+          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
+            Gemini Nano APIs
+          </h3>
+          <BuiltInAITools />
+        </div>
 
-				<div>
-					<h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
-						Web Elements
-					</h3>
-				</div>
+        <div>
+          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
+            Web Elements
+          </h3>
+        </div>
 
-				<div>
-					<h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
-						Logic
-					</h3>
-				</div>
+        <div>
+          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
+            Logic
+          </h3>
+        </div>
 
-				<div>
-					<h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
-						Output
-					</h3>
-				</div>
-			</div>
-		</div>
-	);
+        <div>
+          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
+            Output
+          </h3>
+        </div>
+      </div>
+    </div>
+  );
 };
 
-export default ToolsBar;
+export default ToolsSidebar;

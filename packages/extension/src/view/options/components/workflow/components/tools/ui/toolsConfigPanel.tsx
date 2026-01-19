@@ -13,7 +13,7 @@ const TOOLS = {
   // promptApi: PromptApiToolConfig,
 };
 
-const ToolsConfig = () => {
+const ToolsConfigPanel = () => {
   const { selectedNode, getNode, updateNode, setSelectedNode } = useApi(
     ({ state, actions }) => ({
       selectedNode: state.selectedNode,
@@ -163,4 +163,4 @@ const ToolsConfig = () => {
   );
 };
 
-export default ToolsConfig;
+export default ToolsConfigPanel;
