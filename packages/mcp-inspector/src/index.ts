@@ -1,1 +1,1 @@
-export { default as MCPInspector, default as MCPInspectorTab } from "./App";
+export { default as MCPInspectorTab } from "./App";
