@@ -12,12 +12,14 @@ import {
   TabsList,
   TabsTrigger,
   SyntaxHighlighter,
+  toast,
 } from '@google-awlt/design-system';
 
 /**
  * Internal dependencies.
  */
 import { MESSAGE_TYPES } from '../../utils';
+import { RunToolPanel } from './components/runToolPanel';
 
 interface ToolExecutionLog {
   id: string;
@@ -34,9 +36,50 @@ interface ToolExecutionLog {
 }
 
 const EventLogger = () => {
-  const { tools: availableTools } = useMcpClient();
+  const { tools: availableTools, client } = useMcpClient();
   const [showAvailableTools, setShowAvailableTools] = useState(false);
   const [logs, setLogs] = useState<ToolExecutionLog[]>([]);
+  const [selectedToolToRun, setSelectedToolToRun] = useState<Tool | null>(null);
+  const [highlightedLogId, setHighlightedLogId] = useState<string | null>(null);
+  const [lastRunToolName, setLastRunToolName] = useState<string | null>(null);
+
+  const handleRunTool = async (toolName: string, args: any) => {
+    if (!client) {
+      console.error('MCP Client not available');
+      return;
+    }
+
+    setLastRunToolName(toolName);
+
+    try {
+      // Create a timeout promise
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(
+          () => reject(new Error('Tool execution timed out after 30s')),
+          30000
+        );
+      });
+
+      // Race the tool execution against the timeout
+      await Promise.race([
+        client.callTool({
+          name: toolName,
+          arguments: args,
+        }),
+        timeoutPromise,
+      ]);
+
+      toast.success('Tool execution completed');
+      setShowAvailableTools(false);
+    } catch (error) {
+      console.error('Error running tool:', error);
+      toast.error(
+        error instanceof Error ? error.message : 'Tool execution failed'
+      );
+      setLastRunToolName(null); // Reset if failed
+      throw error;
+    }
+  };
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
@@ -56,6 +99,16 @@ const EventLogger = () => {
             };
             return updatedLogs;
           } else {
+            // Check if this is the tool we just ran and want to highlight
+            if (newLog.toolName === lastRunToolName) {
+              setHighlightedLogId(newLog.id);
+              setLastRunToolName(null);
+
+              // Clear highlight after 2 seconds
+              setTimeout(() => {
+                setHighlightedLogId(null);
+              }, 2000);
+            }
             return [...prevLogs, newLog];
           }
         });
@@ -64,7 +117,7 @@ const EventLogger = () => {
 
     chrome.runtime.onMessage.addListener(handleMessage);
     return () => chrome.runtime.onMessage.removeListener(handleMessage);
-  }, []);
+  }, [lastRunToolName]);
 
   const filteredTools = useMemo(() => {
     return availableTools.filter((tool) =>
@@ -91,13 +144,41 @@ const EventLogger = () => {
     { header: 'Name', width: 'w-[30%]', render: (t) => t.name },
     {
       header: 'Description',
-      width: 'w-[50%]',
+      width: 'w-[45%]',
       render: (t) => t.description || '-',
     },
     {
       header: 'Schema',
-      width: 'w-[20%]',
+      width: 'w-[15%]',
       render: (t) => t.inputSchema?.type || 'object',
+    },
+    {
+      header: 'Action',
+      width: 'w-[10%]',
+      render: (t) => (
+        <button
+          className="p-1 hover:bg-gray-200 rounded text-green-600 transition-colors"
+          onClick={(e) => {
+            e.stopPropagation();
+            setSelectedToolToRun(t);
+          }}
+          title="Run Tool"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <polygon points="5 3 19 12 5 21 5 3" />
+          </svg>
+        </button>
+      ),
     },
   ];
 
@@ -300,6 +381,7 @@ const EventLogger = () => {
         onRefresh={() => {
           if (!showAvailableTools) setLogs([]); // Clear logs
         }}
+        highlightedItemId={highlightedLogId}
       />
 
       <div className="absolute top-1.5 right-40 z-50 flex items-center gap-2 bg-[#f1f3f4]">
@@ -317,6 +399,15 @@ const EventLogger = () => {
           Show Available Tools
         </label>
       </div>
+
+      <RunToolPanel
+        open={!!selectedToolToRun}
+        onOpenChange={(open) => {
+          if (!open) setSelectedToolToRun(null);
+        }}
+        tool={selectedToolToRun}
+        onRun={handleRunTool}
+      />
     </div>
   );
 };

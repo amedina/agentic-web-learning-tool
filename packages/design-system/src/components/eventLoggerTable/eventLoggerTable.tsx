@@ -28,6 +28,7 @@ export interface EventLoggerTableProps<T> {
   noItemsMessage?: string;
   onRefresh?: () => void;
   isLoading?: boolean;
+  highlightedItemId?: string | null;
 }
 
 export function EventLoggerTable<T>({
@@ -41,6 +42,7 @@ export function EventLoggerTable<T>({
   keyExtractor,
   noItemsMessage = 'No items found',
   onRefresh,
+  highlightedItemId,
 }: EventLoggerTableProps<T>) {
   // Resize & User Preference State
   const [trayHeight, setTrayHeight] = useState(300);
@@ -155,12 +157,14 @@ export function EventLoggerTable<T>({
                       if (!selectedItem) setIsTrayMinimized(false);
                     }}
                     className={cn(
-                      'cursor-default',
+                      'cursor-default transition-colors duration-1000',
                       isSelected
                         ? 'bg-[#1a73e8] text-white'
-                        : index % 2 === 0
-                          ? 'bg-white hover:bg-[#f1f3f4]'
-                          : 'bg-[#f8f9fa] hover:bg-[#f1f3f4]'
+                        : highlightedItemId === keyExtractor(item)
+                          ? 'bg-yellow-100 hover:bg-yellow-200'
+                          : index % 2 === 0
+                            ? 'bg-white hover:bg-[#f1f3f4]'
+                            : 'bg-[#f8f9fa] hover:bg-[#f1f3f4]'
                     )}
                   >
                     {columns.map((col, idx) => (
