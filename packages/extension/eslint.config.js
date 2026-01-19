@@ -6,6 +6,7 @@ import globals from 'globals';
  * Imports.
  */
 import { config as baseConfig } from '@google-awlt/shared-config/eslint';
+import { config as reactBaseConfig } from '@google-awlt/shared-config/eslint/react';
 import reactRefresh from 'eslint-plugin-react-refresh';
 import { globalIgnores, defineConfig } from 'eslint/config';
 
@@ -15,6 +16,7 @@ import { globalIgnores, defineConfig } from 'eslint/config';
 export default defineConfig(
   [
     ...baseConfig,
+    ...reactBaseConfig,
     globalIgnores(['dist']),
     {
       files: ['**/*.{ts,tsx}'],
