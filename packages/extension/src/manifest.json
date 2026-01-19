@@ -19,7 +19,6 @@
     "sidePanel",
     "tabGroups",
     "history",
-    "bookmarks",
     "userScripts"
   ],
   "host_permissions": ["*://*/*"],
@@ -27,6 +26,9 @@
   "options_page": "options/options.html",
   "action": {
     "default_title": "Click to open panel"
+  },
+  "side_panel": {
+    "default_path": "sidePanel/sidePanel.html"
   },
   "background": {
     "service_worker": "serviceWorker/serviceWorker.js",

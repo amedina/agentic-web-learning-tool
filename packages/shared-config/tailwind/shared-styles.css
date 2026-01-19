@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -40,7 +41,7 @@
   --muted-foreground: #737373;
   --accent: rgb(245, 245, 245);
   --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
+  --destructive: oklch(0.563 0.203 26.73);
   --baby-red: var(--color-red-50);
   --border: oklch(0.922 0 0);
   --input: #e5e5e5;
@@ -141,6 +142,17 @@
   --color-status-warn: var(--color-amber-500);
   --color-status-error: var(--color-red-500);
   --color-status-silent: var(--color-zinc-500);
+
+  --animate-shimmer: shimmer-sweep var(--shimmer-duration, 1000ms) linear
+    infinite both;
+  @keyframes shimmer-sweep {
+    from {
+      background-position: 150% 0;
+    }
+    to {
+      background-position: -100% 0;
+    }
+  }
 }
 
 .dark {
