@@ -18,3 +18,4 @@ export { default as Accordion } from './accordion';
 export * from './mcpServerDialog';
 export { default as Toaster, toast } from './toast';
 export * from './collapsible';
+export * from './eventLoggerTable';
