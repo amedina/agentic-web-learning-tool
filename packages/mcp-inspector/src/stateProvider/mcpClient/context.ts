@@ -10,6 +10,8 @@ import {
   type LoggingLevel,
   type Root,
   type ServerNotification,
+  type Resource,
+  type Tool,
 } from "@modelcontextprotocol/sdk/types.js";
 /**
  * Internal dependencies
@@ -24,6 +26,7 @@ import { type PendingElicitationRequest } from "../../components/ElicitationTab"
 import { type PendingRequest } from "../../components/SamplingTab";
 import { type CustomHeaders } from "../../lib/types/customHeaders";
 import type { ElicitationResponse } from "../../components/ElicitationTab";
+import { type Prompt } from "../../components/PromptsTab";
 
 export const LOCALSTORAGEMOCK = {
   MCP_SERVER_REQUEST_TIMEOUT: {
@@ -103,6 +106,9 @@ export interface McpConnectionContextType {
         decline: (error: Error) => void;
       }
     >;
+    resources: Resource[];
+    tools: Tool[];
+    prompts: Prompt[];
   };
 
   actions: {
@@ -150,6 +156,9 @@ export interface McpConnectionContextType {
     ) => void;
     setRoots: Dispatch<SetStateAction<Root[]>>;
     setActiveTab: (tab: string) => void;
+    setPrompts: Dispatch<SetStateAction<Prompt[]>>;
+    setResources: Dispatch<SetStateAction<Resource[]>>;
+    setTools: Dispatch<SetStateAction<Tool[]>>;
   };
 }
 
@@ -187,6 +196,9 @@ const INITIAL_STATE = {
     lastToolCallOriginTabRef: { current: "" },
     pendingSampleRequests: [],
     pendingElicitationRequests: [],
+    tools: [],
+    resources: [],
+    prompts: [],
   },
   actions: {
     setCommand: noop,
@@ -219,6 +231,9 @@ const INITIAL_STATE = {
     handleResolveElicitation: noop,
     setRoots: noop,
     setActiveTab: noop,
+    setPrompts: noop,
+    setResources: noop,
+    setTools: noop,
   },
 };
 export default createContext<McpConnectionContextType>(INITIAL_STATE);

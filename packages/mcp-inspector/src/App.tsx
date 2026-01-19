@@ -20,7 +20,7 @@ import type {
 import { cacheToolOutputSchemas } from "./utils/schemaUtils";
 import { cleanParams } from "./utils/paramUtils";
 import type { JsonSchemaType } from "./utils/jsonUtils";
-import React, { Suspense, useRef, useState } from "react";
+import React, { Suspense, useCallback, useRef, useState } from "react";
 import {
   useDraggablePane,
   useDraggableSidebar,
@@ -89,6 +89,12 @@ const App = () => {
     requestHistory,
     completionsSupported,
     lastToolCallOriginTabRef,
+    resources,
+    prompts,
+    tools,
+    setResources,
+    setTools,
+    setPrompts,
     onOAuthConnect,
     onOAuthDebugConnect,
     setCommand,
@@ -145,6 +151,9 @@ const App = () => {
     requestHistory: state.requestHistory,
     completionsSupported: state.completionsSupported,
     lastToolCallOriginTabRef: state.lastToolCallOriginTabRef,
+    resources: state.resources,
+    tools: state.tools,
+    prompts: state.prompts,
     onOAuthConnect: actions.onOAuthConnect,
     onOAuthDebugConnect: actions.onOAuthDebugConnect,
     setCommand: actions.setCommand,
@@ -172,10 +181,12 @@ const App = () => {
     handleRejectSampling: actions.handleRejectSampling,
     handleResolveElicitation: actions.handleResolveElicitation,
     setRoots: actions.setRoots,
+    setResources: actions.setResources,
+    setPrompts: actions.setPrompts,
+    setTools: actions.setTools,
     setActiveTab: actions.setActiveTab,
   }));
 
-  const [resources, setResources] = useState<Resource[]>([]);
   const [resourceTemplates, setResourceTemplates] = useState<
     ResourceTemplate[]
   >([]);
@@ -183,9 +194,7 @@ const App = () => {
   const [resourceContentMap, setResourceContentMap] = useState<
     Record<string, string>
   >({});
-  const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [promptContent, setPromptContent] = useState<string>("");
-  const [tools, setTools] = useState<Tool[]>([]);
   const [toolResult, setToolResult] =
     useState<CompatibilityCallToolResult | null>(null);
   const [errors, setErrors] = useState<Record<string, string | null>>({
@@ -217,8 +226,6 @@ const App = () => {
 
   const currentTabRef = useRef<string>(activeTab);
 
-  // Update refs when activeTab changes (Context drives activeTab)
-  // Note: App.tsx doesn't own activeTab anymore, but we need to track it for refs
   React.useEffect(() => {
     currentTabRef.current = activeTab;
   }, [activeTab]);
@@ -234,28 +241,31 @@ const App = () => {
     setErrors((prev) => ({ ...prev, [tabKey]: null }));
   };
 
-  const sendMCPRequest = async <T extends AnySchema>(
-    request: import("@modelcontextprotocol/sdk/types.js").ClientRequest,
-    schema: T,
-    tabKey?: keyof typeof errors,
-  ): Promise<SchemaOutput<T>> => {
-    try {
-      const response = await makeRequest(request, schema);
-      if (tabKey !== undefined) {
-        clearError(tabKey);
+  const sendMCPRequest = useCallback(
+    async <T extends AnySchema>(
+      request: import("@modelcontextprotocol/sdk/types.js").ClientRequest,
+      schema: T,
+      tabKey?: keyof typeof errors,
+    ): Promise<SchemaOutput<T>> => {
+      try {
+        const response = await makeRequest(request, schema);
+        if (tabKey !== undefined) {
+          clearError(tabKey);
+        }
+        return response;
+      } catch (e) {
+        const errorString = (e as Error).message ?? String(e);
+        if (tabKey !== undefined) {
+          setErrors((prev) => ({
+            ...prev,
+            [tabKey]: errorString,
+          }));
+        }
+        throw e;
       }
-      return response;
-    } catch (e) {
-      const errorString = (e as Error).message ?? String(e);
-      if (tabKey !== undefined) {
-        setErrors((prev) => ({
-          ...prev,
-          [tabKey]: errorString,
-        }));
-      }
-      throw e;
-    }
-  };
+    },
+    [],
+  );
 
   const listResources = async () => {
     const response = await sendMCPRequest(

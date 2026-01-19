@@ -793,4 +793,6 @@ const DynamicJsonForm = forwardRef<DynamicJsonFormRef, DynamicJsonFormProps>(
   },
 );
 
+DynamicJsonForm.displayName = "Dynamic Json Form";
+
 export default DynamicJsonForm;

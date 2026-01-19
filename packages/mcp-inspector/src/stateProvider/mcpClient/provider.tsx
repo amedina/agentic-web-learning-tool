@@ -10,6 +10,9 @@ import {
   type ReactNode,
 } from "react";
 import {
+  type Prompt,
+  type Resource,
+  type Tool,
   type CreateMessageResult,
   type LoggingLevel,
   type Root,
@@ -176,15 +179,22 @@ const McpConnectionProvider = ({ children }: { children: ReactNode }) => {
     return initialTab;
   });
 
-  const updateAuthState = (updates: Partial<AuthDebuggerState>) => {
-    setAuthState((prev) => ({ ...prev, ...updates }));
-  };
+  const [resources, setResources] = useState<Resource[]>([]);
+  const [prompts, setPrompts] = useState<Prompt[]>([]);
+  const [tools, setTools] = useState<Tool[]>([]);
 
-  const handleMetadataChange = (newMetadata: Record<string, string>) => {
-    const sanitizedMetadata = filterReservedMetadata(newMetadata);
-    setMetadata(sanitizedMetadata);
-    localStorage.setItem("lastMetadata", JSON.stringify(sanitizedMetadata));
-  };
+  const updateAuthState = useCallback((updates: Partial<AuthDebuggerState>) => {
+    setAuthState((prev) => ({ ...prev, ...updates }));
+  }, []);
+
+  const handleMetadataChange = useCallback(
+    (newMetadata: Record<string, string>) => {
+      const sanitizedMetadata = filterReservedMetadata(newMetadata);
+      setMetadata(sanitizedMetadata);
+      localStorage.setItem("lastMetadata", JSON.stringify(sanitizedMetadata));
+    },
+    [],
+  );
 
   const nextRequestId = useRef(0);
   const rootsRef = useRef<Root[]>([]);
@@ -488,7 +498,7 @@ const McpConnectionProvider = ({ children }: { children: ReactNode }) => {
         });
       }
     },
-    [sseUrl],
+    [sseUrl, updateAuthState],
   );
 
   useEffect(() => {
@@ -513,60 +523,67 @@ const McpConnectionProvider = ({ children }: { children: ReactNode }) => {
     };
 
     loadOAuthTokens();
-  }, [sseUrl]);
+  }, [sseUrl, updateAuthState]);
 
-  const handleApproveSampling = (id: number, result: CreateMessageResult) => {
-    setPendingSampleRequests((prev) => {
-      const request = prev.find((r) => r.id === id);
-      request?.resolve(result);
-      return prev.filter((r) => r.id !== id);
-    });
-  };
+  const handleApproveSampling = useCallback(
+    (id: number, result: CreateMessageResult) => {
+      setPendingSampleRequests((prev) => {
+        const request = prev.find((r) => r.id === id);
+        request?.resolve(result);
+        return prev.filter((r) => r.id !== id);
+      });
+    },
+    [],
+  );
 
-  const handleRejectSampling = (id: number) => {
+  const handleRejectSampling = useCallback((id: number) => {
     setPendingSampleRequests((prev) => {
       const request = prev.find((r) => r.id === id);
       request?.reject(new Error("Sampling request rejected"));
       return prev.filter((r) => r.id !== id);
     });
-  };
+  }, []);
 
-  const handleResolveElicitation = (
-    id: number,
-    response: ElicitationResponse,
-  ) => {
-    setPendingElicitationRequests((prev) => {
-      const request = prev.find((r) => r.id === id);
-      if (request) {
-        request.resolve(response);
+  const handleResolveElicitation = useCallback(
+    (id: number, response: ElicitationResponse) => {
+      setPendingElicitationRequests((prev) => {
+        const request = prev.find((r) => r.id === id);
+        if (request) {
+          request.resolve(response);
 
-        if (request.originatingTab) {
-          const originatingTab = request.originatingTab;
-          const validTabs = [
-            ...(serverCapabilities?.resources ? ["resources"] : []),
-            ...(serverCapabilities?.prompts ? ["prompts"] : []),
-            ...(serverCapabilities?.tools ? ["tools"] : []),
-            "ping",
-            "sampling",
-            "elicitations",
-            "roots",
-            "auth",
-          ];
+          if (request.originatingTab) {
+            const originatingTab = request.originatingTab;
+            const validTabs = [
+              ...(serverCapabilities?.resources ? ["resources"] : []),
+              ...(serverCapabilities?.prompts ? ["prompts"] : []),
+              ...(serverCapabilities?.tools ? ["tools"] : []),
+              "ping",
+              "sampling",
+              "elicitations",
+              "roots",
+              "auth",
+            ];
 
-          if (validTabs.includes(originatingTab)) {
-            setActiveTab(originatingTab);
-            window.location.hash = originatingTab;
-
-            setTimeout(() => {
+            if (validTabs.includes(originatingTab)) {
               setActiveTab(originatingTab);
               window.location.hash = originatingTab;
-            }, 100);
+
+              setTimeout(() => {
+                setActiveTab(originatingTab);
+                window.location.hash = originatingTab;
+              }, 100);
+            }
           }
         }
-      }
-      return prev.filter((r) => r.id !== id);
-    });
-  };
+        return prev.filter((r) => r.id !== id);
+      });
+    },
+    [
+      serverCapabilities?.prompts,
+      serverCapabilities?.resources,
+      serverCapabilities?.tools,
+    ],
+  );
 
   const value = useMemo(() => {
     return {
@@ -600,6 +617,9 @@ const McpConnectionProvider = ({ children }: { children: ReactNode }) => {
         lastToolCallOriginTabRef,
         pendingSampleRequests,
         pendingElicitationRequests,
+        resources,
+        tools,
+        prompts,
       },
       actions: {
         setCommand,
@@ -632,6 +652,9 @@ const McpConnectionProvider = ({ children }: { children: ReactNode }) => {
         handleResolveElicitation,
         setRoots,
         setActiveTab,
+        setResources,
+        setPrompts,
+        setTools,
       },
     };
   }, [
@@ -664,6 +687,9 @@ const McpConnectionProvider = ({ children }: { children: ReactNode }) => {
     lastToolCallOriginTabRef,
     pendingSampleRequests,
     pendingElicitationRequests,
+    resources,
+    prompts,
+    tools,
     updateAuthState,
     onOAuthConnect,
     onOAuthDebugConnect,
