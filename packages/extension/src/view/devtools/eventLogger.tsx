@@ -52,7 +52,6 @@ const EventLogger = () => {
     setLastRunToolName(toolName);
 
     try {
-      // Create a timeout promise
       const timeoutPromise = new Promise((_, reject) => {
         setTimeout(
           () => reject(new Error('Tool execution timed out after 30s')),
@@ -76,7 +75,7 @@ const EventLogger = () => {
       toast.error(
         error instanceof Error ? error.message : 'Tool execution failed'
       );
-      setLastRunToolName(null); // Reset if failed
+      setLastRunToolName(null);
       throw error;
     }
   };

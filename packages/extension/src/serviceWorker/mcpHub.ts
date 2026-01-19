@@ -470,7 +470,6 @@ class McpHub {
     }
   }
 
-  // Storage: ToolName -> ScriptContent
   private userToolScripts = new Map<string, string>();
 
   private async registerOrUpdateWebMCPTools(
@@ -496,7 +495,7 @@ class McpHub {
       code?: string;
     }>;
 
-    // Cache user tool scripts
+    // Cache user tool scripts, TODO: Not working, debug.
     userTools.forEach((tool) => {
       if (tool.code) {
         this.userToolScripts.set(tool.name, tool.code);
@@ -748,7 +747,6 @@ class McpHub {
       : undefined;
 
     if (!isMCPServerTool && !script) {
-      // Fallback: Try to fetch from storage if not in cache
       try {
         const storage = await chrome.storage.local.get('userWebMCPTools');
         const userTools = (storage.userWebMCPTools || []) as Array<{
@@ -758,7 +756,6 @@ class McpHub {
         const found = userTools.find((t) => t.name === toolName);
         if (found && found.code) {
           script = found.code;
-          // Update cache
           this.userToolScripts.set(toolName, script);
         }
       } catch (e) {
@@ -778,6 +775,7 @@ class McpHub {
     });
 
     let result: CallToolResult;
+
     try {
       if (isMCPServerTool) {
         result = await this.executeMCPTool(

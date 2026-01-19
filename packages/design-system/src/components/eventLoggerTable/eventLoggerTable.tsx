@@ -1,5 +1,13 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
-import type { ReactNode } from 'react';
+/**
+ * External dependencies.
+ */
+import {
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+  type ReactNode,
+} from 'react';
 import {
   Search,
   RefreshCw,
@@ -7,13 +15,17 @@ import {
   ChevronDown,
   Download,
 } from 'lucide-react';
+
+/**
+ * Internal dependencies.
+ */
 import { cn } from '../../lib/utils';
 
 export interface Column<T> {
   header: string;
-  width: string; // Tailwind width class or percentage
+  width: string;
   render: (item: T) => ReactNode;
-  className?: string; // Additional classes for the cell
+  className?: string;
 }
 
 export interface EventLoggerTableProps<T> {
@@ -44,12 +56,10 @@ export function EventLoggerTable<T>({
   onRefresh,
   highlightedItemId,
 }: EventLoggerTableProps<T>) {
-  // Resize & User Preference State
   const [trayHeight, setTrayHeight] = useState(300);
   const [isTrayMinimized, setIsTrayMinimized] = useState(false);
   const isDragging = useRef(false);
 
-  // --- Resize Handlers ---
   const handleMouseDown = useCallback(() => {
     isDragging.current = true;
     document.body.style.cursor = 'ns-resize';

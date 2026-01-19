@@ -15,9 +15,9 @@ export const transport = new ExtensionClientTransport({
   portName: CONNECTION_NAMES.MCP_HOST,
 });
 
-//MCP client instance that connects to the extension background script
+// Connects to the extension service worker.
 export const client = new Client({
-  name: 'Extension Sidepanel',
+  name: 'Extension DevTools',
   version: '1.0.0',
 });
 

@@ -3,15 +3,8 @@
  */
 import React, { useState, useEffect } from 'react';
 import {
-  Button,
-  Input,
   toast,
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetFooter,
-  SheetDescription,
+  RunToolPanel as RunToolPanelUI,
 } from '@google-awlt/design-system';
 import type { Tool } from '@modelcontextprotocol/sdk/types.js';
 
@@ -47,18 +40,18 @@ export const RunToolPanel: React.FC<RunToolPanelProps> = ({
     type?: string;
   };
   const properties = inputSchema?.properties || {};
-  const requiredFields = inputSchema?.required || [];
 
   const handleRun = async () => {
     setValidationError(null);
     setIsRunning(true);
 
     try {
-      // Construct args object with correct types
       const parsedArgs: Record<string, any> = {};
 
       for (const [key, value] of Object.entries(args)) {
-        if (value === '') continue; // Skip empty strings
+        if (value === '') {
+          continue;
+        }
 
         const propType = properties[key]?.type;
 
@@ -90,68 +83,22 @@ export const RunToolPanel: React.FC<RunToolPanelProps> = ({
     }
   };
 
-  const handleInputChange = (key: string, value: string) => {
+  const handleArgsChange = (key: string, value: string) => {
     setArgs((prev) => ({ ...prev, [key]: value }));
   };
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent
-        side="right"
-        className="w-[400px] sm:w-[540px] flex flex-col h-full"
-      >
-        <SheetHeader>
-          <SheetTitle className="break-all text-left">
-            Run Tool: {tool.name}
-          </SheetTitle>
-          <SheetDescription className="text-left">
-            {tool.description || 'Enter arguments to run this tool.'}
-          </SheetDescription>
-        </SheetHeader>
-
-        <div className="flex flex-col gap-4 py-6 flex-1 overflow-y-auto">
-          {Object.entries(properties).length > 0 ? (
-            Object.entries(properties).map(([key, schema]: [string, any]) => (
-              <div key={key} className="flex flex-col gap-2">
-                <label className="text-sm font-medium text-gray-700">
-                  {key}
-                  {requiredFields.includes(key) && (
-                    <span className="text-red-500 ml-1">*</span>
-                  )}
-                </label>
-                <Input
-                  value={args[key] || ''}
-                  onChange={(e) => handleInputChange(key, e.target.value)}
-                  placeholder={schema.description || `Enter ${key}`}
-                  className="w-full"
-                />
-                {schema.description && (
-                  <p className="text-xs text-gray-500">{schema.description}</p>
-                )}
-              </div>
-            ))
-          ) : (
-            <p className="text-sm text-gray-500 italic">
-              No arguments required.
-            </p>
-          )}
-
-          {validationError && (
-            <div className="p-3 text-sm text-red-600 bg-red-50 rounded-md">
-              {validationError}
-            </div>
-          )}
-        </div>
-
-        <SheetFooter className="mt-auto pt-4 border-t border-gray-200">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-          <Button onClick={handleRun} disabled={isRunning}>
-            {isRunning ? 'Running...' : 'Run Tool'}
-          </Button>
-        </SheetFooter>
-      </SheetContent>
-    </Sheet>
+    <RunToolPanelUI
+      open={open}
+      onOpenChange={onOpenChange}
+      tool={tool as any}
+      args={args}
+      onArgsChange={handleArgsChange}
+      onRun={() => {
+        void handleRun();
+      }}
+      isRunning={isRunning}
+      validationError={validationError}
+    />
   );
 };
