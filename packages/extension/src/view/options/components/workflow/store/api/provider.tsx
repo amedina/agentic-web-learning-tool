@@ -35,6 +35,8 @@ const ApiProvider = ({ children }: PropsWithChildren) => {
 					config: node.config,
 				},
 			}));
+
+			setSelectedNode(node.id);
 		},
 		[]
 	);
@@ -58,7 +60,7 @@ const ApiProvider = ({ children }: PropsWithChildren) => {
 						config: {
 							...prev[id].config,
 							...updates.config,
-						}
+						},
 					},
 				};
 			});

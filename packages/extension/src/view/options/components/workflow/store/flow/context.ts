@@ -34,6 +34,7 @@ export interface FlowStoreContext {
 		onConnect: (params: Connection | EdgeType) => void;
 		addNode: (node: NodeType) => void;
 		deleteNode: (id: string) => void;
+		clearFlow: () => void;
 	};
 }
 
@@ -51,6 +52,7 @@ const initialState: FlowStoreContext = {
 		onConnect: () => {},
 		addNode: () => {},
 		deleteNode: () => {},
+		clearFlow: () => {},
 	},
 };
 

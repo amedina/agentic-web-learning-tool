@@ -16,20 +16,36 @@ import {
  */
 import Context, { FlowCleaner, type EdgeType, type NodeType } from './context';
 import { useApi } from '../api';
-import { PromptApiToolNode } from '../../components/tools/builtinAITools/tools';
-
-const initialNodes: NodeType[] = [
-	{ id: 'n1', position: { x: 0, y: 0 }, data: { label: 'Node 1' } },
-	{ id: 'n2', position: { x: 0, y: 100 }, data: { label: 'Node 2' } },
-];
-const initialEdges: EdgeType[] = [{ id: 'n1-n2', source: 'n1', target: 'n2' }];
+import {
+	LanguageDetectorApiToolNode,
+	PromptApiToolNode,
+	ProofreaderApiToolNode,
+	RewriterApiToolNode,
+	SummarizerApiToolNode,
+	TranslatorApiToolNode,
+	WriterApiToolNode,
+	AlertNotificationToolNode,
+	DomInputToolNode,
+	ConditionToolNode,
+	StaticInputToolNode,
+} from '../../components';
 
 const FlowProvider = ({ children }: PropsWithChildren) => {
-	const [nodes, setNodes] = useState(initialNodes);
-	const [edges, setEdges] = useState(initialEdges);
+	const [nodes, setNodes] = useState<NodeType[]>([]);
+	const [edges, setEdges] = useState<EdgeType[]>([]);
 	const nodeTypes = useMemo(
 		() => ({
 			promptApi: PromptApiToolNode,
+			writerApi: WriterApiToolNode,
+			rewriterApi: RewriterApiToolNode,
+			proofreaderApi: ProofreaderApiToolNode,
+			translatorApi: TranslatorApiToolNode,
+			languageDetectorApi: LanguageDetectorApiToolNode,
+			summarizerApi: SummarizerApiToolNode,
+			alertNotification: AlertNotificationToolNode,
+			domInput: DomInputToolNode,
+			condition: ConditionToolNode,
+			staticInput: StaticInputToolNode,
 		}),
 		[]
 	);
@@ -96,6 +112,14 @@ const FlowProvider = ({ children }: PropsWithChildren) => {
 		setNodes((prev) => [...prev, node]);
 	}, []);
 
+	const clearFlow = useCallback(() => {
+		nodes.forEach((node) => {
+			deleteNode(node.id);
+		});
+
+		setEdges([]);
+	}, [deleteNode, nodes]);
+
 	return (
 		<Context.Provider
 			value={{
@@ -112,6 +136,7 @@ const FlowProvider = ({ children }: PropsWithChildren) => {
 					onConnect,
 					addNode,
 					deleteNode,
+					clearFlow,
 				},
 			}}
 		>

@@ -1,9 +1,7 @@
 /**
  * Internal dependencies
  */
-import WorkflowCanvas from './components/workflowCanvas';
-import ToolsSidebar from './components/tools';
-import { ToolsConfigPanel } from './components/tools/ui';
+import { WorkflowCanvas, ToolsSidebar, ToolsConfigPanel } from './components';
 
 function Panel() {
   return (
