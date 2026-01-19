@@ -1,3 +1,7 @@
+/**
+ * External dependencies
+ */
+import { useEffect, useState } from "react";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import {
   SSEClientTransport,
@@ -9,6 +13,10 @@ import {
   type StreamableHTTPClientTransportOptions,
   StreamableHTTPError,
 } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
+import {
+  auth,
+  discoverOAuthProtectedResourceMetadata,
+} from "@modelcontextprotocol/sdk/client/auth.js";
 import {
   type ClientNotification,
   type ClientRequest,
@@ -38,14 +46,14 @@ import type {
   SchemaOutput,
 } from "@modelcontextprotocol/sdk/server/zod-compat.js";
 import type { RequestOptions } from "@modelcontextprotocol/sdk/shared/protocol.js";
-import { useEffect, useState } from "react";
+import type { Transport } from "@modelcontextprotocol/sdk/shared/transport.js";
+
+/**
+ * Internal dependencies
+ */
 import { useToast } from "./useToast";
 import { type ConnectionStatus, CLIENT_IDENTITY } from "../constants";
 import type { Notification } from "../notificationTypes";
-import {
-  auth,
-  discoverOAuthProtectedResourceMetadata,
-} from "@modelcontextprotocol/sdk/client/auth.js";
 import {
   clearClientInformationFromSessionStorage,
   InspectorOAuthClientProvider,
@@ -59,10 +67,9 @@ import {
   getMCPServerRequestMaxTotalTimeout,
   resetRequestTimeoutOnProgress,
   getMCPProxyAuthToken,
+  getMCPServerRequestTimeout,
 } from "../../utils/configUtils";
-import { getMCPServerRequestTimeout } from "../../utils/configUtils";
 import type { InspectorConfig } from "../configurationTypes";
-import type { Transport } from "@modelcontextprotocol/sdk/shared/transport.js";
 import type { CustomHeaders } from "../types/customHeaders";
 import { resolveRefsInMessage } from "../../utils/schemaUtils";
 

@@ -1,4 +1,11 @@
+/**
+ * External dependencies
+ */
 import { useCallback, useEffect, useMemo, useState } from "react";
+
+/**
+ * Internal dependencies
+ */
 
 type Theme = "light" | "dark" | "system";
 
