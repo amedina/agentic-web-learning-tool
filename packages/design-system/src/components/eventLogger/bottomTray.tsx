@@ -1,3 +1,6 @@
+/**
+ * External dependencies.
+ */
 import {
   useState,
   useRef,
@@ -6,6 +9,10 @@ import {
   type ReactNode,
 } from 'react';
 import { PanelBottom, ChevronDown, Download } from 'lucide-react';
+
+/**
+ * Internal dependencies.
+ */
 import { cn } from '../../lib/utils';
 
 interface BottomTrayProps<T> {
@@ -75,8 +82,8 @@ export function BottomTray<T>({
       {/* Resizer Handle */}
       <div
         className={cn(
-          'absolute top-0 left-0 w-full h-1 cursor-ns-resize hover:bg-[#1a73e8] z-20',
-          isDragging.current ? 'bg-[#1a73e8]' : 'bg-transparent'
+          'absolute top-0 left-0 w-full h-[1px] cursor-ns-resize hover:bg-[#bed2ed] z-20',
+          isDragging.current ? 'bg-[#bed2ed]' : 'bg-transparent'
         )}
         onMouseDown={handleMouseDown}
       />
