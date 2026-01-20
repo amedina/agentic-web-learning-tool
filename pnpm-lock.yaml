@@ -267,7 +267,7 @@ importers:
     devDependencies:
       '@types/node':
         specifier: ^24.3.0
-        version: 24.3.1
+        version: 24.10.7
       typescript:
         specifier: ~5.8.3
         version: 5.8.3
@@ -10266,7 +10266,7 @@ snapshots:
 
   '@types/serve-handler@6.1.4':
     dependencies:
-      '@types/node': 22.19.7
+      '@types/node': 24.10.7
 
   '@types/stack-utils@2.0.3': {}
 
