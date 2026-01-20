@@ -23,7 +23,7 @@ function buildProviderOptions(
         },
       };
 
-    case 'openai': {
+    case 'open-ai': {
       // GPT-5 models support reasoningEffort and reasoningSummary
       const openaiConfig: {
         openai: {
@@ -39,7 +39,7 @@ function buildProviderOptions(
       return openaiConfig;
     }
 
-    case 'google': {
+    case 'gemini': {
       // Gemini 2.5 models support thinkingConfig
       return {
         google: {

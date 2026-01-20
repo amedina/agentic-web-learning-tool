@@ -2,20 +2,13 @@
  * External dependencies
  */
 import type { ToolCallMessagePartComponent } from '@assistant-ui/react';
-import {
-  ArrowRight,
-  Check,
-  ChevronDown,
-  ChevronRight,
-  Code2,
-  Loader2,
-  Terminal,
-} from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { Check, ChevronDownIcon, ChevronUpIcon, Loader2 } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 /**
  * Internal dependencies
  */
 import { getToolNameWithoutPrefix, isJson } from '../../lib';
+import { Button } from '../button';
 
 export const ToolFallback: ToolCallMessagePartComponent = ({
   toolName,
@@ -64,100 +57,68 @@ export const ToolFallback: ToolCallMessagePartComponent = ({
   const currentStatus =
     statusConfig?.[status.type as keyof typeof statusConfig];
 
+  const resultToShow = useMemo(() => {
+    if (typeof result === 'string') {
+      if (isJson(result)) {
+        return JSON.stringify(JSON.parse(result), null, 2);
+      } else {
+        return result;
+      }
+    }
+    return JSON.stringify(result, null, 2);
+  }, [result]);
+
+  const argsToDisplay = useMemo(() => {
+    if (typeof argsText === 'string') {
+      if (isJson(argsText)) {
+        return JSON.stringify(JSON.parse(argsText), null, 2);
+      } else {
+        return argsText;
+      }
+    }
+    return JSON.stringify(argsText, null, 2);
+  }, [argsText]);
+
   return (
-    // Outer Container: Simulates the chat stream width
-    <div className="font-sans antialiased w-full max-w-3xl mx-auto my-4">
-      {/* The Card: White paper look with very subtle shadow */}
-      <div
-        className={`group relative bg-background overflow-hidden rounded-xl border ${currentStatus?.border} shadow-[0_2px_8px_-4px_rgba(0,0,0,0.05)] transition-all duration-300 ease-out`}
-      >
-        {/* Header Section */}
-        <div
-          onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-sidebar-accent transition-colors"
-        >
-          <div className="flex items-center gap-3">
-            {/* Minimalist Icon Box */}
-            <div
-              className={`
-              flex items-center justify-center h-8 w-8 rounded-lg 
-              border
-              text-primary
-            `}
-            >
-              <Terminal strokeWidth={1.5} size={16} />
-            </div>
-
-            <div className="flex flex-col w-full">
-              <div className="flex items-center gap-2">
-                <span className="text-lg font-medium text-primary tracking-tight">
-                  {getToolNameWithoutPrefix(toolName)}
-                </span>
-                <div
-                  className={`
-                  flex items-center gap-1.5 px-2.5 py-0.5 rounded-full tracking-tight uppercase mr-2 text-xxs
-                  ${currentStatus?.badge}
-                `}
-                >
-                  {currentStatus?.icon}
-                  <span>{currentStatus?.text}</span>
-                </div>
-                <div className="text-tiny font-medium text-exclusive-plum tracking-tight">
-                  {timing}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="text-stone-400 transition-transform duration-200">
-            {isOpen ? (
-              <ChevronDown size={18} strokeWidth={1.5} />
-            ) : (
-              <ChevronRight size={18} strokeWidth={1.5} />
-            )}
-          </div>
+    <div className="aui-tool-fallback-root mb-4 flex w-full flex-col gap-3 rounded-lg border py-3">
+      <div className="aui-tool-fallback-header flex items-center gap-2 px-4">
+        <div className="flex flex-grow items-center gap-2">
+          {currentStatus?.icon}
+          <span className="aui-tool-fallback-title">
+            <b>{getToolNameWithoutPrefix(toolName)}</b>
+          </span>
+          {status.type !== 'running' && (
+            <span className="aui-tool-fallback-title text-[12px]">
+              {timing}
+            </span>
+          )}
         </div>
-
-        {/* Content Area - Warm Gray Background */}
-        {isOpen && (
-          <div className="border-t border-neutral-800 bg-background">
-            {/* Input Arguments */}
-            <div className="px-5 py-4">
-              <div className="flex items-center gap-2 mb-2 text-amethyst-haze text-xs font-medium uppercase tracking-wider">
-                <Code2 size={12} /> Arguments
-              </div>
-              <div className="bg-accent border border-neutral-800 rounded-lg p-3 shadow-sm">
-                <pre className="text-xs leading-relaxed text-primary overflow-x-auto">
-                  {isJson(argsText)
-                    ? JSON.stringify(JSON.parse(argsText), null, 2)
-                    : argsText}
-                </pre>
-              </div>
-            </div>
-
-            {/* Result Output (if available) */}
-            {result && (
-              <div className="px-5 pb-5 animate-in fade-in slide-in-from-top-1 duration-300">
-                <div className="flex items-center gap-2 mb-2 text-amethyst-haze text-xs font-medium uppercase tracking-wider">
-                  <ArrowRight size={12} /> Output
-                </div>
-
-                {/* The Result Block: Looks like a printed document or strict code block */}
-                <div className="relative group/code">
-                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-accent"></div>
-                  <div className="bg-background border border-neutral-800 border-l-0 rounded-r-lg p-3 shadow-sm overflow-x-auto">
-                    <pre className="text-xs leading-relaxed text-primary">
-                      {isJson(result)
-                        ? JSON.stringify(JSON.parse(result), null, 2)
-                        : result}
-                    </pre>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
+        <Button variant="ghost" size="icon" onClick={() => setIsOpen(!isOpen)}>
+          {isOpen ? <ChevronUpIcon /> : <ChevronDownIcon />}
+        </Button>
       </div>
+      {isOpen && (
+        <div className="aui-tool-fallback-content flex flex-col gap-2 border-t pt-2">
+          <div className="aui-tool-fallback-args-root px-4">
+            <p className="aui-tool-fallback-args-header font-semibold">
+              Arguments:
+            </p>
+            <pre className="aui-tool-fallback-args-value whitespace-pre-wrap dark:bg-[#1E1E1E] bg-[#F4F4F4] overflow-auto p-2 wrap-break-word">
+              {argsToDisplay}
+            </pre>
+          </div>
+          {result !== undefined && (
+            <div className="aui-tool-fallback-result-root border-t border-solid px-4 pt-2">
+              <p className="aui-tool-fallback-result-header font-semibold">
+                Result:
+              </p>
+              <pre className="aui-tool-fallback-result-content whitespace-pre-wrap dark:bg-[#1E1E1E] bg-[#F4F4F4] overflow-auto p-2 wrap-break-word">
+                {resultToShow}
+              </pre>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

@@ -16,15 +16,20 @@ export const LOG_OPTS = [
     id: 'DEBUG',
     label: 'Debug',
     color: 'bg-status-debug',
-    desc: 'Detailed ops',
+    desc: 'Detailed operational information',
   },
   {
     id: 'WARN',
     label: 'Warn',
     color: 'bg-status-warn',
-    desc: 'Handled issues',
+    desc: 'Unexpected but handled issues',
   },
-  { id: 'ERROR', label: 'Error', color: 'bg-status-error', desc: 'Failures' },
+  {
+    id: 'ERROR',
+    label: 'Error',
+    color: 'bg-status-error',
+    desc: 'Errors only',
+  },
   {
     id: 'SILENT',
     label: 'Silent',

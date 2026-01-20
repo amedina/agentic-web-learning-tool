@@ -1,8 +1,8 @@
 diff --git a/dist/legacy-runtime/runtime-cores/assistant-transport/useToolInvocations.js b/dist/legacy-runtime/runtime-cores/assistant-transport/useToolInvocations.js
-index da5947cdc1ad133d01a958177253e197e736c00b..af566bb157ea7ab51f7b19cb392f860fd1465b04 100644
+index f30093444fbbe08f97fae1cc230d418bb7c63875..ec6f1196cc686c83088b0e4c8b8e465398fad02e 100644
 --- a/dist/legacy-runtime/runtime-cores/assistant-transport/useToolInvocations.js
 +++ b/dist/legacy-runtime/runtime-cores/assistant-transport/useToolInvocations.js
-@@ -91,63 +91,146 @@ function useToolInvocations({
+@@ -109,66 +109,146 @@ function useToolInvocations({
                if (!lastState) {
                  const toolCallController = controller.addToolCallPart({
                    toolName: content.toolName,
@@ -99,7 +99,10 @@ index da5947cdc1ad133d01a958177253e197e736c00b..af566bb157ea7ab51f7b19cb392f860f
                    if (process.env["NODE_ENV"] !== "production") {
                      console.warn(
                        "argsText updated after controller was closed:",
--                      { previous: lastState.argsText, next: content.argsText }
+-                      {
+-                        previous: lastState.argsText,
+-                        next: content.argsText
+-                      }
 +                      { previous: lastState.argsText, next: content.argsText },
                      );
                    }

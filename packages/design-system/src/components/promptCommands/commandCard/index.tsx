@@ -21,16 +21,12 @@ export function CommandCard({ command, onToggle, onEdit }: CommandCardProps) {
     <div className="flex flex-col p-5 bg-[var(--surface-color)] rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 h-full">
       <div className="flex justify-between items-start mb-3">
         <div>
-          <h3 className="text-lg font-bold text-gray-800">/{command.name}</h3>
+          <h3 className="text-lg font-bold text-primary">/{command.name}</h3>
         </div>
-        <ToggleSwitch
-          checked={command.enabled}
-          onCheckedChange={onToggle}
-          className="data-[state=checked]:bg-gray-900"
-        />
+        <ToggleSwitch checked={command.enabled} onCheckedChange={onToggle} />
       </div>
 
-      <p className="text-sm text-gray-600 mb-5 flex-grow leading-relaxed whitespace-pre-wrap line-clamp-3">
+      <p className="text-sm text-amethyst-haze mb-5 flex-grow leading-relaxed whitespace-pre-wrap line-clamp-3">
         {command.description || command.instructions}
       </p>
 

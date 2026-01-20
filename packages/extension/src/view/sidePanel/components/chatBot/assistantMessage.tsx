@@ -11,6 +11,7 @@ import { MarkdownText, ToolFallback } from '@google-awlt/design-system';
  * Internal dependencies
  */
 import ActionButton from './actionButton';
+import { Reasoning, ReasoningGroup } from './reasoning';
 
 const AssistantMessage: FC = () => {
   return (
@@ -31,6 +32,8 @@ const AssistantMessage: FC = () => {
             <MessagePrimitive.Parts
               components={{
                 Text: MarkdownText,
+                Reasoning,
+                ReasoningGroup,
                 tools: { Fallback: ToolFallback },
               }}
             />
@@ -43,7 +46,7 @@ const AssistantMessage: FC = () => {
           className="flex items-center gap-1 rounded-lg data-[floating]:absolute data-[floating]:border-2 data-[floating]:p-1"
         >
           <ActionBarPrimitive.Reload asChild>
-            <ActionButton tooltip="Reload">
+            <ActionButton tooltip="Try again">
               <ReloadIcon />
             </ActionButton>
           </ActionBarPrimitive.Reload>
