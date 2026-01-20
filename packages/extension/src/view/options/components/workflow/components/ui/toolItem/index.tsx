@@ -1,12 +1,22 @@
+/**
+ * External dependencies
+ */
+import { useState } from 'react';
+
+/**
+ * Internal dependencies
+ */
 import { useToolSidebar } from '../../tools/ToolSidebarContext';
 
 interface ToolItemProps {
 	label: string;
-	onClick: () => void;
+	onClick?: () => void;
 	Icon: React.ComponentType<{ size: number; className?: string }>;
+
 	disabled?: boolean;
 	title?: string;
 	collapsed?: boolean;
+	onDragStart?: (event: React.DragEvent) => void;
 }
 
 const ToolItem = ({
@@ -16,13 +26,23 @@ const ToolItem = ({
 	disabled,
 	title,
 	collapsed: collapsedProp,
+	onDragStart,
 }: ToolItemProps) => {
 	const { collapsed: contextCollapsed } = useToolSidebar();
 	const collapsed = collapsedProp ?? contextCollapsed;
+	const [dragging, setDragging] = useState(false);
 
 	return (
 		<button
 			disabled={disabled}
+			draggable={!disabled}
+			onDragStart={(event) => {
+				setDragging(true);
+				onDragStart?.(event);
+			}}
+			onDragEnd={() => {
+				setDragging(false);
+			}}
 			title={title || (collapsed ? label : undefined)}
 			className={`flex items-center transition-all ${
 				collapsed
@@ -31,8 +51,8 @@ const ToolItem = ({
 			} mb-2 bg-white border border-slate-200 rounded-lg ${
 				disabled
 					? 'opacity-50 cursor-not-allowed bg-slate-50 grayscale'
-					: 'cursor-pointer hover:border-indigo-500 hover:shadow-md text-slate-700'
-			}`}
+					: 'cursor-grab hover:border-indigo-500 hover:shadow-md text-slate-700'
+			} ${dragging ? 'cursor-grabbing' : ''}`}
 			onClick={onClick}
 		>
 			<Icon

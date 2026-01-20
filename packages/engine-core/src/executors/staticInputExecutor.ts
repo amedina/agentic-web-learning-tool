@@ -12,12 +12,18 @@ export async function staticInputExecutor(
   config: Record<string, unknown>,
   _runtime: RuntimeInterface,
   _context: ExecutionContext
-): Promise<string> {
-  const inputValue = config.inputValue;
+): Promise<unknown> {
+  const { inputValue, isMultiple } = config;
 
-  if (typeof inputValue === "string") {
-    return inputValue;
+  if (isMultiple) {
+    try {
+      const parsed = JSON.parse(inputValue as string);
+      return Array.isArray(parsed) ? parsed : [parsed];
+    } catch {
+      console.warn("Failed to parse static input as JSON array:", inputValue);
+      return [inputValue];
+    }
   }
 
-  return "";
+  return typeof inputValue === "string" ? inputValue : "";
 }

@@ -12,8 +12,9 @@ import {
 	type OnNodesChange,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { Play } from 'lucide-react';
+import { Play, Square, Loader } from 'lucide-react';
 import WorkflowDropdown from './WorkflowDropdown';
+import { useCallback } from 'react';
 
 export interface FlowProps<
 	NodeType extends Node = Node,
@@ -33,12 +34,16 @@ export interface FlowProps<
 	setSelectedTabId: (tabId: number | null) => void;
 	tabs: chrome.tabs.Tab[];
 	isRunning: boolean;
+	isStopping?: boolean;
 	actions: {
 		onImport: () => void;
 		onExport: () => void;
 		onClear: () => void;
 		onNew: () => void;
 		onRun: () => void;
+		onStop: () => void;
+		onDrop: (event: React.DragEvent) => void;
+		onLoadSaved: () => void;
 	};
 }
 
@@ -57,12 +62,34 @@ const Flow = <NodeType extends Node, EdgeType extends Edge>({
 	setSelectedTabId,
 	tabs,
 	isRunning,
+	isStopping,
 	actions,
 }: FlowProps<NodeType, EdgeType>) => {
+	const onDragOver = useCallback((event: React.DragEvent) => {
+		event.preventDefault();
+		event.dataTransfer.dropEffect = 'move';
+	}, []);
+
+	const onDrop = useCallback(
+		(event: React.DragEvent) => {
+			event.preventDefault();
+			actions.onDrop(event);
+		},
+		[actions]
+	);
+
 	return (
 		<div className="h-full flex-1 flex flex-col rounded bg-gray-100 relative min-h-[500px]">
 			<div className="h-15 bg-gray-200 flex items-center justify-between px-2 m-4 mb-0 border-b border-slate-300 rounded p-2">
 				<div className="flex items-center gap-2">
+					<WorkflowDropdown
+						onNew={actions.onNew}
+						onImport={actions.onImport}
+						onExport={actions.onExport}
+						onClear={actions.onClear}
+						onLoadSaved={actions.onLoadSaved}
+					/>
+					<div className="w-px h-6 bg-slate-300 mx-1"></div>
 					<input
 						className="bg-slate-100 px-3 py-1 rounded text-sm font-medium text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white"
 						value={title}
@@ -98,29 +125,39 @@ const Flow = <NodeType extends Node, EdgeType extends Edge>({
 				</div>
 
 				<div className="flex items-center gap-2">
-					<WorkflowDropdown
-						onNew={actions.onNew}
-						onImport={actions.onImport}
-						onExport={actions.onExport}
-						onClear={actions.onClear}
-					/>
-
-					<div className="w-px h-6 bg-slate-200 mx-2"></div>
-
 					<button
-						onClick={actions.onRun}
-						disabled={isRunning}
-						className={`flex items-center gap-1 px-4 py-1.5 text-sm font-medium text-white rounded shadow-sm transition-colors ${
-							isRunning
-								? 'bg-blue-400 cursor-not-allowed opacity-75'
-								: 'bg-blue-600 hover:bg-blue-700'
+						onClick={isRunning ? actions.onStop : actions.onRun}
+						disabled={isStopping}
+						className={`flex items-center justify-center w-8 h-8 rounded-full shadow-sm transition-all duration-200 ${
+							isStopping
+								? 'bg-red-400 cursor-wait text-white shadow-none'
+								: isRunning
+									? 'bg-red-500 hover:bg-red-600 text-white shadow-red-200'
+									: 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-200'
 						}`}
+						title={
+							isStopping
+								? 'Cancelling flow execution...'
+								: isRunning
+									? 'Stop Workflow'
+									: 'Run Workflow'
+						}
 					>
-						<Play
-							size={16}
-							className={isRunning ? 'animate-pulse' : ''}
-						/>
-						{isRunning ? 'Running...' : 'Run'}
+						{isStopping ? (
+							<Loader size={14} className="animate-spin" />
+						) : isRunning ? (
+							<Square
+								size={14}
+								fill="currentColor"
+								className="animate-pulse"
+							/>
+						) : (
+							<Play
+								size={16}
+								fill="currentColor"
+								className="ml-0.5"
+							/>
+						)}
 					</button>
 				</div>
 			</div>
@@ -134,6 +171,8 @@ const Flow = <NodeType extends Node, EdgeType extends Edge>({
 					onNodesDelete={onNodesDelete}
 					onEdgesDelete={onEdgesDelete}
 					onConnect={onConnect}
+					onDragOver={onDragOver}
+					onDrop={onDrop}
 				>
 					<MiniMap nodeStrokeWidth={3} zoomable pannable />
 					<Controls position="top-right" />

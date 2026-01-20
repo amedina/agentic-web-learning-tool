@@ -64,6 +64,13 @@ export class WorkflowRunner {
   }
 
   /**
+   * Stop the currently running workflow.
+   */
+  public stop(): void {
+    this.engine.abort();
+  }
+
+  /**
    * Check if capabilities are available.
    */
   public async checkCapabilities(

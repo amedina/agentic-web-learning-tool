@@ -7,13 +7,13 @@ import {
 	useEffect,
 	type PropsWithChildren,
 } from 'react';
+import { getWorkflowClient } from '@google-awlt/engine-extension';
 
 /**
  * Internal dependencies
  */
 import Context, { ApiCleaner, type NodeConfig } from './context';
 
-import { getWorkflowClient } from '@google-awlt/engine-extension';
 
 const ApiProvider = ({ children }: PropsWithChildren) => {
 	const [nodes, setNodes] = useState<{
@@ -107,6 +107,7 @@ const ApiProvider = ({ children }: PropsWithChildren) => {
 				'languageDetectorApi',
 				'proofreaderApi',
 			]);
+
 			setCapabilities({
 				...results,
 				translatorApi: true, // Always show in UI per user request

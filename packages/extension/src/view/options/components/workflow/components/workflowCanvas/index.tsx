@@ -3,16 +3,30 @@
  */
 import { X } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
+import { useReactFlow } from '@xyflow/react';
 import { WorkflowClient } from '@google-awlt/engine-extension';
+import type {
+  ExecutionContext,
+  NodeOutput,
+  WorkflowJSON,
+} from '@google-awlt/engine-core';
 
 /**
  * Internal dependencies
  */
-import { type EdgeType, type NodeType, useFlow, useApi } from '../../store';
+import {
+  type EdgeType,
+  type NodeType,
+  useFlow,
+  useApi,
+  type NodeConfig,
+} from '../../store';
 import { Flow } from '../ui';
+import { TOOL_CONFIGS } from '../tools/toolRegistry';
+import { saveWorkflow, loadWorkflow } from '../../../../utils/storage';
+import SavedWorkflowsDialog from '../ui/flow/SavedWorkflowsDialog';
 
 const ID_PREFIX = 'wf_';
-const STORAGE_PREFIX = 'workflow-';
 
 const generateId = () =>
   `${ID_PREFIX}${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -24,6 +38,8 @@ const WorkflowCanvas = () => {
   const [workflowId, setWorkflowId] = useState<string | null>(null);
   const [tabs, setTabs] = useState<chrome.tabs.Tab[]>([]);
   const [selectedTabId, setSelectedTabId] = useState<number | null>(null);
+  const [showSavedWorkflows, setShowSavedWorkflows] = useState(false);
+  const [isStopping, setIsStopping] = useState(false);
   const [toast, setToast] = useState<{
     message: string;
     type: 'success' | 'error';
@@ -66,6 +82,42 @@ const WorkflowCanvas = () => {
     })
   );
 
+  const { screenToFlowPosition } = useReactFlow();
+
+  const handleDrop = useCallback(
+    (event: React.DragEvent) => {
+      event.preventDefault();
+
+      const type = event.dataTransfer.getData('workflow-composer/flow');
+
+      if (!type || !TOOL_CONFIGS[type]) {
+        return;
+      }
+
+      const position = screenToFlowPosition({
+        x: event.clientX,
+        y: event.clientY,
+      });
+
+      const id = new Date().getTime().toString();
+      const toolConfig = TOOL_CONFIGS[type];
+
+      addNode({
+        id,
+        type,
+        position,
+        data: { label: toolConfig.label },
+      });
+
+      addApiNode({
+        id,
+        type,
+        config: toolConfig.config,
+      });
+    },
+    [addNode, addApiNode, screenToFlowPosition]
+  );
+
   // Fetch tabs on mount
   useEffect(() => {
     if (typeof chrome !== 'undefined' && chrome.tabs?.query) {
@@ -85,7 +137,7 @@ const WorkflowCanvas = () => {
   }, []);
 
   const loadWorkflowData = useCallback(
-    (workflowData: any) => {
+    (workflowData: WorkflowJSON) => {
       clearFlow();
 
       if (workflowData.meta?.name) {
@@ -96,7 +148,7 @@ const WorkflowCanvas = () => {
       const graphEdges = workflowData.graph?.edges;
 
       if (graphNodes && Array.isArray(graphNodes)) {
-        graphNodes.forEach((node: any) => {
+        graphNodes.forEach((node) => {
           const flowNode: NodeType = {
             id: node.id,
             type: node.type,
@@ -147,30 +199,31 @@ const WorkflowCanvas = () => {
   }, [addNode, addApiNode]);
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const idFromUrl = params.get('id');
+    (async () => {
+      const params = new URLSearchParams(window.location.search);
+      const idFromUrl = params.get('id');
 
-    if (idFromUrl) {
-      setWorkflowId(idFromUrl);
+      if (idFromUrl) {
+        setWorkflowId(idFromUrl);
 
-      const savedData = localStorage.getItem(`${STORAGE_PREFIX}${idFromUrl}`);
-      if (savedData) {
         try {
-          const parsed = JSON.parse(savedData);
-          loadWorkflowData(parsed);
-          return;
-        } catch (e) {
-          console.error('Failed to load workflow from storage', e);
-        }
-      }
-    }
+          const savedData = await loadWorkflow(idFromUrl);
 
-    const newId = generateId();
-    setWorkflowId(newId);
-    const newUrl = new URL(window.location.href);
-    newUrl.searchParams.set('id', newId);
-    window.history.replaceState({}, '', newUrl.toString());
-    addPlaceholderNode();
+          if (savedData) {
+            loadWorkflowData(savedData);
+          }
+        } catch (error) {
+          console.error('Failed to load workflow from storage', error);
+        }
+      } else {
+        const newId = generateId();
+        setWorkflowId(newId);
+        const newUrl = new URL(window.location.href);
+        newUrl.searchParams.set('id', newId);
+        window.history.replaceState({}, '', newUrl.toString());
+        addPlaceholderNode();
+      }
+    })();
   }, [loadWorkflowData, addNode, addApiNode, addPlaceholderNode]);
 
   const serializeWorkflow = useCallback(
@@ -179,7 +232,9 @@ const WorkflowCanvas = () => {
       title: string,
       currentNodes: NodeType[],
       currentEdges: EdgeType[],
-      currentApiData: any
+      currentApiData: {
+        [id: string]: NodeConfig;
+      }
     ) => {
       return {
         meta: {
@@ -193,7 +248,6 @@ const WorkflowCanvas = () => {
           nodes: currentNodes.map((node) => ({
             id: node.id,
             type: node.type || 'default',
-            label: node.data.label,
             config: currentApiData[node.id]?.config || {},
             ui: {
               position: node.position,
@@ -215,18 +269,19 @@ const WorkflowCanvas = () => {
   useEffect(() => {
     if (!workflowId) return;
 
-    const workflowData = serializeWorkflow(
-      workflowId,
-      workflowTitle,
-      nodes,
-      edges,
-      nodesApiData
-    );
+    const timeoutId = setTimeout(() => {
+      const workflowData = serializeWorkflow(
+        workflowId,
+        workflowTitle,
+        nodes,
+        edges,
+        nodesApiData
+      );
 
-    localStorage.setItem(
-      `${STORAGE_PREFIX}${workflowId}`,
-      JSON.stringify(workflowData)
-    );
+      saveWorkflow(workflowId, workflowData);
+    }, 1000); // Debounce save by 1s
+
+    return () => clearTimeout(timeoutId);
   }, [
     workflowId,
     workflowTitle,
@@ -291,13 +346,11 @@ const WorkflowCanvas = () => {
 
       loadWorkflowData(workflowData);
 
-      localStorage.setItem(
-        `${STORAGE_PREFIX}${newId}`,
-        JSON.stringify({
-          ...workflowData,
-          meta: { ...workflowData.meta, id: newId },
-        })
-      );
+      const newWorkflowData = {
+        ...workflowData,
+        meta: { ...workflowData.meta, id: newId },
+      };
+      saveWorkflow(newId, newWorkflowData);
 
       setShowImportDialog(false);
       setImportJson('');
@@ -334,29 +387,32 @@ const WorkflowCanvas = () => {
     const client = new WorkflowClient();
 
     try {
-      await client.runWorkflow(workflowData as any, selectedTabId, {
+      await client.runWorkflow(workflowData, selectedTabId, {
         onNodeStart: (nodeId: string) => {
           updateNodeStatus(nodeId, 'running');
         },
-        onNodeFinish: (nodeId: string, output: any) => {
+        onNodeFinish: (nodeId: string, output: NodeOutput) => {
           updateNodeStatus(
             nodeId,
             output.status === 'success' ? 'success' : 'error'
           );
         },
-        onComplete: (context: any) => {
+        onComplete: (context: ExecutionContext) => {
           setIsRunning(false);
+          setIsStopping(false);
           showToast('Workflow completed successfully!', 'success');
           console.log('Workflow context:', context);
         },
         onError: (error: string) => {
           setIsRunning(false);
+          setIsStopping(false);
           showToast(`Workflow failed: ${error}`, 'error');
           console.error('Workflow error:', error);
         },
       });
     } catch (error) {
       setIsRunning(false);
+      setIsStopping(false);
       const msg = error instanceof Error ? error.message : String(error);
       showToast(`Failed to start workflow: ${msg}`, 'error');
     }
@@ -373,6 +429,20 @@ const WorkflowCanvas = () => {
     workflowId,
     workflowTitle,
   ]);
+
+  const handleStop = useCallback(async () => {
+    const client = new WorkflowClient();
+
+    try {
+      setIsStopping(true);
+      await client.stopWorkflow();
+      showToast('Stopping workflow...', 'success');
+    } catch (error) {
+      setIsStopping(false);
+      const msg = error instanceof Error ? error.message : String(error);
+      showToast(`Failed to stop workflow: ${msg}`, 'error');
+    }
+  }, [showToast]);
 
   const handleClear = useCallback(() => {
     if (
@@ -410,13 +480,33 @@ const WorkflowCanvas = () => {
         },
         graph: { nodes: [], edges: [] },
       };
-      localStorage.setItem(
-        `${STORAGE_PREFIX}${newId}`,
-        JSON.stringify(initialData)
-      );
+      saveWorkflow(newId, initialData);
       showToast('New workflow creating!', 'success');
     }
   }, [clearFlow, showToast]);
+
+  const handleLoadSaved = useCallback(() => {
+    setShowSavedWorkflows(true);
+  }, []);
+
+  const handleWorkflowLoad = useCallback(
+    async (id: string) => {
+      const newUrl = new URL(window.location.href);
+      newUrl.searchParams.set('id', id);
+      window.history.pushState({}, '', newUrl.toString());
+
+      setWorkflowId(id);
+
+      const data = await loadWorkflow(id);
+      if (data) {
+        loadWorkflowData(data);
+        showToast('Workflow loaded successfully', 'success');
+      } else {
+        showToast('Failed to load workflow', 'error');
+      }
+    },
+    [loadWorkflowData, showToast]
+  );
 
   return (
     <div className="h-full flex-1 flex flex-col rounded bg-gray-100 relative">
@@ -468,6 +558,12 @@ const WorkflowCanvas = () => {
         </div>
       )}
 
+      <SavedWorkflowsDialog
+        isOpen={showSavedWorkflows}
+        onClose={() => setShowSavedWorkflows(false)}
+        onLoad={handleWorkflowLoad}
+      />
+
       {/* Toast Notification */}
       {toast && (
         <div
@@ -497,12 +593,16 @@ const WorkflowCanvas = () => {
           setSelectedTabId={setSelectedTabId}
           tabs={tabs}
           isRunning={isRunning}
+          isStopping={isStopping}
           actions={{
             onImport: handleImport,
             onExport: handleExport,
             onClear: handleClear,
             onNew: handleNewWorkflow,
             onRun: handleRun,
+            onStop: handleStop,
+            onDrop: handleDrop,
+            onLoadSaved: handleLoadSaved,
           }}
         />
       </div>
