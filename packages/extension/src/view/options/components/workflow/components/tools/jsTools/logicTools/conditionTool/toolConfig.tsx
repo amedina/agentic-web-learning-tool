@@ -7,13 +7,13 @@ import { Settings } from 'lucide-react';
 /**
  * Internal dependencies
  */
-import { type NodeConfig } from '../../../../../store';
+import { ConditionSchema, type ConditionConfig } from './conditionTool';
 
 interface ToolConfigProps {
 	ref: React.Ref<{
-		getConfig: () => Record<string, unknown>;
+		getConfig: (formData: FormData) => ConditionConfig | undefined;
 	}>;
-	node: NodeConfig;
+	config: ConditionConfig;
 }
 
 const COMPARISON_TYPES = [
@@ -29,23 +29,37 @@ const COMPARISON_TYPES = [
 	{ value: 'less_equal', label: 'Less Than or Equal (<=)' },
 ];
 
-const ToolConfig = ({ ref, node }: ToolConfigProps) => {
+const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 	const [comparisonType, setComparisonType] = useState<string>(
-		node.config.comparisonType || 'equals'
+		config.comparisonType || 'equals'
 	);
 
 	useEffect(() => {
-		setComparisonType(node.config.comparisonType || 'equals');
-	}, [node]);
+		setComparisonType(config.comparisonType || 'equals');
+	}, [config]);
 
 	useImperativeHandle(
 		ref,
 		() => ({
-			getConfig: () => ({
-				comparisonType,
-			}),
+			getConfig: (formData: FormData) => {
+				const title = formData.get('title') as string;
+				const comparisonType = formData.get('comparisonType') as string;
+
+				const configResult = {
+					title,
+					comparisonType,
+				};
+
+				const validation = ConditionSchema.safeParse(configResult);
+				if (!validation.success) {
+					console.error('Invalid configuration:', validation.error);
+					return undefined;
+				}
+
+				return validation.data;
+			},
 		}),
-		[comparisonType]
+		[]
 	);
 
 	return (

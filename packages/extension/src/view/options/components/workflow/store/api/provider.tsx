@@ -46,7 +46,7 @@ const ApiProvider = ({ children }: PropsWithChildren) => {
 			id: string,
 			updates: {
 				type?: string;
-				config?: { [key: string]: any };
+				config?: NodeConfig['config'];
 			}
 		) => {
 			setNodes((prev) => {
@@ -80,6 +80,11 @@ const ApiProvider = ({ children }: PropsWithChildren) => {
 		});
 	}, []);
 
+	const clearApiData = useCallback(() => {
+		setNodes({});
+		setSelectedNode(null);
+	}, []);
+
 	return (
 		<Context.Provider
 			value={{
@@ -93,6 +98,7 @@ const ApiProvider = ({ children }: PropsWithChildren) => {
 					updateNode,
 					removeNode,
 					setSelectedNode,
+					clearApiData,
 				},
 			}}
 		>

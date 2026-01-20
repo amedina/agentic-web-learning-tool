@@ -6,9 +6,8 @@ import { ReactFlowProvider } from '@xyflow/react';
 /**
  * Internal dependencies
  */
+import { ApiProvider, FlowProvider } from './store';
 import Panel from './panel';
-import FlowProvider from './store/flow/provider';
-import { ApiProvider } from './store';
 
 const Workflow = () => {
 	return (

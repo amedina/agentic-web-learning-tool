@@ -16,6 +16,8 @@ export type EdgeType = {
 	id: string;
 	source: string;
 	target: string;
+	sourceHandle?: string | null;
+	targetHandle?: string | null;
 };
 
 export interface FlowStoreContext {

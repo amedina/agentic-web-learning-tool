@@ -49,8 +49,9 @@ const FlowProvider = ({ children }: PropsWithChildren) => {
 		}),
 		[]
 	);
-	const { removeNode } = useApi(({ actions }) => ({
+	const { removeNode, clearApiData } = useApi(({ actions }) => ({
 		removeNode: actions.removeNode,
+		clearApiData: actions.clearApiData,
 	}));
 
 	const onNodesChange = useCallback(
@@ -104,7 +105,28 @@ const FlowProvider = ({ children }: PropsWithChildren) => {
 
 	const onConnect = useCallback(
 		(params: Connection | EdgeType) =>
-			setEdges((edgesSnapshot) => addEdge(params, edgesSnapshot)),
+			setEdges((edgesSnapshot) => {
+				const isTargetConnected = edgesSnapshot.some((edge) => {
+					const sameTargetId = edge.target === params.target;
+
+					const edgeTargetHandle = !edge.targetHandle
+						? ''
+						: edge.targetHandle;
+					const paramsTargetHandle = !params.targetHandle
+						? ''
+						: params.targetHandle;
+
+					return (
+						sameTargetId && edgeTargetHandle === paramsTargetHandle
+					);
+				});
+
+				if (isTargetConnected) {
+					return edgesSnapshot;
+				}
+
+				return addEdge(params, edgesSnapshot);
+			}),
 		[]
 	);
 
@@ -113,12 +135,10 @@ const FlowProvider = ({ children }: PropsWithChildren) => {
 	}, []);
 
 	const clearFlow = useCallback(() => {
-		nodes.forEach((node) => {
-			deleteNode(node.id);
-		});
-
+		clearApiData();
+		setNodes([]);
 		setEdges([]);
-	}, [deleteNode, nodes]);
+	}, [clearApiData]);
 
 	return (
 		<Context.Provider

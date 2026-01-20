@@ -7,39 +7,49 @@ import { Settings } from 'lucide-react';
 /**
  * Internal dependencies
  */
-import { type NodeConfig } from '../../../../store';
+import { TranslatorApiSchema, type TranslatorApiConfig } from './translatorApi';
 
 interface ToolConfigProps {
   ref: React.Ref<{
-    getConfig: (formData: FormData) => void;
+    getConfig: (formData: FormData) => TranslatorApiConfig | undefined;
   }>;
-  node: NodeConfig;
+  config: TranslatorApiConfig;
 }
 
-const ToolConfig = ({ ref, node }: ToolConfigProps) => {
+const ToolConfig = ({ ref, config }: ToolConfigProps) => {
   const [sourceLanguage, setSourceLanguage] = useState(
-    node.config.sourceLanguage || 'en'
+    config.sourceLanguage || 'en'
   );
   const [targetLanguage, setTargetLanguage] = useState(
-    node.config.targetLanguage || 'es'
+    config.targetLanguage || 'es'
   );
 
   useEffect(() => {
-    setSourceLanguage(node.config.sourceLanguage || 'en');
-    setTargetLanguage(node.config.targetLanguage || 'es');
-  }, [node]);
+    setSourceLanguage(config.sourceLanguage || 'en');
+    setTargetLanguage(config.targetLanguage || 'es');
+  }, [config]);
 
   useImperativeHandle(
     ref,
     () => ({
       getConfig: (formData: FormData) => {
+        const title = formData.get('title') as string;
         const sourceLanguage = formData.get('sourceLanguage') as string;
         const targetLanguage = formData.get('targetLanguage') as string;
 
-        return {
+        const configResult = {
+          title,
           sourceLanguage,
           targetLanguage,
         };
+
+        const validation = TranslatorApiSchema.safeParse(configResult);
+        if (!validation.success) {
+          console.error('Invalid configuration:', validation.error);
+          return undefined;
+        }
+
+        return validation.data;
       },
     }),
     []
@@ -65,7 +75,9 @@ const ToolConfig = ({ ref, node }: ToolConfigProps) => {
               id="sourceLanguage"
               value={sourceLanguage}
               className="w-full p-2 border border-slate-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
-              onChange={(e) => setSourceLanguage(e.target.value)}
+              onChange={(e) =>
+                setSourceLanguage(e.target.value as 'en' | 'ja' | 'es')
+              }
             >
               <option value="en">English</option>
               <option value="es">Spanish</option>
@@ -85,7 +97,9 @@ const ToolConfig = ({ ref, node }: ToolConfigProps) => {
               id="targetLanguage"
               value={targetLanguage}
               className="w-full p-2 border border-slate-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
-              onChange={(e) => setTargetLanguage(e.target.value)}
+              onChange={(e) =>
+                setTargetLanguage(e.target.value as 'en' | 'ja' | 'es')
+              }
             >
               <option value="en">English</option>
               <option value="es">Spanish</option>

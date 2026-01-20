@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Save, Settings } from 'lucide-react';
+import { Settings } from 'lucide-react';
 
 /**
  * Internal dependencies
@@ -15,12 +15,10 @@ import {
   SummarizerApiToolConfig,
   TranslatorApiToolConfig,
   WriterApiToolConfig,
-} from '../tools/builtinAITools/';
-import {
   DomInputToolConfig,
   StaticInputToolConfig,
-} from '../tools/jsTools/inputTools';
-import { ConditionToolConfig } from '../tools/jsTools/logicTools';
+  ConditionToolConfig,
+} from '../tools';
 
 const TOOLS = {
   promptApi: PromptApiToolConfig,
@@ -46,11 +44,11 @@ const ToolsConfigPanel = () => {
   );
 
   const [node, setNode] = useState<ReturnType<typeof getNode>>();
-  const [title, setTitle] = useState<string>(node?.config.title || '');
-  const [context, setContext] = useState<string>(node?.config.context || '');
+  const [config, setConfig] = useState<any>();
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const toolNodeRef = useRef<{
-    getConfig: (formData: FormData) => void;
+    getConfig: (formData: FormData) => any;
   }>(null);
 
   useEffect(() => {
@@ -63,36 +61,52 @@ const ToolsConfigPanel = () => {
   }, [selectedNode, getNode]);
 
   useEffect(() => {
-    setTitle(node?.config.title || '');
-    setContext(node?.config.context || '');
+    setConfig(node?.config);
   }, [node]);
 
-  const handleSubmit = useCallback(
-    (e: React.FormEvent<HTMLFormElement>) => {
-      const formData = new FormData(e.currentTarget);
-      e.preventDefault();
-
+  const handleConfigUpdate = useCallback(
+    (form: HTMLFormElement) => {
+      const formData = new FormData(form);
       if (!node || !selectedNode) return;
 
-      const title = formData.get('title') as string;
-      const context = formData.get('context') as string;
+      const toolConfig = toolNodeRef.current?.getConfig(formData);
+      if (!toolConfig) {
+        return;
+      }
 
       updateNode(selectedNode, {
-        ...node,
-        config: {
-          ...node.config,
-          title,
-          context,
-          ...(toolNodeRef.current
-            ? toolNodeRef.current.getConfig(formData)
-            : {}),
-        },
+        config: toolConfig,
       });
     },
     [node, selectedNode, updateNode]
   );
 
-  const Tool = node?.type ? TOOLS[node.type as keyof typeof TOOLS] : null;
+  const handleChange = useCallback(
+    (e: React.FormEvent<HTMLFormElement>) => {
+      const form = e.currentTarget;
+
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+
+      timeoutRef.current = setTimeout(() => {
+        handleConfigUpdate(form);
+      }, 100);
+    },
+    [handleConfigUpdate]
+  );
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
+
+  const Tool = node?.type
+    ? (TOOLS[node.type as keyof typeof TOOLS] as any)
+    : null;
 
   return (
     <div className="w-96 bg-white border-l border-slate-200 flex flex-col h-full">
@@ -112,7 +126,8 @@ const ToolsConfigPanel = () => {
         ) : (
           <form
             id="node-config-form"
-            onSubmit={handleSubmit}
+            onChange={handleChange}
+            onSubmit={(e) => e.preventDefault()}
             className="p-4 space-y-4"
           >
             <div className="bg-slate-100 rounded-lg p-3">
@@ -129,55 +144,62 @@ const ToolsConfigPanel = () => {
                 className="block text-sm font-medium text-slate-700 mb-2"
                 htmlFor="title"
               >
-                Node Label
+                Node Title
               </label>
               <input
                 type="text"
                 className="w-full p-3 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-white"
-                value={title}
+                value={config?.title || ''}
                 onChange={(e) => {
-                  setTitle(e.target.value);
+                  setConfig((prev: any) => ({
+                    ...prev,
+                    title: e.target.value,
+                  }));
                 }}
                 id="title"
                 name="title"
-                placeholder="Enter node label..."
+                placeholder="Enter node title..."
               />
             </div>
 
             <div>
-              <label
-                className="block text-sm font-medium text-slate-700 mb-2"
-                htmlFor="context"
-              >
-                Context
-              </label>
-              <textarea
-                className="w-full p-3 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm resize-none bg-white"
-                rows={4}
-                value={context || ''}
-                id="context"
-                name="context"
-                onChange={(e) => setContext(e.target.value)}
-                placeholder="Enter context for the tool..."
-              />
+              {config?.context ? (
+                <>
+                  <label
+                    className="block text-sm font-medium text-slate-700 mb-2"
+                    htmlFor="context"
+                  >
+                    Context
+                  </label>
+                  <textarea
+                    className="w-full p-3 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm resize-none bg-white"
+                    rows={4}
+                    value={config?.context || ''}
+                    id="context"
+                    name="context"
+                    onChange={(e) =>
+                      setConfig((prev: any) => ({
+                        ...prev,
+                        context: e.target.value,
+                      }))
+                    }
+                    placeholder="Enter context for the tool..."
+                  />
+                </>
+              ) : (
+                <p className="text-sm text-slate-700 mb-2">
+                  {(node?.config as any)?.description}
+                </p>
+              )}
             </div>
 
-            {/* @ts-expect-error - node?.type can be undefined */}
-            {Tool && node && <Tool ref={toolNodeRef} node={node} />}
+            {Tool && node && <Tool ref={toolNodeRef} config={node.config} />}
           </form>
         )}
       </div>
 
-      <div className="p-4 border-t border-slate-200 bg-white">
-        <button
-          type="submit"
-          form={selectedNode ? 'node-config-form' : undefined}
-          disabled={!selectedNode}
-          className="w-full px-4 py-3 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors text-sm font-medium flex items-center justify-center gap-2"
-        >
-          <Save size={16} />
-          Save Configuration
-        </button>
+      <div className="p-4 border-t border-slate-200 bg-slate-50 text-xs text-slate-500 text-center">
+        <p>Changes are saved automatically</p>
       </div>
     </div>
   );
