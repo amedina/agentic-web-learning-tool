@@ -263,6 +263,15 @@ importers:
         specifier: 5.9.2
         version: 5.9.2
 
+  packages/engine-core:
+    devDependencies:
+      '@types/node':
+        specifier: ^24.3.0
+        version: 24.3.1
+      typescript:
+        specifier: ~5.8.3
+        version: 5.8.3
+
   packages/extension:
     dependencies:
       '@ai-sdk/anthropic':
