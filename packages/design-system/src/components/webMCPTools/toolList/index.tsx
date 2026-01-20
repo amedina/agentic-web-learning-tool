@@ -8,7 +8,7 @@ import { PlusIcon, CodeIcon } from 'lucide-react';
  */
 import { Button } from '../../button';
 import type { WebMCPTool } from '../types';
-import { ToolCard } from '../toolCard';
+import { ToolCard } from '../../toolCard';
 import OptionsPageTabSection from '../../optionsPageTab/optionsPageTabSection';
 
 interface ToolListProps {

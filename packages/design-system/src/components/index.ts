@@ -9,6 +9,7 @@ export { default as ToggleSwitch } from './toggleSwitch';
 export { default as InputGroup } from './inputGroup';
 export { default as Input } from './input';
 export * from './toolFallback';
+export * from './toolCard';
 export { default as Dropdown } from './dropdown';
 export * from './webMCPTools';
 export { default as OptionsPageTab } from './optionsPageTab';

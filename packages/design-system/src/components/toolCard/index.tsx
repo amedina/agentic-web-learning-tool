@@ -6,12 +6,20 @@ import { EditIcon } from 'lucide-react';
 /**
  * Internal dependencies.
  */
-import { Button } from '../../button';
-import ToggleSwitch from '../../toggleSwitch';
-import type { WebMCPTool } from '../types';
+import { Button } from '../button';
+import ToggleSwitch from '../toggleSwitch';
+
+export interface Tool {
+  name: string;
+  namespace: string;
+  description: string;
+  allowedDomains: string[];
+  enabled: boolean;
+  isBuiltIn?: boolean;
+}
 
 interface ToolCardProps {
-  tool: WebMCPTool;
+  tool: Tool;
   onToggle: (enabled: boolean) => void;
   onEdit?: () => void;
 }
