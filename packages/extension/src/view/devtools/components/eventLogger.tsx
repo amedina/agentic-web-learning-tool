@@ -157,7 +157,7 @@ const EventLogger = () => {
         highlightedItemId={highlightedLogId}
       />
 
-      <div className="absolute top-1.5 right-40 z-50 flex items-center gap-2 bg-[#f1f3f4]">
+      <div className="absolute top-1.5 right-25 z-50 flex items-center gap-2 bg-[#f1f3f4]">
         <label className="flex items-center gap-1.5 text-[11px] text-[#5f6368] cursor-pointer select-none">
           <input
             type="checkbox"
