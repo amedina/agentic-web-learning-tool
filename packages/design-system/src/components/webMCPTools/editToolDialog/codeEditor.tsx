@@ -2,12 +2,12 @@
  * External dependencies.
  */
 import { useRef } from 'react';
+import { vs, dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 /**
  * Internal dependencies.
  */
-import SyntaxHighlighter from './syntaxHighlighter';
-import { vs, dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { SyntaxHighlighterWhite } from '../../syntaxHighlighter';
 
 interface CodeEditorProps {
   code: string;
@@ -23,13 +23,14 @@ export function CodeEditor({
   const backdropRef = useRef<HTMLDivElement>(null);
   const gutterRef = useRef<HTMLDivElement>(null);
 
+  // TODO: We probably do not need these, as they are already added in the SyntaxHighlighterWhite component.
   const editorFontFamily =
     '"Fira Code", "Cascadia Code", Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace';
   const editorFontSize = '14px';
   const editorLineHeight = '1.5';
   const editorPadding = '1.5rem 1rem';
 
-  const SyntaxHighlighterAny = SyntaxHighlighter as any;
+  const SyntaxHighlighterAny = SyntaxHighlighterWhite as any;
 
   const handleScroll = (e: React.UIEvent<HTMLTextAreaElement>) => {
     if (backdropRef.current) {

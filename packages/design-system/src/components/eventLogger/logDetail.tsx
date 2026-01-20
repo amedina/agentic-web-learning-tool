@@ -2,7 +2,7 @@
  * Internal dependencies.
  */
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../tabs';
-import { SyntaxHighlighter } from '../syntaxHighlighter';
+import { SyntaxHighlighterWhite } from '../syntaxHighlighter';
 
 export interface LogDetailProps {
   log: {
@@ -95,7 +95,7 @@ export function LogDetail({ log }: LogDetailProps) {
         className="flex-1 overflow-auto min-h-0 mt-0 p-0 border-0 bg-[#1e1e1e]"
       >
         {log.script ? (
-          <SyntaxHighlighter
+          <SyntaxHighlighterWhite
             language="javascript"
             code={log.script}
             components={{
