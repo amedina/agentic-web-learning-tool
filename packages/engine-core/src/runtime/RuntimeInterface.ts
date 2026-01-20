@@ -15,7 +15,7 @@ export interface RuntimeInterface {
    * @param capability - The capability identifier (e.g., 'promptApi', 'translatorApi')
    * @returns Promise resolving to true if capability is available
    */
-  checkCapability(capability: string): Promise<boolean>;
+  checkCapability(capability: string, options?: any): Promise<boolean>;
 
   /**
    * Retrieve a value from the runtime's storage.

@@ -80,6 +80,7 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 						</label>
 						<select
 							id="comparisonType"
+							name="comparisonType"
 							value={comparisonType}
 							onChange={(e) => setComparisonType(e.target.value)}
 							className="w-full p-3 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-white"

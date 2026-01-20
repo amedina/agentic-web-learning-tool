@@ -40,11 +40,14 @@ const SummarizerApi = () => {
     addFlowNode: actions.addNode,
   }));
 
-  const { addApiNode } = useApi(({ actions }) => ({
+  const { addApiNode, isAvailable } = useApi(({ state, actions }) => ({
     addApiNode: actions.addNode,
+    isAvailable: state.capabilities.summarizerApi,
   }));
 
   const addSummarizerApiNode = useCallback(() => {
+    if (!isAvailable) return;
+
     const config = createConfig();
     const id = new Date().getTime().toString();
 
@@ -52,7 +55,9 @@ const SummarizerApi = () => {
       id,
       type: 'summarizerApi',
       position: { x: 0, y: 0 },
-      data: {},
+      data: {
+        label: 'Summarizer API',
+      },
     });
 
     addApiNode({
@@ -60,13 +65,19 @@ const SummarizerApi = () => {
       type: 'summarizerApi',
       config,
     });
-  }, [addApiNode, addFlowNode]);
+  }, [addApiNode, addFlowNode, isAvailable]);
 
   return (
     <ToolItem
       label="Summarizer API"
       onClick={addSummarizerApiNode}
       Icon={NotepadTextDashed}
+      disabled={!isAvailable}
+      title={
+        !isAvailable
+          ? 'Built-in Summarizer API is not available in this browser'
+          : undefined
+      }
     />
   );
 };

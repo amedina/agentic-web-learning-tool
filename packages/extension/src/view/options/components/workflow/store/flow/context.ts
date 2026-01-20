@@ -10,6 +10,7 @@ export type NodeType = {
   type?: string;
   position: { x: number; y: number };
   data: Record<string, unknown>;
+  status?: 'running' | 'success' | 'error';
 };
 
 export type EdgeType = {
@@ -27,6 +28,7 @@ export interface FlowStoreContext {
     nodeTypes: {
       [key: string]: () => React.JSX.Element;
     };
+    isRunning: boolean;
   };
   actions: {
     onNodesChange: (changes: NodeChange<NodeType>[]) => void;
@@ -36,6 +38,11 @@ export interface FlowStoreContext {
     onConnect: (params: Connection | EdgeType) => void;
     addNode: (node: NodeType) => void;
     deleteNode: (id: string) => void;
+    updateNodeStatus: (
+      id: string,
+      status: 'running' | 'success' | 'error' | undefined
+    ) => void;
+    setIsRunning: (isRunning: boolean) => void;
     clearFlow: () => void;
   };
 }
@@ -45,6 +52,7 @@ const initialState: FlowStoreContext = {
     nodes: [],
     edges: [],
     nodeTypes: {},
+    isRunning: false,
   },
   actions: {
     onNodesChange: () => {},
@@ -54,6 +62,8 @@ const initialState: FlowStoreContext = {
     onConnect: () => {},
     addNode: () => {},
     deleteNode: () => {},
+    updateNodeStatus: () => {},
+    setIsRunning: () => {},
     clearFlow: () => {},
   },
 };

@@ -138,7 +138,11 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
               value={length}
               className="w-full p-2 border border-slate-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
               onChange={(e) => setLength(e.target.value)}
-            ></select>
+            >
+              <option value="shorter">Shorter</option>
+              <option value="as-is">As Is</option>
+              <option value="longer">Longer</option>
+            </select>
           </div>
 
           <div>

@@ -41,11 +41,14 @@ const WriterApi = () => {
     addFlowNode: actions.addNode,
   }));
 
-  const { addApiNode } = useApi(({ actions }) => ({
+  const { addApiNode, isAvailable } = useApi(({ state, actions }) => ({
     addApiNode: actions.addNode,
+    isAvailable: state.capabilities.writerApi,
   }));
 
   const addWriterApiNode = useCallback(() => {
+    if (!isAvailable) return;
+
     const config = createConfig();
     const id = new Date().getTime().toString();
 
@@ -53,7 +56,9 @@ const WriterApi = () => {
       id,
       type: 'writerApi',
       position: { x: 0, y: 0 },
-      data: {},
+      data: {
+        label: 'Writer API',
+      },
     });
 
     addApiNode({
@@ -61,10 +66,20 @@ const WriterApi = () => {
       type: 'writerApi',
       config,
     });
-  }, [addApiNode, addFlowNode]);
+  }, [addApiNode, addFlowNode, isAvailable]);
 
   return (
-    <ToolItem label="Writer API" onClick={addWriterApiNode} Icon={PenTool} />
+    <ToolItem
+      label="Writer API"
+      onClick={addWriterApiNode}
+      Icon={PenTool}
+      disabled={!isAvailable}
+      title={
+        !isAvailable
+          ? 'Built-in Writer API is not available in this browser'
+          : undefined
+      }
+    />
   );
 };
 

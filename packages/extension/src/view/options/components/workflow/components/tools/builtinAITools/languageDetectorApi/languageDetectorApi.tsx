@@ -33,11 +33,14 @@ const LanguageDetectorApi = () => {
     addFlowNode: actions.addNode,
   }));
 
-  const { addApiNode } = useApi(({ actions }) => ({
+  const { addApiNode, isAvailable } = useApi(({ state, actions }) => ({
     addApiNode: actions.addNode,
+    isAvailable: state.capabilities.languageDetectorApi,
   }));
 
   const addLanguageDetectorApiNode = useCallback(() => {
+    if (!isAvailable) return;
+
     const config = createConfig();
     const id = new Date().getTime().toString();
 
@@ -45,7 +48,9 @@ const LanguageDetectorApi = () => {
       id,
       type: 'languageDetectorApi',
       position: { x: 0, y: 0 },
-      data: {},
+      data: {
+        label: 'Language Detector',
+      },
     });
 
     addApiNode({
@@ -53,13 +58,19 @@ const LanguageDetectorApi = () => {
       type: 'languageDetectorApi',
       config,
     });
-  }, [addApiNode, addFlowNode]);
+  }, [addApiNode, addFlowNode, isAvailable]);
 
   return (
     <ToolItem
       label="Language Detector"
       onClick={addLanguageDetectorApiNode}
       Icon={ScanSearch}
+      disabled={!isAvailable}
+      title={
+        !isAvailable
+          ? 'Built-in Language Detector API is not available in this browser'
+          : undefined
+      }
     />
   );
 };

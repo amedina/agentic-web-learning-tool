@@ -40,11 +40,14 @@ const RewriterApi = () => {
     addFlowNode: actions.addNode,
   }));
 
-  const { addApiNode } = useApi(({ actions }) => ({
+  const { addApiNode, isAvailable } = useApi(({ state, actions }) => ({
     addApiNode: actions.addNode,
+    isAvailable: state.capabilities.rewriterApi,
   }));
 
   const addRewriterApiNode = useCallback(() => {
+    if (!isAvailable) return;
+
     const config = createConfig();
     const id = new Date().getTime().toString();
 
@@ -52,7 +55,9 @@ const RewriterApi = () => {
       id,
       type: 'rewriterApi',
       position: { x: 0, y: 0 },
-      data: {},
+      data: {
+        label: 'Rewriter API',
+      },
     });
 
     addApiNode({
@@ -60,13 +65,19 @@ const RewriterApi = () => {
       type: 'rewriterApi',
       config,
     });
-  }, [addApiNode, addFlowNode]);
+  }, [addApiNode, addFlowNode, isAvailable]);
 
   return (
     <ToolItem
       label="Rewriter API"
       onClick={addRewriterApiNode}
       Icon={RefreshCcw}
+      disabled={!isAvailable}
+      title={
+        !isAvailable
+          ? 'Built-in Rewriter API is not available in this browser'
+          : undefined
+      }
     />
   );
 };

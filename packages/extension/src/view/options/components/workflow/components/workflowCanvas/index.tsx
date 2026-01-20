@@ -3,6 +3,7 @@
  */
 import { X } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
+import { WorkflowClient } from '@google-awlt/engine-extension';
 
 /**
  * Internal dependencies
@@ -16,27 +17,13 @@ const STORAGE_PREFIX = 'workflow-';
 const generateId = () =>
   `${ID_PREFIX}${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-const useDebounce = <T,>(value: T, delay: number): T => {
-  const [debouncedValue, setDebouncedValue] = useState<T>(value);
-
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [value, delay]);
-
-  return debouncedValue;
-};
-
-const FlowContainer = () => {
+const WorkflowCanvas = () => {
   const [workflowTitle, setWorkflowTitle] = useState('Untitled Workflow');
   const [showImportDialog, setShowImportDialog] = useState(false);
   const [importJson, setImportJson] = useState('');
   const [workflowId, setWorkflowId] = useState<string | null>(null);
+  const [tabs, setTabs] = useState<chrome.tabs.Tab[]>([]);
+  const [selectedTabId, setSelectedTabId] = useState<number | null>(null);
   const [toast, setToast] = useState<{
     message: string;
     type: 'success' | 'error';
@@ -53,6 +40,9 @@ const FlowContainer = () => {
     onConnect,
     clearFlow,
     addNode,
+    updateNodeStatus,
+    isRunning,
+    setIsRunning,
   } = useFlow(({ state, actions }) => ({
     nodes: state.nodes,
     edges: state.edges,
@@ -64,6 +54,9 @@ const FlowContainer = () => {
     onConnect: actions.onConnect,
     clearFlow: actions.clearFlow,
     addNode: actions.addNode,
+    updateNodeStatus: actions.updateNodeStatus,
+    isRunning: state.isRunning,
+    setIsRunning: actions.setIsRunning,
   }));
 
   const { nodes: nodesApiData, addNode: addApiNode } = useApi(
@@ -73,9 +66,23 @@ const FlowContainer = () => {
     })
   );
 
-  const handleImport = () => {
+  // Fetch tabs on mount
+  useEffect(() => {
+    if (typeof chrome !== 'undefined' && chrome.tabs?.query) {
+      chrome.tabs.query({}, (result) => {
+        setTabs(result);
+        // Select active tab if found
+        const activeTab = result.find((t) => t.active);
+        if (activeTab?.id) {
+          setSelectedTabId(activeTab.id);
+        }
+      });
+    }
+  }, []);
+
+  const handleImport = useCallback(() => {
     setShowImportDialog(true);
-  };
+  }, []);
 
   const loadWorkflowData = useCallback(
     (workflowData: any) => {
@@ -118,6 +125,27 @@ const FlowContainer = () => {
     [clearFlow, addNode, addApiNode, onConnect]
   );
 
+  const addPlaceholderNode = useCallback(() => {
+    const id = new Date().getTime().toString();
+
+    addNode({
+      id,
+      type: 'staticInput',
+      position: { x: 10, y: 10 },
+      data: { label: 'Static Input' },
+    });
+
+    addApiNode({
+      id,
+      type: 'staticInput',
+      config: {
+        title: 'Static Input',
+        description: 'Provide a static text input.',
+        inputValue: '',
+      },
+    });
+  }, [addNode, addApiNode]);
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const idFromUrl = params.get('id');
@@ -130,18 +158,20 @@ const FlowContainer = () => {
         try {
           const parsed = JSON.parse(savedData);
           loadWorkflowData(parsed);
+          return;
         } catch (e) {
           console.error('Failed to load workflow from storage', e);
         }
       }
-    } else {
-      const newId = generateId();
-      setWorkflowId(newId);
-      const newUrl = new URL(window.location.href);
-      newUrl.searchParams.set('id', newId);
-      window.history.replaceState({}, '', newUrl.toString());
     }
-  }, [loadWorkflowData]);
+
+    const newId = generateId();
+    setWorkflowId(newId);
+    const newUrl = new URL(window.location.href);
+    newUrl.searchParams.set('id', newId);
+    window.history.replaceState({}, '', newUrl.toString());
+    addPlaceholderNode();
+  }, [loadWorkflowData, addNode, addApiNode, addPlaceholderNode]);
 
   const serializeWorkflow = useCallback(
     (
@@ -182,35 +212,39 @@ const FlowContainer = () => {
     []
   );
 
-  const debouncedTitle = useDebounce(workflowTitle, 1000);
-  const debouncedNodes = useDebounce(nodes, 1000);
-  const debouncedEdges = useDebounce(edges, 1000);
-  const debouncedNodesApiData = useDebounce(nodesApiData, 1000);
-
   useEffect(() => {
     if (!workflowId) return;
 
     const workflowData = serializeWorkflow(
       workflowId,
-      debouncedTitle,
-      debouncedNodes,
-      debouncedEdges,
-      debouncedNodesApiData
+      workflowTitle,
+      nodes,
+      edges,
+      nodesApiData
     );
+
     localStorage.setItem(
       `${STORAGE_PREFIX}${workflowId}`,
       JSON.stringify(workflowData)
     );
   }, [
     workflowId,
-    debouncedTitle,
-    debouncedNodes,
-    debouncedEdges,
-    debouncedNodesApiData,
+    workflowTitle,
+    nodes,
+    edges,
+    nodesApiData,
     serializeWorkflow,
   ]);
 
-  const handleExport = async () => {
+  const showToast = useCallback(
+    (message: string, type: 'success' | 'error') => {
+      setToast({ message, type });
+      setTimeout(() => setToast(null), 3000);
+    },
+    []
+  );
+
+  const handleExport = useCallback(async () => {
     try {
       const workflowData = serializeWorkflow(
         workflowId,
@@ -228,9 +262,17 @@ const FlowContainer = () => {
       console.error('Failed to export workflow:', error);
       showToast('Failed to export workflow', 'error');
     }
-  };
+  }, [
+    edges,
+    nodes,
+    nodesApiData,
+    serializeWorkflow,
+    showToast,
+    workflowId,
+    workflowTitle,
+  ]);
 
-  const handleImportSubmit = () => {
+  const handleImportSubmit = useCallback(() => {
     try {
       clearFlow();
 
@@ -267,18 +309,72 @@ const FlowContainer = () => {
         'error'
       );
     }
-  };
+  }, [clearFlow, importJson, loadWorkflowData, showToast]);
 
-  const showToast = (message: string, type: 'success' | 'error') => {
-    setToast({ message, type });
-    setTimeout(() => setToast(null), 3000);
-  };
+  const handleRun = useCallback(async () => {
+    if (isRunning) return;
+    if (!selectedTabId) {
+      showToast('Please select a tab to run on', 'error');
+      return;
+    }
 
-  const handleRun = () => {
-    return;
-  };
+    setIsRunning(true);
 
-  const handleClear = () => {
+    // Reset statuses
+    nodes.forEach((node) => updateNodeStatus(node.id, undefined));
+
+    const workflowData = serializeWorkflow(
+      workflowId,
+      workflowTitle,
+      nodes,
+      edges,
+      nodesApiData
+    );
+
+    const client = new WorkflowClient();
+
+    try {
+      await client.runWorkflow(workflowData as any, selectedTabId, {
+        onNodeStart: (nodeId: string) => {
+          updateNodeStatus(nodeId, 'running');
+        },
+        onNodeFinish: (nodeId: string, output: any) => {
+          updateNodeStatus(
+            nodeId,
+            output.status === 'success' ? 'success' : 'error'
+          );
+        },
+        onComplete: (context: any) => {
+          setIsRunning(false);
+          showToast('Workflow completed successfully!', 'success');
+          console.log('Workflow context:', context);
+        },
+        onError: (error: string) => {
+          setIsRunning(false);
+          showToast(`Workflow failed: ${error}`, 'error');
+          console.error('Workflow error:', error);
+        },
+      });
+    } catch (error) {
+      setIsRunning(false);
+      const msg = error instanceof Error ? error.message : String(error);
+      showToast(`Failed to start workflow: ${msg}`, 'error');
+    }
+  }, [
+    edges,
+    isRunning,
+    nodes,
+    nodesApiData,
+    selectedTabId,
+    serializeWorkflow,
+    setIsRunning,
+    showToast,
+    updateNodeStatus,
+    workflowId,
+    workflowTitle,
+  ]);
+
+  const handleClear = useCallback(() => {
     if (
       window.confirm(
         'Are you sure you want to clear the workflow? This action cannot be undone.'
@@ -286,9 +382,9 @@ const FlowContainer = () => {
     ) {
       clearFlow();
     }
-  };
+  }, [clearFlow]);
 
-  const handleNewWorkflow = () => {
+  const handleNewWorkflow = useCallback(() => {
     if (
       window.confirm(
         'Create a new workflow? This will start a fresh canvas. Your current workflow is auto-saved.'
@@ -320,7 +416,7 @@ const FlowContainer = () => {
       );
       showToast('New workflow creating!', 'success');
     }
-  };
+  }, [clearFlow, showToast]);
 
   return (
     <div className="h-full flex-1 flex flex-col rounded bg-gray-100 relative">
@@ -397,6 +493,10 @@ const FlowContainer = () => {
           onConnect={onConnect}
           title={workflowTitle}
           onTitleChange={setWorkflowTitle}
+          selectedTabId={selectedTabId}
+          setSelectedTabId={setSelectedTabId}
+          tabs={tabs}
+          isRunning={isRunning}
           actions={{
             onImport: handleImport,
             onExport: handleExport,
@@ -410,4 +510,4 @@ const FlowContainer = () => {
   );
 };
 
-export default FlowContainer;
+export default WorkflowCanvas;

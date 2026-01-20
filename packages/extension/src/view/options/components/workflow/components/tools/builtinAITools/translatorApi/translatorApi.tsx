@@ -34,11 +34,14 @@ const TranslatorApi = () => {
     addFlowNode: actions.addNode,
   }));
 
-  const { addApiNode } = useApi(({ actions }) => ({
+  const { addApiNode, isAvailable } = useApi(({ state, actions }) => ({
     addApiNode: actions.addNode,
+    isAvailable: state.capabilities.translatorApi,
   }));
 
   const addTranslatorApiNode = useCallback(() => {
+    if (!isAvailable) return;
+
     const config = createConfig();
     const id = new Date().getTime().toString();
 
@@ -46,7 +49,9 @@ const TranslatorApi = () => {
       id,
       type: 'translatorApi',
       position: { x: 0, y: 0 },
-      data: {},
+      data: {
+        label: 'Translator API',
+      },
     });
 
     addApiNode({
@@ -54,13 +59,19 @@ const TranslatorApi = () => {
       type: 'translatorApi',
       config,
     });
-  }, [addApiNode, addFlowNode]);
+  }, [addApiNode, addFlowNode, isAvailable]);
 
   return (
     <ToolItem
       label="Translator API"
       onClick={addTranslatorApiNode}
       Icon={Languages}
+      disabled={!isAvailable}
+      title={
+        !isAvailable
+          ? 'Built-in Translator API is not available in this browser'
+          : undefined
+      }
     />
   );
 };

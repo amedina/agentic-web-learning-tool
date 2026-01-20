@@ -1,4 +1,4 @@
-import { Settings } from 'lucide-react';
+import { ChevronsLeft, ChevronsRight, Settings } from 'lucide-react';
 import type { ReactNode } from 'react';
 
 export interface ToolsConfigProps {
@@ -12,6 +12,8 @@ export interface ToolsConfigProps {
   onContextChange?: (value: string) => void;
   onFormChange?: (e: React.FormEvent<HTMLFormElement>) => void;
   children?: ReactNode;
+  collapsed?: boolean;
+  onToggle?: () => void;
 }
 
 const ToolsConfig = ({
@@ -25,14 +27,45 @@ const ToolsConfig = ({
   onContextChange,
   onFormChange,
   children,
+  collapsed = false,
+  onToggle,
 }: ToolsConfigProps) => {
+  if (collapsed) {
+    return (
+      <div className="w-14 bg-white border-l border-slate-200 flex flex-col h-full items-center relative transition-all duration-300">
+        <div className="flex flex-col items-center py-4 border-b border-slate-200 bg-slate-50 w-full relative">
+          <button
+            onClick={onToggle}
+            className="absolute -left-1 top-1/2 -translate-y-1/2 p-1 hover:bg-slate-200 rounded-md text-slate-400 hover:text-slate-600 transition-colors z-10"
+            title="Expand Config"
+          >
+            <ChevronsLeft size={16} />
+          </button>
+          <Settings size={20} className="text-slate-600" />
+        </div>
+        <div className="flex-1 flex flex-col items-center pt-8 gap-6 overflow-hidden">
+          <div className="[writing-mode:vertical-lr] rotate-180 text-xs font-semibold text-slate-400 uppercase tracking-widest whitespace-nowrap">
+            Configuration
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="w-96 bg-white border-l border-slate-200 flex flex-col h-full">
-      <div className="flex items-center justify-between p-4 border-b border-slate-200 bg-slate-50">
+    <div className="w-74 bg-white border-l border-slate-200 flex flex-col h-full transition-all duration-300">
+      <div className="flex items-center justify-between p-4 border-b border-slate-200 bg-slate-50 relative">
         <div className="flex items-center gap-2">
           <Settings size={20} className="text-slate-600" />
           <h2 className="font-semibold text-slate-800">{title}</h2>
         </div>
+        <button
+          onClick={onToggle}
+          className="p-1.5 hover:bg-slate-200 rounded-md text-slate-400 hover:text-slate-600 transition-colors"
+          title="Collapse Config"
+        >
+          <ChevronsRight size={18} />
+        </button>
       </div>
 
       <div className="flex-1 overflow-y-auto">

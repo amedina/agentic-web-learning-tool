@@ -7,7 +7,7 @@ import { FormInput } from 'lucide-react';
 
 /**
  * Internal dependencies
-*/
+ */
 import { ToolNodeContainer } from '../../../../ui';
 import { useApi, useFlow } from '../../../../../store';
 import type { StaticInputConfig } from './staticInput';
@@ -22,9 +22,14 @@ const ToolNode = () => {
 		})
 	);
 
-	const { deleteNode } = useFlow(({ actions }) => ({
+	const { nodes, deleteNode } = useFlow(({ state, actions }) => ({
+		nodes: state.nodes,
 		deleteNode: actions.deleteNode,
 	}));
+
+	const nodeStatus = useMemo(() => {
+		return nodes.find((n) => n.id === nodeId)?.status;
+	}, [nodes, nodeId]);
 
 	const config = useMemo(() => {
 		if (!nodeId) return undefined;
@@ -48,6 +53,7 @@ const ToolNode = () => {
 			Icon={FormInput}
 			type={config?.type || ''}
 			selected={selectedNode === nodeId}
+			status={nodeStatus}
 			onEdit={() => {
 				setSelectedNode(nodeId);
 			}}

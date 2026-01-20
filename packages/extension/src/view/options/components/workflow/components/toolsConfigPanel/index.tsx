@@ -34,7 +34,15 @@ const TOOLS = {
   staticInput: StaticInputToolConfig,
 };
 
-const ToolsConfigPanel = () => {
+interface ToolsConfigPanelProps {
+  collapsed?: boolean;
+  onToggle?: () => void;
+}
+
+const ToolsConfigPanel = ({
+  collapsed = false,
+  onToggle,
+}: ToolsConfigPanelProps) => {
   const { selectedNode, getNode, updateNode } = useApi(
     ({ state, actions }) => ({
       selectedNode: state.selectedNode,
@@ -45,7 +53,6 @@ const ToolsConfigPanel = () => {
 
   const [node, setNode] = useState<ReturnType<typeof getNode>>();
   const [config, setConfig] = useState<any>();
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const toolNodeRef = useRef<{
     getConfig: (formData: FormData) => any;
@@ -85,24 +92,10 @@ const ToolsConfigPanel = () => {
     (e: React.FormEvent<HTMLFormElement>) => {
       const form = e.currentTarget;
 
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-
-      timeoutRef.current = setTimeout(() => {
-        handleConfigUpdate(form);
-      }, 100);
+      handleConfigUpdate(form);
     },
     [handleConfigUpdate]
   );
-
-  useEffect(() => {
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-    };
-  }, []);
 
   const Tool = node?.type
     ? (TOOLS[node.type as keyof typeof TOOLS] as any)
@@ -119,7 +112,7 @@ const ToolsConfigPanel = () => {
         setConfig((prev: any) => ({ ...prev, title: value }))
       }
       onContextChange={
-        config?.context
+        config?.context !== undefined
           ? (value) =>
               setConfig((prev: any) => ({
                 ...prev,
@@ -128,6 +121,8 @@ const ToolsConfigPanel = () => {
           : undefined
       }
       onFormChange={handleChange}
+      collapsed={collapsed}
+      onToggle={onToggle}
     >
       {Tool && node && <Tool ref={toolNodeRef} config={node.config} />}
     </ToolsConfig>

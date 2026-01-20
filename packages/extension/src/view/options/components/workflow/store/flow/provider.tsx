@@ -54,6 +54,8 @@ const FlowProvider = ({ children }: PropsWithChildren) => {
 		clearApiData: actions.clearApiData,
 	}));
 
+	const [isRunning, setIsRunning] = useState(false);
+
 	const onNodesChange = useCallback(
 		(changes: NodeChange<NodeType>[]) =>
 			setNodes((nodesSnapshot) =>
@@ -134,6 +136,15 @@ const FlowProvider = ({ children }: PropsWithChildren) => {
 		setNodes((prev) => [...prev, node]);
 	}, []);
 
+	const updateNodeStatus = useCallback(
+		(id: string, status: 'running' | 'success' | 'error' | undefined) => {
+			setNodes((nds) =>
+				nds.map((node) => (node.id === id ? { ...node, status } : node))
+			);
+		},
+		[]
+	);
+
 	const clearFlow = useCallback(() => {
 		clearApiData();
 		setNodes([]);
@@ -147,6 +158,7 @@ const FlowProvider = ({ children }: PropsWithChildren) => {
 					nodes,
 					edges,
 					nodeTypes,
+					isRunning,
 				},
 				actions: {
 					onNodesChange,
@@ -156,6 +168,8 @@ const FlowProvider = ({ children }: PropsWithChildren) => {
 					onConnect,
 					addNode,
 					deleteNode,
+					updateNodeStatus,
+					setIsRunning,
 					clearFlow,
 				},
 			}}

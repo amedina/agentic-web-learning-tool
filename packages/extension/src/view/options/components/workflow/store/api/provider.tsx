@@ -1,12 +1,19 @@
 /**
  * External dependencies
  */
-import { useCallback, useState, type PropsWithChildren } from 'react';
+import {
+	useCallback,
+	useState,
+	useEffect,
+	type PropsWithChildren,
+} from 'react';
 
 /**
  * Internal dependencies
  */
 import Context, { ApiCleaner, type NodeConfig } from './context';
+
+import { getWorkflowClient } from '@google-awlt/engine-extension';
 
 const ApiProvider = ({ children }: PropsWithChildren) => {
 	const [nodes, setNodes] = useState<{
@@ -14,6 +21,9 @@ const ApiProvider = ({ children }: PropsWithChildren) => {
 	}>({});
 
 	const [selectedNode, setSelectedNode] = useState<string | null>(null);
+	const [capabilities, setCapabilities] = useState<Record<string, boolean>>(
+		{}
+	);
 
 	const getNode = useCallback(
 		(id: string) => {
@@ -85,22 +95,51 @@ const ApiProvider = ({ children }: PropsWithChildren) => {
 		setSelectedNode(null);
 	}, []);
 
+	const checkCapabilities = useCallback(async () => {
+		try {
+			const client = getWorkflowClient();
+			const results = await client.checkCapabilities([
+				'promptApi',
+				'writerApi',
+				'rewriterApi',
+				'summarizerApi',
+				'translatorApi',
+				'languageDetectorApi',
+				'proofreaderApi',
+			]);
+			setCapabilities({
+				...results,
+				translatorApi: true, // Always show in UI per user request
+			});
+		} catch (error) {
+			console.error('Failed to check capabilities:', error);
+		}
+	}, []);
+
+	useEffect(() => {
+		checkCapabilities();
+	}, [checkCapabilities]);
+
 	return (
 		<Context.Provider
-			value={{
-				state: {
-					nodes,
-					selectedNode,
-				},
-				actions: {
-					getNode,
-					addNode,
-					updateNode,
-					removeNode,
-					setSelectedNode,
-					clearApiData,
-				},
-			}}
+			value={
+				{
+					state: {
+						nodes,
+						selectedNode,
+						capabilities,
+					},
+					actions: {
+						getNode,
+						addNode,
+						updateNode,
+						removeNode,
+						setSelectedNode,
+						clearApiData,
+						checkCapabilities,
+					},
+				} as any
+			}
 		>
 			<ApiCleaner />
 			{children}

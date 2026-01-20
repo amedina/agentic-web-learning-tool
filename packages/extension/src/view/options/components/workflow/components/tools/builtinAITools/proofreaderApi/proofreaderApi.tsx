@@ -32,11 +32,14 @@ const ProofreaderApi = () => {
     addFlowNode: actions.addNode,
   }));
 
-  const { addApiNode } = useApi(({ actions }) => ({
+  const { addApiNode, isAvailable } = useApi(({ state, actions }) => ({
     addApiNode: actions.addNode,
+    isAvailable: state.capabilities.proofreaderApi,
   }));
 
   const addProofreaderApiNode = useCallback(() => {
+    if (!isAvailable) return;
+
     const config = createConfig();
     const id = new Date().getTime().toString();
 
@@ -44,7 +47,9 @@ const ProofreaderApi = () => {
       id,
       type: 'proofreaderApi',
       position: { x: 0, y: 0 },
-      data: {},
+      data: {
+        label: 'Proofreader API',
+      },
     });
 
     addApiNode({
@@ -52,13 +57,19 @@ const ProofreaderApi = () => {
       type: 'proofreaderApi',
       config,
     });
-  }, [addApiNode, addFlowNode]);
+  }, [addApiNode, addFlowNode, isAvailable]);
 
   return (
     <ToolItem
       label="Proofreader API"
       onClick={addProofreaderApiNode}
       Icon={BookCheck}
+      disabled={!isAvailable}
+      title={
+        !isAvailable
+          ? 'Built-in Proofreader API is not available in this browser'
+          : undefined
+      }
     />
   );
 };
