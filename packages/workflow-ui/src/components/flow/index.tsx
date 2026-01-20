@@ -10,6 +10,7 @@ import type {
   NodeOutput,
   WorkflowJSON,
 } from "@google-awlt/engine-core";
+import { saveWorkflow, loadWorkflow } from "@google-awlt/engine-extension";
 
 /**
  * Internal dependencies
@@ -23,7 +24,6 @@ import {
 } from "../../stateProviders";
 import { Flow, Toast, SavedWorkflowsDialog } from "../ui";
 import { TOOL_CONFIGS } from "../tools/toolRegistry";
-import { saveWorkflow, loadWorkflow } from "../../utils/storage";
 
 const ID_PREFIX = "wf_";
 const STORAGE_KEY_SELECTED_TAB = "awl_wc_selected_tab_id";

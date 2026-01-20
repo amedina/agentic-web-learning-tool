@@ -88,6 +88,7 @@ const initialState: ApiStoreContext = {
       name: "",
       description: "",
       version: "1.0.0",
+      savedAt: "",
       allowedDomains: [],
       isWebMCP: false,
     },

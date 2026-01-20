@@ -27,6 +27,7 @@ const ApiProvider = ({ children }: PropsWithChildren) => {
     name: "New Workflow",
     description: "",
     version: "1.0.0",
+    savedAt: new Date().toISOString(),
     allowedDomains: [],
     isWebMCP: false,
   });
@@ -104,6 +105,7 @@ const ApiProvider = ({ children }: PropsWithChildren) => {
       name: "New Workflow",
       description: "",
       version: "1.0.0",
+      savedAt: new Date().toISOString(),
       allowedDomains: [],
       isWebMCP: false,
     });

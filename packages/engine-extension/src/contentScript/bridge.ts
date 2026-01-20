@@ -21,7 +21,7 @@ export function initContentScriptBridge(): void {
   function handleMessage(
     message: ContentScriptMessage,
     _sender: chrome.runtime.MessageSender,
-    sendResponse: (response: ContentScriptResponse) => void
+    sendResponse: (response: ContentScriptResponse) => void,
   ): boolean {
     switch (message.type) {
       case "QUERY_DOM":
@@ -29,7 +29,7 @@ export function initContentScriptBridge(): void {
           message.selector,
           message.extract,
           message.isMultiple,
-          sendResponse
+          sendResponse,
         );
         return true;
 
@@ -51,7 +51,7 @@ export function initContentScriptBridge(): void {
           message.content,
           message.isMultiple,
           sendResponse,
-          message.index
+          message.index,
         );
         return true;
 
@@ -93,7 +93,7 @@ export function initContentScriptBridge(): void {
       | "src"
       | "href",
     isMultiple: boolean | undefined,
-    sendResponse: (response: ContentScriptResponse) => void
+    sendResponse: (response: ContentScriptResponse) => void,
   ): void {
     try {
       const elements = document.querySelectorAll(selector);
@@ -143,7 +143,7 @@ export function initContentScriptBridge(): void {
    */
   function handleShowAlert(
     message: string,
-    sendResponse: (response: ContentScriptResponse) => void
+    sendResponse: (response: ContentScriptResponse) => void,
   ): void {
     try {
       window.alert(message);
@@ -161,7 +161,7 @@ export function initContentScriptBridge(): void {
   function handleUpdateNodeStatus(
     nodeId: string,
     status: "running" | "success" | "error",
-    sendResponse: (response: ContentScriptResponse) => void
+    sendResponse: (response: ContentScriptResponse) => void,
   ): void {
     try {
       // Log for now - can be extended to show visual feedback
@@ -175,7 +175,7 @@ export function initContentScriptBridge(): void {
 
   async function handleContentScriptActive(
     tabId: number,
-    sendResponse: (response: ContentScriptResponse) => void
+    sendResponse: (response: ContentScriptResponse) => void,
   ) {
     try {
       const currentTabIds = await chrome.tabs.query({});
@@ -200,14 +200,14 @@ export function initContentScriptBridge(): void {
     content: string,
     isMultiple: boolean | undefined,
     sendResponse: (response: ContentScriptResponse) => void,
-    index?: number
+    index?: number,
   ): void {
     try {
       if (typeof index === "number") {
         const elements = document.querySelectorAll(selector);
         if (!elements || elements.length <= index) {
           throw new Error(
-            `No element found at index ${index} for selector: ${selector}`
+            `No element found at index ${index} for selector: ${selector}`,
           );
         }
         elements[index].textContent = content;
@@ -239,7 +239,7 @@ export function initContentScriptBridge(): void {
    */
   async function handleCopyToClipboard(
     text: string,
-    sendResponse: (response: ContentScriptResponse) => void
+    sendResponse: (response: ContentScriptResponse) => void,
   ): Promise<void> {
     try {
       const textarea = document.createElement("textarea");
@@ -261,7 +261,7 @@ export function initContentScriptBridge(): void {
   function handleDownloadFile(
     filename: string,
     content: string,
-    sendResponse: (response: ContentScriptResponse) => void
+    sendResponse: (response: ContentScriptResponse) => void,
   ): void {
     try {
       const blob = new Blob([content], { type: "text/plain" });
@@ -286,7 +286,7 @@ export function initContentScriptBridge(): void {
    */
   function handleSpeakText(
     text: string,
-    sendResponse: (response: ContentScriptResponse) => void
+    sendResponse: (response: ContentScriptResponse) => void,
   ): void {
     try {
       const utterance = new SpeechSynthesisUtterance(text);
@@ -305,7 +305,7 @@ export function initContentScriptBridge(): void {
   function handleShowTooltip(
     selector: string,
     content: string,
-    sendResponse: (response: ContentScriptResponse) => void
+    sendResponse: (response: ContentScriptResponse) => void,
   ): void {
     try {
       const elements = document.querySelectorAll(selector);
