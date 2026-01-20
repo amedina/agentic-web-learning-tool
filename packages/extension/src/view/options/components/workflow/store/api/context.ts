@@ -3,6 +3,10 @@
  */
 import { createContext } from 'react';
 import { createContextSelector } from 'react-context-selector';
+
+/**
+ * Internal dependencies
+ */
 import {
 	type AlertNotificationConfig,
 	type ConditionConfig,

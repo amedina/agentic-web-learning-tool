@@ -7,9 +7,9 @@ import { FormInput } from 'lucide-react';
 
 /**
  * Internal dependencies
- */
-import { useApi, useFlow } from '../../../../../store';
+*/
 import { ToolNodeContainer } from '../../../../ui';
+import { useApi, useFlow } from '../../../../../store';
 import type { StaticInputConfig } from './staticInput';
 
 const ToolNode = () => {

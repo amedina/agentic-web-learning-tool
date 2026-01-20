@@ -22,8 +22,9 @@ export type LanguageDetectorApiConfig = z.infer<
 
 const createConfig: () => LanguageDetectorApiConfig = () => {
   return {
-    title: 'Language Detector API',
-    description: 'Determine the language of input text.',
+    title: 'Language Detector',
+    description:
+      'Analyzes input text to determine the source language (e.g., English, Spanish, Japanese).',
   };
 };
 
@@ -44,9 +45,7 @@ const LanguageDetectorApi = () => {
       id,
       type: 'languageDetectorApi',
       position: { x: 0, y: 0 },
-      data: {
-        label: 'Language Detector API',
-      },
+      data: {},
     });
 
     addApiNode({
@@ -58,7 +57,7 @@ const LanguageDetectorApi = () => {
 
   return (
     <ToolItem
-      label="Language Detector API"
+      label="Language Detector"
       onClick={addLanguageDetectorApiNode}
       Icon={ScanSearch}
     />

@@ -8,58 +8,56 @@ import z from 'zod';
 /**
  * Internal dependencies
  */
-import { useApi, useFlow } from '../../../../../store';
 import { ToolItem } from '../../../../ui';
+import { useApi, useFlow } from '../../../../../store';
 
 export const AlertNotificationSchema = z.object({
-	title: z.string(),
-	description: z.string().optional(),
+  title: z.string(),
+  description: z.string().optional(),
 });
 
 export type AlertNotificationConfig = z.infer<typeof AlertNotificationSchema>;
 
 const createConfig: () => AlertNotificationConfig = () => {
-	return {
-		title: 'Alert Notification',
-		description: 'An Alert notification for displaying output.',
-	};
+  return {
+    title: 'Alert Notification',
+    description: 'An Alert notification for displaying output.',
+  };
 };
 
 const AlertNotification = () => {
-	const { addFlowNode } = useFlow(({ actions }) => ({
-		addFlowNode: actions.addNode,
-	}));
+  const { addFlowNode } = useFlow(({ actions }) => ({
+    addFlowNode: actions.addNode,
+  }));
 
-	const { addApiNode } = useApi(({ actions }) => ({
-		addApiNode: actions.addNode,
-	}));
+  const { addApiNode } = useApi(({ actions }) => ({
+    addApiNode: actions.addNode,
+  }));
 
-	const addAlertNotificationNode = useCallback(() => {
-		const id = new Date().getTime().toString();
+  const addAlertNotificationNode = useCallback(() => {
+    const id = new Date().getTime().toString();
 
-		addFlowNode({
-			id,
-			type: 'alertNotification',
-			position: { x: 0, y: 0 },
-			data: {
-				label: 'Alert Notification',
-			},
-		});
+    addFlowNode({
+      id,
+      type: 'alertNotification',
+      position: { x: 0, y: 0 },
+      data: {},
+    });
 
-		addApiNode({
-			id,
-			type: 'alertNotification',
-			config: createConfig(),
-		});
-	}, [addApiNode, addFlowNode]);
+    addApiNode({
+      id,
+      type: 'alertNotification',
+      config: createConfig(),
+    });
+  }, [addApiNode, addFlowNode]);
 
-	return (
-		<ToolItem
-			label="Alert Notification"
-			onClick={addAlertNotificationNode}
-			Icon={BellRing}
-		/>
-	);
+  return (
+    <ToolItem
+      label="Alert Notification"
+      onClick={addAlertNotificationNode}
+      Icon={BellRing}
+    />
+  );
 };
 
 export default AlertNotification;

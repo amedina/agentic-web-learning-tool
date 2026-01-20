@@ -8,8 +8,8 @@ import z from 'zod';
 /**
  * Internal dependencies
  */
-import { useApi, useFlow } from '../../../../store';
 import { ToolItem } from '../../../ui';
+import { useApi, useFlow } from '../../../../store';
 
 export const WriterApiSchema = z.object({
   title: z.string(),
@@ -25,8 +25,9 @@ export type WriterApiConfig = z.infer<typeof WriterApiSchema>;
 
 const createConfig: () => WriterApiConfig = () => {
   return {
-    title: 'Writer API',
-    context: 'You are a helpful writer',
+    title: 'Writer',
+    context:
+      'A helpful assistant that writes content based on the provided context.',
     tone: 'neutral',
     format: 'markdown',
     length: 'short',
@@ -52,9 +53,7 @@ const WriterApi = () => {
       id,
       type: 'writerApi',
       position: { x: 0, y: 0 },
-      data: {
-        label: 'Writer API',
-      },
+      data: {},
     });
 
     addApiNode({

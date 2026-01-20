@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Settings } from 'lucide-react';
 
 /**
  * Internal dependencies
@@ -19,6 +18,7 @@ import {
   StaticInputToolConfig,
   ConditionToolConfig,
 } from '../tools';
+import { ToolsConfig } from '../ui';
 
 const TOOLS = {
   promptApi: PromptApiToolConfig,
@@ -109,99 +109,28 @@ const ToolsConfigPanel = () => {
     : null;
 
   return (
-    <div className="w-96 bg-white border-l border-slate-200 flex flex-col h-full">
-      <div className="flex items-center justify-between p-4 border-b border-slate-200 bg-slate-50">
-        <div className="flex items-center gap-2">
-          <Settings size={20} className="text-slate-600" />
-          <h2 className="font-semibold text-slate-800">Node Configuration</h2>
-        </div>
-      </div>
-
-      <div className="flex-1 overflow-y-auto">
-        {!selectedNode ? (
-          <div className="p-8 text-center text-slate-500">
-            <Settings size={48} className="mx-auto mb-4 text-slate-300" />
-            <p className="text-sm">Select a node to configure its settings</p>
-          </div>
-        ) : (
-          <form
-            id="node-config-form"
-            onChange={handleChange}
-            onSubmit={(e) => e.preventDefault()}
-            className="p-4 space-y-4"
-          >
-            <div className="bg-slate-100 rounded-lg p-3">
-              <div className="text-xs text-slate-500 mb-1 uppercase tracking-wide">
-                Node Type
-              </div>
-              <div className="text-sm font-medium text-slate-800 capitalize">
-                {node?.type?.replace(/([A-Z])/g, ' $1').trim()}
-              </div>
-            </div>
-
-            <div>
-              <label
-                className="block text-sm font-medium text-slate-700 mb-2"
-                htmlFor="title"
-              >
-                Node Title
-              </label>
-              <input
-                type="text"
-                className="w-full p-3 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-white"
-                value={config?.title || ''}
-                onChange={(e) => {
-                  setConfig((prev: any) => ({
-                    ...prev,
-                    title: e.target.value,
-                  }));
-                }}
-                id="title"
-                name="title"
-                placeholder="Enter node title..."
-              />
-            </div>
-
-            <div>
-              {config?.context ? (
-                <>
-                  <label
-                    className="block text-sm font-medium text-slate-700 mb-2"
-                    htmlFor="context"
-                  >
-                    Context
-                  </label>
-                  <textarea
-                    className="w-full p-3 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm resize-none bg-white"
-                    rows={4}
-                    value={config?.context || ''}
-                    id="context"
-                    name="context"
-                    onChange={(e) =>
-                      setConfig((prev: any) => ({
-                        ...prev,
-                        context: e.target.value,
-                      }))
-                    }
-                    placeholder="Enter context for the tool..."
-                  />
-                </>
-              ) : (
-                <p className="text-sm text-slate-700 mb-2">
-                  {(node?.config as any)?.description}
-                </p>
-              )}
-            </div>
-
-            {Tool && node && <Tool ref={toolNodeRef} config={node.config} />}
-          </form>
-        )}
-      </div>
-
-      <div className="p-4 border-t border-slate-200 bg-slate-50 text-xs text-slate-500 text-center">
-        <p>Changes are saved automatically</p>
-      </div>
-    </div>
+    <ToolsConfig
+      selectedNodeId={selectedNode}
+      nodeType={node?.type}
+      nodeTitle={config?.title || ''}
+      nodeContext={config?.context}
+      nodeDescription={(node?.config as any)?.description}
+      onTitleChange={(value) =>
+        setConfig((prev: any) => ({ ...prev, title: value }))
+      }
+      onContextChange={
+        config?.context
+          ? (value) =>
+              setConfig((prev: any) => ({
+                ...prev,
+                context: value,
+              }))
+          : undefined
+      }
+      onFormChange={handleChange}
+    >
+      {Tool && node && <Tool ref={toolNodeRef} config={node.config} />}
+    </ToolsConfig>
   );
 };
 

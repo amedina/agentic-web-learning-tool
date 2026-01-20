@@ -8,8 +8,8 @@ import z from 'zod';
 /**
  * Internal dependencies
  */
-import { useApi, useFlow } from '../../../../store';
 import { ToolItem } from '../../../ui';
+import { useApi, useFlow } from '../../../../store';
 
 export const SummarizerApiSchema = z.object({
   title: z.string(),
@@ -25,8 +25,8 @@ export type SummarizerApiConfig = z.infer<typeof SummarizerApiSchema>;
 
 const createConfig: () => SummarizerApiConfig = () => {
   return {
-    title: 'Summarizer API',
-    context: 'You are a helpful summarizer',
+    title: 'Summarizer',
+    context: 'Summarizes text into key points, TL;DR, teasers, or headlines.',
     type: 'key-points',
     format: 'markdown',
     length: 'short',
@@ -52,9 +52,7 @@ const SummarizerApi = () => {
       id,
       type: 'summarizerApi',
       position: { x: 0, y: 0 },
-      data: {
-        label: 'Summarizer API',
-      },
+      data: {},
     });
 
     addApiNode({

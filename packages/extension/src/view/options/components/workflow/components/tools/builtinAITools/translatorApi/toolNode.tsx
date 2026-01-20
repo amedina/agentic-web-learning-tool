@@ -8,8 +8,8 @@ import { Languages } from 'lucide-react';
 /**
  * Internal dependencies
  */
-import { useApi, useFlow } from '../../../../store';
 import { ToolNodeContainer } from '../../../ui';
+import { useApi, useFlow } from '../../../../store';
 import type { TranslatorApiConfig } from './translatorApi';
 
 const ToolNode = () => {

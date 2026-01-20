@@ -1,15 +1,14 @@
 /**
  * External dependencies
  */
-import { Controls, MiniMap, ReactFlow } from '@xyflow/react';
-import '@xyflow/react/dist/style.css';
-import { Download, Play, Plus, Trash2, Upload, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 
 /**
  * Internal dependencies
  */
 import { type EdgeType, type NodeType, useFlow, useApi } from '../../store';
+import { Flow } from '../ui';
 
 const ID_PREFIX = 'wf_';
 const STORAGE_PREFIX = 'workflow-';
@@ -33,7 +32,7 @@ const useDebounce = <T,>(value: T, delay: number): T => {
   return debouncedValue;
 };
 
-const WorkflowCanvas = () => {
+const FlowContainer = () => {
   const [workflowTitle, setWorkflowTitle] = useState('Untitled Workflow');
   const [showImportDialog, setShowImportDialog] = useState(false);
   const [importJson, setImportJson] = useState('');
@@ -386,69 +385,8 @@ const WorkflowCanvas = () => {
         </div>
       )}
 
-      <div className="h-15 bg-gray-200 flex items-center justify-between px-2 m-4 mb-0 border-b border-slate-300 rounded">
-        <div className="flex items-center gap-2">
-          <input
-            className="bg-slate-100 px-3 py-1 rounded text-sm font-medium text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white"
-            value={workflowTitle}
-            onChange={(e) => setWorkflowTitle(e.target.value)}
-            placeholder="Enter workflow title..."
-          ></input>
-          <div className="h-6 w-px bg-slate-200 mx-2"></div>
-          <select className="text-sm border border-slate-200 rounded px-2 py-1.5 bg-slate-50 text-slate-600 focus:outline-none focus:border-indigo-500">
-            <option value="global">Global</option>
-            <option value="amazon">www.amazon.com</option>
-            <option value="weather">www.weather.com</option>
-            <option value="bbc">www.bbc.com</option>
-          </select>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <button
-            className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded cursor-pointer transition-colors"
-            onClick={handleNewWorkflow}
-          >
-            <Plus size={16} />
-            New
-          </button>
-
-          <button
-            className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded cursor-pointer transition-colors"
-            onClick={handleImport}
-          >
-            <Upload size={16} />
-            Import
-          </button>
-
-          <button
-            onClick={handleExport}
-            className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded transition-colors"
-          >
-            <Download size={16} />
-            Export
-          </button>
-
-          <button
-            onClick={handleClear}
-            className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 rounded transition-colors"
-          >
-            <Trash2 size={16} />
-            Clear
-          </button>
-
-          <div className="w-px h-6 bg-slate-200 mx-2"></div>
-
-          <button
-            onClick={handleRun}
-            className="flex items-center gap-1 px-4 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded shadow-sm transition-colors"
-          >
-            <Play size={16} />
-            Run
-          </button>
-        </div>
-      </div>
-      <div className="w-full flex-1">
-        <ReactFlow
+      <div className="flex-1 w-full h-full">
+        <Flow
           nodes={nodes}
           edges={edges}
           nodeTypes={nodeTypes}
@@ -457,13 +395,19 @@ const WorkflowCanvas = () => {
           onNodesDelete={onNodesDelete}
           onEdgesDelete={onEdgesDelete}
           onConnect={onConnect}
-        >
-          <MiniMap nodeStrokeWidth={3} zoomable pannable />
-          <Controls position="top-right" />
-        </ReactFlow>
+          title={workflowTitle}
+          onTitleChange={setWorkflowTitle}
+          actions={{
+            onImport: handleImport,
+            onExport: handleExport,
+            onClear: handleClear,
+            onNew: handleNewWorkflow,
+            onRun: handleRun,
+          }}
+        />
       </div>
     </div>
   );
 };
 
-export default WorkflowCanvas;
+export default FlowContainer;

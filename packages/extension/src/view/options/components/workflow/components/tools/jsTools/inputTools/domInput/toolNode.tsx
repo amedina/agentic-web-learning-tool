@@ -7,7 +7,7 @@ import { FileSearch } from 'lucide-react';
 
 /**
  * Internal dependencies
- */
+*/
 import { useApi, useFlow } from '../../../../../store';
 import { ToolNodeContainer } from '../../../../ui';
 import type { DomInputConfig } from './domInput';

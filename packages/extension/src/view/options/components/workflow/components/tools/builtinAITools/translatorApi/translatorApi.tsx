@@ -8,8 +8,8 @@ import z from 'zod';
 /**
  * Internal dependencies
  */
-import { useApi, useFlow } from '../../../../store';
 import { ToolItem } from '../../../ui';
+import { useApi, useFlow } from '../../../../store';
 
 export const TranslatorApiSchema = z.object({
   title: z.string(),
@@ -22,8 +22,8 @@ export type TranslatorApiConfig = z.infer<typeof TranslatorApiSchema>;
 
 const createConfig: () => TranslatorApiConfig = () => {
   return {
-    title: 'Translator API',
-    description: 'You are a helpful translator',
+    title: 'Translator',
+    description: 'Translate text from one language to another.',
     sourceLanguage: 'en',
     targetLanguage: 'es',
   };
@@ -46,9 +46,7 @@ const TranslatorApi = () => {
       id,
       type: 'translatorApi',
       position: { x: 0, y: 0 },
-      data: {
-        label: 'Translator API',
-      },
+      data: {},
     });
 
     addApiNode({

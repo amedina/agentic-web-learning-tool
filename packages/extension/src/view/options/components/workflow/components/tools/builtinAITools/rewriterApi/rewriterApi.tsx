@@ -8,8 +8,8 @@ import z from 'zod';
 /**
  * Internal dependencies
  */
-import { useApi, useFlow } from '../../../../store';
 import { ToolItem } from '../../../ui';
+import { useApi, useFlow } from '../../../../store';
 
 export const RewriterApiSchema = z.object({
   title: z.string(),
@@ -25,8 +25,8 @@ export type RewriterApiConfig = z.infer<typeof RewriterApiSchema>;
 
 const createConfig: () => RewriterApiConfig = () => {
   return {
-    title: 'Rewriter API',
-    context: 'You are a helpful re-writer',
+    title: 'Rewriter',
+    context: 'Rewrite text to adjust tone, format, and length.',
     tone: 'as-is',
     format: 'as-is',
     length: 'as-is',
@@ -52,9 +52,7 @@ const RewriterApi = () => {
       id,
       type: 'rewriterApi',
       position: { x: 0, y: 0 },
-      data: {
-        label: 'Rewriter API',
-      },
+      data: {},
     });
 
     addApiNode({

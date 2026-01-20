@@ -8,8 +8,8 @@ import { RefreshCcw } from 'lucide-react';
 /**
  * Internal dependencies
  */
-import { useApi, useFlow } from '../../../../store';
 import { ToolNodeContainer } from '../../../ui';
+import { useApi, useFlow } from '../../../../store';
 import type { RewriterApiConfig } from './rewriterApi';
 
 const ToolNode = () => {
