@@ -273,7 +273,7 @@ class McpHub {
   async disableMCPServerTools(serverId: string) {
     Array.from(this.registeredTools.entries()).forEach(
       ([toolName, registeredTool]) => {
-        if (toolName.startsWith(`${serverId}_mcp`)) {
+        if (toolName.endsWith(`mcp_${serverId}`)) {
           registeredTool.disable();
         }
       }
@@ -287,7 +287,7 @@ class McpHub {
   async enableMCPServerTools(serverId: string) {
     Array.from(this.registeredTools.entries()).forEach(
       ([toolName, registeredTool]) => {
-        if (toolName.startsWith(`${serverId}_mcp`)) {
+        if (toolName.endsWith(`mcp_${serverId}`)) {
           registeredTool.enable();
         }
       }
