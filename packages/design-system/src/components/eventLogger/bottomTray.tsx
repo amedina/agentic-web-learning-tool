@@ -8,7 +8,7 @@ import {
   useCallback,
   type ReactNode,
 } from 'react';
-import { PanelBottom, ChevronDown, Download } from 'lucide-react';
+import { PanelBottom, ChevronDown } from 'lucide-react';
 
 /**
  * Internal dependencies.
@@ -93,26 +93,18 @@ export function BottomTray<T>({
         className="flex items-center px-2 py-1 bg-[#f1f3f4] border-b border-[#e0e0e0] gap-4 shrink-0 select-none cursor-pointer"
         onClick={onToggleMinimize}
       >
-        <div
-          className={cn(
-            'transform transition-transform',
-            isMinimized ? 'rotate-180' : 'rotate-0'
-          )}
-        >
-          <ChevronDown className="w-3.5 h-3.5 text-[#5f6368]" />
-        </div>
-        <div className="font-bold text-[#202124]">Details</div>
-        <div className="flex items-center gap-1 ml-auto">
-          <button
-            className="p-1 hover:bg-[#dfe1e5] rounded text-[#5f6368]"
-            title="Copy JSON"
-            onClick={(e) => {
-              e.stopPropagation();
-              // Generic copy handler could be added prop
-            }}
+        <div className="flex items-center gap-1">
+          <div
+            className={cn(
+              'transform transition-transform',
+              isMinimized ? 'rotate-180' : 'rotate-0'
+            )}
           >
-            <Download className="w-3 h-3" />
-          </button>
+            <ChevronDown className="w-3.5 h-3.5 text-[#5f6368]" />
+          </div>
+          <div className="font-bold text-[#202124]">Details</div>
+        </div>
+        <div className="flex items-center gap-1 ml-auto">
           <button
             className="p-1 hover:bg-[#dfe1e5] rounded text-[#5f6368]"
             title={isMinimized ? 'Restore' : 'Minimize'}
