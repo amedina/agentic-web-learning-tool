@@ -25,6 +25,7 @@ ${SYSTEM_PROMPT_START}
 ${toolsJson}
 
 # Tool Calling Instructions
+You must read the tool description key value pairs for deciding which tool to use.
 Only request one tool call at a time. Wait for tool results before asking for another tool.
 
 To call a tool, output JSON in this exact format inside a \`\`\`tool_call code fence:
