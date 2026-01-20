@@ -1,7 +1,7 @@
 /**
  * External dependencies.
  */
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useMcpClient } from '@mcp-b/mcp-react-hooks';
 import type { Tool } from '@modelcontextprotocol/sdk/types.js';
 import {
@@ -9,6 +9,7 @@ import {
   ToolDetail,
   LogDetail,
   toast,
+  type UserStoredTool,
 } from '@google-awlt/design-system';
 
 /**
@@ -119,6 +120,18 @@ const EventLogger = () => {
 
   const logColumns = useMemo(() => getLogColumns(), []);
 
+  const getUserTool = useCallback(async (tool: Tool) => {
+    const storage = await chrome.storage.local.get('userWebMCPTools');
+    const userStoredTools = (storage.userWebMCPTools ||
+      []) as Array<UserStoredTool>;
+
+    return (
+      userStoredTools.find(
+        (t) => t.name === tool.name || tool.name.endsWith(t.name)
+      ) || null
+    );
+  }, []);
+
   return (
     <div className="relative flex flex-col h-full w-full">
       <EventLoggerView
@@ -140,7 +153,7 @@ const EventLogger = () => {
         }
         renderDetail={(item) =>
           showAvailableTools ? (
-            <ToolDetail tool={item as Tool} />
+            <ToolDetail tool={item as Tool} getUserTool={getUserTool} />
           ) : (
             <LogDetail log={item as ToolExecutionLog} />
           )
