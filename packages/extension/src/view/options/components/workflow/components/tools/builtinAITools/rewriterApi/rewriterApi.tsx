@@ -9,7 +9,7 @@ import z from 'zod';
  * Internal dependencies
  */
 import { ToolItem } from '../../../ui';
-import { useApi, useFlow } from '../../../../store';
+import { useApi } from '../../../../store';
 
 export const RewriterApiSchema = z.object({
   title: z.string(),
@@ -23,54 +23,24 @@ export const RewriterApiSchema = z.object({
 
 export type RewriterApiConfig = z.infer<typeof RewriterApiSchema>;
 
-const createConfig: () => RewriterApiConfig = () => {
-  return {
-    title: 'Rewriter',
-    context: 'Rewrite text to adjust tone, format, and length.',
-    tone: 'as-is',
-    format: 'as-is',
-    length: 'as-is',
-    expectedInputLanguages: ['en', 'ja', 'es'],
-    outputLanguage: 'es',
-  };
-};
-
 const RewriterApi = () => {
-  const { addFlowNode } = useFlow(({ actions }) => ({
-    addFlowNode: actions.addNode,
-  }));
-
-  const { addApiNode, isAvailable } = useApi(({ state, actions }) => ({
-    addApiNode: actions.addNode,
+  const { isAvailable } = useApi(({ state }) => ({
     isAvailable: state.capabilities.rewriterApi,
   }));
 
-  const addRewriterApiNode = useCallback(() => {
-    if (!isAvailable) return;
-
-    const config = createConfig();
-    const id = new Date().getTime().toString();
-
-    addFlowNode({
-      id,
-      type: 'rewriterApi',
-      position: { x: 0, y: 0 },
-      data: {
-        label: 'Rewriter API',
-      },
-    });
-
-    addApiNode({
-      id,
-      type: 'rewriterApi',
-      config,
-    });
-  }, [addApiNode, addFlowNode, isAvailable]);
+  const handleDragStart = useCallback(
+    (event: React.DragEvent) => {
+      if (!isAvailable) return;
+      event.dataTransfer.setData('workflow-composer/flow', 'rewriterApi');
+      event.dataTransfer.effectAllowed = 'move';
+    },
+    [isAvailable]
+  );
 
   return (
     <ToolItem
       label="Rewriter API"
-      onClick={addRewriterApiNode}
+      onDragStart={handleDragStart}
       Icon={RefreshCcw}
       disabled={!isAvailable}
       title={

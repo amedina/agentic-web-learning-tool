@@ -11,7 +11,7 @@ import type { RuntimeInterface } from "../runtime";
 export async function languageDetectorApiExecutor(
   config: Record<string, unknown>,
   _runtime: RuntimeInterface,
-  _context: ExecutionContext
+  context: ExecutionContext
 ): Promise<string> {
   const input = config.input as string | undefined;
 
@@ -21,7 +21,9 @@ export async function languageDetectorApiExecutor(
 
   try {
     // @ts-ignore
-    const languageDetector = await LanguageDetector.create();
+    const languageDetector = await LanguageDetector.create({
+      signal: context.signal,
+    });
 
     const results = await languageDetector.detect(input);
 

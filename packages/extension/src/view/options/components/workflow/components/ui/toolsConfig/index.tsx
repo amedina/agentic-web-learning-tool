@@ -55,17 +55,17 @@ const ToolsConfig = ({
   return (
     <div className="w-74 bg-white border-l border-slate-200 flex flex-col h-full transition-all duration-300">
       <div className="flex items-center justify-between p-4 border-b border-slate-200 bg-slate-50 relative">
-        <div className="flex items-center gap-2">
-          <Settings size={20} className="text-slate-600" />
-          <h2 className="font-semibold text-slate-800">{title}</h2>
-        </div>
         <button
           onClick={onToggle}
-          className="p-1.5 hover:bg-slate-200 rounded-md text-slate-400 hover:text-slate-600 transition-colors"
+          className="p-1.5 mr-2 hover:bg-slate-200 rounded-md text-slate-400 hover:text-slate-600 transition-colors"
           title="Collapse Config"
         >
           <ChevronsRight size={18} />
         </button>
+        <div className="flex items-center gap-2 flex-1">
+          <Settings size={20} className="text-slate-600" />
+          <h2 className="font-semibold text-slate-800">{title}</h2>
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto">

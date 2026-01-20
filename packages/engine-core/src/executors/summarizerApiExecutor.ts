@@ -3,6 +3,7 @@
  */
 import type { ExecutionContext } from "../types";
 import type { RuntimeInterface } from "../runtime";
+import { formatInputText } from "../utils/executorUtils";
 
 /**
  * Summarizer API executor.
@@ -11,9 +12,9 @@ import type { RuntimeInterface } from "../runtime";
 export async function summarizerApiExecutor(
   config: Record<string, unknown>,
   _runtime: RuntimeInterface,
-  _context: ExecutionContext
+  context: ExecutionContext
 ): Promise<string> {
-  const input = config.input as string | undefined;
+  const input = config.input;
   const type = config.type as
     | "key-points"
     | "tldr"
@@ -22,14 +23,19 @@ export async function summarizerApiExecutor(
     | undefined;
   const length = config.length as "short" | "medium" | "long" | undefined;
   const sharedContext = config.context as string | undefined;
-	const format = config.format as "markdown" | "plain-text" | undefined;
-	const expectedInputLanguages = config.expectedInputLanguages as string[] | undefined;
-	const outputLanguage = config.outputLanguage as string | undefined;
+  const format = config.format as "markdown" | "plain-text" | undefined;
+  const expectedInputLanguages = config.expectedInputLanguages as
+    | string[]
+    | undefined;
+  const outputLanguage = config.outputLanguage as string | undefined;
 
-  if (!input) {
+  const formattedInput = formatInputText(input);
+
+  if (!formattedInput) {
     throw new Error("Summarizer API requires input text");
   }
 
+  let summarizer: any; // Declare summarizer outside try block to be accessible in finally
   try {
     const options: Record<string, unknown> = {};
     if (type) {
@@ -41,7 +47,7 @@ export async function summarizerApiExecutor(
     if (sharedContext) {
       options.sharedContext = sharedContext;
     }
-			if (format) {
+    if (format) {
       options.format = format;
     }
     if (expectedInputLanguages) {
@@ -51,13 +57,25 @@ export async function summarizerApiExecutor(
       options.outputLanguage = outputLanguage;
     }
 
+    if (outputLanguage) {
+      options.outputLanguage = outputLanguage;
+    }
+
+    if (context.signal) {
+      options.signal = context.signal;
+    }
+
     // @ts-ignore
-    const summarizer = await Summarizer.create(options);
-    const summary = await summarizer.summarize(input);
+    summarizer = await Summarizer.create(options);
+    const summary = await summarizer.summarize(formattedInput);
 
     return summary;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     throw new Error(`Summarizer API execution failed: ${message}`);
+  } finally {
+    if (summarizer) {
+      await summarizer.destroy();
+    }
   }
 }

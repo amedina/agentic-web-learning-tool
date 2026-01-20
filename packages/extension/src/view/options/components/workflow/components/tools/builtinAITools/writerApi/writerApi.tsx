@@ -9,7 +9,7 @@ import z from 'zod';
  * Internal dependencies
  */
 import { ToolItem } from '../../../ui';
-import { useApi, useFlow } from '../../../../store';
+import { useApi } from '../../../../store';
 
 export const WriterApiSchema = z.object({
   title: z.string(),
@@ -23,55 +23,24 @@ export const WriterApiSchema = z.object({
 
 export type WriterApiConfig = z.infer<typeof WriterApiSchema>;
 
-const createConfig: () => WriterApiConfig = () => {
-  return {
-    title: 'Writer',
-    context:
-      'A helpful assistant that writes content based on the provided context.',
-    tone: 'neutral',
-    format: 'markdown',
-    length: 'short',
-    expectedInputLanguages: ['en', 'ja', 'es'],
-    outputLanguage: 'es',
-  };
-};
-
 const WriterApi = () => {
-  const { addFlowNode } = useFlow(({ actions }) => ({
-    addFlowNode: actions.addNode,
-  }));
-
-  const { addApiNode, isAvailable } = useApi(({ state, actions }) => ({
-    addApiNode: actions.addNode,
+  const { isAvailable } = useApi(({ state }) => ({
     isAvailable: state.capabilities.writerApi,
   }));
 
-  const addWriterApiNode = useCallback(() => {
-    if (!isAvailable) return;
-
-    const config = createConfig();
-    const id = new Date().getTime().toString();
-
-    addFlowNode({
-      id,
-      type: 'writerApi',
-      position: { x: 0, y: 0 },
-      data: {
-        label: 'Writer API',
-      },
-    });
-
-    addApiNode({
-      id,
-      type: 'writerApi',
-      config,
-    });
-  }, [addApiNode, addFlowNode, isAvailable]);
+  const handleDragStart = useCallback(
+    (event: React.DragEvent) => {
+      if (!isAvailable) return;
+      event.dataTransfer.setData('workflow-composer/flow', 'writerApi');
+      event.dataTransfer.effectAllowed = 'move';
+    },
+    [isAvailable]
+  );
 
   return (
     <ToolItem
       label="Writer API"
-      onClick={addWriterApiNode}
+      onDragStart={handleDragStart}
       Icon={PenTool}
       disabled={!isAvailable}
       title={
