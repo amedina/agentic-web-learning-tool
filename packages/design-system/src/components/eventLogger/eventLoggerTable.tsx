@@ -1,28 +1,16 @@
 /**
  * External dependencies.
  */
-import {
-  useState,
-  useRef,
-  useEffect,
-  useCallback,
-  type ReactNode,
-} from 'react';
-import { PanelBottom, ChevronDown, Download } from 'lucide-react';
+import { useState, useCallback, type ReactNode } from 'react';
 
 /**
  * Internal dependencies.
  */
-import { cn } from '../../lib/utils';
 import Toolbar from './toolbar';
+import { Table, type Column } from './table';
+import { BottomTray } from './bottomTray';
 
-export interface Column<T> {
-  header: string;
-  width: string;
-  render: (item: T) => ReactNode;
-  className?: string;
-}
-
+export type { Column };
 export interface EventLoggerTableProps<T> {
   items: T[];
   columns: Column<T>[];
@@ -51,52 +39,11 @@ export function EventLoggerTable<T>({
   onRefresh,
   highlightedItemId,
 }: EventLoggerTableProps<T>) {
-  const [trayHeight, setTrayHeight] = useState(300);
   const [isTrayMinimized, setIsTrayMinimized] = useState(false);
-  const isDragging = useRef(false);
-
-  const handleMouseDown = useCallback(() => {
-    isDragging.current = true;
-    document.body.style.cursor = 'ns-resize';
-    document.body.style.userSelect = 'none';
-  }, []);
-
-  const handleMouseUp = useCallback(() => {
-    isDragging.current = false;
-    document.body.style.cursor = '';
-    document.body.style.userSelect = '';
-  }, []);
-
-  const handleMouseMove = useCallback(
-    (e: MouseEvent) => {
-      if (!isDragging.current) return;
-      const newHeight = window.innerHeight - e.clientY;
-      const minHeight = 32;
-      const maxHeight = window.innerHeight * 0.8;
-
-      if (newHeight >= minHeight && newHeight <= maxHeight) {
-        setTrayHeight(newHeight);
-        if (isTrayMinimized) setIsTrayMinimized(false);
-      }
-    },
-    [isTrayMinimized]
-  );
-
-  useEffect(() => {
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, [handleMouseMove, handleMouseUp]);
 
   const toggleMinimize = useCallback(() => {
     setIsTrayMinimized((prev) => !prev);
   }, []);
-
-  const currentTrayHeight =
-    selectedItem && isTrayMinimized ? 33 : selectedItem ? trayHeight : 0;
 
   return (
     <div className="flex flex-col h-screen w-full bg-white text-[11px] font-sans text-[#303942]">
@@ -110,141 +57,28 @@ export function EventLoggerTable<T>({
       {/* Main Content Area */}
       <div className="flex flex-col flex-1 overflow-hidden relative">
         {/* Table Area */}
-        <div className="flex-1 overflow-auto bg-white pb-0">
-          <table className="w-full text-left border-collapse table-fixed">
-            <thead className="sticky top-0 z-10 bg-[#f1f3f4] text-[#202124]">
-              <tr>
-                {columns.map((col, idx) => (
-                  <th
-                    key={idx}
-                    className={cn(
-                      'font-medium px-4 py-1 border-r border-b border-[#cbcbcb] select-none',
-                      col.width
-                    )}
-                  >
-                    {col.header}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#f1f3f4]">
-              {items.map((item, index) => {
-                const isSelected =
-                  selectedItem &&
-                  keyExtractor(selectedItem) === keyExtractor(item);
-                return (
-                  <tr
-                    key={keyExtractor(item)}
-                    onClick={() => {
-                      onSelectItem(item);
-                      if (!selectedItem) setIsTrayMinimized(false);
-                    }}
-                    className={cn(
-                      'cursor-default transition-colors duration-1000',
-                      isSelected
-                        ? 'bg-[#1a73e8] text-white'
-                        : highlightedItemId === keyExtractor(item)
-                          ? 'bg-yellow-100 hover:bg-yellow-200'
-                          : index % 2 === 0
-                            ? 'bg-white hover:bg-[#f1f3f4]'
-                            : 'bg-[#f8f9fa] hover:bg-[#f1f3f4]'
-                    )}
-                  >
-                    {columns.map((col, idx) => (
-                      <td
-                        key={idx}
-                        className={cn(
-                          'px-4 py-1 truncate border-r border-[#e0e0e0]',
-                          isSelected ? 'border-transparent' : '',
-                          col.className
-                        )}
-                      >
-                        {col.render(item)}
-                      </td>
-                    ))}
-                  </tr>
-                );
-              })}
-              {items.length === 0 && (
-                <tr>
-                  <td
-                    colSpan={columns.length}
-                    className="p-4 text-center text-[#5f6368] italic"
-                  >
-                    {noItemsMessage} "{searchQuery}"
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+        <Table
+          items={items}
+          columns={columns}
+          selectedItem={selectedItem}
+          onSelectItem={onSelectItem}
+          keyExtractor={keyExtractor}
+          highlightedItemId={highlightedItemId}
+          searchQuery={searchQuery}
+          noItemsMessage={noItemsMessage}
+          onRowClick={(item) => {
+            onSelectItem(item);
+            if (!selectedItem) setIsTrayMinimized(false);
+          }}
+        />
 
         {/* Bottom Detail Tray */}
-        {selectedItem && (
-          <div
-            className="flex flex-col border-t border-[#cbcbcb] bg-white absolute bottom-0 w-full shadow-[0_-2px_10px_rgba(0,0,0,0.05)]"
-            style={{
-              height: currentTrayHeight,
-              transition: isDragging.current ? 'none' : 'height 0.2s',
-            }}
-          >
-            {/* Resizer Handle */}
-            <div
-              className={cn(
-                'absolute top-0 left-0 w-full h-1 cursor-ns-resize hover:bg-[#1a73e8] z-20',
-                isDragging.current ? 'bg-[#1a73e8]' : 'bg-transparent'
-              )}
-              onMouseDown={handleMouseDown}
-            />
-
-            {/* Tray Toolbar */}
-            <div
-              className="flex items-center px-2 py-1 bg-[#f1f3f4] border-b border-[#e0e0e0] gap-4 shrink-0 select-none cursor-pointer"
-              onClick={toggleMinimize}
-            >
-              <div
-                className={cn(
-                  'transform transition-transform',
-                  isTrayMinimized ? 'rotate-180' : 'rotate-0'
-                )}
-              >
-                <ChevronDown className="w-3.5 h-3.5 text-[#5f6368]" />
-              </div>
-              <div className="font-bold text-[#202124]">Details</div>
-              <div className="flex items-center gap-1 ml-auto">
-                <button
-                  className="p-1 hover:bg-[#dfe1e5] rounded text-[#5f6368]"
-                  title="Copy JSON"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    // Generic copy handler could be added prop
-                  }}
-                >
-                  <Download className="w-3 h-3" />
-                </button>
-                <button
-                  className="p-1 hover:bg-[#dfe1e5] rounded text-[#5f6368]"
-                  title={isTrayMinimized ? 'Restore' : 'Minimize'}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    toggleMinimize();
-                  }}
-                >
-                  <PanelBottom className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
-
-            {/* Tray Content */}
-            {!isTrayMinimized && (
-              <div className="flex-1 overflow-auto p-0 flex">
-                <div className="w-full h-full flex flex-col">
-                  {renderDetail(selectedItem)}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
+        <BottomTray
+          selectedItem={selectedItem}
+          renderDetail={renderDetail}
+          isMinimized={isTrayMinimized}
+          onToggleMinimize={toggleMinimize}
+        />
       </div>
     </div>
   );
