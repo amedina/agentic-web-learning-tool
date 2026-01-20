@@ -68,7 +68,7 @@ export function MCPServerDialog({
 
   const handleSave = useCallback(async () => {
     setIsAddingConfig(true);
-    await onSave(config, !server?.name ? crypto.randomUUID() : serverId);
+    await onSave(config, !server?.name ? Date.now().toString() : serverId);
     setIsAddingConfig(false);
     setTimeout(() => {
       onOpenChange(false);

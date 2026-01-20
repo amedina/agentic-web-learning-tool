@@ -2,126 +2,117 @@ import { Settings } from 'lucide-react';
 import type { ReactNode } from 'react';
 
 export interface ToolsConfigProps {
-	title?: string;
-	selectedNodeId?: string | null;
-	nodeType?: string;
-	nodeLabel?: string;
-	nodeContext?: string;
-	nodeDescription?: string;
-	onLabelChange?: (value: string) => void;
-	onContextChange?: (value: string) => void;
-	onFormChange?: (e: React.FormEvent<HTMLFormElement>) => void;
-	children?: ReactNode;
+  title?: string;
+  selectedNodeId?: string | null;
+  nodeType?: string;
+  nodeTitle?: string;
+  nodeContext?: string;
+  nodeDescription?: string;
+  onTitleChange?: (value: string) => void;
+  onContextChange?: (value: string) => void;
+  onFormChange?: (e: React.FormEvent<HTMLFormElement>) => void;
+  children?: ReactNode;
 }
 
 const ToolsConfig = ({
-	title = 'Node Configuration',
-	selectedNodeId,
-	nodeType,
-	nodeLabel = '',
-	nodeContext = '',
-	nodeDescription,
-	onLabelChange,
-	onContextChange,
-	onFormChange,
-	children,
+  title = 'Node Configuration',
+  selectedNodeId,
+  nodeType,
+  nodeTitle = '',
+  nodeContext = '',
+  nodeDescription,
+  onTitleChange,
+  onContextChange,
+  onFormChange,
+  children,
 }: ToolsConfigProps) => {
-	return (
-		<div className="w-96 bg-white border-l border-slate-200 flex flex-col h-full">
-			<div className="flex items-center justify-between p-4 border-b border-slate-200 bg-slate-50">
-				<div className="flex items-center gap-2">
-					<Settings size={20} className="text-slate-600" />
-					<h2 className="font-semibold text-slate-800">{title}</h2>
-				</div>
-			</div>
+  return (
+    <div className="w-96 bg-white border-l border-slate-200 flex flex-col h-full">
+      <div className="flex items-center justify-between p-4 border-b border-slate-200 bg-slate-50">
+        <div className="flex items-center gap-2">
+          <Settings size={20} className="text-slate-600" />
+          <h2 className="font-semibold text-slate-800">{title}</h2>
+        </div>
+      </div>
 
-			<div className="flex-1 overflow-y-auto">
-				{!selectedNodeId ? (
-					<div className="p-8 text-center text-slate-500">
-						<Settings
-							size={48}
-							className="mx-auto mb-4 text-slate-300"
-						/>
-						<p className="text-sm">
-							Select a node to configure its settings
-						</p>
-					</div>
-				) : (
-					<form
-						id="node-config-form"
-						onChange={onFormChange}
-						onSubmit={(e) => e.preventDefault()}
-						className="p-4 space-y-4"
-					>
-						<div className="bg-slate-100 rounded-lg p-3">
-							<div className="text-xs text-slate-500 mb-1 uppercase tracking-wide">
-								Node Type
-							</div>
-							<div className="text-sm font-medium text-slate-800 capitalize">
-								{nodeType?.replace(/([A-Z])/g, ' $1').trim()}
-							</div>
-						</div>
+      <div className="flex-1 overflow-y-auto">
+        {!selectedNodeId ? (
+          <div className="p-8 text-center text-slate-500">
+            <Settings size={48} className="mx-auto mb-4 text-slate-300" />
+            <p className="text-sm">Select a node to configure its settings</p>
+          </div>
+        ) : (
+          <form
+            id="node-config-form"
+            onChange={onFormChange}
+            onSubmit={(e) => e.preventDefault()}
+            className="p-4 space-y-4"
+          >
+            <div className="bg-slate-100 rounded-lg p-3">
+              <div className="text-xs text-slate-500 mb-1 uppercase tracking-wide">
+                Node Type
+              </div>
+              <div className="text-sm font-medium text-slate-800 capitalize">
+                {nodeType?.replace(/([A-Z])/g, ' $1').trim()}
+              </div>
+            </div>
 
-						<div>
-							<label
-								className="block text-sm font-medium text-slate-700 mb-2"
-								htmlFor="title"
-							>
-								Node Label
-							</label>
-							<input
-								type="text"
-								className="w-full p-3 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-white"
-								value={nodeLabel}
-								onChange={(e) =>
-									onLabelChange?.(e.target.value)
-								}
-								id="title"
-								name="title"
-								placeholder="Enter node label..."
-							/>
-						</div>
+            <div>
+              <label
+                className="block text-sm font-medium text-slate-700 mb-2"
+                htmlFor="title"
+              >
+                Node Title
+              </label>
+              <input
+                type="text"
+                className="w-full p-3 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-white"
+                value={nodeTitle}
+                onChange={(e) => onTitleChange?.(e.target.value)}
+                id="title"
+                name="title"
+                placeholder="Enter node title..."
+              />
+            </div>
 
-						<div>
-							{onContextChange ? (
-								<>
-									<label
-										className="block text-sm font-medium text-slate-700 mb-2"
-										htmlFor="context"
-									>
-										Context
-									</label>
-									<textarea
-										className="w-full p-3 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm resize-none bg-white"
-										rows={4}
-										value={nodeContext}
-										id="context"
-										name="context"
-										onChange={(e) =>
-											onContextChange?.(e.target.value)
-										}
-										placeholder="Enter context for the tool..."
-									/>
-								</>
-							) : (
-								nodeDescription && (
-									<p className="text-sm text-slate-700 mb-2">
-										{nodeDescription}
-									</p>
-								)
-							)}
-						</div>
+            <div>
+              {onContextChange ? (
+                <>
+                  <label
+                    className="block text-sm font-medium text-slate-700 mb-2"
+                    htmlFor="context"
+                  >
+                    Context
+                  </label>
+                  <textarea
+                    className="w-full p-3 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm resize-none bg-white"
+                    rows={4}
+                    value={nodeContext}
+                    id="context"
+                    name="context"
+                    onChange={(e) => onContextChange?.(e.target.value)}
+                    placeholder="Enter context for the tool..."
+                  />
+                </>
+              ) : (
+                nodeDescription && (
+                  <p className="text-sm text-slate-700 mb-2">
+                    {nodeDescription}
+                  </p>
+                )
+              )}
+            </div>
 
-						{children}
-					</form>
-				)}
-			</div>
+            {children}
+          </form>
+        )}
+      </div>
 
-			<div className="p-4 border-t border-slate-200 bg-slate-50 text-xs text-slate-500 text-center">
-				<p>Changes are saved automatically</p>
-			</div>
-		</div>
-	);
+      <div className="p-4 border-t border-slate-200 bg-slate-50 text-xs text-slate-500 text-center">
+        <p>Changes are saved automatically</p>
+      </div>
+    </div>
+  );
 };
 
 export default ToolsConfig;

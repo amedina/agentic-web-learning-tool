@@ -157,7 +157,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
               onKeyDown={handleMessageChange}
               className="w-full max-h-40 min-h-[56px] resize-none bg-transparent px-4 py-4 text-sm outline-none placeholder:exclusive-plum text-primary"
             />
-            <div className="flex items-center justify-between gap-2 px-3">
+            <div className="flex items-center justify-between gap-2 px-3 mb-1">
               <div className="flex items-center">
                 <Button variant="ghost" disabled title="Attach" size="icon">
                   <Paperclip size={18} />
