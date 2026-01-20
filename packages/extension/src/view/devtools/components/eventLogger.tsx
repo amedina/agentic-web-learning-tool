@@ -5,7 +5,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { useMcpClient } from '@mcp-b/mcp-react-hooks';
 import type { Tool } from '@modelcontextprotocol/sdk/types.js';
 import {
-  EventLoggerTable,
+  EventLoggerView,
   ToolDetail,
   LogDetail,
   toast,
@@ -121,7 +121,7 @@ const EventLogger = () => {
 
   return (
     <div className="relative flex flex-col h-full w-full">
-      <EventLoggerTable
+      <EventLoggerView
         items={showAvailableTools ? filteredTools : filteredLogs}
         columns={
           showAvailableTools ? (toolColumns as any) : (logColumns as any)

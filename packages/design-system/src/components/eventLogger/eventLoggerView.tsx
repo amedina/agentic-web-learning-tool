@@ -11,7 +11,7 @@ import { Table, type Column } from './table';
 import { BottomTray } from './bottomTray';
 
 export type { Column };
-export interface EventLoggerTableProps<T> {
+export interface EventLoggerViewProps<T> {
   items: T[];
   columns: Column<T>[];
   searchQuery?: string;
@@ -26,7 +26,7 @@ export interface EventLoggerTableProps<T> {
   highlightedItemId?: string | null;
 }
 
-export function EventLoggerTable<T>({
+export function EventLoggerView<T>({
   items,
   columns,
   searchQuery = '',
@@ -38,7 +38,7 @@ export function EventLoggerTable<T>({
   noItemsMessage = 'No items found',
   onRefresh,
   highlightedItemId,
-}: EventLoggerTableProps<T>) {
+}: EventLoggerViewProps<T>) {
   const [isTrayMinimized, setIsTrayMinimized] = useState(false);
 
   const toggleMinimize = useCallback(() => {
