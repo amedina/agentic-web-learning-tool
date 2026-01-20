@@ -26,7 +26,7 @@ const callback = (panel: {
   });
 };
 chrome.devtools.panels.create(
-  'AWL Tool',
+  'AWLT',
   'icons/icon.svg',
   'devtools/index.html',
   callback

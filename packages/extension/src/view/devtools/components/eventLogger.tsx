@@ -25,13 +25,10 @@ const EventLogger = () => {
   const [selectedToolToRun, setSelectedToolToRun] = useState<Tool | null>(null);
   const [highlightedLogId, setHighlightedLogId] = useState<string | null>(null);
   const [lastRunToolName, setLastRunToolName] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
 
   const handleRunTool = async (toolName: string, args: any) => {
-    if (!client) {
-      console.error('MCP Client not available');
-      return;
-    }
-
     setLastRunToolName(toolName);
 
     try {
@@ -42,7 +39,6 @@ const EventLogger = () => {
         );
       });
 
-      // Race the tool execution against the timeout
       await Promise.race([
         client.callTool({
           name: toolName,
@@ -62,9 +58,6 @@ const EventLogger = () => {
       throw error;
     }
   };
-
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
 
   useEffect(() => {
     const handleMessage = (message: any) => {

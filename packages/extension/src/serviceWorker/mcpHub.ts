@@ -46,6 +46,7 @@ class McpHub {
   private activeTabId: number | null = null;
   private requestManager = new RequestManager();
   private apiTools: any[] = [];
+  private userToolScripts = new Map<string, string>();
 
   // Track registered tools to allow updating/removing them dynamically
   registeredTools = new Map<
@@ -470,8 +471,6 @@ class McpHub {
     }
   }
 
-  private userToolScripts = new Map<string, string>();
-
   private async registerOrUpdateWebMCPTools(
     domain: string,
     dataId: string,
@@ -742,6 +741,7 @@ class McpHub {
     const executionId = crypto.randomUUID();
     const startTime = Date.now();
     const type = isMCPServerTool ? 'MCP' : 'WebMCP';
+
     let script = !isMCPServerTool
       ? this.userToolScripts.get(toolName)
       : undefined;
@@ -754,6 +754,7 @@ class McpHub {
           code?: string;
         }>;
         const found = userTools.find((t) => t.name === toolName);
+
         if (found && found.code) {
           script = found.code;
           this.userToolScripts.set(toolName, script);

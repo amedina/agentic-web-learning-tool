@@ -24,7 +24,7 @@ export const client = new Client({
 function DevTools() {
   return (
     <McpClientProvider client={client} transport={transport}>
-      <main className="max-w-7xl m-auto min-h-screen flex flex-col items-center justify-center gap-5">
+      <main className="w-full min-h-screen">
         <EventLogger />
       </main>
     </McpClientProvider>
