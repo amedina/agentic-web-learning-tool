@@ -144,7 +144,7 @@ const ToolsConfigPanel = () => {
                 className="block text-sm font-medium text-slate-700 mb-2"
                 htmlFor="title"
               >
-                Node Label
+                Node Title
               </label>
               <input
                 type="text"
@@ -158,7 +158,7 @@ const ToolsConfigPanel = () => {
                 }}
                 id="title"
                 name="title"
-                placeholder="Enter node label..."
+                placeholder="Enter node title..."
               />
             </div>
 
