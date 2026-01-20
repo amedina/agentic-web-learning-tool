@@ -7,7 +7,7 @@ import type { Tool } from '@modelcontextprotocol/sdk/types.js';
 export interface MCPProviderContextType {
   state: {
     serverConfigs: Record<string, MCPServerConfig>;
-    toolList: Record<string, Tool[]>;
+    toolList: Record<string, { tools: Tool[]; isError: boolean }>;
   };
   actions: {
     addConfig: (config: MCPServerConfig, serverName: string) => Promise<void>;

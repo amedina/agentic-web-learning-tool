@@ -1,0 +1,74 @@
+/**
+ * External dependencies
+ */
+import { useCallback } from 'react';
+import { NotepadTextDashed } from 'lucide-react';
+import z from 'zod';
+
+/**
+ * Internal dependencies
+ */
+import { ToolItem } from '../../../ui';
+import { useApi, useFlow } from '../../../../store';
+
+export const SummarizerApiSchema = z.object({
+  title: z.string(),
+  context: z.string(),
+  type: z.enum(['key-points', 'tldr', 'teaser', 'headline']),
+  format: z.enum(['markdown', 'plain-text']),
+  length: z.enum(['short', 'medium', 'long']),
+  expectedInputLanguages: z.array(z.enum(['en', 'ja', 'es'])),
+  outputLanguage: z.enum(['en', 'ja', 'es']),
+});
+
+export type SummarizerApiConfig = z.infer<typeof SummarizerApiSchema>;
+
+const createConfig: () => SummarizerApiConfig = () => {
+  return {
+    title: 'Summarizer',
+    context: 'Summarizes text into key points, TL;DR, teasers, or headlines.',
+    type: 'key-points',
+    format: 'markdown',
+    length: 'short',
+    expectedInputLanguages: ['en', 'ja', 'es'],
+    outputLanguage: 'es',
+  };
+};
+
+const SummarizerApi = () => {
+  const { addFlowNode } = useFlow(({ actions }) => ({
+    addFlowNode: actions.addNode,
+  }));
+
+  const { addApiNode } = useApi(({ actions }) => ({
+    addApiNode: actions.addNode,
+  }));
+
+  const addSummarizerApiNode = useCallback(() => {
+    const config = createConfig();
+    const id = new Date().getTime().toString();
+
+    addFlowNode({
+      id,
+      type: 'summarizerApi',
+      position: { x: 0, y: 0 },
+      data: {},
+    });
+
+    addApiNode({
+      id,
+      type: 'summarizerApi',
+      config,
+    });
+  }, [addApiNode, addFlowNode]);
+
+  return (
+    <ToolItem
+      label="Summarizer API"
+      onClick={addSummarizerApiNode}
+      Icon={NotepadTextDashed}
+    />
+  );
+};
+
+export default SummarizerApi;

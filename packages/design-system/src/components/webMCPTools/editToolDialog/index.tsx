@@ -159,9 +159,11 @@ export function EditToolDialog({
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50" />
         <Dialog.Content
-          aria-describedby={undefined}
           className={`fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] w-[95vw] h-[90vh] bg-extreme-zinc border border-gray-200 rounded-xl shadow-2xl z-50 flex flex-col overflow-hidden ${isDarkMode ? 'dark' : ''}`}
         >
+          <Dialog.Description className="hidden">
+            This dialog adds/edits WebMCPTools.
+          </Dialog.Description>
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-extreme-zinc">
             <div className="flex items-center gap-3">

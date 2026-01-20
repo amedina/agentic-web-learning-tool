@@ -64,7 +64,7 @@ export default function MCPServersTab() {
               }}
               server={serverConfigs[server]}
               key={server}
-              tools={toolList[server] ?? []}
+              tools={toolList[server]}
               onEdit={() => {
                 setIsDialogOpen(true);
                 setDialogType('config');
@@ -76,7 +76,7 @@ export default function MCPServersTab() {
         </div>
         {isDialogOpen && (
           <MCPServerDialog
-            toolList={toolList[selectedServer]}
+            toolList={toolList[selectedServer]?.tools ?? []}
             open={isDialogOpen}
             defaultTab={dialogType}
             onDelete={selectedServer ? removeConfig : undefined}

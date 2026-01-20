@@ -1,0 +1,66 @@
+/**
+ * External dependencies
+ */
+import { useCallback } from 'react';
+import { FileSearch } from 'lucide-react';
+import z from 'zod';
+
+/**
+ * Internal dependencies
+ */
+import { ToolItem } from '../../../../ui';
+import { useApi, useFlow } from '../../../../../store';
+
+export const DomInputSchema = z.object({
+  title: z.string(),
+  description: z.string().optional(),
+  cssSelector: z.string(),
+  extract: z.enum(['textContent', 'innerText', 'innerHTML']),
+  defaultValue: z.string(),
+});
+
+export type DomInputConfig = z.infer<typeof DomInputSchema>;
+
+const createConfig: () => DomInputConfig = () => {
+  return {
+    title: 'DOM Input',
+    description: 'Extract text content from the DOM element.',
+    cssSelector: 'body',
+    extract: 'textContent',
+    defaultValue: 'Test',
+  };
+};
+
+const DomInput = () => {
+  const { addFlowNode } = useFlow(({ actions }) => ({
+    addFlowNode: actions.addNode,
+  }));
+
+  const { addApiNode } = useApi(({ actions }) => ({
+    addApiNode: actions.addNode,
+  }));
+
+  const addDomInputNode = useCallback(() => {
+    const config = createConfig();
+    const id = new Date().getTime().toString();
+
+    addFlowNode({
+      id,
+      type: 'domInput',
+      position: { x: 0, y: 0 },
+      data: {},
+    });
+
+    addApiNode({
+      id,
+      type: 'domInput',
+      config,
+    });
+  }, [addApiNode, addFlowNode]);
+
+  return (
+    <ToolItem label="Dom Input" onClick={addDomInputNode} Icon={FileSearch} />
+  );
+};
+
+export default DomInput;
