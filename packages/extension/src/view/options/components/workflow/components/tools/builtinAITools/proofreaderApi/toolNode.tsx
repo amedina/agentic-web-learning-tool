@@ -10,6 +10,7 @@ import { BookCheck } from 'lucide-react';
  */
 import { useApi, useFlow } from '../../../../store';
 import { ToolNodeContainer } from '../../../ui';
+import type { ProofreaderApiConfig } from './proofreaderApi';
 
 const ToolNode = () => {
   const nodeId = useNodeId();
@@ -26,22 +27,26 @@ const ToolNode = () => {
   }));
 
   const config = useMemo(() => {
-    if (!nodeId) return {};
+    if (!nodeId) return undefined;
 
     const node = getNode(nodeId);
+
+    if (!node) return undefined;
+
+    const _config = node.config as ProofreaderApiConfig;
+
     return {
-      title: node?.config.title,
       type: node?.type,
-      context: node?.config.context,
-      expectedInputLanguages: node?.config.expectedInputLanguages,
+      title: _config.title,
+      expectedInputLanguages: _config.expectedInputLanguages,
     };
   }, [getNode, nodeId]);
 
   return (
     <ToolNodeContainer
-      title={config.title}
+      title={config?.title || ''}
       Icon={BookCheck}
-      type={config.type || ''}
+      type={config?.type || ''}
       selected={selectedNode === nodeId}
       onEdit={() => {
         setSelectedNode(nodeId);
@@ -58,7 +63,7 @@ const ToolNode = () => {
             Input Language(s)
           </p>
           <p className="text-slate-700">
-            {config.expectedInputLanguages?.join(', ') || 'None'}
+            {config?.expectedInputLanguages?.join(', ') || 'None'}
           </p>
         </div>
         <Handle

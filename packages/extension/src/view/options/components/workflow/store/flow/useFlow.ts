@@ -1,8 +1,7 @@
 /**
  * Internal dependencies
  */
-import { flowUseContextSelector } from './context';
-import type { FlowStoreContext } from './context';
+import { flowUseContextSelector, type FlowStoreContext } from './context';
 
 export function useFlow(): FlowStoreContext;
 export function useFlow<T>(selector: (state: FlowStoreContext) => T): T;
