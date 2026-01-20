@@ -14,7 +14,6 @@ import type {
   RunWorkflowMessage,
   CheckCapabilitiesMessage,
   StatusUpdate,
-	StopWorkflowMessage,
 } from "../types/messages";
 
 /**
@@ -102,17 +101,6 @@ export class WorkflowClient {
     }
 
     return response.results ?? {};
-  }
-
-  /**
-   * Stop the currently running workflow.
-   */
-  public async stopWorkflow(): Promise<void> {
-    const message: StopWorkflowMessage = {
-      type: "STOP_WORKFLOW",
-    };
-
-    await chrome.runtime.sendMessage(message);
   }
 
   /**

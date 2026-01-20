@@ -8,8 +8,8 @@ import z from 'zod';
 /**
  * Internal dependencies
  */
+import { useApi, useFlow } from '../../../../store';
 import { ToolItem } from '../../../ui';
-import { useApi } from '../../../../store';
 
 export const LanguageDetectorApiSchema = z.object({
   title: z.string(),
@@ -20,27 +20,50 @@ export type LanguageDetectorApiConfig = z.infer<
   typeof LanguageDetectorApiSchema
 >;
 
+const createConfig: () => LanguageDetectorApiConfig = () => {
+  return {
+    title: 'Language Detector',
+    description:
+      'Analyzes input text to determine the source language (e.g., English, Spanish, Japanese).',
+  };
+};
+
 const LanguageDetectorApi = () => {
-  const { isAvailable } = useApi(({ state }) => ({
+  const { addFlowNode } = useFlow(({ actions }) => ({
+    addFlowNode: actions.addNode,
+  }));
+
+  const { addApiNode, isAvailable } = useApi(({ state, actions }) => ({
+    addApiNode: actions.addNode,
     isAvailable: state.capabilities.languageDetectorApi,
   }));
 
-  const handleDragStart = useCallback(
-    (event: React.DragEvent) => {
-      if (!isAvailable) return;
-      event.dataTransfer.setData(
-        'workflow-composer/flow',
-        'languageDetectorApi'
-      );
-      event.dataTransfer.effectAllowed = 'move';
-    },
-    [isAvailable]
-  );
+  const addLanguageDetectorApiNode = useCallback(() => {
+    if (!isAvailable) return;
+
+    const config = createConfig();
+    const id = new Date().getTime().toString();
+
+    addFlowNode({
+      id,
+      type: 'languageDetectorApi',
+      position: { x: 0, y: 0 },
+      data: {
+        label: 'Language Detector',
+      },
+    });
+
+    addApiNode({
+      id,
+      type: 'languageDetectorApi',
+      config,
+    });
+  }, [addApiNode, addFlowNode, isAvailable]);
 
   return (
     <ToolItem
       label="Language Detector"
-      onDragStart={handleDragStart}
+      onClick={addLanguageDetectorApiNode}
       Icon={ScanSearch}
       disabled={!isAvailable}
       title={

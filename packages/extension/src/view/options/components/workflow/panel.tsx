@@ -1,13 +1,43 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 /**
  * Internal dependencies
  */
 import { WorkflowCanvas, ToolsSidebar, ToolsConfigPanel } from './components';
+import { useApi } from './store';
 
 function Panel() {
   const [leftCollapsed, setLeftCollapsed] = useState(false);
   const [rightCollapsed, setRightCollapsed] = useState(false);
+
+  const { selectedNode } = useApi(({ state }) => ({
+    selectedNode: state.selectedNode,
+  }));
+
+  // Auto-expand right sidebar when a node is selected
+  useEffect(() => {
+    if (selectedNode) {
+      setRightCollapsed(false);
+    }
+  }, [selectedNode]);
+
+  // Responsive auto-collapse
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1200) {
+        setLeftCollapsed(true);
+        setRightCollapsed(true);
+      } else {
+        setLeftCollapsed(false);
+        setRightCollapsed(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize();
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   return (
     <div className="h-dvh w-dvw flex overflow-hidden bg-slate-100 font-sans text-slate-900 antialiased">

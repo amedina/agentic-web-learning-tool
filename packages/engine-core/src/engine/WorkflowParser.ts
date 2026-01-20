@@ -10,16 +10,10 @@ import type { WorkflowJSON, NodeConfig, EdgeConfig } from "../types";
 export interface ParsedGraph {
   /** Map of node ID to node configuration */
   nodes: Map<string, NodeConfig>;
-  /** Adjacency list: source node ID -> array of target connections */
-  adjacencyList: Map<
-    string,
-    { target: string; sourceHandle?: string | null }[]
-  >;
-  /** Reverse adjacency list: target node ID -> array of source connections */
-  reverseAdjacencyList: Map<
-    string,
-    { source: string; targetHandle?: string | null }[]
-  >;
+  /** Adjacency list: source node ID -> array of target node IDs */
+  adjacencyList: Map<string, string[]>;
+  /** Reverse adjacency list: target node ID -> array of source node IDs */
+  reverseAdjacencyList: Map<string, string[]>;
   /** In-degree count for each node (number of incoming edges) */
   inDegree: Map<string, number>;
   /** Original edges for reference */
@@ -53,14 +47,8 @@ export class WorkflowParser {
     this.validate(json);
 
     const nodes = new Map<string, NodeConfig>();
-    const adjacencyList = new Map<
-      string,
-      { target: string; sourceHandle?: string | null }[]
-    >();
-    const reverseAdjacencyList = new Map<
-      string,
-      { source: string; targetHandle?: string | null }[]
-    >();
+    const adjacencyList = new Map<string, string[]>();
+    const reverseAdjacencyList = new Map<string, string[]>();
     const inDegree = new Map<string, number>();
 
     // Initialize nodes
@@ -75,12 +63,12 @@ export class WorkflowParser {
     for (const edge of json.graph.edges) {
       const targets = adjacencyList.get(edge.source);
       if (targets) {
-        targets.push({ target: edge.target, sourceHandle: edge.sourceHandle });
+        targets.push(edge.target);
       }
 
       const sources = reverseAdjacencyList.get(edge.target);
       if (sources) {
-        sources.push({ source: edge.source, targetHandle: edge.targetHandle });
+        sources.push(edge.source);
       }
 
       const currentInDegree = inDegree.get(edge.target) ?? 0;
@@ -207,12 +195,11 @@ export class WorkflowParser {
       // Reduce in-degree of adjacent nodes
       const neighbors = graph.adjacencyList.get(nodeId) ?? [];
       for (const neighbor of neighbors) {
-        const neighborId = neighbor.target;
-        const newDegree = (inDegree.get(neighborId) ?? 1) - 1;
-        inDegree.set(neighborId, newDegree);
+        const newDegree = (inDegree.get(neighbor) ?? 1) - 1;
+        inDegree.set(neighbor, newDegree);
 
         if (newDegree === 0) {
-          queue.push(neighborId);
+          queue.push(neighbor);
         }
       }
     }
@@ -234,47 +221,9 @@ export class WorkflowParser {
    * @returns Array of nodes that feed into this node
    */
   public getInputNodes(graph: ParsedGraph, nodeId: string): NodeConfig[] {
-    const sources = graph.reverseAdjacencyList.get(nodeId) ?? [];
-    return sources
-      .map((conn) => graph.nodes.get(conn.source))
+    const sourceIds = graph.reverseAdjacencyList.get(nodeId) ?? [];
+    return sourceIds
+      .map((id) => graph.nodes.get(id))
       .filter((node): node is NodeConfig => node !== undefined);
-  }
-
-  /**
-   * Get nodes reachable from a specific starting node and handle.
-   * Returns nodes in topological order.
-   * @param graph - The parsed graph
-   * @param nodeId - The starting node ID
-   * @param sourceHandle - The handle to start traversal from
-   * @returns Array of nodes in topological order
-   */
-  public getReachableNodes(
-    graph: ParsedGraph,
-    nodeId: string,
-    sourceHandle?: string | null
-  ): NodeConfig[] {
-    const reachable = new Set<string>();
-    const stack: { id: string; handle?: string | null }[] = [
-      { id: nodeId, handle: sourceHandle },
-    ];
-
-    while (stack.length > 0) {
-      const current = stack.pop()!;
-      const neighbors = graph.adjacencyList.get(current.id) ?? [];
-
-      for (const neighbor of neighbors) {
-        if (current.id === nodeId && sourceHandle !== undefined) {
-          if (neighbor.sourceHandle !== sourceHandle) continue;
-        }
-
-        if (!reachable.has(neighbor.target)) {
-          reachable.add(neighbor.target);
-          stack.push({ id: neighbor.target });
-        }
-      }
-    }
-
-    const fullPlan = this.getExecutionPlan(graph);
-    return fullPlan.filter((node) => reachable.has(node.id));
   }
 }

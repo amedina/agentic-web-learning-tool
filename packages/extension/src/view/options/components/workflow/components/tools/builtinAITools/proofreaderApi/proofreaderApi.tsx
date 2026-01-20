@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import { useCallback } from 'react';
 import { BookCheck } from 'lucide-react';
 import z from 'zod';
@@ -5,7 +8,7 @@ import z from 'zod';
 /**
  * Internal dependencies
  */
-import { useApi } from '../../../../store';
+import { useApi, useFlow } from '../../../../store';
 import { ToolItem } from '../../../ui';
 
 export const ProofreaderApiSchema = z.object({
@@ -16,24 +19,50 @@ export const ProofreaderApiSchema = z.object({
 
 export type ProofreaderApiConfig = z.infer<typeof ProofreaderApiSchema>;
 
+const createConfig: () => ProofreaderApiConfig = () => {
+  return {
+    title: 'Grammar & Tone Checker',
+    description: 'Check grammar, spelling, and tone of your text.',
+    expectedInputLanguages: ['en', 'ja', 'es'],
+  };
+};
+
 const ProofreaderApi = () => {
-  const { isAvailable } = useApi(({ state }) => ({
+  const { addFlowNode } = useFlow(({ actions }) => ({
+    addFlowNode: actions.addNode,
+  }));
+
+  const { addApiNode, isAvailable } = useApi(({ state, actions }) => ({
+    addApiNode: actions.addNode,
     isAvailable: state.capabilities.proofreaderApi,
   }));
 
-  const handleDragStart = useCallback(
-    (event: React.DragEvent) => {
-      if (!isAvailable) return;
-      event.dataTransfer.setData('workflow-composer/flow', 'proofreaderApi');
-      event.dataTransfer.effectAllowed = 'move';
-    },
-    [isAvailable]
-  );
+  const addProofreaderApiNode = useCallback(() => {
+    if (!isAvailable) return;
+
+    const config = createConfig();
+    const id = new Date().getTime().toString();
+
+    addFlowNode({
+      id,
+      type: 'proofreaderApi',
+      position: { x: 0, y: 0 },
+      data: {
+        label: 'Proofreader API',
+      },
+    });
+
+    addApiNode({
+      id,
+      type: 'proofreaderApi',
+      config,
+    });
+  }, [addApiNode, addFlowNode, isAvailable]);
 
   return (
     <ToolItem
       label="Proofreader API"
-      onDragStart={handleDragStart}
+      onClick={addProofreaderApiNode}
       Icon={BookCheck}
       disabled={!isAvailable}
       title={

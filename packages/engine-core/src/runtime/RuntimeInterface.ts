@@ -40,58 +40,14 @@ export interface RuntimeInterface {
    */
   queryPage(
     selector: string,
-    extract:
-      | "textContent"
-      | "innerText"
-      | "innerHTML"
-      | "value"
-      | "src"
-      | "href",
-    isMultiple?: boolean
-  ): Promise<string | string[]>;
+    extract: "textContent" | "innerText" | "innerHTML"
+  ): Promise<string>;
 
   /**
    * Show an alert/notification to the user.
    * @param message - Message to display
    */
   showAlert(message: string): Promise<void>;
-
-  /**
-   * Replace the content of elements matching the selector on the active page.
-   * @param selector - CSS selector to target
-   * @param content - New content (text or HTML)
-   */
-  replaceDOM(
-    selector: string,
-    content: string,
-    isMultiple?: boolean
-  ): Promise<void>;
-
-  /**
-   * Copy text to the user's clipboard.
-   * @param text - Text to copy
-   */
-  copyToClipboard(text: string): Promise<void>;
-
-  /**
-   * Trigger a browser download of a text file.
-   * @param filename - Name of the file (e.g., 'result.txt')
-   * @param content - Content of the file
-   */
-  downloadFile(filename: string, content: string): Promise<void>;
-
-  /**
-   * Use Text-to-Speech to read text aloud.
-   * @param text - Text to speak
-   */
-  speakText(text: string): Promise<void>;
-
-  /**
-   * Show a contextual tooltip next to matching elements on the page.
-   * @param selector - CSS selector to target
-   * @param content - Text to show in the tooltip
-   */
-  showTooltip(selector: string, content: string): Promise<void>;
 
   /**
    * Callback invoked when a node starts execution.

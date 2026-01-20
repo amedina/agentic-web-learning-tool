@@ -1,6 +1,8 @@
+/**
+ * Internal dependencies
+ */
 import type { ExecutionContext } from "../types";
 import type { RuntimeInterface } from "../runtime";
-import { formatInputText } from "../utils/executorUtils";
 
 /**
  * Proofreader API executor.
@@ -9,16 +11,14 @@ import { formatInputText } from "../utils/executorUtils";
 export async function proofreaderApiExecutor(
   config: Record<string, unknown>,
   _runtime: RuntimeInterface,
-  context: ExecutionContext
+  _context: ExecutionContext
 ): Promise<string> {
-  const input = config.input;
+  const input = config.input as string | undefined;
   const expectedInputLanguages = config.expectedInputLanguages as
     | string[]
     | undefined;
 
-  const formattedInput = formatInputText(input);
-
-  if (!formattedInput) {
+  if (!input) {
     throw new Error("Proofreader API requires input text");
   }
 
@@ -26,33 +26,27 @@ export async function proofreaderApiExecutor(
     // @ts-ignore
     const proofreader = await Proofreader.create({
       expectedInputLanguages,
-      signal: context.signal,
     });
 
-    const results = await proofreader.proofread(formattedInput);
-    const corrections = results.corrections;
+    const results = await proofreader.proofread(input);
+		const corrections = results.corrections;
 
     let inputRenderIndex = 0;
     let correctedText = "";
 
     for (const correction of corrections) {
       if (correction.startIndex > inputRenderIndex) {
-        correctedText += formattedInput.substring(
-          inputRenderIndex,
-          correction.startIndex
-        );
+        correctedText += input.substring(inputRenderIndex, correction.startIndex);
       }
 
       const suggestion = (correction as any).suggestions?.[0];
-      correctedText +=
-        suggestion ??
-        formattedInput.substring(correction.startIndex, correction.endIndex);
+      correctedText += suggestion ?? input.substring(correction.startIndex, correction.endIndex);
 
       inputRenderIndex = correction.endIndex;
     }
 
-    if (inputRenderIndex < formattedInput.length) {
-      correctedText += formattedInput.substring(inputRenderIndex);
+    if (inputRenderIndex < input.length) {
+      correctedText += input.substring(inputRenderIndex);
     }
 
     return correctedText;

@@ -11,8 +11,7 @@ import type { RuntimeInterface } from "../runtime";
 export type NodeExecutor = (
   config: Record<string, unknown>,
   runtime: RuntimeInterface,
-  context: ExecutionContext,
-  executeBranch?: (sourceHandle: string, input: unknown) => Promise<unknown>
+  context: ExecutionContext
 ) => Promise<unknown>;
 
 /**

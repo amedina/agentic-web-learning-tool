@@ -20,13 +20,9 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 	const [inputValue, setInputValue] = useState<string>(
 		config.inputValue || ''
 	);
-	const [isMultiple, setIsMultiple] = useState<boolean>(
-		config.isMultiple || false
-	);
 
 	useEffect(() => {
 		setInputValue(config.inputValue || '');
-		setIsMultiple(config.isMultiple || false);
 	}, [config]);
 
 	useImperativeHandle(
@@ -35,22 +31,11 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 			getConfig: (formData: FormData) => {
 				const title = formData.get('title') as string;
 				const inputValue = formData.get('inputValue') as string;
-				const isMultiple = formData.get('isMultiple') === 'on';
 
 				const configResult = {
 					title,
 					inputValue,
-					isMultiple,
 				};
-
-				if (isMultiple) {
-					try {
-						JSON.parse(inputValue);
-					} catch (error) {
-						console.error('Invalid JSON array:', error);
-						return undefined;
-					}
-				}
 
 				const validation = StaticInputSchema.safeParse(configResult);
 				if (!validation.success) {
@@ -73,34 +58,12 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 				</h3>
 
 				<div className="space-y-4">
-					<div className="flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-md">
-						<input
-							type="checkbox"
-							id="isMultiple"
-							name="isMultiple"
-							checked={isMultiple}
-							onChange={(e) => setIsMultiple(e.target.checked)}
-							className="w-4 h-4 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500"
-						/>
-						<div>
-							<label
-								htmlFor="isMultiple"
-								className="text-sm font-medium text-slate-700"
-							>
-								Multiple Items (JSON Array)
-							</label>
-							<p className="text-[10px] text-slate-500">
-								Treat the input as a JSON array of items
-							</p>
-						</div>
-					</div>
-
 					<div>
 						<label
 							className="block text-sm font-medium text-slate-700 mb-2"
 							htmlFor="inputValue"
 						>
-							{isMultiple ? 'JSON Array Value' : 'Input Value'}
+							Input Value
 						</label>
 						<textarea
 							id="inputValue"
@@ -109,16 +72,11 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 							onChange={(e) => setInputValue(e.target.value)}
 							rows={4}
 							className="w-full p-3 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-white resize-vertical"
-							placeholder={
-								isMultiple
-									? 'e.g. ["item1", "item2", "item3"]'
-									: 'Enter the static value to provide as input...'
-							}
+							placeholder="Enter the static value to provide as input..."
 						/>
 						<p className="text-xs text-slate-500 mt-1">
-							{isMultiple
-								? 'Provide a valid JSON array. Each element will be processed.'
-								: 'This value will be provided as input to connected tools'}
+							This value will be provided as input to connected
+							tools
 						</p>
 					</div>
 				</div>

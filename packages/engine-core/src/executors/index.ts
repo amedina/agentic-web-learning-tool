@@ -8,12 +8,6 @@ export { staticInputExecutor } from "./staticInputExecutor";
 export { domInputExecutor } from "./domInputExecutor";
 export { alertNotificationExecutor } from "./alertNotificationExecutor";
 export { conditionExecutor } from "./conditionExecutor";
-export { loopExecutor } from "./loopExecutor";
-export { domReplacementExecutor } from "./domReplacementExecutor";
-export { clipboardWriterExecutor } from "./clipboardWriterExecutor";
-export { fileCreatorExecutor } from "./fileCreatorExecutor";
-export { textToSpeechExecutor } from "./textToSpeechExecutor";
-export { tooltipExecutor } from "./tooltipExecutor";
 
 // Built-in AI API Executors
 export { promptApiExecutor } from "./promptApiExecutor";
@@ -36,12 +30,6 @@ import { proofreaderApiExecutor } from "./proofreaderApiExecutor";
 import { translatorApiExecutor } from "./translatorApiExecutor";
 import { languageDetectorApiExecutor } from "./languageDetectorApiExecutor";
 import { summarizerApiExecutor } from "./summarizerApiExecutor";
-import { loopExecutor } from "./loopExecutor";
-import { domReplacementExecutor } from "./domReplacementExecutor";
-import { clipboardWriterExecutor } from "./clipboardWriterExecutor";
-import { fileCreatorExecutor } from "./fileCreatorExecutor";
-import { textToSpeechExecutor } from "./textToSpeechExecutor";
-import { tooltipExecutor } from "./tooltipExecutor";
 
 /**
  * Register all built-in node executors with the NodeRegistry.
@@ -53,12 +41,6 @@ export function registerBuiltinExecutors(): void {
   NodeRegistry.register("domInput", domInputExecutor);
   NodeRegistry.register("alertNotification", alertNotificationExecutor);
   NodeRegistry.register("condition", conditionExecutor);
-  NodeRegistry.register("loop", loopExecutor);
-  NodeRegistry.register("domReplacement", domReplacementExecutor);
-  NodeRegistry.register("clipboardWriter", clipboardWriterExecutor);
-  NodeRegistry.register("fileCreator", fileCreatorExecutor);
-  NodeRegistry.register("textToSpeech", textToSpeechExecutor);
-  NodeRegistry.register("tooltip", tooltipExecutor);
 
   // Built-in AI API Nodes
   NodeRegistry.register("promptApi", promptApiExecutor);

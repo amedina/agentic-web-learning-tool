@@ -97,7 +97,6 @@ export const Default: Story = {
 	render: (args) => <FlowWithHooks {...args} />,
 	args: {
 		title: 'Untitled Workflow',
-		isStopping: false,
 		onTitleChange: () => {},
 		actions: {
 			onImport: () => {},
@@ -105,9 +104,6 @@ export const Default: Story = {
 			onClear: () => {},
 			onNew: () => {},
 			onRun: () => {},
-			onStop: () => {},
-			onDrop: () => {},
-			onLoadSaved: () => {},
 		},
 		nodes: [
 			{

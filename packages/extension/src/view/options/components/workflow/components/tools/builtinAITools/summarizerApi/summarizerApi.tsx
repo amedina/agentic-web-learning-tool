@@ -9,7 +9,7 @@ import z from 'zod';
  * Internal dependencies
  */
 import { ToolItem } from '../../../ui';
-import { useApi } from '../../../../store';
+import { useApi, useFlow } from '../../../../store';
 
 export const SummarizerApiSchema = z.object({
   title: z.string(),
@@ -23,24 +23,54 @@ export const SummarizerApiSchema = z.object({
 
 export type SummarizerApiConfig = z.infer<typeof SummarizerApiSchema>;
 
+const createConfig: () => SummarizerApiConfig = () => {
+  return {
+    title: 'Summarizer',
+    context: 'Summarizes text into key points, TL;DR, teasers, or headlines.',
+    type: 'key-points',
+    format: 'markdown',
+    length: 'short',
+    expectedInputLanguages: ['en', 'ja', 'es'],
+    outputLanguage: 'es',
+  };
+};
+
 const SummarizerApi = () => {
-  const { isAvailable } = useApi(({ state }) => ({
+  const { addFlowNode } = useFlow(({ actions }) => ({
+    addFlowNode: actions.addNode,
+  }));
+
+  const { addApiNode, isAvailable } = useApi(({ state, actions }) => ({
+    addApiNode: actions.addNode,
     isAvailable: state.capabilities.summarizerApi,
   }));
 
-  const handleDragStart = useCallback(
-    (event: React.DragEvent) => {
-      if (!isAvailable) return;
-      event.dataTransfer.setData('workflow-composer/flow', 'summarizerApi');
-      event.dataTransfer.effectAllowed = 'move';
-    },
-    [isAvailable]
-  );
+  const addSummarizerApiNode = useCallback(() => {
+    if (!isAvailable) return;
+
+    const config = createConfig();
+    const id = new Date().getTime().toString();
+
+    addFlowNode({
+      id,
+      type: 'summarizerApi',
+      position: { x: 0, y: 0 },
+      data: {
+        label: 'Summarizer API',
+      },
+    });
+
+    addApiNode({
+      id,
+      type: 'summarizerApi',
+      config,
+    });
+  }, [addApiNode, addFlowNode, isAvailable]);
 
   return (
     <ToolItem
       label="Summarizer API"
-      onDragStart={handleDragStart}
+      onClick={addSummarizerApiNode}
       Icon={NotepadTextDashed}
       disabled={!isAvailable}
       title={

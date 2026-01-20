@@ -17,10 +17,6 @@ import {
   DomInputToolConfig,
   StaticInputToolConfig,
   ConditionToolConfig,
-  DomReplacementToolConfig,
-  FileCreatorToolConfig,
-  TooltipToolConfig,
-  LoopToolConfig,
 } from '../tools';
 import { ToolsConfig } from '../ui';
 
@@ -36,12 +32,6 @@ const TOOLS = {
   domInput: DomInputToolConfig,
   condition: ConditionToolConfig,
   staticInput: StaticInputToolConfig,
-  loop: LoopToolConfig,
-  domReplacement: DomReplacementToolConfig,
-  clipboardWriter: null,
-  fileCreator: FileCreatorToolConfig,
-  textToSpeech: null,
-  tooltip: TooltipToolConfig,
 };
 
 interface ToolsConfigPanelProps {

@@ -26,15 +26,11 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 	const [defaultValue, setDefaultValue] = useState<string>(
 		config.defaultValue || ''
 	);
-	const [isMultiple, setIsMultiple] = useState<boolean>(
-		config.isMultiple || false
-	);
 
 	useEffect(() => {
 		setCssSelector(config.cssSelector || 'body');
 		setExtract(config.extract || 'textContent');
 		setDefaultValue(config.defaultValue || '');
-		setIsMultiple(config.isMultiple || false);
 	}, [config]);
 
 	useImperativeHandle(
@@ -45,14 +41,12 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 				const cssSelector = formData.get('cssSelector') as string;
 				const extract = formData.get('extract') as string;
 				const defaultValue = formData.get('defaultValue') as string;
-				const isMultiple = formData.get('isMultiple') === 'on';
 
 				const configResult = {
 					title,
 					cssSelector,
 					extract,
 					defaultValue,
-					isMultiple,
 				};
 
 				const validation = DomInputSchema.safeParse(configResult);
@@ -76,28 +70,6 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 				</h3>
 
 				<div className="space-y-4">
-					<div className="flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-md">
-						<input
-							type="checkbox"
-							id="isMultiple"
-							name="isMultiple"
-							checked={isMultiple}
-							onChange={(e) => setIsMultiple(e.target.checked)}
-							className="w-4 h-4 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500"
-						/>
-						<div>
-							<label
-								htmlFor="isMultiple"
-								className="text-sm font-medium text-slate-700"
-							>
-								Extract All Matching Elements
-							</label>
-							<p className="text-[10px] text-slate-500">
-								Return an array of all matches
-							</p>
-						</div>
-					</div>
-
 					<div>
 						<label
 							className="block text-sm font-medium text-slate-700 mb-2"
@@ -116,7 +88,6 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 						/>
 						<p className="text-xs text-slate-500 mt-1">
 							CSS selector to target the DOM element
-							{isMultiple && 's'}
 						</p>
 					</div>
 
@@ -143,7 +114,6 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 						</select>
 						<p className="text-xs text-slate-500 mt-1">
 							What to extract from the selected element
-							{isMultiple && 's'}
 						</p>
 					</div>
 
@@ -164,7 +134,8 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 							placeholder="Fallback value if extraction fails"
 						/>
 						<p className="text-xs text-slate-500 mt-1">
-							Value to use if matching fails
+							Value to use if the element is not found or
+							extraction fails
 						</p>
 					</div>
 				</div>

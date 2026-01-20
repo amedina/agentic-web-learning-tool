@@ -31,10 +31,13 @@ function handleMessage(
       handleCheckCapabilities(message.capabilities, sendResponse);
       return true;
 
-    case "STOP_WORKFLOW":
-      getWorkflowRunner().stop();
-      sendResponse({ success: true });
-      return true;
+    case "CANCEL_WORKFLOW":
+      // TODO: Implement workflow cancellation
+      sendResponse({
+        success: false,
+        error: "Cancellation not yet implemented",
+      });
+      return false;
 
     default:
       sendResponse({ success: false, error: "Unknown message type" });

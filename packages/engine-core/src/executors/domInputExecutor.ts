@@ -12,18 +12,12 @@ export async function domInputExecutor(
   config: Record<string, unknown>,
   runtime: RuntimeInterface,
   _context: ExecutionContext
-): Promise<unknown> {
+): Promise<string> {
   const selector = config.cssSelector as string | undefined;
   const extract =
-    (config.extract as
-      | "textContent"
-      | "innerText"
-      | "innerHTML"
-      | "value"
-      | "src"
-      | "href") ?? "textContent";
+    (config.extract as "textContent" | "innerText" | "innerHTML") ??
+    "textContent";
   const defaultValue = config.defaultValue as string | undefined;
-  const isMultiple = (config.isMultiple as boolean) ?? false;
 
   if (!selector) {
     if (defaultValue) {
@@ -33,9 +27,10 @@ export async function domInputExecutor(
   }
 
   try {
-    const result = await runtime.queryPage(selector, extract, isMultiple);
+    const result = await runtime.queryPage(selector, extract);
 
-    return result || defaultValue || (isMultiple ? [] : "");
+    console.log(result);
+    return result || defaultValue || "";
   } catch (error) {
     // If DOM query fails, fall back to default value
     if (defaultValue) {

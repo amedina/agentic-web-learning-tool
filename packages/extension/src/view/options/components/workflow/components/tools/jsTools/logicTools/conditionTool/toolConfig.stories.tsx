@@ -26,8 +26,7 @@ export const Default: Story = {
 			title: 'Is Price High?',
 			description:
 				'Checks if the extracted product price is greater than our budget threshold.',
-			comparisonType: 'greater_than',
-			comparisonValue: '100',
+			comparisonType: 'greater-than',
 		},
 	},
 };

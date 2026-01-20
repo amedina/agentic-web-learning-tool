@@ -81,7 +81,6 @@ export interface ExecutionContext {
   steps: Record<string, NodeOutput>;
   variables: Record<string, unknown>;
   status: ExecutionStatus;
-  signal?: AbortSignal;
 }
 
 /**
