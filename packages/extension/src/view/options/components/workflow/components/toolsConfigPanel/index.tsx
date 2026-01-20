@@ -25,7 +25,7 @@ import {
   MathToolConfig,
   AlertNotificationToolConfig,
 } from '../tools';
-import { ToolsConfig as ToolsConfigComponent } from '../ui';
+import { ToolsConfig } from '../ui';
 
 const TOOLS = {
   promptApi: PromptApiToolConfig,
@@ -51,12 +51,15 @@ const TOOLS = {
   end: null,
 };
 
-interface ToolsConfigProps {
+interface ToolsConfigPanelProps {
   collapsed?: boolean;
   onToggle?: () => void;
 }
 
-const ToolsConfig = ({ collapsed = false, onToggle }: ToolsConfigProps) => {
+const ToolsConfigPanel = ({
+  collapsed = false,
+  onToggle,
+}: ToolsConfigPanelProps) => {
   const { selectedNode, getNode, updateNode } = useApi(
     ({ state, actions }) => ({
       selectedNode: state.selectedNode,
@@ -116,13 +119,13 @@ const ToolsConfig = ({ collapsed = false, onToggle }: ToolsConfigProps) => {
     : null;
 
   return (
-    <ToolsConfigComponent
+    <ToolsConfig
       selectedNodeId={selectedNode}
       nodeType={node?.type}
-      nodeLabel={(config as any)?.title || ''}
+      nodeTitle={(config as any)?.title || ''}
       nodeContext={(config as any)?.context}
       nodeDescription={(node?.config as any)?.description}
-      onLabelChange={(value) =>
+      onTitleChange={(value) =>
         setConfig((prev: any) => ({ ...prev, title: value }))
       }
       onContextChange={
@@ -139,8 +142,8 @@ const ToolsConfig = ({ collapsed = false, onToggle }: ToolsConfigProps) => {
       onToggle={onToggle}
     >
       {Tool && node && <Tool ref={toolNodeRef} config={node.config} />}
-    </ToolsConfigComponent>
+    </ToolsConfig>
   );
 };
 
-export default ToolsConfig;
+export default ToolsConfigPanel;

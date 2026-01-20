@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import type { WebMCPTool } from '@google-awlt/design-system';
+import type { PromptCommand } from '@google-awlt/design-system';
 /**
  * Internal dependencies
  */
@@ -32,7 +32,16 @@ export type SettingsType = {
       theme?: ThemeMode;
       logLevel?: LogLevel;
     };
-    userWebMCPTools?: WebMCPTool[];
+    userWebMCPTools?: string;
+    mcpConfigs?: string;
+    builtInToolsState?: Record<string, boolean>;
+    promptCommands?: PromptCommand[];
+    builtInPromptCommands?: PromptCommand[];
+    chromeAPIBuiltInToolsState?: {
+      [key: string]: {
+        enabled: boolean;
+      };
+    };
   };
   version: string;
   extensionVersion: string;

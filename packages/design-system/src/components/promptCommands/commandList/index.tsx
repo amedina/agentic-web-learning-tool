@@ -37,10 +37,10 @@ export function CommandList({
             <div className="bg-[var(--surface-active)] p-4 rounded-full mb-3">
               <MessageSquareIcon className="text-gray-300" size={32} />
             </div>
-            <h3 className="text-gray-900 font-medium mb-1">
+            <h3 className="text-amethyst-haze font-medium mb-1">
               No custom commands
             </h3>
-            <p className="text-gray-500 text-sm max-w-lg mb-4 text-balance">
+            <p className="text-amethyst-haze text-sm max-w-lg mb-4 text-balance">
               Create custom commands that expand into reusable prompt templates.
             </p>
             <Button

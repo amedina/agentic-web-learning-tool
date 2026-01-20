@@ -16,9 +16,9 @@
       "zod": "^4.1.13"
     },
     "patchedDependencies": {
-      "@assistant-ui/react": "patches/@assistant-ui__react.patch",
       "zod@4.3.5": "patches/zod@4.3.5.patch",
-      "@mcp-b/extension-tools@0.2.3": "patches/@mcp-b__extension-tools@0.2.3.patch"
+      "@mcp-b/extension-tools@0.2.3": "patches/@mcp-b__extension-tools@0.2.3.patch",
+      "@assistant-ui/react": "patches/@assistant-ui__react.patch"
     }
   },
   "scripts": {
@@ -49,9 +49,9 @@
     "packages/*"
   ],
   "devDependencies": {
+    "eslint": "^9.39.2",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
-    "eslint": "^9.39.2",
     "prettier": "^3.7.4"
   },
   "lint-staged": {

@@ -44,8 +44,8 @@ function getToolNameWithoutPrefix(toolName: string) {
   }
 
   if (toolName.includes('_mcp')) {
-    const match = toolName.match(/(?<=_mcp_).*/);
-    const unPrefixedToolName = match ? match[0] : toolName;
+    const match = toolName.match(/^(.*?)_mcp_/);
+    const unPrefixedToolName = match ? match[1] : toolName;
     return unPrefixedToolName;
   }
 
