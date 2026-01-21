@@ -19,7 +19,8 @@
     "sidePanel",
     "tabGroups",
     "history",
-    "userScripts"
+    "userScripts",
+    "unlimited"
   ],
   "host_permissions": ["*://*/*"],
   "devtools_page": "devtools/devtools.html",
