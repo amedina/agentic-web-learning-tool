@@ -372,7 +372,7 @@ const McpConnectionProvider = ({ children }: { children: ReactNode }) => {
       headers[proxyAuthTokenHeader] = `Bearer ${proxyAuthToken}`;
     }
 
-    if (!getMCPProxyAddress(config)) {
+    if (getMCPProxyAddress(config).startsWith("chrome-extension")) {
       return;
     }
 
