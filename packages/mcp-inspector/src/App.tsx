@@ -514,7 +514,7 @@ const App = () => {
   }
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex h-screen bg-background py-4">
       <div
         style={{
           width: sidebarWidth,

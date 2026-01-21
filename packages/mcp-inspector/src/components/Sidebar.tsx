@@ -24,9 +24,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  TooltipRoot,
-  TooltipTrigger,
-  TooltipContent,
+  Tooltip,
 } from "@google-awlt/design-system";
 import {
   type LoggingLevel,
@@ -424,7 +422,7 @@ const Sidebar = ({
 
   return (
     <div className="bg-card border-r border-border flex flex-col h-full">
-      <div className="p-4 flex-1 overflow-auto" style={{ paddingLeft: "0px" }}>
+      <div className="p-4 flex-1 overflow-auto" style={{ paddingLeft: "1px" }}>
         <div className="space-y-4">
           <div className="space-y-2">
             <label
@@ -486,18 +484,15 @@ const Sidebar = ({
                   URL
                 </label>
                 {sseUrl ? (
-                  <TooltipRoot>
-                    <TooltipTrigger asChild>
-                      <Input
-                        id="sse-url-input"
-                        placeholder="URL"
-                        value={sseUrl}
-                        onChange={handleSseUrlChange}
-                        className="font-mono"
-                      />
-                    </TooltipTrigger>
-                    <TooltipContent>{sseUrl}</TooltipContent>
-                  </TooltipRoot>
+                  <Tooltip text={sseUrl}>
+                    <Input
+                      id="sse-url-input"
+                      placeholder="URL"
+                      value={sseUrl}
+                      onChange={handleSseUrlChange}
+                      className="font-mono"
+                    />
+                  </Tooltip>
                 ) : (
                   <Input
                     id="sse-url-input"
@@ -510,31 +505,28 @@ const Sidebar = ({
               </div>
 
               {/* Connection Type switch - only visible for non-STDIO transport types */}
-              <TooltipRoot>
-                <TooltipTrigger asChild>
-                  <div className="space-y-2">
-                    <label
-                      className="text-sm font-medium"
-                      htmlFor="connection-type-select"
-                    >
-                      Connection Type
-                    </label>
-                    <Select
-                      value={connectionType}
-                      onValueChange={handleConnectionTypeChange}
-                    >
-                      <SelectTrigger id="connection-type-select">
-                        <SelectValue placeholder="Select connection type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="proxy">Via Proxy</SelectItem>
-                        <SelectItem value="direct">Direct</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent>{connectionTypeTip}</TooltipContent>
-              </TooltipRoot>
+              <Tooltip text={connectionTypeTip}>
+                <div className="space-y-2">
+                  <label
+                    className="text-sm font-medium"
+                    htmlFor="connection-type-select"
+                  >
+                    Connection Type
+                  </label>
+                  <Select
+                    value={connectionType}
+                    onValueChange={handleConnectionTypeChange}
+                  >
+                    <SelectTrigger id="connection-type-select">
+                      <SelectValue placeholder="Select connection type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="proxy">Via Proxy</SelectItem>
+                      <SelectItem value="direct">Direct</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </Tooltip>
             </>
           )}
 
@@ -624,42 +616,36 @@ const Sidebar = ({
 
           {/* Always show both copy buttons for all transport types */}
           <div className="grid grid-cols-2 gap-2 mt-2">
-            <TooltipRoot>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleCopyServerEntry}
-                  className="w-full"
-                >
-                  {copiedServerEntry ? (
-                    <CheckCheck className="h-4 w-4 mr-2" />
-                  ) : (
-                    <Copy className="h-4 w-4 mr-2" />
-                  )}
-                  Server Entry
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Copy Server Entry</TooltipContent>
-            </TooltipRoot>
-            <TooltipRoot>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleCopyServerFile}
-                  className="w-full"
-                >
-                  {copiedServerFile ? (
-                    <CheckCheck className="h-4 w-4 mr-2" />
-                  ) : (
-                    <Copy className="h-4 w-4 mr-2" />
-                  )}
-                  Servers File
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Copy Servers File</TooltipContent>
-            </TooltipRoot>
+            <Tooltip text="Copy Server Entry">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleCopyServerEntry}
+                className="w-full"
+              >
+                {copiedServerEntry ? (
+                  <CheckCheck className="h-4 w-4 mr-2" />
+                ) : (
+                  <Copy className="h-4 w-4 mr-2" />
+                )}
+                Server Entry
+              </Button>
+            </Tooltip>
+            <Tooltip text="Copy Server File">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleCopyServerFile}
+                className="w-full"
+              >
+                {copiedServerFile ? (
+                  <CheckCheck className="h-4 w-4 mr-2" />
+                ) : (
+                  <Copy className="h-4 w-4 mr-2" />
+                )}
+                Servers File
+              </Button>
+            </Tooltip>
           </div>
 
           <div className="space-y-2">
@@ -693,19 +679,29 @@ const Sidebar = ({
                       OAuth 2.0 Flow
                     </h4>
                     <div className="space-y-2">
-                      <label className="text-sm font-medium">Client ID</label>
+                      <label
+                        htmlFor="oauth-client-id-input"
+                        className="text-sm font-medium"
+                      >
+                        Client ID
+                      </label>
                       <Input
+                        id="oauth-client-id-input"
                         placeholder="Client ID"
                         onChange={handleOauthClientIdChange}
                         value={oauthClientId}
                         data-testid="oauth-client-id-input"
                         className="font-mono"
                       />
-                      <label className="text-sm font-medium">
+                      <label
+                        htmlFor="oauth-client-secret-input"
+                        className="text-sm font-medium"
+                      >
                         Client Secret
                       </label>
                       <div className="flex gap-2">
                         <Input
+                          id="oauth-client-secret-input"
                           type={showClientSecret ? "text" : "password"}
                           placeholder="Client Secret (optional)"
                           onChange={handleOauthClientSecretChange}
@@ -733,7 +729,10 @@ const Sidebar = ({
                           )}
                         </Button>
                       </div>
-                      <label className="text-sm font-medium">
+                      <label
+                        htmlFor="oauth-scope"
+                        className="text-sm font-medium"
+                      >
                         Redirect URL
                       </label>
                       <Input
@@ -742,11 +741,17 @@ const Sidebar = ({
                         value={window.location.origin + "/oauth/callback"}
                         className="font-mono"
                       />
-                      <label className="text-sm font-medium">Scope</label>
+                      <label
+                        htmlFor="oauth-scope-input"
+                        className="text-sm font-medium"
+                      >
+                        Scope
+                      </label>
                       <Input
                         placeholder="Scope (space-separated)"
                         onChange={handleOauthScopeChange}
                         value={oauthScope}
+                        id="oauth-scope-input"
                         data-testid="oauth-scope-input"
                         className="font-mono"
                       />
@@ -786,14 +791,9 @@ const Sidebar = ({
                         >
                           {configItem.label}
                         </label>
-                        <TooltipRoot>
-                          <TooltipTrigger asChild>
-                            <HelpCircle className="h-4 w-4 text-muted-foreground" />
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            {configItem.description}
-                          </TooltipContent>
-                        </TooltipRoot>
+                        <Tooltip text={configItem.description}>
+                          <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                        </Tooltip>
                       </div>
                       {typeof configItem.value === "number" ? (
                         <Input
