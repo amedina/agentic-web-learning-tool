@@ -8,7 +8,13 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 import { Client } from '@modelcontextprotocol/sdk/client';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
-import type { MCPConfig, MCPServerConfig } from '@google-awlt/common';
+import {
+  DOM_TOOL_NAME_PREFIX,
+  EXTENSION_TOOL_PREFIX,
+  WEBSITE_TOOL_PREFIX,
+  type MCPConfig,
+  type MCPServerConfig,
+} from '@google-awlt/common';
 /**
  * Internal dependencies
  */
@@ -100,8 +106,8 @@ class McpHub {
     //@ts-expect-error -- we are accessing a private variable as private variable are only available in TS annotations
     Object.keys(this.server._registeredTools).forEach((toolName) => {
       if (
-        toolName.startsWith('extension_tool_') ||
-        toolName.startsWith('dom_extract_')
+        toolName.startsWith(EXTENSION_TOOL_PREFIX) ||
+        toolName.startsWith(DOM_TOOL_NAME_PREFIX)
       ) {
         //@ts-expect-error -- we are accessing a private variable as private variable are only available in TS annotations
         this.server._registeredTools[toolName].remove();
@@ -846,7 +852,7 @@ class McpHub {
   }
 
   private generateUniqueToolName(prefix: string, rawToolName: string): string {
-    return `wt_${prefix}_${sanitizeToolName(rawToolName)}`;
+    return `${WEBSITE_TOOL_PREFIX}${prefix}_${sanitizeToolName(rawToolName)}`;
   }
 
   private generateTabDescription(

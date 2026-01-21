@@ -7,7 +7,7 @@ describe('createToolDropdown', () => {
   it('should filter out tools named "dummyTool" (ignoring prefix)', () => {
     const tools = [{ name: 'dummyTool', inputSchema: {} }];
 
-    const result = createToolDropdown(tools as any[], {}, {});
+    const result = createToolDropdown(tools as any[], {}, {}, 0);
     expect(result).toEqual([]);
   });
 
@@ -51,7 +51,8 @@ describe('createToolDropdown', () => {
           autoDiscardable: true,
           groupId: 1,
         },
-      }
+      },
+      1234
     );
 
     expect(result).toHaveLength(2);
@@ -86,7 +87,8 @@ describe('createToolDropdown', () => {
           autoDiscardable: true,
           groupId: 1,
         },
-      }
+      },
+      1234
     );
 
     expect(result).toHaveLength(1);
@@ -127,7 +129,8 @@ describe('createToolDropdown', () => {
           autoDiscardable: true,
           groupId: 1,
         },
-      }
+      },
+      1234
     );
 
     expect(result).toHaveLength(1); // One group
@@ -168,7 +171,8 @@ describe('createToolDropdown', () => {
           autoDiscardable: true,
           groupId: 1,
         },
-      }
+      },
+      1234
     );
 
     expect(result).toHaveLength(2);
@@ -205,7 +209,8 @@ describe('createToolDropdown', () => {
           autoDiscardable: true,
           groupId: 1,
         },
-      }
+      },
+      1234
     );
 
     expect(result[0].key).toBe('docs.google.com');

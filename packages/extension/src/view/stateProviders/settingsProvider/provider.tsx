@@ -28,6 +28,7 @@ function SettingsProvider({
   const [tabData, setTabData] = useState<{
     [key: string]: chrome.tabs.Tab;
   }>({});
+  const [currentTab, setCurrentTab] = useState<number>(0);
 
   const fetchTabData = useCallback(async () => {
     const tabs = await chrome.tabs.query({});
@@ -172,6 +173,13 @@ function SettingsProvider({
     []
   );
 
+  const onActivatedListener = useCallback(
+    (tab: chrome.tabs.OnActivatedInfo) => {
+      setCurrentTab(tab.tabId);
+    },
+    []
+  );
+
   useEffect(() => {
     (async () => {
       await fetchAndUpdateSettings();
@@ -182,12 +190,15 @@ function SettingsProvider({
     chrome.storage.sync.onChanged.addListener(syncStorageChangedListener);
     chrome.tabs.onCreated.addListener(addTabData);
     chrome.webNavigation.onCommitted.addListener(updateTabsData);
+    chrome.tabs.onActivated.addListener(onActivatedListener);
     return () => {
       chrome.storage.sync.onChanged.removeListener(syncStorageChangedListener);
       chrome.webNavigation.onCommitted.removeListener(updateTabsData);
       chrome.tabs.onCreated.removeListener(addTabData);
+      chrome.tabs.onActivated.removeListener(onActivatedListener);
     };
   }, [
+    onActivatedListener,
     addTabData,
     fetchAndUpdateSettings,
     fetchTabData,
@@ -202,13 +213,22 @@ function SettingsProvider({
         logLevel,
         isDarkMode,
         tabData,
+        currentTab,
       },
       actions: {
         clearSettings,
         toggleSettings,
       },
     }),
-    [tabData, theme, logLevel, isDarkMode, clearSettings, toggleSettings]
+    [
+      currentTab,
+      tabData,
+      theme,
+      logLevel,
+      isDarkMode,
+      clearSettings,
+      toggleSettings,
+    ]
   );
 
   return (

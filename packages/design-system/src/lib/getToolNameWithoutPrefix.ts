@@ -1,4 +1,12 @@
 /**
+ * External dependencies
+ */
+import {
+  EXTENSION_TOOL_PREFIX,
+  WEBSITE_TOOL_PREFIX,
+} from '@google-awlt/common';
+
+/**
  * Extracts the user-facing tool name from a fully qualified internal tool identifier.
  *
  * This utility strips specific prefixes (e.g., `wt_`, `extension_tool_`) and
@@ -22,14 +30,11 @@
  * getToolNameWithoutPrefix("unknown_tool");
  */
 function getToolNameWithoutPrefix(toolName: string) {
-  const websiteToolNamePrefix = 'wt_';
-  // Incase we decide to add some tools from extension
-  const extensionToolNamePrefix = 'extension_tool_';
   let toolNameWithoutHardCodePrefix = '';
 
-  if (toolName.startsWith(websiteToolNamePrefix)) {
+  if (toolName.startsWith(WEBSITE_TOOL_PREFIX)) {
     toolNameWithoutHardCodePrefix = toolName.substring(
-      websiteToolNamePrefix.length - 1
+      WEBSITE_TOOL_PREFIX.length - 1
     );
     const pieces = toolNameWithoutHardCodePrefix.split('_');
     pieces.shift();
@@ -37,9 +42,9 @@ function getToolNameWithoutPrefix(toolName: string) {
     return pieces.join('_');
   }
 
-  if (toolName.startsWith(extensionToolNamePrefix)) {
+  if (toolName.startsWith(EXTENSION_TOOL_PREFIX)) {
     toolNameWithoutHardCodePrefix = toolName.substring(
-      extensionToolNamePrefix.length
+      EXTENSION_TOOL_PREFIX.length
     );
     return toolNameWithoutHardCodePrefix;
   }
