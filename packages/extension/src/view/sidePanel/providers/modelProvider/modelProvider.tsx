@@ -76,13 +76,15 @@ const Provider = ({ children }: PropsWithChildren) => {
   }, [apiKeys, selectedAgent]);
 
   const fetchMCPServersAndCreateMapping = useCallback(async () => {
-    const { mcpServers }: { mcpServers: { [key: string]: MCPServerConfig } } =
+    const {
+      mcpServers = {},
+    }: { mcpServers: { [key: string]: MCPServerConfig } } =
       await chrome.storage.local.get('mcpServers');
 
     const mappedObject: Record<string, string> = {};
 
     Object.keys(mcpServers).forEach((key) => {
-      mappedObject[key] = mcpServers[key].name;
+      mappedObject[key] = mcpServers[key]?.name;
     });
 
     setToolNameToMCPMap(mappedObject);

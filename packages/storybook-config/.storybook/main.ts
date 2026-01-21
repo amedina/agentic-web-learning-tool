@@ -26,6 +26,10 @@ const config: StorybookConfig = {
             __dirname,
             '../../design-system/src'
           ),
+          '@google-awlt/extension': path.resolve(
+            __dirname,
+            '../../extension/src'
+          ),
         },
       },
     });

@@ -1,7 +1,15 @@
 /**
+ * External dependencies
+ */
+import {
+  EXTENSION_TOOL_PREFIX,
+  WEBSITE_TOOL_PREFIX,
+} from '@google-awlt/common';
+
+/**
  * Extracts the user-facing tool name from a fully qualified internal tool identifier.
  *
- * This utility strips specific prefixes (e.g., `website_tool_`, `extension_tool_`) and
+ * This utility strips specific prefixes (e.g., `wt_`, `extension_tool_`) and
  * removes internal routing information such as domain names and tab identifiers
  * (e.g., `_tab123_`) to return a clean, human-readable name for the UI.
  *
@@ -22,30 +30,28 @@
  * getToolNameWithoutPrefix("unknown_tool");
  */
 function getToolNameWithoutPrefix(toolName: string) {
-  const websiteToolNamePrefix = 'website_tool_';
-  // Incase we decide to add some tools from extension
-  const extensionToolNamePrefix = 'extension_tool_';
   let toolNameWithoutHardCodePrefix = '';
 
-  if (toolName.startsWith(websiteToolNamePrefix)) {
+  if (toolName.startsWith(WEBSITE_TOOL_PREFIX)) {
     toolNameWithoutHardCodePrefix = toolName.substring(
-      websiteToolNamePrefix.length - 1
+      WEBSITE_TOOL_PREFIX.length - 1
     );
     const pieces = toolNameWithoutHardCodePrefix.split('_');
     pieces.shift();
-    return pieces.join('_').match(/_tab[^_]+_(.+)$/)?.[1];
+    pieces.shift();
+    return pieces.join('_');
   }
 
-  if (toolName.startsWith(extensionToolNamePrefix)) {
+  if (toolName.startsWith(EXTENSION_TOOL_PREFIX)) {
     toolNameWithoutHardCodePrefix = toolName.substring(
-      extensionToolNamePrefix.length
+      EXTENSION_TOOL_PREFIX.length
     );
     return toolNameWithoutHardCodePrefix;
   }
 
   if (toolName.includes('_mcp')) {
-    const match = toolName.match(/(?<=_mcp_).*/);
-    const unPrefixedToolName = match ? match[0] : toolName;
+    const match = toolName.match(/^(.*?)_mcp_/);
+    const unPrefixedToolName = match ? match[1] : toolName;
     return unPrefixedToolName;
   }
 
