@@ -32,6 +32,7 @@ function SettingsProvider({
 
   const fetchTabData = useCallback(async () => {
     const tabs = await chrome.tabs.query({});
+    tabs.forEach((tab) => (tab.id && tab.active ? setCurrentTab(tab.id) : ''));
     setTabData(
       tabs.reduce(
         (acc, tab) => {
