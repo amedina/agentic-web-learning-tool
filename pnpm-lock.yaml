@@ -220,9 +220,6 @@ importers:
       '@types/acorn':
         specifier: ^6.0.4
         version: 6.0.4
-      '@types/chrome':
-        specifier: ^0.1.33
-        version: 0.1.33
       '@types/jest':
         specifier: ^29.5.14
         version: 29.5.14

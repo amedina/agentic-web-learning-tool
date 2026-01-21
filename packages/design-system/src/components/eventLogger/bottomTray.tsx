@@ -121,9 +121,7 @@ export function BottomTray<T>({
       {/* Tray Content */}
       {!isMinimized && (
         <div className="flex-1 overflow-auto p-0 flex">
-          <div className="w-full h-full flex flex-col">
-            {renderDetail(selectedItem)}
-          </div>
+          <div className="w-full h-full">{renderDetail(selectedItem)}</div>
         </div>
       )}
     </div>
