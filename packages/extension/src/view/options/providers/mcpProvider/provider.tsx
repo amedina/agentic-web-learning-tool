@@ -11,10 +11,7 @@ import {
 } from 'react';
 import { Client } from '@modelcontextprotocol/sdk/client';
 import type { MCPConfig, MCPServerConfig } from '@google-awlt/common';
-import {
-  StreamableHTTPClientTransport,
-  StreamableHTTPError,
-} from '@modelcontextprotocol/sdk/client/streamableHttp.js';
+import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import { toast } from '@google-awlt/design-system';
 
 /**
@@ -34,6 +31,9 @@ const Provider = ({ children }: PropsWithChildren) => {
   >({});
 
   const initialFetch = useRef(false);
+  //for internal usage
+  const _toolList = useRef(toolList);
+  const initalSyncToolFetchRef = useRef(new Set());
 
   const createClientAndListTools = useCallback(
     async (
@@ -43,7 +43,11 @@ const Provider = ({ children }: PropsWithChildren) => {
       initialSync = false
     ) => {
       try {
-        if (!config.enabled || toolList[serverName]?.tools?.length > 0) {
+        if (
+          !config.enabled ||
+          _toolList.current[serverName]?.tools?.length > 0 ||
+          initalSyncToolFetchRef.current.has(serverName)
+        ) {
           return;
         }
 
@@ -54,6 +58,7 @@ const Provider = ({ children }: PropsWithChildren) => {
             Authorization: `Bearer ${config.authToken}`,
           };
         }
+        initalSyncToolFetchRef.current.add(serverName);
 
         const client = new Client({
           name: 'chrome-options-page-client',
@@ -86,12 +91,8 @@ const Provider = ({ children }: PropsWithChildren) => {
         if (!initialSync) {
           toast.success('MCP Server successfully added to extension');
         }
-      } catch (error) {
-        const errorMessage = `Couldnt add ${config.name} ${
-          //@ts-expect-error -- message extends error
-          (error as typeof StreamableHTTPError)?.message ??
-          'Error fetching tools from MCP Server.'
-        }`;
+      } catch (_error) {
+        const errorMessage = `Couldnt add ${config.name} ${'Error fetching tools from MCP Server. Please check the server URL, check the token expiry.'}`;
 
         if (doNotStoreTools) {
           return errorMessage;
@@ -108,7 +109,7 @@ const Provider = ({ children }: PropsWithChildren) => {
         toast.error(errorMessage);
       }
     },
-    [toolList]
+    []
   );
 
   const handleToggle = useCallback((serverName: string, value: boolean) => {
@@ -128,10 +129,16 @@ const Provider = ({ children }: PropsWithChildren) => {
       serverName: string,
       initialSync = false
     ) => {
-      setServerConfigs((prev) => ({
-        ...prev,
-        [serverName]: config,
-      }));
+      setServerConfigs((prev) => {
+        if (prev[serverName]) {
+          return prev;
+        }
+
+        return {
+          ...prev,
+          [serverName]: config,
+        };
+      });
 
       await createClientAndListTools(
         config,
@@ -169,16 +176,22 @@ const Provider = ({ children }: PropsWithChildren) => {
             if (!serverName) {
               return Promise.resolve();
             }
+
             await addConfig(mcpServers?.[serverName], serverName, true);
           })
         );
-        initialFetch.current = true;
       }
     );
   }, [addConfig]);
 
   useEffect(() => {
-    initialSync();
+    (async () => {
+      if (initialFetch.current) {
+        return;
+      }
+      initialFetch.current = true;
+      await initialSync();
+    })();
   }, [initialSync]);
 
   /**
@@ -213,14 +226,6 @@ const Provider = ({ children }: PropsWithChildren) => {
         errors.push('Server name is already in use.');
       }
 
-      if (
-        (!config.authToken || config.authToken.trim().length === 0) &&
-        config.url.startsWith('http://localhost') &&
-        errors.length === 0
-      ) {
-        errors.push('authToken is required.');
-      }
-
       if (!config.url && errors.length === 0) {
         errors.push('Server URL is required.');
       } else {
@@ -246,7 +251,6 @@ const Provider = ({ children }: PropsWithChildren) => {
           typeof result === 'boolean'
             ? 'There was some error in the MCP configuration'
             : result;
-        toast.error(message);
         errors.push(message);
       }
 
@@ -255,7 +259,7 @@ const Provider = ({ children }: PropsWithChildren) => {
         isValid: errors.length === 0,
       };
     },
-    []
+    [createClientAndListTools, serverConfigs]
   );
 
   const value = useMemo(
@@ -271,7 +275,14 @@ const Provider = ({ children }: PropsWithChildren) => {
         handleToggle,
       },
     }),
-    [serverConfigs, toolList, addConfig, validateConfig, removeConfig]
+    [
+      serverConfigs,
+      toolList,
+      addConfig,
+      removeConfig,
+      validateConfig,
+      handleToggle,
+    ]
   );
 
   return <MCPContext.Provider value={value}>{children}</MCPContext.Provider>;

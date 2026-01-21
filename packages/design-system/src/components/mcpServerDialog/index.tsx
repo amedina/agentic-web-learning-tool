@@ -68,7 +68,7 @@ export function MCPServerDialog({
 
   const handleSave = useCallback(async () => {
     setIsAddingConfig(true);
-    await onSave(config, !server?.name ? crypto.randomUUID() : serverId);
+    await onSave(config, !server?.name ? Date.now().toString() : serverId);
     setIsAddingConfig(false);
     setTimeout(() => {
       onOpenChange(false);
@@ -122,10 +122,10 @@ export function MCPServerDialog({
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50" />
-        <Dialog.Content
-          aria-describedby={undefined}
-          className="fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] w-[70vw] max-h-[90vh] bg-background text-foreground border border-gray-200 rounded-xl shadow-2xl z-50 flex flex-col overflow-hidden"
-        >
+        <Dialog.Content className="fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] w-[70vw] max-h-[90vh] bg-background text-foreground border border-gray-200 rounded-xl shadow-2xl z-50 flex flex-col overflow-hidden">
+          <Dialog.Description className="hidden">
+            This dialog adds/edits an MCP server and displays its tools.
+          </Dialog.Description>
           <div className="flex items-center justify-between px-6 py-4 bg-background">
             <div className="flex items-center gap-3">
               <Dialog.Title className="text-lg font-bold">
@@ -138,7 +138,6 @@ export function MCPServerDialog({
               </Button>
             </Dialog.Close>
           </div>
-
           <div className="flex-grow flex flex-col p-5 overflow-hidden relative">
             <div className="flex-1 flex flex-col p-0 gap-2 relative bg-background overflow-auto">
               <Tabs defaultValue={defaultTab}>

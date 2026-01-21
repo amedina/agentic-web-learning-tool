@@ -19,7 +19,7 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import { Button, Dropdown, OwlIcon } from '@google-awlt/design-system';
-
+import { WEBSITE_TOOL_PREFIX } from '@google-awlt/common';
 /**
  * Internal dependencies
  */
@@ -32,6 +32,7 @@ import { INITIAL_PROVIDERS } from '../../../../constants';
 import type { AgentType } from '../../../../types';
 import { useCommandProvider } from '../../providers/commandProvider';
 import { createModelDropdown, createToolDropdown } from './utils';
+import { useSettings } from '../../../stateProviders';
 
 type ChatBotUIProps = {
   runtime: AssistantRuntime;
@@ -39,7 +40,6 @@ type ChatBotUIProps = {
 
 const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
   const { client, tools } = useMcpClient();
-
   const { apiKeys, setSelectedAgent, selectedAgent, toolNameToMCPMap } =
     useModelProvider(({ state, actions }) => ({
       apiKeys: state.apiKeys,
@@ -48,19 +48,10 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
       selectedAgent: state.selectedAgent,
     }));
 
-  useEffect(() => {
-    (async () => {
-      if (client.transport) {
-        return;
-      }
-
-      await client.connect(transport);
-    })();
-
-    return () => {
-      client.close();
-    };
-  }, [client]);
+  const { tabData, currentTab } = useSettings(({ state }) => ({
+    tabData: state.tabData,
+    currentTab: state.currentTab,
+  }));
 
   useEffect(() => {
     // Synchronization Mechanism: This block listens for a "Tool Changed" event from the
@@ -74,36 +65,58 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 
   const threadId = useAssistantState(({ threadListItem }) => threadListItem.id);
 
-  useAssistantMCP(tools, client, threadId, runtime);
+  useAssistantMCP(tools, client, threadId, runtime, currentTab);
 
   const { handleMessageChange } = useCommandProvider(({ actions }) => ({
     handleMessageChange: actions.handleMessageChange,
   }));
 
   const groupedTools = useMemo(
-    () => createToolDropdown(tools, toolNameToMCPMap),
-    [tools, toolNameToMCPMap]
+    () => createToolDropdown(tools, toolNameToMCPMap, tabData, currentTab),
+    [tools, toolNameToMCPMap, tabData, currentTab]
   );
 
-  const handleSelect = useCallback((selectedId: string) => {
-    const agent: AgentType = {
-      modelProvider: '',
-      model: '',
-    };
+  const handleSelect = useCallback(
+    (selectedId: string) => {
+      const agent: AgentType = {
+        modelProvider: '',
+        model: '',
+      };
 
-    INITIAL_PROVIDERS.forEach((provider) => {
-      const selectedModel = provider.models.find(
-        (model) => model.id === selectedId
-      );
+      INITIAL_PROVIDERS.forEach((provider) => {
+        const selectedModel = provider.models.find(
+          (model) => model.id === selectedId
+        );
 
-      if (selectedModel) {
-        agent.modelProvider = provider.id;
-        agent.model = selectedModel.id;
-      }
-    });
+        if (selectedModel) {
+          agent.modelProvider = provider.id;
+          agent.model = selectedModel.id;
+        }
+      });
 
-    setSelectedAgent(agent);
-  }, []);
+      setSelectedAgent(agent);
+    },
+    [setSelectedAgent]
+  );
+
+  const toolLength = useMemo(() => {
+    return tools
+      .filter((tool) => tool.name !== 'dummyTool')
+      .filter((tool) => {
+        if (tool.name.startsWith(WEBSITE_TOOL_PREFIX)) {
+          const match = tool.name
+            .substring(WEBSITE_TOOL_PREFIX.length)
+            .match(/(?<=tab)\d+/);
+          const tabId = match ? match[0] : '';
+          if (currentTab === parseInt(tabId)) {
+            return true;
+          } else {
+            return false;
+          }
+        }
+        return true;
+      }).length;
+  }, [currentTab, tools]);
 
   //Only shows models whose apiKeys have been and have been enabled
   const modelOptions = useMemo(() => createModelDropdown(apiKeys), [apiKeys]);
@@ -129,9 +142,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
               </h2>
               <p className="text-zinc-500 max-w-md">
                 I can help you write code, analyze data, or even check the
-                weather. I have access to{' '}
-                {tools.filter((tool) => tool.name !== 'dummyTool').length}{' '}
-                tools.
+                weather. I have access to {toolLength} tools.
               </p>
             </div>
           </ThreadPrimitive.Empty>

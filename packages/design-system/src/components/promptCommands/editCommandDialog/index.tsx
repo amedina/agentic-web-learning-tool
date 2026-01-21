@@ -95,6 +95,9 @@ export function EditCommandDialog({
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50" />
         <Dialog.Content className="fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] w-[600px] max-w-[95vw] bg-white text-gray-900 border border-gray-200 rounded-xl shadow-2xl z-50 flex flex-col px-5 py-4 outline-none">
+          <Dialog.Description className="hidden">
+            This dialog creates/edits shortcut to be used in the sidepanel chat.
+          </Dialog.Description>
           <div className="flex items-center justify-between mb-6">
             <Dialog.Title className="text-xl font-bold">
               {command ? 'Edit Command' : 'Create Command'}
