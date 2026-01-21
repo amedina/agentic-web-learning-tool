@@ -424,13 +424,7 @@ const Sidebar = ({
 
   return (
     <div className="bg-card border-r border-border flex flex-col h-full">
-      <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-border">
-        <div className="flex items-center">
-          <h1 className="ml-2 text-lg font-semibold">Inspector v0.0.0</h1>
-        </div>
-      </div>
-
-      <div className="p-4 flex-1 overflow-auto">
+      <div className="p-4 flex-1 overflow-auto" style={{ paddingLeft: "0px" }}>
         <div className="space-y-4">
           <div className="space-y-2">
             <label
