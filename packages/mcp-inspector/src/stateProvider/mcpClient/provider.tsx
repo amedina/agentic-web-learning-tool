@@ -372,6 +372,10 @@ const McpConnectionProvider = ({ children }: { children: ReactNode }) => {
       headers[proxyAuthTokenHeader] = `Bearer ${proxyAuthToken}`;
     }
 
+    if (!getMCPProxyAddress(config)) {
+      return;
+    }
+
     fetch(`${getMCPProxyAddress(config)}/config`, { headers })
       .then((response) => response.json())
       .then((data) => {

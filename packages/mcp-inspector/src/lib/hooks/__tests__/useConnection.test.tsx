@@ -2,21 +2,21 @@ import { renderHook, act } from "@testing-library/react";
 import { useConnection } from "../useConnection";
 import { z } from "zod";
 import {
-  ClientRequest,
-  JSONRPCMessage,
+  type ClientRequest,
+  type JSONRPCMessage,
 } from "@modelcontextprotocol/sdk/types.js";
 import { DEFAULT_INSPECTOR_CONFIG, CLIENT_IDENTITY } from "../../constants";
 import {
-  SSEClientTransportOptions,
+  type SSEClientTransportOptions,
   SseError,
 } from "@modelcontextprotocol/sdk/client/sse.js";
 import {
-  ElicitResult,
-  ElicitRequest,
+  type ElicitResult,
+  type ElicitRequest,
 } from "@modelcontextprotocol/sdk/types.js";
 import { auth } from "@modelcontextprotocol/sdk/client/auth.js";
 import { discoverScopes } from "../../auth";
-import { CustomHeaders } from "../../types/customHeaders";
+import { type CustomHeaders } from "../../types/customHeaders";
 
 // Mock fetch
 global.fetch = jest.fn().mockResolvedValue({

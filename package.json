@@ -39,7 +39,7 @@
     "format:shared-config": "pnpm --filter shared-config format",
     "dev": "pnpm --filter extension dev",
     "check-types": "pnpm --filter extension check-types",
-    "build:mcp-inspector": "pnpm --filter mcp-inspector",
+    "build:mcp-inspector": "pnpm --filter mcp-inspector build",
     "build:extension": "pnpm --filter extension build",
     "build:design-system": "pnpm --filter design-system build",
     "build:common": "pnpm --filter common build",

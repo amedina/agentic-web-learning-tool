@@ -1,6 +1,5 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import { describe, it, expect, jest } from "@jest/globals";
 import DynamicJsonForm from "../DynamicJsonForm";
 import type { JsonSchemaType } from "../../utils/jsonUtils";
 
@@ -203,7 +202,7 @@ describe("DynamicJsonForm Array Fields", () => {
       expect(screen.getByText(/Select at most 3/i)).toBeInTheDocument();
 
       // Select another option by toggling option.selected
-      const colorOptions = screen.getAllByRole("option");
+      const colorOptions = screen.getAllByRole("option") as HTMLOptionElement[];
       // options: red, green, blue
       colorOptions[0].selected = true; // red
       colorOptions[2].selected = true; // blue
@@ -245,7 +244,7 @@ describe("DynamicJsonForm Array Fields", () => {
       expect(options[2]).toHaveProperty("textContent", "Trout");
 
       // Select fish-2 and fish-3
-      const fishOptions = screen.getAllByRole("option");
+      const fishOptions = screen.getAllByRole("option") as HTMLOptionElement[];
       // options: Tuna (fish-1), Salmon (fish-2), Trout (fish-3)
       fishOptions[0].selected = false; // deselect fish-1
       fishOptions[1].selected = true; // fish-2

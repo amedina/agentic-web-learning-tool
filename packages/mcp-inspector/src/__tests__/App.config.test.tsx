@@ -1,7 +1,7 @@
 import { render, waitFor } from "@testing-library/react";
 import App from "../App";
 import { DEFAULT_INSPECTOR_CONFIG } from "../lib/constants";
-import { InspectorConfig } from "../lib/configurationTypes";
+import { type InspectorConfig } from "../lib/configurationTypes";
 import * as configUtils from "../utils/configUtils";
 
 // Mock auth dependencies first

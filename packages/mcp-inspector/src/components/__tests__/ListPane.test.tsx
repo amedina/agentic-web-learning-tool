@@ -1,6 +1,5 @@
 import { render, screen, fireEvent, act } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import { describe, it, beforeEach, jest } from "@jest/globals";
 import ListPane from "../ListPane";
 
 describe("ListPane", () => {

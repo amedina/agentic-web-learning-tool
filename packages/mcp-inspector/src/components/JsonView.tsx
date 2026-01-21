@@ -3,9 +3,8 @@
  */
 import { useState, useMemo, useCallback, useEffect } from "react";
 import type React from "react";
-import clsx from "clsx";
 import { Copy, CheckCheck } from "lucide-react";
-import { Button } from "@google-awlt/design-system";
+import { Button, cn } from "@google-awlt/design-system";
 
 /**
  * Internal dependencies
@@ -61,7 +60,7 @@ const JsonView = ({
   }, [toast, normalizedData, setCopied]);
 
   return (
-    <div className={clsx("p-4 border rounded relative", className)}>
+    <div className={cn("p-4 border rounded relative", className)}>
       {withCopyButton && (
         <Button
           size="icon"
@@ -263,7 +262,7 @@ const JsonNode = ({
             </span>
           )}
           <pre
-            className={clsx(
+            className={cn(
               isError ? typeStyleMap.error : typeStyleMap.string,
               "break-all whitespace-pre-wrap",
             )}
@@ -298,7 +297,7 @@ const JsonNode = ({
           </span>
         )}
         <pre
-          className={clsx(
+          className={cn(
             isError ? typeStyleMap.error : typeStyleMap.string,
             "cursor-pointer break-all whitespace-pre-wrap",
           )}

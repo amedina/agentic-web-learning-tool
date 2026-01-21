@@ -6,7 +6,7 @@
     "outDir": "./dist",
     "lib": ["dom", "ESNext"],
     "sourceMap": true,
-    "noEmit": true,
+    "noEmit": false,
     "allowImportingTsExtensions": false,
     "baseUrl": ".",
     "paths": {

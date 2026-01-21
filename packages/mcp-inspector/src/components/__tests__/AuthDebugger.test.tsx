@@ -6,9 +6,8 @@ import {
   act,
 } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import { describe, it, beforeEach, jest } from "@jest/globals";
-import AuthDebugger, { AuthDebuggerProps } from "../AuthDebugger";
-import { TooltipProvider } from "../../components/ui/TooltipRoot";
+import AuthDebugger, { type AuthDebuggerProps } from "../AuthDebugger";
+import { TooltipProvider } from "@google-awlt/design-system";
 import { SESSION_KEYS } from "../../lib/constants";
 
 const mockOAuthTokens = {
@@ -54,7 +53,7 @@ import {
   auth,
   discoverOAuthProtectedResourceMetadata,
 } from "@modelcontextprotocol/sdk/client/auth.js";
-import { OAuthMetadata } from "@modelcontextprotocol/sdk/shared/auth.js";
+import { type OAuthMetadata } from "@modelcontextprotocol/sdk/shared/auth.js";
 import { EMPTY_DEBUGGER_STATE } from "../../lib/auth-types";
 
 // Mock local auth module

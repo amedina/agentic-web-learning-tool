@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import SamplingRequest from "../SamplingRequest";
-import { PendingRequest } from "../SamplingTab";
+import { type PendingRequest } from "../SamplingTab";
 
 const mockRequest: PendingRequest = {
   id: 1,

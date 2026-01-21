@@ -38,7 +38,6 @@ import {
  */
 import type { InspectorConfig } from "../lib/configurationTypes";
 import type { ConnectionStatus } from "../lib/constants";
-import { version } from "../../package.json";
 import CustomHeaders from "./CustomHeaders";
 import type { CustomHeaders as CustomHeadersType } from "../lib/types/customHeaders";
 import { useToast } from "../lib/hooks/useToast";
@@ -427,7 +426,7 @@ const Sidebar = ({
     <div className="bg-card border-r border-border flex flex-col h-full">
       <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-border">
         <div className="flex items-center">
-          <h1 className="ml-2 text-lg font-semibold">Inspector v{version}</h1>
+          <h1 className="ml-2 text-lg font-semibold">Inspector v0.0.0</h1>
         </div>
       </div>
 

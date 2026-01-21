@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
-import { Tabs } from "../../components/ui/tabs";
-import SamplingTab, { PendingRequest } from "../SamplingTab";
+import { Tabs } from "@google-awlt/design-system";
+import SamplingTab, { type PendingRequest } from "../SamplingTab";
 
 describe("Sampling tab", () => {
   const mockOnApprove = jest.fn();

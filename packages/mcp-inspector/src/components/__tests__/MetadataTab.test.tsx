@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import MetadataTab from "../MetadataTab";
-import { Tabs } from "../../components/ui/tabs";
+import { Tabs } from "@google-awlt/design-system";
 import {
   META_NAME_RULES_MESSAGE,
   META_PREFIX_RULES_MESSAGE,

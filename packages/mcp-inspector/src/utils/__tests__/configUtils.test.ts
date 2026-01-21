@@ -1,6 +1,6 @@
 import { getMCPProxyAuthToken } from "../configUtils";
 import { DEFAULT_INSPECTOR_CONFIG } from "../../lib/constants";
-import { InspectorConfig } from "../../lib/configurationTypes";
+import { type InspectorConfig } from "../../lib/configurationTypes";
 
 describe("configUtils", () => {
   describe("getMCPProxyAuthToken", () => {

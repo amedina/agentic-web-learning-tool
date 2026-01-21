@@ -237,9 +237,9 @@ const App = () => {
     handleDragStart: handleSidebarDragStart,
   } = useDraggableSidebar(320);
 
-  const clearError = (tabKey: keyof typeof errors) => {
+  const clearError = useCallback((tabKey: keyof typeof errors) => {
     setErrors((prev) => ({ ...prev, [tabKey]: null }));
-  };
+  }, []);
 
   const sendMCPRequest = useCallback(
     async <T extends AnySchema>(
@@ -264,7 +264,7 @@ const App = () => {
         throw e;
       }
     },
-    [],
+    [clearError, makeRequest],
   );
 
   const listResources = async () => {
