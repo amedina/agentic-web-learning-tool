@@ -9,7 +9,7 @@ import { SidebarProvider } from '@google-awlt/design-system';
  */
 import { ChatBotUI } from './components';
 import { CommandProvider, useModelProvider } from './providers';
-import MyRuntimeProvider from './localRuntime/customRuntimeProvider';
+import MyRuntimeProvider from './customRuntime/customRuntimeProvider';
 
 const SidePanel = () => {
   const { transport } = useModelProvider(({ state }) => ({
