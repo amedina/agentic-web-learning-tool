@@ -8,7 +8,6 @@ import type {
   CallToolResult,
 } from '@modelcontextprotocol/sdk/types.js';
 import { useEffect, useMemo } from 'react';
-import { getToolNameWithoutPrefix } from '@google-awlt/design-system';
 /**
  * Internal dependencies
  */
@@ -72,10 +71,7 @@ export function useAssistantMCP(
     const assistantTools = filteredTools
       .map((mcpT) => {
         // Generate a clean name for the UI (handles length limits & hashing if needed)
-        const uiToolName =
-          mcpT.name.length > 64
-            ? getToolNameWithoutPrefix(mcpT.name)
-            : mcpT.name;
+        const uiToolName = mcpT.name;
 
         // Extract a human-readable name for logging (removes "tab123_" prefix)
         const match = mcpT.name.match(/^tab\d+_(.+)$/);
