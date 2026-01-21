@@ -1,7 +1,7 @@
 /**
  * Extracts the user-facing tool name from a fully qualified internal tool identifier.
  *
- * This utility strips specific prefixes (e.g., `website_tool_`, `extension_tool_`) and
+ * This utility strips specific prefixes (e.g., `wt_`, `extension_tool_`) and
  * removes internal routing information such as domain names and tab identifiers
  * (e.g., `_tab123_`) to return a clean, human-readable name for the UI.
  *
@@ -22,7 +22,7 @@
  * getToolNameWithoutPrefix("unknown_tool");
  */
 function getToolNameWithoutPrefix(toolName: string) {
-  const websiteToolNamePrefix = 'website_tool_';
+  const websiteToolNamePrefix = 'wt_';
   // Incase we decide to add some tools from extension
   const extensionToolNamePrefix = 'extension_tool_';
   let toolNameWithoutHardCodePrefix = '';
@@ -33,7 +33,8 @@ function getToolNameWithoutPrefix(toolName: string) {
     );
     const pieces = toolNameWithoutHardCodePrefix.split('_');
     pieces.shift();
-    return pieces.join('_').match(/_tab[^_]+_(.+)$/)?.[1];
+    pieces.shift();
+    return pieces.join('_');
   }
 
   if (toolName.startsWith(extensionToolNamePrefix)) {

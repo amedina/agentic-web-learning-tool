@@ -32,6 +32,7 @@ import { INITIAL_PROVIDERS } from '../../../../constants';
 import type { AgentType } from '../../../../types';
 import { useCommandProvider } from '../../providers/commandProvider';
 import { createModelDropdown, createToolDropdown } from './utils';
+import { useSettings } from '../../../stateProviders';
 
 type ChatBotUIProps = {
   runtime: AssistantRuntime;
@@ -46,6 +47,10 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
       setSelectedAgent: actions.setSelectedAgent,
       selectedAgent: state.selectedAgent,
     }));
+
+  const { tabData } = useSettings(({ state }) => ({
+    tabData: state.tabData,
+  }));
 
   useEffect(() => {
     // Synchronization Mechanism: This block listens for a "Tool Changed" event from the
@@ -66,10 +71,10 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
   }));
 
   const groupedTools = useMemo(
-    () => createToolDropdown(tools, toolNameToMCPMap),
-    [tools, toolNameToMCPMap]
+    () => createToolDropdown(tools, toolNameToMCPMap, tabData),
+    [tools, toolNameToMCPMap, tabData]
   );
-
+  console.log(tabData);
   const handleSelect = useCallback(
     (selectedId: string) => {
       const agent: AgentType = {

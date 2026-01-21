@@ -543,12 +543,11 @@ class McpHub {
     // 3. Register/Update tools with MCP Server
     const toolNameComponents = {
       cleanDomain: sanitizeToolName(domain),
-      prefix: dataId.startsWith('cached-') ? dataId : `tab${tabData.tabId}`,
+      prefix: `tab${tabData.tabId}`,
     };
 
     for (const tool of activeTools) {
       const uniqueToolName = this.generateUniqueToolName(
-        toolNameComponents.cleanDomain,
         toolNameComponents.prefix,
         tool.name
       );
@@ -593,7 +592,6 @@ class McpHub {
 
       for (const tool of removedTools) {
         const uniqueToolName = this.generateUniqueToolName(
-          toolNameComponents.cleanDomain,
           toolNameComponents.prefix,
           tool.name
         );
@@ -620,17 +618,10 @@ class McpHub {
       return;
     }
 
-    const cleanDomain = sanitizeToolName(domain);
-    const prefix = dataId.startsWith('cached-')
-      ? dataId
-      : `tab${tabData.tabId ?? ''}`;
+    const prefix = `tab${tabData.tabId ?? ''}`;
 
     for (const tool of tabData.tools) {
-      const uniqueToolName = this.generateUniqueToolName(
-        cleanDomain,
-        prefix,
-        tool.name
-      );
+      const uniqueToolName = this.generateUniqueToolName(prefix, tool.name);
       this.registeredTools.get(uniqueToolName)?.remove();
       this.registeredTools.delete(uniqueToolName);
     }
@@ -834,13 +825,11 @@ class McpHub {
     }
 
     const toolNameComponents = {
-      cleanDomain: sanitizeToolName(domain),
       prefix: `tab${tabData.tabId}`,
     };
 
     for (const tool of tabData.tools) {
       const uniqueToolName = this.generateUniqueToolName(
-        toolNameComponents.cleanDomain,
         toolNameComponents.prefix,
         tool.name
       );
@@ -856,12 +845,8 @@ class McpHub {
     }
   }
 
-  private generateUniqueToolName(
-    cleanDomain: string,
-    prefix: string,
-    rawToolName: string
-  ): string {
-    return `website_tool_${cleanDomain}_${prefix}_${sanitizeToolName(rawToolName)}`;
+  private generateUniqueToolName(prefix: string, rawToolName: string): string {
+    return `wt_${prefix}_${sanitizeToolName(rawToolName)}`;
   }
 
   private generateTabDescription(

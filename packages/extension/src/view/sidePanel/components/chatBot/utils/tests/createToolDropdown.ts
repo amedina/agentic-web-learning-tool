@@ -7,23 +7,58 @@ describe('createToolDropdown', () => {
   it('should filter out tools named "dummyTool" (ignoring prefix)', () => {
     const tools = [{ name: 'dummyTool', inputSchema: {} }];
 
-    const result = createToolDropdown(tools as any[], {});
+    const result = createToolDropdown(tools as any[], {}, {});
     expect(result).toEqual([]);
   });
 
-  it('should correctly group and format "website_tool_" items', () => {
+  it('should correctly group and format "wt" items', () => {
     const tools = [
-      { name: 'website_tool_tab_google_com', inputSchema: {} },
-      { name: 'website_tool_tab_extra_google_com', inputSchema: {} },
+      { name: 'wt_tab1234_google_com', inputSchema: {} },
+      { name: 'wt_tab12345_extra_google_com', inputSchema: {} },
     ];
 
-    const result = createToolDropdown(tools as any[], {});
+    const result = createToolDropdown(
+      tools as any[],
+      {},
+      {
+        '1234': {
+          url: 'https://google.com',
+          id: 1234,
+          index: 1,
+          pinned: false,
+          highlighted: false,
+          windowId: 1,
+          frozen: false,
+          incognito: false,
+          discarded: false,
+          selected: true,
+          active: false,
+          autoDiscardable: true,
+          groupId: 1,
+        },
+        '12345': {
+          url: 'https://extra.google.com',
+          id: 12345,
+          index: 1,
+          pinned: false,
+          highlighted: false,
+          windowId: 1,
+          frozen: false,
+          incognito: false,
+          discarded: false,
+          selected: true,
+          active: false,
+          autoDiscardable: true,
+          groupId: 1,
+        },
+      }
+    );
 
     expect(result).toHaveLength(2);
     expect(result[0]).toEqual({
-      group: 'tab.google.com',
-      items: [{ id: 'website_tool_tab_google_com', label: '' }],
-      key: 'tab.google.com',
+      group: 'google.com',
+      items: [{ id: 'wt_tab1234_google_com', label: 'google_com' }],
+      key: 'google.com',
     });
   });
 
@@ -32,7 +67,27 @@ describe('createToolDropdown', () => {
       { name: 'extension_tool_check_available_apis', inputSchema: {} },
     ];
 
-    const result = createToolDropdown(tools as any[], {});
+    const result = createToolDropdown(
+      tools as any[],
+      {},
+      {
+        '1234': {
+          url: 'https://google.com',
+          id: 1234,
+          index: 1,
+          pinned: false,
+          highlighted: false,
+          windowId: 1,
+          frozen: false,
+          incognito: false,
+          discarded: false,
+          selected: true,
+          active: false,
+          autoDiscardable: true,
+          groupId: 1,
+        },
+      }
+    );
 
     expect(result).toHaveLength(1);
     expect(result[0]).toEqual({
@@ -53,7 +108,27 @@ describe('createToolDropdown', () => {
       { name: 'random_tool_2', inputSchema: {} },
     ];
 
-    const result = createToolDropdown(tools as any[], {});
+    const result = createToolDropdown(
+      tools as any[],
+      {},
+      {
+        '1234': {
+          url: 'https://google.com',
+          id: 1234,
+          index: 1,
+          pinned: false,
+          highlighted: false,
+          windowId: 1,
+          frozen: false,
+          incognito: false,
+          discarded: false,
+          selected: true,
+          active: false,
+          autoDiscardable: true,
+          groupId: 1,
+        },
+      }
+    );
 
     expect(result).toHaveLength(1); // One group
     expect(result[0].key).toBe('others');
@@ -67,10 +142,34 @@ describe('createToolDropdown', () => {
         inputSchema: {},
         isExtension: true,
       },
-      { name: 'website_tool_google_com_tab', inputSchema: {}, isWebsite: true },
+      {
+        name: 'wt_tab1234_google_com_tab',
+        inputSchema: {},
+        isWebsite: true,
+      },
     ];
 
-    const result = createToolDropdown(tools as any[], {});
+    const result = createToolDropdown(
+      tools as any[],
+      {},
+      {
+        '1234': {
+          url: 'https://google.com',
+          id: 1234,
+          index: 1,
+          pinned: false,
+          highlighted: false,
+          windowId: 1,
+          frozen: false,
+          incognito: false,
+          discarded: false,
+          selected: true,
+          active: false,
+          autoDiscardable: true,
+          groupId: 1,
+        },
+      }
+    );
 
     expect(result).toHaveLength(2);
     expect(result[0].key).toBe('google.com'); // Website tool first
@@ -85,11 +184,29 @@ describe('createToolDropdown', () => {
     // 3. split '_tab': docs_google_com
     // 4. replace '_': docs.google.com
 
-    const tools = [
-      { name: 'website_tool_docs_google_com_tab', inputSchema: {} },
-    ];
+    const tools = [{ name: 'wt_tab1234_docs_google_com', inputSchema: {} }];
 
-    const result = createToolDropdown(tools as any[], {});
+    const result = createToolDropdown(
+      tools as any[],
+      {},
+      {
+        '1234': {
+          url: 'https://docs.google.com',
+          id: 1234,
+          index: 1,
+          pinned: false,
+          highlighted: false,
+          windowId: 1,
+          frozen: false,
+          incognito: false,
+          discarded: false,
+          selected: true,
+          active: false,
+          autoDiscardable: true,
+          groupId: 1,
+        },
+      }
+    );
 
     expect(result[0].key).toBe('docs.google.com');
   });

@@ -7,6 +7,7 @@ import type { Tool as McpTool } from '@modelcontextprotocol/sdk/types.js';
  * Internal dependencies
  */
 import { ToolNameMap } from '../../../../../contentScript/tools/builtInTools';
+import { isUrl } from '../../../utils';
 
 type SingleGroupTool = {
   group: string;
@@ -27,12 +28,16 @@ type GroupedTool = {
 
 const createToolDropdown = (
   tools: McpTool[],
-  toolNameToMCPMap: Record<string, string>
+  toolNameToMCPMap: Record<string, string>,
+  tabIdToUrlMap: { [key: string]: chrome.tabs.Tab }
 ) => {
-  const toolGroups: SingleGroupTool[] = [];
+  if (Object.keys(tabIdToUrlMap).length === 0) {
+    return [];
+  }
 
+  const toolGroups: SingleGroupTool[] = [];
   const toolToTypeMap = tools.reduce((acc, tool) => {
-    const WEBSITE_TOOL_PREFIX = 'website_tool_';
+    const WEBSITE_TOOL_PREFIX = 'wt_';
     const EXTENSION_TOOL_PREFIX = 'extension_tool_';
     const DOM_TOOL_NAME_PREFIX = 'dom_extract_';
 
@@ -44,10 +49,13 @@ const createToolDropdown = (
       const toolNameWithoutHardCodePrefix = tool.name.substring(
         WEBSITE_TOOL_PREFIX.length
       );
-      const pieces = toolNameWithoutHardCodePrefix.split('_');
-      const cleanToolName = pieces.join('_');
-      const result = cleanToolName.split('_tab')[0].replaceAll('_', '.');
-
+      const match = toolNameWithoutHardCodePrefix.match(/(?<=tab)\d+/);
+      const tabId = match ? match[0] : '';
+      const result =
+        tabIdToUrlMap[tabId].url && isUrl(tabIdToUrlMap[tabId].url)
+          ? new URL(tabIdToUrlMap[tabId].url).hostname
+          : 'others';
+      console.log(tool);
       if (acc[result]) {
         acc[result].items.push(tool);
       } else {
