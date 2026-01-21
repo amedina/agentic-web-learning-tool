@@ -1,0 +1,20 @@
+{
+  "name": "@google-awlt/engine-extension",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {
+    "@google-awlt/engine-core": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.1.27",
+    "@types/node": "^24.3.0",
+    "typescript": "~5.8.3"
+  }
+}
