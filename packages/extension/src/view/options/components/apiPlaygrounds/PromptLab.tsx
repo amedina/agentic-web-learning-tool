@@ -19,7 +19,7 @@ import {
 } from '@google-awlt/design-system';
 
 // Import our custom types
-import '../../../../types/window.ai.d';
+import type { AILanguageModelSession } from '../../../../types/window.ai.d';
 
 interface Message {
   role: 'user' | 'assistant' | 'system';
@@ -29,7 +29,6 @@ interface Message {
 
 export default function PromptLab() {
   // Session State
-  const [isReady, setIsReady] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [session, setSession] = useState<AILanguageModelSession | null>(null);
@@ -40,7 +39,6 @@ export default function PromptLab() {
   );
   const [temperature, setTemperature] = useState<number>(0.8);
   const [topK, setTopK] = useState<number>(3);
-  const [isParamsExpanded, setIsParamsExpanded] = useState<boolean>(true);
 
   // Interaction
   const [input, setInput] = useState<string>('');
@@ -84,13 +82,10 @@ export default function PromptLab() {
         throw new Error('Gemini Nano is not available on this device.');
       }
 
-      setIsReady(true);
-
       // Initialize a default session
       await createSession();
     } catch (err: any) {
       setError(err.message);
-      setIsReady(false);
     }
   };
 
@@ -120,17 +115,13 @@ export default function PromptLab() {
         timestamp: Date.now()
       }]);
 
-      toast({
-        title: 'Session Created',
+      toast.success('Session Created', {
         description: `Temp: ${temperature}, TopK: ${topK}`,
-        variant: 'default',
       });
     } catch (err: any) {
       console.error('Failed to create session:', err);
-      toast({
-        title: 'Session Error',
+      toast.error('Session Error', {
         description: err.message,
-        variant: 'destructive',
       });
     } finally {
       setIsLoading(false);
@@ -143,8 +134,7 @@ export default function PromptLab() {
       setSession(null);
       setMessages([]);
       setStats({ maxTokens: 0, tokensLeft: 0, tokensSoFar: 0 });
-      toast({
-        title: 'Session Destroyed',
+      toast.success('Session Destroyed', {
         description: 'Memory has been freed.',
       });
     }
@@ -159,15 +149,12 @@ export default function PromptLab() {
       // If we clone, we replace the current session reference.
       setSession(newSession);
       updateStats(newSession);
-      toast({
-        title: 'Session Cloned',
+      toast.success('Session Cloned', {
         description: 'Conversation state preserved.',
       });
     } catch (err: any) {
-      toast({
-        title: 'Clone Failed',
+      toast.error('Clone Failed', {
         description: err.message,
-        variant: 'destructive',
       });
     }
   };
@@ -221,10 +208,8 @@ export default function PromptLab() {
 
     } catch (err: any) {
       console.error('Prompt error:', err);
-      toast({
-        title: 'Generation Error',
+      toast.error('Generation Error', {
         description: err.message,
-        variant: 'destructive',
       });
       setMessages((prev) => [...prev, { role: 'assistant', content: `*Error: ${err.message}*`, timestamp: Date.now() }]);
     } finally {
@@ -405,6 +390,7 @@ export default function PromptLab() {
                   {msg.role === 'system' ? (
                      <span>System: {msg.content}</span>
                   ) : (
+                     /* @ts-ignore: MarkdownText types mismatch with new assistant-ui version */
                      <MarkdownText>{msg.content}</MarkdownText>
                   )}
                 </div>

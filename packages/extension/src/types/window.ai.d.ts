@@ -27,7 +27,7 @@ export interface AILanguageModelCreateOptions {
 
 export interface AILanguageModelSession {
   prompt(text: string): Promise<string>;
-  promptStreaming(text: string): Promise<ReadableStream<string>>;
+  promptStreaming(text: string): Promise<ReadableStream<string> & AsyncIterable<string>>;
   destroy(): void;
   clone(): Promise<AILanguageModelSession>;
 
