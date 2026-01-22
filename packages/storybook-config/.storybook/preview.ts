@@ -1,6 +1,33 @@
-import type { Preview } from '@storybook/react-vite';
-
+import type { Preview } from '@storybook/react';
 import '../src/index.css';
+
+// Mock chrome global
+if (typeof globalThis.chrome === 'undefined') {
+  globalThis.chrome = {
+    devtools: {
+      inspectedWindow: {
+        tabId: 123,
+      },
+    },
+    storage: {
+      session: {
+        get: async () => ({}),
+        set: async () => {},
+      },
+      local: {
+        get: async () => ({}),
+        set: async () => {},
+      },
+    },
+    runtime: {
+      onMessage: {
+        addListener: () => {},
+        removeListener: () => {},
+      },
+      sendMessage: async () => {},
+    },
+  } as any;
+}
 
 const preview: Preview = {
   parameters: {
@@ -9,13 +36,6 @@ const preview: Preview = {
         color: /(background|color)$/i,
         date: /Date$/i,
       },
-    },
-
-    a11y: {
-      // 'todo' - show a11y violations in the test UI only
-      // 'error' - fail CI on a11y violations
-      // 'off' - skip a11y checks entirely
-      test: 'todo',
     },
   },
 };

@@ -1,0 +1,49 @@
+{
+  "name": "@google-awlt/table",
+  "version": "0.0.1",
+  "description": "Standalone Table component extracted from design-system",
+  "type": "module",
+  "main": "dist/table/src/index.js",
+  "types": "dist/table/src/index.d.ts",
+  "source": "src/index.ts",
+  "exports": {
+    ".": "./dist/table/src/index.js",
+    "./theme.css": "./src/theme.css"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc-watch --noEmit",
+    "prebuild": "rimraf dist dist-types tsconfig.tsbuildinfo"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "author": "Google",
+  "license": "Apache-2.0",
+  "peerDependencies": {
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "dependencies": {
+    "@google-awlt/common": "workspace:*",
+    "@microlink/react-json-view": "^1.26.1",
+    "@types/lodash-es": "^4.17.12",
+    "classnames": "^2.3.2",
+    "fast-xml-parser": "^4.4.1",
+    "file-saver": "^2.0.5",
+    "jszip": "^3.10.1",
+    "lodash-es": "^4.17.21",
+    "p-queue": "^7.3.4",
+    "re-resizable": "^6.11.2",
+    "use-context-selector": "^2.0.0",
+    "victory": "^36.6.11"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.1.33",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.10.7",
+    "@types/react": "^19.2.9",
+    "rimraf": "^5.0.10",
+    "typescript": "^5.9.3"
+  }
+}
