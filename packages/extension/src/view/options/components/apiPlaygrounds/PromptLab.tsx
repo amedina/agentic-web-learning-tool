@@ -73,18 +73,44 @@ export default function PromptLab() {
 
   const checkCapabilities = async () => {
     try {
-      if (!('ai' in window) || !('languageModel' in window.ai)) {
-        throw new Error('Chrome Prompt API is not supported in this browser.');
+      // Debug logging to see what's available
+      console.log('Checking window.ai capabilities...');
+      console.log('window.ai:', (window as any).ai);
+      if ((window as any).ai) {
+          console.log('window.ai keys:', Object.keys((window as any).ai));
       }
 
-      const capabilities = await window.ai.languageModel.capabilities();
+      // Check for supported namespaces
+      const ai = (window as any).ai;
+
+      if (!ai) {
+        throw new Error('Chrome Prompt API (window.ai) is not found.');
+      }
+
+      // Handle namespace variations (languageModel vs prompt)
+      let model = ai.languageModel;
+      if (!model && ai.prompt) {
+          console.log('Using legacy window.ai.prompt');
+          model = ai.prompt;
+          // Alias for compatibility if needed, but we mainly need capabilities() and create()
+      }
+
+      if (!model) {
+        throw new Error('Neither window.ai.languageModel nor window.ai.prompt is available.');
+      }
+
+      // Check availability
+      const capabilities = await model.capabilities();
+      console.log('Capabilities:', capabilities);
+
       if (capabilities.available === 'no') {
-        throw new Error('Gemini Nano is not available on this device.');
+        throw new Error('Gemini Nano is reported as not available (available="no").');
       }
 
       // Initialize a default session
       await createSession();
     } catch (err: any) {
+      console.error('Capabilities check failed:', err);
       setError(err.message);
     }
   };
@@ -96,7 +122,12 @@ export default function PromptLab() {
 
     setIsLoading(true);
     try {
-      const newSession = await window.ai.languageModel.create({
+      const ai = (window as any).ai;
+      const model = ai.languageModel || ai.prompt;
+
+      if (!model) throw new Error('Model API not found');
+
+      const newSession = await model.create({
         temperature,
         topK,
         initialPrompts: [
@@ -223,6 +254,9 @@ export default function PromptLab() {
         <AlertCircle className="w-12 h-12 text-destructive" />
         <h3 className="text-xl font-semibold text-destructive">Component Unavailable</h3>
         <p className="text-muted-foreground max-w-md">{error}</p>
+        <div className="text-xs text-muted-foreground bg-muted p-2 rounded">
+           Check console for details.
+        </div>
         <Button onClick={checkCapabilities} variant="outline">Retry</Button>
       </div>
     );
