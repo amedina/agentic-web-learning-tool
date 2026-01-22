@@ -13,7 +13,6 @@ import {
   Button,
   Collapsible,
   Input,
-  MarkdownText,
   Toaster,
   toast,
 } from '@google-awlt/design-system';
@@ -131,6 +130,13 @@ export default function PromptLab() {
             console.warn('Failed to get params:', e);
           }
 
+          setError(null);
+          // Wait to ensure apiType state is settled or explicitly pass it?
+          // Since setState is async, createSession will see old apiType if called immediately.
+          // Better to call createSession explicitly with 'spec' type or wait.
+          // Let's create session here directly to avoid race condition.
+          await createSessionInternal('spec');
+
       } else {
           // Fallback to Explainer API (window.ai.languageModel)
           const ai = (window as any).ai;
@@ -155,10 +161,10 @@ export default function PromptLab() {
           if (capabilities.available === 'no') {
               throw new Error('Gemini Nano is reported as not available (available="no").');
           }
-      }
 
-      setError(null);
-      await createSession();
+          setError(null);
+          await createSessionInternal('explainer');
+      }
 
     } catch (err: any) {
       console.error('Capabilities check failed:', err);
@@ -167,6 +173,12 @@ export default function PromptLab() {
   };
 
   const createSession = async () => {
+      // Wrapper for UI button click which relies on state
+      if (!apiType) return;
+      await createSessionInternal(apiType);
+  };
+
+  const createSessionInternal = async (type: 'spec' | 'explainer') => {
     if (session) {
       session.destroy();
     }
@@ -180,7 +192,7 @@ export default function PromptLab() {
         initialPrompts: systemPrompt ? [{ role: 'system' as const, content: systemPrompt }] : undefined
       };
 
-      if (apiType === 'spec') {
+      if (type === 'spec') {
          if (!window.LanguageModel) throw new Error('LanguageModel API lost.');
          newSession = await window.LanguageModel.create(options);
       } else {
@@ -389,7 +401,7 @@ export default function PromptLab() {
                  size="sm"
                  className="w-full"
                  onClick={createSession}
-                 disabled={isLoading}
+                 disabled={isLoading || !apiType}
                >
                  {isLoading ? <Loader2 className="w-3 h-3 animate-spin mr-2"/> : <RefreshCw className="w-3 h-3 mr-2"/>}
                  New Session
@@ -480,8 +492,7 @@ export default function PromptLab() {
                   {msg.role === 'system' ? (
                      <span>System: {msg.content}</span>
                   ) : (
-                     /* @ts-ignore: MarkdownText types mismatch with new assistant-ui version */
-                     <MarkdownText>{msg.content}</MarkdownText>
+                     <div className="whitespace-pre-wrap">{msg.content}</div>
                   )}
                 </div>
               </div>
