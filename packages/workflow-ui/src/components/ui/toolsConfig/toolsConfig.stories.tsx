@@ -9,12 +9,12 @@ const meta: Meta<typeof ToolsConfig> = {
   },
   tags: ["autodocs"],
   args: {
-    onLabelChange: () => {},
+    onTitleChange: () => {},
     onContextChange: () => {},
     onFormChange: () => {},
   },
   argTypes: {
-    onLabelChange: {
+    onTitleChange: {
       description: "Callback function when the label of the tool changes.",
       action: "label changed",
     },
@@ -34,7 +34,7 @@ const meta: Meta<typeof ToolsConfig> = {
       description: "The type of the currently selected node.",
       control: { type: "text" },
     },
-    nodeLabel: {
+    nodeTitle: {
       description: "The label of the currently selected node.",
       control: { type: "text" },
     },
@@ -70,7 +70,7 @@ export const SelectedWithContext: Story = {
   args: {
     selectedNodeId: "1",
     nodeType: "writerApi",
-    nodeLabel: "Writer Tool",
+    nodeTitle: "Writer Tool",
     nodeContext: "Write a blog post about...",
   },
 };
@@ -79,7 +79,7 @@ export const SelectedWithDescriptionOnly: Story = {
   args: {
     selectedNodeId: "2",
     nodeType: "alertNotification",
-    nodeLabel: "Alert",
+    nodeTitle: "Alert",
     nodeDescription: "Show an alert message to the user.",
     onContextChange: undefined, // Hide context editor
   },
@@ -89,7 +89,7 @@ export const WithChildren: Story = {
   args: {
     selectedNodeId: "3",
     nodeType: "customTool",
-    nodeLabel: "Custom Tool",
+    nodeTitle: "Custom Tool",
     nodeContext: "Some context",
     children: (
       <div className="border border-dashed border-slate-300 p-4 rounded text-center text-sm text-slate-500">

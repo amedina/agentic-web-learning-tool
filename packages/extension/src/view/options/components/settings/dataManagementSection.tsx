@@ -30,7 +30,7 @@ import type { SettingsType } from '../../../../types';
 import { logger, settingsValidator } from '../../../../utils';
 
 type DataManagementSectionProps = {
-  settings: SettingsType;
+  settings: () => Promise<SettingsType>;
   setIsResetModalOpen: Dispatch<SetStateAction<boolean>>;
 };
 
@@ -43,7 +43,7 @@ export default function DataManagementSection({
   const [isImporting, setIsImporting] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
 
-  const handleExport = useCallback(() => {
+  const handleExport = useCallback(async () => {
     setIsExporting(true);
 
     const now = new Date();
@@ -51,11 +51,11 @@ export default function DataManagementSection({
     const hours = String(now.getHours()).padStart(2, '0');
     const minutes = String(now.getMinutes()).padStart(2, '0');
     const filename = `AWL-backup-${date}-${hours}-${minutes}.json`;
-
+    const _settings = await settings();
     setTimeout(() => {
       const dataStr =
         'data:text/json;charset=utf-8,' +
-        encodeURIComponent(JSON.stringify(settings, null, 2));
+        encodeURIComponent(JSON.stringify(_settings, null, 2));
       const a = document.createElement('a');
       a.href = dataStr;
       a.download = filename;
@@ -114,13 +114,17 @@ export default function DataManagementSection({
       await chrome.storage.sync.clear();
 
       await chrome.storage.sync.set({
+        apiKeys: validationResult.apiKeys,
         extensionSettings: JSON.stringify(validationResult.extensionSettings),
       });
-      await chrome.storage.sync.set({
-        apiKeys: validationResult.apiKeys,
-      });
+
       await chrome.storage.local.set({
         userWebMCPTools: validationResult.userWebMCPTools,
+        builtInWebMCPToolsState: validationResult.builtInToolsState,
+        chromeAPIBuiltInToolsState: validationResult.chromeAPIBuiltInToolsState,
+        mcpServers: validationResult.mcpConfigs,
+        promptCommands: validationResult.promptCommands,
+        builtInPromptCommands: validationResult.builtInPromptCommands,
       });
 
       logger(

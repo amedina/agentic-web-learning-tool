@@ -83,6 +83,10 @@ class McpHub {
 
     Object.keys(chromeAPIBuiltInToolsState ?? {}).forEach((toolKey) => {
       if (chromeAPIBuiltInToolsState?.[toolKey as keys]?.enabled) {
+        if (!chromeApiBuiltInTools[toolKey as keys]) {
+          return;
+        }
+
         this.apiTools.push(
           new chromeApiBuiltInTools[toolKey as keys].instance(this.server)
         );
@@ -274,7 +278,7 @@ class McpHub {
   async disableMCPServerTools(serverId: string) {
     Array.from(this.registeredTools.entries()).forEach(
       ([toolName, registeredTool]) => {
-        if (toolName.startsWith(`${serverId}_mcp`)) {
+        if (toolName.endsWith(`mcp_${serverId}`)) {
           registeredTool.disable();
         }
       }
@@ -288,7 +292,7 @@ class McpHub {
   async enableMCPServerTools(serverId: string) {
     Array.from(this.registeredTools.entries()).forEach(
       ([toolName, registeredTool]) => {
-        if (toolName.startsWith(`${serverId}_mcp`)) {
+        if (toolName.endsWith(`mcp_${serverId}`)) {
           registeredTool.enable();
         }
       }
@@ -424,7 +428,7 @@ class McpHub {
         inputSchema: jsonSchemaToZod(tool.inputSchema),
       };
 
-      const prefixedToolName = `${serverName}_mcp_${tool.name}`;
+      const prefixedToolName = `${tool.name}_mcp_${serverName}`;
 
       if (this.registeredTools.has(prefixedToolName)) {
         // Update existing tool

@@ -1,14 +1,25 @@
 /**
  * External dependencies.
  */
-import { EditIcon, ListMinus } from 'lucide-react';
-import { Button, ToggleSwitch } from '@google-awlt/design-system';
+import {
+  EditIcon,
+  ListMinus,
+  Loader2,
+  OctagonAlert,
+  ZapOff,
+} from 'lucide-react';
+import {
+  Button,
+  ToggleSwitch,
+  TooltipIconButton,
+} from '@google-awlt/design-system';
 import type { Tool } from '@modelcontextprotocol/sdk/types.js';
 import type { MCPServerConfig } from '@google-awlt/common';
+import { useMemo } from 'react';
 
 interface MCPServerCardProps {
   server: MCPServerConfig;
-  tools: Tool[];
+  tools: { tools: Tool[]; isError: boolean };
   onToggle: (enabled: boolean) => void;
   onEdit: () => void;
   onView: () => void;
@@ -21,6 +32,30 @@ export function MCPServerCard({
   onEdit,
   onView,
 }: MCPServerCardProps) {
+  const iconToDisplay = useMemo(() => {
+    if (!server?.enabled) {
+      return (
+        <TooltipIconButton tooltip="Server is disabled">
+          <ZapOff className="h-4 w-4" />
+        </TooltipIconButton>
+      );
+    }
+
+    if (tools && tools?.isError) {
+      return (
+        <TooltipIconButton tooltip="Error in fetching tools.">
+          <OctagonAlert className="h-4 w-4" />
+        </TooltipIconButton>
+      );
+    }
+
+    if (!tools || !tools.tools) {
+      return <Loader2 className="mr-2 h-4 w-4 animate-spin" />;
+    }
+
+    return tools?.tools.length;
+  }, [server?.enabled, tools]);
+
   return (
     <div className="flex flex-col p-5 bg-[var(--surface-color)] rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
       <div className="flex justify-between items-start mb-3">
@@ -34,7 +69,9 @@ export function MCPServerCard({
         />
       </div>
       <div className="flex justify-between items-center mt-auto pt-3 border-t border-gray-200">
-        <div className="flex gap-2 flex-wrap">Total Tools: {tools.length}</div>
+        <div className="flex gap-2 flex-wrap items-center">
+          Total Tools: {iconToDisplay}
+        </div>
         <div className="flex flex-row gap-2">
           <Button
             variant="ghost"

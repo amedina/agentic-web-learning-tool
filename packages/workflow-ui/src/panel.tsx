@@ -3,7 +3,7 @@ import { useState } from "react";
 /**
  * Internal dependencies
  */
-import { Flow, ToolsBar, ToolsConfig } from "./components";
+import { WorkflowCanvas, ToolsSidebar, ToolsConfigPanel } from "./components";
 
 interface PanelProps {
   theme: "light" | "dark" | "system";
@@ -42,13 +42,13 @@ function Panel({ theme, workflowId, setWorkflowId }: PanelProps) {
         }`}
       >
         <div className="h-full w-full flex flex-col overflow-hidden transition-all duration-300">
-          <ToolsBar collapsed={leftCollapsed} onToggle={toggleLeft} />
+          <ToolsSidebar collapsed={leftCollapsed} onToggle={toggleLeft} />
         </div>
       </div>
 
       {/* Main Canvas Area */}
       <main className="flex-1 min-w-0 h-full relative z-0">
-        <Flow
+        <WorkflowCanvas
           theme={theme}
           workflowId={workflowId}
           setWorkflowId={setWorkflowId}
@@ -64,7 +64,7 @@ function Panel({ theme, workflowId, setWorkflowId }: PanelProps) {
         <div
           className={`${rightCollapsed ? "w-14" : "w-74"} h-full shrink-0 flex flex-col overflow-hidden transition-all duration-300`}
         >
-          <ToolsConfig collapsed={rightCollapsed} onToggle={toggleRight} />
+          <ToolsConfigPanel collapsed={rightCollapsed} onToggle={toggleRight} />
         </div>
       </div>
     </div>
