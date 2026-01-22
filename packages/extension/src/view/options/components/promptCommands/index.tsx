@@ -6,6 +6,10 @@ import {
   PromptCommandsTab as PromptCommandsUI,
   type PromptCommand,
 } from '@google-awlt/design-system';
+
+/**
+ * Internal dependencies
+ */
 import { BUILT_IN_COMMANDS } from '../../../../constants';
 
 export function PromptCommandsTab() {

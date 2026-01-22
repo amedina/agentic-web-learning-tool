@@ -75,7 +75,10 @@ export function EditCommandDialog({
       return;
     }
 
-    onSave({ name: trimmedName, instructions, description });
+    const isEditing = command && command.hasOwnProperty('enabled');
+    const enabled = isEditing ? command?.enabled : true;
+
+    onSave({ name: trimmedName, instructions, description, enabled });
     onOpenChange(false);
   };
 
@@ -91,7 +94,10 @@ export function EditCommandDialog({
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50" />
-        <Dialog.Content className="fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] w-[600px] max-w-[95vw] bg-white text-gray-900 border border-gray-200 rounded-xl shadow-2xl z-50 flex flex-col p-6 outline-none">
+        <Dialog.Content className="fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] w-[600px] max-w-[95vw] bg-white text-gray-900 border border-gray-200 rounded-xl shadow-2xl z-50 flex flex-col px-5 py-4 outline-none">
+          <Dialog.Description className="hidden">
+            This dialog creates/edits shortcut to be used in the sidepanel chat.
+          </Dialog.Description>
           <div className="flex items-center justify-between mb-6">
             <Dialog.Title className="text-xl font-bold">
               {command ? 'Edit Command' : 'Create Command'}
@@ -152,28 +158,32 @@ export function EditCommandDialog({
               </div>
             )}
 
-            <div className="mt-2 p-4 bg-gray-50 border border-gray-200 rounded-lg">
-              <label className="text-sm font-bold text-gray-800 mb-2 block">
+            <div className="mt-2 p-2 bg-gray-50 border border-gray-200 rounded-lg">
+              <label className="text-sm font-medium text-gray-800 mb-2 block">
                 Example Usage
               </label>
               <div className="grid grid-cols-[auto,1fr] gap-x-4 gap-y-2 text-sm items-baseline">
-                <span className="font-semibold text-gray-600 text-right min-w-[70px]">
-                  Input:
-                </span>
-                <code className="bg-white border border-gray-200 px-2 py-1.5 rounded text-blue-600 font-mono block w-full">
-                  {exampleInput}
-                </code>
+                <div className="flex gap-2 items-center">
+                  <span className="font-semibold text-xs text-gray-600 text-right min-w-[70px]">
+                    Input:
+                  </span>
+                  <code className="bg-white border border-gray-200 px-2 py-1.5 rounded text-blue-600 font-mono block w-full">
+                    {exampleInput}
+                  </code>
+                </div>
 
-                <span className="font-semibold text-gray-600 text-right min-w-[70px]">
-                  Expands to:
-                </span>
-                <div className="text-green-700 font-mono text-xs bg-white border border-gray-200 px-2 py-1.5 rounded whitespace-pre-wrap max-h-32 overflow-y-auto w-full leading-relaxed">
-                  {exampleOutput}
+                <div className="flex gap-2 items-center">
+                  <span className="font-semibold text-xs text-gray-600 text-right min-w-[70px]">
+                    Expands to:
+                  </span>
+                  <div className="text-green-700 font-mono text-xs bg-white border border-gray-200 px-2 py-1.5 rounded whitespace-pre-wrap max-h-32 overflow-y-auto w-full leading-relaxed">
+                    {exampleOutput}
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-100">
+            <div className="flex justify-between items-center border-t border-gray-100">
               <div>
                 {command && onDelete && (
                   <Button

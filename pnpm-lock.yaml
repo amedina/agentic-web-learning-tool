@@ -13,7 +13,7 @@ overrides:
 
 patchedDependencies:
   '@assistant-ui/react':
-    hash: 65e5055efb454710635e55478f96cdbe208e5c8a8d5a8d0c55e8aaa07aec670e
+    hash: 40b5d6f4a740cd075a826a70ab85afc316315cc5e5086562aadfa8f3ef70843d
     path: patches/@assistant-ui__react.patch
   '@mcp-b/extension-tools@0.2.3':
     hash: de61710e62afdb10e9b1aa256f697615f6f694df3f7c35e4aa0ea8ee2eb930fd
@@ -115,14 +115,14 @@ importers:
   packages/design-system:
     dependencies:
       '@assistant-ui/react':
-        specifier: 0.11.41
-        version: 0.11.41(patch_hash=65e5055efb454710635e55478f96cdbe208e5c8a8d5a8d0c55e8aaa07aec670e)(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(immer@9.0.21)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(use-sync-external-store@1.6.0(react@19.1.1))
+        specifier: 0.11.51
+        version: 0.11.51(patch_hash=40b5d6f4a740cd075a826a70ab85afc316315cc5e5086562aadfa8f3ef70843d)(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(immer@9.0.21)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(use-sync-external-store@1.6.0(react@19.1.1))
       '@assistant-ui/react-markdown':
-        specifier: ^0.11.4
-        version: 0.11.9(@assistant-ui/react@0.11.41(patch_hash=65e5055efb454710635e55478f96cdbe208e5c8a8d5a8d0c55e8aaa07aec670e)(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(immer@9.0.21)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(use-sync-external-store@1.6.0(react@19.1.1)))(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+        specifier: ^0.11.8
+        version: 0.11.9(@assistant-ui/react@0.11.51(patch_hash=40b5d6f4a740cd075a826a70ab85afc316315cc5e5086562aadfa8f3ef70843d)(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(immer@9.0.21)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(use-sync-external-store@1.6.0(react@19.1.1)))(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       '@assistant-ui/react-syntax-highlighter':
         specifier: ^0.11.4
-        version: 0.11.9(@assistant-ui/react-markdown@0.11.9(@assistant-ui/react@0.11.41(patch_hash=65e5055efb454710635e55478f96cdbe208e5c8a8d5a8d0c55e8aaa07aec670e)(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(immer@9.0.21)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(use-sync-external-store@1.6.0(react@19.1.1)))(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(@assistant-ui/react@0.11.41(patch_hash=65e5055efb454710635e55478f96cdbe208e5c8a8d5a8d0c55e8aaa07aec670e)(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(immer@9.0.21)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(use-sync-external-store@1.6.0(react@19.1.1)))(@types/react-syntax-highlighter@15.5.13)(@types/react@19.1.12)(react-syntax-highlighter@16.1.0(react@19.1.1))(react@19.1.1)
+        version: 0.11.9(@assistant-ui/react-markdown@0.11.9(@assistant-ui/react@0.11.51(patch_hash=40b5d6f4a740cd075a826a70ab85afc316315cc5e5086562aadfa8f3ef70843d)(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(immer@9.0.21)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(use-sync-external-store@1.6.0(react@19.1.1)))(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(@assistant-ui/react@0.11.51(patch_hash=40b5d6f4a740cd075a826a70ab85afc316315cc5e5086562aadfa8f3ef70843d)(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(immer@9.0.21)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(use-sync-external-store@1.6.0(react@19.1.1)))(@types/react-syntax-highlighter@15.5.13)(@types/react@19.1.12)(react-syntax-highlighter@16.1.0(react@19.1.1))(react@19.1.1)
       '@google-awlt/common':
         specifier: workspace:*
         version: link:../common
@@ -289,7 +289,7 @@ importers:
     devDependencies:
       '@types/chrome':
         specifier: ^0.1.27
-        version: 0.1.27
+        version: 0.1.33
       '@types/jest':
         specifier: ^30.0.0
         version: 30.0.0
@@ -324,11 +324,11 @@ importers:
         specifier: ^2.0.0
         version: 2.0.1
       '@assistant-ui/react':
-        specifier: 0.11.41
-        version: 0.11.41(patch_hash=65e5055efb454710635e55478f96cdbe208e5c8a8d5a8d0c55e8aaa07aec670e)(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(immer@9.0.21)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(use-sync-external-store@1.6.0(react@19.1.1))
+        specifier: 0.11.51
+        version: 0.11.51(patch_hash=40b5d6f4a740cd075a826a70ab85afc316315cc5e5086562aadfa8f3ef70843d)(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(immer@9.0.21)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(use-sync-external-store@1.6.0(react@19.1.1))
       '@assistant-ui/react-ai-sdk':
-        specifier: ^1.1.16
-        version: 1.1.20(@assistant-ui/react@0.11.41(patch_hash=65e5055efb454710635e55478f96cdbe208e5c8a8d5a8d0c55e8aaa07aec670e)(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(immer@9.0.21)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(use-sync-external-store@1.6.0(react@19.1.1)))(@types/react@19.1.12)(assistant-cloud@0.1.12)(react@19.1.1)
+        specifier: ^1.1.19
+        version: 1.1.20(@assistant-ui/react@0.11.51(patch_hash=40b5d6f4a740cd075a826a70ab85afc316315cc5e5086562aadfa8f3ef70843d)(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(immer@9.0.21)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(use-sync-external-store@1.6.0(react@19.1.1)))(@types/react@19.1.12)(assistant-cloud@0.1.12)(react@19.1.1)
       '@google-awlt/common':
         specifier: workspace:*
         version: link:../common
@@ -346,7 +346,7 @@ importers:
         version: 0.2.3(patch_hash=de61710e62afdb10e9b1aa256f697615f6f694df3f7c35e4aa0ea8ee2eb930fd)(hono@4.11.3)
       '@mcp-b/mcp-react-hooks':
         specifier: ^0.2.2
-        version: 0.2.2(@assistant-ui/react@0.11.41(patch_hash=65e5055efb454710635e55478f96cdbe208e5c8a8d5a8d0c55e8aaa07aec670e)(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(immer@9.0.21)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(use-sync-external-store@1.6.0(react@19.1.1)))(hono@4.11.3)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+        version: 0.2.2(@assistant-ui/react@0.11.51(patch_hash=40b5d6f4a740cd075a826a70ab85afc316315cc5e5086562aadfa8f3ef70843d)(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(immer@9.0.21)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(use-sync-external-store@1.6.0(react@19.1.1)))(hono@4.11.3)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
       '@mcp-b/transports':
         specifier: ^1.2.0
         version: 1.2.0(@modelcontextprotocol/sdk@1.25.1(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))
@@ -455,7 +455,7 @@ importers:
         version: 14.6.1(@testing-library/dom@10.4.1)
       '@types/chrome':
         specifier: ^0.1.27
-        version: 0.1.27
+        version: 0.1.33
       '@types/jest':
         specifier: ^29.5.14
         version: 29.5.14
@@ -555,6 +555,9 @@ importers:
       prettier:
         specifier: '>=3'
         version: 3.6.2
+      tw-animate-css:
+        specifier: ^1.4.0
+        version: 1.4.0
     devDependencies:
       '@eslint/js':
         specifier: ^9.31.0
@@ -821,8 +824,8 @@ packages:
       '@types/react-syntax-highlighter':
         optional: true
 
-  '@assistant-ui/react@0.11.41':
-    resolution: {integrity: sha512-ZBI9lbz7CYkXocXvs4dVg7MXNiUGQRnewbpwLo+v0WoNsWamRdc9PpwYKjznFubdWuRkquMrxtoRtrwH1ugGkw==}
+  '@assistant-ui/react@0.11.51':
+    resolution: {integrity: sha512-8u0tmQBIio+fERgiUGqXTf+cm1MHp6i9V879or7DeyRwRnlwBS0Ew0OCFiR8ZqoJHn9ma0NBH2bXjHNkILnSew==}
     peerDependencies:
       '@types/react': '*'
       '@types/react-dom': '*'
@@ -834,11 +837,14 @@ packages:
       '@types/react-dom':
         optional: true
 
-  '@assistant-ui/tap@0.2.2':
-    resolution: {integrity: sha512-+SVa5UdMCR9A3J0lzGurtIuOGMt5H3IyVxCqEfuflAHEl3+2d6Btl3N0+I2McgWeZDvXTmOs96+jAo1cwnXPnA==}
+  '@assistant-ui/tap@0.3.6':
+    resolution: {integrity: sha512-4IAN32J9820qbwdc7DeR5HxJVTj+cRPVSMwa9Fv2oP2eMFPAV1eZ8+/co6mgtuM9jSc38vYtZntPsGSHwL7rTg==}
     peerDependencies:
-      react: '*'
+      '@types/react': '*'
+      react: ^18 || ^19
     peerDependenciesMeta:
+      '@types/react':
+        optional: true
       react:
         optional: true
 
@@ -3166,8 +3172,8 @@ packages:
   '@types/chai@5.2.2':
     resolution: {integrity: sha512-8kB30R7Hwqf40JPiKhVzodJs2Qc1ZJ5zuT3uzw5Hq/dhNCl3G3l83jfpdI1e20BP348+fV7VIL/+FxaXkqBmWg==}
 
-  '@types/chrome@0.1.27':
-    resolution: {integrity: sha512-pkkCb0Ft8X+Igi751POzT+YqchSxUCtB6s4Gs6ttgSj8qzJga/qlJMgSW1mKxuQTW4i0sTqQbqVtzXDS5AU+4A==}
+  '@types/chrome@0.1.33':
+    resolution: {integrity: sha512-hSwcseKjWilz8bq93kLyIfSTvFLypRbO5iRhSXdJyVFFMV9aeqIjisBI6P/0J5+FiIKMo2NejyhHXfQLN0c0tQ==}
 
   '@types/d3-color@3.1.3':
     resolution: {integrity: sha512-iO90scth9WAbmgv7ogoq57O9YpKmFBbmoEoCHDB2xMBY0+/KVrqAaCDyCE16dUspeOvIxFFRI+0sEtqDqy2b4A==}
@@ -6623,6 +6629,9 @@ packages:
     resolution: {integrity: sha512-gxToHmi9oTBNB05UjUsrWf0OyN5ZXtD0apOarC1KIx232Vp3WimRNy3810QzeNSgyD5rsaIDXlxlbnOzlouo+w==}
     hasBin: true
 
+  tw-animate-css@1.4.0:
+    resolution: {integrity: sha512-7bziOlRqH0hJx80h/3mbicLW7o8qLsH5+RaLR2t+OHM3D0JlWGODQKQ4cxbK7WlvmUxpcj6Kgu6EKqjrGFe3QQ==}
+
   type-check@0.4.0:
     resolution: {integrity: sha512-XleUoc9uwGXqjWwXaUTZAmzMcFZ5858QA2vvx1Ur5xIcixXIP+8LnFDgRplU30us6teqdlskFfu+ae4K79Ooew==}
     engines: {node: '>= 0.8.0'}
@@ -7165,10 +7174,10 @@ snapshots:
       '@csstools/css-tokenizer': 3.0.4
       lru-cache: 10.4.3
 
-  '@assistant-ui/react-ai-sdk@1.1.20(@assistant-ui/react@0.11.41(patch_hash=65e5055efb454710635e55478f96cdbe208e5c8a8d5a8d0c55e8aaa07aec670e)(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(immer@9.0.21)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(use-sync-external-store@1.6.0(react@19.1.1)))(@types/react@19.1.12)(assistant-cloud@0.1.12)(react@19.1.1)':
+  '@assistant-ui/react-ai-sdk@1.1.20(@assistant-ui/react@0.11.51(patch_hash=40b5d6f4a740cd075a826a70ab85afc316315cc5e5086562aadfa8f3ef70843d)(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(immer@9.0.21)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(use-sync-external-store@1.6.0(react@19.1.1)))(@types/react@19.1.12)(assistant-cloud@0.1.12)(react@19.1.1)':
     dependencies:
       '@ai-sdk/react': 2.0.119(react@19.1.1)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
-      '@assistant-ui/react': 0.11.41(patch_hash=65e5055efb454710635e55478f96cdbe208e5c8a8d5a8d0c55e8aaa07aec670e)(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(immer@9.0.21)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(use-sync-external-store@1.6.0(react@19.1.1))
+      '@assistant-ui/react': 0.11.51(patch_hash=40b5d6f4a740cd075a826a70ab85afc316315cc5e5086562aadfa8f3ef70843d)(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(immer@9.0.21)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(use-sync-external-store@1.6.0(react@19.1.1))
       ai: 5.0.117(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
       react: 19.1.1
       zod: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
@@ -7176,9 +7185,9 @@ snapshots:
       '@types/react': 19.1.12
       assistant-cloud: 0.1.12
 
-  '@assistant-ui/react-markdown@0.11.9(@assistant-ui/react@0.11.41(patch_hash=65e5055efb454710635e55478f96cdbe208e5c8a8d5a8d0c55e8aaa07aec670e)(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(immer@9.0.21)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(use-sync-external-store@1.6.0(react@19.1.1)))(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)':
+  '@assistant-ui/react-markdown@0.11.9(@assistant-ui/react@0.11.51(patch_hash=40b5d6f4a740cd075a826a70ab85afc316315cc5e5086562aadfa8f3ef70843d)(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(immer@9.0.21)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(use-sync-external-store@1.6.0(react@19.1.1)))(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)':
     dependencies:
-      '@assistant-ui/react': 0.11.41(patch_hash=65e5055efb454710635e55478f96cdbe208e5c8a8d5a8d0c55e8aaa07aec670e)(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(immer@9.0.21)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(use-sync-external-store@1.6.0(react@19.1.1))
+      '@assistant-ui/react': 0.11.51(patch_hash=40b5d6f4a740cd075a826a70ab85afc316315cc5e5086562aadfa8f3ef70843d)(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(immer@9.0.21)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(use-sync-external-store@1.6.0(react@19.1.1))
       '@radix-ui/react-primitive': 2.1.4(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       '@radix-ui/react-use-callback-ref': 1.1.1(@types/react@19.1.12)(react@19.1.1)
       classnames: 2.5.1
@@ -7191,19 +7200,19 @@ snapshots:
       - react-dom
       - supports-color
 
-  '@assistant-ui/react-syntax-highlighter@0.11.9(@assistant-ui/react-markdown@0.11.9(@assistant-ui/react@0.11.41(patch_hash=65e5055efb454710635e55478f96cdbe208e5c8a8d5a8d0c55e8aaa07aec670e)(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(immer@9.0.21)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(use-sync-external-store@1.6.0(react@19.1.1)))(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(@assistant-ui/react@0.11.41(patch_hash=65e5055efb454710635e55478f96cdbe208e5c8a8d5a8d0c55e8aaa07aec670e)(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(immer@9.0.21)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(use-sync-external-store@1.6.0(react@19.1.1)))(@types/react-syntax-highlighter@15.5.13)(@types/react@19.1.12)(react-syntax-highlighter@16.1.0(react@19.1.1))(react@19.1.1)':
+  '@assistant-ui/react-syntax-highlighter@0.11.9(@assistant-ui/react-markdown@0.11.9(@assistant-ui/react@0.11.51(patch_hash=40b5d6f4a740cd075a826a70ab85afc316315cc5e5086562aadfa8f3ef70843d)(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(immer@9.0.21)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(use-sync-external-store@1.6.0(react@19.1.1)))(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(@assistant-ui/react@0.11.51(patch_hash=40b5d6f4a740cd075a826a70ab85afc316315cc5e5086562aadfa8f3ef70843d)(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(immer@9.0.21)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(use-sync-external-store@1.6.0(react@19.1.1)))(@types/react-syntax-highlighter@15.5.13)(@types/react@19.1.12)(react-syntax-highlighter@16.1.0(react@19.1.1))(react@19.1.1)':
     dependencies:
-      '@assistant-ui/react': 0.11.41(patch_hash=65e5055efb454710635e55478f96cdbe208e5c8a8d5a8d0c55e8aaa07aec670e)(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(immer@9.0.21)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(use-sync-external-store@1.6.0(react@19.1.1))
-      '@assistant-ui/react-markdown': 0.11.9(@assistant-ui/react@0.11.41(patch_hash=65e5055efb454710635e55478f96cdbe208e5c8a8d5a8d0c55e8aaa07aec670e)(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(immer@9.0.21)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(use-sync-external-store@1.6.0(react@19.1.1)))(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      '@assistant-ui/react': 0.11.51(patch_hash=40b5d6f4a740cd075a826a70ab85afc316315cc5e5086562aadfa8f3ef70843d)(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(immer@9.0.21)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(use-sync-external-store@1.6.0(react@19.1.1))
+      '@assistant-ui/react-markdown': 0.11.9(@assistant-ui/react@0.11.51(patch_hash=40b5d6f4a740cd075a826a70ab85afc316315cc5e5086562aadfa8f3ef70843d)(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(immer@9.0.21)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(use-sync-external-store@1.6.0(react@19.1.1)))(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       react: 19.1.1
       react-syntax-highlighter: 16.1.0(react@19.1.1)
     optionalDependencies:
       '@types/react': 19.1.12
       '@types/react-syntax-highlighter': 15.5.13
 
-  '@assistant-ui/react@0.11.41(patch_hash=65e5055efb454710635e55478f96cdbe208e5c8a8d5a8d0c55e8aaa07aec670e)(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(immer@9.0.21)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(use-sync-external-store@1.6.0(react@19.1.1))':
+  '@assistant-ui/react@0.11.51(patch_hash=40b5d6f4a740cd075a826a70ab85afc316315cc5e5086562aadfa8f3ef70843d)(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(immer@9.0.21)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(use-sync-external-store@1.6.0(react@19.1.1))':
     dependencies:
-      '@assistant-ui/tap': 0.2.2(react@19.1.1)
+      '@assistant-ui/tap': 0.3.6(@types/react@19.1.12)(react@19.1.1)
       '@radix-ui/primitive': 1.1.3
       '@radix-ui/react-compose-refs': 1.1.2(@types/react@19.1.12)(react@19.1.1)
       '@radix-ui/react-context': 1.1.3(@types/react@19.1.12)(react@19.1.1)
@@ -7215,7 +7224,6 @@ snapshots:
       '@standard-schema/spec': 1.1.0
       assistant-cloud: 0.1.12
       assistant-stream: 0.2.46
-      json-schema: 0.4.0
       nanoid: 5.1.6
       react: 19.1.1
       react-dom: 19.1.1(react@19.1.1)
@@ -7229,8 +7237,9 @@ snapshots:
       - immer
       - use-sync-external-store
 
-  '@assistant-ui/tap@0.2.2(react@19.1.1)':
+  '@assistant-ui/tap@0.3.6(@types/react@19.1.12)(react@19.1.1)':
     optionalDependencies:
+      '@types/react': 19.1.12
       react: 19.1.1
 
   '@babel/code-frame@7.27.1':
@@ -7349,7 +7358,7 @@ snapshots:
 
   '@babel/helper-optimise-call-expression@7.27.1':
     dependencies:
-      '@babel/types': 7.28.4
+      '@babel/types': 7.28.5
 
   '@babel/helper-plugin-utils@7.27.1': {}
 
@@ -7389,8 +7398,8 @@ snapshots:
   '@babel/helper-wrap-function@7.28.3':
     dependencies:
       '@babel/template': 7.27.2
-      '@babel/traverse': 7.28.4
-      '@babel/types': 7.28.4
+      '@babel/traverse': 7.28.5
+      '@babel/types': 7.28.5
     transitivePeerDependencies:
       - supports-color
 
@@ -8710,14 +8719,14 @@ snapshots:
       - hono
       - supports-color
 
-  '@mcp-b/mcp-react-hooks@0.2.2(@assistant-ui/react@0.11.41(patch_hash=65e5055efb454710635e55478f96cdbe208e5c8a8d5a8d0c55e8aaa07aec670e)(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(immer@9.0.21)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(use-sync-external-store@1.6.0(react@19.1.1)))(hono@4.11.3)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))':
+  '@mcp-b/mcp-react-hooks@0.2.2(@assistant-ui/react@0.11.51(patch_hash=40b5d6f4a740cd075a826a70ab85afc316315cc5e5086562aadfa8f3ef70843d)(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(immer@9.0.21)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(use-sync-external-store@1.6.0(react@19.1.1)))(hono@4.11.3)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))':
     dependencies:
       '@mcp-b/transports': 1.0.3(@modelcontextprotocol/sdk@1.25.1(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))
       '@modelcontextprotocol/sdk': 1.25.1(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
       react: 19.1.1
       react-dom: 19.1.1(react@19.1.1)
     optionalDependencies:
-      '@assistant-ui/react': 0.11.41(patch_hash=65e5055efb454710635e55478f96cdbe208e5c8a8d5a8d0c55e8aaa07aec670e)(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(immer@9.0.21)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(use-sync-external-store@1.6.0(react@19.1.1))
+      '@assistant-ui/react': 0.11.51(patch_hash=40b5d6f4a740cd075a826a70ab85afc316315cc5e5086562aadfa8f3ef70843d)(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(immer@9.0.21)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(use-sync-external-store@1.6.0(react@19.1.1))
     transitivePeerDependencies:
       - '@cfworker/json-schema'
       - hono
@@ -9750,7 +9759,7 @@ snapshots:
     dependencies:
       '@types/deep-eql': 4.0.2
 
-  '@types/chrome@0.1.27':
+  '@types/chrome@0.1.33':
     dependencies:
       '@types/filesystem': 0.0.36
       '@types/har-format': 1.2.16
@@ -10354,7 +10363,7 @@ snapshots:
   babel-plugin-jest-hoist@29.6.3:
     dependencies:
       '@babel/template': 7.27.2
-      '@babel/types': 7.28.4
+      '@babel/types': 7.28.5
       '@types/babel__core': 7.20.5
       '@types/babel__traverse': 7.28.0
 
@@ -13309,8 +13318,8 @@ snapshots:
   react-docgen@8.0.1:
     dependencies:
       '@babel/core': 7.28.4
-      '@babel/traverse': 7.28.4
-      '@babel/types': 7.28.4
+      '@babel/traverse': 7.28.5
+      '@babel/types': 7.28.5
       '@types/babel__core': 7.20.5
       '@types/babel__traverse': 7.28.0
       '@types/doctrine': 0.0.9
@@ -14101,6 +14110,8 @@ snapshots:
       turbo-linux-arm64: 2.5.6
       turbo-windows-64: 2.5.6
       turbo-windows-arm64: 2.5.6
+
+  tw-animate-css@1.4.0: {}
 
   type-check@0.4.0:
     dependencies:

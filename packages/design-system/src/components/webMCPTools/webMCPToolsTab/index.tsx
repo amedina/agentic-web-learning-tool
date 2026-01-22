@@ -69,9 +69,9 @@ export function WebMCPToolsTab({
           return;
         }
 
-        const newTools = builtInTools.map((t) =>
-          t.name === tool.name ? { ...t, enabled } : t
-        );
+        const newTools = builtInTools
+          .filter((tool) => !tool.isExtension)
+          .map((t) => (t.name === tool.name ? { ...t, enabled } : t));
         onSaveBuiltInState(newTools);
       } else {
         const newTools = userTools.map((t) =>

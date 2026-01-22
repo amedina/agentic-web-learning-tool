@@ -73,7 +73,7 @@ const Provider = ({ children }: PropsWithChildren) => {
     chrome.storage.sync.set({
       selectedAgent,
     });
-  }, [selectedAgent]);
+  }, [apiKeys, selectedAgent]);
 
   const fetchMCPServersAndCreateMapping = useCallback(async () => {
     const {
@@ -84,7 +84,7 @@ const Provider = ({ children }: PropsWithChildren) => {
     const mappedObject: Record<string, string> = {};
 
     Object.keys(mcpServers).forEach((key) => {
-      mappedObject[key] = mcpServers[key].name;
+      mappedObject[key] = mcpServers[key]?.name;
     });
 
     setToolNameToMCPMap(mappedObject);
@@ -155,7 +155,7 @@ const Provider = ({ children }: PropsWithChildren) => {
 
       fetchMCPServersAndCreateMapping();
     },
-    []
+    [fetchMCPServersAndCreateMapping]
   );
 
   useEffect(() => {

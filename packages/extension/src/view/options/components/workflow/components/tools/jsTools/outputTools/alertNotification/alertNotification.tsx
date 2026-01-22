@@ -11,30 +11,27 @@ import z from 'zod';
 import { ToolItem } from '../../../../ui';
 
 export const AlertNotificationSchema = z.object({
-	title: z.string(),
-	description: z.string().optional(),
-	useCustomMessage: z.boolean().optional(),
-	message: z.string().optional(),
+  title: z.string(),
+  description: z.string().optional(),
+  useCustomMessage: z.boolean().optional(),
+  message: z.string().optional(),
 });
 
 export type AlertNotificationConfig = z.infer<typeof AlertNotificationSchema>;
 
 const AlertNotification = () => {
-	const handleDragStart = useCallback((event: React.DragEvent) => {
-		event.dataTransfer.setData(
-			'workflow-composer/flow',
-			'alertNotification'
-		);
-		event.dataTransfer.effectAllowed = 'move';
-	}, []);
+  const handleDragStart = useCallback((event: React.DragEvent) => {
+    event.dataTransfer.setData('workflow-composer/flow', 'alertNotification');
+    event.dataTransfer.effectAllowed = 'move';
+  }, []);
 
-	return (
-		<ToolItem
-			label="Alert Notification"
-			onDragStart={handleDragStart}
-			Icon={BellRing}
-		/>
-	);
+  return (
+    <ToolItem
+      label="Alert Notification"
+      onDragStart={handleDragStart}
+      Icon={BellRing}
+    />
+  );
 };
 
 export default AlertNotification;
