@@ -56,7 +56,9 @@ export default function PromptLab() {
 
   // Initialize
   useEffect(() => {
-    checkCapabilities();
+    // Start checking for capabilities with polling
+    pollForCapabilities(5, 1000); // 5 attempts, 1s interval
+
     return () => {
       if (session) {
         session.destroy();
@@ -71,6 +73,34 @@ export default function PromptLab() {
     }
   }, [messages, isStreaming]);
 
+  // Polling helper
+  const pollForCapabilities = async (attempts: number, delay: number) => {
+      let currentAttempt = 0;
+
+      const check = async () => {
+          currentAttempt++;
+          console.log(`Polling for window.ai (Attempt ${currentAttempt}/${attempts})...`);
+
+          try {
+              if ((window as any).ai) {
+                  await checkCapabilities();
+                  return; // Success
+              }
+
+              if (currentAttempt < attempts) {
+                  setTimeout(check, delay);
+              } else {
+                  // Final attempt failed, trigger error by running checkCapabilities one last time
+                  await checkCapabilities();
+              }
+          } catch (e) {
+              // If checkCapabilities throws, it sets the error state
+          }
+      };
+
+      check();
+  };
+
   const checkCapabilities = async () => {
     try {
       // Debug logging to see what's available
@@ -84,7 +114,7 @@ export default function PromptLab() {
       const ai = (window as any).ai;
 
       if (!ai) {
-        throw new Error('Chrome Prompt API (window.ai) is not found.');
+        throw new Error('Chrome Prompt API (window.ai) is not found. Ensure you have the "Optimization Guide On Device Model" enabled.');
       }
 
       // Handle namespace variations (languageModel vs prompt)
@@ -106,6 +136,8 @@ export default function PromptLab() {
       if (capabilities.available === 'no') {
         throw new Error('Gemini Nano is reported as not available (available="no").');
       }
+
+      setError(null); // Clear any previous errors if successful
 
       // Initialize a default session
       await createSession();
@@ -257,7 +289,11 @@ export default function PromptLab() {
         <div className="text-xs text-muted-foreground bg-muted p-2 rounded">
            Check console for details.
         </div>
-        <Button onClick={checkCapabilities} variant="outline">Retry</Button>
+        <div className="flex gap-2">
+            <Button onClick={() => pollForCapabilities(5, 500)} variant="outline">
+                <RefreshCw className="w-3 h-3 mr-2" /> Retry Check
+            </Button>
+        </div>
       </div>
     );
   }
