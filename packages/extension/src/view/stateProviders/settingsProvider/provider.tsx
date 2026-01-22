@@ -48,7 +48,7 @@ function SettingsProvider({
         return;
       }
 
-      if (!changes.logLevel && !changes.theme) {
+      if (!changes.extensionSettings) {
         return;
       }
 

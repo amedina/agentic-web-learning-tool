@@ -5,10 +5,10 @@ export interface ToolsConfigProps {
   title?: string;
   selectedNodeId?: string | null;
   nodeType?: string;
-  nodeLabel?: string;
+  nodeTitle?: string;
   nodeContext?: string;
   nodeDescription?: string;
-  onLabelChange?: (value: string) => void;
+  onTitleChange?: (value: string) => void;
   onContextChange?: (value: string) => void;
   onFormChange?: (e: React.FormEvent<HTMLFormElement>) => void;
   children?: ReactNode;
@@ -22,10 +22,10 @@ const ToolsConfig = ({
   title = "Configuration",
   selectedNodeId,
   nodeType,
-  nodeLabel = "",
+  nodeTitle = "",
   nodeContext = "",
   nodeDescription,
-  onLabelChange,
+  onTitleChange,
   onContextChange,
   onFormChange,
   children,
@@ -112,8 +112,8 @@ const ToolsConfig = ({
                   <input
                     type="text"
                     className="w-full p-3 border border-slate-300 dark:border-border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-white dark:bg-zinc-950 text-slate-900 dark:text-foreground disabled:text-slate-600 dark:disabled:text-zinc-400 disabled:bg-slate-50 dark:disabled:bg-zinc-900/30 transition-all"
-                    value={nodeLabel}
-                    onChange={(e) => onLabelChange?.(e.target.value)}
+                    value={nodeTitle}
+                    onChange={(e) => onTitleChange?.(e.target.value)}
                     id="title"
                     name="title"
                     placeholder="Enter node label..."
