@@ -52,6 +52,9 @@ export default function PromptLab() {
     tokensSoFar: 0,
   });
 
+  // Track which API implementation we are using
+  const [apiType, setApiType] = useState<'spec' | 'explainer' | null>(null);
+
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Initialize
@@ -79,10 +82,10 @@ export default function PromptLab() {
 
       const check = async () => {
           currentAttempt++;
-          console.log(`Polling for window.ai (Attempt ${currentAttempt}/${attempts})...`);
+          console.log(`Polling for AI API (Attempt ${currentAttempt}/${attempts})...`);
 
           try {
-              if ((window as any).ai) {
+              if (window.LanguageModel || (window as any).ai) {
                   await checkCapabilities();
                   return; // Success
               }
@@ -104,43 +107,59 @@ export default function PromptLab() {
   const checkCapabilities = async () => {
     try {
       // Debug logging to see what's available
-      console.log('Checking window.ai capabilities...');
+      console.log('Checking AI capabilities...');
+      console.log('window.LanguageModel:', window.LanguageModel);
       console.log('window.ai:', (window as any).ai);
-      if ((window as any).ai) {
-          console.log('window.ai keys:', Object.keys((window as any).ai));
+
+      // Prioritize Spec API (self.LanguageModel)
+      if (window.LanguageModel) {
+          console.log('Using Spec API (LanguageModel)');
+          setApiType('spec');
+          const LM = window.LanguageModel;
+          const availability = await LM.availability();
+
+          if (availability === 'no') {
+              throw new Error('LanguageModel is not available (availability="no").');
+          }
+
+          // We can also get params here to set defaults
+          try {
+            const params = await LM.params();
+            if (params.defaultTemperature !== undefined) setTemperature(params.defaultTemperature);
+            if (params.defaultTopK !== undefined) setTopK(params.defaultTopK);
+          } catch (e) {
+            console.warn('Failed to get params:', e);
+          }
+
+      } else {
+          // Fallback to Explainer API (window.ai.languageModel)
+          const ai = (window as any).ai;
+          if (!ai) {
+             throw new Error('Chrome Prompt API not found (checked window.LanguageModel and window.ai).');
+          }
+
+          let model = ai.languageModel;
+          if (!model && ai.prompt) {
+             console.log('Using legacy window.ai.prompt');
+             model = ai.prompt;
+          }
+
+          if (!model) {
+             throw new Error('window.ai found, but languageModel/prompt is missing.');
+          }
+
+          setApiType('explainer');
+          console.log('Using Explainer API (window.ai.languageModel)');
+
+          const capabilities = await model.capabilities();
+          if (capabilities.available === 'no') {
+              throw new Error('Gemini Nano is reported as not available (available="no").');
+          }
       }
 
-      // Check for supported namespaces
-      const ai = (window as any).ai;
-
-      if (!ai) {
-        throw new Error('Chrome Prompt API (window.ai) is not found. Ensure you have the "Optimization Guide On Device Model" enabled.');
-      }
-
-      // Handle namespace variations (languageModel vs prompt)
-      let model = ai.languageModel;
-      if (!model && ai.prompt) {
-          console.log('Using legacy window.ai.prompt');
-          model = ai.prompt;
-          // Alias for compatibility if needed, but we mainly need capabilities() and create()
-      }
-
-      if (!model) {
-        throw new Error('Neither window.ai.languageModel nor window.ai.prompt is available.');
-      }
-
-      // Check availability
-      const capabilities = await model.capabilities();
-      console.log('Capabilities:', capabilities);
-
-      if (capabilities.available === 'no') {
-        throw new Error('Gemini Nano is reported as not available (available="no").');
-      }
-
-      setError(null); // Clear any previous errors if successful
-
-      // Initialize a default session
+      setError(null);
       await createSession();
+
     } catch (err: any) {
       console.error('Capabilities check failed:', err);
       setError(err.message);
@@ -154,22 +173,26 @@ export default function PromptLab() {
 
     setIsLoading(true);
     try {
-      const ai = (window as any).ai;
-      const model = ai.languageModel || ai.prompt;
-
-      if (!model) throw new Error('Model API not found');
-
-      const newSession = await model.create({
+      let newSession;
+      const options = {
         temperature,
         topK,
-        initialPrompts: [
-          { role: 'system', content: systemPrompt }
-        ]
-      });
+        initialPrompts: systemPrompt ? [{ role: 'system' as const, content: systemPrompt }] : undefined
+      };
+
+      if (apiType === 'spec') {
+         if (!window.LanguageModel) throw new Error('LanguageModel API lost.');
+         newSession = await window.LanguageModel.create(options);
+      } else {
+         const ai = (window as any).ai;
+         const model = ai.languageModel || ai.prompt;
+         if (!model) throw new Error('Model API not found');
+         newSession = await model.create(options);
+      }
 
       setSession(newSession);
       updateStats(newSession);
-      setMessages([]); // Reset messages on new session? Or keep them? Usually reset for a new session context.
+      setMessages([]);
 
       // Add system message to UI for visibility
       setMessages([{
@@ -206,10 +229,8 @@ export default function PromptLab() {
   const cloneSession = async () => {
     if (!session) return;
     try {
-      // Logic for cloning: the API has a clone() method on the session
       const newSession = await session.clone();
-      session.destroy(); // Destroy old one? Or keep both? The playground implies forking state.
-      // If we clone, we replace the current session reference.
+      session.destroy();
       setSession(newSession);
       updateStats(newSession);
       toast.success('Session Cloned', {
@@ -224,9 +245,9 @@ export default function PromptLab() {
 
   const updateStats = (currentSession: AILanguageModelSession) => {
     setStats({
-      maxTokens: currentSession.maxTokens,
-      tokensLeft: currentSession.tokensLeft,
-      tokensSoFar: currentSession.tokensSoFar,
+      maxTokens: currentSession.maxTokens || currentSession.inputQuota || 0,
+      tokensLeft: currentSession.tokensLeft || ((currentSession.inputQuota || 0) - (currentSession.inputUsage || 0)) || 0,
+      tokensSoFar: currentSession.tokensSoFar || currentSession.inputUsage || 0,
     });
   };
 
@@ -242,7 +263,6 @@ export default function PromptLab() {
     try {
       const stream = await session.promptStreaming(input);
 
-      // Add placeholder for assistant message
       const assistantMsg: Message = { role: 'assistant', content: '', timestamp: Date.now() };
       setMessages((prev) => [...prev, assistantMsg]);
 
