@@ -12,6 +12,8 @@ import {
   ArrowLeft,
 } from 'lucide-react';
 
+import PromptLab from './PromptLab';
+
 interface PlaygroundCard {
   id: string;
   title: string;
@@ -83,18 +85,22 @@ export default function APIPlaygroundsTab() {
             </div>
           </div>
 
-          {/* Content Placeholder */}
-          <div className="flex flex-col items-center justify-center min-h-[400px] border-2 border-dashed border-muted-foreground/25 rounded-xl bg-muted/50 p-8">
-            <div className="text-center space-y-2">
-              <p className="text-xl font-medium text-muted-foreground">
-                Coming Soon
-              </p>
-              <p className="text-sm text-muted-foreground/80 max-w-md">
-                The {activeCard.title} module is currently under development.
-                Check back soon for updates!
-              </p>
+          {activeCard.id === 'prompt-lab' ? (
+            <PromptLab />
+          ) : (
+            /* Content Placeholder */
+            <div className="flex flex-col items-center justify-center min-h-[400px] border-2 border-dashed border-muted-foreground/25 rounded-xl bg-muted/50 p-8">
+              <div className="text-center space-y-2">
+                <p className="text-xl font-medium text-muted-foreground">
+                  Coming Soon
+                </p>
+                <p className="text-sm text-muted-foreground/80 max-w-md">
+                  The {activeCard.title} module is currently under development.
+                  Check back soon for updates!
+                </p>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
