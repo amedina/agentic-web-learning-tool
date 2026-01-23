@@ -1,5 +1,11 @@
-import React from 'react';
+/**
+ * External dependencies.
+ */
 import { Check, ChevronsUpDown } from 'lucide-react';
+import { useState, useCallback } from 'react';
+/**
+ * Internal dependencies.
+ */
 import { cn } from '../../lib/utils';
 import { Button } from '../button';
 import {
@@ -32,9 +38,9 @@ export function Combobox({
   emptyMessage = 'No results found.',
   id,
 }: ComboboxProps) {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
 
-  const handleOpenChange = React.useCallback(
+  const handleOpenChange = useCallback(
     (newOpen: boolean) => {
       setOpen(newOpen);
       if (newOpen && onFocus) {
@@ -44,7 +50,7 @@ export function Combobox({
     [onFocus]
   );
 
-  const handleSelect = React.useCallback(
+  const handleSelect = useCallback(
     (option: string) => {
       onChange(option);
       setOpen(false);
@@ -52,7 +58,7 @@ export function Combobox({
     [onChange]
   );
 
-  const handleInputChange = React.useCallback(
+  const handleInputChange = useCallback(
     (value: string) => {
       onInputChange(value);
     },
