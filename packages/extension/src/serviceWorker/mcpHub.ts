@@ -1049,7 +1049,6 @@ class McpHub {
           const toolToRegister = {
             ...tool.meta,
             execute: async () => {
-              console.log('Hello');
               // @ts-expect-error -- window.awltWorkflow is injected through registerWorkflowTools
               if (window.awltWorkflow) {
                 if (!navigator.userActivation.isActive) {

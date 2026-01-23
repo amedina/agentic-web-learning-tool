@@ -3,14 +3,8 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "main": "dist/engine-web.bundle.js",
-  "types": "dist/engine-web/src/index.d.ts",
-  "exports": {
-    ".": {
-      "import": "./dist/engine-web.bundle.js",
-      "types": "./dist/engine-web/src/index.d.ts"
-    }
-  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
