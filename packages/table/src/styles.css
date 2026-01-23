@@ -1,9 +1,4 @@
 @theme {
-  --radius-*: initial;
-
-  --text-*: initial;
-  --font-weight-*: initial;
-  --text-color-*: initial;
   --text-color-black: #000;
   --text-color-white: #fff;
   --text-color-gray: #6e6e6e;
@@ -66,12 +61,7 @@
 }
 
 /*
-  The default border color has changed to `currentcolor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
-
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
+  Table-specific base layer styles
 */
 @layer base {
   *,
@@ -81,10 +71,6 @@
   ::file-selector-button {
     border-color: var(--color-gray-200, currentcolor);
   }
-}
-
-button {
-  cursor: pointer;
 }
 
 @keyframes fadeIn {
