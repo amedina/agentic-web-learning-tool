@@ -18,6 +18,7 @@
     "@google-awlt/shared-config": "workspace:*",
     "@types/chrome": "^0.1.27",
     "@types/dom-chromium-ai": "^0.0.13",
+    "@types/jest": "^29.5.14",
     "@types/node": "^24.3.0",
     "globals": "^16.3.0",
     "prettier": "^3.0.0",

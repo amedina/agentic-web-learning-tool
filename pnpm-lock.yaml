@@ -323,6 +323,9 @@ importers:
       '@types/dom-chromium-ai':
         specifier: ^0.0.13
         version: 0.0.13
+      '@types/jest':
+        specifier: ^29.5.14
+        version: 29.5.14
       '@types/node':
         specifier: ^24.3.0
         version: 24.10.7
