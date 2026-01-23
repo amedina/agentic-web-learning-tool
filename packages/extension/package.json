@@ -33,6 +33,7 @@
     "@assistant-ui/react-ai-sdk": "^1.1.19",
     "@google-awlt/common": "workspace:*",
     "@google-awlt/design-system": "workspace:*",
+    "@google-awlt/mcp-inspector": "workspace:*",
     "@google-awlt/engine-core": "workspace:*",
     "@google-awlt/engine-extension": "workspace:*",
     "@mcp-b/extension-tools": "^0.2.3",

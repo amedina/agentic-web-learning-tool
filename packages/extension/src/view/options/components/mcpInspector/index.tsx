@@ -2,17 +2,16 @@
  * External dependencies
  */
 import { OptionsPageTab } from '@google-awlt/design-system';
+import { MCPInspectorTab as MCPInspectorTabComponent } from '@google-awlt/mcp-inspector';
 
 export default function MCPInspectorTab() {
   return (
     <OptionsPageTab
       title="MCP Inspector"
       description="Inspect and debug your MCP servers."
+      className="h-svh"
     >
-      <iframe
-        className="w-[70vw] h-screen ml-[-24px]"
-        src={chrome.runtime.getURL('inspector/index.html')}
-      />
+      <MCPInspectorTabComponent />
     </OptionsPageTab>
   );
 }
