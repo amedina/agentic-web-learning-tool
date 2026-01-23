@@ -44,7 +44,8 @@
     {
       "resources": [
         "contentScript/webmcp-polyfill.js",
-        "contentScript/registerTools.js"
+        "contentScript/registerTools.js",
+        "contentScript/registerWorkflowTools.js"
       ],
       "matches": ["<all_urls>"]
     }

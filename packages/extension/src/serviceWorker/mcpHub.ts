@@ -388,6 +388,7 @@ class McpHub {
                 false
               );
               await this.injectToolsAndRegisterFunction(tabId);
+              await this.injectWorkflowToolsAndRegisterFunction(tabId);
             }
             break;
           case MESSAGE_TYPES.UPDATE:
@@ -948,8 +949,6 @@ class McpHub {
         console.error('WebMCP: Error injecting user tools', error);
       });
 
-    await this.injectWorkflowToolsAndRegisterFunction(tabId);
-
     async function registerDynamicToolFromScripting(tools: any) {
       //@ts-expect-error -- window.navigator.modelContext is injected dynamically
       const mcp = window.navigator.modelContext;
@@ -1021,20 +1020,16 @@ class McpHub {
 
       return {
         meta: transformedMeta,
-        graph: workflow.graph,
+        json: workflow,
       };
     });
-
-    console.log(transformedWorkflows);
 
     chrome.scripting
       .executeScript({
         target: { tabId: tabId },
         world: 'MAIN',
         func: registerDynamicWorkflowToolFromScripting,
-        args: [
-          // transformedWorkflows, tabId
-        ],
+        args: [transformedWorkflows],
       })
       .then((result) => {
         console.log('WebMCP: tools registered', result);
@@ -1043,40 +1038,70 @@ class McpHub {
         console.error('WebMCP: Error injecting user tools', error);
       });
 
-    async function registerDynamicWorkflowToolFromScripting() {
-    // transformedWorkflows: unknown,
-    // tabId: number
+    async function registerDynamicWorkflowToolFromScripting(
+      transformedWorkflows: any
+    ) {
       //@ts-expect-error -- window.navigator.modelContext is injected dynamically
       const mcp = window.navigator.modelContext;
 
-      // for (const tool of transformedWorkflows) {
-      //   try {
+      for (const tool of transformedWorkflows) {
+        try {
+          const toolToRegister = {
+            ...tool.meta,
+            execute: async () => {
+              console.log('Hello');
+              // @ts-expect-error -- window.awltWorkflow is injected through registerWorkflowTools
+              if (window.awltWorkflow) {
+                if (!navigator.userActivation.isActive) {
+                  const runWorkflowButton = document.createElement('button');
+                  document.body.appendChild(runWorkflowButton);
+                  runWorkflowButton.click();
+                  document.body.removeChild(runWorkflowButton);
+                }
 
-      //     const toolToRegister = {
-      //       ...tool.meta,
-      //       // @ts-expect-error -- -
-      //       execute: async () => await window.x(tool.graph, tabId)(),
-      //     };
+                // @ts-expect-error -- window.awltWorkflow is injected
+                const result = (await window.awltWorkflow.runWorkflow(
+                  tool.json
+                )) as {
+                  steps: Record<string, any>;
+                };
 
-      //     console.log(
-      //       'WebMCP: Registering user workflow tool:',
-      //       toolToRegister
-      //     );
+                return {
+                  content: [
+                    {
+                      type: 'text',
+                      text:
+                        'Workflow returned with: ' +
+                        Object.entries(result.steps).filter(([key]) =>
+                          key.endsWith('end')
+                        )[0][1].data,
+                    },
+                  ],
+                  isError: false,
+                };
+              }
+            },
+          };
 
-      //     if (mcp) {
-      //       await mcp.registerTool(toolToRegister);
+          console.log(
+            'WebMCP: Registering user workflow tool:',
+            toolToRegister
+          );
 
-      //       console.log(
-      //         'WebMCP: User Workflow tool registered successfully:',
-      //         toolToRegister.name
-      //       );
-      //     } else {
-      //       console.log('WebMCP: Cannot register tool, mcp missing');
-      //     }
-      //   } catch (err) {
-      //     console.log('WebMCP: Failed to register user tool:', tool.name, err);
-      //   }
-      // }
+          if (mcp) {
+            await mcp.registerTool(toolToRegister);
+
+            console.log(
+              'WebMCP: User Workflow tool registered successfully:',
+              toolToRegister.name
+            );
+          } else {
+            console.log('WebMCP: Cannot register tool, mcp missing');
+          }
+        } catch (err) {
+          console.log('WebMCP: Failed to register user tool:', tool.name, err);
+        }
+      }
     }
   }
 }

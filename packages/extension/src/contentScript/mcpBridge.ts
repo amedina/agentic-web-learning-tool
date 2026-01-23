@@ -57,6 +57,21 @@ try {
       logger(['error'], ['WebMCP: Failed to inject registerTools.js', e]);
     }
 
+    try {
+      const script = document.createElement('script');
+      script.src = chrome.runtime.getURL(
+        'contentScript/registerWorkflowTools.js'
+      );
+      script.onload = () => script.remove();
+      (document.head || document.documentElement).appendChild(script);
+      logger(['debug'], ['WebMCP: Injected registerWorkflowTools.js']);
+    } catch (e) {
+      logger(
+        ['error'],
+        ['WebMCP: Failed to inject registerWorkflowTools.js', e]
+      );
+    }
+
     async function setupToolChangeListener() {
       if (!client) {
         return;

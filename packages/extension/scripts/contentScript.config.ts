@@ -62,6 +62,10 @@ export default defineConfig({
           __dirname,
           '../src/contentScript/registerTools.ts'
         ),
+        registerWorkflowTools: resolve(
+          __dirname,
+          '../src/contentScript/registerWorkflowTools.ts'
+        ),
       },
       output: {
         // Manually set entry file name to ensure it's not nested if unwanted,
