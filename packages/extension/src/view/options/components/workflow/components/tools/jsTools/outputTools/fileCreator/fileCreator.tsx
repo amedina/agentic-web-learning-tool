@@ -11,26 +11,26 @@ import z from 'zod';
 import { ToolItem } from '../../../../ui';
 
 export const FileCreatorSchema = z.object({
-	title: z.string(),
-	description: z.string().optional(),
-	filename: z.string(),
+  title: z.string(),
+  description: z.string().optional(),
+  filename: z.string(),
 });
 
 export type FileCreatorConfig = z.infer<typeof FileCreatorSchema>;
 
 const FileCreator = () => {
-	const handleDragStart = useCallback((event: React.DragEvent) => {
-		event.dataTransfer.setData('workflow-composer/flow', 'fileCreator');
-		event.dataTransfer.effectAllowed = 'move';
-	}, []);
+  const handleDragStart = useCallback((event: React.DragEvent) => {
+    event.dataTransfer.setData('workflow-composer/flow', 'fileCreator');
+    event.dataTransfer.effectAllowed = 'move';
+  }, []);
 
-	return (
-		<ToolItem
-			label="File Creator"
-			onDragStart={handleDragStart}
-			Icon={FileDown}
-		/>
-	);
+  return (
+    <ToolItem
+      label="File Creator"
+      onDragStart={handleDragStart}
+      Icon={FileDown}
+    />
+  );
 };
 
 export default FileCreator;

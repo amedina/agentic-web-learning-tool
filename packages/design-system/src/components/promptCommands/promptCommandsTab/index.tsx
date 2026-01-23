@@ -33,7 +33,7 @@ export function PromptCommandsTab({
 
   const handleSaveCommand = useCallback(
     (command: PromptCommand) => {
-      let newCommands = [...userCommands];
+      const newCommands = [...userCommands];
 
       if (editingCommand) {
         const index = newCommands.findIndex(

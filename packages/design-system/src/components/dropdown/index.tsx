@@ -150,94 +150,98 @@ export default function DropDown({
     [filterAndNormalizeOptions]
   );
 
-  const renderDropdownItem = (item: DropdownOption) => {
-    if (item.submenu) {
-      return (
-        <DropdownMenuSub>
-          <DropdownMenuSubTrigger asChild>
-            <DropDownMenuItem
-              key={item.id}
-              onClick={(event) => event?.preventDefault()}
-              className={itemStyles}
-            >
-              <div className="flex items-center gap-3">
-                <span>{item.label}</span>
-                {selectedValue === item.id ||
-                  (processOptionsIntoGroups(item.submenu).find((singleItem) =>
-                    singleItem.items.find(
-                      (parent) => parent.id === selectedValue
-                    )
-                  ) && (
-                    <div className="ml-auto w-1.5 h-1.5 rounded-full bg-stone-600" />
-                  ))}
-              </div>
-            </DropDownMenuItem>
-          </DropdownMenuSubTrigger>
-          <DropDownMenuPortal>
-            <DropdownMenuSubContent
-              style={{
-                maxWidth: 'var(--radix-dropdown-menu-content-available-width)',
-              }}
-              arrowPadding={50}
-              className={menuContentStyles}
-            >
-              <DropdownMenuArrow className="fill-dark-brown w-2 h-2" />
-              {item.mainLabel && (
-                <DropDownMenuLabel className="px-2.5 py-2 w-full text-amethyst-haze">
-                  {item.mainLabel}
-                </DropDownMenuLabel>
-              )}
-              {processOptionsIntoGroups(item.submenu).map((submenuGroup) => (
-                <div key={submenuGroup.key}>
-                  {submenuGroup.group && !submenuGroup.hideLabel && (
-                    <DropDownMenuLabel className="px-2.5 py-2 text-[11px] w-full  font-bold text-primary uppercase tracking-widest">
-                      {submenuGroup.group}
-                    </DropDownMenuLabel>
-                  )}
-                  {submenuGroup.items.map((subItem) => (
-                    <DropDownMenuItem
-                      key={subItem.id}
-                      className="leading-[1.2]"
-                      asChild
-                      onSelect={() => handleSelect(subItem.id)}
-                    >
-                      {renderDropdownItem(subItem)}
-                    </DropDownMenuItem>
-                  ))}
-                </div>
-              ))}
-            </DropdownMenuSubContent>
-          </DropDownMenuPortal>
-        </DropdownMenuSub>
-      );
-    } else {
-      return (
-        <DropDownMenuItem
-          key={item.id}
-          className={itemStyles}
-          onClick={() => handleSelect(item.id)}
-        >
-          <div className="flex items-center gap-3">
-            <span>{item.label}</span>
-            {selectedValue === item.id && (
-              <div className="ml-auto w-1.5 h-1.5 rounded-full bg-stone-600" />
-            )}
-          </div>
-        </DropDownMenuItem>
-      );
-    }
-  };
-
-  const groups = useMemo(
-    () => processOptionsIntoGroups(options),
-    [options, processOptionsIntoGroups]
-  );
-
   const handleSelect = useCallback(
     (selectedValueId: string) => {
       onSelect(selectedValueId);
     },
     [onSelect]
+  );
+
+  const renderDropdownItem = useCallback(
+    (item: DropdownOption) => {
+      if (item.submenu) {
+        return (
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger asChild>
+              <DropDownMenuItem
+                key={item.id}
+                onClick={(event) => event?.preventDefault()}
+                className={itemStyles}
+              >
+                <div className="flex items-center gap-3">
+                  <span>{item.label}</span>
+                  {selectedValue === item.id ||
+                    (processOptionsIntoGroups(item.submenu).find((singleItem) =>
+                      singleItem.items.find(
+                        (parent) => parent.id === selectedValue
+                      )
+                    ) && (
+                      <div className="ml-auto w-1.5 h-1.5 rounded-full bg-stone-600" />
+                    ))}
+                </div>
+              </DropDownMenuItem>
+            </DropdownMenuSubTrigger>
+            <DropDownMenuPortal>
+              <DropdownMenuSubContent
+                style={{
+                  maxWidth:
+                    'var(--radix-dropdown-menu-content-available-width)',
+                }}
+                arrowPadding={50}
+                className={menuContentStyles}
+              >
+                <DropdownMenuArrow className="fill-dark-brown w-2 h-2" />
+                {item.mainLabel && (
+                  <DropDownMenuLabel className="px-2.5 py-2 w-full text-amethyst-haze">
+                    {item.mainLabel}
+                  </DropDownMenuLabel>
+                )}
+                {processOptionsIntoGroups(item.submenu).map((submenuGroup) => (
+                  <div key={submenuGroup.key}>
+                    {submenuGroup.group && !submenuGroup.hideLabel && (
+                      <DropDownMenuLabel className="px-2.5 py-2 text-[11px] w-full  font-bold text-primary uppercase tracking-widest">
+                        {submenuGroup.group}
+                      </DropDownMenuLabel>
+                    )}
+                    {submenuGroup.items.map((subItem) => (
+                      <DropDownMenuItem
+                        key={subItem.id}
+                        className="leading-[1.2]"
+                        asChild
+                        onSelect={() => handleSelect(subItem.id)}
+                      >
+                        {renderDropdownItem(subItem)}
+                      </DropDownMenuItem>
+                    ))}
+                  </div>
+                ))}
+              </DropdownMenuSubContent>
+            </DropDownMenuPortal>
+          </DropdownMenuSub>
+        );
+      } else {
+        return (
+          <DropDownMenuItem
+            key={item.id}
+            className={itemStyles}
+            onClick={() => handleSelect(item.id)}
+          >
+            <div className="flex items-center gap-3">
+              <span>{item.label}</span>
+              {selectedValue === item.id && (
+                <div className="ml-auto w-1.5 h-1.5 rounded-full bg-stone-600" />
+              )}
+            </div>
+          </DropDownMenuItem>
+        );
+      }
+    },
+    [handleSelect, processOptionsIntoGroups, selectedValue]
+  );
+
+  const groups = useMemo(
+    () => processOptionsIntoGroups(options),
+    [options, processOptionsIntoGroups]
   );
 
   const renderDropDownMenu = useCallback(
@@ -256,7 +260,7 @@ export default function DropDown({
         </DropDownMenuItem>
       );
     },
-    [handleSelect]
+    [handleSelect, renderDropdownItem]
   );
 
   return (

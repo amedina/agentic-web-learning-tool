@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import type { RuntimeInterface, NodeOutput } from "@google-awlt/engine-core";
+import type { RuntimeInterface, NodeOutput } from '@google-awlt/engine-core';
 
 /**
  * Internal dependencies
@@ -14,7 +14,7 @@ import type {
   DownloadFileMessage,
   SpeakTextMessage,
   ShowTooltipMessage,
-} from "../types/messages";
+} from '../types/messages';
 
 /**
  * Service Worker Runtime
@@ -57,74 +57,67 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
   async checkCapability(capability: string, options?: any): Promise<boolean> {
     try {
       switch (capability) {
-        case "promptApi": {
-          let available = "LanguageModel" in self;
-          // @ts-ignore
+        case 'promptApi': {
+          let available = 'LanguageModel' in self;
           const status = await LanguageModel.availability();
-          available = available && status !== "unavailable";
+          available = available && status !== 'unavailable';
 
           return available;
         }
 
-        case "writerApi": {
-          let available = "Writer" in self;
-          // @ts-ignore
+        case 'writerApi': {
+          let available = 'Writer' in self;
           const status = await Writer.availability();
-          available = available && status !== "unavailable";
+          available = available && status !== 'unavailable';
 
           return available;
         }
 
-        case "rewriterApi": {
-          let available = "Rewriter" in self;
-          // @ts-ignore
+        case 'rewriterApi': {
+          let available = 'Rewriter' in self;
           const status = await Rewriter.availability();
-          available = available && status !== "unavailable";
+          available = available && status !== 'unavailable';
 
           return available;
         }
 
-        case "summarizerApi": {
-          let available = "Summarizer" in self;
-          // @ts-ignore
+        case 'summarizerApi': {
+          let available = 'Summarizer' in self;
           const status = await Summarizer.availability();
-          available = available && status !== "unavailable";
+          available = available && status !== 'unavailable';
 
           return available;
         }
 
-        case "translatorApi": {
-          let available = "Translator" in self;
-          // @ts-ignore
+        case 'translatorApi': {
+          let available = 'Translator' in self;
           const status = await Translator.availability(options);
-          available = available && status !== "unavailable";
+          available = available && status !== 'unavailable';
 
           return available;
         }
 
-        case "languageDetectorApi": {
-          let available = "LanguageDetector" in self;
-          // @ts-ignore
+        case 'languageDetectorApi': {
+          let available = 'LanguageDetector' in self;
           const status = await LanguageDetector.availability();
-          available = available && status !== "unavailable";
+          available = available && status !== 'unavailable';
 
           return available;
         }
 
-        case "proofreaderApi": {
-          let available = "Proofreader" in self;
-          // @ts-ignore
+        case 'proofreaderApi': {
+          let available = 'Proofreader' in self;
           const status = await Proofreader.availability();
-          available = available && status !== "unavailable";
+          available = available && status !== 'unavailable';
 
           return available;
         }
 
         // JS tools are always available
-        case "staticInput":
-        case "domInput":
-        case "alertNotification":
-        case "condition":
+        case 'staticInput':
+        case 'domInput':
+        case 'alertNotification':
+        case 'condition':
           return true;
 
         default:
@@ -163,18 +156,18 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
   async queryPage(
     selector: string,
     extract:
-      | "textContent"
-      | "innerText"
-      | "innerHTML"
-      | "value"
-      | "src"
-      | "href",
+      | 'textContent'
+      | 'innerText'
+      | 'innerHTML'
+      | 'value'
+      | 'src'
+      | 'href',
     isMultiple?: boolean
   ): Promise<string | string[]> {
     const tabId = await this.getTargetTabId();
 
     const message: QueryDOMMessage = {
-      type: "QUERY_DOM",
+      type: 'QUERY_DOM',
       selector,
       extract,
       isMultiple,
@@ -186,7 +179,7 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
       throw new Error(chrome.runtime.lastError.message);
     }
     if (!response.success) {
-      throw new Error(response.error ?? "DOM query failed");
+      throw new Error(response.error ?? 'DOM query failed');
     }
 
     return response.data;
@@ -199,7 +192,7 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
     const tabId = await this.getTargetTabId();
 
     const msg: ShowAlertMessage = {
-      type: "SHOW_ALERT",
+      type: 'SHOW_ALERT',
       message,
     };
 
@@ -211,7 +204,7 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
       throw new Error(chrome.runtime.lastError.message);
     }
     if (!response.success) {
-      throw new Error(response.error ?? "Alert failed");
+      throw new Error(response.error ?? 'Alert failed');
     }
   }
 
@@ -227,7 +220,7 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
     const tabId = await this.getTargetTabId();
 
     const message: ReplaceDOMMessage = {
-      type: "REPLACE_DOM",
+      type: 'REPLACE_DOM',
       selector,
       content,
       isMultiple,
@@ -240,7 +233,7 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
       throw new Error(chrome.runtime.lastError.message);
     }
     if (!response.success) {
-      throw new Error(response.error ?? "Replace DOM failed");
+      throw new Error(response.error ?? 'Replace DOM failed');
     }
   }
 
@@ -251,7 +244,7 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
     const tabId = await this.getTargetTabId();
 
     const message: CopyToClipboardMessage = {
-      type: "COPY_TO_CLIPBOARD",
+      type: 'COPY_TO_CLIPBOARD',
       text,
     };
 
@@ -261,7 +254,7 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
       throw new Error(chrome.runtime.lastError.message);
     }
     if (!response.success) {
-      throw new Error(response.error ?? "Copy to clipboard failed");
+      throw new Error(response.error ?? 'Copy to clipboard failed');
     }
   }
 
@@ -272,7 +265,7 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
     const tabId = await this.getTargetTabId();
 
     const message: DownloadFileMessage = {
-      type: "DOWNLOAD_FILE",
+      type: 'DOWNLOAD_FILE',
       filename,
       content,
     };
@@ -283,7 +276,7 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
       throw new Error(chrome.runtime.lastError.message);
     }
     if (!response.success) {
-      throw new Error(response.error ?? "Download file failed");
+      throw new Error(response.error ?? 'Download file failed');
     }
   }
 
@@ -294,7 +287,7 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
     const tabId = await this.getTargetTabId();
 
     const message: SpeakTextMessage = {
-      type: "SPEAK_TEXT",
+      type: 'SPEAK_TEXT',
       text,
     };
 
@@ -304,7 +297,7 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
       throw new Error(chrome.runtime.lastError.message);
     }
     if (!response.success) {
-      throw new Error(response.error ?? "Speak text failed");
+      throw new Error(response.error ?? 'Speak text failed');
     }
   }
 
@@ -315,7 +308,7 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
     const tabId = await this.getTargetTabId();
 
     const message: ShowTooltipMessage = {
-      type: "SHOW_TOOLTIP",
+      type: 'SHOW_TOOLTIP',
       selector,
       content,
     };
@@ -326,7 +319,7 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
       throw new Error(chrome.runtime.lastError.message);
     }
     if (!response.success) {
-      throw new Error(response.error ?? "Show tooltip failed");
+      throw new Error(response.error ?? 'Show tooltip failed');
     }
   }
 
@@ -363,7 +356,7 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
     const activeTab = tabs[0];
 
     if (!activeTab?.id) {
-      throw new Error("No active tab found");
+      throw new Error('No active tab found');
     }
 
     return activeTab.id;

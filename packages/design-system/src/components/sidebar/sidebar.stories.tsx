@@ -3,6 +3,7 @@
  */
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Calendar, Home, Inbox, Search, Settings } from 'lucide-react';
+
 /**
  * Internal dependencies
  */
@@ -63,7 +64,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  render: (args) => {
+  render: (args: Story['args']) => {
     return (
       <div className="w-screen h-screen">
         <SidebarProvider>

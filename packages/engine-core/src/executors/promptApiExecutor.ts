@@ -1,9 +1,9 @@
 /**
  * Internal dependencies
  */
-import type { ExecutionContext } from "../types";
-import type { RuntimeInterface } from "../runtime";
-import { formatInputText } from "../utils/executorUtils";
+import type { ExecutionContext } from '../types';
+import type { RuntimeInterface } from '../runtime';
+import { formatInputText } from '../utils/executorUtils';
 
 /**
  * Prompt API (Language Model) executor.
@@ -21,13 +21,13 @@ export async function promptApiExecutor(
     topK,
     expectedInputsLanguages,
     expectedOutputsLanguages,
-		initialPrompts,
+    initialPrompts,
   } = config as any;
 
   const formattedInput = formatInputText(input);
 
   if (!formattedInput) {
-    throw new Error("Prompt API requires input text");
+    throw new Error('Prompt API requires input text');
   }
 
   try {
@@ -37,7 +37,7 @@ export async function promptApiExecutor(
     if (systemContext) {
       sessionOptions.initialPrompts = [
         {
-          role: "system",
+          role: 'system',
           content: systemContext,
         },
         ...(initialPrompts ?? []),

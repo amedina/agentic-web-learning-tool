@@ -10,6 +10,8 @@ import type { SettingsState } from '../../../types';
 export type SettingsContextProps = {
   state: SettingsState & {
     isDarkMode: boolean;
+    tabData: { [key: string]: chrome.tabs.Tab };
+    currentTab: number;
   };
   actions: {
     clearSettings: () => void;
@@ -25,6 +27,8 @@ const initialState: SettingsContextProps = {
     theme: 'auto',
     logLevel: 'SILENT',
     isDarkMode: false,
+    tabData: {},
+    currentTab: 0,
   },
   actions: {
     clearSettings: noop,

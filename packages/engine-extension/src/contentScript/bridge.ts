@@ -4,7 +4,7 @@
 import type {
   ContentScriptMessage,
   ContentScriptResponse,
-} from "../types/messages";
+} from '../types/messages';
 
 /**
  * Content Script Bridge
@@ -24,7 +24,7 @@ export function initContentScriptBridge(): void {
     sendResponse: (response: ContentScriptResponse) => void
   ): boolean {
     switch (message.type) {
-      case "QUERY_DOM":
+      case 'QUERY_DOM':
         handleQueryDOM(
           message.selector,
           message.extract,
@@ -33,19 +33,19 @@ export function initContentScriptBridge(): void {
         );
         return true;
 
-      case "SHOW_ALERT":
+      case 'SHOW_ALERT':
         handleShowAlert(message.message, sendResponse);
         return true;
 
-      case "UPDATE_NODE_STATUS":
+      case 'UPDATE_NODE_STATUS':
         handleUpdateNodeStatus(message.nodeId, message.status, sendResponse);
         return true;
 
-      case "CONTENT_SCRIPT_ACTIVE":
+      case 'CONTENT_SCRIPT_ACTIVE':
         handleContentScriptActive(message.targetTabId, sendResponse);
         return true;
 
-      case "REPLACE_DOM":
+      case 'REPLACE_DOM':
         handleReplaceDOM(
           message.selector,
           message.content,
@@ -55,30 +55,30 @@ export function initContentScriptBridge(): void {
         );
         return true;
 
-      case "COPY_TO_CLIPBOARD":
+      case 'COPY_TO_CLIPBOARD':
         handleCopyToClipboard(message.text, sendResponse);
         return true;
 
-      case "DOWNLOAD_FILE":
+      case 'DOWNLOAD_FILE':
         handleDownloadFile(message.filename, message.content, sendResponse);
         return true;
 
-      case "SPEAK_TEXT":
+      case 'SPEAK_TEXT':
         handleSpeakText(message.text, sendResponse);
         return true;
 
-      case "SHOW_TOOLTIP":
+      case 'SHOW_TOOLTIP':
         handleShowTooltip(message.selector, message.content, sendResponse);
         return true;
 
       default:
-        sendResponse({ success: false, error: "Unknown message type" });
+        sendResponse({ success: false, error: 'Unknown message type' });
         return false;
     }
   }
 
   chrome.runtime.onMessage.addListener(handleMessage);
-  console.log("[Workflow] Content script bridge initialized");
+  console.log('[Workflow] Content script bridge initialized');
 
   /**
    * Query the DOM for content.
@@ -86,12 +86,12 @@ export function initContentScriptBridge(): void {
   function handleQueryDOM(
     selector: string,
     extract:
-      | "textContent"
-      | "innerText"
-      | "innerHTML"
-      | "value"
-      | "src"
-      | "href",
+      | 'textContent'
+      | 'innerText'
+      | 'innerHTML'
+      | 'value'
+      | 'src'
+      | 'href',
     isMultiple: boolean | undefined,
     sendResponse: (response: ContentScriptResponse) => void
   ): void {
@@ -101,27 +101,27 @@ export function initContentScriptBridge(): void {
       if (!elements || elements.length === 0) {
         sendResponse({
           success: true,
-          data: isMultiple ? [] : "",
+          data: isMultiple ? [] : '',
         });
         return;
       }
 
       const extractValue = (element: Element): string => {
         switch (extract) {
-          case "textContent":
-            return element.textContent ?? "";
-          case "innerText":
-            return (element as HTMLElement).innerText ?? "";
-          case "innerHTML":
-            return element.innerHTML ?? "";
-          case "value":
-            return (element as HTMLInputElement).value ?? "";
-          case "src":
-            return (element as HTMLImageElement).src ?? "";
-          case "href":
-            return (element as HTMLAnchorElement).href ?? "";
+          case 'textContent':
+            return element.textContent ?? '';
+          case 'innerText':
+            return (element as HTMLElement).innerText ?? '';
+          case 'innerHTML':
+            return element.innerHTML ?? '';
+          case 'value':
+            return (element as HTMLInputElement).value ?? '';
+          case 'src':
+            return (element as HTMLImageElement).src ?? '';
+          case 'href':
+            return (element as HTMLAnchorElement).href ?? '';
           default:
-            return element.textContent ?? "";
+            return element.textContent ?? '';
         }
       };
 
@@ -160,7 +160,7 @@ export function initContentScriptBridge(): void {
    */
   function handleUpdateNodeStatus(
     nodeId: string,
-    status: "running" | "success" | "error",
+    status: 'running' | 'success' | 'error',
     sendResponse: (response: ContentScriptResponse) => void
   ): void {
     try {
@@ -181,7 +181,7 @@ export function initContentScriptBridge(): void {
       const currentTabIds = await chrome.tabs.query({});
 
       if (currentTabIds.some((tab) => tab.id === tabId)) {
-        console.log("[Workflow] Content script is active");
+        console.log('[Workflow] Content script is active');
         sendResponse({ success: true });
       }
 
@@ -203,7 +203,7 @@ export function initContentScriptBridge(): void {
     index?: number
   ): void {
     try {
-      if (typeof index === "number") {
+      if (typeof index === 'number') {
         const elements = document.querySelectorAll(selector);
         if (!elements || elements.length <= index) {
           throw new Error(
@@ -259,9 +259,9 @@ export function initContentScriptBridge(): void {
     sendResponse: (response: ContentScriptResponse) => void
   ): void {
     try {
-      const blob = new Blob([content], { type: "text/plain" });
+      const blob = new Blob([content], { type: 'text/plain' });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
+      const a = document.createElement('a');
       a.href = url;
       a.download = filename;
       document.body.appendChild(a);
@@ -308,9 +308,9 @@ export function initContentScriptBridge(): void {
         throw new Error(`No elements found for selector: ${selector}`);
       }
 
-      const styleId = "awlt-tooltip-styles";
+      const styleId = 'awlt-tooltip-styles';
       if (!document.getElementById(styleId)) {
-        const style = document.createElement("style");
+        const style = document.createElement('style');
         style.id = styleId;
         style.textContent = `
             @keyframes awlt-tooltip-slide-up {
@@ -326,82 +326,82 @@ export function initContentScriptBridge(): void {
       }
 
       elements.forEach((el) => {
-        const tooltip = document.createElement("div");
+        const tooltip = document.createElement('div');
         Object.assign(tooltip.style, {
-          position: "absolute",
-          background: "#09090b",
-          border: "2px solid #27272a",
-          borderRadius: "8px",
-          color: "#e4e4e7",
+          position: 'absolute',
+          background: '#09090b',
+          border: '2px solid #27272a',
+          borderRadius: '8px',
+          color: '#e4e4e7',
           fontFamily:
             "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
-          fontSize: "13px",
-          lineHeight: "1.5",
-          zIndex: "2147483647",
+          fontSize: '13px',
+          lineHeight: '1.5',
+          zIndex: '2147483647',
           boxShadow:
-            "0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3)",
-          display: "flex",
-          flexDirection: "column",
-          maxWidth: "320px",
-          minWidth: "200px",
-          pointerEvents: "auto",
+            '0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3)',
+          display: 'flex',
+          flexDirection: 'column',
+          maxWidth: '320px',
+          minWidth: '200px',
+          pointerEvents: 'auto',
         });
 
-        const header = document.createElement("div");
+        const header = document.createElement('div');
         Object.assign(header.style, {
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          padding: "8px 12px",
-          background: "#18181b",
-          borderBottom: "2px solid #27272a",
-          borderRadius: "6px 6px 0 0",
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '8px 12px',
+          background: '#18181b',
+          borderBottom: '2px solid #27272a',
+          borderRadius: '6px 6px 0 0',
         });
 
-        const titleGroup = document.createElement("div");
+        const titleGroup = document.createElement('div');
         Object.assign(titleGroup.style, {
-          display: "flex",
-          alignItems: "center",
-          gap: "8px",
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
         });
 
-        const icon = document.createElement("div");
+        const icon = document.createElement('div');
         icon.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #818cf8;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>`;
         titleGroup.appendChild(icon);
 
-        const titleText = document.createElement("span");
-        titleText.textContent = "Tooltip";
+        const titleText = document.createElement('span');
+        titleText.textContent = 'Tooltip';
         Object.assign(titleText.style, {
-          fontWeight: "600",
-          fontSize: "12px",
-          color: "#fafafa",
-          textTransform: "uppercase",
-          letterSpacing: "0.5px",
+          fontWeight: '600',
+          fontSize: '12px',
+          color: '#fafafa',
+          textTransform: 'uppercase',
+          letterSpacing: '0.5px',
         });
         titleGroup.appendChild(titleText);
         header.appendChild(titleGroup);
 
-        const closeBtn = document.createElement("button");
+        const closeBtn = document.createElement('button');
         closeBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
         Object.assign(closeBtn.style, {
-          background: "transparent",
-          border: "none",
-          color: "#71717a",
-          cursor: "pointer",
-          padding: "2px",
-          borderRadius: "4px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          transition: "all 0.2s",
+          background: 'transparent',
+          border: 'none',
+          color: '#71717a',
+          cursor: 'pointer',
+          padding: '2px',
+          borderRadius: '4px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          transition: 'all 0.2s',
         });
         closeBtn.onmouseenter = () => {
-          closeBtn.style.background = "#27272a";
-          closeBtn.style.color = "#f4f4f5";
+          closeBtn.style.background = '#27272a';
+          closeBtn.style.color = '#f4f4f5';
         };
         closeBtn.onmouseleave = () => {
-          closeBtn.style.background = "transparent";
-          closeBtn.style.color = "#71717a";
+          closeBtn.style.background = 'transparent';
+          closeBtn.style.color = '#71717a';
         };
         closeBtn.onclick = (e) => {
           e.stopPropagation();
@@ -410,11 +410,11 @@ export function initContentScriptBridge(): void {
         header.appendChild(closeBtn);
         tooltip.appendChild(header);
 
-        const body = document.createElement("div");
+        const body = document.createElement('div');
         Object.assign(body.style, {
-          padding: "12px",
-          fontSize: "13px",
-          color: "#d4d4d8",
+          padding: '12px',
+          fontSize: '13px',
+          color: '#d4d4d8',
         });
         body.textContent = content;
         tooltip.appendChild(body);
@@ -425,8 +425,8 @@ export function initContentScriptBridge(): void {
         const placeBelow = spaceAbove < tooltipHeight + 10;
 
         tooltip.style.animation = placeBelow
-          ? "awlt-tooltip-slide-down 0.2s ease-out forwards"
-          : "awlt-tooltip-slide-up 0.2s ease-out forwards";
+          ? 'awlt-tooltip-slide-down 0.2s ease-out forwards'
+          : 'awlt-tooltip-slide-up 0.2s ease-out forwards';
 
         const scrollY = window.scrollY;
         const scrollX = window.scrollX;
@@ -437,7 +437,7 @@ export function initContentScriptBridge(): void {
         } else {
         }
 
-        tooltip.style.visibility = "hidden";
+        tooltip.style.visibility = 'hidden';
         document.body.appendChild(tooltip);
 
         const tipRect = tooltip.getBoundingClientRect();
@@ -447,7 +447,7 @@ export function initContentScriptBridge(): void {
 
         tooltip.style.top = `${Math.max(top, 0)}px`;
         tooltip.style.left = `${Math.max(rect.left + scrollX, 0)}px`;
-        tooltip.style.visibility = "visible";
+        tooltip.style.visibility = 'visible';
       });
 
       sendResponse({

@@ -11,26 +11,26 @@ import z from 'zod';
 import { ToolItem } from '../../../../ui';
 
 export const TooltipSchema = z.object({
-	title: z.string(),
-	description: z.string().optional(),
-	selector: z.string(),
+  title: z.string(),
+  description: z.string().optional(),
+  selector: z.string(),
 });
 
 export type TooltipConfig = z.infer<typeof TooltipSchema>;
 
 const Tooltip = () => {
-	const handleDragStart = useCallback((event: React.DragEvent) => {
-		event.dataTransfer.setData('workflow-composer/flow', 'tooltip');
-		event.dataTransfer.effectAllowed = 'move';
-	}, []);
+  const handleDragStart = useCallback((event: React.DragEvent) => {
+    event.dataTransfer.setData('workflow-composer/flow', 'tooltip');
+    event.dataTransfer.effectAllowed = 'move';
+  }, []);
 
-	return (
-		<ToolItem
-			label="Tooltip"
-			onDragStart={handleDragStart}
-			Icon={MessageSquare}
-		/>
-	);
+  return (
+    <ToolItem
+      label="Tooltip"
+      onDragStart={handleDragStart}
+      Icon={MessageSquare}
+    />
+  );
 };
 
 export default Tooltip;
