@@ -125,6 +125,12 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
         case "domInput":
         case "alertNotification":
         case "condition":
+        case "domQuery":
+        case "domReplacement":
+        case "clipboard":
+        case "fileCreator":
+        case "speechGenerator":
+        case "toastNotification":
           return true;
 
         default:
@@ -169,7 +175,7 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
       | "value"
       | "src"
       | "href",
-    isMultiple?: boolean
+    isMultiple?: boolean,
   ): Promise<string | string[]> {
     const tabId = await this.getTargetTabId();
 
@@ -222,7 +228,7 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
     selector: string,
     content: string,
     isMultiple?: boolean,
-    index?: number
+    index?: number,
   ): Promise<void> {
     const tabId = await this.getTargetTabId();
 

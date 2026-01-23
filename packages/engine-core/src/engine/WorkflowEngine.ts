@@ -67,13 +67,13 @@ export class WorkflowEngine {
    */
   public async execute(
     json: WorkflowJSON,
-    options: ExecutionOptions = {}
+    options: ExecutionOptions = {},
   ): Promise<ExecutionContext> {
     try {
       this.abortController = new AbortController();
       this.parsedGraph = this.parser.parse(json);
       const requiredCaps = this.parser.getRequiredCapabilities(
-        this.parsedGraph
+        this.parsedGraph,
       );
       await this.verifyCapabilities(requiredCaps);
 
@@ -83,7 +83,7 @@ export class WorkflowEngine {
       const executedNodes = new Set<string>();
 
       for (const node of executionPlan) {
-        if (this.abortController.signal.aborted) {
+        if (this.abortController?.signal.aborted) {
           throw new Error("Workflow aborted");
         }
         if (executedNodes.has(node.id)) continue;
@@ -114,7 +114,7 @@ export class WorkflowEngine {
    */
   private createContext(
     workflowId: string,
-    initialVariables?: Record<string, unknown>
+    initialVariables?: Record<string, unknown>,
   ): ExecutionContext {
     return {
       workflowId,
@@ -129,13 +129,13 @@ export class WorkflowEngine {
    * Verify that all required capabilities are available.
    */
   private async verifyCapabilities(
-    capabilities: Record<string, any>
+    capabilities: Record<string, any>,
   ): Promise<void> {
     for (const [cap, options] of Object.entries(capabilities)) {
       const available = await this.runtime.checkCapability(cap, options);
       if (!available) {
         throw new Error(
-          `Required capability "${cap}" is not available in this environment`
+          `Required capability "${cap}" is not available in this environment`,
         );
       }
     }
@@ -146,7 +146,7 @@ export class WorkflowEngine {
    */
   private async executeNode(
     node: NodeConfig,
-    executedNodes: Set<string>
+    executedNodes: Set<string>,
   ): Promise<void> {
     if (this.abortController?.signal.aborted) {
       throw new Error("Workflow aborted");
@@ -173,7 +173,7 @@ export class WorkflowEngine {
         resolvedConfig,
         this.runtime,
         this.context,
-        (handle, input) => this.executeBranch(node.id, handle, input)
+        (handle, input) => this.executeBranch(node.id, handle, input),
       );
 
       const output: NodeOutput = {
@@ -193,7 +193,7 @@ export class WorkflowEngine {
         const itemNodes = this.parser.getReachableNodes(
           this.parsedGraph,
           node.id,
-          "item"
+          "item",
         );
         itemNodes.forEach((n) => executedNodes.add(n.id));
       }
@@ -222,12 +222,12 @@ export class WorkflowEngine {
   private async executeBranch(
     nodeId: string,
     handle: string,
-    input: unknown
+    input: unknown,
   ): Promise<unknown> {
     const branchNodes = this.parser.getReachableNodes(
       this.parsedGraph,
       nodeId,
-      handle
+      handle,
     );
 
     if (branchNodes.length === 0) return input;
@@ -279,7 +279,7 @@ export class WorkflowEngine {
    */
   private resolveVariables(
     config: Record<string, unknown>,
-    inputData: Record<string, unknown>
+    inputData: Record<string, unknown>,
   ): Record<string, unknown> {
     const resolved: Record<string, unknown> = {};
 
@@ -295,7 +295,7 @@ export class WorkflowEngine {
    */
   private resolveValue(
     value: unknown,
-    inputData: Record<string, unknown>
+    inputData: Record<string, unknown>,
   ): unknown {
     if (typeof value === "string") {
       return this.resolveStringVariables(value, inputData);
@@ -321,7 +321,7 @@ export class WorkflowEngine {
    */
   private resolveStringVariables(
     str: string,
-    inputData: Record<string, unknown>
+    inputData: Record<string, unknown>,
   ): string {
     return str.replace(VARIABLE_PATTERN, (match, nodeId, property) => {
       const stepOutput = this.context.steps[nodeId];
