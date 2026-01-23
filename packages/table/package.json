@@ -8,7 +8,7 @@
   "source": "src/index.ts",
   "exports": {
     ".": "./dist/table/src/index.js",
-    "./theme.css": "./src/theme.css"
+    "./styles.css": "./src/styles.css"
   },
   "scripts": {
     "build": "tsc",

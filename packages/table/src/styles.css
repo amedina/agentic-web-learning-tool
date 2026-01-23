@@ -1,0 +1,103 @@
+@theme {
+  --radius-*: initial;
+
+  --text-*: initial;
+  --font-weight-*: initial;
+  --text-color-*: initial;
+  --text-color-black: #000;
+  --text-color-white: #fff;
+  --text-color-gray: #6e6e6e;
+  --text-color-secondary: #5f5f5f;
+  --text-color-raisin-black: #212121;
+  --text-color-royal-blue: #3871e0;
+  --text-color-manatee: #9aa0a6;
+  --text-color-bright-gray: #e8eaed;
+  --text-color-chinese-silver: #cdcdcd;
+  --text-color-medium-persian-blue: #0e639c;
+  --text-color-mischka: #afb0b1;
+  --text-color-cool-grey: #323941;
+  --text-color-asteriod-black: #2b2c2f;
+  --text-color-comet-black: #202124;
+  --text-color-comet-grey: #474747;
+  --background-color-*: initial;
+  --background-color-transparent: transparent;
+  --background-color-white: #fff;
+  --background-color-slate-gray: #ececec;
+  --background-color-slate-200: #e2e8f0;
+  --background-color-slate-800: #1e293b;
+  --background-color-neutral-700: #404040;
+  --background-color-stone-200: #e7e5e4;
+  --background-color-blue-50: #eff6ff;
+  --background-color-blue-500: #3b82f6;
+  --background-color-anti-flash-white: #f1f3f4;
+  --background-color-gainsboro: #dadce0;
+  --background-color-american-silver: #cbcdd1;
+  --background-color-raisin-black: #212121;
+  --background-color-charleston-green: #282828;
+  --background-color-quartz: #494c50;
+  --background-color-outer-space: #454545;
+  --background-color-dirty-pink: #ffd6d6;
+  --background-color-eerie-black: #1f1f1f0f;
+  --background-color-blueberry: #4285fa;
+  --background-color-lavender-sky: #d3e3fd;
+  --background-color-silver-mist: #dcdcdc;
+  --background-color-midnight-slate: #44474e;
+  --background-color-dark-graphite: #3c3c3c;
+  --border-color-*: initial;
+  --border-color-gray-200: #e5e7eb;
+  --border-color-gray-300: #d1d5db;
+  --border-color-american-silver: #cbcdd1;
+  --border-color-quartz: #494c50;
+  --border-color-baby-blue-eyes: #a8c7fa;
+  --border-color-sapphire: #0b57d0;
+  --color-*: initial;
+  --stroke-*: initial;
+
+  @keyframes horizontal-spinner-keyframes {
+    0% {
+      left: 0%;
+      transform: translateX(-100%);
+    }
+    100% {
+      left: 100%;
+      transform: translateX(0%);
+    }
+  }
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
+
+button {
+  cursor: pointer;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fadeIn {
+  opacity: 1 !important;
+  animation: fadeIn 0.3s ease;
+}
