@@ -52,7 +52,7 @@ const JsonEditor = ({
         <Editor
           value={editorContent}
           onValueChange={handleEditorChange}
-          highlight={(code) =>
+          highlight={(code: string) =>
             Prism.highlight(code, Prism.languages.json, "json")
           }
           padding={10}
