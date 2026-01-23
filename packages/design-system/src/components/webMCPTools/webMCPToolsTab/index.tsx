@@ -81,11 +81,11 @@ export function WebMCPToolsTab({
       }
     },
     [
-      builtInTools,
       onSaveBuiltInState,
-      saveExtensionToolsState,
-      userTools,
       onSaveUserTools,
+      builtInTools,
+      userTools,
+      saveExtensionToolsState,
     ]
   );
 

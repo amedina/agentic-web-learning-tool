@@ -147,7 +147,7 @@ export function EditToolDialog({
     };
     onSave(newTool);
     onOpenChange(false);
-  }, [code, onOpenChange, onSave, tool]);
+  }, [code, tool, onOpenChange, onSave]);
 
   const handleCodeChange = (newCode: string) => {
     setCode(newCode);
