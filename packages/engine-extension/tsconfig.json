@@ -14,7 +14,7 @@
     "rootDir": "./src",
     "resolveJsonModule": true,
     "typeRoots": ["./node_modules/@types"],
-    "types": ["jest", "chrome", "dom-chromium-ai"]
+    "types": ["chrome", "dom-chromium-ai"]
   },
   "include": [
     "src/**/*",
