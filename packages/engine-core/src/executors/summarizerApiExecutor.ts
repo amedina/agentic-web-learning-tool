@@ -1,9 +1,9 @@
 /**
  * Internal dependencies
  */
-import type { ExecutionContext } from "../types";
-import type { RuntimeInterface } from "../runtime";
-import { formatInputText } from "../utils/executorUtils";
+import type { ExecutionContext } from '../types';
+import type { RuntimeInterface } from '../runtime';
+import { formatInputText } from '../utils/executorUtils';
 
 /**
  * Summarizer API executor.
@@ -12,18 +12,18 @@ import { formatInputText } from "../utils/executorUtils";
 export async function summarizerApiExecutor(
   config: Record<string, unknown>,
   _runtime: RuntimeInterface,
-  context: ExecutionContext,
+  context: ExecutionContext
 ): Promise<string> {
   const input = config.input;
   const type = config.type as
-    | "key-points"
-    | "tldr"
-    | "teaser"
-    | "headline"
+    | 'key-points'
+    | 'tldr'
+    | 'teaser'
+    | 'headline'
     | undefined;
-  const length = config.length as "short" | "medium" | "long" | undefined;
+  const length = config.length as 'short' | 'medium' | 'long' | undefined;
   const sharedContext = config.context as string | undefined;
-  const format = config.format as "markdown" | "plain-text" | undefined;
+  const format = config.format as 'markdown' | 'plain-text' | undefined;
   const expectedInputLanguages = config.expectedInputLanguages as
     | string[]
     | undefined;
@@ -32,7 +32,7 @@ export async function summarizerApiExecutor(
   const formattedInput = formatInputText(input);
 
   if (!formattedInput) {
-    throw new Error("Summarizer API requires input text");
+    throw new Error('Summarizer API requires input text');
   }
 
   let summarizer: any; // Declare summarizer outside try block to be accessible in finally

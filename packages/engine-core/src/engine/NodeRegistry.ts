@@ -1,8 +1,8 @@
 /**
  * Internal dependencies
  */
-import type { ExecutionContext } from "../types";
-import type { RuntimeInterface } from "../runtime";
+import type { ExecutionContext } from '../types';
+import type { RuntimeInterface } from '../runtime';
 
 /**
  * Function signature for node executors.
@@ -12,7 +12,7 @@ export type NodeExecutor = (
   config: Record<string, unknown>,
   runtime: RuntimeInterface,
   context: ExecutionContext,
-  executeBranch?: (sourceHandle: string, input: unknown) => Promise<unknown>,
+  executeBranch?: (sourceHandle: string, input: unknown) => Promise<unknown>
 ) => Promise<unknown>;
 
 /**

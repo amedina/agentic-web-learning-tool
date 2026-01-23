@@ -280,9 +280,24 @@ importers:
 
   packages/engine-core:
     devDependencies:
+      '@google-awlt/shared-config':
+        specifier: workspace:*
+        version: link:../shared-config
       '@types/node':
         specifier: ^24.3.0
         version: 24.10.7
+      eslint:
+        specifier: ^9.33.0
+        version: 9.39.2(jiti@2.6.1)
+      eslint-plugin-react-hooks:
+        specifier: ^5.2.0
+        version: 5.2.0(eslint@9.39.2(jiti@2.6.1))
+      globals:
+        specifier: ^16.3.0
+        version: 16.5.0
+      prettier:
+        specifier: ^3.0.0
+        version: 3.7.4
       typescript:
         specifier: ~5.8.3
         version: 5.8.3
@@ -293,12 +308,30 @@ importers:
         specifier: workspace:*
         version: link:../engine-core
     devDependencies:
+      '@google-awlt/shared-config':
+        specifier: workspace:*
+        version: link:../shared-config
       '@types/chrome':
         specifier: ^0.1.27
         version: 0.1.33
+      '@types/dom-chromium-ai':
+        specifier: ^0.0.13
+        version: 0.0.13
       '@types/node':
         specifier: ^24.3.0
         version: 24.10.7
+      eslint:
+        specifier: ^9.33.0
+        version: 9.39.2(jiti@2.6.1)
+      eslint-plugin-react-hooks:
+        specifier: ^5.2.0
+        version: 5.2.0(eslint@9.39.2(jiti@2.6.1))
+      globals:
+        specifier: ^16.3.0
+        version: 16.5.0
+      prettier:
+        specifier: ^3.0.0
+        version: 3.7.4
       typescript:
         specifier: ~5.8.3
         version: 5.8.3
@@ -356,9 +389,6 @@ importers:
       '@tailwindcss/vite':
         specifier: ^4.1.12
         version: 4.1.18(vite@7.3.1(@types/node@24.10.7)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.8.2))
-      '@types/dom-chromium-ai':
-        specifier: ^0.0.13
-        version: 0.0.13
       '@xyflow/react':
         specifier: ^12.9.3
         version: 12.10.0(@types/react@19.2.8)(immer@9.0.21)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -453,6 +483,9 @@ importers:
       '@types/chrome':
         specifier: ^0.1.27
         version: 0.1.33
+      '@types/dom-chromium-ai':
+        specifier: ^0.0.13
+        version: 0.0.13
       '@types/jest':
         specifier: ^29.5.14
         version: 29.5.14

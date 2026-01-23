@@ -6,12 +6,12 @@ import {
   registerBuiltinExecutors,
   type WorkflowJSON,
   type ExecutionContext,
-} from "@google-awlt/engine-core";
+} from '@google-awlt/engine-core';
 
 /**
  * Internal dependencies
  */
-import { ServiceWorkerRuntime, type ExecutionCallbacks } from "./runtime";
+import { ServiceWorkerRuntime, type ExecutionCallbacks } from './runtime';
 
 /**
  * Workflow Runner
@@ -48,7 +48,7 @@ export class WorkflowRunner {
   public async run(
     workflow: WorkflowJSON,
     tabId?: number,
-    callbacks?: ExecutionCallbacks,
+    callbacks?: ExecutionCallbacks
   ): Promise<ExecutionContext> {
     this.initialize();
 
@@ -74,7 +74,7 @@ export class WorkflowRunner {
    * Check if capabilities are available.
    */
   public async checkCapabilities(
-    capabilities: string[] | Record<string, any>,
+    capabilities: string[] | Record<string, any>
   ): Promise<Record<string, boolean>> {
     const results: Record<string, boolean> = {};
 
@@ -86,7 +86,7 @@ export class WorkflowRunner {
       for (const cap in capabilities) {
         results[cap] = await this.runtime.checkCapability(
           cap as any,
-          capabilities[cap],
+          capabilities[cap]
         );
       }
     }

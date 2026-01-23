@@ -1,6 +1,6 @@
-import type { ExecutionContext } from "../types";
-import type { RuntimeInterface } from "../runtime";
-import { formatInputText } from "../utils/executorUtils";
+import type { ExecutionContext } from '../types';
+import type { RuntimeInterface } from '../runtime';
+import { formatInputText } from '../utils/executorUtils';
 
 /**
  * Rewriter API executor.
@@ -9,20 +9,20 @@ import { formatInputText } from "../utils/executorUtils";
 export async function rewriterApiExecutor(
   config: Record<string, unknown>,
   _runtime: RuntimeInterface,
-  context: ExecutionContext,
+  context: ExecutionContext
 ): Promise<string> {
   const input = config.input;
   const sharedContext = config.sharedContext as string | undefined;
   const tone = config.tone as
-    | "as-is"
-    | "more-formal"
-    | "more-casual"
+    | 'as-is'
+    | 'more-formal'
+    | 'more-casual'
     | undefined;
-  const length = config.length as "as-is" | "shorter" | "longer" | undefined;
+  const length = config.length as 'as-is' | 'shorter' | 'longer' | undefined;
   const format = config.format as
-    | "as-is"
-    | "markdown"
-    | "plain-text"
+    | 'as-is'
+    | 'markdown'
+    | 'plain-text'
     | undefined;
   const expectedInputLanguages = config.expectedInputLanguages as
     | string[]
@@ -32,7 +32,7 @@ export async function rewriterApiExecutor(
   const formattedInput = formatInputText(input);
 
   if (!formattedInput) {
-    throw new Error("Rewriter API requires input text");
+    throw new Error('Rewriter API requires input text');
   }
 
   try {

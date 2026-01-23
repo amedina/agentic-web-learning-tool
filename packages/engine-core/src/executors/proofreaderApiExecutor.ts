@@ -1,6 +1,6 @@
-import type { ExecutionContext } from "../types";
-import type { RuntimeInterface } from "../runtime";
-import { formatInputText } from "../utils/executorUtils";
+import type { ExecutionContext } from '../types';
+import type { RuntimeInterface } from '../runtime';
+import { formatInputText } from '../utils/executorUtils';
 
 /**
  * Proofreader API executor.
@@ -9,7 +9,7 @@ import { formatInputText } from "../utils/executorUtils";
 export async function proofreaderApiExecutor(
   config: Record<string, unknown>,
   _runtime: RuntimeInterface,
-  context: ExecutionContext,
+  context: ExecutionContext
 ): Promise<string> {
   const input = config.input;
   const expectedInputLanguages = config.expectedInputLanguages as
@@ -19,7 +19,7 @@ export async function proofreaderApiExecutor(
   const formattedInput = formatInputText(input);
 
   if (!formattedInput) {
-    throw new Error("Proofreader API requires input text");
+    throw new Error('Proofreader API requires input text');
   }
 
   try {
@@ -33,13 +33,13 @@ export async function proofreaderApiExecutor(
     const corrections = results.corrections;
 
     let inputRenderIndex = 0;
-    let correctedText = "";
+    let correctedText = '';
 
     for (const correction of corrections) {
       if (correction.startIndex > inputRenderIndex) {
         correctedText += formattedInput.substring(
           inputRenderIndex,
-          correction.startIndex,
+          correction.startIndex
         );
       }
 
