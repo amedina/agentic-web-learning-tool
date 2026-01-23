@@ -10,18 +10,18 @@ import { FileDown } from 'lucide-react';
 import { ToolItem } from '../../../../ui';
 
 const FileCreator = () => {
-	const handleDragStart = useCallback((event: React.DragEvent) => {
-		event.dataTransfer.setData('workflow-composer/flow', 'fileCreator');
-		event.dataTransfer.effectAllowed = 'move';
-	}, []);
+  const handleDragStart = useCallback((event: React.DragEvent) => {
+    event.dataTransfer.setData('workflow-composer/flow', 'fileCreator');
+    event.dataTransfer.effectAllowed = 'move';
+  }, []);
 
-	return (
-		<ToolItem
-			label="File Creator"
-			onDragStart={handleDragStart}
-			Icon={FileDown}
-		/>
-	);
+  return (
+    <ToolItem
+      label="File Creator"
+      onDragStart={handleDragStart}
+      Icon={FileDown}
+    />
+  );
 };
 
 export default FileCreator;

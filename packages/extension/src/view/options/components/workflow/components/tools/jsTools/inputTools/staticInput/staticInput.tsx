@@ -11,27 +11,27 @@ import z from 'zod';
 import { ToolItem } from '../../../../ui';
 
 export const StaticInputSchema = z.object({
-	title: z.string(),
-	description: z.string().optional(),
-	inputValue: z.string(),
-	isMultiple: z.boolean().optional(),
+  title: z.string(),
+  description: z.string().optional(),
+  inputValue: z.string(),
+  isMultiple: z.boolean().optional(),
 });
 
 export type StaticInputConfig = z.infer<typeof StaticInputSchema>;
 
 const StaticInput = () => {
-	const handleDragStart = useCallback((event: React.DragEvent) => {
-		event.dataTransfer.setData('workflow-composer/flow', 'staticInput');
-		event.dataTransfer.effectAllowed = 'move';
-	}, []);
+  const handleDragStart = useCallback((event: React.DragEvent) => {
+    event.dataTransfer.setData('workflow-composer/flow', 'staticInput');
+    event.dataTransfer.effectAllowed = 'move';
+  }, []);
 
-	return (
-		<ToolItem
-			label="Static Input"
-			onDragStart={handleDragStart}
-			Icon={FormInput}
-		/>
-	);
+  return (
+    <ToolItem
+      label="Static Input"
+      onDragStart={handleDragStart}
+      Icon={FormInput}
+    />
+  );
 };
 
 export default StaticInput;

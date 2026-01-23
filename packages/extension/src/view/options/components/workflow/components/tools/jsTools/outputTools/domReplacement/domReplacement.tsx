@@ -10,18 +10,18 @@ import { Pencil } from 'lucide-react';
 import { ToolItem } from '../../../../ui';
 
 const DomReplacement = () => {
-	const handleDragStart = useCallback((event: React.DragEvent) => {
-		event.dataTransfer.setData('workflow-composer/flow', 'domReplacement');
-		event.dataTransfer.effectAllowed = 'move';
-	}, []);
+  const handleDragStart = useCallback((event: React.DragEvent) => {
+    event.dataTransfer.setData('workflow-composer/flow', 'domReplacement');
+    event.dataTransfer.effectAllowed = 'move';
+  }, []);
 
-	return (
-		<ToolItem
-			label="DOM Replacement"
-			onDragStart={handleDragStart}
-			Icon={Pencil}
-		/>
-	);
+  return (
+    <ToolItem
+      label="DOM Replacement"
+      onDragStart={handleDragStart}
+      Icon={Pencil}
+    />
+  );
 };
 
 export default DomReplacement;
