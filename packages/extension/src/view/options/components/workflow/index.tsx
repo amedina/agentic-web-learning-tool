@@ -14,15 +14,15 @@ import Panel from './panel';
 initContentScriptBridge();
 
 const Workflow = () => {
-	return (
-		<ApiProvider>
-			<FlowProvider>
-				<ReactFlowProvider>
-					<Panel />
-				</ReactFlowProvider>
-			</FlowProvider>
-		</ApiProvider>
-	);
+  return (
+    <ApiProvider>
+      <FlowProvider>
+        <ReactFlowProvider>
+          <Panel />
+        </ReactFlowProvider>
+      </FlowProvider>
+    </ApiProvider>
+  );
 };
 
 export default Workflow;

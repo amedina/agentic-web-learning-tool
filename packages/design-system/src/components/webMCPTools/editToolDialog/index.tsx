@@ -104,7 +104,7 @@ export function EditToolDialog({
     navigator.clipboard.writeText(code);
     setIsCopied(true);
     setTimeout(() => setIsCopied(false), 2000);
-  }, []);
+  }, [code]);
 
   const handleValidate = useCallback(() => {
     const result = validateCode(code);
@@ -147,7 +147,7 @@ export function EditToolDialog({
     };
     onSave(newTool);
     onOpenChange(false);
-  }, [code, tool]);
+  }, [code, tool, onOpenChange, onSave]);
 
   const handleCodeChange = (newCode: string) => {
     setCode(newCode);
