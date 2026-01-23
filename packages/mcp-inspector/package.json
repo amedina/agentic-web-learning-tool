@@ -18,7 +18,7 @@
     "build": "tsc",
     "check-types": "tsc --noEmit",
     "dev": "tsc --watch",
-    "lint": "eslint src --max-warnings 0",
+    "lint": "eslint src",
     "format": "prettier . --write",
     "test": "jest --config jest.config.cjs"
   },
