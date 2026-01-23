@@ -4,7 +4,7 @@
 import type {
   ContentScriptMessage,
   ContentScriptResponse,
-} from "../types/messages";
+} from '../types/messages';
 
 /**
  * Content Script Bridge
@@ -21,57 +21,57 @@ export function initContentScriptBridge(): void {
   function handleMessage(
     message: ContentScriptMessage,
     _sender: chrome.runtime.MessageSender,
-    sendResponse: (response: ContentScriptResponse) => void,
+    sendResponse: (response: ContentScriptResponse) => void
   ): boolean {
     switch (message.type) {
-      case "QUERY_DOM":
+      case 'QUERY_DOM':
         handleQueryDOM(
           message.selector,
           message.extract,
           message.isMultiple,
-          sendResponse,
+          sendResponse
         );
         return true;
 
-      case "SHOW_ALERT":
+      case 'SHOW_ALERT':
         handleShowAlert(message.message, sendResponse);
         return true;
 
-      case "UPDATE_NODE_STATUS":
+      case 'UPDATE_NODE_STATUS':
         handleUpdateNodeStatus(message.nodeId, message.status, sendResponse);
         return true;
 
-      case "CONTENT_SCRIPT_ACTIVE":
+      case 'CONTENT_SCRIPT_ACTIVE':
         handleContentScriptActive(message.targetTabId, sendResponse);
         return true;
 
-      case "REPLACE_DOM":
+      case 'REPLACE_DOM':
         handleReplaceDOM(
           message.selector,
           message.content,
           message.isMultiple,
-          sendResponse,
+          sendResponse
         );
         return true;
 
-      case "COPY_TO_CLIPBOARD":
+      case 'COPY_TO_CLIPBOARD':
         handleCopyToClipboard(message.text, sendResponse);
         return true;
 
-      case "DOWNLOAD_FILE":
+      case 'DOWNLOAD_FILE':
         handleDownloadFile(message.filename, message.content, sendResponse);
         return true;
 
-      case "SPEAK_TEXT":
+      case 'SPEAK_TEXT':
         handleSpeakText(message.text, sendResponse);
         return true;
 
-      case "SHOW_TOOLTIP":
+      case 'SHOW_TOOLTIP':
         handleShowTooltip(message.selector, message.content, sendResponse);
         return true;
 
       default:
-        sendResponse({ success: false, error: "Unknown message type" });
+        sendResponse({ success: false, error: 'Unknown message type' });
         return false;
     }
   }
@@ -82,14 +82,14 @@ export function initContentScriptBridge(): void {
   function handleQueryDOM(
     selector: string,
     extract:
-      | "textContent"
-      | "innerText"
-      | "innerHTML"
-      | "value"
-      | "src"
-      | "href",
+      | 'textContent'
+      | 'innerText'
+      | 'innerHTML'
+      | 'value'
+      | 'src'
+      | 'href',
     isMultiple: boolean | undefined,
-    sendResponse: (response: ContentScriptResponse) => void,
+    sendResponse: (response: ContentScriptResponse) => void
   ): void {
     try {
       const elements = document.querySelectorAll(selector);
@@ -97,27 +97,27 @@ export function initContentScriptBridge(): void {
       if (!elements || elements.length === 0) {
         sendResponse({
           success: true,
-          data: isMultiple ? [] : "",
+          data: isMultiple ? [] : '',
         });
         return;
       }
 
       const extractValue = (element: Element): string => {
         switch (extract) {
-          case "textContent":
-            return element.textContent ?? "";
-          case "innerText":
-            return (element as HTMLElement).innerText ?? "";
-          case "innerHTML":
-            return element.innerHTML ?? "";
-          case "value":
-            return (element as HTMLInputElement).value ?? "";
-          case "src":
-            return (element as HTMLImageElement).src ?? "";
-          case "href":
-            return (element as HTMLAnchorElement).href ?? "";
+          case 'textContent':
+            return element.textContent ?? '';
+          case 'innerText':
+            return (element as HTMLElement).innerText ?? '';
+          case 'innerHTML':
+            return element.innerHTML ?? '';
+          case 'value':
+            return (element as HTMLInputElement).value ?? '';
+          case 'src':
+            return (element as HTMLImageElement).src ?? '';
+          case 'href':
+            return (element as HTMLAnchorElement).href ?? '';
           default:
-            return element.textContent ?? "";
+            return element.textContent ?? '';
         }
       };
 
@@ -139,7 +139,7 @@ export function initContentScriptBridge(): void {
    */
   function handleShowAlert(
     message: string,
-    sendResponse: (response: ContentScriptResponse) => void,
+    sendResponse: (response: ContentScriptResponse) => void
   ): void {
     try {
       window.alert(message);
@@ -156,8 +156,8 @@ export function initContentScriptBridge(): void {
    */
   function handleUpdateNodeStatus(
     nodeId: string,
-    status: "running" | "success" | "error",
-    sendResponse: (response: ContentScriptResponse) => void,
+    status: 'running' | 'success' | 'error',
+    sendResponse: (response: ContentScriptResponse) => void
   ): void {
     try {
       // Log for now - can be extended to show visual feedback
@@ -171,13 +171,13 @@ export function initContentScriptBridge(): void {
 
   async function handleContentScriptActive(
     tabId: number,
-    sendResponse: (response: ContentScriptResponse) => void,
+    sendResponse: (response: ContentScriptResponse) => void
   ) {
     try {
       const currentTabIds = await chrome.tabs.query({});
 
       if (currentTabIds.some((tab) => tab.id === tabId)) {
-        console.log("[Workflow] Content script is active");
+        console.log('[Workflow] Content script is active');
         sendResponse({ success: true });
       }
 
@@ -189,7 +189,7 @@ export function initContentScriptBridge(): void {
   }
 
   chrome.runtime.onMessage.addListener(handleMessage);
-  console.log("[Workflow] Content script bridge initialized");
+  console.log('[Workflow] Content script bridge initialized');
 
   /**
    * Replace DOM content.
@@ -198,7 +198,7 @@ export function initContentScriptBridge(): void {
     selector: string,
     content: string,
     isMultiple: boolean | undefined,
-    sendResponse: (response: ContentScriptResponse) => void,
+    sendResponse: (response: ContentScriptResponse) => void
   ): void {
     try {
       if (isMultiple) {
@@ -229,7 +229,7 @@ export function initContentScriptBridge(): void {
    */
   async function handleCopyToClipboard(
     text: string,
-    sendResponse: (response: ContentScriptResponse) => void,
+    sendResponse: (response: ContentScriptResponse) => void
   ): Promise<void> {
     try {
       await navigator.clipboard.writeText(text);
@@ -246,12 +246,12 @@ export function initContentScriptBridge(): void {
   function handleDownloadFile(
     filename: string,
     content: string,
-    sendResponse: (response: ContentScriptResponse) => void,
+    sendResponse: (response: ContentScriptResponse) => void
   ): void {
     try {
-      const blob = new Blob([content], { type: "text/plain" });
+      const blob = new Blob([content], { type: 'text/plain' });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
+      const a = document.createElement('a');
       a.href = url;
       a.download = filename;
       document.body.appendChild(a);
@@ -271,7 +271,7 @@ export function initContentScriptBridge(): void {
    */
   function handleSpeakText(
     text: string,
-    sendResponse: (response: ContentScriptResponse) => void,
+    sendResponse: (response: ContentScriptResponse) => void
   ): void {
     try {
       const utterance = new SpeechSynthesisUtterance(text);
@@ -290,7 +290,7 @@ export function initContentScriptBridge(): void {
   function handleShowTooltip(
     selector: string,
     content: string,
-    sendResponse: (response: ContentScriptResponse) => void,
+    sendResponse: (response: ContentScriptResponse) => void
   ): void {
     try {
       const elements = document.querySelectorAll(selector);
@@ -299,49 +299,49 @@ export function initContentScriptBridge(): void {
       }
 
       elements.forEach((el) => {
-        const tooltip = document.createElement("div");
+        const tooltip = document.createElement('div');
         Object.assign(tooltip.style, {
-          position: "absolute",
-          background: "#333",
-          color: "#fff",
-          padding: "5px 10px 5px 24px",
-          borderRadius: "4px",
-          fontSize: "12px",
-          zIndex: "10000",
-          pointerEvents: "auto",
-          boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
-          display: "flex",
-          alignItems: "center",
-          gap: "8px",
+          position: 'absolute',
+          background: '#333',
+          color: '#fff',
+          padding: '5px 10px 5px 24px',
+          borderRadius: '4px',
+          fontSize: '12px',
+          zIndex: '10000',
+          pointerEvents: 'auto',
+          boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
         });
 
-        const textSpan = document.createElement("span");
+        const textSpan = document.createElement('span');
         textSpan.textContent = content;
         tooltip.appendChild(textSpan);
 
-        const closeBtn = document.createElement("button");
-        closeBtn.innerHTML = "&times;";
+        const closeBtn = document.createElement('button');
+        closeBtn.innerHTML = '&times;';
         Object.assign(closeBtn.style, {
-          position: "absolute",
-          left: "4px",
-          top: "50%",
-          transform: "translateY(-50%)",
-          background: "none",
-          border: "none",
-          color: "#fff",
-          fontSize: "16px",
-          fontWeight: "bold",
-          cursor: "pointer",
-          padding: "0 4px",
-          lineHeight: "1",
-          opacity: "0.7",
+          position: 'absolute',
+          left: '4px',
+          top: '50%',
+          transform: 'translateY(-50%)',
+          background: 'none',
+          border: 'none',
+          color: '#fff',
+          fontSize: '16px',
+          fontWeight: 'bold',
+          cursor: 'pointer',
+          padding: '0 4px',
+          lineHeight: '1',
+          opacity: '0.7',
         });
 
         closeBtn.onmouseenter = () => {
-          closeBtn.style.opacity = "1";
+          closeBtn.style.opacity = '1';
         };
         closeBtn.onmouseleave = () => {
-          closeBtn.style.opacity = "0.7";
+          closeBtn.style.opacity = '0.7';
         };
 
         closeBtn.onclick = (e) => {

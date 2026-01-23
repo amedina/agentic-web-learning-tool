@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import type { WorkflowJSON, NodeConfig, EdgeConfig } from "../types";
+import type { WorkflowJSON, NodeConfig, EdgeConfig } from '../types';
 
 /**
  * Parsed graph representation used internally by the engine.
@@ -30,13 +30,13 @@ export interface ParsedGraph {
  * Node types that require Built-in AI API capabilities.
  */
 const AI_API_NODE_TYPES = new Set([
-  "promptApi",
-  "writerApi",
-  "rewriterApi",
-  "proofreaderApi",
-  "translatorApi",
-  "languageDetectorApi",
-  "summarizerApi",
+  'promptApi',
+  'writerApi',
+  'rewriterApi',
+  'proofreaderApi',
+  'translatorApi',
+  'languageDetectorApi',
+  'summarizerApi',
 ]);
 
 /**
@@ -103,22 +103,22 @@ export class WorkflowParser {
    */
   private validate(json: WorkflowJSON): void {
     if (!json.meta?.id) {
-      throw new Error("Workflow must have a meta.id");
+      throw new Error('Workflow must have a meta.id');
     }
     if (!json.graph) {
-      throw new Error("Workflow must have a graph");
+      throw new Error('Workflow must have a graph');
     }
     if (!Array.isArray(json.graph.nodes)) {
-      throw new Error("Workflow graph must have a nodes array");
+      throw new Error('Workflow graph must have a nodes array');
     }
     if (!Array.isArray(json.graph.edges)) {
-      throw new Error("Workflow graph must have an edges array");
+      throw new Error('Workflow graph must have an edges array');
     }
 
     // Validate each node has required fields
     for (const node of json.graph.nodes) {
       if (!node.id) {
-        throw new Error("Each node must have an id");
+        throw new Error('Each node must have an id');
       }
       if (!node.type) {
         throw new Error(`Node ${node.id} must have a type`);
@@ -132,19 +132,19 @@ export class WorkflowParser {
     for (const edge of json.graph.edges) {
       if (!nodeIds.has(edge.source)) {
         throw new Error(
-          `Edge references non-existent source node: ${edge.source}`,
+          `Edge references non-existent source node: ${edge.source}`
         );
       }
       if (!nodeIds.has(edge.target)) {
         throw new Error(
-          `Edge references non-existent target node: ${edge.target}`,
+          `Edge references non-existent target node: ${edge.target}`
         );
       }
 
       // Enforce single input constraint: a node can only be the target of ONE edge
       if (targetNodesWithEdges.has(edge.target)) {
         throw new Error(
-          `Node ${edge.target} has multiple incoming edges. Only one input per node is allowed.`,
+          `Node ${edge.target} has multiple incoming edges. Only one input per node is allowed.`
         );
       }
       targetNodesWithEdges.add(edge.target);
@@ -161,7 +161,7 @@ export class WorkflowParser {
 
     for (const node of graph.nodes.values()) {
       if (AI_API_NODE_TYPES.has(node.type)) {
-        if (node.type === "translatorApi") {
+        if (node.type === 'translatorApi') {
           // For translator, we only need source and target languages
           capabilities[node.type] = {
             sourceLanguage: node.config?.sourceLanguage,
@@ -220,7 +220,7 @@ export class WorkflowParser {
     // Check for cycles
     if (result.length !== graph.nodes.size) {
       throw new Error(
-        "Workflow graph contains cycles, cannot determine execution order",
+        'Workflow graph contains cycles, cannot determine execution order'
       );
     }
 
@@ -251,7 +251,7 @@ export class WorkflowParser {
   public getReachableNodes(
     graph: ParsedGraph,
     nodeId: string,
-    sourceHandle?: string | null,
+    sourceHandle?: string | null
   ): NodeConfig[] {
     const reachable = new Set<string>();
     const stack: { id: string; handle?: string | null }[] = [

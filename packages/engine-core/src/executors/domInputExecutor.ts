@@ -1,8 +1,8 @@
 /**
  * Internal dependencies
  */
-import type { ExecutionContext } from "../types";
-import type { RuntimeInterface } from "../runtime";
+import type { ExecutionContext } from '../types';
+import type { RuntimeInterface } from '../runtime';
 
 /**
  * DOM Input executor.
@@ -11,17 +11,17 @@ import type { RuntimeInterface } from "../runtime";
 export async function domInputExecutor(
   config: Record<string, unknown>,
   runtime: RuntimeInterface,
-  _context: ExecutionContext,
+  _context: ExecutionContext
 ): Promise<unknown> {
   const selector = config.cssSelector as string | undefined;
   const extract =
     (config.extract as
-      | "textContent"
-      | "innerText"
-      | "innerHTML"
-      | "value"
-      | "src"
-      | "href") ?? "textContent";
+      | 'textContent'
+      | 'innerText'
+      | 'innerHTML'
+      | 'value'
+      | 'src'
+      | 'href') ?? 'textContent';
   const defaultValue = config.defaultValue as string | undefined;
   const isMultiple = (config.isMultiple as boolean) ?? false;
 
@@ -29,13 +29,13 @@ export async function domInputExecutor(
     if (defaultValue) {
       return defaultValue;
     }
-    throw new Error("DOM Input requires a CSS selector");
+    throw new Error('DOM Input requires a CSS selector');
   }
 
   try {
     const result = await runtime.queryPage(selector, extract, isMultiple);
 
-    return result || defaultValue || (isMultiple ? [] : "");
+    return result || defaultValue || (isMultiple ? [] : '');
   } catch (error) {
     // If DOM query fails, fall back to default value
     if (defaultValue) {

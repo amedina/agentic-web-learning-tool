@@ -1,9 +1,9 @@
 /**
  * Internal dependencies
  */
-import type { ExecutionContext } from "../types";
-import type { RuntimeInterface } from "../runtime";
-import { formatInputText } from "../utils/executorUtils";
+import type { ExecutionContext } from '../types';
+import type { RuntimeInterface } from '../runtime';
+import { formatInputText } from '../utils/executorUtils';
 
 /**
  * Clipboard Writer executor.
@@ -12,14 +12,14 @@ import { formatInputText } from "../utils/executorUtils";
 export async function clipboardWriterExecutor(
   config: Record<string, unknown>,
   runtime: RuntimeInterface,
-  _context: ExecutionContext,
+  _context: ExecutionContext
 ): Promise<string> {
   const input = config.input;
 
   const formattedInput = formatInputText(input);
 
   if (!formattedInput) {
-    throw new Error("Clipboard Writer requires input text");
+    throw new Error('Clipboard Writer requires input text');
   }
 
   await runtime.copyToClipboard(formattedInput);

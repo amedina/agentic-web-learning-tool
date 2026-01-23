@@ -5,7 +5,7 @@ import type {
   WorkflowJSON,
   ExecutionContext,
   NodeOutput,
-} from "@google-awlt/engine-core";
+} from '@google-awlt/engine-core';
 
 /**
  * Internal dependencies
@@ -15,7 +15,7 @@ import type {
   CheckCapabilitiesMessage,
   StatusUpdate,
   StopWorkflowMessage,
-} from "../types/messages";
+} from '../types/messages';
 
 /**
  * Callbacks for workflow execution events.
@@ -55,14 +55,14 @@ export class WorkflowClient {
   public async runWorkflow(
     workflow: WorkflowJSON,
     tabId?: number,
-    callbacks?: WorkflowClientCallbacks,
+    callbacks?: WorkflowClientCallbacks
   ): Promise<ExecutionContext> {
     if (callbacks) {
       this.setCallbacks(callbacks);
     }
 
     const message: RunWorkflowMessage = {
-      type: "RUN_WORKFLOW",
+      type: 'RUN_WORKFLOW',
       workflow,
       tabId,
     };
@@ -73,7 +73,7 @@ export class WorkflowClient {
       throw new Error(chrome.runtime.lastError.message);
     }
     if (!response.success) {
-      throw new Error(response.error ?? "Workflow execution failed");
+      throw new Error(response.error ?? 'Workflow execution failed');
     }
 
     return response.context!;
@@ -85,10 +85,10 @@ export class WorkflowClient {
    * @returns Map of capability to availability
    */
   public async checkCapabilities(
-    capabilities: string[] | Record<string, any>,
+    capabilities: string[] | Record<string, any>
   ): Promise<Record<string, boolean>> {
     const message: CheckCapabilitiesMessage = {
-      type: "CHECK_CAPABILITIES",
+      type: 'CHECK_CAPABILITIES',
       capabilities,
     };
 
@@ -98,7 +98,7 @@ export class WorkflowClient {
       throw new Error(chrome.runtime.lastError.message);
     }
     if (!response.success) {
-      throw new Error(response.error ?? "Capability check failed");
+      throw new Error(response.error ?? 'Capability check failed');
     }
 
     return response.results ?? {};
@@ -109,7 +109,7 @@ export class WorkflowClient {
    */
   public async stopWorkflow(): Promise<void> {
     const message: StopWorkflowMessage = {
-      type: "STOP_WORKFLOW",
+      type: 'STOP_WORKFLOW',
     };
 
     await chrome.runtime.sendMessage(message);
@@ -124,19 +124,19 @@ export class WorkflowClient {
 
     chrome.runtime.onMessage.addListener((message: StatusUpdate) => {
       switch (message.type) {
-        case "NODE_STATUS":
-          if (message.output.status === "running") {
+        case 'NODE_STATUS':
+          if (message.output.status === 'running') {
             this.callbacks.onNodeStart?.(message.nodeId);
           } else {
             this.callbacks.onNodeFinish?.(message.nodeId, message.output);
           }
           break;
 
-        case "WORKFLOW_COMPLETE":
+        case 'WORKFLOW_COMPLETE':
           this.callbacks.onComplete?.(message.context);
           break;
 
-        case "WORKFLOW_ERROR":
+        case 'WORKFLOW_ERROR':
           this.callbacks.onError?.(message.error);
           break;
       }

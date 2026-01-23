@@ -1,1 +1,1 @@
-export type { RuntimeInterface } from "./RuntimeInterface";
+export type { RuntimeInterface } from './RuntimeInterface';

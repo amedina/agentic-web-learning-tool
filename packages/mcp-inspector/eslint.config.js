@@ -1,8 +1,7 @@
-import globals from "globals";
-
 /**
- * Imports.
+ * External dependencies.
  */
+import globals from "globals";
 import { config as baseConfig } from "@google-awlt/shared-config/eslint/react";
 import reactRefresh from "eslint-plugin-react-refresh";
 import { globalIgnores, defineConfig } from "eslint/config";
