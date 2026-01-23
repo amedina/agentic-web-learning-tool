@@ -1,9 +1,9 @@
 /**
  * Internal dependencies
  */
-import type { ExecutionContext } from "../types";
-import type { RuntimeInterface } from "../runtime";
-import { formatInputText } from "../utils/executorUtils";
+import type { ExecutionContext } from '../types';
+import type { RuntimeInterface } from '../runtime';
+import { formatInputText } from '../utils/executorUtils';
 
 /**
  * Alert Notification executor.
@@ -18,7 +18,7 @@ export async function alertNotificationExecutor(
   const title = config.title as string | undefined;
 
   const formattedInput = formatInputText(input);
-  const message = formattedInput || title || "Notification";
+  const message = formattedInput || title || 'Notification';
 
   await runtime.showAlert(message);
 

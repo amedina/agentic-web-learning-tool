@@ -1,6 +1,6 @@
-import type { ExecutionContext } from "../types";
-import type { RuntimeInterface } from "../runtime";
-import { formatInputText } from "../utils/executorUtils";
+import type { ExecutionContext } from '../types';
+import type { RuntimeInterface } from '../runtime';
+import { formatInputText } from '../utils/executorUtils';
 
 /**
  * Writer API executor.
@@ -13,9 +13,9 @@ export async function writerApiExecutor(
 ): Promise<string> {
   const input = config.input;
   const sharedContext = config.sharedContext as string | undefined;
-  const tone = config.tone as "formal" | "neutral" | "casual" | undefined;
-  const length = config.length as "short" | "medium" | "long" | undefined;
-  const format = config.format as "markdown" | "plain-text" | undefined;
+  const tone = config.tone as 'formal' | 'neutral' | 'casual' | undefined;
+  const length = config.length as 'short' | 'medium' | 'long' | undefined;
+  const format = config.format as 'markdown' | 'plain-text' | undefined;
   const expectedInputLanguages = config.expectedInputLanguages as
     | string[]
     | undefined;
@@ -24,7 +24,7 @@ export async function writerApiExecutor(
   const formattedInput = formatInputText(input);
 
   if (!formattedInput) {
-    throw new Error("Writer API requires input/prompt text");
+    throw new Error('Writer API requires input/prompt text');
   }
 
   try {

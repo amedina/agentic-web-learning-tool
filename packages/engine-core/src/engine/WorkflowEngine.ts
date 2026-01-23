@@ -6,10 +6,10 @@ import type {
   ExecutionContext,
   NodeConfig,
   NodeOutput,
-} from "../types";
-import type { RuntimeInterface } from "../runtime";
-import { WorkflowParser, type ParsedGraph } from "./WorkflowParser";
-import { NodeRegistry } from "./NodeRegistry";
+} from '../types';
+import type { RuntimeInterface } from '../runtime';
+import { WorkflowParser, type ParsedGraph } from './WorkflowParser';
+import { NodeRegistry } from './NodeRegistry';
 
 /**
  * Regular expression to match variable placeholders.
@@ -43,9 +43,9 @@ export class WorkflowEngine {
     this.runtime = runtime;
     this.parser = new WorkflowParser();
     this.context = {
-      workflowId: "",
+      workflowId: '',
       steps: {},
-      status: "idle",
+      status: 'idle',
       variables: {},
     };
   }
@@ -84,22 +84,22 @@ export class WorkflowEngine {
 
       for (const node of executionPlan) {
         if (this.abortController.signal.aborted) {
-          throw new Error("Workflow aborted");
+          throw new Error('Workflow aborted');
         }
         if (executedNodes.has(node.id)) continue;
         await this.executeNode(node, executedNodes);
       }
 
-      this.context.status = "completed";
+      this.context.status = 'completed';
       return this.context;
     } catch (error) {
       const err = error instanceof Error ? error : new Error(String(error));
 
       if (
         this.abortController?.signal.aborted ||
-        err.message === "Workflow aborted"
+        err.message === 'Workflow aborted'
       ) {
-        this.context.status = "failed";
+        this.context.status = 'failed';
       }
 
       this.runtime.onError(err);
@@ -120,7 +120,7 @@ export class WorkflowEngine {
       workflowId,
       steps: {},
       variables: initialVariables ?? {},
-      status: "running",
+      status: 'running',
       signal: this.abortController?.signal,
     };
   }
@@ -149,20 +149,20 @@ export class WorkflowEngine {
     executedNodes: Set<string>
   ): Promise<void> {
     if (this.abortController?.signal.aborted) {
-      throw new Error("Workflow aborted");
+      throw new Error('Workflow aborted');
     }
 
     if (executedNodes.has(node.id)) return;
 
     this.runtime.onNodeStart(node.id);
-    this.context.steps[node.id] = { status: "running" };
+    this.context.steps[node.id] = { status: 'running' };
 
     try {
       const inputData = this.getInputData(node.id);
 
       const configWithInput: Record<string, unknown> = {
         ...node.config,
-        input: inputData["input"],
+        input: inputData['input'],
         inputs: inputData,
       };
 
@@ -176,22 +176,22 @@ export class WorkflowEngine {
         (handle, input) => this.executeBranch(node.id, handle, input)
       );
 
-      const output: NodeOutput = { status: "success", data: result };
+      const output: NodeOutput = { status: 'success', data: result };
       this.context.steps[node.id] = output;
       this.runtime.onNodeFinish(node.id, output);
       executedNodes.add(node.id);
 
-      if (node.type === "loop") {
+      if (node.type === 'loop') {
         const itemNodes = this.parser.getReachableNodes(
           this.parsedGraph,
           node.id,
-          "item"
+          'item'
         );
         itemNodes.forEach((n) => executedNodes.add(n.id));
       }
     } catch (err) {
       const error = err instanceof Error ? err : new Error(String(err));
-      const output: NodeOutput = { status: "error", error: error.message };
+      const output: NodeOutput = { status: 'error', error: error.message };
       this.context.steps[node.id] = output;
       this.runtime.onNodeFinish(node.id, output);
       executedNodes.add(node.id);
@@ -217,13 +217,13 @@ export class WorkflowEngine {
     if (branchNodes.length === 0) return input;
 
     const branchExecutedNodes = new Set<string>();
-    this.context.steps[nodeId] = { status: "success", data: input };
+    this.context.steps[nodeId] = { status: 'success', data: input };
 
     let lastResult: unknown = input;
 
     for (const node of branchNodes) {
       if (this.abortController?.signal.aborted) {
-        throw new Error("Workflow aborted");
+        throw new Error('Workflow aborted');
       }
       await this.executeNode(node, branchExecutedNodes);
       lastResult = this.context.steps[node.id]?.data ?? lastResult;
@@ -242,15 +242,15 @@ export class WorkflowEngine {
     // In case of multiple inputs, we need to aggregate the data
     for (const inputNode of inputNodes) {
       const stepOutput = this.context.steps[inputNode.id];
-      if (stepOutput?.status === "success" && stepOutput.data !== undefined) {
+      if (stepOutput?.status === 'success' && stepOutput.data !== undefined) {
         inputData[inputNode.id] = stepOutput.data;
       }
     }
 
     if (inputNodes.length) {
       const singleInput = this.context.steps[inputNodes[0].id];
-      if (singleInput?.status === "success") {
-        inputData["input"] = singleInput.data;
+      if (singleInput?.status === 'success') {
+        inputData['input'] = singleInput.data;
       }
     }
 
@@ -281,7 +281,7 @@ export class WorkflowEngine {
     value: unknown,
     inputData: Record<string, unknown>
   ): unknown {
-    if (typeof value === "string") {
+    if (typeof value === 'string') {
       return this.resolveStringVariables(value, inputData);
     }
 
@@ -289,7 +289,7 @@ export class WorkflowEngine {
       return value.map((item) => this.resolveValue(item, inputData));
     }
 
-    if (value !== null && typeof value === "object") {
+    if (value !== null && typeof value === 'object') {
       const resolved: Record<string, unknown> = {};
       for (const [k, v] of Object.entries(value)) {
         resolved[k] = this.resolveValue(v, inputData);
@@ -319,15 +319,15 @@ export class WorkflowEngine {
         return match;
       }
 
-      if (property === "data") {
-        return stepOutput.data !== undefined ? String(stepOutput.data) : "";
+      if (property === 'data') {
+        return stepOutput.data !== undefined ? String(stepOutput.data) : '';
       }
 
-      if (property === "error") {
-        return stepOutput.error ?? "";
+      if (property === 'error') {
+        return stepOutput.error ?? '';
       }
 
-      if (property === "status") {
+      if (property === 'status') {
         return stepOutput.status;
       }
 
