@@ -25,6 +25,7 @@ import {
   type TableData,
   type InfoType,
 } from './index';
+import { useState } from 'react';
 
 const noop = () => {};
 
@@ -114,19 +115,25 @@ const meta: Meta<typeof Table> = {
 export default meta;
 
 export const Default: StoryObj<typeof Table> = {
-  render: () => (
-    <TableProvider
-      data={mockData}
-      tableColumns={tableColumns}
-      tableFilterData={tableFilters}
-      tableSearchKeys={tableSearchKeys}
-      onRowClick={noop}
-      onRowContextMenu={noop}
-      getRowObjectKey={(row: any) => row.name as string}
-    >
-      <Table selectedKey={null} isFiltersSidebarOpen={false} />
-    </TableProvider>
-  ),
+  render: () => {
+    const [selectedKey, setSelectedKey] = useState<string | null>(null);
+
+    return (
+      <TableProvider
+        data={mockData}
+        tableColumns={tableColumns}
+        tableFilterData={tableFilters}
+        tableSearchKeys={tableSearchKeys}
+        onRowClick={(row: TableData) => {
+          setSelectedKey(row?.name ?? null);
+        }}
+        onRowContextMenu={noop}
+        getRowObjectKey={(row: any) => row?.originalData.name as string}
+      >
+        <Table selectedKey={selectedKey} isFiltersSidebarOpen={false} />
+      </TableProvider>
+    );
+  },
 };
 
 export const WithFiltersOpen: StoryObj<typeof Table> = {

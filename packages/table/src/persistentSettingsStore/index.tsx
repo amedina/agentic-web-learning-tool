@@ -25,7 +25,7 @@ import React, {
   useRef,
 } from "react";
 import PQueue from "p-queue";
-import { useContextSelector, createContext } from "@google-awlt/common";
+import { useContextSelector, createContext } from "use-context-selector";
 
 /**
  * Internal dependencies
@@ -60,7 +60,7 @@ const initialState: TablePersistentSettingsStoreContext = {
   },
 };
 
-export const Context =
+export const SettingsContext =
   createContext<TablePersistentSettingsStoreContext>(initialState);
 
 export const Provider = ({ children }: PropsWithChildren) => {
@@ -110,7 +110,7 @@ export const Provider = ({ children }: PropsWithChildren) => {
   );
 
   return (
-    <Context.Provider
+    <SettingsContext.Provider
       value={{
         state: preferences.current,
         actions: {
@@ -120,7 +120,7 @@ export const Provider = ({ children }: PropsWithChildren) => {
       }}
     >
       {children}
-    </Context.Provider>
+    </SettingsContext.Provider>
   );
 };
 
@@ -139,5 +139,5 @@ export function useTablePersistentSettingsStore<T>(
     state: TablePersistentSettingsStoreContext,
   ) => T | TablePersistentSettingsStoreContext = (state) => state,
 ) {
-  return useContextSelector(Context, selector);
+  return useContextSelector(SettingsContext, selector);
 }

@@ -31,6 +31,7 @@ import { useTable } from "../useTable";
 import TableTopBar from "./tableTopBar";
 import TableChipsBar from "./filtersSidebar/chips";
 import TableFiltersSidebar from "./filtersSidebar";
+import Tray from "./draggableTray";
 
 interface TableProps {
   selectedKey: string | undefined | null;
@@ -152,84 +153,96 @@ const Table = ({
   );
 
   return (
-    <div className="w-full h-full flex flex-col text-raisin-black dark:text-bright-gray overflow-hidden">
-      {!hideTableTopBar && (
-        <>
-          <TableTopBar
-            showFilterSidebar={showFilterSidebar}
-            hideFiltering={hideFiltering}
-            setShowFilterSidebar={setShowFilterSidebar}
-            extraInterface={extraInterfaceToTopBar}
-            hideSearch={hideSearch}
-            rows={rows}
-            searchValue={searchValue}
-            setSearchValue={setSearchValue}
-            exportTableData={exportTableData}
-            count={count}
-          />
-          <div className="flex items-center justify-between gap-1 py-0.5 bg-anti-flash-white dark:bg-raisin-black">
-            {!hideFiltering && (
-              <TableChipsBar
-                selectedFilters={selectedFilters}
-                resetFilters={resetFilters}
-                toggleFilterSelection={toggleFilterSelection}
-              />
-            )}
-          </div>
-        </>
-      )}
-      <div className="w-full flex-1 h-full flex divide-x divide-american-silver dark:divide-quartz border-t border-gray-300 dark:border-quartz overflow-auto">
-        {showFilterSidebar && (
-          <Resizable
-            minWidth="100px"
-            maxWidth="50%"
-            enable={{
-              right: true,
-            }}
-            className="h-full"
-          >
-            <TableFiltersSidebar
-              filters={filters}
-              isSelectAllFilterSelected={isSelectAllFilterSelected}
-              toggleFilterSelection={toggleFilterSelection}
-              toggleSelectAllFilter={toggleSelectAllFilter}
+    <div className="h-full flex flex-col">
+      <div className="w-full flex-1 flex flex-col text-raisin-black dark:text-bright-gray overflow-hidden">
+        {!hideTableTopBar && (
+          <>
+            <TableTopBar
+              showFilterSidebar={showFilterSidebar}
+              hideFiltering={hideFiltering}
+              setShowFilterSidebar={setShowFilterSidebar}
+              extraInterface={extraInterfaceToTopBar}
+              hideSearch={hideSearch}
+              rows={rows}
+              searchValue={searchValue}
+              setSearchValue={setSearchValue}
+              exportTableData={exportTableData}
+              count={count}
             />
-          </Resizable>
+            <div className="flex items-center justify-between gap-1 py-0.5 bg-anti-flash-white dark:bg-raisin-black">
+              {!hideFiltering && (
+                <TableChipsBar
+                  selectedFilters={selectedFilters}
+                  resetFilters={resetFilters}
+                  toggleFilterSelection={toggleFilterSelection}
+                />
+              )}
+            </div>
+          </>
         )}
-        <div
-          ref={tableContainerRef}
-          className={classNames("relative h-full w-full flex-1", {
-            "overflow-auto": showOverflow,
-          })}
-          onScroll={scrollListener}
-        >
-          <ColumnMenu
-            open={showColumnsMenu}
-            onClose={setShowColumnsMenu}
-            position={columnPosition}
-          />
-          <table
-            className="h-full w-full table-fixed border-separate border-spacing-0 relative border-r border-american-silver dark:border-quartz overflow-clip"
-            style={{
-              minWidth: minWidth ?? "auto",
-            }}
-            ref={tableRef}
+        <div className="w-full flex-1 h-full flex divide-x divide-american-silver dark:divide-quartz border-t border-gray-300 dark:border-quartz overflow-auto">
+          {showFilterSidebar && (
+            <Resizable
+              minWidth="100px"
+              maxWidth="50%"
+              enable={{
+                right: true,
+              }}
+              className="h-full"
+            >
+              <TableFiltersSidebar
+                filters={filters}
+                isSelectAllFilterSelected={isSelectAllFilterSelected}
+                toggleFilterSelection={toggleFilterSelection}
+                toggleSelectAllFilter={toggleSelectAllFilter}
+              />
+            </Resizable>
+          )}
+          <div
+            ref={tableContainerRef}
+            className={classNames("relative h-full w-full flex-1", {
+              "overflow-auto": showOverflow,
+            })}
+            onScroll={scrollListener}
           >
-            <TableHeader
-              setColumnPosition={setColumnPosition}
-              onRightClick={handleRightClick}
-              setIsRowFocused={setIsRowFocused}
+            <ColumnMenu
+              open={showColumnsMenu}
+              onClose={setShowColumnsMenu}
+              position={columnPosition}
             />
-            <TableBody
-              isRowFocused={isRowFocused}
-              setIsRowFocused={setIsRowFocused}
-              selectedKey={selectedKey}
-              rowHeightClass={rowHeightClass}
-              shouldScroll={shouldScroll}
-            />
-          </table>
+            <table
+              className="h-full w-full table-fixed border-separate border-spacing-0 relative border-r border-american-silver dark:border-quartz overflow-clip"
+              style={{
+                minWidth: minWidth ?? "auto",
+              }}
+              ref={tableRef}
+            >
+              <TableHeader
+                setColumnPosition={setColumnPosition}
+                onRightClick={handleRightClick}
+                setIsRowFocused={setIsRowFocused}
+              />
+              <TableBody
+                isRowFocused={isRowFocused}
+                setIsRowFocused={setIsRowFocused}
+                selectedKey={selectedKey}
+                rowHeightClass={rowHeightClass}
+                shouldScroll={shouldScroll}
+              />
+            </table>
+          </div>
         </div>
       </div>
+      <Resizable
+        minHeight="100px"
+        maxHeight="80%"
+        enable={{
+          top: true,
+        }}
+        className="h-full w-full"
+      >
+        <Tray selectedRow={selectedKey} />
+      </Resizable>
     </div>
   );
 };
