@@ -48,7 +48,7 @@ const meta = {
   },
   // Use fn() to spy on the onSelect event in the Actions panel
   args: {
-    onSelect: (id) => console.log('Selected Value ', id),
+    onSelect: (id: string) => console.log('Selected Value ', id),
   },
 } satisfies Meta<typeof DropDown>;
 
@@ -79,7 +79,7 @@ export const LongList: Story = {
 };
 
 export const Interactive: Story = {
-  render: (args) => {
+  render: (args: Story['args']) => {
     const [currentValue, setCurrentValue] = useState(
       args.selectedValue || 'gpt-4'
     );

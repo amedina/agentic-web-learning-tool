@@ -1,3 +1,6 @@
+/**
+ * Internal dependencies.
+ */
 import type { ExecutionContext } from '../types';
 import type { RuntimeInterface } from '../runtime';
 import { formatInputText } from '../utils/executorUtils';
