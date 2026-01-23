@@ -16,6 +16,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  cn,
 } from "@google-awlt/design-system";
 import {
   type CompatibilityCallToolResult,
@@ -50,7 +51,6 @@ import ToolResults from "./ToolResults";
 import { useToast } from "../lib/hooks/useToast";
 import useCopy from "../lib/hooks/useCopy";
 import IconDisplay, { type WithIcons } from "./IconDisplay";
-import { cn } from "../lib/utils";
 import {
   META_NAME_RULES_MESSAGE,
   META_PREFIX_RULES_MESSAGE,

@@ -1,6 +1,8 @@
 import { render, screen } from "@testing-library/react";
-import { Tabs } from "../../components/ui/tabs";
-import ElicitationTab, { PendingElicitationRequest } from "../ElicitationTab";
+import { Tabs } from "@google-awlt/design-system";
+import ElicitationTab, {
+  type PendingElicitationRequest,
+} from "../ElicitationTab";
 
 describe("Elicitation tab", () => {
   const mockOnResolve = jest.fn();

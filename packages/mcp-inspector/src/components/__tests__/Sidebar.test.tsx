@@ -1,10 +1,9 @@
 import { render, screen, fireEvent, act } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import { describe, it, beforeEach, jest } from "@jest/globals";
 import Sidebar from "../Sidebar";
 import { DEFAULT_INSPECTOR_CONFIG } from "../../lib/constants";
-import { InspectorConfig } from "../../lib/configurationTypes";
-import { TooltipProvider } from "../../components/ui/TooltipRoot";
+import { type InspectorConfig } from "../../lib/configurationTypes";
+import { TooltipRoot as TooltipProvider } from "@google-awlt/design-system";
 
 // Mock theme hook
 jest.mock("../../lib/hooks/useTheme", () => ({

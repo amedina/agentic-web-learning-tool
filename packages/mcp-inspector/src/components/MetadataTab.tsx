@@ -2,13 +2,18 @@
  * External dependencies
  */
 import React, { useState, useCallback } from "react";
-import { TabsContent, Button, Input, Label } from "@google-awlt/design-system";
+import {
+  TabsContent,
+  Button,
+  Input,
+  Label,
+  cn,
+} from "@google-awlt/design-system";
 import { Trash2, Plus } from "lucide-react";
 
 /**
  * Internal dependencies
  */
-import { cn } from "../lib/utils";
 import {
   META_NAME_RULES_MESSAGE,
   META_PREFIX_RULES_MESSAGE,

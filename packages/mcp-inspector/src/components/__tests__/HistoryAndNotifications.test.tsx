@@ -1,8 +1,7 @@
 import { render, screen, fireEvent, within } from "@testing-library/react";
 import { useState } from "react";
-import { describe, it, expect, jest } from "@jest/globals";
 import HistoryAndNotifications from "../HistoryAndNotifications";
-import { ServerNotification } from "@modelcontextprotocol/sdk/types.js";
+import { type ServerNotification } from "@modelcontextprotocol/sdk/types.js";
 
 // Mock JsonView component
 jest.mock("../JsonView", () => {

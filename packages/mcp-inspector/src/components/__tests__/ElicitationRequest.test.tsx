@@ -1,8 +1,7 @@
 import { render, screen, fireEvent, act } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import { describe, it, jest, beforeEach, afterEach } from "@jest/globals";
 import ElicitationRequest from "../ElicitationRequest";
-import { PendingElicitationRequest } from "../ElicitationTab";
+import { type PendingElicitationRequest } from "../ElicitationTab";
 
 jest.mock("../DynamicJsonForm", () => {
   return function MockDynamicJsonForm({

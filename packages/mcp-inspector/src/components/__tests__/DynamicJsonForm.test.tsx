@@ -1,8 +1,7 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import { describe, it, expect, jest } from "@jest/globals";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { useRef } from "react";
-import DynamicJsonForm, { DynamicJsonFormRef } from "../DynamicJsonForm";
+import DynamicJsonForm, { type DynamicJsonFormRef } from "../DynamicJsonForm";
 import type { JsonSchemaType } from "../../utils/jsonUtils";
 
 describe("DynamicJsonForm String Fields", () => {

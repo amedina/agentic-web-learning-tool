@@ -10,7 +10,8 @@ const PingTab = ({ onPingClick }: { onPingClick: () => void }) => {
         <div className="col-span-2 flex justify-center items-center">
           <Button
             onClick={onPingClick}
-            className="font-bold py-6 px-12 rounded-full"
+            size="lg"
+            className="font-bold py-6 px-3 rounded-md"
           >
             Ping Server
           </Button>

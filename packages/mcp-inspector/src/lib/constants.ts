@@ -2,12 +2,11 @@
  * Internal dependencies
  */
 import type { InspectorConfig } from "./configurationTypes";
-import packageJson from "../../package.json";
 
 // Client identity for MCP connections
 export const CLIENT_IDENTITY = (() => {
-  const [, name = packageJson.name] = packageJson.name.split("/");
-  const version = packageJson.version;
+  const name = "mcp-inspector";
+  const version = "0.0.0";
   return { name, version };
 })();
 
