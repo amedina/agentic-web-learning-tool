@@ -23,7 +23,7 @@
   },
   "scripts": {
     "preinstall": "npx only-allow pnpm",
-    "lint": "pnpm --filter extension lint",
+    "lint": "pnpm lint:common && pnpm lint:mcp-inspector && pnpm lint:design-system && pnpm lint:extension && pnpm lint:storybook-config && pnpm lint:shared-config",
     "lint:mcp-inspector": "pnpm --filter mcp-inspector lint",
     "lint:common": "pnpm --filter common lint",
     "lint:design-system": "pnpm --filter design-system lint",
