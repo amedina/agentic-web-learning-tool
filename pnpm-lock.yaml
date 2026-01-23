@@ -299,6 +299,9 @@ importers:
       '@types/chrome':
         specifier: ^0.1.27
         version: 0.1.33
+      '@types/dom-chromium-ai':
+        specifier: ^0.0.13
+        version: 0.0.13
       '@types/node':
         specifier: ^24.3.0
         version: 24.10.7
@@ -368,9 +371,6 @@ importers:
       '@tailwindcss/vite':
         specifier: ^4.1.12
         version: 4.1.18(vite@7.3.1(@types/node@24.10.7)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.8.2))
-      '@types/dom-chromium-ai':
-        specifier: ^0.0.13
-        version: 0.0.13
       '@xyflow/react':
         specifier: ^12.9.3
         version: 12.10.0(@types/react@19.2.8)(immer@9.0.21)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -465,6 +465,9 @@ importers:
       '@types/chrome':
         specifier: ^0.1.27
         version: 0.1.33
+      '@types/dom-chromium-ai':
+        specifier: ^0.0.13
+        version: 0.0.13
       '@types/jest':
         specifier: ^29.5.14
         version: 29.5.14

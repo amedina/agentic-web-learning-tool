@@ -59,7 +59,6 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
       switch (capability) {
         case 'promptApi': {
           let available = 'LanguageModel' in self;
-          // @ts-ignore
           const status = await LanguageModel.availability();
           available = available && status !== 'unavailable';
 
@@ -68,7 +67,6 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
 
         case 'writerApi': {
           let available = 'Writer' in self;
-          // @ts-ignore
           const status = await Writer.availability();
           available = available && status !== 'unavailable';
 
@@ -77,7 +75,6 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
 
         case 'rewriterApi': {
           let available = 'Rewriter' in self;
-          // @ts-ignore
           const status = await Rewriter.availability();
           available = available && status !== 'unavailable';
 
@@ -86,7 +83,6 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
 
         case 'summarizerApi': {
           let available = 'Summarizer' in self;
-          // @ts-ignore
           const status = await Summarizer.availability();
           available = available && status !== 'unavailable';
 
@@ -95,7 +91,6 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
 
         case 'translatorApi': {
           let available = 'Translator' in self;
-          // @ts-ignore
           const status = await Translator.availability(options);
           available = available && status !== 'unavailable';
 
@@ -104,7 +99,6 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
 
         case 'languageDetectorApi': {
           let available = 'LanguageDetector' in self;
-          // @ts-ignore
           const status = await LanguageDetector.availability();
           available = available && status !== 'unavailable';
 
@@ -113,7 +107,6 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
 
         case 'proofreaderApi': {
           let available = 'Proofreader' in self;
-          // @ts-ignore
           const status = await Proofreader.availability();
           available = available && status !== 'unavailable';
 
