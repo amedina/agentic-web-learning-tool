@@ -1,8 +1,8 @@
 /**
  * Internal dependencies
  */
-import type { ExecutionContext } from "../types";
-import type { RuntimeInterface } from "../runtime";
+import type { ExecutionContext } from '../types';
+import type { RuntimeInterface } from '../runtime';
 
 /**
  * Language Detector API executor.
@@ -16,7 +16,7 @@ export async function languageDetectorApiExecutor(
   const input = config.input as string | undefined;
 
   if (!input) {
-    throw new Error("Language Detector API requires input text");
+    throw new Error('Language Detector API requires input text');
   }
 
   try {
@@ -36,7 +36,7 @@ export async function languageDetectorApiExecutor(
       return sorted[0].detectedLanguage;
     }
 
-    return "";
+    return '';
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     throw new Error(`Language Detector API execution failed: ${message}`);

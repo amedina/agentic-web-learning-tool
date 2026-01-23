@@ -1,9 +1,9 @@
 /**
  * Internal dependencies
  */
-import type { ExecutionContext } from "../types";
-import type { RuntimeInterface } from "../runtime";
-import { formatInputText } from "../utils/executorUtils";
+import type { ExecutionContext } from '../types';
+import type { RuntimeInterface } from '../runtime';
+import { formatInputText } from '../utils/executorUtils';
 
 /**
  * Tooltip executor.
@@ -18,13 +18,13 @@ export async function tooltipExecutor(
   const selector = config.selector as string;
 
   if (!selector) {
-    throw new Error("Tooltip requires a CSS selector");
+    throw new Error('Tooltip requires a CSS selector');
   }
 
   const formattedInput = formatInputText(input);
 
   if (!formattedInput) {
-    throw new Error("Tooltip requires input description/text");
+    throw new Error('Tooltip requires input description/text');
   }
 
   await runtime.showTooltip(selector, formattedInput);

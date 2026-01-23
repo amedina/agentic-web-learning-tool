@@ -1,9 +1,9 @@
 /**
  * Internal dependencies
  */
-import type { ExecutionContext } from "../types";
-import type { RuntimeInterface } from "../runtime";
-import { formatInputText } from "../utils/executorUtils";
+import type { ExecutionContext } from '../types';
+import type { RuntimeInterface } from '../runtime';
+import { formatInputText } from '../utils/executorUtils';
 
 /**
  * Text to Speech executor.
@@ -19,7 +19,7 @@ export async function textToSpeechExecutor(
   const formattedInput = formatInputText(input);
 
   if (!formattedInput) {
-    throw new Error("Text to Speech requires input text");
+    throw new Error('Text to Speech requires input text');
   }
 
   await runtime.speakText(formattedInput);
