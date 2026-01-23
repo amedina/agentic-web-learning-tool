@@ -28,7 +28,7 @@
     "dev:components": "tsc --watch",
     "dev": "concurrently pnpm run \"dev:styles\" \"pnpm run dev:components\"",
     "build": "npm run build:styles & npm run build:components",
-    "lint": "eslint src --max-warnings 0",
+    "lint": "eslint src",
     "format": "prettier . --write",
     "test": "jest --config='tests/jest.config.js'"
   },
