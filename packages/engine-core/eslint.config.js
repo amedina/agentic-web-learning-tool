@@ -1,3 +1,6 @@
+/**
+ * External dependencies.
+ */
 import globals from 'globals';
 
 /**
