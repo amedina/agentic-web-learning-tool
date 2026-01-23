@@ -27,7 +27,7 @@ type Story = StoryObj<typeof meta>;
  * Default tabs with two triggers: Account and Password.
  */
 export const Default: Story = {
-  render: (args) => (
+  render: (args: Story['args']) => (
     <Tabs {...args} className="w-[400px]">
       <TabsList>
         <TabsTrigger value="account">Account</TabsTrigger>
@@ -43,7 +43,7 @@ export const Default: Story = {
  * Tabs with more triggers for multi-section navigation.
  */
 export const Multiple: Story = {
-  render: (args) => (
+  render: (args: Story['args']) => (
     <Tabs {...args} defaultValue="profile" className="w-[500px]">
       <TabsList>
         <TabsTrigger value="profile">Profile</TabsTrigger>
