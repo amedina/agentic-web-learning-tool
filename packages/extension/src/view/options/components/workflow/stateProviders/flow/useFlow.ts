@@ -7,10 +7,9 @@ export function useFlow(): FlowStoreContext;
 export function useFlow<T>(selector: (state: FlowStoreContext) => T): T;
 
 export function useFlow<T>(
-	selector: (state: FlowStoreContext) => T | FlowStoreContext = (state) =>
-		state
+  selector: (state: FlowStoreContext) => T | FlowStoreContext = (state) => state
 ) {
-	return flowUseContextSelector(selector);
+  return flowUseContextSelector(selector);
 }
 
 export default useFlow;

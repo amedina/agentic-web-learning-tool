@@ -7,7 +7,7 @@ import type {
   WorkflowJSON,
   ExecutionContext,
   NodeOutput,
-} from "@google-awlt/engine-core";
+} from '@google-awlt/engine-core';
 
 // Service Worker -> Content Script Messages
 
@@ -15,9 +15,9 @@ import type {
  * Query DOM for content extraction.
  */
 export interface QueryDOMMessage {
-  type: "QUERY_DOM";
+  type: 'QUERY_DOM';
   selector: string;
-  extract: "textContent" | "innerText" | "innerHTML" | "value" | "src" | "href";
+  extract: 'textContent' | 'innerText' | 'innerHTML' | 'value' | 'src' | 'href';
   isMultiple?: boolean;
 }
 
@@ -25,7 +25,7 @@ export interface QueryDOMMessage {
  * Show an alert to the user.
  */
 export interface ShowAlertMessage {
-  type: "SHOW_ALERT";
+  type: 'SHOW_ALERT';
   message: string;
 }
 
@@ -33,9 +33,9 @@ export interface ShowAlertMessage {
  * Update node execution status (for visual feedback).
  */
 export interface UpdateNodeStatusMessage {
-  type: "UPDATE_NODE_STATUS";
+  type: 'UPDATE_NODE_STATUS';
   nodeId: string;
-  status: "running" | "success" | "error";
+  status: 'running' | 'success' | 'error';
   data?: unknown;
   error?: string;
 }
@@ -44,7 +44,7 @@ export interface UpdateNodeStatusMessage {
  * Replace DOM content.
  */
 export interface ReplaceDOMMessage {
-  type: "REPLACE_DOM";
+  type: 'REPLACE_DOM';
   selector: string;
   content: string;
   isMultiple?: boolean;
@@ -55,7 +55,7 @@ export interface ReplaceDOMMessage {
  * Copy text to clipboard.
  */
 export interface CopyToClipboardMessage {
-  type: "COPY_TO_CLIPBOARD";
+  type: 'COPY_TO_CLIPBOARD';
   text: string;
 }
 
@@ -63,7 +63,7 @@ export interface CopyToClipboardMessage {
  * Trigger file download.
  */
 export interface DownloadFileMessage {
-  type: "DOWNLOAD_FILE";
+  type: 'DOWNLOAD_FILE';
   filename: string;
   content: string;
 }
@@ -72,7 +72,7 @@ export interface DownloadFileMessage {
  * Speak text (TTS).
  */
 export interface SpeakTextMessage {
-  type: "SPEAK_TEXT";
+  type: 'SPEAK_TEXT';
   text: string;
 }
 
@@ -80,7 +80,7 @@ export interface SpeakTextMessage {
  * Show tooltip on page.
  */
 export interface ShowTooltipMessage {
-  type: "SHOW_TOOLTIP";
+  type: 'SHOW_TOOLTIP';
   selector: string;
   content: string;
 }
@@ -89,7 +89,7 @@ export interface ShowTooltipMessage {
  * Content script is active.
  */
 export interface ContentScriptActiveMessage {
-  type: "CONTENT_SCRIPT_ACTIVE";
+  type: 'CONTENT_SCRIPT_ACTIVE';
   targetTabId: number;
 }
 
@@ -113,7 +113,7 @@ export type ContentScriptMessage =
  * Request to run a workflow.
  */
 export interface RunWorkflowMessage {
-  type: "RUN_WORKFLOW";
+  type: 'RUN_WORKFLOW';
   workflow: WorkflowJSON;
   tabId?: number; // Target tab for content script operations
 }
@@ -122,7 +122,7 @@ export interface RunWorkflowMessage {
  * Request to check capability availability.
  */
 export interface CheckCapabilitiesMessage {
-  type: "CHECK_CAPABILITIES";
+  type: 'CHECK_CAPABILITIES';
   capabilities: string[] | Record<string, any>;
 }
 
@@ -133,7 +133,7 @@ export interface CheckCapabilitiesMessage {
  * Request to stop the currently running workflow.
  */
 export interface StopWorkflowMessage {
-  type: "STOP_WORKFLOW";
+  type: 'STOP_WORKFLOW';
 }
 
 /**
@@ -177,7 +177,7 @@ export interface CapabilitiesResponse {
  * Node status update sent from service worker to UI.
  */
 export interface NodeStatusUpdate {
-  type: "NODE_STATUS";
+  type: 'NODE_STATUS';
   nodeId: string;
   output: NodeOutput;
 }
@@ -186,7 +186,7 @@ export interface NodeStatusUpdate {
  * Workflow completion event.
  */
 export interface WorkflowCompleteUpdate {
-  type: "WORKFLOW_COMPLETE";
+  type: 'WORKFLOW_COMPLETE';
   context: ExecutionContext;
 }
 
@@ -194,7 +194,7 @@ export interface WorkflowCompleteUpdate {
  * Workflow error event.
  */
 export interface WorkflowErrorUpdate {
-  type: "WORKFLOW_ERROR";
+  type: 'WORKFLOW_ERROR';
   error: string;
 }
 

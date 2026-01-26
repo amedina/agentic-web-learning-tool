@@ -1,8 +1,8 @@
 /**
  * Internal dependencies
  */
-import type { ExecutionContext } from "../types";
-import type { RuntimeInterface } from "../runtime";
+import type { ExecutionContext } from '../types';
+import type { RuntimeInterface } from '../runtime';
 
 /**
  * Static Input executor.
@@ -20,10 +20,10 @@ export async function staticInputExecutor(
       const parsed = JSON.parse(inputValue as string);
       return Array.isArray(parsed) ? parsed : [parsed];
     } catch {
-      console.warn("Failed to parse static input as JSON array:", inputValue);
+      console.warn('Failed to parse static input as JSON array:', inputValue);
       return [inputValue];
     }
   }
 
-  return typeof inputValue === "string" ? inputValue : "";
+  return typeof inputValue === 'string' ? inputValue : '';
 }

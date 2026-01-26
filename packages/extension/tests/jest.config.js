@@ -5,7 +5,7 @@ import { resolve } from 'path';
 const config = {
   ...baseConfig,
   testEnvironment: 'jsdom',
-  displayName: 'design-system',
+  displayName: 'extension',
   rootDir: '../',
   setupFilesAfterEnv: ['<rootDir>/tests/jest.setup.cjs'],
   transform: {

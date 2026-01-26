@@ -1,9 +1,9 @@
 /**
  * Internal dependencies
  */
-import type { ExecutionContext } from "../types";
-import type { RuntimeInterface } from "../runtime";
-import { formatInputText } from "../utils/executorUtils";
+import type { ExecutionContext } from '../types';
+import type { RuntimeInterface } from '../runtime';
+import { formatInputText } from '../utils/executorUtils';
 
 /**
  * Translator API executor.
@@ -21,17 +21,17 @@ export async function translatorApiExecutor(
   const formattedInput = formatInputText(input);
 
   if (!formattedInput) {
-    throw new Error("Translator API requires input text");
+    throw new Error('Translator API requires input text');
   }
 
   if (!targetLanguage) {
-    throw new Error("Translator API requires a target language");
+    throw new Error('Translator API requires a target language');
   }
 
   try {
     //@ts-ignore
     const translator = await Translator.create({
-      sourceLanguage: sourceLanguage || "en",
+      sourceLanguage: sourceLanguage || 'en',
       targetLanguage,
       signal: context.signal,
     });

@@ -223,6 +223,9 @@ const ReasoningGroupImpl: ReasoningGroupComponent = ({
   children,
   startIndex,
   endIndex,
+}: PropsWithChildren & {
+  startIndex: number;
+  endIndex: number;
 }) => {
   /**
    * Detects if reasoning is currently streaming within this group's range.
