@@ -17,6 +17,8 @@ import {
   ListMinus,
   Settings,
   ChevronDown,
+  PlusCircle,
+  History,
 } from 'lucide-react';
 import {
   Button,
@@ -25,6 +27,7 @@ import {
   SidebarInset,
   SidebarTrigger,
   ThreadListSidebar,
+  Tooltip,
 } from '@google-awlt/design-system';
 import { WEBSITE_TOOL_PREFIX } from '@google-awlt/common';
 /**
@@ -133,8 +136,28 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 
   return (
     <>
-      <div className="fixed top-0 left-0 z-20 md:hidden pl-4 shadow bg-sidebar rounded-md">
-        <SidebarTrigger />
+      <div className="fixed top-0 left-0 z-20 gap-1 flex flex-row items-center md:hidden pl-4">
+        <Tooltip text="New Chat">
+          <Button
+            variant="ghost"
+            size="icon"
+            onKeyDown={(event) =>
+              event.key === 'Enter'
+                ? runtime?.threads.switchToNewThread()
+                : null
+            }
+            role="button"
+            tabIndex={-1}
+            onClick={() => runtime?.threads.switchToNewThread()}
+          >
+            <PlusCircle className="text-primary" />
+          </Button>
+        </Tooltip>
+        <Tooltip text="Chat History">
+          <SidebarTrigger>
+            <History className="text-primary" />
+          </SidebarTrigger>
+        </Tooltip>
       </div>
       <ThreadListSidebar isThreadLoading={isLoading} />
       <SidebarInset>
