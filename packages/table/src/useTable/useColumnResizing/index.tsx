@@ -18,7 +18,12 @@
  * External dependencies.
  */
 import { useEffect, useRef, useState, useCallback } from "react";
+
+/**
+ * Internal dependencies
+ */
 import { useTablePersistentSettingsStore } from "../../persistentSettingsStore";
+
 export const columnResizeHandleClassName = "column-resize-handle";
 
 const getColumnElement = (columnId: string) => {

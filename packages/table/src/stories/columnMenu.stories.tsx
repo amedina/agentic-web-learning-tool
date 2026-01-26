@@ -18,6 +18,7 @@
  */
 import React, { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react";
+import { noop } from "@google-awlt/common";
 
 /**
  * Internal dependencies
@@ -28,7 +29,6 @@ import {
   tableColumns as defaultTableColumns,
 } from "./mockData";
 import { TableProvider } from "../useTable";
-import { noop } from "@google-awlt/common";
 
 const meta: Meta<typeof ColumnMenu> = {
   title: "DesignSystem/Table/SubComponents/ColumnMenu",

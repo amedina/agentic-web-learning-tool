@@ -13,10 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import { renderHook } from "@testing-library/react";
-import useFiltersOptions from "../useFiltersOptions";
+/**
+ * External dependencies.
+ */
 import React from "react";
+import { renderHook } from "@testing-library/react";
+
+/**
+ * Internal dependencies.
+ */
+import useFiltersOptions from "../useFiltersOptions";
 
 describe("useFiltersOptions", () => {
   const tableFilterData = {

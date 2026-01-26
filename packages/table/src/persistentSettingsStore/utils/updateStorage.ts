@@ -17,6 +17,7 @@
  * External dependencies
  */
 import { mergeDeep } from "@google-awlt/common";
+
 /**
  * Internal dependencies
  */

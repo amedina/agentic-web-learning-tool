@@ -17,6 +17,8 @@
  * External dependencies.
  */
 import type { Meta, StoryObj } from "@storybook/react";
+import { noop } from "@google-awlt/common";
+
 /**
  * Internal dependencies
  */
@@ -28,7 +30,6 @@ import {
   tableSearchKeys,
 } from "./mockData";
 import { TableProvider } from "../useTable";
-import { noop } from "@google-awlt/common";
 
 const meta: Meta<typeof Table> = {
   title: "DesignSystem/Table",

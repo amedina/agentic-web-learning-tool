@@ -48,6 +48,8 @@
   --color-*: initial;
   --stroke-*: initial;
 
+  --text-xxxs: 0.625rem;
+
   @keyframes horizontal-spinner-keyframes {
     0% {
       left: 0%;

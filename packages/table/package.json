@@ -1,7 +1,7 @@
 {
   "name": "@google-awlt/table",
   "version": "0.0.1",
-  "description": "Standalone Table component extracted from design-system",
+  "description": "Standalone Table component extracted from PSAT",
   "type": "module",
   "main": "dist/table/src/index.js",
   "types": "dist/table/src/index.d.ts",
@@ -27,6 +27,7 @@
   "dependencies": {
     "@google-awlt/common": "workspace:*",
     "@microlink/react-json-view": "^1.26.1",
+    "@testing-library/react": "^16.3.1",
     "@types/lodash-es": "^4.17.12",
     "classnames": "^2.3.2",
     "fast-xml-parser": "^4.4.1",

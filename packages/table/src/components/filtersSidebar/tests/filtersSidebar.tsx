@@ -13,11 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+/**
+ * External dependencies.
+ */
 import React, { act } from "react";
 import { render, screen, waitFor } from "@testing-library/react";
 import TableFiltersSidebar from "..";
 import "@testing-library/jest-dom";
+
+/**
+ * Internal dependencies.
+ */
 import { TableFilter } from "../../../useTable/types";
 import * as table from "../../../useTable/useTable";
 import TableChipsBar from "../chips";

@@ -14,10 +14,6 @@
  * limitations under the License.
  */
 /**
- * External dependencies.
- */
-
-/**
  *	Evaluate if the 'All' option is present in parsedQuery.
  * @param filterKey Filter key to evaluate.
  * @param parsedQuery Query to evaluate from.

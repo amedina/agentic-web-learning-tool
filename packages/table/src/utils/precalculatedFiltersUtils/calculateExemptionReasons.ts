@@ -17,6 +17,7 @@
  * External dependencies
  */
 import type { CookieTableData } from "@google-awlt/common";
+
 /*
  * Internal dependencies
  */
