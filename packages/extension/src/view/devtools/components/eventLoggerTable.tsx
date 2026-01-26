@@ -2,10 +2,6 @@
  * External dependencies.
  */
 import { useState } from 'react';
-
-/**
- * Internal dependencies.
- */
 import {
   Table,
   TableProvider,
@@ -25,6 +21,14 @@ const tableFilters = {
     filterValues: {
       MCP: { selected: null },
       WebMCP: { selected: null },
+    },
+  },
+  status: {
+    title: 'Status',
+    hasStaticFilterValues: true,
+    filterValues: {
+      Success: { selected: null },
+      Error: { selected: null },
     },
   },
 };
