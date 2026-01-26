@@ -101,11 +101,13 @@ const WorkflowCanvas = ({
     addNode: addApiNode,
     workflowMeta,
     updateWorkflowMeta,
+    setSelectedNode,
   } = useApi(({ state, actions }) => ({
     nodes: state.nodes,
     addNode: actions.addNode,
     workflowMeta: state.workflowMeta,
     updateWorkflowMeta: actions.updateWorkflowMeta,
+    setSelectedNode: actions.setSelectedNode,
   }));
 
   const { screenToFlowPosition } = useReactFlow();
@@ -253,6 +255,8 @@ const WorkflowCanvas = ({
         description: "Workflow exit point.",
       },
     });
+
+    setSelectedNode(null);
   }, [addNode, addApiNode]);
 
   useEffect(() => {
@@ -321,7 +325,7 @@ const WorkflowCanvas = ({
   );
 
   useEffect(() => {
-    if (!workflowId) return;
+    if (!workflowId || !workflowMeta.autosave) return;
 
     const timeoutId = setTimeout(() => {
       const workflowData = serializeWorkflow(
@@ -335,7 +339,14 @@ const WorkflowCanvas = ({
     }, 1000); // Debounce save by 1s
 
     return () => clearTimeout(timeoutId);
-  }, [workflowId, nodes, edges, nodesApiData, serializeWorkflow]);
+  }, [
+    workflowId,
+    nodes,
+    edges,
+    nodesApiData,
+    serializeWorkflow,
+    workflowMeta.autosave,
+  ]);
 
   const showToast = useCallback(
     (message: string, type: "success" | "error") => {
@@ -344,6 +355,25 @@ const WorkflowCanvas = ({
     },
     [],
   );
+
+  const handleSave = useCallback(async () => {
+    if (!workflowId) return;
+
+    try {
+      const workflowData = serializeWorkflow(
+        workflowId,
+        nodes,
+        edges,
+        nodesApiData,
+      );
+
+      await saveWorkflow(workflowId, workflowData);
+      showToast("Workflow saved successfully!", "success");
+    } catch (error) {
+      console.error("Failed to save workflow:", error);
+      showToast("Failed to save workflow", "error");
+    }
+  }, [workflowId, serializeWorkflow, nodes, edges, nodesApiData, showToast]);
 
   const handleExport = useCallback(async () => {
     try {
@@ -635,7 +665,9 @@ const WorkflowCanvas = ({
             onDrop: handleDrop,
             onLoadSaved: handleLoadSaved,
             onRefreshTabs: refetchTabs,
+            onSave: handleSave,
           }}
+          autosaveEnabled={!!workflowMeta.autosave}
         />
       </div>
     </div>

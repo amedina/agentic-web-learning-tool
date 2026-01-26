@@ -30,6 +30,7 @@ const ApiProvider = ({ children }: PropsWithChildren) => {
     savedAt: new Date().toISOString(),
     allowedDomains: [],
     isWebMCP: false,
+    autosave: false,
   });
 
   const getNode = useCallback(
@@ -108,6 +109,7 @@ const ApiProvider = ({ children }: PropsWithChildren) => {
       savedAt: new Date().toISOString(),
       allowedDomains: [],
       isWebMCP: false,
+      autosave: false,
     });
   }, []);
 

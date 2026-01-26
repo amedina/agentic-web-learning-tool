@@ -210,39 +210,61 @@ export const WorkflowConfig = () => {
         </div>
 
         <div className="pt-2 border-t border-slate-200 dark:border-border">
-          <div className="flex flex-col gap-3">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                className="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500 border-gray-300"
-                checked={!!workflowMeta.isWebMCP}
-                onChange={handleIsWebMCPChange}
-              />
-              <span className="text-sm font-medium text-slate-700 dark:text-zinc-300">
-                Enable as WebMCP Tool
-              </span>
-            </label>
-
-            {workflowMeta.isWebMCP && (
-              <label className="flex items-center gap-2 cursor-pointer ml-6">
+          <div className="flex flex-col gap-4">
+            <div>
+              <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
                   className="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500 border-gray-300"
-                  checked={workflowMeta.enabled !== false}
+                  checked={!!workflowMeta.isWebMCP}
+                  onChange={handleIsWebMCPChange}
+                />
+                <span className="text-sm font-medium text-slate-700 dark:text-zinc-300">
+                  Enable as WebMCP Tool
+                </span>
+              </label>
+
+              {workflowMeta.isWebMCP && (
+                <label className="flex items-center gap-2 cursor-pointer ml-6">
+                  <input
+                    type="checkbox"
+                    className="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500 border-gray-300"
+                    checked={workflowMeta.enabled !== false}
+                    onChange={(e) =>
+                      updateWorkflowMeta({ enabled: e.target.checked })
+                    }
+                  />
+                  <span className="text-sm font-medium text-slate-700 dark:text-zinc-300">
+                    Active
+                  </span>
+                </label>
+              )}
+              <p className="text-xs text-slate-500 dark:text-zinc-500 ml-6">
+                Allows this workflow to be used as a tool by AI agents. Requires
+                unique name, description and allowed domains.
+              </p>
+            </div>
+
+            <div>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500 border-gray-300"
+                  checked={!!workflowMeta.autosave}
                   onChange={(e) =>
-                    updateWorkflowMeta({ enabled: e.target.checked })
+                    updateWorkflowMeta({ autosave: e.target.checked })
                   }
                 />
                 <span className="text-sm font-medium text-slate-700 dark:text-zinc-300">
-                  Active
+                  Autosave
                 </span>
               </label>
-            )}
+              <p className="text-xs text-slate-500 dark:text-zinc-500 ml-6">
+                When enabled, changes are saved automatically. Otherwise, use
+                the Save button in the toolbar.
+              </p>
+            </div>
           </div>
-          <p className="text-xs text-slate-500 dark:text-zinc-500 mt-1 ml-6">
-            Allows this workflow to be used as a tool by AI agents. Requires
-            unique name, description and allowed domains.
-          </p>
         </div>
       </div>
 

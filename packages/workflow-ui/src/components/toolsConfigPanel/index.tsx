@@ -69,7 +69,7 @@ const ToolsConfigPanel = ({
     }),
   );
 
-  const [activeTab, setActiveTab] = useState<"node" | "workflow">("node");
+  const [activeTab, setActiveTab] = useState<"node" | "workflow">("workflow");
   const [node, setNode] = useState<NodeConfig>();
   const [config, setConfig] = useState<NodeConfig["config"]>();
 
@@ -122,7 +122,7 @@ const ToolsConfigPanel = ({
     : null;
 
   const tabs = (
-    <div className="flex border-b border-slate-200 dark:border-border bg-slate-50 dark:bg-zinc-800/80 sticky top-0 z-10 w-full">
+    <div className="flex border-b border-slate-200 dark:border-border bg-slate-50 dark:bg-zinc-800 sticky top-0 z-10 w-full">
       <button
         type="button"
         className={`flex-1 py-3 text-sm font-medium transition-colors ${
@@ -152,7 +152,8 @@ const ToolsConfigPanel = ({
 
   return (
     <ToolsConfig
-      selectedNodeId={selectedNode}
+      selectedNodeId={isWorkflowTab ? null : selectedNode}
+      suppressEmptyState={isWorkflowTab}
       nodeType={node?.type}
       nodeTitle={(config as any)?.title || ""}
       nodeContext={(config as any)?.context}

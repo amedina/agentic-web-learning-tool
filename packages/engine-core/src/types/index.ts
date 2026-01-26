@@ -18,6 +18,7 @@ export interface WorkflowMeta {
   allowedDomains: string[];
   isWebMCP: boolean;
   enabled?: boolean;
+  autosave?: boolean;
 }
 
 /**

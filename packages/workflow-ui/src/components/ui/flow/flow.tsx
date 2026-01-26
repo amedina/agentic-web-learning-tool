@@ -40,6 +40,7 @@ export interface FlowProps<
   isRunning: boolean;
   isStopping?: boolean;
   theme: "light" | "dark" | "system";
+  autosaveEnabled?: boolean;
   actions: {
     onImport: () => void;
     onExport: () => void;
@@ -50,6 +51,7 @@ export interface FlowProps<
     onDrop: (event: React.DragEvent) => void;
     onLoadSaved: () => void;
     onRefreshTabs: () => void;
+    onSave: () => void;
   };
 }
 
@@ -66,6 +68,7 @@ const Flow = <NodeType extends Node, EdgeType extends Edge>({
   onTitleChange,
   selectedTabId,
   setSelectedTabId,
+  autosaveEnabled,
   tabs,
   theme,
   isRunning,
@@ -135,6 +138,14 @@ const Flow = <NodeType extends Node, EdgeType extends Edge>({
         </div>
 
         <div className="flex items-center gap-2">
+          {!autosaveEnabled && (
+            <button
+              onClick={actions.onSave}
+              className="px-3 py-1.5 bg-white dark:bg-zinc-800 hover:bg-gray-100 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-200 text-xs font-semibold rounded-md border border-slate-300 dark:border-border transition-colors shadow-sm"
+            >
+              Save
+            </button>
+          )}
           <button
             onClick={isRunning ? actions.onStop : actions.onRun}
             disabled={isStopping}

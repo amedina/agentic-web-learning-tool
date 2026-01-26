@@ -108,6 +108,7 @@ export const Default: Story = {
       onDrop: () => {},
       onLoadSaved: () => {},
       onRefreshTabs: () => {},
+      onSave: () => {},
     },
     nodes: [
       {
