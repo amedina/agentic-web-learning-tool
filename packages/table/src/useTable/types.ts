@@ -16,78 +16,16 @@
 /**
  * External dependencies.
  */
-import type {
-  AdsAndBiddersType,
-  CookieTableData,
-  InterestGroups,
-  NoBidsType,
-  singleAuctionEvent,
-  ErroredOutUrlsData,
-  SourcesData,
-} from "@google-awlt/common";
+export type ErroredOutUrlsData = any;
+export type SourcesData = any;
+export type CookieTableData = any;
+export type Context<T> = T | any;
 
-export type PrebidConfigTableData = {
-  name: string;
-  value: string | number | boolean;
-  index: number;
-};
-
-export type PrebidPriceGranularityTableData = {
-  bucket: string;
-  precision: number;
-  minimum: number;
-  maximum: number;
-  increment: number;
-  index: number;
-};
-
-export type PrebidConsentManagementTableData = {
-  platform: "gdpr" | "usp";
-  api: "iab" | "static" | "iabnonsupport" | "none";
-  timeout?: number;
-  allowAuctionWithoutConsent?: boolean;
-  defaultGdprScope?: boolean;
-};
-
-export type PrebidUserIdsTableData = {
-  name: string;
-  type?: "cookie" | "html5";
-  expires?: number;
-  storageName?: string;
-};
-
-export type UserEID = {
-  userId: string;
-  aType: number;
-  source: string;
-};
-
-export type TableData = (
-  | CookieTableData
-  | InterestGroups
-  | singleAuctionEvent
-  | NoBidsType[keyof NoBidsType]
-  | AdsAndBiddersType[keyof AdsAndBiddersType]
-  | ErroredOutUrlsData
-  | SourcesData
-  | ClassificationResult
-  | PrebidConfigTableData
-  | PrebidPriceGranularityTableData
-  | PrebidConsentManagementTableData
-  | PrebidUserIdsTableData
-  | PrebidUserIdsTableData
-  | UserEID
-) & {
+export type TableData = (CookieTableData | ErroredOutUrlsData | SourcesData) & {
   highlighted?: boolean;
   highlightedClass?: (selected?: boolean) => string; // Optional class for highlighting rows
   scrollToHighlighted?: boolean; // Optional flag to scroll to highlighted row
 };
-
-export interface ClassificationResult {
-  domain: string;
-  categories?: { id: number; name: string }[];
-  error?: string;
-}
 
 export type InfoType = number | string | boolean | Array<string | number> | [];
 

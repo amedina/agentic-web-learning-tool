@@ -16,7 +16,8 @@
 /**
  * External dependencies.
  */
-import { createContext, noop, type Context } from "@google-awlt/common";
+import { createContext, noop } from "@google-awlt/common";
+import { type Context } from "./types";
 
 /**
  * Internal dependencies.
