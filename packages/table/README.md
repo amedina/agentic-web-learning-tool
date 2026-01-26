@@ -23,7 +23,7 @@ npm install @google-awlt/table
 This package uses Tailwind CSS. To ensure styles are applied correctly, you must import the provided CSS file in your application's entry point (e.g., `App.tsx` or `index.ts`):
 
 ```typescript
-import "@google-awlt/table/theme.css";
+import '@google-awlt/table/theme.css';
 ```
 
 If you are using Tailwind CSS in your project, the table's styles are scoped and should not conflict. The package includes a `tailwind.config.cjs` which is utilized by the internal `theme.css`.
@@ -33,49 +33,49 @@ If you are using Tailwind CSS in your project, the table's styles are scoped and
 Here is a minimal example of how to use the `Table` component.
 
 ```tsx
-import React from "react";
-import { Table, TableColumn, TableData } from "@google-awlt/table";
-import "@google-awlt/table/theme.css"; // Import styles
+import React from 'react';
+import { Table, TableColumn, TableData } from '@google-awlt/table';
+import '@google-awlt/table/theme.css'; // Import styles
 
 const MyTable = () => {
   // 1. Define your data
   // Data must match the TableData type structure or extend it
   const data: TableData[] = [
-    { name: "Apple", category: "Fruit", price: 1.2 },
-    { name: "Carrot", category: "Vegetable", price: 0.8 },
-    { name: "Banana", category: "Fruit", price: 1.1 },
+    { name: 'Apple', category: 'Fruit', price: 1.2 },
+    { name: 'Carrot', category: 'Vegetable', price: 0.8 },
+    { name: 'Banana', category: 'Fruit', price: 1.1 },
   ];
 
   // 2. Define your columns
   const columns: TableColumn[] = [
     {
-      header: "Name",
-      accessorKey: "name",
+      header: 'Name',
+      accessorKey: 'name',
       cell: (info) => info,
       enableHiding: false, // Prevent hiding this column
     },
     {
-      header: "Category",
-      accessorKey: "category",
+      header: 'Category',
+      accessorKey: 'category',
       cell: (info) => <span className="badge">{info}</span>,
     },
     {
-      header: "Price",
-      accessorKey: "price",
+      header: 'Price',
+      accessorKey: 'price',
       cell: (info) => `$${Number(info).toFixed(2)}`,
       sortingComparator: (a, b) => Number(a) - Number(b),
     },
   ];
 
   return (
-    <div style={{ height: "500px", width: "100%" }}>
+    <div style={{ height: '500px', width: '100%' }}>
       <Table
         data={data}
         tableColumns={columns}
         // Optional: Unique key for row identification
         getRowObjectKey={(row) => row.originalData.name as string}
         // Optional: Handle row clicks
-        onRowClick={(row) => console.log("Clicked:", row)}
+        onRowClick={(row) => console.log('Clicked:', row)}
       />
     </div>
   );
@@ -143,12 +143,3 @@ const filterConfig: TableFilter = {
   tableFilterData={filterConfig}
 />;
 ```
-
-## LLM Usage Tips
-
-If you are an AI assistant using this package:
-
-1.  **Always import the CSS**: `@google-awlt/table/theme.css` is strictly required for layout and visibility.
-2.  **Define Columns Carefully**: Ensure `accessorKey` matches the keys in your `data` objects.
-3.  **Row Keys**: The `getRowObjectKey` prop is critical for React rendering performance and selection state. ensure it returns a unique primitive (string/number).
-4.  **Types**: Use the exported `TableData`, `TableColumn`, and `TableFilter` types to ensure type safety when constructing props.
