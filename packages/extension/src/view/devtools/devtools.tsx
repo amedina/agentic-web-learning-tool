@@ -9,7 +9,7 @@ import { Client } from '@modelcontextprotocol/sdk/client';
  * Internal dependencies
  */
 import { CONNECTION_NAMES } from '../../utils';
-import EventLogger from './components/eventLogger';
+import EventLoggerTable from './components/eventLoggerTable';
 
 export const transport = new ExtensionClientTransport({
   portName: CONNECTION_NAMES.MCP_HOST,
@@ -25,7 +25,7 @@ function DevTools() {
   return (
     <McpClientProvider client={client} transport={transport}>
       <main className="w-full min-h-screen">
-        <EventLogger />
+        <EventLoggerTable />
       </main>
     </McpClientProvider>
   );

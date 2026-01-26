@@ -36,6 +36,7 @@
     "@google-awlt/mcp-inspector": "workspace:*",
     "@google-awlt/engine-core": "workspace:*",
     "@google-awlt/engine-extension": "workspace:*",
+    "@google-awlt/table": "workspace:*",
     "@mcp-b/extension-tools": "^0.2.3",
     "@mcp-b/mcp-react-hooks": "^0.2.2",
     "@mcp-b/transports": "^1.2.0",
