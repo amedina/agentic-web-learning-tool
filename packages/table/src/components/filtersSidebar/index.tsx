@@ -16,7 +16,7 @@
 /**
  * External dependencies.
  */
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 /**
  * Internal dependencies.
  */

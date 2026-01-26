@@ -17,7 +17,7 @@
 /**
  * External dependencies
  */
-import React, {
+import {
   PropsWithChildren,
   useCallback,
   useEffect,

@@ -1,32 +1,30 @@
 {
+  "extends": "@google-awlt/shared-config/typescript/react-library",
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
-    "lib": ["ESNext", "DOM", "DOM.Iterable"],
-    "noEmit": false,
-    "declaration": true,
-    "outDir": "dist",
-    "composite": false,
-    "strict": false,
+    "allowJs": true,
+    "checkJs": true,
+    "outDir": "./dist",
+    "lib": ["dom", "ES2015"],
     "sourceMap": true,
-    "esModuleInterop": true,
-    "moduleResolution": "node",
+    "noEmit": false,
+    "allowImportingTsExtensions": false,
     "jsx": "react-jsx",
-    "noImplicitAny": false,
-    "strictNullChecks": false,
     "baseUrl": ".",
     "paths": {
+      "@/*": ["./src/*"],
       "@google-awlt/common": ["../common/src/index.ts"]
     },
-    "types": ["chrome", "node", "jest", "react"]
+    "typeRoots": ["./node_modules/@types"],
+    "types": ["chrome", "node", "jest", "react", "react-dom"],
+    "verbatimModuleSyntax": false
   },
+  "include": ["src"],
   "exclude": [
     "**/tests/**/*.ts",
     "**/tests/**/*.tsx",
-    "**/dist/**/*",
-    "**/dist-types/**/*",
-    "**/stories/**"
-  ],
-  "references": [],
-  "include": ["src/**/*", "../common/src/**/*"]
+    "**/stories/**",
+    "dist",
+    "build",
+    "node_modules"
+  ]
 }
