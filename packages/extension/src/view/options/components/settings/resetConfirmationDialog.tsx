@@ -21,11 +21,14 @@ export default function ResetConfirmationDialog({
   const handleReset = useCallback(async () => {
     await clearSettings();
     setIsResetModalOpen(false);
-  }, []);
+  }, [clearSettings, setIsResetModalOpen]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
+        role="button"
+        tabIndex={-1}
+        onKeyDown={(e) => (e.key === 'Enter' ? setIsResetModalOpen(false) : {})}
         className="absolute inset-0 bg-extreme-zinc/20 glass"
         onClick={() => setIsResetModalOpen(false)}
       />

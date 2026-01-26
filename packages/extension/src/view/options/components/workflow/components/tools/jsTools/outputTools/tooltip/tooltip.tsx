@@ -10,18 +10,18 @@ import { MessageSquare } from 'lucide-react';
 import { ToolItem } from '../../../../ui';
 
 const Tooltip = () => {
-	const handleDragStart = useCallback((event: React.DragEvent) => {
-		event.dataTransfer.setData('workflow-composer/flow', 'tooltip');
-		event.dataTransfer.effectAllowed = 'move';
-	}, []);
+  const handleDragStart = useCallback((event: React.DragEvent) => {
+    event.dataTransfer.setData('workflow-composer/flow', 'tooltip');
+    event.dataTransfer.effectAllowed = 'move';
+  }, []);
 
-	return (
-		<ToolItem
-			label="Tooltip"
-			onDragStart={handleDragStart}
-			Icon={MessageSquare}
-		/>
-	);
+  return (
+    <ToolItem
+      label="Tooltip"
+      onDragStart={handleDragStart}
+      Icon={MessageSquare}
+    />
+  );
 };
 
 export default Tooltip;

@@ -10,18 +10,18 @@ import { Speech } from 'lucide-react';
 import { ToolItem } from '../../../../ui';
 
 const TextToSpeech = () => {
-	const handleDragStart = useCallback((event: React.DragEvent) => {
-		event.dataTransfer.setData('workflow-composer/flow', 'textToSpeech');
-		event.dataTransfer.effectAllowed = 'move';
-	}, []);
+  const handleDragStart = useCallback((event: React.DragEvent) => {
+    event.dataTransfer.setData('workflow-composer/flow', 'textToSpeech');
+    event.dataTransfer.effectAllowed = 'move';
+  }, []);
 
-	return (
-		<ToolItem
-			label="Text to Speech"
-			onDragStart={handleDragStart}
-			Icon={Speech}
-		/>
-	);
+  return (
+    <ToolItem
+      label="Text to Speech"
+      onDragStart={handleDragStart}
+      Icon={Speech}
+    />
+  );
 };
 
 export default TextToSpeech;

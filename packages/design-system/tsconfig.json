@@ -6,7 +6,7 @@
     "outDir": "./dist",
     "lib": ["dom", "ESNext"],
     "sourceMap": true,
-    "noEmit": true,
+    "noEmit": false,
     "allowImportingTsExtensions": false,
     "baseUrl": ".",
     "paths": {
@@ -27,6 +27,7 @@
     "dist",
     "build",
     "node_modules",
+    "**/*.stories.tsx",
     "jest.config.cjs",
     "tests/jest.setup.cjs"
   ]

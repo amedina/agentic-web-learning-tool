@@ -64,7 +64,7 @@ export function MCPServerDialog({
     }
     setIsValidatingConfig(false);
     setIsValidConfig(isValid);
-  }, [config]);
+  }, [config, validator]);
 
   const handleSave = useCallback(async () => {
     setIsAddingConfig(true);
@@ -73,7 +73,7 @@ export function MCPServerDialog({
     setTimeout(() => {
       onOpenChange(false);
     }, 500);
-  }, [config, server]);
+  }, [config, onOpenChange, onSave, server?.name, serverId]);
 
   const handleDelete = useCallback(async () => {
     if (!onDelete) {
@@ -81,7 +81,7 @@ export function MCPServerDialog({
     }
     onOpenChange(false);
     onDelete(serverId);
-  }, [serverId, onDelete]);
+  }, [onDelete, onOpenChange, serverId]);
 
   const criticalFieldsChanged = useMemo(() => {
     if (!server || Object.keys(config).length === 0) {
