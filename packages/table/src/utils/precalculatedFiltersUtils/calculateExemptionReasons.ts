@@ -14,14 +14,9 @@
  * limitations under the License.
  */
 /*
- * External dependencies
- */
-import type { CookieTableData } from "@google-awlt/common";
-
-/*
  * Internal dependencies
  */
-import { TableFilter } from "../../useTable";
+import { TableFilter, CookieTableData } from "../../useTable";
 
 /**
  * This function will return set of non duplicated cookie execmption reason.

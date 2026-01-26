@@ -13,7 +13,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc-watch --noEmit",
-    "prebuild": "rimraf dist dist-types tsconfig.tsbuildinfo"
+    "prebuild": "rimraf dist dist-types"
   },
   "publishConfig": {
     "access": "public"
@@ -26,21 +26,14 @@
   },
   "dependencies": {
     "@google-awlt/common": "workspace:*",
-    "@microlink/react-json-view": "^1.26.1",
-    "@testing-library/react": "^16.3.1",
-    "@types/lodash-es": "^4.17.12",
     "classnames": "^2.3.2",
-    "fast-xml-parser": "^4.4.1",
-    "file-saver": "^2.0.5",
-    "jszip": "^3.10.1",
-    "lodash-es": "^4.17.21",
     "p-queue": "^7.3.4",
     "re-resizable": "^6.11.2",
-    "use-context-selector": "^2.0.0",
-    "victory": "^36.6.11"
+    "use-context-selector": "^2.0.0"
   },
   "devDependencies": {
     "@storybook/react": "^10.2.0",
+    "@testing-library/react": "^16.3.1",
     "@types/chrome": "^0.1.33",
     "@types/jest": "^30.0.0",
     "@types/node": "^24.10.7",

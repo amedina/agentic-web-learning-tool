@@ -17,12 +17,12 @@
 /**
  * External dependencies
  */
-import { getValueByKey, type CookieTableData } from "@google-awlt/common";
+import { getValueByKey } from "@google-awlt/common";
 
 /**
  * Internal dependencies
  */
-import { TableFilter } from "../../useTable";
+import { TableFilter, CookieTableData } from "../../useTable";
 
 /**
  * Calculate the filter values for the blocked reasons filter.
