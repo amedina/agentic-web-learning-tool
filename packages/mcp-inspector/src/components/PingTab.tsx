@@ -1,0 +1,24 @@
+/**
+ * External dependencies
+ */
+import { TabsContent, Button } from "@google-awlt/design-system";
+
+const PingTab = ({ onPingClick }: { onPingClick: () => void }) => {
+  return (
+    <TabsContent value="ping">
+      <div className="grid grid-cols-2 gap-4">
+        <div className="col-span-2 flex justify-center items-center">
+          <Button
+            onClick={onPingClick}
+            size="lg"
+            className="font-bold py-6 px-3 rounded-md"
+          >
+            Ping Server
+          </Button>
+        </div>
+      </div>
+    </TabsContent>
+  );
+};
+
+export default PingTab;

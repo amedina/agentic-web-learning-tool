@@ -73,7 +73,8 @@ export const Processing: Story = {
                 ),
               {
                 loading: 'Loading...',
-                success: (data) => `${data.name} has been created`,
+                success: (data: { name: string }) =>
+                  `${data.name} has been created`,
                 error: 'Error',
               }
             );

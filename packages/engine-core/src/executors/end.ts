@@ -1,6 +1,6 @@
 /**
  * End executor.
  */
-export async function endExecutor({ input }: { input: string }) {
-  return input;
+export async function endExecutor(config: unknown) {
+  return (config as { input: string })?.input || '';
 }

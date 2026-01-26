@@ -1,21 +1,21 @@
-import type { ExecutionContext } from "../types";
-import type { RuntimeInterface } from "../runtime";
-import { formatInputText } from "../utils/executorUtils";
+import type { ExecutionContext } from '../types';
+import type { RuntimeInterface } from '../runtime';
+import { formatInputText } from '../utils/executorUtils';
 
 /**
  * Supported comparison operators for conditions.
  */
 type ComparisonOperator =
-  | "equals"
-  | "notEquals"
-  | "contains"
-  | "notContains"
-  | "startsWith"
-  | "endsWith"
-  | "isEmpty"
-  | "isNotEmpty"
-  | "greaterThan"
-  | "lessThan";
+  | 'equals'
+  | 'notEquals'
+  | 'contains'
+  | 'notContains'
+  | 'startsWith'
+  | 'endsWith'
+  | 'isEmpty'
+  | 'isNotEmpty'
+  | 'greaterThan'
+  | 'lessThan';
 
 /**
  * Condition executor.
@@ -27,66 +27,66 @@ export async function conditionExecutor(
   _context: ExecutionContext
 ): Promise<string> {
   const input = config.input;
-  const operator = (config.operator as ComparisonOperator) ?? "isNotEmpty";
+  const operator = (config.operator as ComparisonOperator) ?? 'isNotEmpty';
   const compareValue = config.compareValue as string | undefined;
 
   const inputStr = formatInputText(input);
 
   const successMessage =
-    "Comparison was success for the concerned input with a target value: " +
+    'Comparison was success for the concerned input with a target value: ' +
     inputStr;
   const failureMessage =
-    "Comparison was failure for the concerned input with a target value: " +
+    'Comparison was failure for the concerned input with a target value: ' +
     inputStr;
 
   switch (operator) {
-    case "equals":
-      return inputStr === (compareValue ?? "")
+    case 'equals':
+      return inputStr === (compareValue ?? '')
         ? successMessage
         : failureMessage;
 
-    case "notEquals":
-      return inputStr !== (compareValue ?? "")
+    case 'notEquals':
+      return inputStr !== (compareValue ?? '')
         ? successMessage
         : failureMessage;
 
-    case "contains":
-      return inputStr.includes(compareValue ?? "")
+    case 'contains':
+      return inputStr.includes(compareValue ?? '')
         ? successMessage
         : failureMessage;
 
-    case "notContains":
-      return !inputStr.includes(compareValue ?? "")
+    case 'notContains':
+      return !inputStr.includes(compareValue ?? '')
         ? successMessage
         : failureMessage;
 
-    case "startsWith":
-      return inputStr.startsWith(compareValue ?? "")
+    case 'startsWith':
+      return inputStr.startsWith(compareValue ?? '')
         ? successMessage
         : failureMessage;
 
-    case "endsWith":
-      return inputStr.endsWith(compareValue ?? "")
+    case 'endsWith':
+      return inputStr.endsWith(compareValue ?? '')
         ? successMessage
         : failureMessage;
 
-    case "isEmpty":
+    case 'isEmpty':
       return inputStr.trim().length === 0 ? successMessage : failureMessage;
 
-    case "isNotEmpty":
+    case 'isNotEmpty':
       return inputStr.trim().length > 0 ? successMessage : failureMessage;
 
-    case "greaterThan": {
+    case 'greaterThan': {
       const numInput = parseFloat(inputStr);
-      const numCompare = parseFloat(compareValue ?? "0");
+      const numCompare = parseFloat(compareValue ?? '0');
       return !isNaN(numInput) && !isNaN(numCompare) && numInput > numCompare
         ? successMessage
         : failureMessage;
     }
 
-    case "lessThan": {
+    case 'lessThan': {
       const numInput = parseFloat(inputStr);
-      const numCompare = parseFloat(compareValue ?? "0");
+      const numCompare = parseFloat(compareValue ?? '0');
       return !isNaN(numInput) && !isNaN(numCompare) && numInput < numCompare
         ? successMessage
         : failureMessage;

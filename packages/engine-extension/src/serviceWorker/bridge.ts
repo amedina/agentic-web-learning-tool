@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { initContentScriptBridge } from "../contentScript";
+import { initContentScriptBridge } from '../contentScript';
 import type {
   ServiceWorkerMessage,
   WorkflowResponse,
@@ -9,8 +9,8 @@ import type {
   NodeStatusUpdate,
   WorkflowCompleteUpdate,
   WorkflowErrorUpdate,
-} from "../types/messages";
-import { getWorkflowRunner } from "./runner";
+} from '../types/messages';
+import { getWorkflowRunner } from './runner';
 
 /**
  * Service Worker Bridge
@@ -20,24 +20,24 @@ import { getWorkflowRunner } from "./runner";
 function handleMessage(
   message: ServiceWorkerMessage,
   sender: chrome.runtime.MessageSender,
-  sendResponse: (response: WorkflowResponse | CapabilitiesResponse) => void,
+  sendResponse: (response: WorkflowResponse | CapabilitiesResponse) => void
 ): boolean {
   switch (message.type) {
-    case "RUN_WORKFLOW":
+    case 'RUN_WORKFLOW':
       handleRunWorkflow(message.workflow, message.tabId, sender, sendResponse);
       return true;
 
-    case "CHECK_CAPABILITIES":
+    case 'CHECK_CAPABILITIES':
       handleCheckCapabilities(message.capabilities, sendResponse);
       return true;
 
-    case "STOP_WORKFLOW":
+    case 'STOP_WORKFLOW':
       getWorkflowRunner().stop();
       sendResponse({ success: true });
       return true;
 
     default:
-      sendResponse({ success: false, error: "Unknown message type" });
+      sendResponse({ success: false, error: 'Unknown message type' });
       return false;
   }
 }
@@ -49,7 +49,7 @@ async function handleRunWorkflow(
   workflow: any,
   tabId: number | undefined,
   sender: chrome.runtime.MessageSender,
-  sendResponse: (response: WorkflowResponse) => void,
+  sendResponse: (response: WorkflowResponse) => void
 ) {
   const runner = getWorkflowRunner();
   const targetTabId = tabId ?? sender.tab?.id;
@@ -57,20 +57,20 @@ async function handleRunWorkflow(
   try {
     if (targetTabId) {
       console.log(
-        `[Workflow] Injecting content script into tab ${targetTabId}`,
+        `[Workflow] Injecting content script into tab ${targetTabId}`
       );
 
       // Try-catch to handle cases where content script is not active
       try {
         await chrome.tabs.sendMessage(targetTabId, {
-          type: "CONTENT_SCRIPT_ACTIVE",
+          type: 'CONTENT_SCRIPT_ACTIVE',
           targetTabId,
         });
       } catch (error) {
         await chrome.scripting.executeScript({
           target: { tabId: targetTabId },
           func: initContentScriptBridge,
-          world: "MAIN",
+          world: 'MAIN',
           injectImmediately: true,
         });
       }
@@ -79,28 +79,28 @@ async function handleRunWorkflow(
     const context = await runner.run(workflow, targetTabId, {
       onNodeStart: (nodeId) => {
         broadcastStatusUpdate({
-          type: "NODE_STATUS",
+          type: 'NODE_STATUS',
           nodeId,
-          output: { status: "running" },
+          output: { status: 'running' },
         });
       },
       onNodeFinish: (nodeId, output) => {
         broadcastStatusUpdate({
-          type: "NODE_STATUS",
+          type: 'NODE_STATUS',
           nodeId,
           output,
         });
       },
       onError: (error) => {
         broadcastStatusUpdate({
-          type: "WORKFLOW_ERROR",
+          type: 'WORKFLOW_ERROR',
           error: error.message,
         });
       },
     });
 
     broadcastStatusUpdate({
-      type: "WORKFLOW_COMPLETE",
+      type: 'WORKFLOW_COMPLETE',
       context,
     });
 
@@ -116,7 +116,7 @@ async function handleRunWorkflow(
  */
 async function handleCheckCapabilities(
   capabilities: string[] | Record<string, any>,
-  sendResponse: (response: CapabilitiesResponse) => void,
+  sendResponse: (response: CapabilitiesResponse) => void
 ) {
   const runner = getWorkflowRunner();
 
@@ -133,7 +133,7 @@ async function handleCheckCapabilities(
  * Broadcast status updates.
  */
 function broadcastStatusUpdate(
-  update: NodeStatusUpdate | WorkflowCompleteUpdate | WorkflowErrorUpdate,
+  update: NodeStatusUpdate | WorkflowCompleteUpdate | WorkflowErrorUpdate
 ): void {
   chrome.runtime.sendMessage(update).catch(() => {
     // Ignore errors if no listeners
@@ -145,5 +145,5 @@ function broadcastStatusUpdate(
  */
 export function initServiceWorkerBridge(): void {
   chrome.runtime.onMessage.addListener(handleMessage);
-  console.log("[Workflow] Service worker bridge initialized");
+  console.log('[Workflow] Service worker bridge initialized');
 }

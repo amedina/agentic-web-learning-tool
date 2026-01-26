@@ -8,7 +8,13 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 import { Client } from '@modelcontextprotocol/sdk/client';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
-import type { MCPConfig, MCPServerConfig } from '@google-awlt/common';
+import {
+  DOM_TOOL_NAME_PREFIX,
+  EXTENSION_TOOL_PREFIX,
+  WEBSITE_TOOL_PREFIX,
+  type MCPConfig,
+  type MCPServerConfig,
+} from '@google-awlt/common';
 /**
  * Internal dependencies
  */
@@ -100,8 +106,8 @@ class McpHub {
     //@ts-expect-error -- we are accessing a private variable as private variable are only available in TS annotations
     Object.keys(this.server._registeredTools).forEach((toolName) => {
       if (
-        toolName.startsWith('extension_tool_') ||
-        toolName.startsWith('dom_extract_')
+        toolName.startsWith(EXTENSION_TOOL_PREFIX) ||
+        toolName.startsWith(DOM_TOOL_NAME_PREFIX)
       ) {
         //@ts-expect-error -- we are accessing a private variable as private variable are only available in TS annotations
         this.server._registeredTools[toolName].remove();
@@ -543,12 +549,11 @@ class McpHub {
     // 3. Register/Update tools with MCP Server
     const toolNameComponents = {
       cleanDomain: sanitizeToolName(domain),
-      prefix: dataId.startsWith('cached-') ? dataId : `tab${tabData.tabId}`,
+      prefix: `tab${tabData.tabId}`,
     };
 
     for (const tool of activeTools) {
       const uniqueToolName = this.generateUniqueToolName(
-        toolNameComponents.cleanDomain,
         toolNameComponents.prefix,
         tool.name
       );
@@ -593,7 +598,6 @@ class McpHub {
 
       for (const tool of removedTools) {
         const uniqueToolName = this.generateUniqueToolName(
-          toolNameComponents.cleanDomain,
           toolNameComponents.prefix,
           tool.name
         );
@@ -620,17 +624,10 @@ class McpHub {
       return;
     }
 
-    const cleanDomain = sanitizeToolName(domain);
-    const prefix = dataId.startsWith('cached-')
-      ? dataId
-      : `tab${tabData.tabId ?? ''}`;
+    const prefix = `tab${tabData.tabId ?? ''}`;
 
     for (const tool of tabData.tools) {
-      const uniqueToolName = this.generateUniqueToolName(
-        cleanDomain,
-        prefix,
-        tool.name
-      );
+      const uniqueToolName = this.generateUniqueToolName(prefix, tool.name);
       this.registeredTools.get(uniqueToolName)?.remove();
       this.registeredTools.delete(uniqueToolName);
     }
@@ -834,13 +831,11 @@ class McpHub {
     }
 
     const toolNameComponents = {
-      cleanDomain: sanitizeToolName(domain),
       prefix: `tab${tabData.tabId}`,
     };
 
     for (const tool of tabData.tools) {
       const uniqueToolName = this.generateUniqueToolName(
-        toolNameComponents.cleanDomain,
         toolNameComponents.prefix,
         tool.name
       );
@@ -856,12 +851,8 @@ class McpHub {
     }
   }
 
-  private generateUniqueToolName(
-    cleanDomain: string,
-    prefix: string,
-    rawToolName: string
-  ): string {
-    return `website_tool_${cleanDomain}_${prefix}_${sanitizeToolName(rawToolName)}`;
+  private generateUniqueToolName(prefix: string, rawToolName: string): string {
+    return `${WEBSITE_TOOL_PREFIX}${prefix}_${sanitizeToolName(rawToolName)}`;
   }
 
   private generateTabDescription(

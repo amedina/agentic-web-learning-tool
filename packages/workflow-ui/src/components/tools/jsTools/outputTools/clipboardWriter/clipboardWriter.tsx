@@ -3,12 +3,12 @@
  */
 import { useCallback } from "react";
 import { ClipboardCopy } from "lucide-react";
+import z from "zod";
 
 /**
  * Internal dependencies
  */
 import { ToolItem } from "../../../../ui";
-import z from "zod";
 
 export const ClipboardWriterSchema = z.object({
   title: z.string(),
