@@ -9,14 +9,18 @@ import { ClipboardCopy } from 'lucide-react';
  * Internal dependencies
  */
 import { ToolNodeContainer } from '../../../../ui';
-import { useApi, useFlow } from '../../../../../store';
+import { useApi, useFlow } from '../../../../../stateProviders';
+import type { ClipboardWriterConfig } from './clipboardWriter';
 
 const ToolNode = () => {
   const nodeId = useNodeId();
-  const { selectedNode, setSelectedNode } = useApi(({ state, actions }) => ({
-    selectedNode: state.selectedNode,
-    setSelectedNode: actions.setSelectedNode,
-  }));
+  const { getNode, selectedNode, setSelectedNode } = useApi(
+    ({ state, actions }) => ({
+      selectedNode: state.selectedNode,
+      getNode: actions.getNode,
+      setSelectedNode: actions.setSelectedNode,
+    })
+  );
 
   const { nodes, deleteNode } = useFlow(({ state, actions }) => ({
     nodes: state.nodes,
@@ -26,6 +30,15 @@ const ToolNode = () => {
   const nodeStatus = useMemo(() => {
     return nodes.find((n) => n.id === nodeId)?.status;
   }, [nodes, nodeId]);
+
+  const config = useMemo(() => {
+    if (!nodeId) return undefined;
+    const node = getNode(nodeId);
+
+    if (!node) return undefined;
+
+    return node?.config as ClipboardWriterConfig;
+  }, [getNode, nodeId]);
 
   return (
     <ToolNodeContainer
@@ -37,10 +50,15 @@ const ToolNode = () => {
       onEdit={() => setSelectedNode(nodeId)}
       onRemove={() => nodeId && deleteNode(nodeId)}
     >
-      <div className="h-fit w-full flex flex-col relative py-2">
-        <p className="text-xs text-slate-500 italic px-1">
-          Copies input to clipboard
-        </p>
+      <div className="h-fit w-full flex flex-col relative px-2">
+        <div className="w-full bg-linear-to-br from-blue-50/50 to-indigo-50/50 dark:from-zinc-800/80 dark:to-zinc-900/80 rounded-md px-3 py-2 my-2 border border-blue-100/50 dark:border-border">
+          <p className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-1">
+            Clipboard Access
+          </p>
+          <p className="truncate text-xs text-slate-600 dark:text-zinc-400 italic font-medium">
+            {config?.description || 'Copy data to clipboard'}
+          </p>
+        </div>
         <Handle
           type="target"
           position={Position.Left}
@@ -53,6 +71,20 @@ const ToolNode = () => {
         >
           <div className="flex items-center gap-2 w-fit absolute -translate-x-[30%] translate-y-[-50%] top-[2.5px]">
             <div className="min-w-3 h-3 bg-blue-500 rounded-full shadow-sm"></div>
+          </div>
+        </Handle>
+        <Handle
+          type="source"
+          position={Position.Right}
+          style={{
+            background: 'none',
+            border: 'none',
+            top: '50%',
+            right: '-10px',
+          }}
+        >
+          <div className="flex items-center gap-2 w-fit absolute translate-y-[-50%] -translate-x-[10%] top-[2.5px]">
+            <div className="min-w-3 h-3 bg-green-600 rounded-full shadow-sm"></div>
           </div>
         </Handle>
       </div>

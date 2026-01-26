@@ -6,8 +6,8 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 /**
  * Internal dependencies
  */
-import { withStore } from '../../../../stories/StoreDecorator';
 import ToolNode from './toolNode';
+import { withStore } from '../../../../stories/providerDecorator';
 
 const meta = {
   title: 'Extension/Tools/BuiltinAI/LanguageDetectorApi/ToolNode',

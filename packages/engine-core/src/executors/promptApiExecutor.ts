@@ -21,6 +21,7 @@ export async function promptApiExecutor(
     topK,
     expectedInputsLanguages,
     expectedOutputsLanguages,
+    initialPrompts,
   } = config as any;
 
   const formattedInput = formatInputText(input);
@@ -34,13 +35,13 @@ export async function promptApiExecutor(
     const sessionOptions: Record<string, unknown> = {};
 
     if (systemContext) {
-      // sessionOptions.initialPrompts = [
-      //   {
-      //     role: "system",
-      //     content: context,
-      //   },
-      //   ...(initialPrompts ?? []),
-      // ];
+      sessionOptions.initialPrompts = [
+        {
+          role: 'system',
+          content: systemContext,
+        },
+        ...(initialPrompts ?? []),
+      ];
     } else {
       sessionOptions.initialPrompts = [];
     }

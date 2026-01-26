@@ -214,7 +214,8 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
   async replaceDOM(
     selector: string,
     content: string,
-    isMultiple?: boolean
+    isMultiple?: boolean,
+    index?: number
   ): Promise<void> {
     const tabId = await this.getTargetTabId();
 
@@ -223,6 +224,7 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
       selector,
       content,
       isMultiple,
+      index,
     };
 
     const response = await chrome.tabs.sendMessage(tabId, message);

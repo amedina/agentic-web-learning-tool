@@ -16,9 +16,14 @@ export async function alertNotificationExecutor(
 ): Promise<string> {
   const input = config.input;
   const title = config.title as string | undefined;
+  const useCustomMessage = !!config.useCustomMessage;
+  const configMessage = (config.message as string) || '';
 
   const formattedInput = formatInputText(input);
-  const message = formattedInput || title || 'Notification';
+
+  const message = useCustomMessage
+    ? configMessage || 'No message provided'
+    : formattedInput || title || 'Notification';
 
   await runtime.showAlert(message);
 

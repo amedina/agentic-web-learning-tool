@@ -61,6 +61,11 @@ export interface NodeOutput {
   status: NodeStatus;
   data?: unknown;
   error?: string;
+  metadata?: {
+    type: string;
+    label?: string;
+    config?: Record<string, unknown>;
+  };
 }
 
 /**
@@ -82,6 +87,10 @@ export interface ExecutionContext {
   variables: Record<string, unknown>;
   status: ExecutionStatus;
   signal?: AbortSignal;
+  loop?: {
+    index: number;
+    total: number;
+  };
 }
 
 /**

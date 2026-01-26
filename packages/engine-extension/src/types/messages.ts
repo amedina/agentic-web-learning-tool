@@ -48,6 +48,7 @@ export interface ReplaceDOMMessage {
   selector: string;
   content: string;
   isMultiple?: boolean;
+  index?: number;
 }
 
 /**

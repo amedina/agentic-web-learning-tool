@@ -20,13 +20,13 @@ import {
   useFlow,
   useApi,
   type NodeConfig,
-} from '../../store';
-import { Flow } from '../ui';
+} from '../../stateProviders';
+import { Flow, Toast, SavedWorkflowsDialog } from '../ui';
 import { TOOL_CONFIGS } from '../tools/toolRegistry';
 import { saveWorkflow, loadWorkflow } from '../../../../utils/storage';
-import SavedWorkflowsDialog from '../ui/flow/SavedWorkflowsDialog';
 
 const ID_PREFIX = 'wf_';
+const STORAGE_KEY_SELECTED_TAB = 'awl_wc_selected_tab_id';
 
 const generateId = () =>
   `${ID_PREFIX}${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -37,7 +37,19 @@ const WorkflowCanvas = () => {
   const [importJson, setImportJson] = useState('');
   const [workflowId, setWorkflowId] = useState<string | null>(null);
   const [tabs, setTabs] = useState<chrome.tabs.Tab[]>([]);
-  const [selectedTabId, setSelectedTabId] = useState<number | null>(null);
+  const [selectedTabId, _setSelectedTabId] = useState<number | null>(() => {
+    const saved = localStorage.getItem(STORAGE_KEY_SELECTED_TAB);
+    return saved ? Number(saved) : null;
+  });
+
+  const setSelectedTabId = useCallback((id: number | null) => {
+    _setSelectedTabId(id);
+    if (id !== null) {
+      localStorage.setItem(STORAGE_KEY_SELECTED_TAB, String(id));
+    } else {
+      localStorage.removeItem(STORAGE_KEY_SELECTED_TAB);
+    }
+  }, []);
   const [showSavedWorkflows, setShowSavedWorkflows] = useState(false);
   const [isStopping, setIsStopping] = useState(false);
   const [toast, setToast] = useState<{
@@ -118,19 +130,33 @@ const WorkflowCanvas = () => {
     [addNode, addApiNode, screenToFlowPosition]
   );
 
-  // Fetch tabs on mount
-  useEffect(() => {
+  const refetchTabs = useCallback(() => {
     if (typeof chrome !== 'undefined' && chrome.tabs?.query) {
       chrome.tabs.query({}, (result) => {
         setTabs(result);
-        // Select active tab if found
-        const activeTab = result.find((t) => t.active);
-        if (activeTab?.id) {
-          setSelectedTabId(activeTab.id);
+
+        const currentTabExists = result.some((t) => t.id === selectedTabId);
+
+        if (!currentTabExists || !selectedTabId) {
+          const optionsTab = result.find((t) =>
+            t.url?.includes('options.html')
+          );
+
+          const activeTab = result.find((t) => t.active);
+
+          const fallbackId = optionsTab?.id || activeTab?.id || result[0]?.id;
+
+          if (fallbackId) {
+            setSelectedTabId(fallbackId);
+          }
         }
       });
     }
-  }, []);
+  }, [selectedTabId, setSelectedTabId]);
+
+  useEffect(() => {
+    refetchTabs();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps -- Fetch on first render only
 
   const handleImport = useCallback(() => {
     setShowImportDialog(true);
@@ -177,23 +203,39 @@ const WorkflowCanvas = () => {
     [clearFlow, addNode, addApiNode, onConnect]
   );
 
-  const addPlaceholderNode = useCallback(() => {
-    const id = new Date().getTime().toString();
+  const initializeStandardNodes = useCallback(() => {
+    const startId = new Date().getTime().toString() + 'start';
+    const endId = new Date().getTime().toString() + 'end';
 
     addNode({
-      id,
-      type: 'staticInput',
-      position: { x: 10, y: 10 },
-      data: { label: 'Static Input' },
+      id: startId,
+      type: 'start',
+      position: { x: 50, y: 50 },
+      data: { label: 'Start' },
     });
 
     addApiNode({
-      id,
-      type: 'staticInput',
+      id: startId,
+      type: 'start',
       config: {
-        title: 'Static Input',
-        description: 'Provide a static text input.',
-        inputValue: '',
+        title: 'Start',
+        description: 'Workflow entry point.',
+      },
+    });
+
+    addNode({
+      id: endId,
+      type: 'end',
+      position: { x: 750, y: 500 },
+      data: { label: 'End' },
+    });
+
+    addApiNode({
+      id: endId,
+      type: 'end',
+      config: {
+        title: 'End',
+        description: 'Workflow exit point.',
       },
     });
   }, [addNode, addApiNode]);
@@ -221,10 +263,10 @@ const WorkflowCanvas = () => {
         const newUrl = new URL(window.location.href);
         newUrl.searchParams.set('id', newId);
         window.history.replaceState({}, '', newUrl.toString());
-        addPlaceholderNode();
+        initializeStandardNodes();
       }
     })();
-  }, [loadWorkflowData, addNode, addApiNode, addPlaceholderNode]);
+  }, [loadWorkflowData, addNode, addApiNode, initializeStandardNodes]);
 
   const serializeWorkflow = useCallback(
     (
@@ -309,10 +351,20 @@ const WorkflowCanvas = () => {
         nodesApiData
       );
 
-      await navigator.clipboard.writeText(
-        JSON.stringify(workflowData, null, 2)
-      );
-      showToast('Workflow exported to clipboard!', 'success');
+      const blob = new Blob([JSON.stringify(workflowData, null, 2)], {
+        type: 'application/json',
+      });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${workflowTitle.toLowerCase().replace(/\s+/g, '-') || 'workflow'}.json`;
+      document.body.appendChild(link);
+      link.click();
+
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      showToast('Workflow exported as JSON file!', 'success');
     } catch (error) {
       console.error('Failed to export workflow:', error);
       showToast('Failed to export workflow', 'error');
@@ -469,6 +521,7 @@ const WorkflowCanvas = () => {
       window.history.replaceState({}, '', newUrl.toString());
 
       clearFlow();
+      initializeStandardNodes();
 
       const initialData = {
         meta: {
@@ -478,12 +531,26 @@ const WorkflowCanvas = () => {
           version: '1.0.0',
           savedAt: new Date().toISOString(),
         },
-        graph: { nodes: [], edges: [] },
+        graph: {
+          nodes: [
+            {
+              id: 'start_node',
+              type: 'start',
+              label: 'Start',
+              config: {
+                title: 'Start',
+                description: 'Workflow entry point.',
+              },
+              ui: { position: { x: 100, y: 100 } },
+            },
+          ],
+          edges: [],
+        },
       };
       saveWorkflow(newId, initialData);
-      showToast('New workflow creating!', 'success');
+      showToast('New workflow created!', 'success');
     }
-  }, [clearFlow, showToast]);
+  }, [clearFlow, initializeStandardNodes, showToast]);
 
   const handleLoadSaved = useCallback(() => {
     setShowSavedWorkflows(true);
@@ -509,18 +576,18 @@ const WorkflowCanvas = () => {
   );
 
   return (
-    <div className="h-full flex-1 flex flex-col rounded bg-gray-100 relative">
+    <div className="h-full flex-1 flex flex-col rounded bg-gray-100 dark:bg-background relative">
       {/* Import Dialog */}
       {showImportDialog && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-2xl mx-4">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-zinc-900 rounded-lg p-6 w-full max-w-2xl mx-4 border border-slate-200 dark:border-border shadow-2xl">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-foreground">
                 Import Workflow
               </h3>
               <button
                 onClick={() => setShowImportDialog(false)}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300 transition-colors"
               >
                 <X size={24} />
               </button>
@@ -528,7 +595,7 @@ const WorkflowCanvas = () => {
             <div className="mb-4">
               <label
                 htmlFor="import-json"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-2"
               >
                 Paste workflow JSON:
               </label>
@@ -536,7 +603,7 @@ const WorkflowCanvas = () => {
                 id="import-json"
                 value={importJson}
                 onChange={(e) => setImportJson(e.target.value)}
-                className="w-full h-64 p-3 border border-gray-300 rounded-md font-mono text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full h-64 p-3 border border-gray-300 dark:border-zinc-700 rounded-md font-mono text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white dark:bg-zinc-950 text-slate-900 dark:text-foreground"
                 placeholder='{"title": "My Workflow", "nodes": [...], "edges": [...], "savedAt": "..."}'
               />
             </div>
@@ -566,15 +633,11 @@ const WorkflowCanvas = () => {
 
       {/* Toast Notification */}
       {toast && (
-        <div
-          className={`fixed top-4 right-4 z-50 p-4 rounded-md shadow-lg ${
-            toast.type === 'success'
-              ? 'bg-green-500 text-white'
-              : 'bg-red-500 text-white'
-          }`}
-        >
-          {toast.message}
-        </div>
+        <Toast
+          message={toast.message}
+          type={toast.type === 'success' ? 'success' : 'error'}
+          onClose={() => setToast(null)}
+        />
       )}
 
       <div className="flex-1 w-full h-full">
@@ -603,6 +666,7 @@ const WorkflowCanvas = () => {
             onStop: handleStop,
             onDrop: handleDrop,
             onLoadSaved: handleLoadSaved,
+            onRefreshTabs: refetchTabs,
           }}
         />
       </div>

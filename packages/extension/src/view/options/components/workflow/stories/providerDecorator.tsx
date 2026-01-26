@@ -7,8 +7,8 @@ import '@xyflow/react/dist/style.css';
 /**
  * Internal dependencies
  */
-import FlowContext, { FlowCleaner } from '../store/flow/context';
-import ApiContext, { ApiCleaner } from '../store/api/context';
+import FlowContext, { FlowCleaner } from '../stateProviders/flow/context';
+import ApiContext, { ApiCleaner } from '../stateProviders/api/context';
 
 export const withStore = (Story: any, { parameters }: any) => {
   const { flowStore, apiStore } = parameters;

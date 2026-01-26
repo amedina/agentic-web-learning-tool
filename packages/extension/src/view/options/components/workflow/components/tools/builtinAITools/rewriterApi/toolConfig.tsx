@@ -78,16 +78,19 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 
   return (
     <div className="space-y-6">
-      <div className="bg-slate-100 rounded-lg p-4">
-        <h3 className="text-sm font-semibold text-slate-800 mb-4 flex items-center gap-2">
-          <Settings size={16} className="text-indigo-600" />
+      <div className="bg-slate-100 dark:bg-slate-900/50 rounded-lg p-4 border border-transparent dark:border-slate-800">
+        <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">
+          <Settings
+            size={16}
+            className="text-indigo-600 dark:text-indigo-400"
+          />
           Rewriter API Configuration
         </h3>
 
         <div className="space-y-4">
           <div>
             <label
-              className="block text-sm font-medium text-slate-700 mb-2"
+              className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
               htmlFor="tone"
             >
               Rewriting Tone
@@ -96,18 +99,24 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
               name="tone"
               id="tone"
               value={tone}
-              className="w-full p-2 border border-slate-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+              className="w-full p-2 border border-slate-300 dark:border-slate-700 rounded-md bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
               onChange={(e) => setTone(e.target.value)}
             >
-              <option value="more-formal">More Formal</option>
-              <option value="as-is">As Is</option>
-              <option value="more-casual">More Casual</option>
+              <option value="more-formal" className="dark:bg-slate-900">
+                More Formal
+              </option>
+              <option value="as-is" className="dark:bg-slate-900">
+                As Is
+              </option>
+              <option value="more-casual" className="dark:bg-slate-900">
+                More Casual
+              </option>
             </select>
           </div>
 
           <div>
             <label
-              className="block text-sm font-medium text-slate-700 mb-2"
+              className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
               htmlFor="format"
             >
               Output Format
@@ -116,18 +125,24 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
               name="format"
               id="format"
               value={format}
-              className="w-full p-2 border border-slate-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+              className="w-full p-2 border border-slate-300 dark:border-slate-700 rounded-md bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
               onChange={(e) => setFormat(e.target.value)}
             >
-              <option value="as-is">As Is</option>
-              <option value="markdown">Markdown</option>
-              <option value="plain-text">Plain Text</option>
+              <option value="as-is" className="dark:bg-slate-900">
+                As Is
+              </option>
+              <option value="markdown" className="dark:bg-slate-900">
+                Markdown
+              </option>
+              <option value="plain-text" className="dark:bg-slate-900">
+                Plain Text
+              </option>
             </select>
           </div>
 
           <div>
             <label
-              className="block text-sm font-medium text-slate-700 mb-2"
+              className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
               htmlFor="length"
             >
               Content Length
@@ -136,18 +151,24 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
               name="length"
               id="length"
               value={length}
-              className="w-full p-2 border border-slate-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+              className="w-full p-2 border border-slate-300 dark:border-slate-700 rounded-md bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
               onChange={(e) => setLength(e.target.value)}
             >
-              <option value="shorter">Shorter</option>
-              <option value="as-is">As Is</option>
-              <option value="longer">Longer</option>
+              <option value="shorter" className="dark:bg-slate-900">
+                Shorter
+              </option>
+              <option value="as-is" className="dark:bg-slate-900">
+                As Is
+              </option>
+              <option value="longer" className="dark:bg-slate-900">
+                Longer
+              </option>
             </select>
           </div>
 
           <div>
             <label
-              className="block text-sm font-medium text-slate-700 mb-2"
+              className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
               htmlFor="inputLanguages"
             >
               Input Languages
@@ -157,25 +178,31 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
               name="inputLanguages"
               id="inputLanguages"
               value={inputLanguages}
-              className="w-full p-2 border border-slate-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+              className="w-full p-2 border border-slate-300 dark:border-slate-700 rounded-md bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
               onChange={(e) =>
                 setInputLanguages(
                   Array.from(e.target.selectedOptions, (option) => option.value)
                 )
               }
             >
-              <option value="en">English</option>
-              <option value="es">Spanish</option>
-              <option value="ja">Japanese</option>
+              <option value="en" className="dark:bg-slate-900">
+                English
+              </option>
+              <option value="es" className="dark:bg-slate-900">
+                Spanish
+              </option>
+              <option value="ja" className="dark:bg-slate-900">
+                Japanese
+              </option>
             </select>
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">
               Hold Ctrl/Cmd to select multiple
             </p>
           </div>
 
           <div>
             <label
-              className="block text-sm font-medium text-slate-700 mb-2"
+              className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
               htmlFor="outputLanguage"
             >
               Output Language
@@ -184,12 +211,18 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
               name="outputLanguage"
               id="outputLanguage"
               value={outputLanguage}
-              className="w-full p-2 border border-slate-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+              className="w-full p-2 border border-slate-300 dark:border-slate-700 rounded-md bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
               onChange={(e) => setOutputLanguage(e.target.value)}
             >
-              <option value="en">English</option>
-              <option value="es">Spanish</option>
-              <option value="ja">Japanese</option>
+              <option value="en" className="dark:bg-slate-900">
+                English
+              </option>
+              <option value="es" className="dark:bg-slate-900">
+                Spanish
+              </option>
+              <option value="ja" className="dark:bg-slate-900">
+                Japanese
+              </option>
             </select>
           </div>
         </div>
