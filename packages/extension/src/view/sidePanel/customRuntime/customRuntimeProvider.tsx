@@ -8,7 +8,12 @@ import {
 } from '@assistant-ui/react';
 import { useChatRuntime } from '@assistant-ui/react-ai-sdk';
 import { lastAssistantMessageIsCompleteWithToolCalls } from 'ai';
-import type { PropsWithChildren, RefObject } from 'react';
+import {
+  useCallback,
+  useEffect,
+  type PropsWithChildren,
+  type RefObject,
+} from 'react';
 /**
  * Internal dependencies
  */
@@ -16,10 +21,11 @@ import ChatAdapter from './chatAdapter';
 import { HistoryAdapter } from './historyAdpter';
 import type { GeminiNanoChatTransport } from '../transports/geminiNano';
 import type { CloudHostedTransport } from '../transports/cloudHosted';
+import { dbConnection } from './dbConnection';
 
 type CustomRuntimeProviderProps = PropsWithChildren & {
   runtimeRef: RefObject<AssistantRuntime | null>;
-  transport: GeminiNanoChatTransport | CloudHostedTransport | null;
+  transport: GeminiNanoChatTransport | CloudHostedTransport;
 };
 
 export default function CustomRuntimeProvider({
@@ -28,10 +34,6 @@ export default function CustomRuntimeProvider({
   transport,
 }: CustomRuntimeProviderProps) {
   const useMyCustomRuntime = () => {
-    if (!transport) {
-      return;
-    }
-
     return useChatRuntime({
       messages: [],
       transport,
@@ -40,8 +42,74 @@ export default function CustomRuntimeProvider({
     });
   };
 
+  const onActivatedListener = useCallback(
+    async ({ tabId }: chrome.tabs.OnActivatedInfo) => {
+      if (!runtimeRef.current) {
+        return;
+      }
+
+      const threads = await dbConnection.threads.findAll();
+      const currentTabThread = threads.find((thread) => thread.tabId === tabId);
+
+      if (!currentTabThread) {
+        await runtimeRef.current.threads.switchToNewThread();
+        return;
+      }
+
+      runtimeRef.current.threads.switchToThread(currentTabThread.remoteId);
+    },
+    [runtimeRef]
+  );
+
+  const onCreatedListener = useCallback(async () => {
+    if (!runtimeRef.current) {
+      return;
+    }
+
+    await runtimeRef.current.threads.switchToNewThread();
+  }, [runtimeRef]);
+
+  useEffect(() => {
+    (async () => {
+      if (!runtimeRef.current) {
+        return;
+      }
+
+      const tabs = await chrome.tabs.query({
+        active: true,
+        currentWindow: true,
+      });
+
+      const activeTab = tabs[0];
+      if (!activeTab) {
+        return;
+      }
+
+      const threads = await dbConnection.threads.findAll();
+      const currentTabThread = threads.find(
+        (thread) => thread.tabId === activeTab.id
+      );
+
+      if (!currentTabThread) {
+        await runtimeRef.current.threads.switchToNewThread();
+        return;
+      }
+
+      runtimeRef.current.threads.switchToThread(currentTabThread.remoteId);
+    })();
+  }, [runtimeRef]);
+
+  useEffect(() => {
+    chrome.tabs.onActivated.addListener(onActivatedListener);
+    chrome.tabs.onCreated.addListener(onCreatedListener);
+    return () => {
+      chrome.tabs.onActivated.removeListener(onActivatedListener);
+      chrome.tabs.onCreated.removeListener(onCreatedListener);
+    };
+  }, [onActivatedListener, onCreatedListener]);
+
   runtimeRef.current = useRemoteThreadListRuntime({
-    //@ts-expect-error -- Ignore this since we have added a failsafe where runtime is being used
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     runtimeHook: () => useMyCustomRuntime(),
     adapter: {
       ...ChatAdapter(),

@@ -31,6 +31,7 @@ export type RemoteThreadMetadata = {
   readonly status: 'archived' | 'regular';
   readonly remoteId: string;
   readonly externalId?: string | undefined;
+  readonly tabId?: number | undefined;
   readonly title?: string | undefined;
   readonly id?: string;
 };

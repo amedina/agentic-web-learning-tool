@@ -6,24 +6,29 @@ import type { RemoteThreadMetadata, SingleMessage } from './types';
 export const dbConnection = {
   threads: {
     async findAll(): Promise<RemoteThreadMetadata[]> {
-      const { storedThreads = [] } = await chrome.storage.local.get(
-        'assistant-ui-threads'
-      );
+      const { 'assistant-ui-threads': storedThreads = [] } =
+        await chrome.storage.local.get('assistant-ui-threads');
       return storedThreads as RemoteThreadMetadata[];
     },
 
     async create({ id }: { id: string }) {
+      const currentTab = await chrome.tabs.query({
+        active: true,
+        currentWindow: true,
+      });
+
       const newThread: RemoteThreadMetadata = {
         id,
         remoteId: id,
         title: 'New Chat',
         status: 'regular',
+        tabId: currentTab[0]?.id,
         externalId: id,
       };
 
       const threads = await this.findAll();
       threads.push(newThread);
-      chrome.storage.local.set({
+      await chrome.storage.local.set({
         'assistant-ui-threads': threads,
       });
 
@@ -37,7 +42,7 @@ export const dbConnection = {
         thread.id === id ? { ...thread, ...data } : thread
       );
 
-      chrome.storage.local.set({
+      await chrome.storage.local.set({
         'assistant-ui-threads': updatedThreads,
       });
     },
@@ -54,9 +59,8 @@ export const dbConnection = {
 
   messages: {
     async findByThreadId(threadId: string) {
-      const { messages = [] } = await chrome.storage.local.get(
-        'assistant-ui-messages'
-      );
+      const { 'assistant-ui-messages': messages = [] } =
+        await chrome.storage.local.get('assistant-ui-messages');
       const allMessages = messages as SingleMessage[];
       return allMessages.filter(
         (message: SingleMessage) => message.threadId === threadId
@@ -64,9 +68,8 @@ export const dbConnection = {
     },
 
     async create(message: SingleMessage) {
-      const { messages = [] } = await chrome.storage.local.get(
-        'assistant-ui-messages'
-      );
+      const { 'assistant-ui-messages': messages = [] } =
+        await chrome.storage.local.get('assistant-ui-messages');
       const allMessages = messages as SingleMessage[];
       //@ts-expect-error -- Ignoring this since tested and parts and content are used interchangebly in ai-sdk and Assistant-ui
       if (message?.message?.parts?.length === 0) {
@@ -75,21 +78,20 @@ export const dbConnection = {
 
       allMessages.push(message);
 
-      chrome.storage.local.set({
-        'assistant-ui-threads': messages,
+      await chrome.storage.local.set({
+        'assistant-ui-messages': allMessages,
       });
     },
 
     async deleteByThreadId(threadId: string) {
-      const { messages = [] } = await chrome.storage.local.get(
-        'assistant-ui-messages'
-      );
+      const { 'assistant-ui-messages': messages = [] } =
+        await chrome.storage.local.get('assistant-ui-messages');
       const allMessages = messages as SingleMessage[];
       const filteredMessages = allMessages.filter(
         (message: SingleMessage) => message.threadId !== threadId
       );
-      chrome.storage.local.set({
-        'assistant-ui-threads': filteredMessages,
+      await chrome.storage.local.set({
+        'assistant-ui-messages': filteredMessages,
       });
     },
   },

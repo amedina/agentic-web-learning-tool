@@ -38,6 +38,18 @@ export const HistoryAdapter = () => {
           return;
         }
 
+        const messages = await dbConnection.messages.findByThreadId(remoteId);
+
+        if (message.message.role === 'user' && messages.length === 0) {
+          //@ts-expect-error -- We are sure that the first message will have text part.
+          const messageTitle = message.message.parts
+            //@ts-expect-error -- We are sure that the first message will have text part.
+            .filter((part) => part.type === 'text')[0]
+            .text.substring(0, 30);
+
+          dbConnection.threads.update(remoteId, { title: messageTitle });
+        }
+
         await dbConnection.messages.create({
           ...message,
           threadId: remoteId,

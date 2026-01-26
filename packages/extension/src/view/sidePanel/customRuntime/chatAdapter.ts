@@ -26,7 +26,7 @@ const ChatAdapter = () => {
     },
     initialize: async (threadId: string) => {
       const thread = await dbConnection.threads.create({ id: threadId });
-
+      console.log('Initialized thread:', thread);
       return {
         remoteId: thread.remoteId,
         externalId: thread.externalId,
@@ -34,7 +34,10 @@ const ChatAdapter = () => {
     },
 
     rename: async (remoteId: string, newTitle: string) => {
-      dbConnection.threads.update(remoteId, { title: newTitle });
+      console.log('Renaming thread:', remoteId, 'to', newTitle);
+      dbConnection.threads.update(remoteId, {
+        title: newTitle,
+      });
     },
 
     archive: async (remoteId: string) => {
@@ -50,13 +53,12 @@ const ChatAdapter = () => {
       dbConnection.threads.delete(remoteId);
     },
 
-    generateTitle: async (remoteId: string, message: ThreadMessage[]) => {
-      console.log(message);
+    generateTitle: async (_remoteId: string, message: ThreadMessage[]) => {
       const title = message
         .filter((message) => message.role === 'user')[0]
         .content.filter((message) => message.type === 'text')[0]
         .text.substring(0, 30);
-      dbConnection.threads.update(remoteId, { title });
+
       const stream = createAssistantStream((controller) => {
         controller.appendText(title);
         controller.close();
