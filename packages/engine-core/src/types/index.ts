@@ -75,11 +75,11 @@ export interface NodeOutput {
  * Possible node execution statuses
  */
 export type NodeStatus =
-  | "pending"
-  | "running"
-  | "success"
-  | "error"
-  | "skipped";
+  | 'pending'
+  | 'running'
+  | 'success'
+  | 'error'
+  | 'skipped';
 
 /**
  * Execution context maintained during workflow run
@@ -99,4 +99,4 @@ export interface ExecutionContext {
 /**
  * Possible workflow execution statuses
  */
-export type ExecutionStatus = "idle" | "running" | "completed" | "failed";
+export type ExecutionStatus = 'idle' | 'running' | 'completed' | 'failed';

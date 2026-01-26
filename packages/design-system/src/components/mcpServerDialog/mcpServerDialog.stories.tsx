@@ -73,7 +73,7 @@ const meta: Meta<typeof MCPServerDialog> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const DialogWrapper = (args: any) => {
+const DialogWrapper = (args: Story['args']) => {
   const [isOpen, setIsOpen] = useState(args.open || false);
 
   const handleOpenChange = (open: boolean) => {
@@ -103,7 +103,7 @@ const DialogWrapper = (args: any) => {
  * Validation will pass after 800ms.
  */
 export const AddNewServer: Story = {
-  render: (args) => <DialogWrapper {...args} />,
+  render: (args: Story['args']) => <DialogWrapper {...args} />,
   args: {
     open: false,
     serverId: '',
@@ -118,7 +118,7 @@ export const AddNewServer: Story = {
  * Includes tools in the tools tab.
  */
 export const EditServer: Story = {
-  render: (args) => <DialogWrapper {...args} />,
+  render: (args: Story['args']) => <DialogWrapper {...args} />,
   args: {
     open: false,
     serverId: 'srv-123-abc',
@@ -132,7 +132,7 @@ export const EditServer: Story = {
  * Demonstrates the "Tools" tab being active by default.
  */
 export const ViewTools: Story = {
-  render: (args) => <DialogWrapper {...args} />,
+  render: (args: Story['args']) => <DialogWrapper {...args} />,
   args: {
     open: false, // Auto open for this story
     serverId: 'srv-123-abc',
@@ -147,13 +147,13 @@ export const ViewTools: Story = {
  * The "Save" button should remain disabled even if "Validate" is clicked.
  */
 export const ValidationFailure: Story = {
-  render: (args) => <DialogWrapper {...args} />,
+  render: (args: Story['args']) => <DialogWrapper {...args} />,
   args: {
     open: false,
     serverId: '',
     server: { ...emptyConfig, name: 'Invalid Server' },
     toolList: [],
-    validator: async (_config, _name: string) => {
+    validator: async (_config: MCPServerConfig, _name: string) => {
       await new Promise((resolve) => setTimeout(resolve, 500));
       return {
         isValid: false,

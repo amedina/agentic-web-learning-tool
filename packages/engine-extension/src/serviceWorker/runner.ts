@@ -6,12 +6,12 @@ import {
   registerBuiltinExecutors,
   type WorkflowJSON,
   type ExecutionContext,
-} from "@google-awlt/engine-core";
+} from '@google-awlt/engine-core';
 
 /**
  * Internal dependencies
  */
-import { ServiceWorkerRuntime, type ExecutionCallbacks } from "./runtime";
+import { ServiceWorkerRuntime, type ExecutionCallbacks } from './runtime';
 
 /**
  * Workflow Runner

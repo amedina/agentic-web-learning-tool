@@ -12,8 +12,14 @@
     "declarationMap": true,
     "outDir": "./dist",
     "rootDir": "./src",
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "typeRoots": ["./node_modules/@types"],
+    "types": ["jest", "chrome", "dom-chromium-ai"]
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "include": [
+    "src/**/*",
+    "node_modules/@types/chrome/index.d.ts",
+    "node_modules/@types/dom-chromium-ai/index.d.ts"
+  ],
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.test.tsx"]
 }
