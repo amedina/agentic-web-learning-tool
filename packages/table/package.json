@@ -39,6 +39,7 @@
     "victory": "^36.6.11"
   },
   "devDependencies": {
+    "@storybook/react": "^10.2.0",
     "@types/chrome": "^0.1.33",
     "@types/jest": "^30.0.0",
     "@types/node": "^24.10.7",

@@ -13,8 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { BLOCK_STATUS } from "@google-awlt/common";
 import { InfoType, TableColumn, TableData } from "../useTable";
+
+const BLOCK_STATUS = {
+  NOT_BLOCKED: false,
+  BLOCKED_IN_ALL_EVENTS: false,
+};
 
 export const tableSearchKeys = ["parsedCookie.name", "parsedCookie.domain"];
 
