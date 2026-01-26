@@ -1,12 +1,18 @@
+import { TableRow } from "../../useTable/types";
+
 export interface TrayProps {
-  selectedKey: any;
+  selectedRow?: TableRow;
 }
 
-const Tray = ({ selectedKey }: TrayProps) => {
+const Tray = ({ selectedRow }: TrayProps) => {
   return (
     <div className="border border-gray-300 dark:border-quartz shadow-sm h-full min-w-[10rem] overflow-y-auto">
-      {selectedKey ? (
-        <div>{JSON.stringify(selectedKey)}</div>
+      {selectedRow ? (
+        <div className="p-4">
+          <p className="text-sm text-gray-700 dark:text-gray-300">
+            {selectedRow.originalData.description}
+          </p>
+        </div>
       ) : (
         <div className="h-full p-8 flex items-center">
           <p className="text-lg w-full font-bold text-granite-gray dark:text-manatee text-center">

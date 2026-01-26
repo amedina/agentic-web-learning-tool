@@ -74,6 +74,7 @@ const Table = ({
     loadMoreData,
     hasMoreData,
     tableRef,
+    getRowObjectKey,
   } = useTable(({ state, actions }) => ({
     filters: state.filters,
     isSelectAllFilterSelected: actions.isSelectAllFilterSelected,
@@ -90,6 +91,7 @@ const Table = ({
     loadMoreData: actions.loadMoreData,
     hasMoreData: state.hasMoreData,
     tableRef: state.tableRef,
+    getRowObjectKey: actions.getRowObjectKey,
   }));
 
   const [showColumnsMenu, setShowColumnsMenu] = useState(false);
@@ -100,6 +102,11 @@ const Table = ({
     y: 0,
   });
   const [isRowFocused, setIsRowFocused] = useState(false);
+
+  const selectedRow = React.useMemo(() => {
+    if (!selectedKey || !rows) return undefined;
+    return rows.find((row) => getRowObjectKey(row) === selectedKey);
+  }, [rows, selectedKey, getRowObjectKey]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -241,7 +248,7 @@ const Table = ({
         }}
         className="h-full w-full"
       >
-        <Tray selectedKey={selectedKey} />
+        <Tray selectedRow={selectedRow} />
       </Resizable>
     </div>
   );
