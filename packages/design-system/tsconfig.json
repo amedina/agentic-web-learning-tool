@@ -13,12 +13,7 @@
       "@/*": ["./src/*"]
     },
     "types": ["jest"],
-    "typeRoots": ["./node_modules/@types"],
-    "verbatimModuleSyntax": false,
-    "paths": {
-      "@/*": ["./src/*"],
-      "@google-awlt/common": ["../common/src/index.ts"]
-    }
+    "typeRoots": ["./node_modules/@types"]
   },
   "include": [
     "src",
