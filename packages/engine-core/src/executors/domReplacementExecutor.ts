@@ -1,9 +1,9 @@
 /**
  * Internal dependencies
  */
-import type { ExecutionContext } from "../types";
-import type { RuntimeInterface } from "../runtime";
-import { formatInputText } from "../utils/executorUtils";
+import type { ExecutionContext } from '../types';
+import type { RuntimeInterface } from '../runtime';
+import { formatInputText } from '../utils/executorUtils';
 
 /**
  * DOM Replacement executor.
@@ -19,13 +19,13 @@ export async function domReplacementExecutor(
   const isMultiple = !!config.isMultiple;
 
   if (!selector) {
-    throw new Error("DOM Replacement requires a CSS selector");
+    throw new Error('DOM Replacement requires a CSS selector');
   }
 
   const formattedInput = formatInputText(input);
 
   if (!formattedInput) {
-    throw new Error("DOM Replacement requires input text");
+    throw new Error('DOM Replacement requires input text');
   }
 
   await runtime.replaceDOM(selector, formattedInput, isMultiple);

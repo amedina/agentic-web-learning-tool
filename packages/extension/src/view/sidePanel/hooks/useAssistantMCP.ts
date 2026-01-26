@@ -8,6 +8,7 @@ import type {
   CallToolResult,
 } from '@modelcontextprotocol/sdk/types.js';
 import { useEffect, useMemo } from 'react';
+import { WEBSITE_TOOL_PREFIX } from '@google-awlt/common';
 /**
  * Internal dependencies
  */
@@ -33,16 +34,20 @@ import { logger } from '../../../utils';
  * @param client - The connected MCP client instance.
  * @param threadId - The current active thread ID (used for preference filtering).
  * @param runtime - The Assistant UI runtime instance.
+ * @param currentTabId - The id of the current tab.
  */
 export function useAssistantMCP(
   mcpTools: McpTool[],
   client: Client | null, // Allow null for initial loading states
   threadId: string,
-  runtime: AssistantRuntime | null
+  runtime: AssistantRuntime | null,
+  currentTabId: number
 ): void {
   // 1. Filter tools based on thread preferences
   const filteredTools = useMemo(() => {
-    if (!threadId) return mcpTools;
+    if (!threadId) {
+      return mcpTools;
+    }
 
     // Retrieve preferences (Assuming validateToolPreferences handles storage retrieval internally)
     const validatedPreferences = validateToolPreferences({});
@@ -69,20 +74,34 @@ export function useAssistantMCP(
 
     // Transform MCP tools into Assistant UI tools
     const assistantTools = filteredTools
-      .map((mcpT) => {
+      .filter((tool) => {
+        if (tool.name.startsWith(WEBSITE_TOOL_PREFIX)) {
+          const match = tool.name
+            .substring(WEBSITE_TOOL_PREFIX.length)
+            .match(/(?<=tab)\d+/);
+          const tabId = match ? match[0] : '';
+          if (currentTabId === parseInt(tabId)) {
+            return true;
+          } else {
+            return false;
+          }
+        }
+        return true;
+      })
+      .map((toolName) => {
         // Generate a clean name for the UI (handles length limits & hashing if needed)
-        const uiToolName = mcpT.name;
+        const uiToolName = toolName.name;
 
         // Extract a human-readable name for logging (removes "tab123_" prefix)
-        const match = mcpT.name.match(/^tab\d+_(.+)$/);
-        const logName = match ? match[1] : mcpT.name;
+        const match = toolName.name.match(/^tab\d+_(.+)$/);
+        const logName = match ? match[1] : toolName.name;
         return {
           name: uiToolName,
           // The Assistant UI 'tool' definition
           assistantTool: tool({
             type: 'frontend',
-            description: mcpT.description,
-            parameters: mcpToolToJSONSchema(mcpT.inputSchema),
+            description: toolName.description,
+            parameters: mcpToolToJSONSchema(toolName.inputSchema),
             execute: async (args, { abortSignal: signal }) => {
               try {
                 const cleanedArgs = cleanArguments(args as ToolExecutionArgs);
@@ -90,7 +109,7 @@ export function useAssistantMCP(
                 // Execute against the MCP Client using the *Original* name
                 const toolResult = await client.callTool(
                   {
-                    name: mcpT.name,
+                    name: toolName.name,
                     arguments: cleanedArgs,
                   },
                   undefined,
@@ -129,5 +148,5 @@ export function useAssistantMCP(
     return () => {
       unregister();
     };
-  }, [client, toolSignature, runtime, filteredTools]);
+  }, [client, toolSignature, runtime, filteredTools, currentTabId]);
 }

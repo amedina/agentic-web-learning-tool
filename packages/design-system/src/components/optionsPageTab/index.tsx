@@ -2,15 +2,21 @@
  * External dependencies.
  */
 import React from 'react';
+/**
+ * Internal dependencies.
+ */
+import { cn } from '../../lib';
 
 function OptionsPageTab({
   title,
   description,
+  className,
   children,
 }: {
   title: string;
   description: string;
   children: React.ReactNode;
+  className?: string;
 }) {
   return (
     <div className="min-h-screen w-full bg-background p-6 md:p-10">
@@ -29,7 +35,9 @@ function OptionsPageTab({
         </div>
       </div>
       <div className="w-full font-sans antialiased">
-        <main className="max-w-4xl py-10 space-y-12">{children}</main>
+        <main className={cn('max-w-4xl py-10 space-y-12', className)}>
+          {children}
+        </main>
       </div>
     </div>
   );

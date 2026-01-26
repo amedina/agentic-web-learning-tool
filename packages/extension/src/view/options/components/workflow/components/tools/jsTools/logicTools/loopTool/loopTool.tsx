@@ -11,21 +11,19 @@ import z from 'zod';
 import { ToolItem } from '../../../../ui';
 
 export const LoopSchema = z.object({
-	title: z.string(),
-	description: z.string().optional(),
+  title: z.string(),
+  description: z.string().optional(),
 });
 
 export type LoopConfig = z.infer<typeof LoopSchema>;
 
 const Loop = () => {
-	const handleDragStart = useCallback((event: React.DragEvent) => {
-		event.dataTransfer.setData('workflow-composer/flow', 'loop');
-		event.dataTransfer.effectAllowed = 'move';
-	}, []);
+  const handleDragStart = useCallback((event: React.DragEvent) => {
+    event.dataTransfer.setData('workflow-composer/flow', 'loop');
+    event.dataTransfer.effectAllowed = 'move';
+  }, []);
 
-	return (
-		<ToolItem label="Loop" onDragStart={handleDragStart} Icon={Repeat} />
-	);
+  return <ToolItem label="Loop" onDragStart={handleDragStart} Icon={Repeat} />;
 };
 
 export default Loop;

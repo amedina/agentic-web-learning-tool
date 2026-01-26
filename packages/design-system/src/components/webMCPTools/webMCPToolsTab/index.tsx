@@ -37,7 +37,7 @@ export function WebMCPToolsTab({
 
   const handleSaveTool = useCallback(
     (tool: WebMCPTool) => {
-      let newTools = [...userTools];
+      const newTools = [...userTools];
 
       if (editingTool) {
         const index = newTools.findIndex((t) => t.name === editingTool.name);
@@ -80,7 +80,13 @@ export function WebMCPToolsTab({
         onSaveUserTools(newTools);
       }
     },
-    [onSaveBuiltInState, onSaveUserTools, builtInTools, userTools]
+    [
+      onSaveBuiltInState,
+      onSaveUserTools,
+      builtInTools,
+      userTools,
+      saveExtensionToolsState,
+    ]
   );
 
   const handleDeleteTool = useCallback(

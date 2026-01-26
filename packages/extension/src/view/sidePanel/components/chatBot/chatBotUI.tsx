@@ -26,6 +26,7 @@ import {
   SidebarTrigger,
   ThreadListSidebar,
 } from '@google-awlt/design-system';
+import { WEBSITE_TOOL_PREFIX } from '@google-awlt/common';
 /**
  * Internal dependencies
  */
@@ -38,6 +39,7 @@ import { INITIAL_PROVIDERS } from '../../../../constants';
 import type { AgentType } from '../../../../types';
 import { useCommandProvider } from '../../providers/commandProvider';
 import { createModelDropdown, createToolDropdown } from './utils';
+import { useSettings } from '../../../stateProviders';
 
 type ChatBotUIProps = {
   runtime: AssistantRuntime | null;
@@ -53,6 +55,11 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
       selectedAgent: state.selectedAgent,
     }));
 
+  const { tabData, currentTab } = useSettings(({ state }) => ({
+    tabData: state.tabData,
+    currentTab: state.currentTab,
+  }));
+
   useEffect(() => {
     // Synchronization Mechanism: This block listens for a "Tool Changed" event from the
     // Service Worker, and client.listTools() performs the actual "Refresh" to get the new data.
@@ -65,15 +72,15 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 
   const threadId = useAssistantState(({ threadListItem }) => threadListItem.id);
 
-  useAssistantMCP(tools, client, threadId, runtime);
+  useAssistantMCP(tools, client, threadId, runtime, currentTab);
 
   const { handleMessageChange } = useCommandProvider(({ actions }) => ({
     handleMessageChange: actions.handleMessageChange,
   }));
 
   const groupedTools = useMemo(
-    () => createToolDropdown(tools, toolNameToMCPMap),
-    [tools, toolNameToMCPMap]
+    () => createToolDropdown(tools, toolNameToMCPMap, tabData, currentTab),
+    [tools, toolNameToMCPMap, tabData, currentTab]
   );
 
   const handleSelect = useCallback(
@@ -99,6 +106,25 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
     [setSelectedAgent]
   );
 
+  const toolLength = useMemo(() => {
+    return tools
+      .filter((tool) => tool.name !== 'dummyTool')
+      .filter((tool) => {
+        if (tool.name.startsWith(WEBSITE_TOOL_PREFIX)) {
+          const match = tool.name
+            .substring(WEBSITE_TOOL_PREFIX.length)
+            .match(/(?<=tab)\d+/);
+          const tabId = match ? match[0] : '';
+          if (currentTab === parseInt(tabId)) {
+            return true;
+          } else {
+            return false;
+          }
+        }
+        return true;
+      }).length;
+  }, [currentTab, tools]);
+
   //Only shows models whose apiKeys have been and have been enabled
   const modelOptions = useMemo(() => createModelDropdown(apiKeys), [apiKeys]);
 
@@ -109,9 +135,6 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
     <>
       <div className="fixed top-0 left-0 z-20 md:hidden pl-4 shadow bg-sidebar rounded-md">
         <SidebarTrigger />
-      </div>
-      <ThreadListSidebar isThreadLoading={isLoading} />
-      <SidebarInset>
         <ThreadPrimitive.Root className="h-full flex flex-col">
           <ThreadPrimitive.Viewport
             className={`flex flex-1 items-center overflow-y-auto scroll-smooth px-4 md:px-0 ${messages.length === 0 ? '' : 'h-full'}`}
@@ -130,9 +153,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
                   </h2>
                   <p className="text-zinc-500 max-w-md">
                     I can help you write code, analyze data, or even check the
-                    weather. I have access to{' '}
-                    {tools.filter((tool) => tool.name !== 'dummyTool').length}{' '}
-                    tools.
+                    weather. I have access to {toolLength} tools.
                   </p>
                 </div>
               </ThreadPrimitive.Empty>
@@ -210,8 +231,118 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
               </ComposerPrimitive.Root>
             </div>
           </div>
+          <ThreadListSidebar isThreadLoading={isLoading} />
+          <SidebarInset>
+            <ThreadPrimitive.Root className="h-full flex flex-col">
+              <ThreadPrimitive.Viewport
+                className={`flex flex-1 items-center overflow-y-auto scroll-smooth px-4 md:px-0 ${messages.length === 0 ? '' : 'h-full'}`}
+              >
+                <div
+                  className={`max-w-3xl mx-auto w-full flex flex-col ${messages.length === 0 ? '' : 'h-full'}`}
+                >
+                  {/* Empty State / Welcome */}
+                  <ThreadPrimitive.Empty>
+                    <div className="flex flex-col items-center justify-center text-center px-4">
+                      <div className="mb-3">
+                        <OwlIcon width={42} height={42} />
+                      </div>
+                      <h2 className="text-2xl font-bold text-primary mb-2">
+                        How can I help you today?
+                      </h2>
+                      <p className="text-zinc-500 max-w-md">
+                        I can help you write code, analyze data, or even check
+                        the weather. I have access to{' '}
+                        {
+                          tools.filter((tool) => tool.name !== 'dummyTool')
+                            .length
+                        }{' '}
+                        tools.
+                      </p>
+                    </div>
+                  </ThreadPrimitive.Empty>
+                  <div className="h-full mt-8">
+                    <ThreadPrimitive.Messages
+                      components={{
+                        UserMessage,
+                        EditComposer,
+                        AssistantMessage,
+                      }}
+                    />
+                  </div>
+                </div>
+              </ThreadPrimitive.Viewport>
+              <div className="bg-gradient from-foreground via-foreground to-transparent pb-2 px-4">
+                <div className="text-center mt-3 mb-1 text-[10px] text-exclusive-plum">
+                  AI can make mistakes. Please verify important information.
+                </div>
+                <div className="max-w-3xl mx-auto w-full">
+                  <ComposerPrimitive.Root className="relative flex flex-col gap-2 rounded-md border border-zinc-200 bg-background shadow-xl shadow-subtle-zinc/20 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all overflow-hidden">
+                    <ComposerPrimitive.Input
+                      placeholder="Ask anything..."
+                      onKeyDown={handleMessageChange}
+                      className="w-full max-h-40 min-h-[56px] resize-none bg-transparent px-4 py-4 text-sm outline-none placeholder:exclusive-plum text-primary"
+                    />
+                    <div className="flex items-center justify-between gap-2 px-3 mb-1">
+                      <div className="flex items-center">
+                        <Button
+                          variant="ghost"
+                          disabled
+                          title="Attach"
+                          size="icon"
+                        >
+                          <Paperclip size={18} />
+                        </Button>
+                        <Dropdown
+                          options={groupedTools}
+                          onSelect={(id) => console.log(id)}
+                          selectedValue=""
+                        >
+                          <Button variant="ghost" size="icon">
+                            <ListMinus className="w-4 h-4" />
+                          </Button>
+                        </Dropdown>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => chrome.runtime.openOptionsPage()}
+                        >
+                          <Settings className="w-4 h-4" />
+                        </Button>
+                        <Dropdown
+                          options={modelOptions}
+                          onSelect={(id) => handleSelect(id)}
+                          mainLabel="Providers"
+                          selectedValue={selectedAgent.model}
+                        >
+                          <Button variant="ghost" className="rounded-2xl">
+                            <span className="text-[11px] flex flex-row items-center">
+                              {selectedAgent.model}{' '}
+                              <ChevronDown className="w-4 h-4" />
+                            </span>
+                          </Button>
+                        </Dropdown>
+                      </div>
+                      <ThreadPrimitive.If running={false}>
+                        <ComposerPrimitive.Send
+                          onClick={handleMessageChange}
+                          className="h-9 w-9 flex items-center justify-center rounded-lg bg-background hover:text-ring text-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        >
+                          <SendHorizontal size={18} />
+                        </ComposerPrimitive.Send>
+                      </ThreadPrimitive.If>
+                      <ThreadPrimitive.If running>
+                        <ComposerPrimitive.Cancel className="h-9 w-9 flex items-center justify-center rounded-lg bg-background hover:text-ring text-foreground hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                          <CircleStop size={18} />
+                        </ComposerPrimitive.Cancel>
+                      </ThreadPrimitive.If>
+                    </div>
+                  </ComposerPrimitive.Root>
+                </div>
+              </div>
+            </ThreadPrimitive.Root>
+          </SidebarInset>
         </ThreadPrimitive.Root>
-      </SidebarInset>
+      </div>
     </>
   );
 };

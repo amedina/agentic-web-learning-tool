@@ -1,8 +1,8 @@
 /**
  * Internal dependencies
  */
-import type { ExecutionContext } from "../types";
-import type { RuntimeInterface } from "../runtime";
+import type { ExecutionContext } from '../types';
+import type { RuntimeInterface } from '../runtime';
 
 /**
  * Function signature for node executors.
