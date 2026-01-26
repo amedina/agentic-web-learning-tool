@@ -100,7 +100,7 @@ const mockData: TableData[] = [
 ];
 
 const meta: Meta<typeof Table> = {
-  title: 'DesignSystem/Table',
+  title: 'Components/Table',
   component: Table,
   tags: ['autodocs'],
   decorators: [
