@@ -17,7 +17,6 @@
  * External dependencies.
  */
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { I18n } from "../../utils/i18n";
 
 /**
  * Internal dependencies.
@@ -143,7 +142,7 @@ const ListItem = ({
               className="text-link ml-2 mt-1 block text-royal-blue dark:text-medium-persian-blue"
               href="#"
             >
-              {I18n.getMessage(isExpanded ? "showLess" : "showMore")}
+              {isExpanded ? "Show Less" : "Show More"}
             </a>
           )}
         </>

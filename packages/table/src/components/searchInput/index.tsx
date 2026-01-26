@@ -18,7 +18,6 @@
  * External dependencies.
  */
 import React, { useEffect, useRef, useState } from "react";
-import { I18n } from "../../utils/i18n";
 
 /**
  * Internal dependencies.
@@ -85,7 +84,7 @@ const SearchInput = ({
         ref={inputRef}
         type="text"
         className="h-[14px] w-full outline-hidden bg-transparent"
-        placeholder={placeholder || I18n.getMessage("search")}
+        placeholder={placeholder || "Search"}
         value={value}
         onChange={onChange}
         onFocus={() => setIsFocused(true)}
@@ -96,7 +95,7 @@ const SearchInput = ({
         className={`w-fit h-3 px-px scale-[1.6] hover:opacity-70 active:opacity-50 flex justify-center items-center ${
           value ? "visible" : "invisible"
         }`}
-        title={I18n.getMessage("clearSearch")}
+        title="Clear Search"
       >
         <PaddedCross />
       </button>

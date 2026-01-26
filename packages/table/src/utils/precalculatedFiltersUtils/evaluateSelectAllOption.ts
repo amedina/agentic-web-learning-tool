@@ -16,7 +16,6 @@
 /**
  * External dependencies.
  */
-import { I18n } from "..";
 
 /**
  *	Evaluate if the 'All' option is present in parsedQuery.
@@ -32,7 +31,7 @@ const evaluateSelectAllOption = (
 ) => {
   const options: string[] = parsedQuery?.filter?.[filterKey];
 
-  if (options?.[0] === I18n.getMessage("selectAll")) {
+  if (options?.[0] === "All") {
     clearActivePanelQuery?.();
 
     return true;

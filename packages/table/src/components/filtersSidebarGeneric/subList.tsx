@@ -17,7 +17,7 @@
  * External dependencies.
  */
 import React, { useMemo } from "react";
-import { I18n } from "../../utils";
+
 import Option from "./option";
 
 /**
@@ -69,7 +69,7 @@ const SubList = ({
       {isSelectAllFilterEnabled && (
         <Option
           filterKey={filterKey}
-          filterValue={I18n.getMessage("selectAll")}
+          filterValue="All"
           selected={isSelectAllFilterSelected}
           toggleFilterSelection={() => toggleSelectAllFilter(filterKey)}
           isExpanded={true}

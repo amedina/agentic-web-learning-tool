@@ -18,7 +18,6 @@
  */
 import React, { useCallback } from "react";
 import classNames from "classnames";
-import { I18n } from "../../utils/i18n";
 
 /**
  * Internal dependencies.
@@ -71,7 +70,7 @@ const TopBar = ({
           })}
           onClick={() => setShowFilterSidebar(!showFilterSidebar)}
           disabled={disableFiltering}
-          title={I18n.getMessage("openFilterOptions")}
+          title="Open Filter Options"
         >
           <FilterIcon
             className={
@@ -100,7 +99,7 @@ const TopBar = ({
       </div>
 
       <div className="text-right w-full text-xxxs text-secondary dark:text-chinese-silver">
-        {I18n.getMessage("count")}: {count ?? 0}
+        Count: {count ?? 0}
       </div>
     </div>
   );

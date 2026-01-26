@@ -17,7 +17,6 @@
  * External dependencies.
  */
 import React from "react";
-import { I18n } from "../../utils/i18n";
 
 /**
  * Internal dependencies.
@@ -70,7 +69,7 @@ const ChipsBar = ({
         >
           <StopIcon className="text-gray min-w-[14px] min-h-[14px]" />
           <span className="ml-1 mr-2 dark:text-bright-gray bg-transparent">
-            {I18n.getMessage("clearAll")}
+            Clear All
           </span>
           <div className="w-[1px] bg-gainsboro dark:bg-quartz h-[20px]"></div>
         </button>

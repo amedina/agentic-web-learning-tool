@@ -17,7 +17,6 @@
  * External dependencies.
  */
 import React, { useCallback, useMemo, useRef, useState } from "react";
-import { I18n } from "../../utils";
 
 /**
  * Internal dependencies.
@@ -112,9 +111,7 @@ const FiltersSidebar = ({
         href="#"
         onClick={handleExpandAllClick}
       >
-        {expandAll
-          ? I18n.getMessage("collapseAll")
-          : I18n.getMessage("expandAll")}
+        {expandAll ? "Collapse All" : "Expand All"}
       </a>
       <ul>
         {filters.map((filter) => (

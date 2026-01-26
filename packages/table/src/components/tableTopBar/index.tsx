@@ -17,7 +17,6 @@
  * External dependencies.
  */
 import React from "react";
-import { I18n } from "../../utils/i18n";
 
 /**
  * Internal dependencies.
@@ -67,7 +66,7 @@ const TableTopBar = ({
       {extraInterface?.()}
       {exportTableData && (
         <ExportButton
-          title={I18n.getMessage("exportTableData")}
+          title="Export Table Data"
           disabled={rows.length === 0}
           onClick={() => exportTableData(rows)}
         />

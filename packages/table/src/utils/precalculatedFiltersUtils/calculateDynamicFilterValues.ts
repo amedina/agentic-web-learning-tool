@@ -17,7 +17,6 @@
  * External dependencies
  */
 import { getValueByKey, type CookieTableData } from "@google-awlt/common";
-import { I18n } from "..";
 
 /**
  * Internal dependencies
@@ -47,9 +46,7 @@ const calculateDynamicFilterValues = (
     let value = getValueByKey(key, cookie);
 
     if (runTranslation) {
-      value = I18n.getMessage(
-        (value as string).toLowerCase() || "uncategorized",
-      );
+      value = (value as string).toLowerCase() || "uncategorized";
     }
 
     if (!acc) {

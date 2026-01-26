@@ -20,7 +20,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import classNames from "classnames";
 import { createPortal } from "react-dom";
-import { I18n } from "../../utils";
 
 /**
  * Internal dependencies.
@@ -122,7 +121,7 @@ const ColumnMenu = ({ position, open, onClose }: ColumnMenuProps) => {
                 >
                   ✓
                 </span>
-                <span>{I18n.getMessage("toggleAll")}</span>
+                <span>Toggle All</span>
               </button>
               <div>
                 <ColumnList
