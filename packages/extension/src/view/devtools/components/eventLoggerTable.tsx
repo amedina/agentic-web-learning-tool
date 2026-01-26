@@ -32,15 +32,26 @@ const tableFilters = {
 
 const tableColumns: TableColumn[] = [
   {
+    header: 'Time',
+    accessorKey: 'time',
+    cell: (info: InfoType) => info,
+  },
+  {
+    header: 'Type',
+    accessorKey: 'type',
+    cell: (info: InfoType) => info,
+  },
+  {
     header: 'Name',
     accessorKey: 'name',
     cell: (info: InfoType) => info,
     enableHiding: false,
   },
   {
-    header: 'Category',
-    accessorKey: 'category',
+    header: 'Duration',
+    accessorKey: 'duration',
     cell: (info: InfoType) => info,
+    enableHiding: false,
   },
   {
     header: 'Status',
