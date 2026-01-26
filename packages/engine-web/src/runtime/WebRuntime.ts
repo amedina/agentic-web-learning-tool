@@ -173,8 +173,27 @@ export class WebRuntime implements RuntimeInterface {
     selector: string,
     content: string,
     isMultiple?: boolean,
+    mode: "textContent" | "innerText" | "innerHTML" | "value" = "textContent",
     index?: number,
   ): Promise<void> {
+    const updateElement = (element: Element) => {
+      switch (mode) {
+        case "innerHTML":
+          element.innerHTML = content;
+          break;
+        case "innerText":
+          (element as HTMLElement).innerText = content;
+          break;
+        case "value":
+          (element as HTMLInputElement).value = content;
+          break;
+        case "textContent":
+        default:
+          element.textContent = content;
+          break;
+      }
+    };
+
     if (typeof index === "number") {
       const elements = document.querySelectorAll(selector);
 
@@ -184,12 +203,16 @@ export class WebRuntime implements RuntimeInterface {
         );
       }
 
-      elements[index].textContent = content;
+      updateElement(elements[index]);
     } else if (isMultiple) {
       const elements = document.querySelectorAll(selector);
 
+      if (!elements || elements.length === 0) {
+        throw new Error(`No elements found for selector: ${selector}`);
+      }
+
       elements.forEach((el) => {
-        el.textContent = content;
+        updateElement(el);
       });
     } else {
       const element = document.querySelector(selector);
@@ -198,7 +221,7 @@ export class WebRuntime implements RuntimeInterface {
         throw new Error(`No element found for selector: ${selector}`);
       }
 
-      element.textContent = content;
+      updateElement(element);
     }
   }
 

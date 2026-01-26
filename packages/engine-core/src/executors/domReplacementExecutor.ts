@@ -18,6 +18,13 @@ export async function domReplacementExecutor(
   const selector = config.selector as string;
   const isMultiple = !!config.isMultiple;
 
+  const mode = config.mode as
+    | 'textContent'
+    | 'innerText'
+    | 'innerHTML'
+    | 'value'
+    | undefined;
+
   if (!selector) {
     throw new Error('DOM Replacement requires a CSS selector');
   }
@@ -32,6 +39,7 @@ export async function domReplacementExecutor(
     selector,
     formattedInput,
     isMultiple,
+    mode,
     context.loop?.index
   );
 

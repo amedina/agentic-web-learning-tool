@@ -14,6 +14,8 @@ export const DomReplacementSchema = z.object({
   title: z.string(),
   description: z.string().optional(),
   selector: z.string(),
+  isMultiple: z.boolean().optional(),
+  mode: z.enum(["textContent", "innerText", "innerHTML", "value"]).optional(),
 });
 
 export type DomReplacementConfig = z.infer<typeof DomReplacementSchema>;

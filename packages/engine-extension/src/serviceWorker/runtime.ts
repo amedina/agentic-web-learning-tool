@@ -221,6 +221,7 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
     selector: string,
     content: string,
     isMultiple?: boolean,
+    mode?: 'textContent' | 'innerText' | 'innerHTML' | 'value',
     index?: number
   ): Promise<void> {
     const tabId = await this.getTargetTabId();
@@ -230,6 +231,7 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
       selector,
       content,
       isMultiple,
+      mode,
       index,
     };
 

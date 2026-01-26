@@ -164,7 +164,7 @@ const ToolsConfigPanel = ({
       onContextChange={
         (config as any)?.context !== undefined
           ? (value) =>
-              setConfig((prev) => ({
+              setConfig((prev: any) => ({
                 ...prev,
                 context: value,
               }))

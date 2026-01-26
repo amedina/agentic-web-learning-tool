@@ -3,15 +3,10 @@
  */
 import { useEffect, useImperativeHandle, useState } from "react";
 import { Pencil } from "lucide-react";
-import z from "zod";
-
-export const DomReplacementSchema = z.object({
-  description: z.string().optional(),
-  selector: z.string().min(1, "Selector is required"),
-  isMultiple: z.boolean().optional(),
-});
-
-export type DomReplacementConfig = z.infer<typeof DomReplacementSchema>;
+import {
+  DomReplacementSchema,
+  type DomReplacementConfig,
+} from "./domReplacement";
 
 interface ToolConfigProps {
   ref: React.Ref<{
@@ -25,10 +20,12 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
   const [isMultiple, setIsMultiple] = useState<boolean>(
     config?.isMultiple || false,
   );
+  const [mode, setMode] = useState<string>(config?.mode || "textContent");
 
   useEffect(() => {
     setSelector(config?.selector || "");
     setIsMultiple(config?.isMultiple || false);
+    setMode(config?.mode || "textContent");
   }, [config]);
 
   useImperativeHandle(
@@ -37,10 +34,12 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
       getConfig: (formData: FormData) => {
         const selector = formData.get("selector") as string;
         const isMultiple = formData.get("isMultiple") !== null;
+        const mode = formData.get("mode") as string;
 
         const configResult = {
           selector,
           isMultiple,
+          mode,
         };
 
         const validation = DomReplacementSchema.safeParse(configResult);
@@ -82,6 +81,30 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
             />
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
               Selector of the element to replace content for
+            </p>
+          </div>
+
+          <div>
+            <label
+              className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+              htmlFor="mode"
+            >
+              Replacement Mode
+            </label>
+            <select
+              id="mode"
+              name="mode"
+              value={mode}
+              onChange={(e) => setMode(e.target.value)}
+              className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-indigo-500 dark:focus:border-indigo-400 text-sm bg-white dark:bg-slate-900 dark:text-slate-100"
+            >
+              <option value="textContent">Text Content</option>
+              <option value="innerHTML">Inner HTML</option>
+              <option value="innerText">Inner Text</option>
+              <option value="value">Input Value</option>
+            </select>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              What property of the element to replace
             </p>
           </div>
 

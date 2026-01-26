@@ -65,6 +65,7 @@ export interface RuntimeInterface {
     selector: string,
     content: string,
     isMultiple?: boolean,
+    mode?: 'textContent' | 'innerText' | 'innerHTML' | 'value',
     index?: number
   ): Promise<void>;
 
