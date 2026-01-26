@@ -9,7 +9,7 @@ import { Languages } from 'lucide-react';
  * Internal dependencies
  */
 import { ToolNodeContainer } from '../../../ui';
-import { useApi, useFlow } from '../../../../store';
+import { useApi, useFlow } from '../../../../stateProviders';
 import type { TranslatorApiConfig } from './translatorApi';
 
 const ToolNode = () => {
@@ -64,22 +64,25 @@ const ToolNode = () => {
         }
       }}
     >
-      <div className="h-fit w-full flex flex-col relative">
-        <div className="w-full bg-linear-to-br from-blue-50 to-indigo-50 rounded-md p-3 my-2 border border-blue-100">
-          <div className="flex justify-between items-center ">
-            <p className="text-sm font-medium text-slate-500">
-              Source Language
+      <div className="h-fit w-full flex flex-col relative px-2">
+        <div className="w-full bg-linear-to-br from-indigo-50/50 to-blue-50/50 dark:from-zinc-800/80 dark:to-zinc-900/80 rounded-md px-3 py-2 my-2 border border-indigo-100/50 dark:border-border">
+          <p className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest mb-1">
+            Translator API
+          </p>
+          <div className="flex justify-between items-center mb-1">
+            <p className="text-[10px] font-medium text-slate-500 dark:text-zinc-500 uppercase tracking-tight">
+              From
             </p>
-            <p className="text-slate-700">
-              {config?.sourceLanguage || 'Not set'}
+            <p className="text-xs text-slate-700 dark:text-zinc-200 italic font-medium">
+              {config?.sourceLanguage?.toUpperCase() || 'AUTO'}
             </p>
           </div>
-          <div className="flex justify-between items-center">
-            <p className="text-sm font-medium text-slate-500">
-              Target Language
+          <div className="flex justify-between items-center ">
+            <p className="text-[10px] font-medium text-slate-500 dark:text-zinc-500 uppercase tracking-tight">
+              To
             </p>
-            <p className="text-slate-700">
-              {config?.targetLanguage || 'Not set'}
+            <p className="text-xs text-slate-700 dark:text-zinc-200 italic font-bold">
+              {config?.targetLanguage?.toUpperCase() || 'NOT SET'}
             </p>
           </div>
         </div>
@@ -89,7 +92,7 @@ const ToolNode = () => {
           style={{
             background: 'none',
             border: 'none',
-            top: '50%x',
+            top: '50%',
             left: '-10px',
           }}
         >

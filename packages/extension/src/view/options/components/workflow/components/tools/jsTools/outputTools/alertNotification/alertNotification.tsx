@@ -13,6 +13,8 @@ import { ToolItem } from '../../../../ui';
 export const AlertNotificationSchema = z.object({
   title: z.string(),
   description: z.string().optional(),
+  useCustomMessage: z.boolean().optional(),
+  message: z.string().optional(),
 });
 
 export type AlertNotificationConfig = z.infer<typeof AlertNotificationSchema>;

@@ -6,7 +6,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 /**
  * Internal dependencies
  */
-import { useApi } from '../../store';
+import { useApi, type NodeConfig } from '../../stateProviders';
 import {
   PromptApiToolConfig,
   ProofreaderApiToolConfig,
@@ -21,6 +21,9 @@ import {
   FileCreatorToolConfig,
   TooltipToolConfig,
   LoopToolConfig,
+  DataTransformerToolConfig,
+  MathToolConfig,
+  AlertNotificationToolConfig,
 } from '../tools';
 import { ToolsConfig } from '../ui';
 
@@ -32,9 +35,11 @@ const TOOLS = {
   translatorApi: TranslatorApiToolConfig,
   languageDetectorApi: null,
   summarizerApi: SummarizerApiToolConfig,
-  alertNotification: null,
+  alertNotification: AlertNotificationToolConfig,
   domInput: DomInputToolConfig,
   condition: ConditionToolConfig,
+  dataTransformer: DataTransformerToolConfig,
+  math: MathToolConfig,
   staticInput: StaticInputToolConfig,
   loop: LoopToolConfig,
   domReplacement: DomReplacementToolConfig,
@@ -42,6 +47,8 @@ const TOOLS = {
   fileCreator: FileCreatorToolConfig,
   textToSpeech: null,
   tooltip: TooltipToolConfig,
+  start: null,
+  end: null,
 };
 
 interface ToolsConfigPanelProps {
@@ -61,11 +68,11 @@ const ToolsConfigPanel = ({
     })
   );
 
-  const [node, setNode] = useState<ReturnType<typeof getNode>>();
-  const [config, setConfig] = useState<any>();
+  const [node, setNode] = useState<NodeConfig>();
+  const [config, setConfig] = useState<NodeConfig['config']>();
 
   const toolNodeRef = useRef<{
-    getConfig: (formData: FormData) => any;
+    getConfig: (formData: FormData) => NodeConfig['config'] | undefined;
   }>(null);
 
   useEffect(() => {
@@ -108,23 +115,23 @@ const ToolsConfigPanel = ({
   );
 
   const Tool = node?.type
-    ? (TOOLS[node.type as keyof typeof TOOLS] as any)
+    ? (TOOLS[node.type as keyof typeof TOOLS] as React.ElementType)
     : null;
 
   return (
     <ToolsConfig
       selectedNodeId={selectedNode}
       nodeType={node?.type}
-      nodeTitle={config?.title || ''}
-      nodeContext={config?.context}
+      nodeTitle={(config as any)?.title || ''}
+      nodeContext={(config as any)?.context}
       nodeDescription={(node?.config as any)?.description}
       onTitleChange={(value) =>
         setConfig((prev: any) => ({ ...prev, title: value }))
       }
       onContextChange={
-        config?.context !== undefined
+        (config as any)?.context !== undefined
           ? (value) =>
-              setConfig((prev: any) => ({
+              setConfig((prev) => ({
                 ...prev,
                 context: value,
               }))

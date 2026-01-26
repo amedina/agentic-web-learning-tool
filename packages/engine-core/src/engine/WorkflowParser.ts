@@ -149,6 +149,29 @@ export class WorkflowParser {
       }
       targetNodesWithEdges.add(edge.target);
     }
+
+    const startNodes = json.graph.nodes.filter((n) => n.type === 'start');
+    const endNodes = json.graph.nodes.filter((n) => n.type === 'end');
+
+    if (startNodes.length > 1) {
+      throw new Error(
+        'Workflow can only have one Start node. Found multiple Start nodes.'
+      );
+    }
+
+    if (endNodes.length > 1) {
+      throw new Error(
+        'Workflow can only have one End node. Found multiple End nodes.'
+      );
+    }
+
+    if (startNodes.length === 0) {
+      throw new Error('Workflow must have at least one Start node.');
+    }
+
+    if (endNodes.length === 0) {
+      throw new Error('Workflow must have at least one End node.');
+    }
   }
 
   /**
@@ -189,12 +212,12 @@ export class WorkflowParser {
     const queue: string[] = [];
     const result: NodeConfig[] = [];
 
-    // Start with nodes that have no incoming edges
-    for (const [nodeId, degree] of inDegree) {
-      if (degree === 0) {
-        queue.push(nodeId);
-      }
-    }
+    const startNode = Array.from(graph.nodes.values()).find(
+      (node) => node.type === 'start'
+    );
+
+    if (startNode) queue.push(startNode.id);
+    else return [];
 
     while (queue.length > 0) {
       const nodeId = queue.shift()!;
@@ -204,7 +227,6 @@ export class WorkflowParser {
         result.push(node);
       }
 
-      // Reduce in-degree of adjacent nodes
       const neighbors = graph.adjacencyList.get(nodeId) ?? [];
       for (const neighbor of neighbors) {
         const neighborId = neighbor.target;

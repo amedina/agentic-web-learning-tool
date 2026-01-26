@@ -26,7 +26,7 @@ export interface FlowStoreContext {
     nodes: NodeType[];
     edges: EdgeType[];
     nodeTypes: {
-      [key: string]: () => React.JSX.Element;
+      [key: string]: React.ComponentType<any>;
     };
     isRunning: boolean;
   };

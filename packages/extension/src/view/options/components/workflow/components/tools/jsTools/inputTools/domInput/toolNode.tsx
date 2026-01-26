@@ -8,7 +8,7 @@ import { FileSearch } from 'lucide-react';
 /**
  * Internal dependencies
  */
-import { useApi, useFlow } from '../../../../../store';
+import { useApi, useFlow } from '../../../../../stateProviders';
 import { ToolNodeContainer } from '../../../../ui';
 import type { DomInputConfig } from './domInput';
 
@@ -63,12 +63,29 @@ const ToolNode = () => {
         }
       }}
     >
-      <div className="h-fit w-full flex flex-col relative">
-        <div className="w-full bg-linear-to-br from-blue-50 to-indigo-50 rounded-md p-3 my-2 border border-blue-100">
-          <p className="truncate text-sm text-slate-700 leading-relaxed">
-            {config?.description || ''}
+      <div className="h-fit w-full flex flex-col relative px-2">
+        <div className="w-full bg-slate-50 dark:bg-zinc-800 rounded-md px-3 py-2 my-4 border border-slate-100 dark:border-border">
+          <p className="text-[10px] font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-widest mb-1">
+            DOM Extractor
+          </p>
+          <p className="truncate text-xs text-slate-600 dark:text-zinc-400 italic font-medium">
+            {config?.description || 'Capture data from page'}
           </p>
         </div>
+        <Handle
+          type="target"
+          position={Position.Left}
+          style={{
+            background: 'none',
+            border: 'none',
+            top: '50%',
+            left: '-10px',
+          }}
+        >
+          <div className="flex items-center gap-2 w-fit absolute -translate-x-[30%] translate-y-[-50%] top-[2.5px]">
+            <div className="min-w-3 h-3 bg-blue-500 rounded-full shadow-sm"></div>
+          </div>
+        </Handle>
         <Handle
           type="source"
           position={Position.Right}

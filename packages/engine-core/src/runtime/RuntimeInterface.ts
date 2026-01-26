@@ -64,7 +64,8 @@ export interface RuntimeInterface {
   replaceDOM(
     selector: string,
     content: string,
-    isMultiple?: boolean
+    isMultiple?: boolean,
+    index?: number
   ): Promise<void>;
 
   /**

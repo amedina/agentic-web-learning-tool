@@ -10,7 +10,7 @@ import type { NodeExecutor } from '../engine/NodeRegistry';
 export const loopExecutor: NodeExecutor = async (
   config,
   _runtime,
-  _context,
+  context,
   executeBranch
 ) => {
   const input = (config as any).input;
@@ -27,9 +27,25 @@ export const loopExecutor: NodeExecutor = async (
   }
 
   const results: unknown[] = [];
-  for (const item of input) {
+
+  for (let i = 0; i < input.length; i++) {
+    const item = input[i];
+
+    // Set loop context for downstream nodes
+    if (context) {
+      context.loop = {
+        index: i,
+        total: input.length,
+      };
+    }
+
     const itemResult = await executeBranch('item', item);
     results.push(itemResult);
+  }
+
+  // Cleanup loop context
+  if (context) {
+    delete context.loop;
   }
 
   return results;
