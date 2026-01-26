@@ -20,7 +20,7 @@
     "tabGroups",
     "history",
     "userScripts",
-    "unlimited"
+    "unlimitedStorage"
   ],
   "host_permissions": ["*://*/*"],
   "devtools_page": "devtools/devtools.html",

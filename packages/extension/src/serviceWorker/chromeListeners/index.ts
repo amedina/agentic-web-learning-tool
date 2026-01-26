@@ -3,8 +3,8 @@
  */
 import syncStorageChangeCallback from './syncStorageChangeCallback';
 import onInstalledCallback from './onInstalledCallback';
-import onWindowClosedCallback from './onWindowClosedCallback';
+import onTabClosedCallback from './onTabClosedCallback';
 
 chrome.storage.sync.onChanged.addListener(syncStorageChangeCallback);
 chrome.runtime.onInstalled.addListener(onInstalledCallback);
-chrome.windows.onRemoved.addListener(onWindowClosedCallback);
+chrome.tabs.onRemoved.addListener(onTabClosedCallback);
