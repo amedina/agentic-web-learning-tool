@@ -1,7 +1,7 @@
 /**
  * External dependencies.
  */
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import {
   Table,
   TableProvider,
@@ -118,6 +118,17 @@ const mockData: TableData[] = [
 const EventLoggerTable = () => {
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
 
+  const extraInterfaceToTopBar = useCallback(() => {
+    return (
+      <div className="flex items-center gap-2 w-[130px]">
+        <input id="show-all-tools" type="checkbox" />
+        <label htmlFor="show-all-tools" className="text-xs select-none">
+          Show all tools
+        </label>
+      </div>
+    );
+  }, []);
+
   return (
     <TableProvider
       data={mockData}
@@ -130,7 +141,11 @@ const EventLoggerTable = () => {
       onRowContextMenu={noop}
       getRowObjectKey={(row: any) => row?.originalData.name as string}
     >
-      <Table selectedKey={selectedKey} isFiltersSidebarOpen={false} />
+      <Table
+        selectedKey={selectedKey}
+        isFiltersSidebarOpen={false}
+        extraInterfaceToTopBar={extraInterfaceToTopBar}
+      />
     </TableProvider>
   );
 };
