@@ -30,7 +30,7 @@ const SidePanel = () => {
   return (
     <MyRuntimeProvider transport={transport} runtimeRef={runtimeRef}>
       <CommandProvider>
-        <SidebarProvider>
+        <SidebarProvider defaultOpen={false}>
           <ChatBotUI runtime={runtimeRef.current} />
         </SidebarProvider>
       </CommandProvider>
