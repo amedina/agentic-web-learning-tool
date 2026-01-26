@@ -18,6 +18,11 @@
  * External dependencies.
  */
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { useState } from 'react';
+
+/**
+ * Internal dependencies.
+ */
 import {
   Table,
   TableProvider,
@@ -25,7 +30,6 @@ import {
   type TableData,
   type InfoType,
 } from './index';
-import { useState } from 'react';
 
 const noop = () => {};
 
@@ -72,30 +76,35 @@ const mockData: TableData[] = [
     category: 'Analytics',
     status: 'Active',
     originalData: {},
+    description: 'Cookie A description',
   },
   {
     name: 'Cookie B',
     category: 'Marketing',
     status: 'Inactive',
     originalData: {},
+    description: 'Cookie B description',
   },
   {
     name: 'Cookie C',
     category: 'Functional',
     status: 'Active',
     originalData: {},
+    description: 'Cookie C description',
   },
   {
     name: 'Cookie D',
     category: 'Analytics',
     status: 'Active',
     originalData: {},
+    description: 'Cookie D description',
   },
   {
     name: 'Cookie E',
     category: 'Marketing',
     status: 'Inactive',
     originalData: {},
+    description: 'Cookie E description',
   },
 ];
 

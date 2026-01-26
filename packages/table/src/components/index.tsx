@@ -241,7 +241,7 @@ const Table = ({
         }}
         className="h-full w-full"
       >
-        <Tray selectedRow={selectedKey} />
+        <Tray selectedKey={selectedKey} />
       </Resizable>
     </div>
   );

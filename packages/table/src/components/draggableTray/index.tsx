@@ -1,12 +1,12 @@
 export interface TrayProps {
-  selectedRow: any;
+  selectedKey: any;
 }
 
-const Tray = ({ selectedRow }: TrayProps) => {
+const Tray = ({ selectedKey }: TrayProps) => {
   return (
     <div className="border border-gray-300 dark:border-quartz shadow-sm h-full min-w-[10rem] overflow-y-auto">
-      {selectedRow ? (
-        <div>{JSON.stringify(selectedRow)}</div>
+      {selectedKey ? (
+        <div>{JSON.stringify(selectedKey)}</div>
       ) : (
         <div className="h-full p-8 flex items-center">
           <p className="text-lg w-full font-bold text-granite-gray dark:text-manatee text-center">
