@@ -7,13 +7,7 @@ import { MessageSquare } from "lucide-react";
 /**
  * Internal dependencies
  */
-import z from "zod";
-
-export const TooltipSchema = z.object({
-  selector: z.string().min(1, "Selector is required"),
-});
-
-export type TooltipConfig = z.infer<typeof TooltipSchema>;
+import { TooltipSchema, type TooltipConfig } from "./tooltip";
 
 interface ToolConfigProps {
   ref: React.Ref<{

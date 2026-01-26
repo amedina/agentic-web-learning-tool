@@ -3,13 +3,11 @@
  */
 import { useEffect, useImperativeHandle, useState } from "react";
 import { FileDown } from "lucide-react";
-import z from "zod";
 
-export const FileCreatorSchema = z.object({
-  filename: z.string().optional(),
-});
-
-export type FileCreatorConfig = z.infer<typeof FileCreatorSchema>;
+/**
+ * Internal dependencies
+ */
+import { FileCreatorSchema, type FileCreatorConfig } from "./fileCreator";
 
 interface ToolConfigProps {
   ref: React.Ref<{
