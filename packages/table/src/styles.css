@@ -40,7 +40,6 @@
   --background-color-silver-mist: #dcdcdc;
   --background-color-midnight-slate: #44474e;
   --background-color-dark-graphite: #3c3c3c;
-  --border-color-*: initial;
   --border-color-gray-200: #e5e7eb;
   --border-color-gray-300: #d1d5db;
   --border-color-american-silver: #cbcdd1;
@@ -61,19 +60,6 @@
       left: 100%;
       transform: translateX(0%);
     }
-  }
-}
-
-/*
-  Table-specific base layer styles
-*/
-@layer base {
-  *,
-  ::after,
-  ::before,
-  ::backdrop,
-  ::file-selector-button {
-    border-color: var(--color-gray-200, currentcolor);
   }
 }
 
