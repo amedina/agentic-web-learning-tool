@@ -215,10 +215,12 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    border-color: var(--border);
+    outline-color: var(--ring);
   }
   body {
-    @apply bg-background text-foreground;
+    background-color: var(--background);
+    color: var(--foreground);
   }
   button:not(:disabled),
   [role="button"]:not(:disabled) {
@@ -234,7 +236,14 @@
 
   /* Smooth focus rings */
   .focus-ring {
-    @apply focus:outline-none focus:ring-2 focus:ring-strong-zinc/20 focus:border-strong-zinc transition-all duration-200;
+    transition: all 200ms;
+  }
+  .focus-ring:focus {
+    outline: none;
+    /* ring-2 equivalent with strong-zinc/20 */
+    box-shadow: 0 0 0 2px
+      color-mix(in srgb, var(--strong-zinc), transparent 80%);
+    border-color: var(--strong-zinc);
   }
 }
 
