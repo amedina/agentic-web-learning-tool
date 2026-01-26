@@ -9,6 +9,7 @@ import {
   type TableData,
   type InfoType,
 } from '@google-awlt/design-system';
+import clsx from 'clsx';
 
 const noop = () => {};
 
@@ -60,7 +61,9 @@ const tableColumns: TableColumn[] = [
     header: 'Status',
     accessorKey: 'status',
     cell: (info: InfoType) => (
-      <span className={info === 'Active' ? 'text-green-600' : 'text-red-600'}>
+      <span
+        className={clsx(info === 'Success' ? 'text-green-600' : 'text-red-600')}
+      >
         {info}
       </span>
     ),
