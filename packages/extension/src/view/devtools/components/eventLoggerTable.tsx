@@ -16,16 +16,15 @@ import {
 
 const noop = () => {};
 
-const tableSearchKeys = ['name', 'category'];
+const tableSearchKeys = ['name', 'type'];
 
 const tableFilters = {
-  category: {
-    title: 'Category',
+  type: {
+    title: 'Type',
     hasStaticFilterValues: true,
     filterValues: {
-      Analytics: { selected: null },
-      Marketing: { selected: null },
-      Functional: { selected: null },
+      MCP: { selected: null },
+      WebMCP: { selected: null },
     },
   },
 };
@@ -66,37 +65,47 @@ const tableColumns: TableColumn[] = [
 
 const mockData: TableData[] = [
   {
-    name: 'Cookie A',
-    category: 'Analytics',
-    status: 'Active',
+    name: 'get_page_title',
+    time: '203',
+    type: 'MCP',
+    status: 'Success',
+    duration: '203',
     originalData: {},
     description: 'Cookie A description',
   },
   {
-    name: 'Cookie B',
-    category: 'Marketing',
-    status: 'Inactive',
+    name: 'alert_page_title',
+    time: '200',
+    type: 'WebMCP',
+    status: 'Success',
+    duration: '203',
     originalData: {},
     description: 'Cookie B description',
   },
   {
-    name: 'Cookie C',
-    category: 'Functional',
-    status: 'Active',
+    name: 'get_page_background',
+    time: '100',
+    type: 'WebMCP',
+    status: 'Error',
+    duration: '200',
     originalData: {},
     description: 'Cookie C description',
   },
   {
-    name: 'Cookie D',
-    category: 'Analytics',
-    status: 'Active',
+    name: 'get_info',
+    time: '100',
+    type: 'MCP',
+    status: 'Success',
+    duration: '203',
     originalData: {},
     description: 'Cookie D description',
   },
   {
-    name: 'Cookie E',
-    category: 'Marketing',
-    status: 'Inactive',
+    name: 'update_profile',
+    time: '23',
+    type: 'MCP',
+    status: 'Success',
+    duration: '203',
     originalData: {},
     description: 'Cookie E description',
   },
