@@ -18,6 +18,9 @@ patchedDependencies:
   '@mcp-b/extension-tools@0.2.3':
     hash: de61710e62afdb10e9b1aa256f697615f6f694df3f7c35e4aa0ea8ee2eb930fd
     path: patches/@mcp-b__extension-tools@0.2.3.patch
+  assistant-stream@0.2.46:
+    hash: 46a7cfa2f818f8cbd85e6a5a2dbabd025717a8972464c3d8a538756a169ec3ff
+    path: patches/assistant-stream@0.2.46.patch
   zod@4.3.5:
     hash: 1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567
     path: patches/zod@4.3.5.patch
@@ -403,7 +406,7 @@ importers:
         version: 5.0.119(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
       assistant-stream:
         specifier: ^0.2.45
-        version: 0.2.46
+        version: 0.2.46(patch_hash=46a7cfa2f818f8cbd85e6a5a2dbabd025717a8972464c3d8a538756a169ec3ff)
       cross-env:
         specifier: ^10.1.0
         version: 10.1.0
@@ -7326,7 +7329,7 @@ snapshots:
       '@radix-ui/react-use-escape-keydown': 1.1.1(@types/react@19.2.8)(react@19.2.3)
       '@standard-schema/spec': 1.1.0
       assistant-cloud: 0.1.12
-      assistant-stream: 0.2.46
+      assistant-stream: 0.2.46(patch_hash=46a7cfa2f818f8cbd85e6a5a2dbabd025717a8972464c3d8a538756a169ec3ff)
       nanoid: 5.1.6
       react: 19.2.3
       react-dom: 19.2.3(react@19.2.3)
@@ -10488,9 +10491,9 @@ snapshots:
 
   assistant-cloud@0.1.12:
     dependencies:
-      assistant-stream: 0.2.46
+      assistant-stream: 0.2.46(patch_hash=46a7cfa2f818f8cbd85e6a5a2dbabd025717a8972464c3d8a538756a169ec3ff)
 
-  assistant-stream@0.2.46:
+  assistant-stream@0.2.46(patch_hash=46a7cfa2f818f8cbd85e6a5a2dbabd025717a8972464c3d8a538756a169ec3ff):
     dependencies:
       '@standard-schema/spec': 1.1.0
       nanoid: 5.1.6
