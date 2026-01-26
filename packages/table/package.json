@@ -1,0 +1,46 @@
+{
+  "name": "@google-awlt/table",
+  "version": "0.0.1",
+  "description": "Standalone Table component extracted from PSAT",
+  "type": "module",
+  "main": "dist/table/src/index.js",
+  "types": "dist/table/src/index.d.ts",
+  "source": "src/index.ts",
+  "exports": {
+    ".": "./dist/table/src/index.js",
+    "./styles.css": "./src/styles.css"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc-watch --noEmit",
+    "prebuild": "rimraf dist dist-types"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "author": "Google",
+  "license": "Apache-2.0",
+  "peerDependencies": {
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "dependencies": {
+    "@google-awlt/common": "workspace:*",
+    "classnames": "^2.3.2",
+    "p-queue": "^7.3.4",
+    "re-resizable": "^6.11.2",
+    "use-context-selector": "^2.0.0"
+  },
+  "devDependencies": {
+    "@google-awlt/shared-config": "workspace:*",
+    "@storybook/react": "^10.2.0",
+    "@testing-library/react": "^16.3.1",
+    "@types/chrome": "^0.1.33",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.10.7",
+    "@types/react": "^19.2.9",
+    "@types/react-dom": "^19.0.0",
+    "rimraf": "^5.0.10",
+    "typescript": "^5.9.3"
+  }
+}

@@ -10,18 +10,18 @@ import { ClipboardCopy } from 'lucide-react';
 import { ToolItem } from '../../../../ui';
 
 const ClipboardWriter = () => {
-	const handleDragStart = useCallback((event: React.DragEvent) => {
-		event.dataTransfer.setData('workflow-composer/flow', 'clipboardWriter');
-		event.dataTransfer.effectAllowed = 'move';
-	}, []);
+  const handleDragStart = useCallback((event: React.DragEvent) => {
+    event.dataTransfer.setData('workflow-composer/flow', 'clipboardWriter');
+    event.dataTransfer.effectAllowed = 'move';
+  }, []);
 
-	return (
-		<ToolItem
-			label="Clipboard Writer"
-			onDragStart={handleDragStart}
-			Icon={ClipboardCopy}
-		/>
-	);
+  return (
+    <ToolItem
+      label="Clipboard Writer"
+      onDragStart={handleDragStart}
+      Icon={ClipboardCopy}
+    />
+  );
 };
 
 export default ClipboardWriter;

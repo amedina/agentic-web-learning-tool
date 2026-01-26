@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import type { NodeOutput } from "../types";
+import type { NodeOutput } from '../types';
 
 /**
  * Contract that adapters must implement to bridge environment-specific APIs.
@@ -41,12 +41,12 @@ export interface RuntimeInterface {
   queryPage(
     selector: string,
     extract:
-      | "textContent"
-      | "innerText"
-      | "innerHTML"
-      | "value"
-      | "src"
-      | "href",
+      | 'textContent'
+      | 'innerText'
+      | 'innerHTML'
+      | 'value'
+      | 'src'
+      | 'href',
     isMultiple?: boolean
   ): Promise<string | string[]>;
 

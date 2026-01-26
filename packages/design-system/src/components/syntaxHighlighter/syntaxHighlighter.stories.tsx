@@ -34,13 +34,15 @@ type Story = StoryObj<typeof SyntaxHighlighter>;
 export const TypeScriptReact: Story = {
   args: {
     components: {
-      Pre: (props) => (
+      Pre: (props: React.ComponentProps<'pre'>) => (
         <pre
           style={{ backgroundColor: '#f0f0f0', padding: '10px' }}
           {...props}
         />
       ),
-      Code: (props) => <code style={{ fontFamily: 'monospace' }} {...props} />,
+      Code: (props: React.ComponentProps<'code'>) => (
+        <code style={{ fontFamily: 'monospace' }} {...props} />
+      ),
     },
     language: 'tsx',
     code: `import React, { useState, useEffect } from "react";
@@ -74,13 +76,15 @@ export default Counter;
 export const PythonScript: Story = {
   args: {
     components: {
-      Pre: (props) => (
+      Pre: (props: React.ComponentProps<'pre'>) => (
         <pre
           style={{ backgroundColor: '#f0f0f0', padding: '10px' }}
           {...props}
         />
       ),
-      Code: (props) => <code style={{ fontFamily: 'monospace' }} {...props} />,
+      Code: (props: React.ComponentProps<'code'>) => (
+        <code style={{ fontFamily: 'monospace' }} {...props} />
+      ),
     },
     language: 'python',
     code: `
@@ -108,13 +112,15 @@ if __name__ == "__main__":
 export const PlainJavaScript: Story = {
   args: {
     components: {
-      Pre: (props) => (
+      Pre: (props: React.ComponentProps<'pre'>) => (
         <pre
           style={{ backgroundColor: '#f0f0f0', padding: '10px' }}
           {...props}
         />
       ),
-      Code: (props) => <code style={{ fontFamily: 'monospace' }} {...props} />,
+      Code: (props: React.ComponentProps<'code'>) => (
+        <code style={{ fontFamily: 'monospace' }} {...props} />
+      ),
     },
     language: 'js',
     code: `

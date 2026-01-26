@@ -109,7 +109,7 @@ export const Link: Story = {
  * loading indicator, such as a spinner, to signify an in-progress action.
  */
 export const Loading: Story = {
-  render: (args) => (
+  render: (args: Story['args']) => (
     <Button {...args}>
       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
       Button
@@ -126,7 +126,7 @@ export const Loading: Story = {
  * providing additional context for the action.
  */
 export const WithIcon: Story = {
-  render: (args) => (
+  render: (args: Story['args']) => (
     <Button {...args}>
       <Mail className="mr-2 h-4 w-4" /> Login with Email Button
     </Button>

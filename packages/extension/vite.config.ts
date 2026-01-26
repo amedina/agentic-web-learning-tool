@@ -29,17 +29,6 @@ export default defineConfig({
       targets: [
         { src: resolve(__dirname, 'src/manifest.json'), dest: '' },
         { src: resolve(__dirname, 'src/icons'), dest: '' },
-        {
-          src: resolve(
-            __dirname,
-            'src/view/options/assets/inspector/index.html'
-          ),
-          dest: 'inspector',
-        },
-        {
-          src: resolve(__dirname, 'src/view/options/assets/inspector/assets'),
-          dest: '',
-        },
       ],
     }),
   ],

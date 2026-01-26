@@ -10,6 +10,7 @@ import {
   TooltipArrow,
 } from '@radix-ui/react-tooltip';
 import React, { useMemo, type ReactNode } from 'react';
+
 /**
  * Internal dependencies
  */
@@ -82,3 +83,5 @@ const TooltipComponent: React.FC<TooltipProps> = ({
 };
 
 export default TooltipComponent;
+
+export { Root, TooltipTrigger, TooltipContent, TooltipProvider };
