@@ -11,7 +11,6 @@ import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/
 import {
   DOM_TOOL_NAME_PREFIX,
   EXTENSION_TOOL_PREFIX,
-  WEBSITE_TOOL_PREFIX,
   type MCPConfig,
   type MCPServerConfig,
 } from '@google-awlt/common';
@@ -61,7 +60,6 @@ class McpHub {
 
   constructor(server: McpServer) {
     this.server = server;
-    chrome.tabs;
     this.setupConnections();
     this.trackActiveTab();
     this.registerAllExtensionTools();
@@ -547,17 +545,8 @@ class McpHub {
       await this.initializeActiveTab();
     }
 
-    // 3. Register/Update tools with MCP Server
-    const toolNameComponents = {
-      cleanDomain: sanitizeToolName(domain),
-      prefix: `tab${tabData.tabId}`,
-    };
-
     for (const tool of activeTools) {
-      const uniqueToolName = this.generateUniqueToolName(
-        toolNameComponents.prefix,
-        tool.name
-      );
+      const uniqueToolName = this.generateUniqueToolName(tool.name);
       const description = this.generateTabDescription(
         domain,
         dataId,
@@ -598,10 +587,7 @@ class McpHub {
       );
 
       for (const tool of removedTools) {
-        const uniqueToolName = this.generateUniqueToolName(
-          toolNameComponents.prefix,
-          tool.name
-        );
+        const uniqueToolName = this.generateUniqueToolName(tool.name);
         this.registeredTools.get(uniqueToolName)?.remove();
         this.registeredTools.delete(uniqueToolName);
       }
@@ -625,10 +611,8 @@ class McpHub {
       return;
     }
 
-    const prefix = `tab${tabData.tabId ?? ''}`;
-
     for (const tool of tabData.tools) {
-      const uniqueToolName = this.generateUniqueToolName(prefix, tool.name);
+      const uniqueToolName = this.generateUniqueToolName(tool.name);
       this.registeredTools.get(uniqueToolName)?.remove();
       this.registeredTools.delete(uniqueToolName);
     }
@@ -831,15 +815,8 @@ class McpHub {
       return;
     }
 
-    const toolNameComponents = {
-      prefix: `tab${tabData.tabId}`,
-    };
-
     for (const tool of tabData.tools) {
-      const uniqueToolName = this.generateUniqueToolName(
-        toolNameComponents.prefix,
-        tool.name
-      );
+      const uniqueToolName = this.generateUniqueToolName(tool.name);
       const description = this.generateTabDescription(
         domain,
         dataId,
@@ -852,8 +829,8 @@ class McpHub {
     }
   }
 
-  private generateUniqueToolName(prefix: string, rawToolName: string): string {
-    return `${WEBSITE_TOOL_PREFIX}${prefix}_${sanitizeToolName(rawToolName)}`;
+  private generateUniqueToolName(rawToolName: string): string {
+    return `${sanitizeToolName(rawToolName)}`;
   }
 
   private generateTabDescription(

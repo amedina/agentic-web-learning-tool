@@ -29,7 +29,6 @@ import {
   ThreadListSidebar,
   Tooltip,
 } from '@google-awlt/design-system';
-import { WEBSITE_TOOL_PREFIX } from '@google-awlt/common';
 /**
  * Internal dependencies
  */
@@ -58,9 +57,8 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
       selectedAgent: state.selectedAgent,
     }));
 
-  const { tabData, currentTab } = useSettings(({ state }) => ({
+  const { tabData } = useSettings(({ state }) => ({
     tabData: state.tabData,
-    currentTab: state.currentTab,
   }));
 
   useEffect(() => {
@@ -75,16 +73,16 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 
   const threadId = useAssistantState(({ threadListItem }) => threadListItem.id);
 
-  useAssistantMCP(tools, client, threadId, runtime, currentTab);
+  useAssistantMCP(tools, client, threadId, runtime);
 
   const { handleMessageChange } = useCommandProvider(({ actions }) => ({
     handleMessageChange: actions.handleMessageChange,
   }));
 
-  const groupedTools = useMemo(
-    () => createToolDropdown(tools, toolNameToMCPMap, tabData, currentTab),
-    [tools, toolNameToMCPMap, tabData, currentTab]
-  );
+  const groupedTools = useMemo(() => {
+    const tabId = parseInt(new URL(window.location.href).hash.substring(5));
+    return createToolDropdown(tools, toolNameToMCPMap, tabData, tabId);
+  }, [tools, toolNameToMCPMap, tabData]);
 
   const handleSelect = useCallback(
     (selectedId: string) => {
@@ -110,23 +108,8 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
   );
 
   const toolLength = useMemo(() => {
-    return tools
-      .filter((tool) => tool.name !== 'dummyTool')
-      .filter((tool) => {
-        if (tool.name.startsWith(WEBSITE_TOOL_PREFIX)) {
-          const match = tool.name
-            .substring(WEBSITE_TOOL_PREFIX.length)
-            .match(/(?<=tab)\d+/);
-          const tabId = match ? match[0] : '';
-          if (currentTab === parseInt(tabId)) {
-            return true;
-          } else {
-            return false;
-          }
-        }
-        return true;
-      }).length;
-  }, [currentTab, tools]);
+    return tools.filter((tool) => tool.name !== 'dummyTool').length;
+  }, [tools]);
 
   //Only shows models whose apiKeys have been and have been enabled
   const modelOptions = useMemo(() => createModelDropdown(apiKeys), [apiKeys]);
