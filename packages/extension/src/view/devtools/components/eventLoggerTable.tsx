@@ -13,7 +13,7 @@ import clsx from 'clsx';
 
 const noop = () => {};
 
-const tableSearchKeys = ['name', 'type'];
+const TABLE_SEARCH_KEYS = ['name', 'type'];
 
 const tableFilters = {
   type: {
@@ -28,8 +28,8 @@ const tableFilters = {
     title: 'Status',
     hasStaticFilterValues: true,
     filterValues: {
-      Success: { selected: null },
-      Error: { selected: null },
+      success: { selected: null },
+      error: { selected: null },
     },
   },
 };
@@ -62,7 +62,10 @@ const tableColumns: TableColumn[] = [
     accessorKey: 'status',
     cell: (info: InfoType) => (
       <span
-        className={clsx(info === 'Success' ? 'text-green-600' : 'text-red-600')}
+        className={clsx(
+          info === 'success' ? 'text-green-600' : 'text-red-600',
+          'font-medium'
+        )}
       >
         {info}
       </span>
@@ -75,7 +78,7 @@ const mockData: TableData[] = [
     name: 'get_page_title',
     time: '203',
     type: 'MCP',
-    status: 'Success',
+    status: 'success',
     duration: '203',
     originalData: {},
     description: 'Cookie A description',
@@ -84,7 +87,7 @@ const mockData: TableData[] = [
     name: 'alert_page_title',
     time: '200',
     type: 'WebMCP',
-    status: 'Success',
+    status: 'success',
     duration: '203',
     originalData: {},
     description: 'Cookie B description',
@@ -93,7 +96,7 @@ const mockData: TableData[] = [
     name: 'get_page_background',
     time: '100',
     type: 'WebMCP',
-    status: 'Error',
+    status: 'error',
     duration: '200',
     originalData: {},
     description: 'Cookie C description',
@@ -102,7 +105,7 @@ const mockData: TableData[] = [
     name: 'get_info',
     time: '100',
     type: 'MCP',
-    status: 'Success',
+    status: 'success',
     duration: '203',
     originalData: {},
     description: 'Cookie D description',
@@ -111,7 +114,7 @@ const mockData: TableData[] = [
     name: 'update_profile',
     time: '23',
     type: 'MCP',
-    status: 'Success',
+    status: 'success',
     duration: '203',
     originalData: {},
     description: 'Cookie E description',
@@ -137,7 +140,7 @@ const EventLoggerTable = () => {
       data={mockData}
       tableColumns={tableColumns}
       tableFilterData={tableFilters}
-      tableSearchKeys={tableSearchKeys}
+      tableSearchKeys={TABLE_SEARCH_KEYS}
       onRowClick={(row: TableData) => {
         setSelectedKey(row?.name ?? null);
       }}
