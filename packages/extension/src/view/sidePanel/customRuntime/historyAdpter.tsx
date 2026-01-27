@@ -30,6 +30,42 @@ export const HistoryAdapter = () => {
       } as LoadFunctionOutputType;
     }, [api]);
 
+    api.on('thread-list-item.switched-to', ({ threadId }) => {
+      chrome.tabs
+        .query({ active: true, currentWindow: true })
+        .then(async ([tab]) => {
+          if (tab?.id) {
+            const allThreads = await dbConnection.threads.findAll();
+            console.log(tab.id, allThreads);
+            const threads = await dbConnection.threads.findAll();
+            const previousThread = threads.find(
+              (thread) => thread.tabId === tab.id
+            );
+
+            const updates = [];
+
+            if (previousThread) {
+              updates.push({ id: previousThread.remoteId, data: { tabId: 0 } });
+              console.log(
+                'Clearing tabId from previous thread',
+                previousThread,
+                updates,
+                tab.id
+              );
+            }
+
+            updates.push({ id: threadId, data: { tabId: tab.id } });
+            console.log(
+              'Setting tabId to new thread',
+              threadId,
+              updates,
+              tab.id
+            );
+            await dbConnection.threads.batchUpdate(updates);
+          }
+        });
+    });
+
     const append = useCallback(
       async (message: ExportedMessageRepositoryItem) => {
         const { remoteId } = await api.threadListItem().initialize();

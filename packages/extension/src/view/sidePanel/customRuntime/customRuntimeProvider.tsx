@@ -42,25 +42,6 @@ export default function CustomRuntimeProvider({
     });
   };
 
-  const onActivatedListener = useCallback(
-    async ({ tabId }: chrome.tabs.OnActivatedInfo) => {
-      if (!runtimeRef.current) {
-        return;
-      }
-
-      const threads = await dbConnection.threads.findAll();
-      const currentTabThread = threads.find((thread) => thread.tabId === tabId);
-
-      if (!currentTabThread) {
-        await runtimeRef.current.threads.switchToNewThread();
-        return;
-      }
-
-      runtimeRef.current.threads.switchToThread(currentTabThread.remoteId);
-    },
-    [runtimeRef]
-  );
-
   const onCreatedListener = useCallback(async () => {
     if (!runtimeRef.current) {
       return;
@@ -100,13 +81,11 @@ export default function CustomRuntimeProvider({
   }, [runtimeRef]);
 
   useEffect(() => {
-    chrome.tabs.onActivated.addListener(onActivatedListener);
     chrome.tabs.onCreated.addListener(onCreatedListener);
     return () => {
-      chrome.tabs.onActivated.removeListener(onActivatedListener);
       chrome.tabs.onCreated.removeListener(onCreatedListener);
     };
-  }, [onActivatedListener, onCreatedListener]);
+  }, [onCreatedListener]);
 
   runtimeRef.current = useRemoteThreadListRuntime({
     // eslint-disable-next-line react-hooks/rules-of-hooks

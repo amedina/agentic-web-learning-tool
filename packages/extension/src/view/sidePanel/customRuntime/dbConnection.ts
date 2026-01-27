@@ -2,13 +2,24 @@
  * Internal dependencies
  */
 import type { RemoteThreadMetadata, SingleMessage } from './types';
-
+type BatchUpdateProps = { id: string; data: Partial<RemoteThreadMetadata> }[];
 export const dbConnection = {
   threads: {
     async findAll(): Promise<RemoteThreadMetadata[]> {
       const { 'assistant-ui-threads': storedThreads = [] } =
         await chrome.storage.local.get('assistant-ui-threads');
       return storedThreads as RemoteThreadMetadata[];
+    },
+
+    async batchUpdate(updates: BatchUpdateProps) {
+      const threads = await this.findAll();
+      const updatedThreads = threads.map((thread) => {
+        const update = updates.find((u) => u.id === thread.remoteId);
+        return update ? { ...thread, ...update.data } : thread;
+      });
+      await chrome.storage.local.set({
+        'assistant-ui-threads': updatedThreads,
+      });
     },
 
     async create({ id }: { id: string }) {
