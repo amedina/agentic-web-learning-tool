@@ -43,7 +43,7 @@ const AssistantMessage: FC = () => {
           hideWhenRunning
           autohide="not-last"
           autohideFloat="single-branch"
-          className="flex items-center gap-1 rounded-lg data-[floating]:absolute data-[floating]:border-2 data-[floating]:p-1"
+          className="flex items-center gap-1 rounded-lg"
         >
           <ActionBarPrimitive.Reload asChild>
             <ActionButton tooltip="Try again">

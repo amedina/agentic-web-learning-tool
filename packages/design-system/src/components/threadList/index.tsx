@@ -12,6 +12,7 @@ import { ArchiveIcon, PlusIcon } from 'lucide-react';
 import { TooltipIconButton } from '../tooltipIconButton';
 import { Button } from '../button';
 import Skeleton from '../skeleton';
+import { useSidebar } from '../sidebar';
 
 type ThreadListProps = {
   isThreadLoading: boolean;
@@ -62,9 +63,15 @@ const ThreadListSkeleton = () => {
 };
 
 const ThreadListItem = () => {
+  const { setOpen } = useSidebar(({ actions }) => ({
+    setOpen: actions.setOpen,
+  }));
   return (
     <ThreadListItemPrimitive.Root className="aui-thread-list-item group flex h-9 items-center rounded-lg transition-colors hover:bg-muted focus-visible:bg-muted focus-visible:outline-none data-active:bg-muted">
-      <ThreadListItemPrimitive.Trigger className="aui-thread-list-item-trigger flex h-full flex-1 items-center truncate px-3 text-start text-sm">
+      <ThreadListItemPrimitive.Trigger
+        onClick={() => setOpen(false)}
+        className="aui-thread-list-item-trigger flex h-full flex-1 items-center truncate px-3 text-start text-sm"
+      >
         <ThreadListItemPrimitive.Title fallback="New Chat" />
       </ThreadListItemPrimitive.Trigger>
       <ThreadListItemArchive />
@@ -74,7 +81,7 @@ const ThreadListItem = () => {
 
 const ThreadListItemArchive = () => {
   return (
-    <ThreadListItemPrimitive.Archive asChild>
+    <ThreadListItemPrimitive.Delete asChild>
       <TooltipIconButton
         variant="ghost"
         tooltip="Archive thread"
@@ -82,6 +89,6 @@ const ThreadListItemArchive = () => {
       >
         <ArchiveIcon className="size-4" />
       </TooltipIconButton>
-    </ThreadListItemPrimitive.Archive>
+    </ThreadListItemPrimitive.Delete>
   );
 };
