@@ -10,6 +10,10 @@ import type { WebMCPTool } from '@google-awlt/design-system';
 /**
  * Internal dependencies
  */
+import {
+  updateWorkflowsContextMenu,
+  handleContextMenuClick,
+} from '../view/contextMenu';
 import { CONNECTION_NAMES, logger } from '../utils';
 import McpHub from './mcpHub';
 import './chromeListeners';
@@ -151,5 +155,21 @@ chrome.runtime.onConnect.addListener(async (port) => {
       jsonrpc: '2.0',
       method: 'get/Tools',
     });
+  }
+});
+
+// Context Menu Listeners
+chrome.contextMenus.onClicked.addListener(handleContextMenuClick);
+
+chrome.tabs.onUpdated.addListener((_tabId, changeInfo, tab) => {
+  if (changeInfo.status === 'complete' && tab.url) {
+    updateWorkflowsContextMenu(tab.url);
+  }
+});
+
+chrome.tabs.onActivated.addListener(async (activeInfo) => {
+  const tab = await chrome.tabs.get(activeInfo.tabId);
+  if (tab?.url) {
+    updateWorkflowsContextMenu(tab.url);
   }
 });

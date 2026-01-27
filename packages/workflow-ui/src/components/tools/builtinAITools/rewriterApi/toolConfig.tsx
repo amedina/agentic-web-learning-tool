@@ -48,9 +48,6 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
         const format = formData.get("format") as string;
         const length = formData.get("length") as string;
         const inputLanguages = formData.getAll("inputLanguages") as string[];
-        const contextLanguages = formData.getAll(
-          "contextLanguages",
-        ) as string[];
         const outputLanguage = formData.get("outputLanguage") as string;
 
         const configResult = {
@@ -60,7 +57,6 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
           format,
           length,
           expectedInputLanguages: inputLanguages,
-          expectedContextLanguages: contextLanguages,
           outputLanguage,
         };
 

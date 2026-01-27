@@ -27,9 +27,11 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
     ref,
     () => ({
       getConfig: (formData: FormData) => {
+        const title = formData.get("title") as string;
         const selector = formData.get("selector") as string;
 
         const configResult = {
+          title,
           selector,
         };
 
