@@ -8,12 +8,7 @@ import {
 } from '@assistant-ui/react';
 import { useChatRuntime } from '@assistant-ui/react-ai-sdk';
 import { lastAssistantMessageIsCompleteWithToolCalls } from 'ai';
-import {
-  useCallback,
-  useEffect,
-  type PropsWithChildren,
-  type RefObject,
-} from 'react';
+import { useEffect, type PropsWithChildren, type RefObject } from 'react';
 /**
  * Internal dependencies
  */
@@ -42,14 +37,6 @@ export default function CustomRuntimeProvider({
     });
   };
 
-  const onCreatedListener = useCallback(async () => {
-    if (!runtimeRef.current) {
-      return;
-    }
-
-    await runtimeRef.current.threads.switchToNewThread();
-  }, [runtimeRef]);
-
   useEffect(() => {
     (async () => {
       if (!runtimeRef.current) {
@@ -62,30 +49,21 @@ export default function CustomRuntimeProvider({
       });
 
       const activeTab = tabs[0];
-      if (!activeTab) {
+      if (!activeTab?.id) {
         return;
       }
 
-      const threads = await dbConnection.threads.findAll();
-      const currentTabThread = threads.find(
-        (thread) => thread.tabId === activeTab.id
+      const lastActiveThread = await dbConnection.threads.getLastActiveThreadId(
+        activeTab.id
       );
 
-      if (!currentTabThread) {
-        await runtimeRef.current.threads.switchToNewThread();
+      if (!lastActiveThread) {
         return;
       }
 
-      runtimeRef.current.threads.switchToThread(currentTabThread.remoteId);
+      runtimeRef.current.threads.switchToThread(lastActiveThread);
     })();
   }, [runtimeRef]);
-
-  useEffect(() => {
-    chrome.tabs.onCreated.addListener(onCreatedListener);
-    return () => {
-      chrome.tabs.onCreated.removeListener(onCreatedListener);
-    };
-  }, [onCreatedListener]);
 
   runtimeRef.current = useRemoteThreadListRuntime({
     // eslint-disable-next-line react-hooks/rules-of-hooks

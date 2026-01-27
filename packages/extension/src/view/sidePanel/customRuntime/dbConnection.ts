@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import type { RemoteThreadMetadata, SingleMessage } from './types';
-type BatchUpdateProps = { id: string; data: Partial<RemoteThreadMetadata> }[];
+
 export const dbConnection = {
   threads: {
     async findAll(): Promise<RemoteThreadMetadata[]> {
@@ -11,15 +11,26 @@ export const dbConnection = {
       return storedThreads as RemoteThreadMetadata[];
     },
 
-    async batchUpdate(updates: BatchUpdateProps) {
-      const threads = await this.findAll();
-      const updatedThreads = threads.map((thread) => {
-        const update = updates.find((u) => u.id === thread.remoteId);
-        return update ? { ...thread, ...update.data } : thread;
-      });
+    async setLastActiveThreadId(threadId: string, tabId: number) {
+      const {
+        lastActiveThreadsStore = {},
+      }: { lastActiveThreadsStore: { [key: number]: string } } =
+        await chrome.storage.local.get('lastActiveThreadsStore');
+
+      lastActiveThreadsStore[tabId] = threadId;
+
       await chrome.storage.local.set({
-        'assistant-ui-threads': updatedThreads,
+        lastActiveThreadsStore,
       });
+    },
+
+    async getLastActiveThreadId(tabId: number) {
+      const {
+        lastActiveThreadsStore = {},
+      }: { lastActiveThreadsStore: { [key: number]: string } } =
+        await chrome.storage.local.get('lastActiveThreadsStore');
+
+      return lastActiveThreadsStore[tabId];
     },
 
     async create({ id }: { id: string }) {

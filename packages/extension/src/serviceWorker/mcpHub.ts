@@ -35,7 +35,7 @@ import {
  * It acts as a proxy, registering tools found in browser tabs and forwarding execution requests.
  */
 class McpHub {
-  private server: McpServer;
+  server: McpServer;
   clientList = new Map<
     string,
     {
@@ -61,6 +61,7 @@ class McpHub {
 
   constructor(server: McpServer) {
     this.server = server;
+    chrome.tabs;
     this.setupConnections();
     this.trackActiveTab();
     this.registerAllExtensionTools();
