@@ -1,4 +1,4 @@
-import type { NodeConfig } from '../../store';
+import type { NodeConfig } from '../../stateProviders';
 
 export const TOOL_CONFIGS: Record<
   string,
@@ -13,9 +13,7 @@ export const TOOL_CONFIGS: Record<
       temperature: 1,
       expectedInputsLanguages: ['en'],
       expectedOutputsLanguages: ['en'],
-      initialPrompts: [
-        { role: 'system', content: 'You are a helpful assistant.' },
-      ],
+      initialPrompts: [],
     },
   },
   writerApi: {
@@ -108,6 +106,15 @@ export const TOOL_CONFIGS: Record<
       comparisonValue: '',
     },
   },
+  math: {
+    label: 'Math',
+    config: {
+      title: 'Math',
+      description: 'Perform basic math operations.',
+      operation: 'add',
+      operand: '0',
+    },
+  },
   loop: {
     label: 'Loop',
     config: {
@@ -115,11 +122,22 @@ export const TOOL_CONFIGS: Record<
       description: 'Iterate over an array of items.',
     },
   },
+  dataTransformer: {
+    label: 'Data Transformer',
+    config: {
+      title: 'Data Transformer',
+      description: 'Transform strings using Regex, JSON, or templates.',
+      operation: 'format',
+      formatType: 'trim',
+    },
+  },
   alertNotification: {
     label: 'Alert Notification',
     config: {
       title: 'Alert Notification',
       description: 'Display an alert notification to the user.',
+      useCustomMessage: false,
+      message: '',
     },
   },
   domReplacement: {
@@ -158,6 +176,20 @@ export const TOOL_CONFIGS: Record<
       title: 'Tooltip',
       description: 'Show a tooltip on the page.',
       selector: '',
+    },
+  },
+  start: {
+    label: 'Start',
+    config: {
+      title: 'Start',
+      description: 'Workflow entry point.',
+    },
+  },
+  end: {
+    label: 'End',
+    config: {
+      title: 'End',
+      description: 'Workflow exit point.',
     },
   },
 };

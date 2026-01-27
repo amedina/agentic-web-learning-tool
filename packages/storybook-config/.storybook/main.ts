@@ -1,5 +1,6 @@
 import type { StorybookConfig } from '@storybook/react-vite';
 import { mergeConfig } from 'vite';
+import svgr from 'vite-plugin-svgr';
 import path from 'path';
 
 const config: StorybookConfig = {
@@ -20,6 +21,7 @@ const config: StorybookConfig = {
   },
   async viteFinal(config) {
     return mergeConfig(config, {
+      plugins: [svgr()],
       resolve: {
         alias: {
           '@google-awlt/design-system': path.resolve(
@@ -30,6 +32,8 @@ const config: StorybookConfig = {
             __dirname,
             '../../extension/src'
           ),
+          '@google-awlt/table': path.resolve(__dirname, '../../table/src'),
+          '@google-awlt/common': path.resolve(__dirname, '../../common/src'),
         },
       },
     });

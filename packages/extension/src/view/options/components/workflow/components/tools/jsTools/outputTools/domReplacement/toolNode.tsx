@@ -9,8 +9,8 @@ import { Pencil } from 'lucide-react';
  * Internal dependencies
  */
 import { ToolNodeContainer } from '../../../../ui';
-import { useApi, useFlow } from '../../../../../store';
-import type { DomReplacementConfig } from './toolConfig';
+import { useApi, useFlow } from '../../../../../stateProviders';
+import type { DomReplacementConfig } from './domReplacement';
 
 const ToolNode = () => {
   const nodeId = useNodeId();
@@ -33,12 +33,11 @@ const ToolNode = () => {
 
   const config = useMemo(() => {
     if (!nodeId) return undefined;
-
     const node = getNode(nodeId);
 
     if (!node) return undefined;
 
-    return node.config as DomReplacementConfig;
+    return node?.config as DomReplacementConfig;
   }, [getNode, nodeId]);
 
   return (
@@ -51,10 +50,13 @@ const ToolNode = () => {
       onEdit={() => setSelectedNode(nodeId)}
       onRemove={() => nodeId && deleteNode(nodeId)}
     >
-      <div className="h-fit w-full flex flex-col relative">
-        <div className="w-full bg-linear-to-br from-blue-50 to-indigo-50 rounded-md p-3 my-2 border border-blue-100">
-          <p className="truncate text-sm text-slate-700 leading-relaxed font-mono">
-            {config?.selector || 'No selector set'}
+      <div className="h-fit w-full flex flex-col relative px-2">
+        <div className="w-full bg-linear-to-br from-indigo-50/50 to-blue-50/50 dark:from-zinc-800/80 dark:to-zinc-900/80 rounded-md px-3 py-2 my-2 border border-indigo-100/50 dark:border-border">
+          <p className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest mb-1">
+            DOM Mutator
+          </p>
+          <p className="truncate text-xs text-slate-600 dark:text-zinc-400 italic font-medium">
+            {config?.description || 'Inject content into page'}
           </p>
         </div>
         <Handle
@@ -69,6 +71,20 @@ const ToolNode = () => {
         >
           <div className="flex items-center gap-2 w-fit absolute -translate-x-[30%] translate-y-[-50%] top-[2.5px]">
             <div className="min-w-3 h-3 bg-blue-500 rounded-full shadow-sm"></div>
+          </div>
+        </Handle>
+        <Handle
+          type="source"
+          position={Position.Right}
+          style={{
+            background: 'none',
+            border: 'none',
+            top: '50%',
+            right: '-10px',
+          }}
+        >
+          <div className="flex items-center gap-2 w-fit absolute translate-y-[-50%] -translate-x-[10%] top-[2.5px]">
+            <div className="min-w-3 h-3 bg-green-600 rounded-full shadow-sm"></div>
           </div>
         </Handle>
       </div>

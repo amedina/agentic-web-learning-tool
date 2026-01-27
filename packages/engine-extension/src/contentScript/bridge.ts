@@ -50,7 +50,8 @@ export function initContentScriptBridge(): void {
           message.selector,
           message.content,
           message.isMultiple,
-          sendResponse
+          sendResponse,
+          message.index
         );
         return true;
 
@@ -75,6 +76,9 @@ export function initContentScriptBridge(): void {
         return false;
     }
   }
+
+  chrome.runtime.onMessage.addListener(handleMessage);
+  console.log('[Workflow] Content script bridge initialized');
 
   /**
    * Query the DOM for content.
@@ -188,9 +192,6 @@ export function initContentScriptBridge(): void {
     }
   }
 
-  chrome.runtime.onMessage.addListener(handleMessage);
-  console.log('[Workflow] Content script bridge initialized');
-
   /**
    * Replace DOM content.
    */
@@ -198,10 +199,19 @@ export function initContentScriptBridge(): void {
     selector: string,
     content: string,
     isMultiple: boolean | undefined,
-    sendResponse: (response: ContentScriptResponse) => void
+    sendResponse: (response: ContentScriptResponse) => void,
+    index?: number
   ): void {
     try {
-      if (isMultiple) {
+      if (typeof index === 'number') {
+        const elements = document.querySelectorAll(selector);
+        if (!elements || elements.length <= index) {
+          throw new Error(
+            `No element found at index ${index} for selector: ${selector}`
+          );
+        }
+        elements[index].textContent = content;
+      } else if (isMultiple) {
         const elements = document.querySelectorAll(selector);
         if (!elements || elements.length === 0) {
           throw new Error(`No elements found for selector: ${selector}`);
@@ -298,67 +308,151 @@ export function initContentScriptBridge(): void {
         throw new Error(`No elements found for selector: ${selector}`);
       }
 
+      const styleId = 'awlt-tooltip-styles';
+      if (!document.getElementById(styleId)) {
+        const style = document.createElement('style');
+        style.id = styleId;
+        style.textContent = `
+            @keyframes awlt-tooltip-slide-up {
+              from { opacity: 0; transform: translateY(4px); }
+              to { opacity: 1; transform: translateY(0); }
+            }
+            @keyframes awlt-tooltip-slide-down {
+              from { opacity: 0; transform: translateY(-4px); }
+              to { opacity: 1; transform: translateY(0); }
+            }
+          `;
+        document.head.appendChild(style);
+      }
+
       elements.forEach((el) => {
         const tooltip = document.createElement('div');
         Object.assign(tooltip.style, {
           position: 'absolute',
-          background: '#333',
-          color: '#fff',
-          padding: '5px 10px 5px 24px',
-          borderRadius: '4px',
-          fontSize: '12px',
-          zIndex: '10000',
+          background: '#09090b',
+          border: '2px solid #27272a',
+          borderRadius: '8px',
+          color: '#e4e4e7',
+          fontFamily:
+            "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+          fontSize: '13px',
+          lineHeight: '1.5',
+          zIndex: '2147483647',
+          boxShadow:
+            '0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3)',
+          display: 'flex',
+          flexDirection: 'column',
+          maxWidth: '320px',
+          minWidth: '200px',
           pointerEvents: 'auto',
-          boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
+        });
+
+        const header = document.createElement('div');
+        Object.assign(header.style, {
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '8px 12px',
+          background: '#18181b',
+          borderBottom: '2px solid #27272a',
+          borderRadius: '6px 6px 0 0',
+        });
+
+        const titleGroup = document.createElement('div');
+        Object.assign(titleGroup.style, {
           display: 'flex',
           alignItems: 'center',
           gap: '8px',
         });
 
-        const textSpan = document.createElement('span');
-        textSpan.textContent = content;
-        tooltip.appendChild(textSpan);
+        const icon = document.createElement('div');
+        icon.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #818cf8;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>`;
+        titleGroup.appendChild(icon);
+
+        const titleText = document.createElement('span');
+        titleText.textContent = 'Tooltip';
+        Object.assign(titleText.style, {
+          fontWeight: '600',
+          fontSize: '12px',
+          color: '#fafafa',
+          textTransform: 'uppercase',
+          letterSpacing: '0.5px',
+        });
+        titleGroup.appendChild(titleText);
+        header.appendChild(titleGroup);
 
         const closeBtn = document.createElement('button');
-        closeBtn.innerHTML = '&times;';
+        closeBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
         Object.assign(closeBtn.style, {
-          position: 'absolute',
-          left: '4px',
-          top: '50%',
-          transform: 'translateY(-50%)',
-          background: 'none',
+          background: 'transparent',
           border: 'none',
-          color: '#fff',
-          fontSize: '16px',
-          fontWeight: 'bold',
+          color: '#71717a',
           cursor: 'pointer',
-          padding: '0 4px',
-          lineHeight: '1',
-          opacity: '0.7',
+          padding: '2px',
+          borderRadius: '4px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          transition: 'all 0.2s',
         });
-
         closeBtn.onmouseenter = () => {
-          closeBtn.style.opacity = '1';
+          closeBtn.style.background = '#27272a';
+          closeBtn.style.color = '#f4f4f5';
         };
         closeBtn.onmouseleave = () => {
-          closeBtn.style.opacity = '0.7';
+          closeBtn.style.background = 'transparent';
+          closeBtn.style.color = '#71717a';
         };
-
         closeBtn.onclick = (e) => {
           e.stopPropagation();
-          if (document.body.contains(tooltip)) {
-            document.body.removeChild(tooltip);
-          }
+          tooltip.remove();
         };
-        tooltip.appendChild(closeBtn);
+        header.appendChild(closeBtn);
+        tooltip.appendChild(header);
+
+        const body = document.createElement('div');
+        Object.assign(body.style, {
+          padding: '12px',
+          fontSize: '13px',
+          color: '#d4d4d8',
+        });
+        body.textContent = content;
+        tooltip.appendChild(body);
 
         const rect = el.getBoundingClientRect();
-        tooltip.style.top = `${rect.top + window.scrollY - 30}px`;
-        tooltip.style.left = `${rect.left + window.scrollX}px`;
+        const tooltipHeight = 100;
+        const spaceAbove = rect.top;
+        const placeBelow = spaceAbove < tooltipHeight + 10;
 
+        tooltip.style.animation = placeBelow
+          ? 'awlt-tooltip-slide-down 0.2s ease-out forwards'
+          : 'awlt-tooltip-slide-up 0.2s ease-out forwards';
+
+        const scrollY = window.scrollY;
+        const scrollX = window.scrollX;
+        let top = rect.top + scrollY - 12;
+
+        if (placeBelow) {
+          top = rect.bottom + scrollY + 8;
+        } else {
+        }
+
+        tooltip.style.visibility = 'hidden';
         document.body.appendChild(tooltip);
+
+        const tipRect = tooltip.getBoundingClientRect();
+        if (!placeBelow) {
+          top = rect.top + scrollY - tipRect.height - 8;
+        }
+
+        tooltip.style.top = `${Math.max(top, 0)}px`;
+        tooltip.style.left = `${Math.max(rect.left + scrollX, 0)}px`;
+        tooltip.style.visibility = 'visible';
       });
-      sendResponse({ success: true });
+
+      sendResponse({
+        success: true,
+      });
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       sendResponse({ success: false, error: message });
