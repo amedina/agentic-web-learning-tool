@@ -9,12 +9,16 @@ import { ExtensionServerTransport } from '@mcp-b/transports';
 /**
  * Internal dependencies
  */
-import { CONNECTION_NAMES, logger } from '../utils';
+import { CONNECTION_NAMES, logger, MESSAGE_TYPES } from '../utils';
 import McpHub from './mcpHub';
 import './chromeListeners';
 import './engine';
 import handleToolEnableDisableOnLocalStorageChange from './utils/handleToolEnableDisableOnLocalStorageChange';
 import { START_MCP_CONNECTION } from '../constants';
+import { isUrl } from '../view/sidePanel/utils';
+
+const mcpHubInstances = new Map<number, McpHub>();
+const serverInstances = new Map<number, McpServer>();
 
 chrome.sidePanel
   .setPanelBehavior({ openPanelOnActionClick: false })
@@ -24,6 +28,44 @@ chrome.sidePanel
 
 chrome.runtime.onConnect.addListener(async (port) => {
   if (port.name !== CONNECTION_NAMES.MCP_HOST) {
+    return;
+  }
+  let tabId = 0;
+  if (!port.sender?.url) {
+    return;
+  }
+
+  if (isUrl(port.sender?.url)) {
+    tabId = parseInt(new URL(port.sender?.url).hash.substring(5));
+  }
+
+  if (!tabId) {
+    return;
+  }
+
+  if (mcpHubInstances.has(tabId)) {
+    const sharedServer = serverInstances.get(tabId);
+    const transport = new ExtensionServerTransport(port, {
+      keepAlive: true,
+    });
+    const mcpHub = mcpHubInstances.get(tabId);
+
+    if (!mcpHub || !sharedServer) {
+      return;
+    }
+
+    sharedServer?.connect(transport);
+
+    await chrome.tabs.sendMessage(tabId, { type: START_MCP_CONNECTION });
+    await chrome.tabs.sendMessage(tabId, {
+      type: MESSAGE_TYPES.REFRESH_REQUEST,
+    });
+    if (mcpHub?.registeredTools.size > 0) {
+      sharedServer?.server?.transport?.send({
+        jsonrpc: '2.0',
+        method: 'get/Tools',
+      });
+    }
     return;
   }
 
@@ -40,13 +82,10 @@ chrome.runtime.onConnect.addListener(async (port) => {
     }
   );
 
-  if (port.sender?.tab?.id !== undefined) {
-    await chrome.tabs.sendMessage(port.sender?.tab?.id, START_MCP_CONNECTION);
-  }
+  await chrome.tabs.sendMessage(tabId, { type: START_MCP_CONNECTION });
 
   const transport = new ExtensionServerTransport(port, {
     keepAlive: true,
-    keepAliveInterval: 25_000,
   });
 
   try {
@@ -72,6 +111,9 @@ chrome.runtime.onConnect.addListener(async (port) => {
 
   sharedServer.connect(transport);
   mcpHub.setupConnections();
+
+  mcpHubInstances.set(tabId, mcpHub);
+  serverInstances.set(tabId, sharedServer);
 
   if (mcpHub.registeredTools.size > 0) {
     sharedServer.server?.transport?.send({

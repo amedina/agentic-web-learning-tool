@@ -30,11 +30,7 @@ interface ToolUpdateMessage {
   url: string;
 }
 
-const mcpConnectionInitialiser = async () => {
-  if (window !== window.top) {
-    return;
-  }
-
+function insertAndRegisterScripts() {
   try {
     const polyfillScript = document.createElement('script');
     polyfillScript.src = chrome.runtime.getURL(
@@ -55,6 +51,32 @@ const mcpConnectionInitialiser = async () => {
     logger(['debug'], ['WebMCP: Injected registerTools.js']);
   } catch (e) {
     logger(['error'], ['WebMCP: Failed to inject registerTools.js', e]);
+  }
+}
+
+const mcpConnectionInitialiser = async (refreshTools = false) => {
+  if (window !== window.top) {
+    return;
+  }
+
+  // This connects to the page context since content scripts have a separate JS context
+  // TabClientTransport uses window.postMessage under the hood. The TabServerTransport is implemented from the MCP-B polyfill
+  const transport = new TabClientTransport({
+    targetOrigin: window.location.origin,
+  });
+
+  const client = new Client({
+    name: 'ExtensionProxyClient',
+    version: '1.0.0',
+  });
+
+  const backgroundPort = chrome.runtime.connect({
+    name: CONNECTION_NAMES.CONTENT_SCRIPT,
+  });
+
+  if (refreshTools) {
+    sendToolUpdate(MESSAGE_TYPES.REFRESH_REQUEST);
+    insertAndRegisterScripts();
   }
 
   async function setupToolChangeListener() {
@@ -117,21 +139,6 @@ const mcpConnectionInitialiser = async () => {
     }
   }
 
-  // This connects to the page context since content scripts have a separate JS context
-  // TabClientTransport uses window.postMessage under the hood. The TabServerTransport is implemented from the MCP-B polyfill
-  const transport = new TabClientTransport({
-    targetOrigin: window.location.origin,
-  });
-
-  const client = new Client({
-    name: 'ExtensionProxyClient',
-    version: '1.0.0',
-  });
-
-  const backgroundPort = chrome.runtime.connect({
-    name: CONNECTION_NAMES.CONTENT_SCRIPT,
-  });
-
   // Moved storage get to top level (already there in previous replacement, but ensuring order)
 
   //Need to set interval because the TabServerTransport might not be ready to accept connections yet
@@ -177,6 +184,9 @@ const mcpConnectionInitialiser = async () => {
         data: { success: true, payload: result },
       });
     }
+    if (message.type === 'request-tools-refresh') {
+      await sendToolUpdate(MESSAGE_TYPES.REFRESH_REQUEST);
+    }
   });
 
   transport.onclose = () => {
@@ -185,6 +195,7 @@ const mcpConnectionInitialiser = async () => {
     }
 
     backgroundPort.disconnect();
+    connectionStarted = false;
   };
 
   backgroundPort.onDisconnect.addListener(() => {
@@ -193,11 +204,18 @@ const mcpConnectionInitialiser = async () => {
     }
 
     transport.close();
+    connectionStarted = false;
   });
 };
 
 chrome.runtime.onMessage.addListener(async (message) => {
   if (message.type === START_MCP_CONNECTION) {
+    insertAndRegisterScripts();
+    connectionStarted = false;
     await mcpConnectionInitialiser();
+  }
+  if (message.type === MESSAGE_TYPES.REFRESH_REQUEST) {
+    connectionStarted = false;
+    await mcpConnectionInitialiser(true);
   }
 });
