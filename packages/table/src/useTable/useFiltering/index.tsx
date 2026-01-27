@@ -102,7 +102,9 @@ const useFiltering = (
     (filterKey: string, isSingleFilterRemovalAction?: boolean) => {
       let valueToSet = false;
       setSelectAllFilterSelection((prev) => {
-        const newSelectAllFilterSelection = { ...prev };
+        const newSelectAllFilterSelection = JSON.parse(
+          JSON.stringify(prev),
+        ) as typeof selectAllFilterSelection;
 
         newSelectAllFilterSelection[filterKey] = {
           selected: !newSelectAllFilterSelection[filterKey].selected,
@@ -118,7 +120,9 @@ const useFiltering = (
       }
 
       setFilters((prevFilters) => {
-        const newFilters = { ...prevFilters };
+        const newFilters = JSON.parse(
+          JSON.stringify(prevFilters),
+        ) as typeof filters;
         const filterValues = newFilters[filterKey].filterValues || {};
 
         Object.entries(filterValues).forEach(([filterValue]) => {
@@ -138,7 +142,9 @@ const useFiltering = (
       }
 
       setFilters((prevFilters) => {
-        const newFilters = { ...prevFilters };
+        const newFilters = JSON.parse(
+          JSON.stringify(prevFilters),
+        ) as typeof filters;
         const filterValues = newFilters[filterKey].filterValues || {};
 
         if (filterValues[filterValue]) {
@@ -155,7 +161,9 @@ const useFiltering = (
 
   const resetFilters = useCallback(() => {
     setSelectAllFilterSelection((prev) => {
-      const newSelectAllFilterSelection = { ...prev };
+      const newSelectAllFilterSelection = JSON.parse(
+        JSON.stringify(prev),
+      ) as typeof selectAllFilterSelection;
 
       Object.entries(newSelectAllFilterSelection).forEach(
         ([filterKey, filterValueData]) => {
@@ -170,7 +178,9 @@ const useFiltering = (
     });
 
     setFilters((prevFilters) => {
-      const newFilters = { ...prevFilters };
+      const newFilters = JSON.parse(
+        JSON.stringify(prevFilters),
+      ) as typeof filters;
 
       Object.entries(newFilters).forEach(([, filter]) => {
         const filterValues = filter.filterValues || {};

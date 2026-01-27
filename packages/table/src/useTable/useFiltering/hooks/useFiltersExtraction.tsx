@@ -145,7 +145,7 @@ const useFiltersExtraction = (
     const filtersByKey = extractPrecalculatedFilterKeys();
 
     setFilters((prevFilters) => {
-      const newFilters = { ...prevFilters };
+      const newFilters = JSON.parse(JSON.stringify(prevFilters)) as TableFilter;
 
       Object.entries(newFilters).forEach(([key, filter]) => {
         if (!filtersByKey[key]) {
@@ -222,7 +222,9 @@ const useFiltersExtraction = (
       );
 
     setSelectAllFilterSelection((prev) => {
-      const newSelectAllFilterSelection = { ...prev };
+      const newSelectAllFilterSelection = JSON.parse(
+        JSON.stringify(prev),
+      ) as typeof selectAllFilterSelection;
 
       Object.entries(filtersWithSelectAllFilterEnabled).forEach(
         ([filterKey, filterValueData]) => {
