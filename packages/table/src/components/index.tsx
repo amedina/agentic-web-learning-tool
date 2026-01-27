@@ -44,6 +44,7 @@ interface TableProps {
   rowHeightClass?: string;
   shouldScroll?: boolean;
   showOverflow?: boolean;
+  containerClasses?: string;
 }
 
 const Table = ({
@@ -57,6 +58,7 @@ const Table = ({
   rowHeightClass,
   shouldScroll = false,
   showOverflow = true,
+  containerClasses = "",
 }: TableProps) => {
   const {
     filters,
@@ -160,7 +162,7 @@ const Table = ({
   );
 
   return (
-    <div className="h-full flex flex-col">
+    <div className={classNames("h-full flex flex-col", containerClasses)}>
       <div className="w-full flex-1 flex flex-col text-raisin-black dark:text-bright-gray overflow-hidden">
         {!hideTableTopBar && (
           <>
