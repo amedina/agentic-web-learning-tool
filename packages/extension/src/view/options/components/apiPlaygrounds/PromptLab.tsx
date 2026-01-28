@@ -8,22 +8,48 @@ import {
   Loader2,
   AlertCircle,
   Settings2,
+  RotateCcw,
 } from 'lucide-react';
 import {
   Button,
   Collapsible,
   Input,
-  Toaster,
   toast,
 } from '@google-awlt/design-system';
 
 // Import our custom types
 import type { AILanguageModelSession } from '../../../../types/window.ai.d';
 
+interface TokenUsage {
+  used: number;
+  total: number;
+  remaining: number;
+}
+
 interface Message {
   role: 'user' | 'assistant' | 'system';
   content: string;
   timestamp: number;
+  tokenUsage?: TokenUsage;
+}
+
+const DEFAULT_SYSTEM_PROMPT = 'You are a helpful and friendly assistant.';
+
+// Debounce hook
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
 }
 
 export default function PromptLab() {
@@ -33,9 +59,11 @@ export default function PromptLab() {
   const [session, setSession] = useState<AILanguageModelSession | null>(null);
 
   // Configuration
-  const [systemPrompt, setSystemPrompt] = useState<string>(
-    'You are a helpful and friendly assistant.'
-  );
+  const [systemPrompt, setSystemPrompt] = useState<string>(() => {
+    return sessionStorage.getItem('promptLabSystemPrompt') || DEFAULT_SYSTEM_PROMPT;
+  });
+  const debouncedSystemPrompt = useDebounce(systemPrompt, 1000);
+
   const [temperature, setTemperature] = useState<number>(0.8);
   const [topK, setTopK] = useState<number>(3);
 
@@ -67,6 +95,19 @@ export default function PromptLab() {
       }
     };
   }, []);
+
+  // Persist system prompt
+  useEffect(() => {
+    sessionStorage.setItem('promptLabSystemPrompt', systemPrompt);
+  }, [systemPrompt]);
+
+  // Handle system prompt updates (Silent Reload)
+  useEffect(() => {
+    if (session && !isLoading && !isStreaming && apiType) {
+       // Recreate session with new system prompt, preserving history
+       createSessionInternal(apiType, true);
+    }
+  }, [debouncedSystemPrompt]);
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -131,10 +172,6 @@ export default function PromptLab() {
           }
 
           setError(null);
-          // Wait to ensure apiType state is settled or explicitly pass it?
-          // Since setState is async, createSession will see old apiType if called immediately.
-          // Better to call createSession explicitly with 'spec' type or wait.
-          // Let's create session here directly to avoid race condition.
           await createSessionInternal('spec');
 
       } else {
@@ -178,7 +215,7 @@ export default function PromptLab() {
       await createSessionInternal(apiType);
   };
 
-  const createSessionInternal = async (type: 'spec' | 'explainer') => {
+  const createSessionInternal = async (type: 'spec' | 'explainer', preserveHistory: boolean = false) => {
     if (session) {
       session.destroy();
     }
@@ -204,18 +241,33 @@ export default function PromptLab() {
 
       setSession(newSession);
       updateStats(newSession);
-      setMessages([]);
 
-      // Add system message to UI for visibility
-      setMessages([{
-        role: 'system',
-        content: systemPrompt,
-        timestamp: Date.now()
-      }]);
+      if (!preserveHistory) {
+          setMessages([]);
+          // Add system message to UI for visibility
+          setMessages([{
+            role: 'system',
+            content: systemPrompt,
+            timestamp: Date.now()
+          }]);
 
-      toast.success('Session Created', {
-        description: `Temp: ${temperature}, TopK: ${topK}`,
-      });
+          toast.success('Session Created', {
+            description: `Temp: ${temperature}, TopK: ${topK}`,
+          });
+      } else {
+          // Update the displayed system prompt if it exists in history
+          setMessages(prev => {
+              const newMsgs = [...prev];
+              // Assuming first message is system
+              if (newMsgs.length > 0 && newMsgs[0].role === 'system') {
+                  newMsgs[0] = { ...newMsgs[0], content: systemPrompt };
+              }
+              return newMsgs;
+          });
+          toast.success('System Prompt Updated', {
+             description: 'Session reloaded with new persona.',
+          });
+      }
     } catch (err: any) {
       console.error('Failed to create session:', err);
       toast.error('Session Error', {
@@ -263,6 +315,11 @@ export default function PromptLab() {
     });
   };
 
+  const resetSystemPrompt = () => {
+      setSystemPrompt(DEFAULT_SYSTEM_PROMPT);
+      toast.info('System Prompt Reset');
+  };
+
   const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
     if (!input.trim() || !session || isStreaming) return;
@@ -271,6 +328,9 @@ export default function PromptLab() {
     setMessages((prev) => [...prev, userMsg]);
     setInput('');
     setIsStreaming(true);
+
+    // Capture tokens before generation
+    const startTokens = session.tokensSoFar || session.inputUsage || 0;
 
     try {
       const stream = await session.promptStreaming(input);
@@ -291,15 +351,35 @@ export default function PromptLab() {
 
         setMessages((prev) => {
           const newHistory = [...prev];
-          const lastMsg = newHistory[newHistory.length - 1];
+          const lastIdx = newHistory.length - 1;
+          const lastMsg = newHistory[lastIdx];
           if (lastMsg.role === 'assistant') {
-            lastMsg.content = fullResponse;
+            newHistory[lastIdx] = { ...lastMsg, content: fullResponse };
           }
           return newHistory;
         });
       }
 
+      // Update stats and calculate usage
       updateStats(session);
+      const endTokens = session.tokensSoFar || session.inputUsage || 0;
+
+      const used = endTokens - startTokens;
+      const remaining = session.tokensLeft || ((session.inputQuota || 0) - (session.inputUsage || 0)) || 0;
+      const total = session.maxTokens || session.inputQuota || 0;
+
+      setMessages((prev) => {
+          const newHistory = [...prev];
+          const lastIdx = newHistory.length - 1;
+          const lastMsg = newHistory[lastIdx];
+          if (lastMsg.role === 'assistant') {
+            newHistory[lastIdx] = {
+                ...lastMsg,
+                tokenUsage: { used, total, remaining }
+            };
+          }
+          return newHistory;
+        });
 
     } catch (err: any) {
       console.error('Prompt error:', err);
@@ -332,8 +412,6 @@ export default function PromptLab() {
 
   return (
     <div className="flex flex-col h-[calc(100vh-200px)] max-h-[800px] gap-6">
-      <Toaster />
-
       {/* Top Controls / Config */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* System Prompt & Config */}
@@ -347,7 +425,18 @@ export default function PromptLab() {
             </div>
 
             <div className="space-y-3">
-               <label className="text-xs font-medium text-muted-foreground">System Prompt</label>
+               <div className="flex justify-between items-center">
+                   <label className="text-xs font-medium text-muted-foreground">System Prompt</label>
+                   <Button
+                       variant="ghost"
+                       size="icon"
+                       className="h-4 w-4"
+                       onClick={resetSystemPrompt}
+                       title="Reset to Default"
+                   >
+                       <RotateCcw className="w-3 h-3" />
+                   </Button>
+               </div>
                <textarea
                  className="w-full h-24 p-2 text-sm bg-background border rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-primary/50"
                  value={systemPrompt}
@@ -478,7 +567,7 @@ export default function PromptLab() {
             {messages.map((msg, idx) => (
               <div
                 key={idx}
-                className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}
               >
                 <div
                   className={`max-w-[85%] rounded-lg p-3 ${
@@ -495,6 +584,11 @@ export default function PromptLab() {
                      <div className="whitespace-pre-wrap">{msg.content}</div>
                   )}
                 </div>
+                {msg.tokenUsage && (
+                     <div className="text-[10px] text-muted-foreground mt-1 px-1">
+                         Used: {msg.tokenUsage.used} | Remaining: {msg.tokenUsage.remaining}
+                     </div>
+                )}
               </div>
             ))}
 
