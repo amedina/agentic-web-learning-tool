@@ -76,6 +76,8 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
   }, [client]);
 
   const threadId = useAssistantState(({ threadListItem }) => threadListItem.id);
+  const messages = useAssistantState(({ thread }) => thread.messages);
+  const isLoading = useAssistantState(({ threads }) => threads.isLoading);
 
   useAssistantMCP(tools, client, threadId, runtime);
 
@@ -115,19 +117,21 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
     return tools.filter((tool) => tool.name !== 'dummyTool').length;
   }, [tools]);
 
-  const lockThread = useCallback(() => {
-    chrome.storage.session.set({
+  const lockThread = useCallback(async () => {
+    await chrome.storage.session.set({
       lockedThreads: [...lockedThreads, threadId],
     });
   }, [lockedThreads, threadId]);
 
-  const unlockThread = useCallback(() => {
+  const unlockThread = useCallback(async () => {
     const unlockedThreads = lockedThreads.filter((id) => id !== threadId);
-    chrome.storage.session.set({ lockedThreads: unlockedThreads });
+    await chrome.storage.session.set({ lockedThreads: unlockedThreads });
   }, [lockedThreads, threadId]);
 
   api.on('thread.run-end', async () => {
-    unlockThread();
+    setTimeout(async () => {
+      await unlockThread();
+    }, 500);
   });
 
   api.on('composer.send', async () => {
@@ -136,9 +140,6 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 
   //Only shows models whose apiKeys have been and have been enabled
   const modelOptions = useMemo(() => createModelDropdown(apiKeys), [apiKeys]);
-
-  const messages = useAssistantState(({ thread }) => thread.messages);
-  const isLoading = useAssistantState(({ threads }) => threads.isLoading);
 
   return (
     <>
