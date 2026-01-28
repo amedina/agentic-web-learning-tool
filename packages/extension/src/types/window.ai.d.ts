@@ -102,6 +102,35 @@ export interface AIRewriterFactory {
   availability?(): Promise<'readily' | 'after-download' | 'no'>;
 }
 
+// Summarizer API
+
+export type AISummarizerType = 'key-points' | 'tldr' | 'teaser' | 'headline';
+export type AISummarizerFormat = 'markdown' | 'plain-text';
+export type AISummarizerLength = 'short' | 'medium' | 'long';
+
+export interface AISummarizerCreateOptions {
+    type?: AISummarizerType;
+    format?: AISummarizerFormat;
+    length?: AISummarizerLength;
+    signal?: AbortSignal;
+    monitor?: (monitor: any) => void;
+}
+
+export interface AISummarizerSession {
+    summarize(text: string): Promise<string>;
+    summarizeStreaming?(text: string): ReadableStream<string> & AsyncIterable<string>;
+    destroy(): void;
+    measureInputUsage?(text: string): Promise<number>;
+
+    // Quota props
+    inputQuota?: number;
+}
+
+export interface AISummarizerFactory {
+    create(options?: AISummarizerCreateOptions): Promise<AISummarizerSession>;
+    availability?(): Promise<'readily' | 'after-download' | 'no'>;
+    capabilities?(): Promise<{ available: 'readily' | 'after-download' | 'no' }>;
+}
 
 declare global {
   interface Window {
@@ -110,9 +139,11 @@ declare global {
       prompt?: AILanguageModel; // Legacy alias
       writer?: AIWriterFactory;
       rewriter?: AIRewriterFactory;
+      summarizer?: AISummarizerFactory;
     };
     LanguageModel?: LanguageModelFactory;
     Writer?: AIWriterFactory;
     Rewriter?: AIRewriterFactory;
+    Summarizer?: AISummarizerFactory;
   }
 }
