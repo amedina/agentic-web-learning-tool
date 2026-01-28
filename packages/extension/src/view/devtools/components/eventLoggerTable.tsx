@@ -1,7 +1,7 @@
 /**
  * External dependencies.
  */
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useMcpClient } from '@mcp-b/mcp-react-hooks';
 import {
   Table,
@@ -20,146 +20,141 @@ const noop = () => {};
 
 const TABLE_SEARCH_KEYS = ['name', 'type'];
 
-const tableFilters = {
-  allAvailableTools: {
-    type: {
-      title: 'Type',
-      hasStaticFilterValues: true,
-      filterValues: {
-        MCP: { selected: null },
-        WebMCP: { selected: null },
-      },
-    },
-  },
-  eventLogger: {
-    type: {
-      title: 'Type',
-      hasStaticFilterValues: true,
-      filterValues: {
-        MCP: { selected: null },
-        WebMCP: { selected: null },
-      },
-    },
-    status: {
-      title: 'Status',
-      hasStaticFilterValues: true,
-      filterValues: {
-        success: { selected: null },
-        error: { selected: null },
-      },
-    },
-    duration: {
-      title: 'Duration',
-      hasStaticFilterValues: true,
-      filterValues: {
-        success: { selected: null },
-        error: { selected: null },
-      },
+const allToolsFilters = {
+  type: {
+    title: 'Type',
+    hasStaticFilterValues: true,
+    filterValues: {
+      MCP: { selected: null },
+      WebMCP: { selected: null },
     },
   },
 };
 
-const tableColumns: Record<string, TableColumn[]> = {
-  allAvailableTools: [
-    {
-      header: 'Name',
-      accessorKey: 'name',
-      cell: (info: InfoType) => info,
-      enableHiding: false,
+const eventLoggerFilters = {
+  type: {
+    title: 'Type',
+    hasStaticFilterValues: true,
+    filterValues: {
+      MCP: { selected: null },
+      WebMCP: { selected: null },
     },
-    {
-      header: 'Description',
-      accessorKey: 'description',
-      cell: (info: InfoType) => info,
-      enableHiding: false,
+  },
+  status: {
+    title: 'Status',
+    hasStaticFilterValues: true,
+    filterValues: {
+      success: { selected: null },
+      error: { selected: null },
     },
-    {
-      header: 'Action',
-      accessorKey: 'action',
-      cell: (info: InfoType) => <ActionButton onRunTool={noop} t={info} />,
+  },
+  duration: {
+    title: 'Duration',
+    hasStaticFilterValues: true,
+    filterValues: {
+      success: { selected: null },
+      error: { selected: null },
     },
-  ],
-  eventLogger: [
-    {
-      header: 'Name',
-      accessorKey: 'name',
-      cell: (info: InfoType) => info,
-      enableHiding: false,
-    },
-    {
-      header: 'Time',
-      accessorKey: 'time',
-      cell: (info: InfoType) => info,
-      enableHiding: false,
-    },
-    {
-      header: 'Type',
-      accessorKey: 'type',
-      cell: (info: InfoType) => info,
-      enableHiding: false,
-    },
-    {
-      header: 'Status',
-      accessorKey: 'status',
-      cell: (info: InfoType) => info,
-      enableHiding: false,
-    },
-    {
-      header: 'Duration',
-      accessorKey: 'duration',
-      cell: (info: InfoType) => info,
-      enableHiding: false,
-    },
-    {
-      header: 'Description',
-      accessorKey: 'description',
-      cell: (info: InfoType) => info,
-      enableHiding: false,
-    },
-  ],
+  },
 };
+
+const allToolsColumns: TableColumn[] = [
+  {
+    header: 'Name',
+    accessorKey: 'name',
+    cell: (info: InfoType) => info,
+    enableHiding: false,
+  },
+  {
+    header: 'Description',
+    accessorKey: 'description',
+    cell: (info: InfoType) => info,
+    enableHiding: false,
+  },
+  {
+    header: 'Action',
+    accessorKey: 'action',
+    cell: (info: InfoType) => <ActionButton onRunTool={noop} t={info} />,
+  },
+];
+
+const eventLoggerColumns: TableColumn[] = [
+  {
+    header: 'Name',
+    accessorKey: 'name',
+    cell: (info: InfoType) => info,
+    enableHiding: false,
+  },
+  {
+    header: 'Time',
+    accessorKey: 'time',
+    cell: (info: InfoType) => info,
+    enableHiding: false,
+  },
+  {
+    header: 'Type',
+    accessorKey: 'type',
+    cell: (info: InfoType) => info,
+    enableHiding: false,
+  },
+  {
+    header: 'Status',
+    accessorKey: 'status',
+    cell: (info: InfoType) => info,
+    enableHiding: false,
+  },
+  {
+    header: 'Duration',
+    accessorKey: 'duration',
+    cell: (info: InfoType) => info,
+    enableHiding: false,
+  },
+  {
+    header: 'Description',
+    accessorKey: 'description',
+    cell: (info: InfoType) => info,
+    enableHiding: false,
+  },
+];
 
 const EventLoggerTable = () => {
   const { tools: availableTools } = useMcpClient();
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
-  const [showAllTools, setShowAllTools] = useState(false);
+  const [showAllTools, setShowAllTools] = useState(true);
+  const [allToolsData, setAllToolsData] = useState<TableData[]>([]);
+  const [eventLoggerData] = useState<TableData[]>([
+    {
+      name: 'get_page_title',
+      time: '203',
+      type: 'MCP',
+      status: 'success',
+      duration: '203',
+      originalData: {},
+      description: 'Cookie A description',
+    },
+    {
+      name: 'alert_page_title',
+      time: '200',
+      type: 'WebMCP',
+      status: 'success',
+      duration: '203',
+      originalData: {},
+      description: 'Cookie B description',
+    },
+  ]);
 
-  console.log(availableTools, 'availableTools');
+  useEffect(() => {
+    if (availableTools) {
+      const tools = availableTools.map((tool) => ({
+        name: tool.name,
+        originalData: {},
+        inputSchema: tool.inputSchema,
+        description: tool.description,
+      }));
 
-  const tableData: Record<string, TableData[]> = {
-    allAvailableTools: [
-      {
-        name: 'get_page_title',
-        originalData: {},
-        description: 'Cookie A description',
-      },
-      {
-        name: 'alert_page_title',
-        originalData: {},
-        description: 'Cookie B description',
-      },
-    ],
-    eventLogger: [
-      {
-        name: 'get_page_title',
-        time: '203',
-        type: 'MCP',
-        status: 'success',
-        duration: '203',
-        originalData: {},
-        description: 'Cookie A description',
-      },
-      {
-        name: 'alert_page_title',
-        time: '200',
-        type: 'WebMCP',
-        status: 'success',
-        duration: '203',
-        originalData: {},
-        description: 'Cookie B description',
-      },
-    ],
-  };
+      setAllToolsData(tools);
+    }
+  }, [availableTools]);
 
   const extraInterfaceToTopBar = useCallback(() => {
     return (
@@ -176,13 +171,9 @@ const EventLoggerTable = () => {
 
   return (
     <TableProvider
-      data={showAllTools ? tableData.allAvailableTools : tableData.eventLogger}
-      tableColumns={
-        showAllTools ? tableColumns.allAvailableTools : tableColumns.eventLogger
-      }
-      tableFilterData={
-        showAllTools ? tableFilters.allAvailableTools : tableFilters.eventLogger
-      }
+      data={showAllTools ? allToolsData : eventLoggerData}
+      tableColumns={showAllTools ? allToolsColumns : eventLoggerColumns}
+      tableFilterData={showAllTools ? allToolsFilters : eventLoggerFilters}
       tableSearchKeys={TABLE_SEARCH_KEYS}
       onRowClick={(row: TableData) => {
         setSelectedKey(row?.name ?? null);
