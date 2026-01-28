@@ -54,12 +54,26 @@ chrome.runtime.onConnect.addListener(async (port) => {
       return;
     }
 
-    sharedServer?.connect(transport);
+    sharedServer.connect(transport);
 
-    await chrome.tabs.sendMessage(tabId, { type: START_MCP_CONNECTION });
-    await chrome.tabs.sendMessage(tabId, {
-      type: MESSAGE_TYPES.REFRESH_REQUEST,
-    });
+    chrome.tabs
+      .sendMessage(tabId, { type: START_MCP_CONNECTION })
+      .catch((error) => {
+        logger(
+          ['error'],
+          ['Failed to send START_MCP_CONNECTION message:', error]
+        );
+      });
+
+    chrome.tabs
+      .sendMessage(tabId, { type: MESSAGE_TYPES.REFRESH_REQUEST })
+      .catch((error) => {
+        logger(
+          ['error'],
+          ['Failed to send START_MCP_CONNECTION message:', error]
+        );
+      });
+
     if (mcpHub?.registeredTools.size > 0) {
       sharedServer?.server?.transport?.send({
         jsonrpc: '2.0',
@@ -81,8 +95,6 @@ chrome.runtime.onConnect.addListener(async (port) => {
       await handleToolEnableDisableOnLocalStorageChange(changes, mcpHub);
     }
   );
-
-  await chrome.tabs.sendMessage(tabId, { type: START_MCP_CONNECTION });
 
   const transport = new ExtensionServerTransport(port, {
     keepAlive: true,
@@ -114,7 +126,14 @@ chrome.runtime.onConnect.addListener(async (port) => {
 
   mcpHubInstances.set(tabId, mcpHub);
   serverInstances.set(tabId, sharedServer);
-
+  chrome.tabs
+    .sendMessage(tabId, { type: START_MCP_CONNECTION })
+    .catch((error) => {
+      logger(
+        ['error'],
+        ['Failed to send START_MCP_CONNECTION message:', error]
+      );
+    });
   if (mcpHub.registeredTools.size > 0) {
     sharedServer.server?.transport?.send({
       jsonrpc: '2.0',
