@@ -97,7 +97,7 @@ const mcpConnectionInitialiser = async (refreshTools = false) => {
       ToolListChangedNotificationSchema,
       async () => {
         logger(
-          ['error'],
+          ['debug'],
           ['[MCP Proxy] Received tool list change notification']
         );
         await sendToolUpdate(MESSAGE_TYPES.UPDATE);
