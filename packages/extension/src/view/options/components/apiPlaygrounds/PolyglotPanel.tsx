@@ -382,14 +382,14 @@ export default function PolyglotPanel() {
                 {/* Workspace Panel */}
                 <div className="md:col-span-2 flex flex-col gap-4 h-full">
                     {/* Input Area */}
-                    <div className="flex-1 bg-card border rounded-xl p-4 flex flex-col gap-4 min-h-0 overflow-hidden">
+                    <div className="h-[250px] bg-card border rounded-xl p-4 flex flex-col gap-4 flex-shrink-0">
                          <div className="flex justify-between items-center flex-shrink-0">
                             <Label className="text-base">
                                 {mode === 'detector' ? 'Text to Analyze' : 'Text to Translate'}
                             </Label>
                          </div>
                          <Textarea
-                            className="flex-1 resize-none font-mono text-sm leading-relaxed min-h-0"
+                            className="flex-1 resize-none font-mono text-sm leading-relaxed"
                             placeholder={mode === 'detector' ? "Type or paste text to detect language..." : "Type text to translate..."}
                             value={mode === 'detector' ? detectInput : translateInput}
                             onChange={(e) => mode === 'detector' ? setDetectInput(e.target.value) : setTranslateInput(e.target.value)}
