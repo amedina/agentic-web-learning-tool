@@ -105,30 +105,51 @@ const EventLoggerTable = () => {
   const [selectedToolToRun, setSelectedToolToRun] = useState<Tool | null>(null);
   const [lastRunToolName, setLastRunToolName] = useState<string | null>(null);
   const [logs, setLogs] = useState<ToolExecutionLog[]>([]);
+  const tabId = chrome.devtools?.inspectedWindow?.tabId;
 
-  const eventLoggerData: TableData[] = logs.map((log) => ({
-    name: log.toolName,
-    time: new Date(log.startTime).toLocaleTimeString(),
-    type: log.type,
-    status: log.status,
-    duration: log.duration ? `${log.duration}ms` : '-',
-    originalData: log,
-    description: log.result ? 'Success' : log.error || 'Pending',
-  }));
+  const isToolRelevant = useCallback(
+    (toolName: string) => {
+      // Show all tools if we can't determine the tab ID (e.g. running outside devtools)
+      if (!tabId) return true;
+
+      // MCP tools (not WebMCP) are global/server-side, so we show them.
+      // WebMCP tools follow the naming convention: wt_tab<ID>_<name>
+      // We want to hide WebMCP tools that belong to OTHER tabs.
+      if (toolName.includes('wt_tab')) {
+        return toolName.includes(`wt_tab${tabId}_`);
+      }
+      return true;
+    },
+    [tabId]
+  );
+
+  const eventLoggerData: TableData[] = logs
+    .filter((log) => isToolRelevant(log.toolName))
+    .map((log) => ({
+      name: log.toolName,
+      time: new Date(log.startTime).toLocaleTimeString(),
+      type: log.type,
+      status: log.status,
+      duration: log.duration ? `${log.duration}ms` : '-',
+      originalData: log,
+      description: log.result ? 'Success' : log.error || 'Pending',
+    }));
 
   useEffect(() => {
     if (availableTools) {
-      const tools = availableTools.map((tool) => ({
-        name: tool.name,
-        type: 'MCP',
-        originalData: tool,
-        inputSchema: tool.inputSchema,
-        description: tool.description,
-      }));
+      const tools = availableTools
+        .filter((tool) => isToolRelevant(tool.name))
+        .map((tool) => ({
+          name: tool.name,
+          type: 'MCP', // Default to MCP for now as these are from useMcpClient
+          originalData: tool,
+          inputSchema: tool.inputSchema,
+          description: tool.description,
+        }));
 
       setAllToolsData(tools);
     }
-  }, [availableTools]);
+  }, [availableTools, isToolRelevant]);
 
   useEffect(() => {
     const handleMessage = (message: any) => {
