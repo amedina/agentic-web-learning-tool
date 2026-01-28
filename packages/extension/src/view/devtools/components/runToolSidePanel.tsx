@@ -92,7 +92,7 @@ const RunToolSidePanel = ({
     >
       {/* Backdrop - Fades in/out */}
       <div
-        className={`fixed inset-0 bg-black/50 transition-opacity duration-300 ease-in-out ${
+        className={`fixed inset-0 bg-raisin-black/50 transition-opacity duration-300 ease-in-out ${
           isOpen ? 'opacity-100' : 'opacity-0'
         }`}
         onClick={onClose}
@@ -101,32 +101,42 @@ const RunToolSidePanel = ({
 
       {/* Side Panel - Slides in/out */}
       <div
-        className={`relative h-full w-80 bg-white shadow-xl transform transition-transform duration-300 ease-in-out ${
+        className={`relative h-full w-80 bg-white shadow-xl transform transition-transform duration-300 ease-in-out border-l-1 border-gray-200 ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
         {/* Header */}
-        <div className="flex justify-between items-center px-4 py-3 border-b border-gray-200 bg-gray-50">
-          <h2 className="text-sm font-semibold text-gray-700">Run Tool</h2>
-          <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 focus:outline-none transition-colors"
-          >
-            {/* SVG Close Icon */}
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+        <div className="px-4 py-3 border-b border-gray-200 bg-gray-50">
+          <div className="flex justify-between items-center ">
+            <h2 className="text-sm font-semibold text-color-gray">Run Tool</h2>
+            <button
+              onClick={onClose}
+              className="text-gray-500 hover:text-gray-700 focus:outline-none transition-colors"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
+              {/* SVG Close Icon */}
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+          {tool && (
+            <span
+              className="text-xs text-gray-900 break-words block mt-2"
+              title={tool.name}
+            >
+              {tool.name}
+            </span>
+          )}
         </div>
 
         {/* Content Area */}
@@ -137,71 +147,66 @@ const RunToolSidePanel = ({
             </div>
           ) : (
             <div className="space-y-6">
-              {/* Tool Name Section */}
-              <div className="border-b border-gray-100 pb-4">
-                <h3 className="text-xs uppercase tracking-wider text-gray-400 font-semibold mb-1">
-                  Tool Name
-                </h3>
-                <div
-                  className="text-sm font-medium text-gray-900 break-words"
-                  title={tool.name}
-                >
-                  {tool.name}
-                </div>
-                {tool.description && (
-                  <div className="mt-2 text-xs text-gray-500 bg-gray-50 p-2 rounded border border-gray-100">
-                    {tool.description}
-                  </div>
-                )}
-              </div>
-
-              {Object.entries(properties).map(
-                ([key, schema]: [string, any]) => (
-                  <div key={key} className="space-y-1">
-                    <label className="block text-xs font-medium text-gray-700">
-                      {key}
-                      {inputSchema?.required?.includes(key) && (
-                        <span className="text-red-500 ml-0.5">*</span>
+              {properties && Object.entries(properties).length > 0 ? (
+                Object.entries(properties).map(
+                  ([key, schema]: [string, any]) => (
+                    <div key={key} className="space-y-1">
+                      <label className="block text-xs font-medium text-gray-700">
+                        {key}
+                        {inputSchema?.required?.includes(key) && (
+                          <span className="text-red-500 ml-0.5">*</span>
+                        )}
+                      </label>
+                      {schema.type === 'boolean' ? (
+                        <select
+                          className="block w-full rounded-sm border-gray-300 border p-2 text-sm focus:border-blue-500 focus:ring-blue-500"
+                          value={args[key] || ''}
+                          onChange={(e) =>
+                            handleArgsChange(key, e.target.value)
+                          }
+                        >
+                          <option value="">Select...</option>
+                          <option value="true">True</option>
+                          <option value="false">False</option>
+                        </select>
+                      ) : schema.type === 'object' ||
+                        schema.type === 'array' ? (
+                        <textarea
+                          className="block w-full rounded-sm border-gray-300 border p-2 text-sm focus:border-blue-500 focus:ring-blue-500 font-mono"
+                          rows={3}
+                          value={args[key] || ''}
+                          onChange={(e) =>
+                            handleArgsChange(key, e.target.value)
+                          }
+                          placeholder={
+                            schema.type === 'object'
+                              ? '{"key": "value"}'
+                              : '[1, 2]'
+                          }
+                        />
+                      ) : (
+                        <input
+                          type={schema.type === 'number' ? 'number' : 'text'}
+                          className="block w-full rounded-sm border-gray-300 border p-2 text-sm focus:border-blue-500 focus:ring-blue-500"
+                          value={args[key] || ''}
+                          onChange={(e) =>
+                            handleArgsChange(key, e.target.value)
+                          }
+                          placeholder={schema.description}
+                        />
                       )}
-                    </label>
-                    {schema.type === 'boolean' ? (
-                      <select
-                        className="block w-full rounded-md border-gray-300 border p-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                        value={args[key] || ''}
-                        onChange={(e) => handleArgsChange(key, e.target.value)}
-                      >
-                        <option value="">Select...</option>
-                        <option value="true">True</option>
-                        <option value="false">False</option>
-                      </select>
-                    ) : schema.type === 'object' || schema.type === 'array' ? (
-                      <textarea
-                        className="block w-full rounded-md border-gray-300 border p-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 font-mono"
-                        rows={3}
-                        value={args[key] || ''}
-                        onChange={(e) => handleArgsChange(key, e.target.value)}
-                        placeholder={
-                          schema.type === 'object'
-                            ? '{"key": "value"}'
-                            : '[1, 2]'
-                        }
-                      />
-                    ) : (
-                      <input
-                        type={schema.type === 'number' ? 'number' : 'text'}
-                        className="block w-full rounded-md border-gray-300 border p-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                        value={args[key] || ''}
-                        onChange={(e) => handleArgsChange(key, e.target.value)}
-                        placeholder={schema.description}
-                      />
-                    )}
-                    {schema.description && (
-                      <p className="text-[10px] text-gray-500">
-                        {schema.description}
-                      </p>
-                    )}
-                  </div>
+                      {schema.description && (
+                        <p className="text-[10px] text-gray-500">
+                          {schema.description}
+                        </p>
+                      )}
+                    </div>
+                  )
                 )
+              ) : (
+                <div className="text-sm text-center mt-10 h-full w-full flex items-center justify-center py-10">
+                  This tool does not require any arguments.
+                </div>
               )}
 
               {validationError && (
