@@ -10,14 +10,16 @@ import {
   type TableData,
   type InfoType,
 } from '@google-awlt/design-system';
+import type { Tool } from '@modelcontextprotocol/sdk/types.js';
+import { toast } from '@google-awlt/design-system';
 
 /**
  * Internal Dependencies
  */
 import ActionButton from './actionButton';
 import RunToolSidePanel from './runToolSidePanel';
-import type { Tool } from '@modelcontextprotocol/sdk/types.js';
-import { toast } from '@google-awlt/design-system';
+import { MESSAGE_TYPES } from '../../../utils';
+import type { ToolExecutionLog } from '../utils/types';
 
 const noop = () => {};
 
@@ -92,12 +94,6 @@ const eventLoggerColumns: TableColumn[] = [
     cell: (info: InfoType) => info,
     enableHiding: false,
   },
-  {
-    header: 'Description',
-    accessorKey: 'description',
-    cell: (info: InfoType) => info,
-    enableHiding: false,
-  },
 ];
 
 const EventLoggerTable = () => {
@@ -107,32 +103,24 @@ const EventLoggerTable = () => {
   const [allToolsData, setAllToolsData] = useState<TableData[]>([]);
   const [isRunToolsSidePanelOpen, setIsRunToolsSidePanelOpen] = useState(false);
   const [selectedToolToRun, setSelectedToolToRun] = useState<Tool | null>(null);
-  const [eventLoggerData] = useState<TableData[]>([
-    {
-      name: 'get_page_title',
-      time: '203',
-      type: 'MCP',
-      status: 'success',
-      duration: '203',
-      originalData: {},
-      description: 'Cookie A description',
-    },
-    {
-      name: 'alert_page_title',
-      time: '200',
-      type: 'WebMCP',
-      status: 'success',
-      duration: '203',
-      originalData: {},
-      description: 'Cookie B description',
-    },
-  ]);
+  const [lastRunToolName, setLastRunToolName] = useState<string | null>(null);
+  const [logs, setLogs] = useState<ToolExecutionLog[]>([]);
+
+  const eventLoggerData: TableData[] = logs.map((log) => ({
+    name: log.toolName,
+    time: new Date(log.startTime).toLocaleTimeString(),
+    type: log.type,
+    status: log.status,
+    duration: log.duration ? `${log.duration}ms` : '-',
+    originalData: log,
+    description: log.result ? 'Success' : log.error || 'Pending',
+  }));
 
   useEffect(() => {
     if (availableTools) {
       const tools = availableTools.map((tool) => ({
         name: tool.name,
-        type: 'MCP', // Default to MCP for now as these are from useMcpClient
+        type: 'MCP',
         originalData: tool,
         inputSchema: tool.inputSchema,
         description: tool.description,
@@ -142,8 +130,38 @@ const EventLoggerTable = () => {
     }
   }, [availableTools]);
 
+  useEffect(() => {
+    const handleMessage = (message: any) => {
+      if (message.type === MESSAGE_TYPES.TOOL_LOG) {
+        setLogs((prevLogs) => {
+          const newLog = message.payload as ToolExecutionLog;
+          const existingIndex = prevLogs.findIndex((l) => l.id === newLog.id);
+
+          if (existingIndex !== -1) {
+            const updatedLogs = [...prevLogs];
+            updatedLogs[existingIndex] = {
+              ...updatedLogs[existingIndex],
+              ...newLog,
+            };
+            return updatedLogs;
+          } else {
+            if (newLog.toolName === lastRunToolName) {
+              setLastRunToolName(null);
+            }
+            return [newLog, ...prevLogs];
+          }
+        });
+      }
+    };
+
+    chrome.runtime.onMessage.addListener(handleMessage);
+    return () => chrome.runtime.onMessage.removeListener(handleMessage);
+  }, [lastRunToolName]);
+
   const handleRunTool = async (toolName: string, args: any) => {
     if (!client) return;
+
+    setLastRunToolName(toolName);
 
     try {
       const timeoutPromise = new Promise((_, reject) => {
