@@ -15,6 +15,7 @@ import {
  * Internal Dependencies
  */
 import ActionButton from './actionButton';
+import RunToolSidePanel from './runToolSidePanel';
 
 const noop = () => {};
 
@@ -122,6 +123,7 @@ const EventLoggerTable = () => {
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [showAllTools, setShowAllTools] = useState(true);
   const [allToolsData, setAllToolsData] = useState<TableData[]>([]);
+  const [isRunToolsSidePanelOpen, setIsRunToolsSidePanelOpen] = useState(true);
   const [eventLoggerData] = useState<TableData[]>([
     {
       name: 'get_page_title',
@@ -186,6 +188,14 @@ const EventLoggerTable = () => {
         isFiltersSidebarOpen={true}
         extraInterfaceToTopBar={extraInterfaceToTopBar}
       />
+      <RunToolSidePanel
+        isOpen={isRunToolsSidePanelOpen}
+        onClose={() => {
+          setIsRunToolsSidePanelOpen(false);
+        }}
+      >
+        <h1>Run Tool Side Panel</h1>
+      </RunToolSidePanel>
     </TableProvider>
   );
 };
