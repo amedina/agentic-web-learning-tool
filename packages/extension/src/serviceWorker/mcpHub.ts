@@ -47,7 +47,7 @@ class McpHub {
 
   // Storage: Domain -> DataId (tab-123) -> TabData
   private domains = new Map<string, Map<string, TabData>>();
-
+  _port: chrome.runtime.Port | null = null;
   private activeTabId: number | null = null;
   private requestManager = new RequestManager();
   private apiTools: any[] = [];
@@ -375,7 +375,7 @@ class McpHub {
     if (tabId !== this.tabId) {
       return;
     }
-
+    this._port = port;
     const domain = this.extractDomainFromUrl(url);
     const dataId = `tab-${tabId}`;
 
