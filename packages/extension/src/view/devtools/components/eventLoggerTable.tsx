@@ -16,6 +16,8 @@ import {
  */
 import ActionButton from './actionButton';
 import RunToolSidePanel from './runToolSidePanel';
+import type { Tool } from '@modelcontextprotocol/sdk/types.js';
+import { toast } from '@google-awlt/design-system';
 
 const noop = () => {};
 
@@ -59,26 +61,6 @@ const eventLoggerFilters = {
   },
 };
 
-const allToolsColumns: TableColumn[] = [
-  {
-    header: 'Name',
-    accessorKey: 'name',
-    cell: (info: InfoType) => info,
-    enableHiding: false,
-  },
-  {
-    header: 'Description',
-    accessorKey: 'description',
-    cell: (info: InfoType) => info,
-    enableHiding: false,
-  },
-  {
-    header: 'Action',
-    accessorKey: 'action',
-    cell: (info: InfoType) => <ActionButton onRunTool={noop} t={info} />,
-  },
-];
-
 const eventLoggerColumns: TableColumn[] = [
   {
     header: 'Name',
@@ -119,11 +101,12 @@ const eventLoggerColumns: TableColumn[] = [
 ];
 
 const EventLoggerTable = () => {
-  const { tools: availableTools } = useMcpClient();
+  const { tools: availableTools, client } = useMcpClient();
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [showAllTools, setShowAllTools] = useState(true);
   const [allToolsData, setAllToolsData] = useState<TableData[]>([]);
-  const [isRunToolsSidePanelOpen, setIsRunToolsSidePanelOpen] = useState(true);
+  const [isRunToolsSidePanelOpen, setIsRunToolsSidePanelOpen] = useState(false);
+  const [selectedToolToRun, setSelectedToolToRun] = useState<Tool | null>(null);
   const [eventLoggerData] = useState<TableData[]>([
     {
       name: 'get_page_title',
@@ -149,7 +132,8 @@ const EventLoggerTable = () => {
     if (availableTools) {
       const tools = availableTools.map((tool) => ({
         name: tool.name,
-        originalData: {},
+        type: 'MCP', // Default to MCP for now as these are from useMcpClient
+        originalData: tool,
         inputSchema: tool.inputSchema,
         description: tool.description,
       }));
@@ -158,6 +142,65 @@ const EventLoggerTable = () => {
     }
   }, [availableTools]);
 
+  const handleRunTool = async (toolName: string, args: any) => {
+    if (!client) return;
+
+    try {
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(
+          () => reject(new Error('Tool execution timed out after 30s')),
+          30000
+        );
+      });
+
+      await Promise.race([
+        client.callTool({
+          name: toolName,
+          arguments: args,
+        }),
+        timeoutPromise,
+      ]);
+
+      toast.success('Tool execution completed');
+      setIsRunToolsSidePanelOpen(false);
+    } catch (error) {
+      console.error('Error running tool:', error);
+      toast.error(
+        error instanceof Error ? error.message : 'Tool execution failed'
+      );
+      throw error;
+    }
+  };
+
+  const openRunToolPanel = (tool: Tool) => {
+    setSelectedToolToRun(tool);
+    setIsRunToolsSidePanelOpen(true);
+  };
+
+  const allToolsColumns: TableColumn[] = [
+    {
+      header: 'Name',
+      accessorKey: 'name',
+      cell: (info: InfoType) => info,
+      enableHiding: false,
+    },
+    {
+      header: 'Description',
+      accessorKey: 'description',
+      cell: (info: InfoType) => info,
+      enableHiding: false,
+    },
+    {
+      header: 'Action',
+      accessorKey: 'action',
+      cell: (_info: InfoType, details: any) => (
+        <ActionButton
+          onRunTool={(t: any) => openRunToolPanel(t.originalData || t)}
+          t={details}
+        />
+      ),
+    },
+  ];
   const extraInterfaceToTopBar = useCallback(() => {
     return (
       <label className="flex items-center gap-2 w-[130px]">
@@ -181,7 +224,9 @@ const EventLoggerTable = () => {
         setSelectedKey(row?.name ?? null);
       }}
       onRowContextMenu={noop}
-      getRowObjectKey={(row: any) => row?.originalData.name as string}
+      getRowObjectKey={(row: any) =>
+        (row?.originalData?.name as string) || (row?.name as string)
+      }
     >
       <Table
         selectedKey={selectedKey}
@@ -192,10 +237,11 @@ const EventLoggerTable = () => {
         isOpen={isRunToolsSidePanelOpen}
         onClose={() => {
           setIsRunToolsSidePanelOpen(false);
+          setSelectedToolToRun(null);
         }}
-      >
-        <h1>Run Tool Side Panel</h1>
-      </RunToolSidePanel>
+        tool={selectedToolToRun}
+        onRun={handleRunTool}
+      />
     </TableProvider>
   );
 };
