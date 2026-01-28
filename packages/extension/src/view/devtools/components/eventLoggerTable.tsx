@@ -9,6 +9,10 @@ import {
   type TableColumn,
   type TableData,
   type InfoType,
+  ToolDetail,
+  LogDetail,
+  type TableRow,
+  type UserStoredTool,
 } from '@google-awlt/design-system';
 import type { Tool } from '@modelcontextprotocol/sdk/types.js';
 import { toast } from '@google-awlt/design-system';
@@ -253,6 +257,28 @@ const EventLoggerTable = () => {
     );
   }, [showAllTools]);
 
+  const getUserTool = useCallback(async (tool: Tool) => {
+    const storage = await chrome.storage.local.get('userWebMCPTools');
+    const userStoredTools = (storage.userWebMCPTools ||
+      []) as Array<UserStoredTool>;
+
+    const found = userStoredTools.find((t) => t.name === tool.name);
+    return found || null;
+  }, []);
+
+  const renderDetailPanel = useCallback(
+    (row: TableRow) => {
+      const data = row.originalData;
+      // Check if it's a Tool (has inputSchema)
+      if ('inputSchema' in data) {
+        return <ToolDetail tool={data as Tool} getUserTool={getUserTool} />;
+      }
+      // Otherwise assume it is a log
+      return <LogDetail log={data as any} />;
+    },
+    [getUserTool]
+  );
+
   return (
     <TableProvider
       data={showAllTools ? allToolsData : eventLoggerData}
@@ -271,6 +297,7 @@ const EventLoggerTable = () => {
         selectedKey={selectedKey}
         isFiltersSidebarOpen={true}
         extraInterfaceToTopBar={extraInterfaceToTopBar}
+        renderDetailPanel={renderDetailPanel}
       />
       <RunToolSidePanel
         isOpen={isRunToolsSidePanelOpen}

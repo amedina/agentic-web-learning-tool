@@ -20,6 +20,7 @@
 import React, { memo, useCallback, useEffect, useState } from "react";
 import { Resizable } from "re-resizable";
 import classNames from "classnames";
+import { TableRow } from "../useTable/types";
 
 /**
  * Internal dependencies.
@@ -45,6 +46,7 @@ interface TableProps {
   shouldScroll?: boolean;
   showOverflow?: boolean;
   containerClasses?: string;
+  renderDetailPanel?: (row: TableRow) => React.ReactNode;
 }
 
 const Table = ({
@@ -59,6 +61,7 @@ const Table = ({
   shouldScroll = false,
   showOverflow = true,
   containerClasses = "",
+  renderDetailPanel,
 }: TableProps) => {
   const {
     filters,
@@ -252,7 +255,7 @@ const Table = ({
         }}
         className="h-full w-full"
       >
-        <Tray selectedRow={selectedRow} />
+        <Tray selectedRow={selectedRow} renderContent={renderDetailPanel} />
       </Resizable>
     </div>
   );
