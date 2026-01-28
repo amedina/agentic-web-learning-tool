@@ -52,12 +52,51 @@ export interface LanguageModelFactory {
   params(): Promise<AILanguageModelParams>;
 }
 
+// Writer & Rewriter APIs
+
+export type AIWriterTone = 'formal' | 'neutral' | 'casual' | 'professional' | 'as-is' | 'more-formal' | 'more-casual';
+export type AIWriterLength = 'short' | 'medium' | 'long' | 'as-is' | 'shorter' | 'longer';
+export type AIWriterFormat = 'markdown' | 'plain-text' | 'as-is';
+
+export interface AIWriterCreateOptions {
+  tone?: AIWriterTone;
+  length?: AIWriterLength;
+  format?: AIWriterFormat;
+  sharedContext?: string;
+  signal?: AbortSignal;
+}
+
+export interface AIWriter {
+  writeStreaming(prompt: string): ReadableStream<string> & AsyncIterable<string>;
+  write(prompt: string): Promise<string>;
+  destroy(): void;
+}
+
+export interface AIRewriter {
+  rewriteStreaming(text: string): Promise<ReadableStream<string> & AsyncIterable<string>>;
+  rewrite(text: string): Promise<string>;
+  destroy(): void;
+}
+
+export interface AIWriterFactory {
+  create(options?: AIWriterCreateOptions): Promise<AIWriter>;
+}
+
+export interface AIRewriterFactory {
+  create(options?: AIWriterCreateOptions): Promise<AIRewriter>;
+}
+
+
 declare global {
   interface Window {
     ai: {
       languageModel: AILanguageModel;
       prompt?: AILanguageModel; // Legacy alias
+      writer?: AIWriterFactory;
+      rewriter?: AIRewriterFactory;
     };
     LanguageModel?: LanguageModelFactory;
+    Writer?: AIWriterFactory;
+    Rewriter?: AIRewriterFactory;
   }
 }
