@@ -8,12 +8,6 @@ const onActionClickedCallback = async (tab: chrome.tabs.Tab) => {
   if (tab?.id) {
     const tabId = tab.id;
 
-    const result = await chrome.storage.session.get(`sidebar_tab_${tab.id}`);
-
-    if (result) {
-      await chrome.sidePanel.setOptions({ tabId: tab.id, enabled: false });
-    }
-
     // Using callback instead of async/await because we need to handle chrome.runtime.lastError
     // Try to open immediately (synchronously) - panel might already be configured
     chrome.sidePanel.open({ tabId }, () => {
