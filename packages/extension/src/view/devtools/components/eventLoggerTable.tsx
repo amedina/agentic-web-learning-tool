@@ -163,17 +163,14 @@ const EventLoggerTable = () => {
 
   const extraInterfaceToTopBar = useCallback(() => {
     return (
-      <div className="flex items-center gap-2 w-[130px]">
+      <label className="flex items-center gap-2 w-[130px]">
         <input
-          id="show-all-tools"
           type="checkbox"
           checked={showAllTools}
           onChange={() => setShowAllTools(!showAllTools)}
         />
-        <label htmlFor="show-all-tools" className="text-xs select-none">
-          Show all tools
-        </label>
-      </div>
+        <span className="text-xs select-none">Show all tools</span>
+      </label>
     );
   }, [showAllTools]);
 
