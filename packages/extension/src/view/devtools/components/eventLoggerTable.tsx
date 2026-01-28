@@ -185,7 +185,6 @@ const EventLoggerTable = () => {
         selectedKey={selectedKey}
         isFiltersSidebarOpen={true}
         extraInterfaceToTopBar={extraInterfaceToTopBar}
-        containerClasses="min-h-screen"
       />
     </TableProvider>
   );

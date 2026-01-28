@@ -26,7 +26,7 @@ export const client = new Client({
 function DevTools() {
   return (
     <McpClientProvider client={client} transport={transport}>
-      <main className="w-full min-h-screen">
+      <main className="w-full h-screen">
         <EventLoggerTable />
         {/* {<EventLogger />} */}
       </main>

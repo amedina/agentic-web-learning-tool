@@ -245,6 +245,8 @@ const Table = ({
         </div>
       </div>
       <Resizable
+        minHeight={"10%"}
+        maxHeight={"90%"}
         enable={{
           top: true,
         }}
