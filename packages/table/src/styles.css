@@ -16,7 +16,6 @@
   --text-color-comet-grey: #474747;
   --text-color-green-600: #16a34a;
   --background-color-red-600: #dc2626;
-  --background-color-*: initial;
   --background-color-transparent: transparent;
   --background-color-white: #fff;
   --background-color-slate-gray: #ececec;
@@ -40,15 +39,12 @@
   --background-color-silver-mist: #dcdcdc;
   --background-color-midnight-slate: #44474e;
   --background-color-dark-graphite: #3c3c3c;
-  --border-color-*: initial;
   --border-color-gray-200: #e5e7eb;
   --border-color-gray-300: #d1d5db;
   --border-color-american-silver: #cbcdd1;
   --border-color-quartz: #494c50;
   --border-color-baby-blue-eyes: #a8c7fa;
   --border-color-sapphire: #0b57d0;
-  --color-*: initial;
-  --stroke-*: initial;
 
   --text-xxxs: 0.625rem;
 
