@@ -4,6 +4,7 @@
 import {
   ComposerPrimitive,
   ThreadPrimitive,
+  useAssistantApi,
   useAssistantState,
   type AssistantRuntime,
 } from '@assistant-ui/react';
@@ -57,8 +58,11 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
       selectedAgent: state.selectedAgent,
     }));
 
-  const { tabData } = useSettings(({ state }) => ({
+  const api = useAssistantApi();
+
+  const { tabData, lockedThreads } = useSettings(({ state }) => ({
     tabData: state.tabData,
+    lockedThreads: state.lockedThreads,
   }));
 
   useEffect(() => {
@@ -110,6 +114,25 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
   const toolLength = useMemo(() => {
     return tools.filter((tool) => tool.name !== 'dummyTool').length;
   }, [tools]);
+
+  const lockThread = useCallback(() => {
+    chrome.storage.session.set({
+      lockedThreads: [...lockedThreads, threadId],
+    });
+  }, [lockedThreads, threadId]);
+
+  const unlockThread = useCallback(() => {
+    const unlockedThreads = lockedThreads.filter((id) => id !== threadId);
+    chrome.storage.session.set({ lockedThreads: unlockedThreads });
+  }, [lockedThreads, threadId]);
+
+  api.on('thread.run-end', async () => {
+    unlockThread();
+  });
+
+  api.on('composer.send', async () => {
+    lockThread();
+  });
 
   //Only shows models whose apiKeys have been and have been enabled
   const modelOptions = useMemo(() => createModelDropdown(apiKeys), [apiKeys]);
@@ -186,6 +209,9 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
                 <ComposerPrimitive.Input
                   placeholder="Ask anything..."
                   onKeyDown={handleMessageChange}
+                  submitOnEnter={
+                    lockedThreads.includes(threadId) ? false : true
+                  }
                   className="w-full max-h-40 min-h-[56px] resize-none bg-transparent px-4 py-4 text-sm outline-none placeholder:exclusive-plum text-primary"
                 />
                 <div className="flex items-center justify-between gap-2 px-3 mb-1">
@@ -223,14 +249,16 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
                       </Button>
                     </Dropdown>
                   </div>
-                  <ThreadPrimitive.If running={false}>
-                    <ComposerPrimitive.Send
-                      onClick={handleMessageChange}
-                      className="h-9 w-9 flex items-center justify-center rounded-lg bg-background hover:text-ring text-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    >
-                      <SendHorizontal size={18} />
-                    </ComposerPrimitive.Send>
-                  </ThreadPrimitive.If>
+                  {!lockedThreads.includes(threadId) && (
+                    <ThreadPrimitive.If running={false}>
+                      <ComposerPrimitive.Send
+                        onClick={handleMessageChange}
+                        className="h-9 w-9 flex items-center justify-center rounded-lg bg-background hover:text-ring text-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      >
+                        <SendHorizontal size={18} />
+                      </ComposerPrimitive.Send>
+                    </ThreadPrimitive.If>
+                  )}
                   <ThreadPrimitive.If running>
                     <ComposerPrimitive.Cancel className="h-9 w-9 flex items-center justify-center rounded-lg bg-background hover:text-ring text-foreground hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
                       <CircleStop size={18} />

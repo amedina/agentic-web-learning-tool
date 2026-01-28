@@ -30,7 +30,7 @@ export const HistoryAdapter = () => {
       } as LoadFunctionOutputType;
     }, [api]);
 
-    api.on('thread-list-item.switched-to', ({ threadId }) => {
+    api.on('thread.initialize', ({ threadId }) => {
       chrome.tabs
         .query({ active: true, currentWindow: true })
         .then(async ([tab]) => {
