@@ -162,7 +162,9 @@ const Table = ({
   );
 
   return (
-    <div className={classNames("h-full flex flex-col", containerClasses)}>
+    <div
+      className={classNames("h-full w-full flex flex-col", containerClasses)}
+    >
       <div className="w-full flex-1 flex flex-col text-raisin-black dark:text-bright-gray overflow-hidden">
         {!hideTableTopBar && (
           <>
@@ -209,7 +211,7 @@ const Table = ({
           )}
           <div
             ref={tableContainerRef}
-            className={classNames("relative h-full w-full flex-1", {
+            className={classNames("relative min-h-full w-full flex-1", {
               "overflow-auto": showOverflow,
             })}
             onScroll={scrollListener}
@@ -243,8 +245,6 @@ const Table = ({
         </div>
       </div>
       <Resizable
-        minHeight="100px"
-        maxHeight="80%"
         enable={{
           top: true,
         }}
