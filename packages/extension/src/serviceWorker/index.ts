@@ -88,7 +88,7 @@ chrome.runtime.onConnect.addListener(async (port) => {
     { capabilities: { tools: { listChanged: true } } }
   );
 
-  const mcpHub = new McpHub(sharedServer);
+  const mcpHub = new McpHub(sharedServer, tabId);
 
   chrome.storage.local.onChanged.addListener(
     async (changes: { [key: string]: chrome.storage.StorageChange }) => {

@@ -51,6 +51,7 @@ class McpHub {
   private activeTabId: number | null = null;
   private requestManager = new RequestManager();
   private apiTools: any[] = [];
+  tabId: number = 0;
 
   // Track registered tools to allow updating/removing them dynamically
   registeredTools = new Map<
@@ -58,11 +59,12 @@ class McpHub {
     ReturnType<typeof this.server.registerTool>
   >();
 
-  constructor(server: McpServer) {
+  constructor(server: McpServer, tabId: number) {
     this.server = server;
     this.setupConnections();
     this.trackActiveTab();
     this.registerAllExtensionTools();
+    this.tabId = tabId;
     chrome.storage.local.onChanged.addListener((changes) => {
       if (changes?.chromeAPIBuiltInToolsState) {
         this.onLocalStoreChangedListener();
@@ -367,6 +369,10 @@ class McpHub {
 
     if (!tabId) {
       logger(['warn'], ['Connection attempted from port without tab ID']);
+      return;
+    }
+
+    if (tabId !== this.tabId) {
       return;
     }
 
