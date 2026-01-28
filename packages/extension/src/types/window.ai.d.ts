@@ -95,11 +95,46 @@ export interface AIRewriter {
 export interface AIWriterFactory {
   create(options?: AIWriterCreateOptions): Promise<AIWriter>;
   availability?(): Promise<'readily' | 'after-download' | 'no'>;
+  capabilities?(): Promise<{ available: 'readily' | 'after-download' | 'no' }>;
 }
 
 export interface AIRewriterFactory {
   create(options?: AIRewriterCreateOptions): Promise<AIRewriter>;
   availability?(): Promise<'readily' | 'after-download' | 'no'>;
+  capabilities?(): Promise<{ available: 'readily' | 'after-download' | 'no' }>;
+}
+
+// Language Detector API
+export interface AILanguageDetector {
+  detect(text: string): Promise<{ detectedLanguage: string; confidence: number }[]>;
+}
+
+export interface AILanguageDetectorCapabilities {
+  available: 'readily' | 'after-download' | 'no';
+}
+
+export interface AILanguageDetectorFactory {
+  create(options?: { monitor?: (monitor: any) => void }): Promise<AILanguageDetector>;
+  capabilities?(): Promise<AILanguageDetectorCapabilities>;
+  availability?(): Promise<'readily' | 'after-download' | 'no'>;
+}
+
+// Translator API
+export interface AITranslatorCreateOptions {
+  sourceLanguage: string;
+  targetLanguage: string;
+  monitor?: (monitor: any) => void;
+  signal?: AbortSignal;
+}
+
+export interface AITranslator {
+  translate(text: string): Promise<string>;
+  translateStreaming(text: string): ReadableStream<string> & AsyncIterable<string>;
+}
+
+export interface AITranslatorFactory {
+  create(options: AITranslatorCreateOptions): Promise<AITranslator>;
+  availability(options: { sourceLanguage: string; targetLanguage: string }): Promise<'readily' | 'after-download' | 'no'>;
 }
 
 
@@ -110,9 +145,14 @@ declare global {
       prompt?: AILanguageModel; // Legacy alias
       writer?: AIWriterFactory;
       rewriter?: AIRewriterFactory;
+      languageDetector?: AILanguageDetectorFactory;
+      translator?: AITranslatorFactory;
     };
+    translation?: AITranslatorFactory;
     LanguageModel?: LanguageModelFactory;
     Writer?: AIWriterFactory;
     Rewriter?: AIRewriterFactory;
+    LanguageDetector?: AILanguageDetectorFactory;
+    Translator?: AITranslatorFactory;
   }
 }
