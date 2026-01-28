@@ -738,15 +738,6 @@ class McpHub {
     }
 
     if (!tabData.isClosed && tabData.port) {
-      // If the tab exists but isn't active, activate it to ensure execution context works
-      if (tabData.tabId && tabData.tabId !== this.activeTabId) {
-        try {
-          await chrome.tabs.update(tabData.tabId, { active: true });
-        } catch (e) {
-          logger(['warn'], [`Failed to activate tab ${tabData.tabId}`, e]);
-          return null;
-        }
-      }
       return tabData.port;
     }
     return null;
