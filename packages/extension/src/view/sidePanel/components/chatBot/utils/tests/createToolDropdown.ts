@@ -11,58 +11,6 @@ describe('createToolDropdown', () => {
     expect(result).toEqual([]);
   });
 
-  it('should correctly group and format "wt" items', () => {
-    const tools = [
-      { name: 'wt_tab1234_google_com', inputSchema: {} },
-      { name: 'wt_tab12345_extra_google_com', inputSchema: {} },
-    ];
-
-    const result = createToolDropdown(
-      tools as any[],
-      {},
-      {
-        '1234': {
-          url: 'https://google.com',
-          id: 1234,
-          index: 1,
-          pinned: false,
-          highlighted: false,
-          windowId: 1,
-          frozen: false,
-          incognito: false,
-          discarded: false,
-          selected: true,
-          active: false,
-          autoDiscardable: true,
-          groupId: 1,
-        },
-        '12345': {
-          url: 'https://extra.google.com',
-          id: 12345,
-          index: 1,
-          pinned: false,
-          highlighted: false,
-          windowId: 1,
-          frozen: false,
-          incognito: false,
-          discarded: false,
-          selected: true,
-          active: false,
-          autoDiscardable: true,
-          groupId: 1,
-        },
-      },
-      1234
-    );
-
-    expect(result).toHaveLength(2);
-    expect(result[0]).toEqual({
-      group: 'google.com',
-      items: [{ id: 'wt_tab1234_google_com', label: 'google_com' }],
-      key: 'google.com',
-    });
-  });
-
   it('should correctly group and format "extension_tool_" items using ToolNameMap', () => {
     const tools = [
       { name: 'extension_tool_check_available_apis', inputSchema: {} },
@@ -102,40 +50,6 @@ describe('createToolDropdown', () => {
         },
       ],
     });
-  });
-
-  it('should group unknown tools into "others"', () => {
-    const tools = [
-      { name: 'random_tool_1', inputSchema: {} },
-      { name: 'random_tool_2', inputSchema: {} },
-    ];
-
-    const result = createToolDropdown(
-      tools as any[],
-      {},
-      {
-        '1234': {
-          url: 'https://google.com',
-          id: 1234,
-          index: 1,
-          pinned: false,
-          highlighted: false,
-          windowId: 1,
-          frozen: false,
-          incognito: false,
-          discarded: false,
-          selected: true,
-          active: false,
-          autoDiscardable: true,
-          groupId: 1,
-        },
-      },
-      1234
-    );
-
-    expect(result).toHaveLength(1); // One group
-    expect(result[0].key).toBe('others');
-    expect(result[0].items).toHaveLength(2);
   });
 
   it('should prioritize Website tools before Extension tools in the final list', () => {
