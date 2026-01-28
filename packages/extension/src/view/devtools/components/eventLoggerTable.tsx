@@ -192,7 +192,7 @@ const EventLoggerTable = () => {
     >
       <Table
         selectedKey={selectedKey}
-        isFiltersSidebarOpen={false}
+        isFiltersSidebarOpen={true}
         extraInterfaceToTopBar={extraInterfaceToTopBar}
         containerClasses="min-h-screen"
       />
