@@ -26,7 +26,7 @@ const callback = (panel: {
   });
 };
 chrome.devtools.panels.create(
-  'MCP Tools',
+  'WebMCP Tools',
   'icons/icon.svg',
   'devtools/index.html',
   callback
