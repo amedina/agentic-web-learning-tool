@@ -30,9 +30,12 @@ import type {
     AIWriterTone,
     AIWriterLength,
     AIWriterFormat,
+    AIRewriterTone,
+    AIRewriterLength,
+    AIRewriterFormat,
     AIWriter,
     AIRewriter
-} from '../../../../types/window.ai.d';
+} from '../../../../types/window.ai';
 
 export default function WritersStudio() {
     // Mode State
@@ -46,9 +49,11 @@ export default function WritersStudio() {
     const [isChecking, setIsChecking] = useState(true);
 
     // Configuration State
-    const [tone, setTone] = useState<AIWriterTone>('neutral');
-    const [length, setLength] = useState<AIWriterLength>('medium');
-    const [format, setFormat] = useState<AIWriterFormat>('markdown');
+    // We use union types here to hold state for both, but we cast/validate before sending to API
+    const [tone, setTone] = useState<string>('neutral');
+    const [length, setLength] = useState<string>('short');
+    const [format, setFormat] = useState<string>('markdown');
+
     const [sharedContext, setSharedContext] = useState('');
 
     // Input/Output State
@@ -60,6 +65,21 @@ export default function WritersStudio() {
     useEffect(() => {
         checkCapabilities();
     }, []);
+
+    const handleModeChange = (newMode: 'writer' | 'rewriter') => {
+        setMode(newMode);
+        if (newMode === 'writer') {
+            setTone('neutral');
+            setLength('short');
+            setFormat('markdown');
+        } else {
+            setTone('as-is');
+            setLength('as-is');
+            setFormat('as-is');
+        }
+        setOutput('');
+        setError(null);
+    };
 
     const checkCapabilities = async () => {
         setIsChecking(true);
@@ -122,9 +142,9 @@ export default function WritersStudio() {
         try {
             if (mode === 'writer') {
                 const options = {
-                    tone: tone as any,
-                    length: length as any,
-                    format: format as any,
+                    tone: tone as AIWriterTone,
+                    length: length as AIWriterLength,
+                    format: format as AIWriterFormat,
                     sharedContext: sharedContext.trim() || undefined
                 };
 
@@ -142,9 +162,6 @@ export default function WritersStudio() {
 
                 let fullResponse = '';
                 for await (const chunk of stream) {
-                    // Handling streaming behavior differences
-                    // If 'Writer' is in self (Global), it returns deltas -> accumulate
-                    // If not, it might return full text (behavior varies, matching PromptLab strategy or prompt instructions)
                     if ('Writer' in window) {
                         fullResponse += chunk;
                     } else {
@@ -156,9 +173,9 @@ export default function WritersStudio() {
             } else {
                 // Rewriter
                  const options = {
-                    tone: tone as any,
-                    length: length as any,
-                    format: format as any,
+                    tone: tone as AIRewriterTone,
+                    length: length as AIRewriterLength,
+                    format: format as AIRewriterFormat,
                     sharedContext: sharedContext.trim() || undefined
                 };
 
@@ -231,7 +248,7 @@ export default function WritersStudio() {
                         {/* Mode Selection */}
                         <div className="space-y-2">
                              <Label>Mode</Label>
-                             <Tabs value={mode} onValueChange={(v) => setMode(v as 'writer' | 'rewriter')} className="w-full">
+                             <Tabs value={mode} onValueChange={(v) => handleModeChange(v as 'writer' | 'rewriter')} className="w-full">
                                 <TabsList className="w-full grid grid-cols-2">
                                     <TabsTrigger value="writer" className="flex items-center gap-2">
                                         <PenTool className="w-3 h-3" /> Writer
@@ -247,18 +264,20 @@ export default function WritersStudio() {
                         <div className="space-y-4 pt-2">
                             <div className="space-y-2">
                                 <Label>Tone</Label>
-                                <Select value={tone} onValueChange={(v) => setTone(v as AIWriterTone)}>
+                                <Select value={tone} onValueChange={(v) => setTone(v)}>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select tone" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="formal">Formal</SelectItem>
-                                        <SelectItem value="neutral">Neutral</SelectItem>
-                                        <SelectItem value="casual">Casual</SelectItem>
-                                        <SelectItem value="professional">Professional</SelectItem>
-                                        {mode === 'rewriter' && (
+                                        {mode === 'writer' ? (
                                             <>
-                                                <SelectItem value="as-is">As Is</SelectItem>
+                                                <SelectItem value="neutral">Neutral (Default)</SelectItem>
+                                                <SelectItem value="formal">Formal</SelectItem>
+                                                <SelectItem value="casual">Casual</SelectItem>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <SelectItem value="as-is">As Is (Default)</SelectItem>
                                                 <SelectItem value="more-formal">More Formal</SelectItem>
                                                 <SelectItem value="more-casual">More Casual</SelectItem>
                                             </>
@@ -269,17 +288,20 @@ export default function WritersStudio() {
 
                             <div className="space-y-2">
                                 <Label>Length</Label>
-                                <Select value={length} onValueChange={(v) => setLength(v as AIWriterLength)}>
+                                <Select value={length} onValueChange={(v) => setLength(v)}>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select length" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="short">Short</SelectItem>
-                                        <SelectItem value="medium">Medium</SelectItem>
-                                        <SelectItem value="long">Long</SelectItem>
-                                        {mode === 'rewriter' && (
+                                        {mode === 'writer' ? (
                                             <>
-                                                <SelectItem value="as-is">As Is</SelectItem>
+                                                <SelectItem value="short">Short (Default)</SelectItem>
+                                                <SelectItem value="medium">Medium</SelectItem>
+                                                <SelectItem value="long">Long</SelectItem>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <SelectItem value="as-is">As Is (Default)</SelectItem>
                                                 <SelectItem value="shorter">Shorter</SelectItem>
                                                 <SelectItem value="longer">Longer</SelectItem>
                                             </>
@@ -290,15 +312,22 @@ export default function WritersStudio() {
 
                             <div className="space-y-2">
                                 <Label>Format</Label>
-                                <Select value={format} onValueChange={(v) => setFormat(v as AIWriterFormat)}>
+                                <Select value={format} onValueChange={(v) => setFormat(v)}>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select format" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="markdown">Markdown</SelectItem>
-                                        <SelectItem value="plain-text">Plain Text</SelectItem>
-                                        {mode === 'rewriter' && (
-                                            <SelectItem value="as-is">As Is</SelectItem>
+                                        {mode === 'writer' ? (
+                                            <>
+                                                <SelectItem value="markdown">Markdown (Default)</SelectItem>
+                                                <SelectItem value="plain-text">Plain Text</SelectItem>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <SelectItem value="as-is">As Is (Default)</SelectItem>
+                                                <SelectItem value="markdown">Markdown</SelectItem>
+                                                <SelectItem value="plain-text">Plain Text</SelectItem>
+                                            </>
                                         )}
                                     </SelectContent>
                                 </Select>

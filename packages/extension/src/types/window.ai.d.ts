@@ -54,14 +54,28 @@ export interface LanguageModelFactory {
 
 // Writer & Rewriter APIs
 
-export type AIWriterTone = 'formal' | 'neutral' | 'casual' | 'professional' | 'as-is' | 'more-formal' | 'more-casual';
-export type AIWriterLength = 'short' | 'medium' | 'long' | 'as-is' | 'shorter' | 'longer';
-export type AIWriterFormat = 'markdown' | 'plain-text' | 'as-is';
+// Writer Types
+export type AIWriterTone = 'formal' | 'neutral' | 'casual';
+export type AIWriterLength = 'short' | 'medium' | 'long';
+export type AIWriterFormat = 'markdown' | 'plain-text';
 
 export interface AIWriterCreateOptions {
   tone?: AIWriterTone;
   length?: AIWriterLength;
   format?: AIWriterFormat;
+  sharedContext?: string;
+  signal?: AbortSignal;
+}
+
+// Rewriter Types
+export type AIRewriterTone = 'as-is' | 'more-formal' | 'more-casual';
+export type AIRewriterLength = 'as-is' | 'shorter' | 'longer';
+export type AIRewriterFormat = 'as-is' | 'markdown' | 'plain-text';
+
+export interface AIRewriterCreateOptions {
+  tone?: AIRewriterTone;
+  length?: AIRewriterLength;
+  format?: AIRewriterFormat;
   sharedContext?: string;
   signal?: AbortSignal;
 }
@@ -80,10 +94,12 @@ export interface AIRewriter {
 
 export interface AIWriterFactory {
   create(options?: AIWriterCreateOptions): Promise<AIWriter>;
+  availability?(): Promise<'readily' | 'after-download' | 'no'>;
 }
 
 export interface AIRewriterFactory {
-  create(options?: AIWriterCreateOptions): Promise<AIRewriter>;
+  create(options?: AIRewriterCreateOptions): Promise<AIRewriter>;
+  availability?(): Promise<'readily' | 'after-download' | 'no'>;
 }
 
 
