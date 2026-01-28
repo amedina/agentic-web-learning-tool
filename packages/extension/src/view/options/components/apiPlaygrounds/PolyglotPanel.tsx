@@ -71,6 +71,10 @@ export default function PolyglotPanel() {
     // Initial check for Detector
     useEffect(() => {
         checkDetectorCapability();
+
+        // Poll for capability changes (e.g. if model finishes downloading or injection happens)
+        const intervalId = setInterval(checkDetectorCapability, 3000);
+        return () => clearInterval(intervalId);
     }, []);
 
     // Check Translator capability when pair changes
@@ -93,8 +97,18 @@ export default function PolyglotPanel() {
                  // If create exists but no availability check, assume readily for now or try create
                  setDetectorStatus('readily');
             } else if (window.ai?.languageDetector) {
-                const caps = await window.ai.languageDetector.capabilities?.();
-                setDetectorStatus(caps?.available || 'no');
+                // Check for different potential API shapes
+                if (typeof window.ai.languageDetector.capabilities === 'function') {
+                     const caps = await window.ai.languageDetector.capabilities();
+                     setDetectorStatus(caps?.available || 'no');
+                } else if (typeof window.ai.languageDetector.availability === 'function') {
+                     const status = await window.ai.languageDetector.availability();
+                     setDetectorStatus(status);
+                } else {
+                     // Fallback: if we can't check, assume 'no' until proven otherwise by 'create'
+                     // OR check if 'create' exists
+                     setDetectorStatus('no');
+                }
             } else {
                 setDetectorStatus('no');
             }
@@ -151,6 +165,9 @@ export default function PolyglotPanel() {
 
             const results = await detector.detect(detectInput);
             setDetectedResults(results);
+
+            // If successful, update status to readily
+            setDetectorStatus('readily');
 
         } catch (e: any) {
             console.error('Detection failed:', e);
@@ -363,21 +380,21 @@ export default function PolyglotPanel() {
                 </div>
 
                 {/* Workspace Panel */}
-                <div className="md:col-span-2 flex flex-col gap-4">
+                <div className="md:col-span-2 flex flex-col gap-4 h-full">
                     {/* Input Area */}
-                    <div className="flex-1 bg-card border rounded-xl p-4 flex flex-col gap-4 min-h-[200px]">
-                         <div className="flex justify-between items-center">
+                    <div className="flex-1 bg-card border rounded-xl p-4 flex flex-col gap-4 min-h-0 overflow-hidden">
+                         <div className="flex justify-between items-center flex-shrink-0">
                             <Label className="text-base">
                                 {mode === 'detector' ? 'Text to Analyze' : 'Text to Translate'}
                             </Label>
                          </div>
                          <Textarea
-                            className="flex-1 resize-none font-mono text-sm leading-relaxed"
+                            className="flex-1 resize-none font-mono text-sm leading-relaxed min-h-0"
                             placeholder={mode === 'detector' ? "Type or paste text to detect language..." : "Type text to translate..."}
                             value={mode === 'detector' ? detectInput : translateInput}
                             onChange={(e) => mode === 'detector' ? setDetectInput(e.target.value) : setTranslateInput(e.target.value)}
                          />
-                         <div className="flex justify-end">
+                         <div className="flex justify-end flex-shrink-0">
                              {mode === 'detector' ? (
                                  <Button
                                     onClick={handleDetect}
@@ -417,8 +434,8 @@ export default function PolyglotPanel() {
                     </div>
 
                     {/* Output Area */}
-                    <div className="flex-[1.5] bg-card border rounded-xl p-4 flex flex-col gap-4 min-h-[300px] relative overflow-hidden">
-                        <div className="flex justify-between items-center border-b pb-2">
+                    <div className="flex-[1.5] bg-card border rounded-xl p-4 flex flex-col gap-4 min-h-0 overflow-hidden">
+                        <div className="flex justify-between items-center border-b pb-2 flex-shrink-0">
                             <Label className="text-base flex items-center gap-2">
                                 {mode === 'detector' ? (
                                     <>
