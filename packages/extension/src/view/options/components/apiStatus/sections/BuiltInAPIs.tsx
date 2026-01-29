@@ -132,7 +132,8 @@ export default function BuiltInAPIs() {
 
           if (apiId === 'prompt') {
               const factory = window.LanguageModel || window.ai?.languageModel;
-              await factory?.create({ monitor } as any);
+              // 'expectedOutputLanguage' is required in newer Chrome versions to ensure safety/quality
+              await factory?.create({ monitor, expectedOutputLanguage: 'en' } as any);
           } else if (apiId === 'summarizer') {
               const factory = window.Summarizer || window.ai?.summarizer;
               await factory?.create({ monitor } as any);

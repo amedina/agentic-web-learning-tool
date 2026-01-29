@@ -24,6 +24,7 @@ export interface AILanguageModelCreateOptions {
   initialPrompts?: { role: 'system' | 'user' | 'assistant'; content: string }[];
   signal?: AbortSignal;
   monitor?: (monitor: any) => void;
+  expectedOutputLanguage?: string;
 }
 
 export interface AILanguageModelSession {
