@@ -14,11 +14,6 @@ import {
   Label,
   Toaster,
   toast,
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
   Checkbox
 } from '@google-awlt/design-system';
 
@@ -47,10 +42,7 @@ export default function Proofreader() {
     const [isChecking, setIsChecking] = useState(true);
 
     // Configuration State
-    const [includeTypes, setIncludeTypes] = useState(true);
-    const [includeExplanations, setIncludeExplanations] = useState(true);
-    const [inputLanguage, setInputLanguage] = useState('en');
-    const [explanationLanguage, setExplanationLanguage] = useState('en');
+    const [inputLanguages, setInputLanguages] = useState<string[]>(['en']);
 
     // Input/Output State
     const [input, setInput] = useState('');
@@ -69,11 +61,6 @@ export default function Proofreader() {
             try {
                 if ((window as any).Proofreader || (window as any).ai?.proofreader) {
                     await checkCapabilities();
-                    // If we found it, stop polling unless the status is 'no' which might mean temporarily unavailable?
-                    // Actually checkCapabilities sets the state.
-                    // If we get 'readily' or 'after-download', we are good.
-                    // If we get 'no', we might want to keep polling?
-                    // Usually if the API exists, it returns a status.
                     return;
                 }
 
@@ -97,26 +84,41 @@ export default function Proofreader() {
         try {
             let status: 'readily' | 'after-download' | 'no' = 'no';
 
+            // Check Global Constructor (Origin Trial / Polyfill)
             if ((window as any).Proofreader) {
-                // Check Global Constructor
+                // If the object exists, we assume it's usable unless explicitly told 'no'.
+                status = 'readily';
+
                 if (typeof (window as any).Proofreader.availability === 'function') {
-                    status = await (window as any).Proofreader.availability();
-                } else {
-                    // Assume readily if constructor exists but availability doesn't (older builds)
-                    status = 'readily';
+                    try {
+                        const avail = await (window as any).Proofreader.availability();
+                        if (typeof avail === 'string') {
+                            status = avail as any;
+                        } else if (avail && typeof avail === 'object' && 'available' in avail) {
+                             status = (avail as any).available;
+                        }
+                    } catch (err) {
+                        console.warn('Proofreader.availability() failed, falling back to "readily"', err);
+                    }
                 }
             } else if ((window as any).ai?.proofreader) {
-                // Check window.ai namespace
+                // Check window.ai namespace (Standard/Future)
                 const proofreaderFactory = (window as any).ai.proofreader;
+                status = 'readily';
+
                 if (typeof proofreaderFactory.capabilities === 'function') {
-                    const caps = await proofreaderFactory.capabilities();
-                    status = caps.available;
+                     try {
+                        const caps = await proofreaderFactory.capabilities();
+                        status = caps.available;
+                     } catch (err) {
+                        console.warn('ai.proofreader.capabilities() failed', err);
+                     }
                 } else if (typeof proofreaderFactory.availability === 'function') {
-                    status = await proofreaderFactory.availability();
-                } else {
-                     // Factory exists but no capability check method found?
-                     // Assume readily as fallback if the object is there
-                     status = 'readily';
+                     try {
+                        status = await proofreaderFactory.availability();
+                     } catch (err) {
+                        console.warn('ai.proofreader.availability() failed', err);
+                     }
                 }
             }
 
@@ -129,6 +131,16 @@ export default function Proofreader() {
         }
     };
 
+    const handleLanguageToggle = (langCode: string, checked: boolean) => {
+        setInputLanguages(prev => {
+            if (checked) {
+                return [...prev, langCode];
+            } else {
+                return prev.filter(c => c !== langCode);
+            }
+        });
+    };
+
     const handleProofread = async () => {
         if (!input.trim() || isProcessing) return;
 
@@ -139,11 +151,10 @@ export default function Proofreader() {
         let activeProofreader: AIProofreader | null = null;
 
         try {
+            // Docs say `includeCorrectionTypes` and `includeCorrectionExplanations` are NOT supported.
+            // Only expectedInputLanguages is passed.
             const options = {
-                includeCorrectionTypes: includeTypes,
-                includeCorrectionExplanations: includeExplanations,
-                expectedInputLanguages: [inputLanguage],
-                correctionExplanationLanguage: explanationLanguage
+                expectedInputLanguages: inputLanguages.length > 0 ? inputLanguages : ['en'],
             };
 
             if ((window as any).Proofreader) {
@@ -178,10 +189,6 @@ export default function Proofreader() {
         toast.success('Copied to clipboard');
     };
 
-    // Helper to highlight errors in original text logic could be complex for React
-    // without a specialized editor component.
-    // For now we will display the Corrected Text and the list of corrections.
-
     const needsDownload = capabilityStatus === 'after-download';
     const isAvailable = capabilityStatus !== 'no';
 
@@ -192,78 +199,42 @@ export default function Proofreader() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-full">
                 {/* Configuration Panel */}
                 <div className="md:col-span-1 flex flex-col gap-4">
-                     <div className="bg-card border rounded-xl p-4 space-y-4">
-                        <div className="flex items-center gap-2 font-medium">
+                     <div className="bg-card border rounded-xl p-4 space-y-4 flex flex-col h-full max-h-[600px]">
+                        <div className="flex items-center gap-2 font-medium flex-shrink-0">
                             <Settings2 className="w-4 h-4" />
                             <span>Configuration</span>
                         </div>
 
                         {/* Options */}
-                        <div className="space-y-4 pt-2">
-                             <div className="flex items-center space-x-2">
-                                <Checkbox
-                                    id="include-types"
-                                    checked={includeTypes}
-                                    onCheckedChange={(checked) => setIncludeTypes(checked === true)}
-                                />
-                                <label
-                                    htmlFor="include-types"
-                                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                                >
-                                    Include Error Types
-                                </label>
-                            </div>
-
-                            <div className="flex items-center space-x-2">
-                                <Checkbox
-                                    id="include-explanations"
-                                    checked={includeExplanations}
-                                    onCheckedChange={(checked) => setIncludeExplanations(checked === true)}
-                                />
-                                <label
-                                    htmlFor="include-explanations"
-                                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                                >
-                                    Include Explanations
-                                </label>
-                            </div>
-
-                            <div className="space-y-2 pt-2">
-                                <Label>Input Language</Label>
-                                <Select value={inputLanguage} onValueChange={setInputLanguage}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select language" />
-                                    </SelectTrigger>
-                                    <SelectContent>
+                        <div className="space-y-4 pt-2 flex-1 flex flex-col min-h-0">
+                            <div className="space-y-2 flex flex-col flex-1 min-h-0">
+                                <Label>Input Languages</Label>
+                                <p className="text-xs text-muted-foreground">Select all that apply</p>
+                                <div className="border rounded-md p-2 overflow-y-auto flex-1 bg-background">
+                                    <div className="space-y-2">
                                         {SUPPORTED_LANGUAGES.map(lang => (
-                                            <SelectItem key={`input-${lang.code}`} value={lang.code}>
-                                                {lang.name}
-                                            </SelectItem>
+                                            <div key={`lang-${lang.code}`} className="flex items-center space-x-2">
+                                                <Checkbox
+                                                    id={`lang-${lang.code}`}
+                                                    checked={inputLanguages.includes(lang.code)}
+                                                    onCheckedChange={(checked) => handleLanguageToggle(lang.code, checked === true)}
+                                                />
+                                                <label
+                                                    htmlFor={`lang-${lang.code}`}
+                                                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                                                >
+                                                    {lang.name}
+                                                </label>
+                                            </div>
                                         ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label>Explanation Language</Label>
-                                <Select value={explanationLanguage} onValueChange={setExplanationLanguage}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select language" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {SUPPORTED_LANGUAGES.map(lang => (
-                                            <SelectItem key={`expl-${lang.code}`} value={lang.code}>
-                                                {lang.name}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                      </div>
 
                      {/* Status Card */}
-                     <div className="bg-muted/30 border rounded-xl p-4 space-y-3">
+                     <div className="bg-muted/30 border rounded-xl p-4 space-y-3 flex-shrink-0">
                          <h4 className="text-sm font-medium flex items-center gap-2">
                              <Sparkles className="w-3 h-3 text-primary" />
                              Model Status
