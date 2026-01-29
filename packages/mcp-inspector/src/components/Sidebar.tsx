@@ -26,10 +26,6 @@ import {
   SelectValue,
   Tooltip,
 } from "@google-awlt/design-system";
-import {
-  type LoggingLevel,
-  LoggingLevelSchema,
-} from "@modelcontextprotocol/sdk/types.js";
 
 /**
  * Internal dependencies
@@ -43,17 +39,10 @@ import IconDisplay, { type WithIcons } from "./IconDisplay";
 
 interface SidebarProps {
   connectionStatus: ConnectionStatus;
-  transportType: "stdio" | "sse" | "streamable-http";
-  setTransportType: (type: "stdio" | "sse" | "streamable-http") => void;
-  command: string;
-  setCommand: (command: string) => void;
-  args: string;
-  setArgs: (args: string) => void;
+  transportType: "sse" | "streamable-http";
+  setTransportType: (type: "sse" | "streamable-http") => void;
   sseUrl: string;
   setSseUrl: (url: string) => void;
-  env: Record<string, string>;
-  setEnv: (env: Record<string, string>) => void;
-  // Custom headers support
   customHeaders: CustomHeadersType;
   setCustomHeaders: (headers: CustomHeadersType) => void;
   oauthClientId: string;
@@ -64,9 +53,6 @@ interface SidebarProps {
   setOauthScope: (scope: string) => void;
   onConnect: () => void;
   onDisconnect: () => void;
-  logLevel: LoggingLevel;
-  sendLogLevelRequest: (level: LoggingLevel) => void;
-  loggingSupported: boolean;
   config: InspectorConfig;
   setConfig: (config: InspectorConfig) => void;
   connectionType: "direct" | "proxy";
@@ -80,14 +66,8 @@ const Sidebar = ({
   connectionStatus,
   transportType,
   setTransportType,
-  command,
-  setCommand,
-  args,
-  setArgs,
   sseUrl,
   setSseUrl,
-  env,
-  setEnv,
   customHeaders,
   setCustomHeaders,
   oauthClientId,
@@ -98,142 +78,15 @@ const Sidebar = ({
   setOauthScope,
   onConnect,
   onDisconnect,
-  logLevel,
-  sendLogLevelRequest,
-  loggingSupported,
   config,
   setConfig,
   connectionType,
   setConnectionType,
   serverImplementation,
 }: SidebarProps) => {
-  const [showEnvVars, setShowEnvVars] = useState(false);
   const [showAuthConfig, setShowAuthConfig] = useState(false);
   const [showConfig, setShowConfig] = useState(false);
-  const [shownEnvVars, setShownEnvVars] = useState<Set<string>>(new Set());
   const [showClientSecret, setShowClientSecret] = useState(false);
-  const [copiedServerEntry, setCopiedServerEntry] = useState(false);
-  const [copiedServerFile, setCopiedServerFile] = useState(false);
-  const { toast } = useToast();
-
-  const connectionTypeTip =
-    "Connect to server directly (requires CORS config on server) or via MCP Inspector Proxy";
-  // Reusable error reporter for copy actions
-  const reportError = useCallback(
-    (error: unknown) => {
-      toast({
-        title: "Error",
-        description: `Failed to copy config: ${error instanceof Error ? error.message : String(error)}`,
-        variant: "destructive",
-      });
-    },
-    [toast],
-  );
-
-  // Shared utility function to generate server config
-  const generateServerConfig = useCallback(() => {
-    if (transportType === "stdio") {
-      return {
-        command,
-        args: args.trim() ? args.split(/\s+/) : [],
-        env: { ...env },
-      };
-    }
-    if (transportType === "sse") {
-      return {
-        type: "sse",
-        url: sseUrl,
-        note: "For SSE connections, add this URL directly in your MCP Client",
-      };
-    }
-    if (transportType === "streamable-http") {
-      return {
-        type: "streamable-http",
-        url: sseUrl,
-        note: "For Streamable HTTP connections, add this URL directly in your MCP Client",
-      };
-    }
-    return {};
-  }, [transportType, command, args, env, sseUrl]);
-
-  // Memoized config entry generator
-  const generateMCPServerEntry = useCallback(() => {
-    return JSON.stringify(generateServerConfig(), null, 4);
-  }, [generateServerConfig]);
-
-  // Memoized config file generator
-  const generateMCPServerFile = useCallback(() => {
-    return JSON.stringify(
-      {
-        mcpServers: {
-          "default-server": generateServerConfig(),
-        },
-      },
-      null,
-      4,
-    );
-  }, [generateServerConfig]);
-
-  // Memoized copy handlers
-  const handleCopyServerEntry = useCallback(() => {
-    try {
-      const configJson = generateMCPServerEntry();
-      navigator.clipboard
-        .writeText(configJson)
-        .then(() => {
-          setCopiedServerEntry(true);
-
-          toast({
-            title: "Config entry copied",
-            description:
-              transportType === "stdio"
-                ? "Server configuration has been copied to clipboard. Add this to your mcp.json inside the 'mcpServers' object with your preferred server name."
-                : transportType === "streamable-http"
-                  ? "Streamable HTTP URL has been copied. Use this URL directly in your MCP Client."
-                  : "SSE URL has been copied. Use this URL directly in your MCP Client.",
-          });
-
-          setTimeout(() => {
-            setCopiedServerEntry(false);
-          }, 2000);
-        })
-        .catch((error) => {
-          reportError(error);
-        });
-    } catch (error) {
-      reportError(error);
-    }
-  }, [generateMCPServerEntry, transportType, toast, reportError]);
-
-  const handleCopyServerFile = useCallback(() => {
-    try {
-      const configJson = generateMCPServerFile();
-      navigator.clipboard
-        .writeText(configJson)
-        .then(() => {
-          setCopiedServerFile(true);
-
-          toast({
-            title: "Servers file copied",
-            description:
-              "Servers configuration has been copied to clipboard. Add this to your mcp.json file. Current testing server will be added as 'default-server'",
-          });
-
-          setTimeout(() => {
-            setCopiedServerFile(false);
-          }, 2000);
-        })
-        .catch((error) => {
-          reportError(error);
-        });
-    } catch (error) {
-      reportError(error);
-    }
-  }, [generateMCPServerFile, toast, reportError]);
-
-  const handleToggleEnvVars = useCallback(() => {
-    setShowEnvVars((prev) => !prev);
-  }, []);
 
   const handleToggleAuthConfig = useCallback(() => {
     setShowAuthConfig((prev) => !prev);
@@ -247,39 +100,16 @@ const Sidebar = ({
     setShowClientSecret((prev) => !prev);
   }, []);
 
-  const handleAddEnvVar = useCallback(() => {
-    const key = "";
-    const newEnv = { ...env };
-    newEnv[key] = "";
-    setEnv(newEnv);
-  }, [env, setEnv]);
-
   const handleRestartReconnect = useCallback(() => {
     onDisconnect();
     onConnect();
   }, [onDisconnect, onConnect]);
 
   const handleTransportTypeChange = useCallback(
-    (value: "stdio" | "sse" | "streamable-http") => {
+    (value: "sse" | "streamable-http") => {
       setTransportType(value);
     },
     [setTransportType],
-  );
-
-  const handleCommandChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => setCommand(e.target.value),
-    [setCommand],
-  );
-
-  const handleCommandBlur = useCallback(
-    (e: React.FocusEvent<HTMLInputElement>) =>
-      setCommand(e.target.value.trim()),
-    [setCommand],
-  );
-
-  const handleArgsChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => setArgs(e.target.value),
-    [setArgs],
   );
 
   const handleSseUrlChange = useCallback(
@@ -293,62 +123,6 @@ const Sidebar = ({
     },
     [setConnectionType],
   );
-
-  const handleEnvKeyChange = useCallback(
-    (oldKey: string, newKey: string, value: string) => {
-      const newEnv = Object.entries(env).reduce(
-        (acc, [k, v]) => {
-          if (k === oldKey) {
-            acc[newKey] = value;
-          } else {
-            acc[k] = v;
-          }
-          return acc;
-        },
-        {} as Record<string, string>,
-      );
-      setEnv(newEnv);
-      setShownEnvVars((prev) => {
-        const next = new Set(prev);
-        if (next.has(oldKey)) {
-          next.delete(oldKey);
-          next.add(newKey);
-        }
-        return next;
-      });
-    },
-    [env, setEnv],
-  );
-
-  const handleEnvValueChange = useCallback(
-    (key: string, value: string) => {
-      const newEnv = { ...env };
-      newEnv[key] = value;
-      setEnv(newEnv);
-    },
-    [env, setEnv],
-  );
-
-  const handleRemoveEnvVar = useCallback(
-    (key: string) => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { [key]: _removed, ...rest } = env;
-      setEnv(rest);
-    },
-    [env, setEnv],
-  );
-
-  const handleToggleEnvVarVisibility = useCallback((key: string) => {
-    setShownEnvVars((prev) => {
-      const next = new Set(prev);
-      if (next.has(key)) {
-        next.delete(key);
-      } else {
-        next.add(key);
-      }
-      return next;
-    });
-  }, []);
 
   const handleOauthClientIdChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) =>
@@ -365,59 +139,6 @@ const Sidebar = ({
   const handleOauthScopeChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => setOauthScope(e.target.value),
     [setOauthScope],
-  );
-
-  const handleConfigNumberChange = useCallback(
-    (
-      configKey: keyof InspectorConfig,
-      configItem: InspectorConfig[keyof InspectorConfig],
-      value: string,
-    ) => {
-      const newConfig = { ...config };
-      newConfig[configKey] = {
-        ...configItem,
-        value: Number(value),
-      };
-      setConfig(newConfig);
-    },
-    [config, setConfig],
-  );
-
-  const handleConfigBooleanChange = useCallback(
-    (
-      configKey: keyof InspectorConfig,
-      configItem: InspectorConfig[keyof InspectorConfig],
-      value: string,
-    ) => {
-      const newConfig = { ...config };
-      newConfig[configKey] = {
-        ...configItem,
-        value: value === "true",
-      };
-      setConfig(newConfig);
-    },
-    [config, setConfig],
-  );
-
-  const handleConfigStringChange = useCallback(
-    (
-      configKey: keyof InspectorConfig,
-      configItem: InspectorConfig[keyof InspectorConfig],
-      value: string,
-    ) => {
-      const newConfig = { ...config };
-      newConfig[configKey] = {
-        ...configItem,
-        value: value,
-      };
-      setConfig(newConfig);
-    },
-    [config, setConfig],
-  );
-
-  const handleLogLevelChange = useCallback(
-    (value: LoggingLevel) => sendLogLevelRequest(value),
-    [sendLogLevelRequest],
   );
 
   return (
@@ -439,182 +160,59 @@ const Sidebar = ({
                 <SelectValue placeholder="Select transport type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="stdio">STDIO</SelectItem>
                 <SelectItem value="sse">SSE</SelectItem>
                 <SelectItem value="streamable-http">Streamable HTTP</SelectItem>
               </SelectContent>
             </Select>
           </div>
-
-          {transportType === "stdio" ? (
-            <>
-              <div className="space-y-2">
-                <label className="text-sm font-medium" htmlFor="command-input">
-                  Command
-                </label>
+          <div className="space-y-2">
+            <label className="text-sm font-medium" htmlFor="sse-url-input">
+              URL
+            </label>
+            {sseUrl ? (
+              <Tooltip text={sseUrl}>
                 <Input
-                  id="command-input"
-                  placeholder="Command"
-                  value={command}
-                  onChange={handleCommandChange}
-                  onBlur={handleCommandBlur}
+                  id="sse-url-input"
+                  placeholder="URL"
+                  value={sseUrl}
+                  onChange={handleSseUrlChange}
                   className="font-mono"
                 />
-              </div>
-              <div className="space-y-2">
-                <label
-                  className="text-sm font-medium"
-                  htmlFor="arguments-input"
-                >
-                  Arguments
-                </label>
-                <Input
-                  id="arguments-input"
-                  placeholder="Arguments (space-separated)"
-                  value={args}
-                  onChange={handleArgsChange}
-                  className="font-mono"
-                />
-              </div>
-            </>
-          ) : (
-            <>
-              <div className="space-y-2">
-                <label className="text-sm font-medium" htmlFor="sse-url-input">
-                  URL
-                </label>
-                {sseUrl ? (
-                  <Tooltip text={sseUrl}>
-                    <Input
-                      id="sse-url-input"
-                      placeholder="URL"
-                      value={sseUrl}
-                      onChange={handleSseUrlChange}
-                      className="font-mono"
-                    />
-                  </Tooltip>
-                ) : (
-                  <Input
-                    id="sse-url-input"
-                    placeholder="URL"
-                    value={sseUrl}
-                    onChange={handleSseUrlChange}
-                    className="font-mono"
-                  />
-                )}
-              </div>
-
-              {/* Connection Type switch - only visible for non-STDIO transport types */}
-              <Tooltip text={connectionTypeTip}>
-                <div className="space-y-2">
-                  <label
-                    className="text-sm font-medium"
-                    htmlFor="connection-type-select"
-                  >
-                    Connection Type
-                  </label>
-                  <Select
-                    value={connectionType}
-                    onValueChange={handleConnectionTypeChange}
-                  >
-                    <SelectTrigger id="connection-type-select">
-                      <SelectValue placeholder="Select connection type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="proxy">Via Proxy</SelectItem>
-                      <SelectItem value="direct">Direct</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
               </Tooltip>
-            </>
-          )}
+            ) : (
+              <Input
+                id="sse-url-input"
+                placeholder="URL"
+                value={sseUrl}
+                onChange={handleSseUrlChange}
+                className="font-mono"
+              />
+            )}
+          </div>
 
-          {transportType === "stdio" && (
+          <Tooltip text={connectionTypeTip}>
             <div className="space-y-2">
-              <Button
-                variant="outline"
-                onClick={handleToggleEnvVars}
-                className="flex items-center w-full"
-                data-testid="env-vars-button"
-                aria-expanded={showEnvVars}
+              <label
+                className="text-sm font-medium"
+                htmlFor="connection-type-select"
               >
-                {showEnvVars ? (
-                  <ChevronDown className="w-4 h-4 mr-2" />
-                ) : (
-                  <ChevronRight className="w-4 h-4 mr-2" />
-                )}
-                Environment Variables
-              </Button>
-              {showEnvVars && (
-                <div className="space-y-2">
-                  {Object.entries(env).map(([key, value], idx) => (
-                    <div key={idx} className="space-y-2 pb-4">
-                      <div className="flex gap-2">
-                        <Input
-                          aria-label={`Environment variable key ${idx + 1}`}
-                          placeholder="Key"
-                          value={key}
-                          onChange={(e) =>
-                            handleEnvKeyChange(key, e.target.value, value)
-                          }
-                          className="font-mono"
-                        />
-                        <Button
-                          variant="destructive"
-                          size="icon"
-                          className="h-9 w-9 p-0 shrink-0"
-                          onClick={() => handleRemoveEnvVar(key)}
-                        >
-                          ×
-                        </Button>
-                      </div>
-                      <div className="flex gap-2">
-                        <Input
-                          aria-label={`Environment variable value ${idx + 1}`}
-                          type={shownEnvVars.has(key) ? "text" : "password"}
-                          placeholder="Value"
-                          value={value}
-                          onChange={(e) =>
-                            handleEnvValueChange(key, e.target.value)
-                          }
-                          className="font-mono"
-                        />
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="h-9 w-9 p-0 shrink-0"
-                          onClick={() => handleToggleEnvVarVisibility(key)}
-                          aria-label={
-                            shownEnvVars.has(key) ? "Hide value" : "Show value"
-                          }
-                          aria-pressed={shownEnvVars.has(key)}
-                          title={
-                            shownEnvVars.has(key) ? "Hide value" : "Show value"
-                          }
-                        >
-                          {shownEnvVars.has(key) ? (
-                            <Eye className="h-4 w-4" aria-hidden="true" />
-                          ) : (
-                            <EyeOff className="h-4 w-4" aria-hidden="true" />
-                          )}
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                  <Button
-                    variant="outline"
-                    className="w-full mt-2"
-                    onClick={handleAddEnvVar}
-                  >
-                    Add Environment Variable
-                  </Button>
-                </div>
-              )}
+                Connection Type
+              </label>
+              <Select
+                value={connectionType}
+                onValueChange={handleConnectionTypeChange}
+              >
+                <SelectTrigger id="connection-type-select">
+                  <SelectValue placeholder="Select connection type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="proxy">Via Proxy</SelectItem>
+                  <SelectItem value="direct">Direct</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-          )}
+          </Tooltip>
 
-          {/* Always show both copy buttons for all transport types */}
           <div className="grid grid-cols-2 gap-2 mt-2">
             <Tooltip text="Copy Server Entry">
               <Button
@@ -672,92 +270,87 @@ const Sidebar = ({
                     onChange={setCustomHeaders}
                   />
                 </div>
-                {transportType !== "stdio" && (
-                  // OAuth Configuration
-                  <div className="space-y-2 p-3  rounded border">
-                    <h4 className="text-sm font-semibold flex items-center">
-                      OAuth 2.0 Flow
-                    </h4>
-                    <div className="space-y-2">
-                      <label
-                        htmlFor="oauth-client-id-input"
-                        className="text-sm font-medium"
-                      >
-                        Client ID
-                      </label>
+                <div className="space-y-2 p-3  rounded border">
+                  <h4 className="text-sm font-semibold flex items-center">
+                    OAuth 2.0 Flow
+                  </h4>
+                  <div className="space-y-2">
+                    <label
+                      htmlFor="oauth-client-id-input"
+                      className="text-sm font-medium"
+                    >
+                      Client ID
+                    </label>
+                    <Input
+                      id="oauth-client-id-input"
+                      placeholder="Client ID"
+                      onChange={handleOauthClientIdChange}
+                      value={oauthClientId}
+                      data-testid="oauth-client-id-input"
+                      className="font-mono"
+                    />
+                    <label
+                      htmlFor="oauth-client-secret-input"
+                      className="text-sm font-medium"
+                    >
+                      Client Secret
+                    </label>
+                    <div className="flex gap-2">
                       <Input
-                        id="oauth-client-id-input"
-                        placeholder="Client ID"
-                        onChange={handleOauthClientIdChange}
-                        value={oauthClientId}
-                        data-testid="oauth-client-id-input"
+                        id="oauth-client-secret-input"
+                        type={showClientSecret ? "text" : "password"}
+                        placeholder="Client Secret (optional)"
+                        onChange={handleOauthClientSecretChange}
+                        value={oauthClientSecret}
+                        data-testid="oauth-client-secret-input"
                         className="font-mono"
                       />
-                      <label
-                        htmlFor="oauth-client-secret-input"
-                        className="text-sm font-medium"
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-9 w-9 p-0 shrink-0"
+                        onClick={handleToggleClientSecret}
+                        aria-label={
+                          showClientSecret ? "Hide secret" : "Show secret"
+                        }
+                        aria-pressed={showClientSecret}
+                        title={showClientSecret ? "Hide secret" : "Show secret"}
                       >
-                        Client Secret
-                      </label>
-                      <div className="flex gap-2">
-                        <Input
-                          id="oauth-client-secret-input"
-                          type={showClientSecret ? "text" : "password"}
-                          placeholder="Client Secret (optional)"
-                          onChange={handleOauthClientSecretChange}
-                          value={oauthClientSecret}
-                          data-testid="oauth-client-secret-input"
-                          className="font-mono"
-                        />
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="h-9 w-9 p-0 shrink-0"
-                          onClick={handleToggleClientSecret}
-                          aria-label={
-                            showClientSecret ? "Hide secret" : "Show secret"
-                          }
-                          aria-pressed={showClientSecret}
-                          title={
-                            showClientSecret ? "Hide secret" : "Show secret"
-                          }
-                        >
-                          {showClientSecret ? (
-                            <Eye className="h-4 w-4" aria-hidden="true" />
-                          ) : (
-                            <EyeOff className="h-4 w-4" aria-hidden="true" />
-                          )}
-                        </Button>
-                      </div>
-                      <label
-                        htmlFor="oauth-scope"
-                        className="text-sm font-medium"
-                      >
-                        Redirect URL
-                      </label>
-                      <Input
-                        readOnly
-                        placeholder="Redirect URL"
-                        value={window.location.origin + "/oauth/callback"}
-                        className="font-mono"
-                      />
-                      <label
-                        htmlFor="oauth-scope-input"
-                        className="text-sm font-medium"
-                      >
-                        Scope
-                      </label>
-                      <Input
-                        placeholder="Scope (space-separated)"
-                        onChange={handleOauthScopeChange}
-                        value={oauthScope}
-                        id="oauth-scope-input"
-                        data-testid="oauth-scope-input"
-                        className="font-mono"
-                      />
+                        {showClientSecret ? (
+                          <Eye className="h-4 w-4" aria-hidden="true" />
+                        ) : (
+                          <EyeOff className="h-4 w-4" aria-hidden="true" />
+                        )}
+                      </Button>
                     </div>
+                    <label
+                      htmlFor="oauth-scope"
+                      className="text-sm font-medium"
+                    >
+                      Redirect URL
+                    </label>
+                    <Input
+                      readOnly
+                      placeholder="Redirect URL"
+                      value={window.location.origin + "/oauth/callback"}
+                      className="font-mono"
+                    />
+                    <label
+                      htmlFor="oauth-scope-input"
+                      className="text-sm font-medium"
+                    >
+                      Scope
+                    </label>
+                    <Input
+                      placeholder="Scope (space-separated)"
+                      onChange={handleOauthScopeChange}
+                      value={oauthScope}
+                      id="oauth-scope-input"
+                      data-testid="oauth-scope-input"
+                      className="font-mono"
+                    />
                   </div>
-                )}
+                </div>
               </>
             )}
           </div>
@@ -860,7 +453,7 @@ const Sidebar = ({
                   onClick={handleRestartReconnect}
                 >
                   <RotateCcw className="w-4 h-4 mr-2" />
-                  {transportType === "stdio" ? "Restart" : "Reconnect"}
+                  Reconnect
                 </Button>
                 <Button onClick={onDisconnect}>
                   <RefreshCwOff className="w-4 h-4 mr-2" />
@@ -947,29 +540,6 @@ const Sidebar = ({
                     Version: {serverImplementation.version}
                   </div>
                 )}
-              </div>
-            )}
-
-            {loggingSupported && connectionStatus === "connected" && (
-              <div className="space-y-2">
-                <label
-                  className="text-sm font-medium"
-                  htmlFor="logging-level-select"
-                >
-                  Logging Level
-                </label>
-                <Select value={logLevel} onValueChange={handleLogLevelChange}>
-                  <SelectTrigger id="logging-level-select">
-                    <SelectValue placeholder="Select logging level" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.values(LoggingLevelSchema.enum).map((level) => (
-                      <SelectItem key={level} value={level}>
-                        {level}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
               </div>
             )}
           </div>

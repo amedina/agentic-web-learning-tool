@@ -74,11 +74,8 @@ import type { CustomHeaders } from "../types/customHeaders";
 import { resolveRefsInMessage } from "../../utils/schemaUtils";
 
 interface UseConnectionOptions {
-  transportType: "stdio" | "sse" | "streamable-http";
-  command: string;
-  args: string;
+  transportType: "sse" | "streamable-http";
   sseUrl: string;
-  env: Record<string, string>;
   // Custom headers support
   customHeaders?: CustomHeaders;
   oauthClientId?: string;
@@ -97,14 +94,12 @@ interface UseConnectionOptions {
   defaultLoggingLevel?: LoggingLevel;
   serverImplementation?: Implementation;
   metadata?: Record<string, string>;
+  client?: Client | null;
 }
 
 export function useConnection({
   transportType,
-  command,
-  args,
   sseUrl,
-  env,
   customHeaders,
   oauthClientId,
   oauthClientSecret,
@@ -117,6 +112,7 @@ export function useConnection({
   getRoots,
   defaultLoggingLevel,
   metadata = {},
+  client,
 }: UseConnectionOptions) {
   const [connectionStatus, setConnectionStatus] =
     useState<ConnectionStatus>("disconnected");
@@ -432,7 +428,7 @@ export function useConnection({
       },
     };
 
-    const client = new Client<Request, Notification, Result>(
+    const newClient = new Client<Request, Notification, Result>(
       CLIENT_IDENTITY,
       clientCapabilities,
     );
@@ -528,7 +524,7 @@ export function useConnection({
       let serverUrl: URL;
 
       // Determine connection URL based on the connection type
-      if (connectionType === "direct" && transportType !== "stdio") {
+      if (connectionType === "direct") {
         // Direct connection - use the provided URL directly (not available for STDIO)
         serverUrl = new URL(sseUrl);
 
@@ -604,39 +600,6 @@ export function useConnection({
 
         let mcpProxyServerUrl;
         switch (transportType) {
-          case "stdio": {
-            mcpProxyServerUrl = new URL(`${getMCPProxyAddress(config)}/stdio`);
-            mcpProxyServerUrl.searchParams.append("command", command);
-            mcpProxyServerUrl.searchParams.append("args", args);
-            mcpProxyServerUrl.searchParams.append("env", JSON.stringify(env));
-
-            const proxyFullAddress = config.MCP_PROXY_FULL_ADDRESS
-              .value as string;
-            if (proxyFullAddress) {
-              mcpProxyServerUrl.searchParams.append(
-                "proxyFullAddress",
-                proxyFullAddress,
-              );
-            }
-            transportOptions = {
-              authProvider: serverAuthProvider,
-              eventSourceInit: {
-                fetch: (
-                  url: string | URL | globalThis.Request,
-                  init?: RequestInit,
-                ) =>
-                  fetch(url, {
-                    ...init,
-                    headers: { ...headers, ...proxyHeaders },
-                  }),
-              },
-              requestInit: {
-                headers: { ...headers, ...proxyHeaders },
-              },
-            };
-            break;
-          }
-
           case "sse": {
             mcpProxyServerUrl = new URL(`${getMCPProxyAddress(config)}/sse`);
             mcpProxyServerUrl.searchParams.append("url", sseUrl);
@@ -707,10 +670,10 @@ export function useConnection({
           ToolListChangedNotificationSchema,
           PromptListChangedNotificationSchema,
         ].forEach((notificationSchema) => {
-          client.setNotificationHandler(notificationSchema, onNotification);
+          newClient.setNotificationHandler(notificationSchema, onNotification);
         });
 
-        client.fallbackNotificationHandler = (
+        newClient.fallbackNotificationHandler = (
           notification: Notification,
         ): Promise<void> => {
           onNotification(notification);
@@ -728,7 +691,7 @@ export function useConnection({
               })
             : new SSEClientTransport(serverUrl, transportOptions);
 
-        await client.connect(transport as Transport);
+        await newClient.connect(transport as Transport);
 
         const protocolOnMessage = transport.onmessage;
         if (protocolOnMessage) {
@@ -740,16 +703,16 @@ export function useConnection({
 
         setClientTransport(transport);
 
-        capabilities = client.getServerCapabilities();
-        const serverInfo = client.getServerVersion();
+        capabilities = newClient.getServerCapabilities();
+        const serverInfo = newClient.getServerVersion();
         setServerImplementation(serverInfo || null);
         const initializeRequest = {
           method: "initialize",
         };
         pushHistory(initializeRequest, {
           capabilities,
-          serverInfo: client.getServerVersion(),
-          instructions: client.getInstructions(),
+          serverInfo: newClient.getServerVersion(),
+          instructions: newClient.getInstructions(),
         });
       } catch (error) {
         console.error(
@@ -786,7 +749,7 @@ export function useConnection({
       setCompletionsSupported(capabilities?.completions !== undefined);
 
       if (onPendingRequest) {
-        client.setRequestHandler(CreateMessageRequestSchema, (request) => {
+        newClient.setRequestHandler(CreateMessageRequestSchema, (request) => {
           return new Promise((resolve, reject) => {
             onPendingRequest(request, resolve, reject);
           });
@@ -794,14 +757,14 @@ export function useConnection({
       }
 
       if (getRoots) {
-        client.setRequestHandler(ListRootsRequestSchema, async () => {
+        newClient.setRequestHandler(ListRootsRequestSchema, async () => {
           return { roots: getRoots() };
         });
       }
 
       if (capabilities?.logging && defaultLoggingLevel) {
         lastRequest = "logging/setLevel";
-        await client.setLoggingLevel(defaultLoggingLevel);
+        await newClient.setLoggingLevel(defaultLoggingLevel);
         pushHistory(
           {
             method: "logging/setLevel",
@@ -815,14 +778,14 @@ export function useConnection({
       }
 
       if (onElicitationRequest) {
-        client.setRequestHandler(ElicitRequestSchema, async (request) => {
+        newClient.setRequestHandler(ElicitRequestSchema, async (request) => {
           return new Promise((resolve) => {
             onElicitationRequest(request, resolve);
           });
         });
       }
 
-      setMcpClient(client);
+      setMcpClient(newClient);
       setConnectionStatus("connected");
     } catch (e) {
       if (
@@ -852,7 +815,9 @@ export function useConnection({
       await (
         clientTransport as StreamableHTTPClientTransport
       ).terminateSession();
-    await mcpClient?.close();
+    if (!client) {
+      await mcpClient?.close();
+    }
     const authProvider = new InspectorOAuthClientProvider(sseUrl);
     authProvider.clear();
     setMcpClient(null);

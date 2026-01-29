@@ -36,7 +36,7 @@ interface MCPServerDialogProps {
 }
 
 const initialState: MCPServerConfig = {
-  transport: 'http',
+  transport: 'streamable-http',
   url: '',
   authToken: '',
   enabled: true,

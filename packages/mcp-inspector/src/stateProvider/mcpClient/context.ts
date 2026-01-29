@@ -67,10 +67,7 @@ export const LOCALSTORAGEMOCK = {
 
 export interface McpConnectionContextType {
   state: {
-    command: string;
-    args: string;
     sseUrl: string;
-    env: Record<string, string>;
     connectionType: "direct" | "proxy";
     transportType: "stdio" | "sse" | "streamable-http";
     logLevel: LoggingLevel;
@@ -112,14 +109,11 @@ export interface McpConnectionContextType {
   };
 
   actions: {
-    setCommand: (cmd: string) => void;
-    setArgs: (args: string) => void;
     setSseUrl: (url: string) => void;
-    setTransportType: (type: "stdio" | "sse" | "streamable-http") => void;
+    setTransportType: (type: "sse" | "streamable-http") => void;
     setConnectionType: (type: "direct" | "proxy") => void;
     setLogLevel: (level: LoggingLevel) => void;
     setConfig: (config: InspectorConfig) => void;
-    setEnv: (env: Record<string, string>) => void;
     setBearerToken: (token: string) => void;
     setHeaderName: (name: string) => void;
     setCustomHeaders: (headers: CustomHeaders) => void;
@@ -164,14 +158,11 @@ export interface McpConnectionContextType {
 
 const INITIAL_STATE = {
   state: {
-    command: "",
-    args: "",
     sseUrl: "",
-    env: {},
     connectionType:
       "direct" as McpConnectionContextType["state"]["connectionType"],
     transportType:
-      "stdio" as McpConnectionContextType["state"]["transportType"],
+      "streamable-http" as McpConnectionContextType["state"]["transportType"],
     logLevel: "info" as McpConnectionContextType["state"]["logLevel"],
     config: LOCALSTORAGEMOCK,
     bearerToken: "",
@@ -201,14 +192,11 @@ const INITIAL_STATE = {
     prompts: [],
   },
   actions: {
-    setCommand: noop,
-    setArgs: noop,
     setSseUrl: noop,
     setTransportType: noop,
     setConnectionType: noop,
     setLogLevel: noop,
     setConfig: noop,
-    setEnv: noop,
     setBearerToken: noop,
     setHeaderName: noop,
     setCustomHeaders: noop,

@@ -10,7 +10,7 @@ export default function MCPInspectorTab() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <div className="flex items-center gap-3 mb-1">
-              <h1 className="text-3xl font-semibold text-accent-foreground tracking-tight">
+              <h1 className="text-3xl font-semibold text-accent-foreground text-darth-vader tracking-tight">
                 MCP Inspector
               </h1>
             </div>
@@ -20,7 +20,7 @@ export default function MCPInspectorTab() {
           </div>
         </div>
       </div>
-      <div className="w-full font-sans antialiased">
+      <div className="w-full font-sans antialiased mt-6">
         <MCPInspectorTabComponent />
       </div>
     </div>

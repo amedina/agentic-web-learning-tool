@@ -17,12 +17,14 @@ import {
 } from '@google-awlt/common';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import { toast } from '@google-awlt/design-system';
+import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
 
 /**
  * Internal dependencies
  */
 import MCPContext, { type MCPProviderContextType } from './context';
 import { logger } from '../../../../utils';
+import { McpConnectionProvider } from '@google-awlt/mcp-inspector';
 
 const Provider = ({ children }: PropsWithChildren) => {
   // We use a functional update to ensure we always have a fresh Map
@@ -33,6 +35,13 @@ const Provider = ({ children }: PropsWithChildren) => {
   const [toolList, setToolList] = useState<
     MCPProviderContextType['state']['toolList']
   >({});
+
+  const [clients, setClients] = useState<
+    MCPProviderContextType['state']['clients']
+  >({});
+
+  const [inspectedServerName, setInspectedServerName] =
+    useState<MCPProviderContextType['state']['inspectedServerName']>(null);
 
   const initialFetch = useRef(false);
   //for internal usage
@@ -114,6 +123,73 @@ const Provider = ({ children }: PropsWithChildren) => {
       }
     },
     []
+  );
+
+  const getClient = useCallback(
+    async (serverName: string) => {
+      const config = serverConfigs[serverName];
+      if (!config) {
+        return undefined;
+      }
+
+      // Return existing client if connected
+      if (clients[serverName]) {
+        return clients[serverName];
+      }
+
+      try {
+        const client = new Client(
+          {
+            name: 'chrome-options-page-client',
+            version: '1.0',
+          },
+          {
+            capabilities: {
+              sampling: {},
+              elicitation: {},
+              roots: {
+                listChanged: true,
+              },
+            },
+          }
+        );
+
+        const requestInit: RequestInit = {};
+        if (config.authToken) {
+          requestInit.headers = {
+            Authorization: `Bearer ${config.authToken}`,
+          };
+        }
+
+        let transport;
+        if (config.transport === 'sse') {
+          transport = new SSEClientTransport(new URL(config.url), {
+            eventSourceInit: {
+              withCredentials: false,
+            },
+            requestInit,
+          });
+        } else {
+          transport = new StreamableHTTPClientTransport(new URL(config.url), {
+            requestInit,
+          });
+        }
+
+        await client.connect(transport);
+
+        setClients((prev) => ({
+          ...prev,
+          [serverName]: client,
+        }));
+
+        return client;
+      } catch (error) {
+        console.error('Failed to connect client:', error);
+        toast.error(`Failed to connect to ${config.name}`);
+        return undefined;
+      }
+    },
+    [serverConfigs, clients]
   );
 
   const handleToggle = useCallback((serverName: string, value: boolean) => {
@@ -203,13 +279,37 @@ const Provider = ({ children }: PropsWithChildren) => {
   /**
    * Action: Remove a Server Configuration
    */
-  const removeConfig = useCallback((serverName: string) => {
-    setServerConfigs((prev) => {
-      const newConfig = structuredClone(prev);
-      delete newConfig[serverName];
-      return newConfig;
-    });
-  }, []);
+  const removeConfig = useCallback(
+    (serverName: string) => {
+      // Close client connection if exists
+      if (clients[serverName]) {
+        try {
+          clients[serverName].close();
+        } catch (e) {
+          console.error('Error closing client:', e);
+        }
+      }
+
+      setClients((prev) => {
+        const newClients = { ...prev };
+        delete newClients[serverName];
+        return newClients;
+      });
+
+      setToolList((prev) => {
+        const newToolList = { ...prev };
+        delete newToolList[serverName];
+        return newToolList;
+      });
+
+      setServerConfigs((prev) => {
+        const newConfig = structuredClone(prev);
+        delete newConfig[serverName];
+        return newConfig;
+      });
+    },
+    [clients]
+  );
 
   /**
    * Action: Validate the Config
@@ -274,12 +374,16 @@ const Provider = ({ children }: PropsWithChildren) => {
       state: {
         serverConfigs,
         toolList,
+        clients,
+        inspectedServerName,
       },
       actions: {
         addConfig,
         removeConfig,
         validateConfig,
         handleToggle,
+        getClient,
+        setInspectedServerName,
       },
     }),
     [
@@ -292,7 +396,15 @@ const Provider = ({ children }: PropsWithChildren) => {
     ]
   );
 
-  return <MCPContext.Provider value={value}>{children}</MCPContext.Provider>;
+  return (
+    <MCPContext.Provider value={value}>
+      <McpConnectionProvider
+        client={inspectedServerName ? clients[inspectedServerName] : null}
+      >
+        {children}
+      </McpConnectionProvider>
+    </MCPContext.Provider>
+  );
 };
 
 export default Provider;
