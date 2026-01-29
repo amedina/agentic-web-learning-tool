@@ -1,7 +1,7 @@
 /**
  * External dependencies.
  */
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useMcpClient } from '@mcp-b/mcp-react-hooks';
 import {
   Table,
@@ -17,6 +17,7 @@ import {
 } from '@google-awlt/design-system';
 import type { Tool } from '@modelcontextprotocol/sdk/types.js';
 import { toast } from '@google-awlt/design-system';
+import { noop } from '@google-awlt/common';
 
 /**
  * Internal Dependencies
@@ -24,6 +25,7 @@ import { toast } from '@google-awlt/design-system';
 import RunToolPanel from './runToolPanel';
 import { MESSAGE_TYPES } from '../../../../utils';
 import type { ToolExecutionLog } from './types';
+import { isLocalTool } from './utils';
 import {
   TABLE_SEARCH_KEYS,
   ALL_TOOLS_FILTERS,
@@ -35,10 +37,6 @@ interface AllToolsRowData extends TableData, Tool {
   originalData: Tool;
 }
 
-const noop = () => {};
-
-// Constants imported from constants.ts
-
 const EventLogger = () => {
   const { tools: availableTools, client } = useMcpClient();
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
@@ -48,43 +46,30 @@ const EventLogger = () => {
   const [selectedToolToRun, setSelectedToolToRun] = useState<Tool | null>(null);
   const [lastRunToolName, setLastRunToolName] = useState<string | null>(null);
   const [logs, setLogs] = useState<ToolExecutionLog[]>([]);
+
   const tabId = chrome.devtools?.inspectedWindow?.tabId;
 
-  const isToolRelevant = useCallback(
-    (toolName: string) => {
-      // Show all tools if we can't determine the tab ID (e.g. running outside devtools)
-      if (!tabId) return true;
-
-      // MCP tools (not WebMCP) are global/server-side, so we show them.
-      // WebMCP tools follow the naming convention: wt_tab<ID>_<name>
-      // We want to hide WebMCP tools that belong to OTHER tabs.
-      if (toolName.includes('wt_tab')) {
-        return toolName.includes(`wt_tab${tabId}_`);
-      }
-      return true;
-    },
-    [tabId]
-  );
-
-  const eventLoggerData: TableData[] = logs
-    .filter((log) => isToolRelevant(log.toolName))
-    .map((log) => ({
-      name: log.toolName,
-      time: new Date(log.startTime).toLocaleTimeString(),
-      type: log.type,
-      status: log.status,
-      duration: log.duration ? `${log.duration}ms` : '-',
-      originalData: log,
-      description: log.result ? 'Success' : log.error || 'Pending',
-    }));
+  const eventLoggerData: TableData[] = useMemo(() => {
+    return logs
+      .filter((log) => isLocalTool(log.toolName, tabId))
+      .map((log) => ({
+        name: log.toolName,
+        time: new Date(log.startTime).toLocaleTimeString(),
+        type: log.type,
+        status: log.status,
+        duration: log.duration ? `${log.duration}ms` : '-',
+        originalData: log,
+        description: log.result ? 'Success' : log.error || 'Pending',
+      }));
+  }, [logs, tabId]);
 
   useEffect(() => {
     if (availableTools) {
       const tools = availableTools
-        .filter((tool) => isToolRelevant(tool.name))
+        .filter((tool) => isLocalTool(tool.name, tabId))
         .map((tool) => ({
           name: tool.name,
-          type: 'MCP', // Default to MCP for now as these are from useMcpClient
+          type: 'MCP',
           originalData: tool,
           inputSchema: tool.inputSchema,
           description: tool.description,
@@ -92,7 +77,7 @@ const EventLogger = () => {
 
       setAllToolsData(tools);
     }
-  }, [availableTools, isToolRelevant]);
+  }, [availableTools, tabId]);
 
   useEffect(() => {
     const handleMessage = (message: any) => {
@@ -123,7 +108,9 @@ const EventLogger = () => {
   }, [lastRunToolName]);
 
   const handleRunTool = async (toolName: string, args: any) => {
-    if (!client) return;
+    if (!client) {
+      return;
+    }
 
     setLastRunToolName(toolName);
 
@@ -183,6 +170,7 @@ const EventLogger = () => {
       ),
     },
   ];
+
   const extraInterfaceToTopBar = useCallback(() => {
     return (
       <label className="flex items-center gap-2 w-[130px]">
@@ -196,7 +184,7 @@ const EventLogger = () => {
     );
   }, [showAllTools]);
 
-  const getUserTool = useCallback(async (tool: Tool) => {
+  const getStoredUserTool = useCallback(async (tool: Tool) => {
     const storage = await chrome.storage.local.get('userWebMCPTools');
     const userStoredTools = (storage.userWebMCPTools ||
       []) as Array<UserStoredTool>;
@@ -210,18 +198,18 @@ const EventLogger = () => {
       let data = row.originalData;
 
       if (data.originalData) {
-        data = data.originalData; // Unwrap it to get the real log!
+        data = data.originalData;
       }
 
-      // Check if it's a Tool (has inputSchema)
       if ('inputSchema' in data) {
-        return <ToolDetail tool={data as Tool} getUserTool={getUserTool} />;
+        return (
+          <ToolDetail tool={data as Tool} getUserTool={getStoredUserTool} />
+        );
       }
 
-      // Otherwise assume it is a log
       return <LogDetail log={data as any} />;
     },
-    [getUserTool]
+    [getStoredUserTool]
   );
 
   return (
