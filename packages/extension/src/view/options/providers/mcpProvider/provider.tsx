@@ -10,7 +10,11 @@ import {
   useRef,
 } from 'react';
 import { Client } from '@modelcontextprotocol/sdk/client';
-import type { MCPConfig, MCPServerConfig } from '@google-awlt/common';
+import {
+  isEqual,
+  type MCPConfig,
+  type MCPServerConfig,
+} from '@google-awlt/common';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import { toast } from '@google-awlt/design-system';
 
@@ -131,7 +135,9 @@ const Provider = ({ children }: PropsWithChildren) => {
     ) => {
       setServerConfigs((prev) => {
         if (prev[serverName]) {
-          return prev;
+          if (isEqual(prev[serverName], config)) {
+            return prev;
+          }
         }
 
         return {
@@ -210,7 +216,7 @@ const Provider = ({ children }: PropsWithChildren) => {
    * Checks for required fields and valid URL formats.
    */
   const validateConfig = useCallback(
-    async (config: MCPServerConfig, serverName: string) => {
+    async (config: MCPServerConfig, serverName: string, isEditing = false) => {
       const errors: string[] = [];
 
       if (!serverName || serverName.trim().length === 0) {
@@ -218,6 +224,7 @@ const Provider = ({ children }: PropsWithChildren) => {
       }
 
       if (
+        !isEditing &&
         Object.keys(serverConfigs).find(
           (key) => serverConfigs[key]?.name === serverName
         ) &&

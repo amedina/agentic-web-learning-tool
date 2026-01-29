@@ -6,6 +6,7 @@ import {
   MCPServerDialog,
   OptionsPageTab,
   OptionsPageTabSection,
+  useSidebar,
 } from '@google-awlt/design-system';
 import { PlusIcon } from 'lucide-react';
 import { useState } from 'react';
@@ -17,7 +18,6 @@ import { MCPServerCard } from './mcpServerCard';
 
 export default function MCPServersTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [dialogType, setDialogType] = useState('');
   const [selectedServer, setSelectedServer] = useState<string>('');
 
   const {
@@ -36,6 +36,10 @@ export default function MCPServersTab() {
     handleToggle: actions.handleToggle,
   }));
 
+  const { setSelectedMenuItem } = useSidebar(({ actions }) => ({
+    setSelectedMenuItem: actions.setSelectedMenuItem,
+  }));
+
   return (
     <OptionsPageTab
       title="MCP Servers"
@@ -47,7 +51,6 @@ export default function MCPServersTab() {
             className="shadow-sm hover:shadow-md transition-all gap-2 bg-gray-900 hover:bg-gray-800 text-white"
             onClick={() => {
               setIsDialogOpen(true);
-              setDialogType('config');
             }}
           >
             <PlusIcon size={16} />
@@ -58,16 +61,13 @@ export default function MCPServersTab() {
           {Object.keys(serverConfigs).map((server) => (
             <MCPServerCard
               onView={() => {
-                setIsDialogOpen(true);
-                setDialogType('tools');
-                setSelectedServer(server);
+                setSelectedMenuItem('mcp-inspector');
               }}
               server={serverConfigs[server]}
               key={server}
               tools={toolList[server]}
               onEdit={() => {
                 setIsDialogOpen(true);
-                setDialogType('config');
                 setSelectedServer(server);
               }}
               onToggle={(value) => handleToggle(server, value)}
@@ -76,16 +76,13 @@ export default function MCPServersTab() {
         </div>
         {isDialogOpen && (
           <MCPServerDialog
-            toolList={toolList[selectedServer]?.tools ?? []}
             open={isDialogOpen}
-            defaultTab={dialogType}
             onDelete={selectedServer ? removeConfig : undefined}
             onSave={addServer}
             validator={validator}
             onOpenChange={(value) => {
               if (!value) {
                 setIsDialogOpen(false);
-                setDialogType('');
                 setSelectedServer('');
               }
             }}

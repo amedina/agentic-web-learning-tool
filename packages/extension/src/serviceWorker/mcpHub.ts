@@ -8,6 +8,7 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 import { Client } from '@modelcontextprotocol/sdk/client';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
+import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
 import {
   DOM_TOOL_NAME_PREFIX,
   EXTENSION_TOOL_PREFIX,
@@ -40,7 +41,7 @@ class McpHub {
     string,
     {
       client: Client;
-      transport: StreamableHTTPClientTransport;
+      transport: StreamableHTTPClientTransport | SSEClientTransport;
       connected: boolean;
       toolsFetched: boolean;
     }
@@ -219,6 +220,14 @@ class McpHub {
 
   async addNewServer(serverConfig: MCPServerConfig, serverName: string) {
     try {
+      if (!serverConfig.url) {
+        logger(
+          ['warn'],
+          [`Skipping server ${serverName} as it is missing a URL.`]
+        );
+        return;
+      }
+
       const storedConfig = this.clientList.get(serverName);
 
       if (storedConfig?.toolsFetched) {
@@ -234,12 +243,24 @@ class McpHub {
         };
       }
 
-      const transport = new StreamableHTTPClientTransport(
-        new URL(serverConfig.url),
-        {
+      let transport: StreamableHTTPClientTransport | SSEClientTransport;
+
+      if (serverConfig.transport === 'sse') {
+        transport = new SSEClientTransport(new URL(serverConfig.url), {
+          eventSourceInit: {
+            fetch: (url, init) =>
+              fetch(url, { ...init, headers: requestInit.headers }),
+          },
           requestInit,
-        }
-      );
+        });
+      } else {
+        transport = new StreamableHTTPClientTransport(
+          new URL(serverConfig.url),
+          {
+            requestInit,
+          }
+        );
+      }
 
       const client = new Client(
         {

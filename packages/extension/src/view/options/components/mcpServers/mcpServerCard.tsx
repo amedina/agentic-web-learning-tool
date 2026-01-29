@@ -1,13 +1,7 @@
 /**
  * External dependencies.
  */
-import {
-  EditIcon,
-  ListMinus,
-  Loader2,
-  OctagonAlert,
-  ZapOff,
-} from 'lucide-react';
+import { EditIcon, Loader2, OctagonAlert, ZapOff, View } from 'lucide-react';
 import {
   Button,
   ToggleSwitch,
@@ -77,17 +71,17 @@ export function MCPServerCard({
             variant="ghost"
             size="sm"
             onClick={onView}
-            className="text-[var(--primary-color)] hover:text-[var(--primary-hover)] hover:bg-[var(--surface-active)]"
+            className="text-[var(--primary-color)] hover:text-[var(--primary-hover)] hover:bg-[var(--surface-active)] gap-2"
           >
-            <ListMinus size={14} />
-            View Tools
+            <View size={14} />
+            Inspect
           </Button>
 
           <Button
             variant="ghost"
             size="sm"
             onClick={onEdit}
-            className="text-[var(--primary-color)] hover:text-[var(--primary-hover)] hover:bg-[var(--surface-active)]"
+            className="text-[var(--primary-color)] hover:text-[var(--primary-hover)] hover:bg-[var(--surface-active)] gap-2"
           >
             <EditIcon size={14} />
             Edit
