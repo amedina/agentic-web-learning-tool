@@ -268,11 +268,17 @@ const EventLoggerTable = () => {
 
   const renderDetailPanel = useCallback(
     (row: TableRow) => {
-      const data = row.originalData;
+      let data = row.originalData;
+
+      if (data.originalData) {
+        data = data.originalData; // Unwrap it to get the real log!
+      }
+
       // Check if it's a Tool (has inputSchema)
       if ('inputSchema' in data) {
         return <ToolDetail tool={data as Tool} getUserTool={getUserTool} />;
       }
+
       // Otherwise assume it is a log
       return <LogDetail log={data as any} />;
     },
