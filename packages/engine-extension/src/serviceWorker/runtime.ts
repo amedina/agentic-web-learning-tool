@@ -14,6 +14,7 @@ import type {
   DownloadFileMessage,
   SpeakTextMessage,
   ShowTooltipMessage,
+  UserActivationRequestMessage,
 } from '../types/messages';
 
 /**
@@ -314,7 +315,6 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
    */
   async showTooltip(selector: string, content: string): Promise<void> {
     const tabId = await this.getTargetTabId();
-
     const message: ShowTooltipMessage = {
       type: 'SHOW_TOOLTIP',
       selector,
@@ -329,6 +329,23 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
     if (!response.success) {
       throw new Error(response.error ?? 'Show tooltip failed');
     }
+  }
+
+  async waitForUserActivation(): Promise<void> {
+    const tabId = await this.getTargetTabId();
+    const message: UserActivationRequestMessage = {
+      type: 'USER_ACTIVATION_REQUEST',
+    };
+    const response = await chrome.tabs.sendMessage(tabId, message);
+
+    if (!response?.success) {
+      throw new Error(response?.error || 'User activation failed');
+    }
+  }
+
+  async isUserActive(): Promise<boolean> {
+    // Always return true, because workflow runs on service worker, which doesn't require user activation.
+    return true;
   }
 
   /**
