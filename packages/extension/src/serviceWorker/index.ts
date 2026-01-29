@@ -26,11 +26,24 @@ chrome.sidePanel
     logger(['error'], ['Failed to set panel behavior:', error]);
   });
 
+//@ts-expect-error -- for debugging purpose
+globalThis.mcpData = {
+  mcpHubInstances,
+  serverInstances,
+};
+
+chrome.tabs.onRemoved.addListener((tabId) => {
+  mcpHubInstances.delete(tabId);
+  serverInstances.delete(tabId);
+});
+
 chrome.runtime.onConnect.addListener(async (port) => {
   if (port.name !== CONNECTION_NAMES.MCP_HOST) {
     return;
   }
+
   let tabId = 0;
+
   if (!port.sender?.url) {
     return;
   }
@@ -134,6 +147,7 @@ chrome.runtime.onConnect.addListener(async (port) => {
         ['Failed to send START_MCP_CONNECTION message:', error]
       );
     });
+
   if (mcpHub.registeredTools.size > 0) {
     sharedServer.server?.transport?.send({
       jsonrpc: '2.0',

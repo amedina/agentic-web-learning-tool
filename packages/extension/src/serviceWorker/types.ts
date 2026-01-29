@@ -35,15 +35,6 @@ export interface RequestResponse<T = CallToolRequest | Error> {
   payload: T;
 }
 
-export interface TabData {
-  tools: Tool[];
-  lastUpdated: number;
-  url: string;
-  tabId?: number;
-  port?: chrome.runtime.Port;
-  isClosed: boolean;
-}
-
 export type ContentScriptMessage =
   | { type: typeof MESSAGE_TYPES.REGISTER; tools: Tool[] }
   | { type: typeof MESSAGE_TYPES.UPDATE; tools: Tool[] }

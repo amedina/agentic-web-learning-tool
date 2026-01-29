@@ -24,7 +24,7 @@ import {
   logger,
   jsonSchemaToZod,
 } from '../utils';
-import type { ContentScriptMessage, TabData } from './types';
+import type { ContentScriptMessage } from './types';
 import {
   chromeApiBuiltInTools,
   type keys,
@@ -45,13 +45,11 @@ class McpHub {
     }
   >();
 
-  // Storage: Domain -> DataId (tab-123) -> TabData
-  private domains = new Map<string, Map<string, TabData>>();
-  _port: chrome.runtime.Port | null = null;
-  private activeTabId: number | null = null;
+  private port: chrome.runtime.Port | null = null;
   private requestManager = new RequestManager();
   private apiTools: any[] = [];
-  tabId: number = 0;
+  private tabId: number = 0;
+  private toolInjected = false;
 
   // Track registered tools to allow updating/removing them dynamically
   registeredTools = new Map<
@@ -62,7 +60,6 @@ class McpHub {
   constructor(server: McpServer, tabId: number) {
     this.server = server;
     this.setupConnections();
-    this.trackActiveTab();
     this.registerAllExtensionTools();
     this.tabId = tabId;
     chrome.storage.local.onChanged.addListener((changes) => {
@@ -263,8 +260,6 @@ class McpHub {
 
       this.registerOrUpdateTools(
         serverName,
-        '',
-        null,
         toolsList.tools as unknown as Tool[],
         false,
         true
@@ -303,16 +298,6 @@ class McpHub {
       jsonrpc: '2.0',
       method: 'get/Tools',
     });
-  }
-
-  /**
-   * Retrieves or creates the storage map for a specific domain.
-   */
-  private getDomainData(domain: string): Map<string, TabData> {
-    if (!this.domains.has(domain)) {
-      this.domains.set(domain, new Map());
-    }
-    return this.domains.get(domain)!;
   }
 
   /**
@@ -375,20 +360,17 @@ class McpHub {
     if (tabId !== this.tabId) {
       return;
     }
-    this._port = port;
+    this.port = port;
     const domain = this.extractDomainFromUrl(url);
-    const dataId = `tab-${tabId}`;
 
     // Listener for messages coming FROM the tab
-    port.onMessage.addListener(async (message: ContentScriptMessage) => {
+    this.port.onMessage.addListener(async (message: ContentScriptMessage) => {
       try {
         switch (message.type) {
           case MESSAGE_TYPES.REGISTER:
             if (message.tools) {
               await this.registerOrUpdateTools(
                 domain,
-                dataId,
-                port,
                 message.tools,
                 false,
                 false
@@ -400,8 +382,6 @@ class McpHub {
             if (message.tools) {
               await this.registerOrUpdateTools(
                 domain,
-                dataId,
-                port,
                 message.tools,
                 false,
                 false
@@ -422,8 +402,8 @@ class McpHub {
     });
 
     // Cleanup on disconnect
-    port.onDisconnect.addListener(() => {
-      this.unregisterTab(domain, dataId);
+    this.port.onDisconnect.addListener(() => {
+      this.unregisterTab();
     });
   }
 
@@ -445,7 +425,7 @@ class McpHub {
           prefixedToolName,
           config as any,
           async (args: any) =>
-            this.executeTool(serverName, '', tool.name, args, true)
+            this.executeTool(serverName, tool.name, args, true)
         );
         this.registeredTools.set(prefixedToolName, mcpTool);
       }
@@ -462,8 +442,6 @@ class McpHub {
    */
   private async registerOrUpdateTools(
     serverOrDomainName: string,
-    dataId: string,
-    port: chrome.runtime.Port | null,
     tools: Tool[],
     isRegister: boolean,
     isMCPServerTool: boolean
@@ -473,8 +451,6 @@ class McpHub {
     } else {
       await this.registerOrUpdateWebMCPTools(
         serverOrDomainName,
-        dataId,
-        port as chrome.runtime.Port,
         tools,
         isRegister
       );
@@ -483,8 +459,6 @@ class McpHub {
 
   private async registerOrUpdateWebMCPTools(
     domain: string,
-    dataId: string,
-    port: chrome.runtime.Port,
     tools: Tool[],
     isRegister: boolean
   ) {
@@ -504,7 +478,7 @@ class McpHub {
     }>;
     const userToolsMap = new Map(userTools.map((t) => [t.name, t]));
 
-    const currentUrl = port.sender?.tab?.url || '';
+    const currentUrl = this.port?.sender?.tab?.url || '';
     const disabledToolNames = new Set<string>();
 
     for (const [name, enabled] of Object.entries(builtInState)) {
@@ -532,36 +506,12 @@ class McpHub {
       return true;
     });
 
-    const domainData = this.getDomainData(domain);
-    const existingTabData = domainData.get(dataId);
-
-    // 1. Update Internal State
-    const tabData: TabData = {
-      tools: activeTools,
-      lastUpdated: Date.now(),
-      url: port.sender?.tab?.url || '',
-      tabId: port.sender?.tab?.id,
-      port,
-      isClosed: false,
-    };
-    domainData.set(dataId, tabData);
-
-    // 2. Ensure active tab state is known before calculating descriptions
-    if (this.activeTabId === null) {
-      await this.initializeActiveTab();
-    }
-
     for (const tool of activeTools) {
       const uniqueToolName = this.generateUniqueToolName(tool.name);
-      const description = this.generateTabDescription(
-        domain,
-        dataId,
-        tool.description || ''
-      );
 
       const config = {
         title: tool.title,
-        description,
+        description: tool.description,
         inputSchema: jsonSchemaToZod(tool.inputSchema),
         annotations: tool.annotations,
       };
@@ -574,8 +524,7 @@ class McpHub {
         const mcpTool = this.server.registerTool(
           uniqueToolName,
           config,
-          async (args: any) =>
-            this.executeTool(domain, dataId, tool.name, args, false)
+          async (args: any) => this.executeTool(domain, tool.name, args, false)
         );
         this.server.server?.transport?.send({
           jsonrpc: '2.0',
@@ -587,40 +536,30 @@ class McpHub {
 
     // 4. Cleanup removed tools (if this is an update event)
     if (!isRegister) {
-      const oldTools = existingTabData?.tools || [];
+      const oldTools = Array.from(this.registeredTools.entries()) || [];
       const removedTools = oldTools.filter(
-        (t) => !activeTools.some((nt) => nt.name === t.name)
+        ([toolName]) =>
+          !activeTools.some((activeTool) => activeTool.name === toolName)
       );
 
-      for (const tool of removedTools) {
-        const uniqueToolName = this.generateUniqueToolName(tool.name);
-        this.registeredTools.get(uniqueToolName)?.remove();
-        this.registeredTools.delete(uniqueToolName);
+      for (const [toolName] of removedTools) {
+        this.registeredTools.get(toolName)?.remove();
+        this.registeredTools.delete(toolName);
       }
     }
   }
 
-  private unregisterTab(domain: string, dataId: string) {
-    const domainData = this.getDomainData(domain);
-    if (!domainData.has(dataId)) {
-      return;
-    }
-
-    this.unregisterTools(domain, dataId);
-    domainData.delete(dataId);
+  private unregisterTab() {
+    this.unregisterTools();
   }
 
-  private unregisterTools(domain: string, dataId: string) {
-    const domainData = this.getDomainData(domain);
-    const tabData = domainData.get(dataId);
-    if (!tabData) {
-      return;
-    }
-
-    for (const tool of tabData.tools) {
-      const uniqueToolName = this.generateUniqueToolName(tool.name);
-      this.registeredTools.get(uniqueToolName)?.remove();
-      this.registeredTools.delete(uniqueToolName);
+  private unregisterTools() {
+    for (const [toolName] of this.registeredTools.entries()) {
+      if (toolName.startsWith('extension_tool') || toolName.includes(`_mcp_`)) {
+        return;
+      }
+      this.registeredTools.get(toolName)?.remove();
+      this.registeredTools.delete(toolName);
     }
   }
 
@@ -669,15 +608,11 @@ class McpHub {
    * Forwards a tool execution request to the specific Chrome tab via its Port.
    */
   async executeWebMCPTool(
-    domain: string,
-    dataId: string,
     toolName: string,
     args: unknown
   ): Promise<CallToolResult> {
     try {
-      const port = await this.getPortForDataId(domain, dataId);
-
-      if (!port) {
+      if (!this.port) {
         return {
           content: [
             {
@@ -689,7 +624,7 @@ class McpHub {
         };
       }
       // Forward request to content script using RequestManager
-      const response = await this.requestManager.create(port, {
+      const response = await this.requestManager.create(this.port, {
         type: MESSAGE_TYPES.EXECUTE,
         toolName,
         args,
@@ -711,7 +646,6 @@ class McpHub {
 
   async executeTool(
     serverOrDomainName: string,
-    dataId: string,
     toolName: string,
     args: Record<string, unknown> | unknown,
     isMCPServerTool: boolean
@@ -723,106 +657,7 @@ class McpHub {
         args as Record<string, unknown>
       );
     } else {
-      return this.executeWebMCPTool(serverOrDomainName, dataId, toolName, args);
-    }
-  }
-
-  private async getPortForDataId(
-    domain: string,
-    dataId: string
-  ): Promise<chrome.runtime.Port | null> {
-    const domainData = this.getDomainData(domain);
-    const tabData = domainData.get(dataId);
-    if (!tabData) {
-      return null;
-    }
-
-    if (!tabData.isClosed && tabData.port) {
-      return tabData.port;
-    }
-    return null;
-  }
-
-  private trackActiveTab() {
-    this.initializeActiveTab();
-
-    chrome.tabs.onActivated.addListener(async (activeInfo) => {
-      const previousActiveTabId = this.activeTabId;
-      this.activeTabId = activeInfo.tabId;
-
-      // Update descriptions for the previous tab (remove "Active" tag)
-      if (previousActiveTabId && previousActiveTabId !== this.activeTabId) {
-        this.attemptUpdateTabDescription(previousActiveTabId);
-      }
-
-      // Update descriptions for the new tab (add "Active" tag) and request a refresh
-      try {
-        const tab = await chrome.tabs.get(this.activeTabId);
-        if (tab.url) {
-          const domain = this.extractDomainFromUrl(tab.url);
-          const dataId = `tab-${this.activeTabId}`;
-          this.updateToolDescriptions(domain, dataId);
-          this.requestToolsFromTab(domain, dataId);
-        }
-      } catch (e) {
-        logger(['error'], ['Error updating active tab tools:', e]);
-      }
-    });
-  }
-
-  private async attemptUpdateTabDescription(tabId: number) {
-    try {
-      const prevTab = await chrome.tabs.get(tabId);
-      if (prevTab.url) {
-        const prevDomain = this.extractDomainFromUrl(prevTab.url);
-        const prevDataId = `tab-${tabId}`;
-        this.updateToolDescriptions(prevDomain, prevDataId);
-      }
-    } catch {
-      // Tab likely closed, ignore
-    }
-  }
-
-  private async initializeActiveTab() {
-    try {
-      const [activeTab] = await chrome.tabs.query({
-        active: true,
-        currentWindow: true,
-      });
-      if (activeTab?.id) {
-        this.activeTabId = activeTab.id;
-      }
-    } catch (e) {
-      logger(['error'], ['Error initializing active tab:', e]);
-    }
-  }
-
-  private requestToolsFromTab(domain: string, dataId: string) {
-    const domainData = this.getDomainData(domain);
-    const tabData = domainData.get(dataId);
-    if (tabData && !tabData.isClosed && tabData.port) {
-      tabData.port.postMessage({ type: MESSAGE_TYPES.REFRESH_REQUEST });
-    }
-  }
-
-  private updateToolDescriptions(domain: string, dataId: string) {
-    const domainData = this.getDomainData(domain);
-    const tabData = domainData.get(dataId);
-    if (!tabData || tabData.isClosed || !tabData.tabId) {
-      return;
-    }
-
-    for (const tool of tabData.tools) {
-      const uniqueToolName = this.generateUniqueToolName(tool.name);
-      const description = this.generateTabDescription(
-        domain,
-        dataId,
-        tool.description || ''
-      );
-
-      if (this.registeredTools.has(uniqueToolName)) {
-        this.registeredTools.get(uniqueToolName)!.update({ description });
-      }
+      return this.executeWebMCPTool(toolName, args);
     }
   }
 
@@ -830,22 +665,11 @@ class McpHub {
     return `${sanitizeToolName(rawToolName)}`;
   }
 
-  private generateTabDescription(
-    domain: string,
-    dataId: string,
-    originalDesc: string
-  ): string {
-    const domainData = this.getDomainData(domain);
-    const tabData = domainData.get(dataId);
-    if (!tabData) return `[${domain}] ${originalDesc}`;
-
-    const isActive = !tabData.isClosed && tabData.tabId === this.activeTabId;
-    const status = isActive ? 'Active' : tabData.isClosed ? 'Closed' : '';
-    // Format: [example.com • Active Tab] Tool Description
-    return `[${domain} • ${status ? `${status} ` : ''}Tab] ${originalDesc}`;
-  }
-
   async injectToolsAndRegisterFunction(tabId: number) {
+    if (this.toolInjected) {
+      return;
+    }
+
     const storage = await chrome.storage.local.get();
     const userWebMCPTools = storage && storage['userWebMCPTools'];
     let tabUrl = '';
@@ -854,9 +678,9 @@ class McpHub {
       const tab = await chrome.tabs.get(tabId);
       tabUrl = tab.url || '';
     } catch (e) {
-      console.warn(
-        `WebMCP: Could not get tab URL for injection (tabId: ${tabId})`,
-        e
+      logger(
+        ['warn'],
+        [`WebMCP: Could not get tab URL for injection (tabId: ${tabId})`, e]
       );
     }
 
@@ -876,6 +700,7 @@ class McpHub {
         args: [enabledUserTools],
       })
       .then((result) => {
+        this.toolInjected = true;
         console.log('WebMCP: tools registered', result);
       })
       .catch((error) => {
