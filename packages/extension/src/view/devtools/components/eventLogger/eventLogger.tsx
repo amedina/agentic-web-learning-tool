@@ -31,6 +31,10 @@ import {
   EVENT_LOGGER_COLUMNS,
 } from './constants';
 
+interface AllToolsRowData extends TableData, Tool {
+  originalData: Tool;
+}
+
 const noop = () => {};
 
 // Constants imported from constants.ts
@@ -171,10 +175,10 @@ const EventLogger = () => {
     {
       header: 'Action',
       accessorKey: 'action',
-      cell: (_info: InfoType, details: any) => (
+      cell: (_info: InfoType, details: TableData) => (
         <ActionButton
-          onRunTool={(tool: any) => openRunToolPanel(tool.originalData || tool)}
-          details={details}
+          onRunTool={(tool) => openRunToolPanel(tool.originalData || tool)}
+          details={details as AllToolsRowData}
         />
       ),
     },

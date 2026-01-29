@@ -1,13 +1,12 @@
-// @ts-ignore
-
-import type { Tool } from './types';
-
-interface ActionButtonProps {
-  onRunTool: (tool: Tool) => void;
-  details: any;
+interface ActionButtonProps<T> {
+  onRunTool: (tool: T) => void;
+  details: T;
 }
 
-export const ActionButton = ({ onRunTool, details }: ActionButtonProps) => {
+export const ActionButton = <T,>({
+  onRunTool,
+  details,
+}: ActionButtonProps<T>) => {
   return (
     <button
       className="p-1 hover:bg-gray-200 rounded text-green-600 transition-colors"
