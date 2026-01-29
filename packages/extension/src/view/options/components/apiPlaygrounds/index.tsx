@@ -8,7 +8,6 @@ import {
   PenTool,
   FileText,
   Languages,
-  Activity,
   ArrowLeft,
   CheckCheck,
 } from 'lucide-react';
@@ -59,13 +58,6 @@ const CARDS: PlaygroundCard[] = [
     title: 'Proofreader',
     description: 'Check text for spelling and grammar errors with explanations.',
     icon: CheckCheck,
-  },
-  {
-    id: 'session-manager',
-    title: 'Session Manager',
-    description:
-      'Diagnostic dashboard for active AI sessions and resource usage.',
-    icon: Activity,
   },
 ];
 
