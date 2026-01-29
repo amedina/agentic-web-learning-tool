@@ -23,6 +23,7 @@ export interface AILanguageModelCreateOptions {
   temperature?: number;
   initialPrompts?: { role: 'system' | 'user' | 'assistant'; content: string }[];
   signal?: AbortSignal;
+  monitor?: (monitor: any) => void;
 }
 
 export interface AILanguageModelSession {
@@ -45,9 +46,11 @@ export interface AILanguageModelSession {
   inputUsage?: number;
 }
 
+export type AIAvailability = 'readily' | 'after-download' | 'downloadable' | 'no' | 'downloading';
+
 // Spec API Interface (LanguageModel)
 export interface LanguageModelFactory {
-  availability(): Promise<'readily' | 'after-download' | 'no'>;
+  availability(options?: AILanguageModelCreateOptions): Promise<AIAvailability>;
   create(options?: AILanguageModelCreateOptions): Promise<AILanguageModelSession>;
   params(): Promise<AILanguageModelParams>;
 }
@@ -65,6 +68,7 @@ export interface AIWriterCreateOptions {
   format?: AIWriterFormat;
   sharedContext?: string;
   signal?: AbortSignal;
+  monitor?: (monitor: any) => void;
 }
 
 // Rewriter Types
@@ -78,6 +82,7 @@ export interface AIRewriterCreateOptions {
   format?: AIRewriterFormat;
   sharedContext?: string;
   signal?: AbortSignal;
+  monitor?: (monitor: any) => void;
 }
 
 export interface AIWriter {
@@ -94,14 +99,14 @@ export interface AIRewriter {
 
 export interface AIWriterFactory {
   create(options?: AIWriterCreateOptions): Promise<AIWriter>;
-  availability?(): Promise<'readily' | 'after-download' | 'no'>;
-  capabilities?(): Promise<{ available: 'readily' | 'after-download' | 'no' }>;
+  availability?(): Promise<AIAvailability>;
+  capabilities?(): Promise<{ available: AIAvailability }>;
 }
 
 export interface AIRewriterFactory {
   create(options?: AIRewriterCreateOptions): Promise<AIRewriter>;
-  availability?(): Promise<'readily' | 'after-download' | 'no'>;
-  capabilities?(): Promise<{ available: 'readily' | 'after-download' | 'no' }>;
+  availability?(): Promise<AIAvailability>;
+  capabilities?(): Promise<{ available: AIAvailability }>;
 }
 
 // Language Detector API
@@ -110,13 +115,13 @@ export interface AILanguageDetector {
 }
 
 export interface AILanguageDetectorCapabilities {
-  available: 'readily' | 'after-download' | 'no';
+  available: AIAvailability;
 }
 
 export interface AILanguageDetectorFactory {
   create(options?: { monitor?: (monitor: any) => void }): Promise<AILanguageDetector>;
   capabilities?(): Promise<AILanguageDetectorCapabilities>;
-  availability?(): Promise<'readily' | 'after-download' | 'no'>;
+  availability?(): Promise<AIAvailability>;
 }
 
 // Translator API
@@ -134,7 +139,7 @@ export interface AITranslator {
 
 export interface AITranslatorFactory {
   create(options: AITranslatorCreateOptions): Promise<AITranslator>;
-  availability(options: { sourceLanguage: string; targetLanguage: string }): Promise<'readily' | 'after-download' | 'no'>;
+  availability(options: { sourceLanguage: string; targetLanguage: string }): Promise<AIAvailability>;
 }
 
 // Summarizer API
@@ -163,8 +168,8 @@ export interface AISummarizerSession {
 
 export interface AISummarizerFactory {
     create(options?: AISummarizerCreateOptions): Promise<AISummarizerSession>;
-    availability?(): Promise<'readily' | 'after-download' | 'no'>;
-    capabilities?(): Promise<{ available: 'readily' | 'after-download' | 'no' }>;
+    availability?(): Promise<AIAvailability>;
+    capabilities?(): Promise<{ available: AIAvailability }>;
 }
 
 // Proofreader API
@@ -198,8 +203,8 @@ export interface AIProofreader {
 
 export interface AIProofreaderFactory {
   create(options?: AIProofreaderCreateOptions): Promise<AIProofreader>;
-  availability?(): Promise<'readily' | 'after-download' | 'no'>;
-  capabilities?(): Promise<{ available: 'readily' | 'after-download' | 'no' }>;
+  availability?(): Promise<AIAvailability>;
+  capabilities?(): Promise<{ available: AIAvailability }>;
 }
 
 declare global {
