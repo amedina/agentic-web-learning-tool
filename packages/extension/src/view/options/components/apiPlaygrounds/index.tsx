@@ -14,6 +14,7 @@ import {
 
 import PromptLab from './PromptLab';
 import WritersStudio from './WritersStudio';
+import SummarizationStation from './SummarizationStation';
 import PolyglotPanel from './PolyglotPanel';
 
 interface PlaygroundCard {
@@ -93,6 +94,8 @@ export default function APIPlaygroundsTab() {
             <WritersStudio />
           ) : activeCard.id === 'polyglot-panel' ? (
             <PolyglotPanel />
+          ) : activeCard.id === 'summarization-station' ? (
+            <SummarizationStation />
           ) : (
             /* Content Placeholder */
             <div className="flex flex-col items-center justify-center min-h-[400px] border-2 border-dashed border-muted-foreground/25 rounded-xl bg-muted/50 p-8">
