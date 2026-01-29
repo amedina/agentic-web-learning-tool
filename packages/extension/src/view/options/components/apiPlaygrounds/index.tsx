@@ -10,12 +10,14 @@ import {
   Languages,
   Activity,
   ArrowLeft,
+  CheckCheck,
 } from 'lucide-react';
 
 import PromptLab from './PromptLab';
 import WritersStudio from './WritersStudio';
 import SummarizationStation from './SummarizationStation';
 import PolyglotPanel from './PolyglotPanel';
+import Proofreader from './Proofreader';
 
 interface PlaygroundCard {
   id: string;
@@ -51,6 +53,12 @@ const CARDS: PlaygroundCard[] = [
     description:
       'Explore on-device translation and language detection capabilities.',
     icon: Languages,
+  },
+  {
+    id: 'proofreader',
+    title: 'Proofreader',
+    description: 'Check text for spelling and grammar errors with explanations.',
+    icon: CheckCheck,
   },
   {
     id: 'session-manager',
@@ -96,6 +104,8 @@ export default function APIPlaygroundsTab() {
             <PolyglotPanel />
           ) : activeCard.id === 'summarization-station' ? (
             <SummarizationStation />
+          ) : activeCard.id === 'proofreader' ? (
+            <Proofreader />
           ) : (
             /* Content Placeholder */
             <div className="flex flex-col items-center justify-center min-h-[400px] border-2 border-dashed border-muted-foreground/25 rounded-xl bg-muted/50 p-8">
