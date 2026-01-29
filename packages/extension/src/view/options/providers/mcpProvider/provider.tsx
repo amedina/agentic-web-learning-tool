@@ -174,15 +174,27 @@ const Provider = ({ children }: PropsWithChildren) => {
         await client.connect(transport);
         const toolsList = await client.listTools();
 
-        setClients((prev) => ({
-          ...prev,
-          [serverName]: client,
-        }));
+        setClients((prev) => {
+          if (prev[serverName]) {
+            return prev;
+          }
 
-        setTransports((prev) => ({
-          ...prev,
-          [serverName]: transport,
-        }));
+          return {
+            ...prev,
+            [serverName]: client,
+          };
+        });
+
+        setTransports((prev) => {
+          if (prev[serverName]) {
+            return prev;
+          }
+
+          return {
+            ...prev,
+            [serverName]: transport,
+          };
+        });
 
         if (doNotStoreTools) {
           toast.success('Config successfully validated.');
@@ -221,16 +233,32 @@ const Provider = ({ children }: PropsWithChildren) => {
     []
   );
 
-  const handleToggle = useCallback((serverName: string, value: boolean) => {
-    setServerConfigs((prev) => {
-      const newValue = structuredClone(prev);
-      newValue[serverName] = {
-        ...newValue[serverName],
-        enabled: value,
-      };
-      return newValue;
-    });
-  }, []);
+  const handleToggle = useCallback(
+    (serverName: string, value: boolean) => {
+      if (!value) {
+        const client = clients[serverName];
+        if (client instanceof StreamableHTTPClientTransport) {
+          client.terminateSession();
+        } else {
+          client.close();
+        }
+      } else {
+        const client = clients[serverName];
+        const transport = transports[serverName];
+        client.connect(transport);
+      }
+
+      setServerConfigs((prev) => {
+        const newValue = structuredClone(prev);
+        newValue[serverName] = {
+          ...newValue[serverName],
+          enabled: value,
+        };
+        return newValue;
+      });
+    },
+    [clients, transports]
+  );
 
   const addConfig = useCallback(
     async (
