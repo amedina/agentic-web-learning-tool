@@ -95,8 +95,8 @@ export default function LocalAIEnvironment() {
 
   const flags = [
     { name: '#optimization-guide-on-device-model', required: true, label: 'Optimization Guide' },
-    { name: '#prompt-api-for-built-in-ai', required: true, label: 'Prompt API' },
-    { name: '#enable-webnn-api', required: false, label: 'WebNN API' },
+    { name: '#prompt-api-for-gemini-nano', required: true, label: 'Prompt API' },
+    { name: '#web-machine-learning-neural-network', required: false, label: 'WebNN API' },
   ];
 
   return (

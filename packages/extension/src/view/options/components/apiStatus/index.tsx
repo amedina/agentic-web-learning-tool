@@ -13,7 +13,7 @@ export default function APIStatusTab() {
       title="API Status"
       description="Centralized health center ensuring both the Extension's core services and the Local AI environment are operational."
     >
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+      <div className="flex flex-col gap-6">
          <LocalAIEnvironment />
          <BuiltInAPIs />
          <ExtensionCoreHealth />

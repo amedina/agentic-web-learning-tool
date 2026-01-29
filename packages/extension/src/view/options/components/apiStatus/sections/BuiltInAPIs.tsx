@@ -13,13 +13,13 @@ interface APIInfo {
 }
 
 const APIS: APIInfo[] = [
-  { id: 'prompt', name: 'Prompt API', flag: '#prompt-api-for-built-in-ai' },
-  { id: 'proofreader', name: 'Proofreader API', flag: '#proofreader-api-for-built-in-ai' }, // Guessing flag name, usually they follow pattern
+  { id: 'prompt', name: 'Prompt API', flag: '#prompt-api-for-gemini-nano' },
+  { id: 'proofreader', name: 'Proofreader API', flag: '#proofreader-api-for-gemini-nano' },
   { id: 'translator', name: 'Translator API', flag: '#translation-api' },
   { id: 'languageDetector', name: 'Language Detector API', flag: '#language-detection-api' },
-  { id: 'summarizer', name: 'Summarizer API', flag: '#summarization-api-for-built-in-ai' },
-  { id: 'writer', name: 'Writer API', flag: '#writer-api-for-built-in-ai' },
-  { id: 'rewriter', name: 'Rewriter API', flag: '#rewriter-api-for-built-in-ai' },
+  { id: 'summarizer', name: 'Summarizer API', flag: '#summarization-api-for-gemini-nano' },
+  { id: 'writer', name: 'Writer API', flag: '#writer-api-for-gemini-nano' },
+  { id: 'rewriter', name: 'Rewriter API', flag: '#rewriter-api-for-gemini-nano' },
 ];
 
 export default function BuiltInAPIs() {
