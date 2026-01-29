@@ -212,6 +212,11 @@ const EventLogger = () => {
     [getStoredUserTool]
   );
 
+  const afterRunTool = useCallback((tool: Tool | null) => {
+    console.log(tool?.name);
+    setShowAllTools(false);
+  }, []);
+
   return (
     <TableProvider
       data={showAllTools ? allToolsData : eventLoggerData}
@@ -240,6 +245,7 @@ const EventLogger = () => {
         }}
         tool={selectedToolToRun}
         onRun={handleRunTool}
+        afterRunTool={afterRunTool}
       />
     </TableProvider>
   );

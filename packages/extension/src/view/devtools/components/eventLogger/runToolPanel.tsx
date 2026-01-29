@@ -13,9 +13,16 @@ interface RunToolPanelProps {
   onClose: () => void;
   tool: Tool | null;
   onRun: (toolName: string, args: any) => Promise<void>;
+  afterRunTool: (tool: Tool | null) => void;
 }
 
-const RunToolPanel = ({ isOpen, onClose, tool, onRun }: RunToolPanelProps) => {
+const RunToolPanel = ({
+  isOpen,
+  onClose,
+  tool,
+  onRun,
+  afterRunTool,
+}: RunToolPanelProps) => {
   const [args, setArgs] = useState<Record<string, string>>({});
   const [isRunning, setIsRunning] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
@@ -35,7 +42,9 @@ const RunToolPanel = ({ isOpen, onClose, tool, onRun }: RunToolPanelProps) => {
   const properties = inputSchema?.properties || {};
 
   const handleRun = async () => {
-    if (!tool) return;
+    if (!tool) {
+      return;
+    }
 
     setValidationError(null);
     setIsRunning(true);
@@ -75,6 +84,7 @@ const RunToolPanel = ({ isOpen, onClose, tool, onRun }: RunToolPanelProps) => {
       toast.error('Failed to run tool');
     } finally {
       setIsRunning(false);
+      afterRunTool(tool);
     }
   };
 
