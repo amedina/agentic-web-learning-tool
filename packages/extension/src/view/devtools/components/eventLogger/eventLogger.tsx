@@ -212,10 +212,23 @@ const EventLogger = () => {
     [getStoredUserTool]
   );
 
-  const afterRunTool = useCallback((tool: Tool | null) => {
-    console.log(tool?.name);
-    setShowAllTools(false);
-  }, []);
+  const afterRunTool = useCallback(
+    (tool: Tool | null) => {
+      if (!tool) {
+        return;
+      }
+
+      let toolName = tool.name;
+
+      if (tabId && toolName.startsWith(`wt_tab${tabId}_`)) {
+        toolName = toolName.replace(`wt_tab${tabId}_`, '');
+      }
+
+      setSelectedKey(toolName);
+      setShowAllTools(false);
+    },
+    [tabId]
+  );
 
   return (
     <TableProvider
