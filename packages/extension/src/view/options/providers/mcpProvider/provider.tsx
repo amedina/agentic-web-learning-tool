@@ -233,21 +233,27 @@ const Provider = ({ children }: PropsWithChildren) => {
     []
   );
 
+  const closeConnection = useCallback(
+    (serverName: string) => {
+      const client = clients[serverName];
+      if (client instanceof StreamableHTTPClientTransport) {
+        client.terminateSession();
+      } else {
+        client.close();
+      }
+    },
+    [clients]
+  );
+
   const handleToggle = useCallback(
     (serverName: string, value: boolean) => {
       if (!value) {
-        const client = clients[serverName];
-        if (client instanceof StreamableHTTPClientTransport) {
-          client.terminateSession();
-        } else {
-          client.close();
-        }
+        closeConnection(serverName);
       } else {
         const client = clients[serverName];
         const transport = transports[serverName];
         client.connect(transport);
       }
-
       setServerConfigs((prev) => {
         const newValue = structuredClone(prev);
         newValue[serverName] = {
@@ -257,7 +263,7 @@ const Provider = ({ children }: PropsWithChildren) => {
         return newValue;
       });
     },
-    [clients, transports]
+    [clients, closeConnection, transports]
   );
 
   const addConfig = useCallback(
@@ -266,6 +272,21 @@ const Provider = ({ children }: PropsWithChildren) => {
       serverName: string,
       initialSync = false
     ) => {
+      if (serverName) {
+        closeConnection(serverName);
+        setClients((prev) => {
+          const newClients = { ...prev };
+          delete newClients[serverName];
+          return newClients;
+        });
+
+        setTransports((prev) => {
+          const newTransports = { ...prev };
+          delete newTransports[serverName];
+          return newTransports;
+        });
+      }
+
       setServerConfigs((prev) => {
         if (prev[serverName]) {
           if (isEqual(prev[serverName], config)) {
@@ -286,7 +307,7 @@ const Provider = ({ children }: PropsWithChildren) => {
         initialSync
       );
     },
-    [createClientAndListTools]
+    [closeConnection, createClientAndListTools]
   );
 
   useEffect(() => {
@@ -351,6 +372,12 @@ const Provider = ({ children }: PropsWithChildren) => {
         const newClients = { ...prev };
         delete newClients[serverName];
         return newClients;
+      });
+
+      setTransports((prev) => {
+        const newTransports = { ...prev };
+        delete newTransports[serverName];
+        return newTransports;
       });
 
       setToolList((prev) => {

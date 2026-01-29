@@ -3,14 +3,7 @@
  */
 import { useState, useCallback, useMemo } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
-import {
-  X,
-  TrashIcon,
-  SaveIcon,
-  FlaskConical,
-  Loader2,
-  View,
-} from 'lucide-react';
+import { X, TrashIcon, SaveIcon, Loader2, View } from 'lucide-react';
 import type { MCPServerConfig } from '@google-awlt/common';
 import { toast } from 'sonner';
 
@@ -56,36 +49,32 @@ export function MCPServerDialog({
   const [config, setConfig] = useState<MCPServerConfig>({ ...server });
   const [isValidConfig, setIsValidConfig] = useState<boolean>(false);
   const [isAddingConfig, setIsAddingConfig] = useState<boolean>(false);
-  const [isValidatingConfig, setIsValidatingConfig] = useState<boolean>(false);
 
   const { setSelectedMenuItem } = useSidebar(({ actions }) => ({
     setSelectedMenuItem: actions.setSelectedMenuItem,
   }));
 
-  const handleValidate = useCallback(async () => {
-    setIsValidatingConfig(true);
-    const { isValid, errors } = await validator(
+  const handleSave = useCallback(async () => {
+    setIsAddingConfig(true);
+    const { errors } = await validator(
       config,
       config.name,
       serverId ? true : false
     );
+
     if (errors.length > 0) {
       errors.forEach((errorMessage) => {
         toast.error(errorMessage);
       });
+      return;
     }
-    setIsValidatingConfig(false);
-    setIsValidConfig(isValid);
-  }, [config, serverId, validator]);
 
-  const handleSave = useCallback(async () => {
-    setIsAddingConfig(true);
     await onSave(config, !server?.name ? Date.now().toString() : serverId);
     setIsAddingConfig(false);
     setTimeout(() => {
       onOpenChange(false);
     }, 500);
-  }, [config, onOpenChange, onSave, server?.name, serverId]);
+  }, [config, onOpenChange, onSave, server?.name, serverId, validator]);
 
   const handleDelete = useCallback(async () => {
     if (!onDelete) {
@@ -134,8 +123,6 @@ export function MCPServerDialog({
     });
   }, []);
 
-  const validateEnabled = criticalFieldsChanged && !isValidConfig;
-
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
@@ -177,18 +164,6 @@ export function MCPServerDialog({
                   <Button variant="outline">Cancel</Button>
                 </Dialog.Close>
                 <Button
-                  className={`${validateEnabled ? 'bg-amber-600 hover:bg-amber-500' : 'bg-green-600 hover:bg-green-700'} gap-2`}
-                  onClick={handleValidate}
-                  disabled={!validateEnabled || isValidatingConfig}
-                >
-                  {isValidatingConfig ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    <FlaskConical size={16} />
-                  )}
-                  Validate
-                </Button>
-                <Button
                   className={`bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed gap-2`}
                   onClick={handleSave}
                   disabled={!updateEnabled}
@@ -198,7 +173,7 @@ export function MCPServerDialog({
                   ) : (
                     <SaveIcon size={16} />
                   )}
-                  {serverId ? 'Update Server' : 'Add Server'}
+                  {serverId ? 'Reconnect' : 'Connect'}
                 </Button>
               </div>
             </div>
