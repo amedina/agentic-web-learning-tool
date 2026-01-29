@@ -6,11 +6,12 @@ import { useMcpClient } from '@mcp-b/mcp-react-hooks';
 import {
   Table,
   TableProvider,
+  ToolDetail,
+  LogDetail,
+  ActionButton,
   type TableColumn,
   type TableData,
   type InfoType,
-  ToolDetail,
-  LogDetail,
   type TableRow,
   type UserStoredTool,
 } from '@google-awlt/design-system';
@@ -20,7 +21,6 @@ import { toast } from '@google-awlt/design-system';
 /**
  * Internal Dependencies
  */
-import ActionButton from './actionButton';
 import RunToolSidePanel from './runToolSidePanel';
 import { MESSAGE_TYPES } from '../../../utils';
 import type { ToolExecutionLog } from './types';
