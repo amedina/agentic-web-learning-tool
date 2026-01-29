@@ -6,7 +6,6 @@ import {
   Copy,
   Sparkles,
   CheckCircle2,
-  XCircle,
   Settings2
 } from 'lucide-react';
 import {
@@ -25,8 +24,7 @@ import {
 
 import type {
     AIProofreader,
-    AIProofreaderResult,
-    AIProofreaderCorrection
+    AIProofreaderResult
 } from '../../../../types/window.ai';
 
 const SUPPORTED_LANGUAGES = [
@@ -61,8 +59,38 @@ export default function Proofreader() {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        checkCapabilities();
+        pollForCapabilities(5, 1000);
     }, []);
+
+    const pollForCapabilities = async (attempts: number, delay: number) => {
+        let currentAttempt = 0;
+        const check = async () => {
+            currentAttempt++;
+            try {
+                if ((window as any).Proofreader || (window as any).ai?.proofreader) {
+                    await checkCapabilities();
+                    // If we found it, stop polling unless the status is 'no' which might mean temporarily unavailable?
+                    // Actually checkCapabilities sets the state.
+                    // If we get 'readily' or 'after-download', we are good.
+                    // If we get 'no', we might want to keep polling?
+                    // Usually if the API exists, it returns a status.
+                    return;
+                }
+
+                if (currentAttempt < attempts) {
+                    setTimeout(check, delay);
+                } else {
+                    // Final attempt
+                    await checkCapabilities();
+                }
+            } catch (e) {
+                if (currentAttempt < attempts) {
+                     setTimeout(check, delay);
+                }
+            }
+        };
+        check();
+    };
 
     const checkCapabilities = async () => {
         setIsChecking(true);
@@ -85,6 +113,10 @@ export default function Proofreader() {
                     status = caps.available;
                 } else if (typeof proofreaderFactory.availability === 'function') {
                     status = await proofreaderFactory.availability();
+                } else {
+                     // Factory exists but no capability check method found?
+                     // Assume readily as fallback if the object is there
+                     status = 'readily';
                 }
             }
 
