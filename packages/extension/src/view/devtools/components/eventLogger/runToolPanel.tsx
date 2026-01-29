@@ -5,19 +5,14 @@ import { useState, useEffect } from 'react';
 import type { Tool } from '@modelcontextprotocol/sdk/types.js';
 import { toast, Button } from '@google-awlt/design-system';
 
-interface RunToolSidePanelProps {
+interface RunToolPanelProps {
   isOpen: boolean;
   onClose: () => void;
   tool: Tool | null;
   onRun: (toolName: string, args: any) => Promise<void>;
 }
 
-const RunToolSidePanel = ({
-  isOpen,
-  onClose,
-  tool,
-  onRun,
-}: RunToolSidePanelProps) => {
+const RunToolPanel = ({ isOpen, onClose, tool, onRun }: RunToolPanelProps) => {
   const [args, setArgs] = useState<Record<string, string>>({});
   const [isRunning, setIsRunning] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
@@ -234,4 +229,4 @@ const RunToolSidePanel = ({
   );
 };
 
-export default RunToolSidePanel;
+export default RunToolPanel;

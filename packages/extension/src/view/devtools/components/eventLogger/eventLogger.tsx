@@ -21,8 +21,8 @@ import { toast } from '@google-awlt/design-system';
 /**
  * Internal Dependencies
  */
-import RunToolSidePanel from './runToolSidePanel';
-import { MESSAGE_TYPES } from '../../../utils';
+import RunToolPanel from './runToolPanel';
+import { MESSAGE_TYPES } from '../../../../utils';
 import type { ToolExecutionLog } from './types';
 
 const noop = () => {};
@@ -100,7 +100,7 @@ const eventLoggerColumns: TableColumn[] = [
   },
 ];
 
-const EventLoggerTable = () => {
+const EventLogger = () => {
   const { tools: availableTools, client } = useMcpClient();
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [showAllTools, setShowAllTools] = useState(true);
@@ -305,7 +305,7 @@ const EventLoggerTable = () => {
         extraInterfaceToTopBar={extraInterfaceToTopBar}
         renderDetailPanel={renderDetailPanel}
       />
-      <RunToolSidePanel
+      <RunToolPanel
         isOpen={isRunToolsSidePanelOpen}
         onClose={() => {
           setIsRunToolsSidePanelOpen(false);
@@ -318,4 +318,4 @@ const EventLoggerTable = () => {
   );
 };
 
-export default EventLoggerTable;
+export default EventLogger;
