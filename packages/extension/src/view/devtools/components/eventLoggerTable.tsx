@@ -23,7 +23,7 @@ import { toast } from '@google-awlt/design-system';
 import ActionButton from './actionButton';
 import RunToolSidePanel from './runToolSidePanel';
 import { MESSAGE_TYPES } from '../../../utils';
-import type { ToolExecutionLog } from '../utils/types';
+import type { ToolExecutionLog } from './types';
 
 const noop = () => {};
 
