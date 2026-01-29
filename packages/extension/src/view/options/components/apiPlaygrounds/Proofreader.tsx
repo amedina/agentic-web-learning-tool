@@ -42,7 +42,10 @@ export default function Proofreader() {
     const [isChecking, setIsChecking] = useState(true);
 
     // Configuration State
-    const [inputLanguages, setInputLanguages] = useState<string[]>(['en']);
+    const [includeTypes, setIncludeTypes] = useState(true);
+    const [includeExplanations, setIncludeExplanations] = useState(true);
+    // User requested to keep this visible but disabled due to API issues
+    const [inputLanguages] = useState<string[]>(['en']);
 
     // Input/Output State
     const [input, setInput] = useState('');
@@ -131,14 +134,9 @@ export default function Proofreader() {
         }
     };
 
-    const handleLanguageToggle = (langCode: string, checked: boolean) => {
-        setInputLanguages(prev => {
-            if (checked) {
-                return [...prev, langCode];
-            } else {
-                return prev.filter(c => c !== langCode);
-            }
-        });
+    const handleLanguageToggle = () => {
+        // Disabled logic: Prevent changes
+        return;
     };
 
     const handleProofread = async () => {
@@ -151,9 +149,9 @@ export default function Proofreader() {
         let activeProofreader: AIProofreader | null = null;
 
         try {
-            // Docs say `includeCorrectionTypes` and `includeCorrectionExplanations` are NOT supported.
-            // Only expectedInputLanguages is passed.
             const options = {
+                includeCorrectionTypes: includeTypes,
+                includeCorrectionExplanations: includeExplanations,
                 expectedInputLanguages: inputLanguages.length > 0 ? inputLanguages : ['en'],
             };
 
@@ -207,21 +205,56 @@ export default function Proofreader() {
 
                         {/* Options */}
                         <div className="space-y-4 pt-2 flex-1 flex flex-col min-h-0">
-                            <div className="space-y-2 flex flex-col flex-1 min-h-0">
+                             <div className="flex items-center space-x-2">
+                                <Checkbox
+                                    id="include-types"
+                                    checked={includeTypes}
+                                    onCheckedChange={(checked) => setIncludeTypes(checked === true)}
+                                />
+                                <label
+                                    htmlFor="include-types"
+                                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                >
+                                    Include Error Types
+                                </label>
+                            </div>
+
+                            <div className="flex items-center space-x-2">
+                                <Checkbox
+                                    id="include-explanations"
+                                    checked={includeExplanations}
+                                    onCheckedChange={(checked) => setIncludeExplanations(checked === true)}
+                                />
+                                <label
+                                    htmlFor="include-explanations"
+                                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                >
+                                    Include Explanations
+                                </label>
+                            </div>
+
+                            <div className="space-y-2 flex flex-col flex-1 min-h-0 pt-2">
                                 <Label>Input Languages</Label>
                                 <p className="text-xs text-muted-foreground">Select all that apply</p>
-                                <div className="border rounded-md p-2 overflow-y-auto flex-1 bg-background">
+
+                                <div className="bg-yellow-500/10 text-yellow-600 p-2 rounded text-xs border border-yellow-500/20">
+                                    <AlertCircle className="w-3 h-3 inline mr-1 mb-0.5" />
+                                    Multi-language support is currently disabled due to API limitations.
+                                </div>
+
+                                <div className="border rounded-md p-2 overflow-y-auto flex-1 bg-background opacity-60">
                                     <div className="space-y-2">
                                         {SUPPORTED_LANGUAGES.map(lang => (
                                             <div key={`lang-${lang.code}`} className="flex items-center space-x-2">
                                                 <Checkbox
                                                     id={`lang-${lang.code}`}
                                                     checked={inputLanguages.includes(lang.code)}
-                                                    onCheckedChange={(checked) => handleLanguageToggle(lang.code, checked === true)}
+                                                    onCheckedChange={() => handleLanguageToggle()}
+                                                    disabled={true}
                                                 />
                                                 <label
                                                     htmlFor={`lang-${lang.code}`}
-                                                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                                                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-not-allowed"
                                                 >
                                                     {lang.name}
                                                 </label>
