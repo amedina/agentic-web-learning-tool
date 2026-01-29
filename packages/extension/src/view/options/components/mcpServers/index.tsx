@@ -28,7 +28,6 @@ export default function MCPServersTab() {
     toolList,
     handleToggle,
     setInspectedServerName,
-    getClient,
   } = useMcpProvider(({ state, actions }) => ({
     serverConfigs: state.serverConfigs,
     toolList: state.toolList,
@@ -37,7 +36,6 @@ export default function MCPServersTab() {
     removeConfig: actions.removeConfig,
     handleToggle: actions.handleToggle,
     setInspectedServerName: actions.setInspectedServerName,
-    getClient: actions.getClient,
   }));
 
   const { setSelectedMenuItem } = useSidebar(({ actions }) => ({
@@ -65,11 +63,8 @@ export default function MCPServersTab() {
           {Object.keys(serverConfigs).map((server) => (
             <MCPServerCard
               onView={async () => {
-                const client = await getClient(server);
-                if (client) {
-                  setInspectedServerName(server);
-                  setSelectedMenuItem('mcp-inspector');
-                }
+                setInspectedServerName(server);
+                setSelectedMenuItem('mcp-inspector');
               }}
               server={serverConfigs[server]}
               key={server}

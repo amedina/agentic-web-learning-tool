@@ -141,7 +141,6 @@ export interface McpConnectionContextType {
     ) => Promise<string[]>;
 
     connectMcpServer: () => Promise<void>;
-    disconnectMcpServer: () => void;
     handleApproveSampling: (id: number, result: CreateMessageResult) => void;
     handleRejectSampling: (id: number) => void;
     handleResolveElicitation: (
@@ -213,7 +212,6 @@ const INITIAL_STATE = {
     sendNotification: () => Promise.resolve(),
     handleCompletion: () => Promise.resolve([]),
     connectMcpServer: () => Promise.resolve(),
-    disconnectMcpServer: noop,
     handleApproveSampling: noop,
     handleRejectSampling: noop,
     handleResolveElicitation: noop,

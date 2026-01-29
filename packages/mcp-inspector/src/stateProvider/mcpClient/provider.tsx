@@ -51,6 +51,8 @@ import {
 } from "../../lib/types/customHeaders";
 import type { ElicitationResponse } from "../../components/ElicitationTab";
 import McpConnectionContext, { LOCALSTORAGEMOCK } from "./context";
+import type { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
+import type { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
 
 const CONFIG_LOCAL_STORAGE_KEY = "inspectorConfig_v1";
 
@@ -75,9 +77,11 @@ const filterReservedMetadata = (
 const McpConnectionProvider = ({
   children,
   client,
+  transport,
 }: {
   children: ReactNode;
-  client?: Client | null;
+  client: Client | null;
+  transport: StreamableHTTPClientTransport | SSEClientTransport | null;
 }) => {
   const [sseUrl, setSseUrl] = useState<string>(getInitialSseUrl);
   const [transportType, setTransportType] = useState<"sse" | "streamable-http">(
@@ -219,11 +223,8 @@ const McpConnectionProvider = ({
     handleCompletion,
     completionsSupported,
     connect: connectMcpServer,
-    disconnect: disconnectMcpServer,
   } = useConnection({
-    transportType,
     sseUrl,
-    customHeaders,
     oauthClientId,
     oauthClientSecret,
     oauthScope,
@@ -267,6 +268,7 @@ const McpConnectionProvider = ({
     defaultLoggingLevel: logLevel,
     metadata,
     client,
+    transport,
   });
 
   useEffect(() => {
@@ -627,7 +629,6 @@ const McpConnectionProvider = ({
         sendNotification,
         handleCompletion,
         connectMcpServer,
-        disconnectMcpServer,
         handleApproveSampling,
         handleRejectSampling,
         handleResolveElicitation,
@@ -677,7 +678,6 @@ const McpConnectionProvider = ({
     sendNotification,
     handleCompletion,
     connectMcpServer,
-    disconnectMcpServer,
     handleApproveSampling,
     handleRejectSampling,
     handleResolveElicitation,

@@ -12,6 +12,7 @@ import {
 import { Client } from '@modelcontextprotocol/sdk/client';
 import {
   isEqual,
+  type CustomHeaders,
   type MCPConfig,
   type MCPServerConfig,
 } from '@google-awlt/common';
@@ -24,7 +25,18 @@ import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
  */
 import MCPContext, { type MCPProviderContextType } from './context';
 import { logger } from '../../../../utils';
-import { McpConnectionProvider } from '@google-awlt/mcp-inspector';
+import {
+  InspectorOAuthClientProvider,
+  McpConnectionProvider,
+} from '@google-awlt/mcp-inspector';
+
+type ClientState = {
+  [key: string]: Client;
+};
+
+type TransportState = {
+  [key: string]: StreamableHTTPClientTransport | SSEClientTransport;
+};
 
 const Provider = ({ children }: PropsWithChildren) => {
   // We use a functional update to ensure we always have a fresh Map
@@ -36,9 +48,9 @@ const Provider = ({ children }: PropsWithChildren) => {
     MCPProviderContextType['state']['toolList']
   >({});
 
-  const [clients, setClients] = useState<
-    MCPProviderContextType['state']['clients']
-  >({});
+  const [clients, setClients] = useState<ClientState>({});
+
+  const [transports, setTransports] = useState<TransportState>({});
 
   const [inspectedServerName, setInspectedServerName] =
     useState<MCPProviderContextType['state']['inspectedServerName']>(null);
@@ -64,29 +76,113 @@ const Provider = ({ children }: PropsWithChildren) => {
           return;
         }
 
-        const requestInit: RequestInit = {};
+        const headers: HeadersInit = {};
 
-        if (config.authToken) {
-          requestInit.headers = {
-            Authorization: `Bearer ${config.authToken}`,
-          };
+        const serverAuthProvider = new InspectorOAuthClientProvider(config.url);
+
+        let finalHeaders: CustomHeaders = config.customHeaders || [];
+
+        const isEmptyAuthHeader = (header: CustomHeaders[number]) =>
+          header.name.trim().toLowerCase() === 'authorization' &&
+          header.value.trim().toLowerCase() === 'bearer';
+
+        // Check for empty Authorization headers and show validation error
+        const hasEmptyAuthHeader = finalHeaders.some(
+          (header) => header.enabled && isEmptyAuthHeader(header)
+        );
+
+        if (hasEmptyAuthHeader) {
+          toast.error('Invalid Authorization Header', {
+            description:
+              'Authorization header is enabled but empty. Please add a token or disable the header.',
+          });
+        }
+
+        const needsOAuthToken = !finalHeaders.some(
+          (header) =>
+            header.enabled &&
+            header.name.trim().toLowerCase() === 'authorization'
+        );
+
+        if (needsOAuthToken) {
+          const oauthToken = (await serverAuthProvider.tokens())?.access_token;
+          if (oauthToken) {
+            // Add the OAuth token
+            finalHeaders = [
+              // Remove any existing Authorization headers with empty tokens
+              ...finalHeaders.filter((header) => !isEmptyAuthHeader(header)),
+              {
+                name: 'Authorization',
+                value: `Bearer ${oauthToken}`,
+                enabled: true,
+              },
+            ];
+          }
+        }
+
+        // Process all enabled custom headers
+        const customHeaderNames: string[] = [];
+        finalHeaders.forEach((header) => {
+          if (header.enabled && header.name.trim() && header.value.trim()) {
+            const headerName = header.name.trim();
+            const headerValue = header.value.trim();
+
+            headers[headerName] = headerValue;
+
+            // Track custom header names for server processing
+            if (headerName.toLowerCase() !== 'authorization') {
+              customHeaderNames.push(headerName);
+            }
+          }
+        });
+
+        // Add custom header names as a special request header for server processing
+        if (customHeaderNames.length > 0) {
+          headers['x-custom-auth-headers'] = JSON.stringify(customHeaderNames);
         }
         initalSyncToolFetchRef.current.add(serverName);
 
-        const client = new Client({
-          name: 'chrome-options-page-client',
-          version: '1.0',
-        });
-
-        const transport = new StreamableHTTPClientTransport(
-          new URL(config.url),
+        const client = new Client(
           {
-            requestInit,
+            name: 'chrome-options-page-client',
+            version: '1.0',
+          },
+          {
+            capabilities: {
+              sampling: {},
+              elicitation: {},
+              roots: {
+                listChanged: true,
+              },
+            },
           }
         );
 
+        const transport =
+          config.transport === 'streamable-http'
+            ? new StreamableHTTPClientTransport(new URL(config.url), {
+                requestInit: {
+                  headers: headers,
+                },
+              })
+            : new SSEClientTransport(new URL(config.url), {
+                requestInit: {
+                  headers: headers,
+                },
+              });
+
         await client.connect(transport);
         const toolsList = await client.listTools();
+
+        setClients((prev) => ({
+          ...prev,
+          [serverName]: client,
+        }));
+
+        setTransports((prev) => ({
+          ...prev,
+          [serverName]: transport,
+        }));
 
         if (doNotStoreTools) {
           toast.success('Config successfully validated.');
@@ -123,73 +219,6 @@ const Provider = ({ children }: PropsWithChildren) => {
       }
     },
     []
-  );
-
-  const getClient = useCallback(
-    async (serverName: string) => {
-      const config = serverConfigs[serverName];
-      if (!config) {
-        return undefined;
-      }
-
-      // Return existing client if connected
-      if (clients[serverName]) {
-        return clients[serverName];
-      }
-
-      try {
-        const client = new Client(
-          {
-            name: 'chrome-options-page-client',
-            version: '1.0',
-          },
-          {
-            capabilities: {
-              sampling: {},
-              elicitation: {},
-              roots: {
-                listChanged: true,
-              },
-            },
-          }
-        );
-
-        const requestInit: RequestInit = {};
-        if (config.authToken) {
-          requestInit.headers = {
-            Authorization: `Bearer ${config.authToken}`,
-          };
-        }
-
-        let transport;
-        if (config.transport === 'sse') {
-          transport = new SSEClientTransport(new URL(config.url), {
-            eventSourceInit: {
-              withCredentials: false,
-            },
-            requestInit,
-          });
-        } else {
-          transport = new StreamableHTTPClientTransport(new URL(config.url), {
-            requestInit,
-          });
-        }
-
-        await client.connect(transport);
-
-        setClients((prev) => ({
-          ...prev,
-          [serverName]: client,
-        }));
-
-        return client;
-      } catch (error) {
-        console.error('Failed to connect client:', error);
-        toast.error(`Failed to connect to ${config.name}`);
-        return undefined;
-      }
-    },
-    [serverConfigs, clients]
   );
 
   const handleToggle = useCallback((serverName: string, value: boolean) => {
@@ -382,13 +411,14 @@ const Provider = ({ children }: PropsWithChildren) => {
         removeConfig,
         validateConfig,
         handleToggle,
-        getClient,
         setInspectedServerName,
       },
     }),
     [
       serverConfigs,
       toolList,
+      clients,
+      inspectedServerName,
       addConfig,
       removeConfig,
       validateConfig,
@@ -400,6 +430,7 @@ const Provider = ({ children }: PropsWithChildren) => {
     <MCPContext.Provider value={value}>
       <McpConnectionProvider
         client={inspectedServerName ? clients[inspectedServerName] : null}
+        transport={inspectedServerName ? transports[inspectedServerName] : null}
       >
         {children}
       </McpConnectionProvider>

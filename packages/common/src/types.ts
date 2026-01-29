@@ -5,7 +5,6 @@ export interface CustomHeader {
 }
 
 export type CustomHeaders = CustomHeader[];
-
 export interface MCPServerConfig {
   transport: 'sse' | 'streamable-http';
   url: string;
@@ -23,6 +22,8 @@ export interface MCPServerConfig {
   inspectorConfig?: InspectorConfig;
   enabled: boolean;
   name: string;
+  mcpProtocolVersion?: string;
+  mcpSessionId?: string;
 }
 export interface MCPConfig {
   mcpServers: Record<string, MCPServerConfig>;

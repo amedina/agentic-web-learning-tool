@@ -41,6 +41,7 @@ const initialState: MCPServerConfig = {
   authToken: '',
   enabled: true,
   name: '',
+  customHeaders: [],
 };
 
 export function MCPServerDialog({
@@ -75,7 +76,7 @@ export function MCPServerDialog({
     }
     setIsValidatingConfig(false);
     setIsValidConfig(isValid);
-  }, [config, validator]);
+  }, [config, serverId, validator]);
 
   const handleSave = useCallback(async () => {
     setIsAddingConfig(true);
