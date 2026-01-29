@@ -8,6 +8,14 @@ import React, { type ChangeEvent } from 'react';
  */
 import { Button } from '../button';
 import Input from '../input';
+import Textarea from '../textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../select';
 import {
   Sheet,
   SheetContent,
@@ -79,14 +87,42 @@ export const RunToolPanel: React.FC<RunToolPanelProps> = ({
                     <span className="text-red-500 ml-1">*</span>
                   )}
                 </label>
-                <Input
-                  value={args[key] || ''}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    onArgsChange(key, e.target.value)
-                  }
-                  placeholder={schema.description || `Enter ${key}`}
-                  className="w-full"
-                />
+                {schema.type === 'boolean' ? (
+                  <Select
+                    value={args[key] || ''}
+                    onValueChange={(value) => onArgsChange(key, value)}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="true">True</SelectItem>
+                      <SelectItem value="false">False</SelectItem>
+                    </SelectContent>
+                  </Select>
+                ) : schema.type === 'object' || schema.type === 'array' ? (
+                  <Textarea
+                    value={args[key] || ''}
+                    onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
+                      onArgsChange(key, e.target.value)
+                    }
+                    placeholder={
+                      schema.type === 'object' ? '{"key": "value"}' : '[1, 2]'
+                    }
+                    className="font-mono"
+                    rows={3}
+                  />
+                ) : (
+                  <Input
+                    value={args[key] || ''}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                      onArgsChange(key, e.target.value)
+                    }
+                    type={schema.type === 'number' ? 'number' : 'text'}
+                    placeholder={schema.description || `Enter ${key}`}
+                    className="w-full"
+                  />
+                )}
                 {schema.description && (
                   <p className="text-xs text-gray-500">{schema.description}</p>
                 )}

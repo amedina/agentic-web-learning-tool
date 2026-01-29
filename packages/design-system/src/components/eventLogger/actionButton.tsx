@@ -4,16 +4,16 @@ import type { Tool } from './types';
 
 interface ActionButtonProps {
   onRunTool: (tool: Tool) => void;
-  t: any;
+  details: any;
 }
 
-export const ActionButton = ({ onRunTool, t }: ActionButtonProps) => {
+export const ActionButton = ({ onRunTool, details }: ActionButtonProps) => {
   return (
     <button
       className="p-1 hover:bg-gray-200 rounded text-green-600 transition-colors"
       onClick={(e) => {
         e.stopPropagation();
-        onRunTool(t);
+        onRunTool(details);
       }}
       title="Run Tool"
     >

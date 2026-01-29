@@ -24,81 +24,16 @@ import { toast } from '@google-awlt/design-system';
 import RunToolPanel from './runToolPanel';
 import { MESSAGE_TYPES } from '../../../../utils';
 import type { ToolExecutionLog } from './types';
+import {
+  TABLE_SEARCH_KEYS,
+  ALL_TOOLS_FILTERS,
+  EVENT_LOGGER_FILTERS,
+  EVENT_LOGGER_COLUMNS,
+} from './constants';
 
 const noop = () => {};
 
-const TABLE_SEARCH_KEYS = ['name', 'type'];
-
-const allToolsFilters = {
-  type: {
-    title: 'Type',
-    hasStaticFilterValues: true,
-    filterValues: {
-      MCP: { selected: null },
-      WebMCP: { selected: null },
-    },
-  },
-};
-
-const eventLoggerFilters = {
-  type: {
-    title: 'Type',
-    hasStaticFilterValues: true,
-    filterValues: {
-      MCP: { selected: null },
-      WebMCP: { selected: null },
-    },
-  },
-  status: {
-    title: 'Status',
-    hasStaticFilterValues: true,
-    filterValues: {
-      success: { selected: null },
-      error: { selected: null },
-    },
-  },
-  duration: {
-    title: 'Duration',
-    hasStaticFilterValues: true,
-    filterValues: {
-      success: { selected: null },
-      error: { selected: null },
-    },
-  },
-};
-
-const eventLoggerColumns: TableColumn[] = [
-  {
-    header: 'Name',
-    accessorKey: 'name',
-    cell: (info: InfoType) => info,
-    enableHiding: false,
-  },
-  {
-    header: 'Time',
-    accessorKey: 'time',
-    cell: (info: InfoType) => info,
-    enableHiding: false,
-  },
-  {
-    header: 'Type',
-    accessorKey: 'type',
-    cell: (info: InfoType) => info,
-    enableHiding: false,
-  },
-  {
-    header: 'Status',
-    accessorKey: 'status',
-    cell: (info: InfoType) => info,
-    enableHiding: false,
-  },
-  {
-    header: 'Duration',
-    accessorKey: 'duration',
-    cell: (info: InfoType) => info,
-    enableHiding: false,
-  },
-];
+// Constants imported from constants.ts
 
 const EventLogger = () => {
   const { tools: availableTools, client } = useMcpClient();
@@ -238,8 +173,8 @@ const EventLogger = () => {
       accessorKey: 'action',
       cell: (_info: InfoType, details: any) => (
         <ActionButton
-          onRunTool={(t: any) => openRunToolPanel(t.originalData || t)}
-          t={details}
+          onRunTool={(tool: any) => openRunToolPanel(tool.originalData || tool)}
+          details={details}
         />
       ),
     },
@@ -288,8 +223,8 @@ const EventLogger = () => {
   return (
     <TableProvider
       data={showAllTools ? allToolsData : eventLoggerData}
-      tableColumns={showAllTools ? allToolsColumns : eventLoggerColumns}
-      tableFilterData={showAllTools ? allToolsFilters : eventLoggerFilters}
+      tableColumns={showAllTools ? allToolsColumns : EVENT_LOGGER_COLUMNS}
+      tableFilterData={showAllTools ? ALL_TOOLS_FILTERS : EVENT_LOGGER_FILTERS}
       tableSearchKeys={TABLE_SEARCH_KEYS}
       onRowClick={(row: TableData) => {
         setSelectedKey(row?.name ?? null);
