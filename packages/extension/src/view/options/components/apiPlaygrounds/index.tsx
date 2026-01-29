@@ -15,6 +15,7 @@ import {
 import PromptLab from './PromptLab';
 import WritersStudio from './WritersStudio';
 import SummarizationStation from './SummarizationStation';
+import PolyglotPanel from './PolyglotPanel';
 
 interface PlaygroundCard {
   id: string;
@@ -91,6 +92,8 @@ export default function APIPlaygroundsTab() {
             <PromptLab />
           ) : activeCard.id === 'writers-studio' ? (
             <WritersStudio />
+          ) : activeCard.id === 'polyglot-panel' ? (
+            <PolyglotPanel />
           ) : activeCard.id === 'summarization-station' ? (
             <SummarizationStation />
           ) : (
