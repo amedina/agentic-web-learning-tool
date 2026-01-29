@@ -167,6 +167,41 @@ export interface AISummarizerFactory {
     capabilities?(): Promise<{ available: 'readily' | 'after-download' | 'no' }>;
 }
 
+// Proofreader API
+
+export interface AIProofreaderCreateOptions {
+  includeCorrectionTypes?: boolean;
+  includeCorrectionExplanations?: boolean;
+  expectedInputLanguages?: string[];
+  correctionExplanationLanguage?: string;
+  signal?: AbortSignal;
+  monitor?: (monitor: any) => void;
+}
+
+export interface AIProofreaderCorrection {
+  startIndex: number;
+  endIndex: number;
+  type: string;
+  correction: string;
+  explanation?: string;
+}
+
+export interface AIProofreaderResult {
+  correctedInput: string;
+  corrections: AIProofreaderCorrection[];
+}
+
+export interface AIProofreader {
+  proofread(text: string): Promise<AIProofreaderResult>;
+  destroy(): void;
+}
+
+export interface AIProofreaderFactory {
+  create(options?: AIProofreaderCreateOptions): Promise<AIProofreader>;
+  availability?(): Promise<'readily' | 'after-download' | 'no'>;
+  capabilities?(): Promise<{ available: 'readily' | 'after-download' | 'no' }>;
+}
+
 declare global {
   interface Window {
     ai: {
@@ -177,6 +212,7 @@ declare global {
       languageDetector?: AILanguageDetectorFactory;
       translator?: AITranslatorFactory;
       summarizer?: AISummarizerFactory;
+      proofreader?: AIProofreaderFactory;
     };
     translation?: AITranslatorFactory;
     LanguageModel?: LanguageModelFactory;
@@ -185,5 +221,6 @@ declare global {
     Summarizer?: AISummarizerFactory;
     LanguageDetector?: AILanguageDetectorFactory;
     Translator?: AITranslatorFactory;
+    Proofreader?: AIProofreaderFactory;
   }
 }
