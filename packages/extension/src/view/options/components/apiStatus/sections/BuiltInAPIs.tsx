@@ -193,7 +193,7 @@ export default function BuiltInAPIs() {
                 key={api.id}
                 label={api.name}
                 action={
-                    info.missingGlobal ? (
+                    info.status === 'error' ? (
                         <button
                             onClick={() => chrome.tabs.create({ url: `chrome://flags/${api.flag}` })}
                             className="text-xs text-blue-500 hover:underline cursor-pointer bg-transparent border-0 p-0"
