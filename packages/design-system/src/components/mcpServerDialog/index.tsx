@@ -47,7 +47,6 @@ export function MCPServerDialog({
   validator,
 }: MCPServerDialogProps) {
   const [config, setConfig] = useState<MCPServerConfig>({ ...server });
-  const [isValidConfig, setIsValidConfig] = useState<boolean>(false);
   const [isAddingConfig, setIsAddingConfig] = useState<boolean>(false);
 
   const { setSelectedMenuItem } = useSidebar(({ actions }) => ({
@@ -66,6 +65,7 @@ export function MCPServerDialog({
       errors.forEach((errorMessage) => {
         toast.error(errorMessage);
       });
+      setIsAddingConfig(false);
       return;
     }
 
@@ -102,22 +102,9 @@ export function MCPServerDialog({
     );
   }, [config, server]);
 
-  const updateEnabled = useMemo(() => {
-    if (criticalFieldsChanged) {
-      return isValidConfig;
-    }
-
-    // Only non-critical changes (enabled)
-    return config.enabled !== server.enabled;
-  }, [criticalFieldsChanged, isValidConfig, config, server]);
-
   const handleChange = useCallback((key: string, value: any) => {
     setConfig((prev) => {
       const updated = { ...prev, [key]: value };
-
-      if (['name', 'authToken', 'url', 'transport'].includes(key)) {
-        setIsValidConfig(false);
-      }
 
       return updated;
     });
@@ -166,7 +153,7 @@ export function MCPServerDialog({
                 <Button
                   className={`bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed gap-2`}
                   onClick={handleSave}
-                  disabled={!updateEnabled}
+                  disabled={serverId ? !criticalFieldsChanged : false}
                 >
                   {isAddingConfig ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

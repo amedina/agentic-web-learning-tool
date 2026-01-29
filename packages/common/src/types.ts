@@ -22,8 +22,7 @@ export interface MCPServerConfig {
   inspectorConfig?: InspectorConfig;
   enabled: boolean;
   name: string;
-  mcpProtocolVersion?: string;
-  mcpSessionId?: string;
+  isReconnecting?: boolean;
 }
 export interface MCPConfig {
   mcpServers: Record<string, MCPServerConfig>;

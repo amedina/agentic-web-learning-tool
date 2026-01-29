@@ -1,12 +1,16 @@
 /**
  * External dependencies.
  */
-import { EditIcon, Loader2, OctagonAlert, ZapOff, View } from 'lucide-react';
 import {
-  Button,
-  ToggleSwitch,
-  TooltipIconButton,
-} from '@google-awlt/design-system';
+  EditIcon,
+  Loader2,
+  OctagonAlert,
+  ZapOff,
+  View,
+  RotateCcw,
+  RefreshCwOff,
+} from 'lucide-react';
+import { Button, TooltipIconButton } from '@google-awlt/design-system';
 import type { Tool } from '@modelcontextprotocol/sdk/types.js';
 import type { MCPServerConfig } from '@google-awlt/common';
 import { useMemo } from 'react';
@@ -50,17 +54,31 @@ export function MCPServerCard({
     return tools?.tools.length;
   }, [server?.enabled, tools]);
 
+  const iconToRender = useMemo(() => {
+    if (server.isReconnecting) {
+      return <Loader2 className="mr-2 h-4 w-4 animate-spin" />;
+    }
+
+    if (server.enabled) {
+      return <RefreshCwOff className=" w-4 h-4" />;
+    }
+
+    return <RotateCcw className=" w-4 h-4" />;
+  }, [server.enabled, server.isReconnecting]);
+
   return (
     <div className="flex flex-col p-5 bg-[var(--surface-color)] rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
       <div className="flex justify-between items-start mb-3">
         <div>
           <h3 className="text-lg font-bold text-primary">{server.name}</h3>
         </div>
-        <ToggleSwitch
-          checked={server.enabled}
-          onCheckedChange={onToggle}
-          className="data-[state=checked]:bg-green-400"
-        />
+        <Button
+          className="flex items-center"
+          onClick={() => onToggle(!server.enabled)}
+        >
+          {iconToRender}
+          {server.enabled ? 'Disconnect' : 'Reconnect'}
+        </Button>
       </div>
       <div className="flex justify-between items-center mt-auto pt-3 border-t border-gray-200">
         <div className="flex gap-2 flex-wrap items-center">
@@ -71,6 +89,7 @@ export function MCPServerCard({
             variant="ghost"
             size="sm"
             onClick={onView}
+            disabled={!server?.enabled}
             className="text-[var(--primary-color)] hover:text-[var(--primary-hover)] hover:bg-[var(--surface-active)] gap-2"
           >
             <View size={14} />

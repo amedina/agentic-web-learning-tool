@@ -60,6 +60,110 @@ const Provider = ({ children }: PropsWithChildren) => {
   const _toolList = useRef(toolList);
   const initalSyncToolFetchRef = useRef(new Set());
 
+  const connectToMCPServer = useCallback(
+    async (config: MCPServerConfig, serverName: string) => {
+      const headers: HeadersInit = {};
+
+      const serverAuthProvider = new InspectorOAuthClientProvider(config.url);
+
+      let finalHeaders: CustomHeaders = config.customHeaders || [];
+
+      const isEmptyAuthHeader = (header: CustomHeaders[number]) =>
+        header.name.trim().toLowerCase() === 'authorization' &&
+        header.value.trim().toLowerCase() === 'bearer';
+
+      // Check for empty Authorization headers and show validation error
+      const hasEmptyAuthHeader = finalHeaders.some(
+        (header) => header.enabled && isEmptyAuthHeader(header)
+      );
+
+      if (hasEmptyAuthHeader) {
+        toast.error('Invalid Authorization Header', {
+          description:
+            'Authorization header is enabled but empty. Please add a token or disable the header.',
+        });
+      }
+
+      const needsOAuthToken = !finalHeaders.some(
+        (header) =>
+          header.enabled && header.name.trim().toLowerCase() === 'authorization'
+      );
+
+      if (needsOAuthToken) {
+        const oauthToken = (await serverAuthProvider.tokens())?.access_token;
+        if (oauthToken) {
+          // Add the OAuth token
+          finalHeaders = [
+            // Remove any existing Authorization headers with empty tokens
+            ...finalHeaders.filter((header) => !isEmptyAuthHeader(header)),
+            {
+              name: 'Authorization',
+              value: `Bearer ${oauthToken}`,
+              enabled: true,
+            },
+          ];
+        }
+      }
+
+      // Process all enabled custom headers
+      const customHeaderNames: string[] = [];
+      finalHeaders.forEach((header) => {
+        if (header.enabled && header.name.trim() && header.value.trim()) {
+          const headerName = header.name.trim();
+          const headerValue = header.value.trim();
+
+          headers[headerName] = headerValue;
+
+          // Track custom header names for server processing
+          if (headerName.toLowerCase() !== 'authorization') {
+            customHeaderNames.push(headerName);
+          }
+        }
+      });
+
+      // Add custom header names as a special request header for server processing
+      if (customHeaderNames.length > 0) {
+        headers['x-custom-auth-headers'] = JSON.stringify(customHeaderNames);
+      }
+      initalSyncToolFetchRef.current.add(serverName);
+
+      const client = new Client(
+        {
+          name: 'chrome-options-page-client',
+          version: '1.0',
+        },
+        {
+          capabilities: {
+            sampling: {},
+            elicitation: {},
+            roots: {
+              listChanged: true,
+            },
+          },
+        }
+      );
+
+      const transport =
+        config.transport === 'streamable-http'
+          ? new StreamableHTTPClientTransport(new URL(config.url), {
+              requestInit: {
+                headers: headers,
+              },
+            })
+          : new SSEClientTransport(new URL(config.url), {
+              requestInit: {
+                headers: headers,
+              },
+            });
+
+      await client.connect(transport);
+      const toolsList = await client.listTools();
+
+      return { toolsList, transport, client };
+    },
+    []
+  );
+
   const createClientAndListTools = useCallback(
     async (
       config: MCPServerConfig,
@@ -76,103 +180,10 @@ const Provider = ({ children }: PropsWithChildren) => {
           return;
         }
 
-        const headers: HeadersInit = {};
-
-        const serverAuthProvider = new InspectorOAuthClientProvider(config.url);
-
-        let finalHeaders: CustomHeaders = config.customHeaders || [];
-
-        const isEmptyAuthHeader = (header: CustomHeaders[number]) =>
-          header.name.trim().toLowerCase() === 'authorization' &&
-          header.value.trim().toLowerCase() === 'bearer';
-
-        // Check for empty Authorization headers and show validation error
-        const hasEmptyAuthHeader = finalHeaders.some(
-          (header) => header.enabled && isEmptyAuthHeader(header)
+        const { toolsList, transport, client } = await connectToMCPServer(
+          config,
+          serverName
         );
-
-        if (hasEmptyAuthHeader) {
-          toast.error('Invalid Authorization Header', {
-            description:
-              'Authorization header is enabled but empty. Please add a token or disable the header.',
-          });
-        }
-
-        const needsOAuthToken = !finalHeaders.some(
-          (header) =>
-            header.enabled &&
-            header.name.trim().toLowerCase() === 'authorization'
-        );
-
-        if (needsOAuthToken) {
-          const oauthToken = (await serverAuthProvider.tokens())?.access_token;
-          if (oauthToken) {
-            // Add the OAuth token
-            finalHeaders = [
-              // Remove any existing Authorization headers with empty tokens
-              ...finalHeaders.filter((header) => !isEmptyAuthHeader(header)),
-              {
-                name: 'Authorization',
-                value: `Bearer ${oauthToken}`,
-                enabled: true,
-              },
-            ];
-          }
-        }
-
-        // Process all enabled custom headers
-        const customHeaderNames: string[] = [];
-        finalHeaders.forEach((header) => {
-          if (header.enabled && header.name.trim() && header.value.trim()) {
-            const headerName = header.name.trim();
-            const headerValue = header.value.trim();
-
-            headers[headerName] = headerValue;
-
-            // Track custom header names for server processing
-            if (headerName.toLowerCase() !== 'authorization') {
-              customHeaderNames.push(headerName);
-            }
-          }
-        });
-
-        // Add custom header names as a special request header for server processing
-        if (customHeaderNames.length > 0) {
-          headers['x-custom-auth-headers'] = JSON.stringify(customHeaderNames);
-        }
-        initalSyncToolFetchRef.current.add(serverName);
-
-        const client = new Client(
-          {
-            name: 'chrome-options-page-client',
-            version: '1.0',
-          },
-          {
-            capabilities: {
-              sampling: {},
-              elicitation: {},
-              roots: {
-                listChanged: true,
-              },
-            },
-          }
-        );
-
-        const transport =
-          config.transport === 'streamable-http'
-            ? new StreamableHTTPClientTransport(new URL(config.url), {
-                requestInit: {
-                  headers: headers,
-                },
-              })
-            : new SSEClientTransport(new URL(config.url), {
-                requestInit: {
-                  headers: headers,
-                },
-              });
-
-        await client.connect(transport);
-        const toolsList = await client.listTools();
 
         setClients((prev) => {
           if (prev[serverName]) {
@@ -230,30 +241,62 @@ const Provider = ({ children }: PropsWithChildren) => {
         toast.error(errorMessage);
       }
     },
-    []
+    [connectToMCPServer]
   );
 
   const closeConnection = useCallback(
-    (serverName: string) => {
+    async (serverName: string) => {
       const client = clients[serverName];
       if (client instanceof StreamableHTTPClientTransport) {
-        client.terminateSession();
+        await client.terminateSession();
       } else {
-        client.close();
+        await client.close();
       }
     },
     [clients]
   );
 
   const handleToggle = useCallback(
-    (serverName: string, value: boolean) => {
+    async (serverName: string, value: boolean) => {
       if (!value) {
-        closeConnection(serverName);
+        await closeConnection(serverName);
       } else {
-        const client = clients[serverName];
-        const transport = transports[serverName];
-        client.connect(transport);
+        try {
+          setServerConfigs((prev) => {
+            const newValue = { ...prev };
+            newValue[serverName].isReconnecting = true;
+            return newValue;
+          });
+
+          const { transport, client } = await connectToMCPServer(
+            serverConfigs[serverName],
+            serverName
+          );
+
+          setClients((prev) => {
+            return {
+              ...prev,
+              [serverName]: client,
+            };
+          });
+
+          setTransports((prev) => {
+            return {
+              ...prev,
+              [serverName]: transport,
+            };
+          });
+
+          setServerConfigs((prev) => {
+            const newValue = { ...prev };
+            newValue[serverName].isReconnecting = false;
+            return newValue;
+          });
+        } catch (_error) {
+          //ignore
+        }
       }
+
       setServerConfigs((prev) => {
         const newValue = structuredClone(prev);
         newValue[serverName] = {
@@ -263,7 +306,7 @@ const Provider = ({ children }: PropsWithChildren) => {
         return newValue;
       });
     },
-    [clients, closeConnection, transports]
+    [closeConnection, connectToMCPServer, serverConfigs]
   );
 
   const addConfig = useCallback(
@@ -272,8 +315,26 @@ const Provider = ({ children }: PropsWithChildren) => {
       serverName: string,
       initialSync = false
     ) => {
-      if (serverName) {
-        closeConnection(serverName);
+      let serverConfigExists = false;
+      setServerConfigs((prev) => {
+        if (prev[serverName]) {
+          serverConfigExists = true;
+          if (isEqual(prev[serverName], config)) {
+            return prev;
+          }
+        }
+
+        return {
+          ...prev,
+          [serverName]: {
+            ...config,
+            isReconnecting: true,
+          },
+        };
+      });
+
+      if (serverConfigExists) {
+        await closeConnection(serverName);
         setClients((prev) => {
           const newClients = { ...prev };
           delete newClients[serverName];
@@ -287,25 +348,18 @@ const Provider = ({ children }: PropsWithChildren) => {
         });
       }
 
-      setServerConfigs((prev) => {
-        if (prev[serverName]) {
-          if (isEqual(prev[serverName], config)) {
-            return prev;
-          }
-        }
-
-        return {
-          ...prev,
-          [serverName]: config,
-        };
-      });
-
       await createClientAndListTools(
         config,
         serverName,
         undefined,
         initialSync
       );
+
+      setServerConfigs((prev) => {
+        const newValue = { ...prev };
+        newValue[serverName].isReconnecting = false;
+        return newValue;
+      });
     },
     [closeConnection, createClientAndListTools]
   );
@@ -349,6 +403,7 @@ const Provider = ({ children }: PropsWithChildren) => {
       if (initialFetch.current) {
         return;
       }
+
       initialFetch.current = true;
       await initialSync();
     })();
