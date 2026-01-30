@@ -47,7 +47,7 @@ export interface AILanguageModelSession {
   inputUsage?: number;
 }
 
-export type AIAvailability = 'readily' | 'after-download' | 'downloadable' | 'no' | 'downloading';
+export type AIAvailability = 'readily' | 'after-download' | 'downloadable' | 'no' | 'downloading' | 'available' | 'unavailable';
 
 // Spec API Interface (LanguageModel)
 export interface LanguageModelFactory {

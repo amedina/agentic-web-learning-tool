@@ -74,7 +74,21 @@ export default function BuiltInAPIs() {
              }
         } else if (api.id === 'prompt') {
              if (globalObj.availability) {
-                 available = await globalObj.availability();
+                 // Prompt API recommends passing expected inputs/outputs
+                 available = await globalObj.availability({
+                     expectedInputs: [{ type: 'text', languages: ['en'] }],
+                     expectedOutputs: [{ type: 'text', languages: ['en'] }]
+                 });
+             } else if (globalObj.capabilities) {
+                 const caps = await globalObj.capabilities();
+                 available = caps.available;
+             }
+        } else if (api.id === 'proofreader') {
+             if (globalObj.availability) {
+                 // Proofreader API recommends passing expected input languages
+                 available = await globalObj.availability({
+                     expectedInputLanguages: ['en']
+                 });
              } else if (globalObj.capabilities) {
                  const caps = await globalObj.capabilities();
                  available = caps.available;
@@ -89,7 +103,7 @@ export default function BuiltInAPIs() {
         }
 
         // 3. Map status
-        if (available === 'readily') {
+        if (available === 'readily' || available === 'available') {
             status = 'ready';
             label = 'Available';
         } else if (available === 'after-download' || available === 'downloadable') {
@@ -98,7 +112,7 @@ export default function BuiltInAPIs() {
         } else if (available === 'downloading') {
             status = 'warning';
             label = 'Downloading...';
-        } else if (available === 'no') {
+        } else if (available === 'no' || available === 'unavailable') {
             status = 'error';
             label = 'Not Available';
             // Flag is enabled (global exists), but model unavailable.
@@ -133,7 +147,12 @@ export default function BuiltInAPIs() {
           if (apiId === 'prompt') {
               const factory = window.LanguageModel || window.ai?.languageModel;
               // 'expectedOutputLanguage' is required in newer Chrome versions to ensure safety/quality
-              await factory?.create({ monitor, expectedOutputLanguage: 'en' } as any);
+              await factory?.create({
+                  monitor,
+                  expectedOutputLanguage: 'en',
+                  expectedInputs: [{ type: 'text', languages: ['en'] }],
+                  expectedOutputs: [{ type: 'text', languages: ['en'] }]
+              } as any);
           } else if (apiId === 'summarizer') {
               const factory = window.Summarizer || window.ai?.summarizer;
               await factory?.create({ monitor } as any);
@@ -148,7 +167,10 @@ export default function BuiltInAPIs() {
                await factory?.create({ monitor } as any);
           } else if (apiId === 'proofreader') {
                const factory = window.Proofreader || window.ai?.proofreader;
-               await factory?.create({ monitor } as any);
+               await factory?.create({
+                   monitor,
+                   expectedInputLanguages: ['en']
+               } as any);
           } else if (apiId === 'translator') {
                const factory = window.Translator || window.ai?.translator;
                await factory?.create({ sourceLanguage: 'es', targetLanguage: 'en', monitor } as any);
