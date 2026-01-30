@@ -36,13 +36,23 @@ interface AllToolsRowData extends TableData, Tool {
   originalData: Tool;
 }
 
-export const EventLogger = () => {
+interface EventLoggerProps {
+  showAllTools?: boolean;
+}
+
+export const EventLogger = ({
+  showAllTools: initialShowAllTools = true,
+}: EventLoggerProps) => {
   const { tools: availableTools, client } = useMcpClient();
   const { theme } = useSettings(({ state }) => ({ theme: state.theme }));
 
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
-  const [showAllTools, setShowAllTools] = useState(true);
+  const [showAllTools, setShowAllTools] = useState(initialShowAllTools);
   const [allToolsData, setAllToolsData] = useState<TableData[]>([]);
+
+  useEffect(() => {
+    setShowAllTools(initialShowAllTools);
+  }, [initialShowAllTools]);
   const [isRunToolPanelOpen, setIsRunToolPanelOpen] = useState(false);
   const [selectedToolToRun, setSelectedToolToRun] = useState<Tool | null>(null);
   const [lastRunToolName, setLastRunToolName] = useState<string | null>(null);

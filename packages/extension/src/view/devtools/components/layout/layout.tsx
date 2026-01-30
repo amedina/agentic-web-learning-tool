@@ -2,8 +2,7 @@
  * External dependencies.
  */
 import { useState } from 'react';
-import { Resizable } from 're-resizable';
-import classNames from 'clsx';
+import { SidebarProvider } from '@google-awlt/design-system';
 
 /**
  * Internal dependencies.
@@ -12,36 +11,32 @@ import Sidebar from './sidebar';
 import { EventLogger } from '../eventLogger';
 
 export const Layout = () => {
-  const [sidebarWidth, setSidebarWidth] = useState(150);
-  const [allowTransition, setAllowTransition] = useState(true);
-  const [isCollapsed] = useState(false);
+  const [activeView, setActiveView] = useState('tools');
+
+  const renderContent = () => {
+    switch (activeView) {
+      case 'tools':
+        return <EventLogger showAllTools={true} />;
+      case 'inspector':
+        return <EventLogger showAllTools={false} />;
+      case 'settings':
+        return (
+          <div className="p-4">
+            <h2 className="text-xl font-bold mb-4">Settings</h2>
+            <p>Settings panel implementation pending.</p>
+          </div>
+        );
+      default:
+        return <EventLogger showAllTools={true} />;
+    }
+  };
 
   return (
-    <div className="flex h-screen w-full">
-      <Resizable
-        size={{ width: sidebarWidth, height: '100%' }}
-        defaultSize={{ width: `${sidebarWidth}px`, height: '100%' }}
-        onResizeStart={() => {
-          setAllowTransition(false);
-        }}
-        onResizeStop={(_, __, ___, d) => {
-          setSidebarWidth((prevState) => prevState + d.width);
-          setAllowTransition(true);
-        }}
-        minWidth={isCollapsed ? 40 : 160}
-        maxWidth={'90%'}
-        enable={{
-          right: !isCollapsed,
-        }}
-        className={classNames('h-full', {
-          'transition-all duration-300': allowTransition,
-        })}
-      >
-        <Sidebar />
-      </Resizable>
-      <main className="w-full h-full">
-        <EventLogger />
-      </main>
-    </div>
+    <SidebarProvider>
+      <div className="flex w-full h-screen">
+        <Sidebar setActiveView={setActiveView} />
+        <main className="flex-1 h-full overflow-hidden">{renderContent()}</main>
+      </div>
+    </SidebarProvider>
   );
 };
