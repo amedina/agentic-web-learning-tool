@@ -8,7 +8,7 @@ import {
   Download,
   Trash2,
   FolderOpen,
-  Settings2,
+  Ellipsis,
 } from "lucide-react";
 
 interface WorkflowDropdownProps {
@@ -63,7 +63,7 @@ const WorkflowDropdown: React.FC<WorkflowDropdownProps> = ({
         }`}
         title="Workflow Actions"
       >
-        <Settings2 size={20} />
+        <Ellipsis size={20} />
       </button>
 
       {isOpen && (
