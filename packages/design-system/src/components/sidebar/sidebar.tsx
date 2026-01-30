@@ -4,6 +4,8 @@
 import { type ReactNode } from 'react';
 import { ChevronRight } from 'lucide-react';
 import * as CollapsiblePrimitive from '@radix-ui/react-collapsible';
+import clsx from 'clsx';
+
 /**
  * Internal dependencies
  */
@@ -38,6 +40,7 @@ type SidebarProps = {
   side?: 'left' | 'right';
   sidebarVariant?: 'sidebar' | 'floating' | 'inset';
   collapsible?: 'offcanvas' | 'icon' | 'none';
+  placement?: 'options-page' | 'devtools';
 };
 
 export function Sidebar({
@@ -46,6 +49,7 @@ export function Sidebar({
   sidebarVariant = 'sidebar',
   collapsible = 'offcanvas',
   side = 'left',
+  placement = 'options-page',
 }: SidebarProps) {
   const { setSelectedMenuItem, sidebarState, selectedMenuItem } = useSidebar(
     ({ state, actions }) => ({
@@ -54,6 +58,12 @@ export function Sidebar({
       selectedMenuItem: state.selectedMenuItem,
     })
   );
+
+  const classConfig = {
+    menuItemText: placement === 'devtools' ? 'text-xs' : '',
+    menuTitle: placement === 'devtools' ? 'text-sm' : 'text-lg',
+    owlIcon: placement === 'devtools' ? 'h-5 w-5' : 'h-6 w-6',
+  };
 
   const renderMenuItem = (item: MenuItem) => {
     // Check if any child is selected (recursive check not needed for 1-level depth but good to have)
@@ -121,7 +131,7 @@ export function Sidebar({
             }}
           >
             {item.icon && item.icon()}
-            <span>{item.title}</span>
+            <span className={classConfig.menuItemText}>{item.title}</span>
           </div>
         </SidebarMenuButton>
       </SidebarMenuItem>
@@ -135,10 +145,14 @@ export function Sidebar({
           <div
             className={`ml-2 ${sidebarState === 'expanded' ? '' : 'hidden'}`}
           >
-            <OwlIcon className={`h-6 w-6`} />
+            <OwlIcon className={classConfig.owlIcon} />
           </div>
           <span
-            className={`text-lg font-bold ${sidebarState === 'expanded' ? '' : 'hidden'}`}
+            className={clsx(
+              'font-bold',
+              sidebarState === 'expanded' ? '' : 'hidden',
+              classConfig.menuTitle
+            )}
           >
             AWLT
           </span>
