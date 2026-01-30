@@ -1,44 +1,10 @@
 
-import { useState, useEffect } from 'react';
 import StatusCard from '../components/StatusCard';
 import StatusItem from '../components/StatusItem';
-import StatusIndicator, { type StatusType } from '../components/StatusIndicator';
 import { Button } from '@google-awlt/design-system';
 import { ExternalLink } from 'lucide-react';
 
 export default function LocalAIEnvironment() {
-  const [modelStatus, setModelStatus] = useState<StatusType>('loading');
-  const [modelLabel, setModelLabel] = useState<string>('Checking...');
-
-  const checkModelStatus = async () => {
-    try {
-      if (!window.ai?.languageModel) {
-        setModelStatus('error');
-        setModelLabel('Not Found');
-        return;
-      }
-
-      const capabilities = await window.ai.languageModel.capabilities();
-      if (capabilities.available === 'readily') {
-        setModelStatus('ready');
-        setModelLabel('Up-to-date');
-      } else if (capabilities.available === 'after-download') {
-        setModelStatus('warning');
-        setModelLabel('Downloading / Needs Download');
-      } else {
-        setModelStatus('error');
-        setModelLabel('Not Available');
-      }
-    } catch (e) {
-      setModelStatus('error');
-      setModelLabel('Error Checking');
-    }
-  };
-
-  useEffect(() => {
-    checkModelStatus();
-  }, []);
-
   const flags = [
     { name: '#optimization-guide-on-device-model', required: true, label: 'Optimization Guide' },
     { name: '#prompt-api-for-gemini-nano', required: true, label: 'Prompt API' },
@@ -58,12 +24,7 @@ export default function LocalAIEnvironment() {
                 Check Updates <ExternalLink className="w-3 h-3 ml-2"/>
             </Button>
         }
-      >
-        <div className="flex flex-col items-end">
-            <StatusIndicator status={modelStatus} label={modelLabel} />
-            <p className="text-xs text-muted-foreground mt-1">Mirrors "Optimization Guide On Device Model"</p>
-        </div>
-      </StatusItem>
+      />
 
       {/* Chrome Configuration Flags */}
       <div className="py-2 border-b border-border/50">

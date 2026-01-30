@@ -3,8 +3,8 @@ import { useState, useEffect } from 'react';
 import StatusCard from '../components/StatusCard';
 import StatusItem from '../components/StatusItem';
 import StatusIndicator, { type StatusType } from '../components/StatusIndicator';
-import { Button } from '@google-awlt/design-system';
-import { RefreshCw, Download } from 'lucide-react';
+import { Button, TooltipIconButton } from '@google-awlt/design-system';
+import { RefreshCw, Download, ExternalLink } from 'lucide-react';
 
 interface APIInfo {
   id: string;
@@ -216,15 +216,15 @@ export default function BuiltInAPIs() {
                 label={api.name}
                 action={
                     info.status === 'error' ? (
-                        <div className="flex flex-col items-end gap-1">
+                        <div className="flex flex-row gap-1 justify-end">
                             {api.flags.map(flag => (
-                                <button
+                                <TooltipIconButton
                                     key={flag}
                                     onClick={() => chrome.tabs.create({ url: `chrome://flags/${flag}` })}
-                                    className="text-xs text-blue-500 hover:underline cursor-pointer bg-transparent border-0 p-0 text-right"
+                                    tooltip={`Enable ${flag.replace(/^#/, '').replace(/-/g, ' ')}`}
                                 >
-                                    Enable {flag.replace(/^#/, '').replace(/-/g, ' ')}
-                                </button>
+                                    <ExternalLink className="w-4 h-4" />
+                                </TooltipIconButton>
                             ))}
                         </div>
                     ) : info.status === 'warning' && !isDownloading && (info.label === 'Needs Download') ? (
