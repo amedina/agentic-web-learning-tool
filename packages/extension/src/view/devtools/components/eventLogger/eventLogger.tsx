@@ -1,7 +1,4 @@
-/**
- * External dependencies.
- */
-import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useMcpClient } from '@mcp-b/mcp-react-hooks';
 import {
   Table,
@@ -26,7 +23,7 @@ import { noop } from '@google-awlt/common';
 import RunToolPanel from './runToolPanel';
 import { MESSAGE_TYPES } from '../../../../utils';
 import type { ToolExecutionLog } from './types';
-import { isLocalTool } from './utils';
+import { isLocalTool, getRowKey } from './utils';
 import { useSettings } from '../../../stateProviders';
 import {
   TABLE_SEARCH_KEYS,
@@ -49,23 +46,11 @@ const EventLogger = () => {
   const [isRunToolPanelOpen, setIsRunToolPanelOpen] = useState(false);
   const [selectedToolToRun, setSelectedToolToRun] = useState<Tool | null>(null);
   const [lastRunToolName, setLastRunToolName] = useState<string | null>(null);
-  const [logs, setLogs] = useState<ToolExecutionLog[]>([]);
+  const [eventLoggerData, setEventLoggerData] = useState<TableData[]>([]);
 
   const tabId = chrome.devtools?.inspectedWindow?.tabId;
 
-  const eventLoggerData: TableData[] = useMemo(() => {
-    return logs
-      .filter((log) => isLocalTool(log.toolName, tabId))
-      .map((log) => ({
-        name: log.toolName,
-        time: new Date(log.startTime).toLocaleTimeString(),
-        type: log.type,
-        status: log.status,
-        duration: log.duration ? `${log.duration}ms` : '-',
-        originalData: log,
-        description: log.result ? 'Success' : log.error || 'Pending',
-      }));
-  }, [logs, tabId]);
+  // Removed useMemo for eventLoggerData
 
   useEffect(() => {
     if (availableTools) {
@@ -84,24 +69,46 @@ const EventLogger = () => {
   }, [availableTools, tabId]);
 
   useEffect(() => {
+    // console.log('eventLoggerData useEffect', eventLoggerData);
+  }, [eventLoggerData]);
+
+  useEffect(() => {
     const handleMessage = (message: any) => {
       if (message.type === MESSAGE_TYPES.TOOL_LOG) {
-        setLogs((prevLogs) => {
+        setEventLoggerData((prevData) => {
           const newLog = message.payload as ToolExecutionLog;
-          const existingIndex = prevLogs.findIndex((l) => l.id === newLog.id);
+
+          // Filter out if not local tool
+          if (!isLocalTool(newLog.toolName, tabId)) {
+            return prevData;
+          }
+
+          const existingIndex = prevData.findIndex(
+            (item) => item.originalData.id === newLog.id
+          );
+
+          const mappedLog: TableData = {
+            name: newLog.toolName,
+            time: new Date(newLog.startTime).toLocaleTimeString(),
+            type: newLog.type,
+            status: newLog.status,
+            duration: newLog.duration ? `${newLog.duration}ms` : '-',
+            originalData: newLog,
+            description: newLog.result ? 'Success' : newLog.error || 'Pending',
+          };
 
           if (existingIndex !== -1) {
-            const updatedLogs = [...prevLogs];
-            updatedLogs[existingIndex] = {
-              ...updatedLogs[existingIndex],
-              ...newLog,
+            const updatedData = [...prevData];
+            updatedData[existingIndex] = {
+              ...updatedData[existingIndex],
+              ...mappedLog,
             };
-            return updatedLogs;
+            return updatedData;
           } else {
             if (newLog.toolName === lastRunToolName) {
               setLastRunToolName(null);
             }
-            return [newLog, ...prevLogs];
+            return [mappedLog, ...prevData];
           }
         });
       }
@@ -227,7 +234,6 @@ const EventLogger = () => {
         toolName = toolName.replace(`wt_tab${tabId}_`, '');
       }
 
-      setSelectedKey(toolName);
       setShowAllTools(false);
     },
     [tabId]
@@ -243,9 +249,22 @@ const EventLogger = () => {
         setSelectedKey(row?.name ?? null);
       }}
       onRowContextMenu={noop}
-      getRowObjectKey={(row: any) =>
-        (row?.originalData?.name as string) || (row?.name as string)
-      }
+      getRowObjectKey={(row: any) => {
+        let rowKey =
+          (row?.originalData?.name as string) || (row?.name as string);
+
+        if (!showAllTools) {
+          rowKey =
+            (getRowKey(
+              row?.originalData?.name,
+              row?.originalData?.time
+            ) as string) || (getRowKey(row?.name, row?.time) as string);
+
+          console.log('rowKey', rowKey);
+        }
+
+        return rowKey;
+      }}
     >
       <Toaster
         position="top-center"
