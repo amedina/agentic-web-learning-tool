@@ -23,69 +23,98 @@ const APIS: APIInfo[] = [
 ];
 
 export default function BuiltInAPIs() {
-  const [statuses, setStatuses] = useState<Record<string, { status: StatusType; label: string; progress?: number }>>({});
+  const [statuses, setStatuses] = useState<Record<string, { status: StatusType; label: string; progress?: number; missingGlobal?: boolean }>>({});
   const [downloading, setDownloading] = useState<Record<string, boolean>>({});
 
   const checkAPI = async (api: APIInfo) => {
     let status: StatusType = 'error';
     let label = 'Not Available';
+    let missingGlobal = false;
 
     try {
         let available: string | undefined;
+        let globalObj: any;
 
-        const checkAvailability = async () => {
-             // Specific checks based on documentation and types
-             if (api.id === 'prompt') {
-                 if (window.ai?.languageModel) return (await window.ai.languageModel.capabilities()).available;
-             } else if (api.id === 'summarizer') {
-                 if (window.ai?.summarizer) return (await window.ai.summarizer.capabilities?.())?.available || (await window.ai.summarizer.availability?.());
-                 if (window.Summarizer) return (await window.Summarizer.capabilities?.())?.available || (await window.Summarizer.availability?.());
-             } else if (api.id === 'languageDetector') {
-                 if (window.ai?.languageDetector) return (await window.ai.languageDetector.capabilities?.())?.available || (await window.ai.languageDetector.availability?.());
-                 if (window.LanguageDetector) return (await window.LanguageDetector.capabilities?.())?.available || (await window.LanguageDetector.availability?.());
-             } else if (api.id === 'writer') {
-                 if (window.ai?.writer) return (await window.ai.writer.availability?.()) || (await window.ai.writer.capabilities?.())?.available; // Check avail first for writer based on docs
-                 if (window.Writer) return (await window.Writer.availability?.()) || (await window.Writer.capabilities?.())?.available;
-             } else if (api.id === 'rewriter') {
-                  if (window.ai?.rewriter) return (await window.ai.rewriter.availability?.()) || (await window.ai.rewriter.capabilities?.())?.available;
-                  if (window.Rewriter) return (await window.Rewriter.availability?.()) || (await window.Rewriter.capabilities?.())?.available;
-             } else if (api.id === 'proofreader') {
-                  if (window.ai?.proofreader) return (await window.ai.proofreader.capabilities?.())?.available || (await window.ai.proofreader.availability?.());
-                  if (window.Proofreader) return (await window.Proofreader.capabilities?.())?.available || (await window.Proofreader.availability?.());
-             } else if (api.id === 'translator') {
-                  // Translator needs specific pair checking usually, assume generic availability first
-                  // Docs say translator.availability({ source, target })
-                  // We'll check a common pair like es->en to gauge general availability
-                  const checkPair = async (factory: any) => {
-                      try {
-                          return await factory.availability({ sourceLanguage: 'es', targetLanguage: 'en' });
-                      } catch {
-                          return 'no';
-                      }
-                  };
-                  if (window.ai?.translator) return await checkPair(window.ai.translator);
-                  if (window.Translator) return await checkPair(window.Translator);
+        // 1. Check for Global Constructor existence
+        if (api.id === 'prompt') {
+            globalObj = window.LanguageModel || window.ai?.languageModel;
+        } else if (api.id === 'summarizer') {
+            globalObj = window.Summarizer || window.ai?.summarizer;
+        } else if (api.id === 'languageDetector') {
+            globalObj = window.LanguageDetector || window.ai?.languageDetector;
+        } else if (api.id === 'writer') {
+            globalObj = window.Writer || window.ai?.writer;
+        } else if (api.id === 'rewriter') {
+            globalObj = window.Rewriter || window.ai?.rewriter;
+        } else if (api.id === 'proofreader') {
+            globalObj = window.Proofreader || window.ai?.proofreader;
+        } else if (api.id === 'translator') {
+            globalObj = window.Translator || window.ai?.translator;
+        }
+
+        if (!globalObj) {
+            missingGlobal = true;
+            label = 'Not Enabled';
+            setStatuses(prev => ({ ...prev, [api.id]: { status: 'error', label, missingGlobal: true } }));
+            return;
+        }
+
+        // 2. Check Availability
+        if (api.id === 'translator') {
+             try {
+                // Check a common pair to gauge general availability
+                if (globalObj.availability) {
+                     available = await globalObj.availability({ sourceLanguage: 'es', targetLanguage: 'en' });
+                }
+             } catch (e) {
+                 if (globalObj.capabilities) {
+                     const caps = await globalObj.capabilities();
+                     available = caps.available;
+                 }
              }
-             return undefined;
-        };
+        } else if (api.id === 'prompt') {
+             if (globalObj.availability) {
+                 available = await globalObj.availability();
+             } else if (globalObj.capabilities) {
+                 const caps = await globalObj.capabilities();
+                 available = caps.available;
+             }
+        } else {
+             if (globalObj.availability) {
+                 available = await globalObj.availability();
+             } else if (globalObj.capabilities) {
+                 const caps = await globalObj.capabilities();
+                 available = caps.available;
+             }
+        }
 
-        available = await checkAvailability();
-
+        // 3. Map status
         if (available === 'readily') {
             status = 'ready';
             label = 'Available';
         } else if (available === 'after-download' || available === 'downloadable') {
             status = 'warning';
             label = 'Needs Download';
+        } else if (available === 'downloading') {
+            status = 'warning';
+            label = 'Downloading...';
         } else if (available === 'no') {
             status = 'error';
             label = 'Not Available';
+            // Flag is enabled (global exists), but model unavailable.
+        } else {
+             // If undefined (e.g. neither availability nor capabilities existed)
+             status = 'error';
+             label = 'Not Enabled'; // Treat as missing if we can't check
+             if (!available) missingGlobal = true; // effectively behaves like flag off
         }
+
     } catch (e) {
         console.error(`Error checking ${api.id}`, e);
+        label = 'Error Checking';
     }
 
-    setStatuses(prev => ({ ...prev, [api.id]: { status, label } }));
+    setStatuses(prev => ({ ...prev, [api.id]: { status, label, missingGlobal } }));
   };
 
   const downloadModel = async (apiId: string) => {
@@ -93,34 +122,35 @@ export default function BuiltInAPIs() {
       try {
           const monitor = (m: any) => {
               m.addEventListener('downloadprogress', (e: any) => {
-                  const progress = Math.round((e.loaded / (e.total || 1)) * 100); // Normalize just in case
+                  const progress = Math.round((e.loaded / (e.total || 1)) * 100);
                   setStatuses(prev => ({
                       ...prev,
-                      [apiId]: { ...prev[apiId], label: `Downloading ${progress}%`, progress }
+                      [apiId]: { ...prev[apiId], label: `Downloading ${progress}%`, progress, status: 'warning' }
                   }));
               });
           };
 
-          // Trigger creation with monitor
           if (apiId === 'prompt') {
-              await window.ai.languageModel.create({ monitor } as any);
+              const factory = window.LanguageModel || window.ai?.languageModel;
+              // 'expectedOutputLanguage' is required in newer Chrome versions to ensure safety/quality
+              await factory?.create({ monitor, expectedOutputLanguage: 'en' } as any);
           } else if (apiId === 'summarizer') {
-              const factory = window.ai?.summarizer || window.Summarizer;
+              const factory = window.Summarizer || window.ai?.summarizer;
               await factory?.create({ monitor } as any);
           } else if (apiId === 'languageDetector') {
-              const factory = window.ai?.languageDetector || window.LanguageDetector;
+              const factory = window.LanguageDetector || window.ai?.languageDetector;
               await factory?.create({ monitor } as any);
           } else if (apiId === 'writer') {
-               const factory = window.ai?.writer || window.Writer;
+               const factory = window.Writer || window.ai?.writer;
                await factory?.create({ monitor } as any);
           } else if (apiId === 'rewriter') {
-               const factory = window.ai?.rewriter || window.Rewriter;
+               const factory = window.Rewriter || window.ai?.rewriter;
                await factory?.create({ monitor } as any);
           } else if (apiId === 'proofreader') {
-               const factory = window.ai?.proofreader || window.Proofreader;
+               const factory = window.Proofreader || window.ai?.proofreader;
                await factory?.create({ monitor } as any);
           } else if (apiId === 'translator') {
-               const factory = window.ai?.translator || window.Translator;
+               const factory = window.Translator || window.ai?.translator;
                await factory?.create({ sourceLanguage: 'es', targetLanguage: 'en', monitor } as any);
           }
 
@@ -130,7 +160,7 @@ export default function BuiltInAPIs() {
 
       } catch (e) {
           console.error(`Download failed for ${apiId}`, e);
-          setStatuses(prev => ({ ...prev, [apiId]: { status: 'error', label: 'Download Failed' } }));
+          setStatuses(prev => ({ ...prev, [apiId]: { ...prev[apiId], status: 'error', label: 'Download Failed' } }));
       } finally {
           setDownloading(prev => ({ ...prev, [apiId]: false }));
       }
@@ -170,7 +200,7 @@ export default function BuiltInAPIs() {
                         >
                             Enable Flag
                         </button>
-                    ) : info.status === 'warning' && !isDownloading ? (
+                    ) : info.status === 'warning' && !isDownloading && (info.label === 'Needs Download') ? (
                          <Button variant="outline" size="sm" onClick={() => downloadModel(api.id)} className="h-6 text-xs px-2">
                             <Download className="w-3 h-3 mr-1" /> Download
                          </Button>

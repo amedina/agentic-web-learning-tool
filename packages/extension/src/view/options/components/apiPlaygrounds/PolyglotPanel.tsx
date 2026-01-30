@@ -27,7 +27,8 @@ import {
 
 import type {
     AILanguageDetector,
-    AITranslator
+    AITranslator,
+    AIAvailability
 } from '../../../../types/window.ai';
 
 const SUPPORTED_LANGUAGES = [
@@ -51,8 +52,8 @@ export default function PolyglotPanel() {
     const [mode, setMode] = useState<'detector' | 'translator'>('detector');
 
     // Capabilities State
-    const [detectorStatus, setDetectorStatus] = useState<'readily' | 'after-download' | 'no'>('no');
-    const [translatorStatus, setTranslatorStatus] = useState<'readily' | 'after-download' | 'no' | 'unchecked'>('unchecked');
+    const [detectorStatus, setDetectorStatus] = useState<AIAvailability>('no');
+    const [translatorStatus, setTranslatorStatus] = useState<AIAvailability | 'unchecked'>('unchecked');
     const [isChecking, setIsChecking] = useState(false);
 
     // Detector State
@@ -518,8 +519,11 @@ function StatusBadge({ status }: { status: string }) {
     if (status === 'readily') {
         return <span className="text-xs bg-green-500/10 text-green-600 px-2 py-0.5 rounded-full font-medium">Ready</span>;
     }
-    if (status === 'after-download') {
+    if (status === 'after-download' || status === 'downloadable') {
         return <span className="text-xs bg-yellow-500/10 text-yellow-600 px-2 py-0.5 rounded-full font-medium">Download Req.</span>;
+    }
+    if (status === 'downloading') {
+        return <span className="text-xs bg-blue-500/10 text-blue-600 px-2 py-0.5 rounded-full font-medium">Downloading...</span>;
     }
     if (status === 'unchecked') {
          return <span className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full font-medium">Unknown</span>;
