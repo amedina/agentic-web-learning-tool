@@ -14,7 +14,6 @@ import { noop } from '@google-awlt/common';
 /**
  * Internal Dependencies
  */
-import { useSettings } from '../../../stateProviders';
 import {
   EVENT_LOGGER_FILTERS,
   EVENT_LOGGER_COLUMNS,
@@ -22,6 +21,7 @@ import {
 } from './constants';
 import { getRowKey } from './utils';
 import { useEventLogs } from './hooks/useEventLogs';
+import { useSettings } from '../../../stateProviders';
 
 export const WebMCPInspector = () => {
   const { eventLoggerData, selectedKey, setSelectedKey } = useEventLogs();
