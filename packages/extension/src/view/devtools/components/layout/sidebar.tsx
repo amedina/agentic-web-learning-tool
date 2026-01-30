@@ -1,29 +1,10 @@
 /**
  * External dependencies
  */
-import { useEffect } from 'react';
-import {
-  Sidebar as OptionsPageSidebar,
-  useSidebar,
-} from '@google-awlt/design-system';
+import { Sidebar as OptionsPageSidebar } from '@google-awlt/design-system';
 import { Hammer, Settings, Activity } from 'lucide-react';
 
-interface SidebarProps {
-  setActiveView: (view: string) => void;
-}
-
-const Sidebar = ({ setActiveView }: SidebarProps) => {
-  const { actions, state } = useSidebar();
-  const { selectedMenuItem } = state;
-
-  useEffect(() => {
-    if (!selectedMenuItem) {
-      actions.setSelectedMenuItem('tools');
-    } else {
-      setActiveView(selectedMenuItem);
-    }
-  }, [selectedMenuItem, setActiveView, actions]);
-
+const Sidebar = () => {
   const items = [
     {
       title: 'Tools',

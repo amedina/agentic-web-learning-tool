@@ -8,7 +8,6 @@ import {
   LogDetail,
   Toaster,
   type TableRow,
-  type TableData,
 } from '@google-awlt/design-system';
 import { noop } from '@google-awlt/common';
 
@@ -22,18 +21,10 @@ import {
   TABLE_SEARCH_KEYS,
 } from './constants';
 import { getRowKey } from './utils';
+import { useEventLogs } from './hooks/useEventLogs';
 
-interface WebMCPInspectorProps {
-  eventLoggerData: TableData[];
-  selectedKey: string | null;
-  setSelectedKey: (key: string | null) => void;
-}
-
-export const WebMCPInspector = ({
-  eventLoggerData,
-  selectedKey,
-  setSelectedKey,
-}: WebMCPInspectorProps) => {
+export const WebMCPInspector = () => {
+  const { eventLoggerData, selectedKey, setSelectedKey } = useEventLogs();
   const { theme } = useSettings(({ state }) => ({ theme: state.theme }));
 
   const renderDetailPanel = useCallback((row: TableRow) => {

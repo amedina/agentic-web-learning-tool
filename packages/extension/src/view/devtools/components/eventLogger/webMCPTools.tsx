@@ -26,18 +26,26 @@ import { isLocalTool } from './utils';
 import { useSettings } from '../../../stateProviders';
 import { TABLE_SEARCH_KEYS, ALL_TOOLS_FILTERS } from './constants';
 import { useToolExecution } from './hooks/useToolExecution';
+import { useEventLogs } from './hooks/useEventLogs';
 
 interface AllToolsRowData extends TableData, Tool {
   originalData: Tool;
 }
 
-interface WebMCPToolsProps {
-  onToolSuccess?: (toolName: string) => void;
-}
-
-export const WebMCPTools = ({ onToolSuccess }: WebMCPToolsProps) => {
+export const WebMCPTools = ({
+  setSelectedMenuItem,
+}: {
+  setSelectedMenuItem: (view: string) => void;
+}) => {
   const { tools: availableTools } = useMcpClient();
   const { theme } = useSettings(({ state }) => ({ theme: state.theme }));
+  const { setLastRunToolName } = useEventLogs();
+
+  const onToolSuccess = (toolName: string) => {
+    setLastRunToolName(toolName);
+    setSelectedMenuItem('inspector');
+  };
+
   const [allToolsData, setAllToolsData] = useState<TableData[]>([]);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const tabId = chrome.devtools?.inspectedWindow?.tabId;
@@ -148,7 +156,7 @@ export const WebMCPTools = ({ onToolSuccess }: WebMCPToolsProps) => {
         onClose={closeRunToolPanel}
         tool={selectedToolToRun}
         onRun={handleRunTool}
-        afterRunTool={() => {}} // We handle navigation via onToolSuccess in useToolExecution
+        afterRunTool={(tool) => onToolSuccess(tool?.name || '')}
       />
     </TableProvider>
   );
