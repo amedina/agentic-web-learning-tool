@@ -105,12 +105,19 @@ const EventLogger = () => {
             };
             return updatedData;
           } else {
-            if (newLog.toolName === lastRunToolName) {
-              setLastRunToolName(null);
-            }
             return [mappedLog, ...prevData];
           }
         });
+
+        const newLog = message.payload as ToolExecutionLog;
+        if (newLog.toolName === lastRunToolName) {
+          setLastRunToolName(null);
+          const key = getRowKey(
+            newLog.toolName,
+            new Date(newLog.startTime).toLocaleTimeString()
+          );
+          setSelectedKey(key);
+        }
       }
     };
 
@@ -246,21 +253,32 @@ const EventLogger = () => {
       tableFilterData={showAllTools ? ALL_TOOLS_FILTERS : EVENT_LOGGER_FILTERS}
       tableSearchKeys={TABLE_SEARCH_KEYS}
       onRowClick={(row: TableData) => {
-        setSelectedKey(row?.name ?? null);
+        if (showAllTools) {
+          setSelectedKey(row?.name ?? null);
+        } else {
+          const rowKey = getRowKey(row?.name, row?.time);
+          console.log('onRowClick selectedKey:', rowKey);
+          setSelectedKey(rowKey);
+        }
       }}
       onRowContextMenu={noop}
       getRowObjectKey={(row: any) => {
+        const data = row.original || row;
+
         let rowKey =
-          (row?.originalData?.name as string) || (row?.name as string);
+          (data?.originalData?.name as string) || (data?.name as string);
 
         if (!showAllTools) {
-          rowKey =
-            (getRowKey(
-              row?.originalData?.name,
-              row?.originalData?.time
-            ) as string) || (getRowKey(row?.name, row?.time) as string);
-
-          console.log('rowKey', rowKey);
+          const name = data?.name as string;
+          const time = data?.time as string;
+          rowKey = getRowKey(name, time);
+          console.log(
+            'getRowObjectKey calculated key:',
+            rowKey,
+            'for row:',
+            name,
+            time
+          );
         }
 
         return rowKey;
