@@ -32,7 +32,7 @@ export const Layout = () => {
   };
 
   return (
-    <SidebarProvider>
+    <SidebarProvider placement="devtools">
       <div className="flex w-full h-screen">
         <Sidebar setActiveView={setActiveView} />
         <main className="flex-1 h-full overflow-hidden">{renderContent()}</main>

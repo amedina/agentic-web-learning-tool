@@ -20,12 +20,14 @@ import {
   SIDEBAR_COOKIE_MAX_AGE,
   SIDEBAR_KEYBOARD_SHORTCUT,
   SIDEBAR_WIDTH,
+  SIDEBAR_WIDTH_DEVTOOLS,
   SIDEBAR_WIDTH_ICON,
 } from '../constants';
 import useIsMobile from '../hooks/useIsMobile';
 
 function SidebarProvider({
   defaultOpen = true,
+  placement = 'options-page',
   open: openProp,
   onOpenChange: setOpenProp,
   className,
@@ -34,6 +36,7 @@ function SidebarProvider({
   ...props
 }: ComponentProps<'div'> & {
   defaultOpen?: boolean;
+  placement?: string;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 }) {
@@ -113,7 +116,10 @@ function SidebarProvider({
           data-slot="sidebar-wrapper"
           style={
             {
-              '--sidebar-width': SIDEBAR_WIDTH,
+              '--sidebar-width':
+                placement === 'devtools'
+                  ? SIDEBAR_WIDTH_DEVTOOLS
+                  : SIDEBAR_WIDTH,
               '--sidebar-width-icon': SIDEBAR_WIDTH_ICON,
               ...style,
             } as CSSProperties

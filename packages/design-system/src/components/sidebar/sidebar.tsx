@@ -60,8 +60,8 @@ export function Sidebar({
   );
 
   const classConfig = {
-    menuItemText: placement === 'devtools' ? 'text-xs' : '',
-    menuTitle: placement === 'devtools' ? 'text-sm' : 'text-lg',
+    menuItemText: placement === 'devtools' ? 'text-xs font-medium' : '',
+    menuTitle: placement === 'devtools' ? 'text-sm font-medium' : 'text-lg',
     owlIcon: placement === 'devtools' ? 'h-5 w-5' : 'h-6 w-6',
   };
 
