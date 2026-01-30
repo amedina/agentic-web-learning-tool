@@ -1,0 +1,68 @@
+/**
+ * External dependencies
+ */
+import { useState } from 'react';
+import { useMcpClient } from '@mcp-b/mcp-react-hooks';
+import type { Tool } from '@modelcontextprotocol/sdk/types.js';
+import { toast } from '@google-awlt/design-system';
+
+export const useToolExecution = (
+  onToolSuccess?: (toolName: string) => void
+) => {
+  const { client } = useMcpClient();
+  const [isRunToolPanelOpen, setIsRunToolPanelOpen] = useState(false);
+  const [selectedToolToRun, setSelectedToolToRun] = useState<Tool | null>(null);
+
+  const handleRunTool = async (toolName: string, args: any) => {
+    if (!client) {
+      return;
+    }
+
+    try {
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => {
+          reject(new Error('Tool execution timed out after 30s'));
+          toast.error('Tool execution timed out after 30s');
+        }, 30000);
+      });
+
+      await Promise.race([
+        client.callTool({
+          name: toolName,
+          arguments: args,
+        }),
+        timeoutPromise,
+      ]);
+
+      toast.success('Tool execution completed');
+
+      if (onToolSuccess) {
+        onToolSuccess(toolName);
+      }
+    } catch (error) {
+      console.error('Error running tool:', error);
+      toast.error(
+        error instanceof Error ? error.message : 'Tool execution failed'
+      );
+      throw error;
+    }
+  };
+
+  const openRunToolPanel = (tool: Tool) => {
+    setSelectedToolToRun(tool);
+    setIsRunToolPanelOpen(true);
+  };
+
+  const closeRunToolPanel = () => {
+    setIsRunToolPanelOpen(false);
+    setSelectedToolToRun(null);
+  };
+
+  return {
+    isRunToolPanelOpen,
+    selectedToolToRun,
+    openRunToolPanel,
+    closeRunToolPanel,
+    handleRunTool,
+  };
+};

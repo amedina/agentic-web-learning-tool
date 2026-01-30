@@ -1,1 +1,2 @@
-export * from './eventLogger';
+export * from './webMCPTools';
+export * from './webMCPInspector';

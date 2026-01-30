@@ -8,17 +8,32 @@ import { SidebarProvider } from '@google-awlt/design-system';
  * Internal dependencies.
  */
 import Sidebar from './sidebar';
-import { EventLogger } from '../eventLogger';
+import { WebMCPTools } from '../eventLogger/webMCPTools';
+import { WebMCPInspector } from '../eventLogger/webMCPInspector';
+import { useEventLogs } from '../eventLogger/hooks/useEventLogs';
 
 export const Layout = () => {
   const [activeView, setActiveView] = useState('tools');
+  const { eventLoggerData, selectedKey, setSelectedKey, setLastRunToolName } =
+    useEventLogs();
+
+  const handleToolSuccess = (toolName: string) => {
+    setLastRunToolName(toolName);
+    setActiveView('inspector');
+  };
 
   const renderContent = () => {
     switch (activeView) {
       case 'tools':
-        return <EventLogger showAllTools={true} />;
+        return <WebMCPTools onToolSuccess={handleToolSuccess} />;
       case 'inspector':
-        return <EventLogger showAllTools={false} />;
+        return (
+          <WebMCPInspector
+            eventLoggerData={eventLoggerData}
+            selectedKey={selectedKey}
+            setSelectedKey={setSelectedKey}
+          />
+        );
       case 'settings':
         return (
           <div className="p-4">
@@ -27,7 +42,7 @@ export const Layout = () => {
           </div>
         );
       default:
-        return <EventLogger showAllTools={true} />;
+        return <WebMCPTools onToolSuccess={handleToolSuccess} />;
     }
   };
 
