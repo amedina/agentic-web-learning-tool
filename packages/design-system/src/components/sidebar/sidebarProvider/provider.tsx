@@ -36,7 +36,7 @@ function SidebarProvider({
   ...props
 }: ComponentProps<'div'> & {
   defaultOpen?: boolean;
-  placement?: string;
+  placement?: 'options-page' | 'devtools';
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 }) {
@@ -99,6 +99,7 @@ function SidebarProvider({
         selectedMenuItem,
         sidebarState: state,
         isMobile,
+        placement,
       },
       actions: {
         setOpen,

@@ -5,4 +5,5 @@ export const SIDEBAR_WIDTH_DEVTOOLS = '12rem';
 export const SIDEBAR_WIDTH_ICON = '3rem';
 export const SIDEBAR_KEYBOARD_SHORTCUT = 'b';
 export const SIDEBAR_WIDTH_MOBILE = '18rem';
+export const SIDEBAR_WIDTH_MOBILE_DEVTOOLS = '11rem';
 export const MOBILE_BREAKPOINT = 768;

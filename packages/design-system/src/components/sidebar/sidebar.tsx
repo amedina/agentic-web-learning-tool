@@ -40,7 +40,6 @@ type SidebarProps = {
   side?: 'left' | 'right';
   sidebarVariant?: 'sidebar' | 'floating' | 'inset';
   collapsible?: 'offcanvas' | 'icon' | 'none';
-  placement?: 'options-page' | 'devtools';
 };
 
 export function Sidebar({
@@ -49,15 +48,14 @@ export function Sidebar({
   sidebarVariant = 'sidebar',
   collapsible = 'offcanvas',
   side = 'left',
-  placement = 'options-page',
 }: SidebarProps) {
-  const { setSelectedMenuItem, sidebarState, selectedMenuItem } = useSidebar(
-    ({ state, actions }) => ({
+  const { setSelectedMenuItem, sidebarState, selectedMenuItem, placement } =
+    useSidebar(({ state, actions }) => ({
       setSelectedMenuItem: actions.setSelectedMenuItem,
       sidebarState: state.sidebarState,
       selectedMenuItem: state.selectedMenuItem,
-    })
-  );
+      placement: state.placement,
+    }));
 
   const classConfig = {
     menuItemText: placement === 'devtools' ? 'text-xs font-medium' : '',

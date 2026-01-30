@@ -50,7 +50,6 @@ const Sidebar = ({ setActiveView }: SidebarProps) => {
       items={items}
       footerItems={footerItems}
       collapsible="icon"
-      placement="devtools"
     />
   );
 };
