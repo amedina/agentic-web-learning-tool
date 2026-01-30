@@ -11,11 +11,11 @@ interface StatusItemProps {
 export default function StatusItem({ label, children, className, action }: StatusItemProps) {
   return (
     <div className={cn("flex items-center justify-between py-2 border-b last:border-0 border-border/50", className)}>
-      <div className="flex flex-col gap-1">
-        <span className="text-sm font-medium">{label}</span>
-        {children && <div className="text-sm text-muted-foreground">{children}</div>}
+      <span className="text-sm font-medium shrink-0 mr-4">{label}</span>
+      <div className="flex items-center justify-end gap-4 flex-1 min-w-0">
+        {children && <div className="text-sm text-muted-foreground flex justify-end">{children}</div>}
+        {action && <div className="shrink-0">{action}</div>}
       </div>
-      {action && <div className="shrink-0 ml-4">{action}</div>}
     </div>
   );
 }

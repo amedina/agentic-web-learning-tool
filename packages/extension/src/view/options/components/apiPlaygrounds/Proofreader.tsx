@@ -19,7 +19,8 @@ import {
 
 import type {
     AIProofreader,
-    AIProofreaderResult
+    AIProofreaderResult,
+    AIAvailability
 } from '../../../../types/window.ai';
 
 const SUPPORTED_LANGUAGES = [
@@ -38,7 +39,7 @@ const SUPPORTED_LANGUAGES = [
 
 export default function Proofreader() {
     // Capability State
-    const [capabilityStatus, setCapabilityStatus] = useState<'readily' | 'after-download' | 'no'>('no');
+    const [capabilityStatus, setCapabilityStatus] = useState<AIAvailability>('no');
     const [isChecking, setIsChecking] = useState(true);
 
     // Configuration State
@@ -85,7 +86,7 @@ export default function Proofreader() {
     const checkCapabilities = async () => {
         setIsChecking(true);
         try {
-            let status: 'readily' | 'after-download' | 'no' = 'no';
+            let status: AIAvailability = 'no';
 
             // Check Global Constructor (Origin Trial / Polyfill)
             if ((window as any).Proofreader) {
@@ -94,7 +95,9 @@ export default function Proofreader() {
 
                 if (typeof (window as any).Proofreader.availability === 'function') {
                     try {
-                        const avail = await (window as any).Proofreader.availability();
+                        const avail = await (window as any).Proofreader.availability({
+                            expectedInputLanguages: ['en']
+                        });
                         if (typeof avail === 'string') {
                             status = avail as any;
                         } else if (avail && typeof avail === 'object' && 'available' in avail) {
@@ -118,7 +121,9 @@ export default function Proofreader() {
                      }
                 } else if (typeof proofreaderFactory.availability === 'function') {
                      try {
-                        status = await proofreaderFactory.availability();
+                        status = await proofreaderFactory.availability({
+                            expectedInputLanguages: ['en']
+                        });
                      } catch (err) {
                         console.warn('ai.proofreader.availability() failed', err);
                      }
@@ -187,8 +192,8 @@ export default function Proofreader() {
         toast.success('Copied to clipboard');
     };
 
-    const needsDownload = capabilityStatus === 'after-download';
-    const isAvailable = capabilityStatus !== 'no';
+    const needsDownload = capabilityStatus === 'after-download' || capabilityStatus === 'downloadable';
+    const isAvailable = capabilityStatus !== 'no' && capabilityStatus !== 'unavailable';
 
     return (
         <div className="flex flex-col h-[calc(100vh-200px)] max-h-[800px] gap-6">
@@ -420,10 +425,10 @@ export default function Proofreader() {
 }
 
 function StatusBadge({ status }: { status: string }) {
-    if (status === 'readily') {
+    if (status === 'readily' || status === 'available') {
         return <span className="text-xs bg-green-500/10 text-green-600 px-2 py-0.5 rounded-full font-medium">Ready</span>;
     }
-    if (status === 'after-download') {
+    if (status === 'after-download' || status === 'downloadable') {
         return <span className="text-xs bg-yellow-500/10 text-yellow-600 px-2 py-0.5 rounded-full font-medium">Download Req.</span>;
     }
     return <span className="text-xs bg-destructive/10 text-destructive px-2 py-0.5 rounded-full font-medium">Unavailable</span>;

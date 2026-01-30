@@ -82,7 +82,12 @@ export default function PromptLab() {
   // Track which API implementation we are using
   const [apiType, setApiType] = useState<'spec' | 'explainer' | null>(null);
 
+  // Refs for tracking auto-scroll behavior
   const scrollRef = useRef<HTMLDivElement>(null);
+  const shouldAutoScrollRef = useRef(true);
+
+  // Track initial session creation to prevent double toast
+  const initialSessionCreated = useRef(false);
 
   // Initialize
   useEffect(() => {
@@ -109,9 +114,19 @@ export default function PromptLab() {
     }
   }, [debouncedSystemPrompt]);
 
-  // Auto-scroll to bottom
+  // Handle Scroll to toggle auto-scroll
+  const handleScroll = () => {
+    if (!scrollRef.current) return;
+    const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
+
+    // If user is near bottom (within 50px), enable auto-scroll
+    const isNearBottom = scrollHeight - scrollTop - clientHeight < 50;
+    shouldAutoScrollRef.current = isNearBottom;
+  };
+
+  // Auto-scroll logic
   useEffect(() => {
-    if (scrollRef.current) {
+    if (scrollRef.current && shouldAutoScrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages, isStreaming]);
@@ -212,10 +227,14 @@ export default function PromptLab() {
   const createSession = async () => {
       // Wrapper for UI button click which relies on state
       if (!apiType) return;
-      await createSessionInternal(apiType);
+      await createSessionInternal(apiType, false, true);
   };
 
-  const createSessionInternal = async (type: 'spec' | 'explainer', preserveHistory: boolean = false) => {
+  const createSessionInternal = async (
+      type: 'spec' | 'explainer',
+      preserveHistory: boolean = false,
+      manualTrigger: boolean = false
+  ) => {
     if (session) {
       session.destroy();
     }
@@ -251,9 +270,12 @@ export default function PromptLab() {
             timestamp: Date.now()
           }]);
 
-          toast.success('Session Created', {
-            description: `Temp: ${temperature}, TopK: ${topK}`,
-          });
+          if (manualTrigger || !initialSessionCreated.current) {
+              toast.success('Session Created', {
+                description: `Temp: ${temperature}, TopK: ${topK}`,
+              });
+              initialSessionCreated.current = true;
+          }
       } else {
           // Update the displayed system prompt if it exists in history
           setMessages(prev => {
@@ -323,6 +345,9 @@ export default function PromptLab() {
   const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
     if (!input.trim() || !session || isStreaming) return;
+
+    // Reset auto-scroll to true when user sends a new message
+    shouldAutoScrollRef.current = true;
 
     const userMsg: Message = { role: 'user', content: input, timestamp: Date.now() };
     setMessages((prev) => [...prev, userMsg]);
@@ -556,6 +581,7 @@ export default function PromptLab() {
           <div
             ref={scrollRef}
             className="flex-1 overflow-y-auto p-4 space-y-4"
+            onScroll={handleScroll}
           >
             {messages.length === 0 && (
               <div className="h-full flex flex-col items-center justify-center text-muted-foreground opacity-50">
