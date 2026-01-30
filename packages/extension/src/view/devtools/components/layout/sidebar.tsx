@@ -26,12 +26,12 @@ const Sidebar = ({ setActiveView }: SidebarProps) => {
 
   const items = [
     {
-      title: 'WebMCP Tools',
+      title: 'Tools',
       id: 'tools',
       icon: () => <Hammer width="20" height="20" />,
     },
     {
-      title: 'WebMCP Inspector',
+      title: 'Inspector',
       id: 'inspector',
       icon: () => <Activity width="20" height="20" />,
     },
