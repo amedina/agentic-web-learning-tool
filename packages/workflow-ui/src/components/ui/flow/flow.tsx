@@ -12,8 +12,8 @@ import {
   type OnNodesChange,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { Play, Square, Loader } from "lucide-react";
-import { useCallback } from "react";
+import { Play, Square, Loader, ChevronDown } from "lucide-react";
+import { useCallback, useState } from "react";
 
 /**
  * Internal dependencies
@@ -88,6 +88,11 @@ const Flow = <NodeType extends Node, EdgeType extends Edge>({
     [actions],
   );
 
+  const [isMinimapVisible, setIsMinimapVisible] = useState(true);
+  const onToggleMinimap = useCallback(() => {
+    setIsMinimapVisible((isVisible) => !isVisible);
+  }, []);
+
   return (
     <div className="h-full flex-1 flex flex-col rounded bg-gray-100 dark:bg-slate-950 relative min-h-[500px]">
       <div
@@ -111,70 +116,91 @@ const Flow = <NodeType extends Node, EdgeType extends Edge>({
           />
         </div>
 
-        <div className="flex items-center gap-2 bg-white/90 dark:bg-zinc-900/50 backdrop-blur-sm p-2 mx-2 rounded-lg shadow-sm border border-gray-200 dark:border-border">
-          <label
-            htmlFor="tab-select"
-            className="text-xs font-semibold text-gray-500 dark:text-zinc-500 uppercase tracking-wider"
-          >
-            Tab:
-          </label>
-          <select
-            id="tab-select"
-            value={selectedTabId || ""}
-            onChange={(e) => setSelectedTabId(Number(e.target.value))}
-            onFocus={actions.onRefreshTabs}
-            onMouseEnter={actions.onRefreshTabs}
-            className="text-sm bg-transparent border-none focus:ring-0 text-slate-700 dark:text-zinc-300 font-medium w-[200px] truncate cursor-pointer"
-          >
-            <option value="" disabled className="dark:bg-zinc-900">
-              Select a tab
-            </option>
-            {tabs.map((tab) => (
-              <option key={tab.id} value={tab.id} className="dark:bg-zinc-900">
-                {tab.title || tab.url || `Tab ${tab.id}`}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4 mr-2">
           {!autosaveEnabled && (
             <button
               onClick={actions.onSave}
-              className="px-3 py-1.5 bg-white dark:bg-zinc-800 hover:bg-gray-100 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-200 text-xs font-semibold rounded-md border border-slate-300 dark:border-border transition-colors shadow-sm"
+              className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-md transition-colors shadow-sm uppercase tracking-wider"
             >
               Save
             </button>
           )}
-          <button
-            onClick={isRunning ? actions.onStop : actions.onRun}
-            disabled={isStopping}
-            className={`flex items-center justify-center w-8 h-8 rounded-full shadow-sm transition-all duration-200 m-2 ${
-              isStopping
-                ? "bg-red-400 dark:bg-red-900/50 cursor-wait text-white shadow-none"
-                : isRunning
-                  ? "bg-red-500 hover:bg-red-600 dark:bg-rose-600 dark:hover:bg-rose-700 text-white shadow-red-200 dark:shadow-rose-900/20"
-                  : "bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white shadow-indigo-200 dark:shadow-indigo-900/20"
-            }`}
-            title={
-              isStopping
-                ? "Cancelling flow execution..."
-                : isRunning
-                  ? "Stop Workflow"
-                  : "Run Workflow"
-            }
-          >
-            {isStopping ? (
-              <Loader size={14} className="animate-spin" />
-            ) : isRunning ? (
-              <Square size={14} fill="currentColor" className="animate-pulse" />
-            ) : (
-              <Play size={16} fill="currentColor" className="ml-0.5" />
-            )}
-          </button>
+
+          <div className="w-px h-8 bg-slate-300 dark:bg-border"></div>
+
+          <div className="flex items-center bg-white dark:bg-zinc-800 rounded-md border border-slate-300 dark:border-border shadow-sm overflow-hidden">
+            <button
+              onClick={isRunning ? actions.onStop : actions.onRun}
+              disabled={isStopping}
+              className={`flex items-center justify-center w-10 h-10 transition-all duration-200 ${
+                isStopping
+                  ? "bg-red-400 dark:bg-red-900/50 cursor-wait text-white"
+                  : isRunning
+                    ? "bg-red-500 hover:bg-red-600 dark:bg-rose-600 dark:hover:bg-rose-700 text-white"
+                    : "bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white"
+              }`}
+              title={
+                isStopping
+                  ? "Cancelling flow execution..."
+                  : isRunning
+                    ? "Stop Workflow"
+                    : "Run Workflow"
+              }
+            >
+              {isStopping ? (
+                <Loader size={18} className="animate-spin" />
+              ) : isRunning ? (
+                <Square
+                  size={16}
+                  fill="currentColor"
+                  className="animate-pulse"
+                />
+              ) : (
+                <Play size={18} fill="currentColor" />
+              )}
+            </button>
+
+            <div className="relative flex items-center px-1 bg-transparent group">
+              <select
+                id="tab-select"
+                value={selectedTabId || ""}
+                onChange={(e) => setSelectedTabId(Number(e.target.value))}
+                onFocus={actions.onRefreshTabs}
+                onMouseEnter={actions.onRefreshTabs}
+                className="text-xs bg-transparent border-none focus:ring-0 text-slate-700 dark:text-zinc-300 font-bold uppercase tracking-tight w-[160px] truncate cursor-pointer py-2 appearance-none pr-6 pl-3"
+              >
+                <option
+                  value=""
+                  disabled
+                  className="dark:bg-zinc-900 font-sans normal-case"
+                >
+                  Target Tab
+                </option>
+                {tabs.map((tab) => (
+                  <option
+                    key={tab.id}
+                    value={tab.id}
+                    className="dark:bg-zinc-900 font-sans normal-case"
+                  >
+                    {tab.title || tab.url || `Tab ${tab.id}`}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown
+                size={14}
+                className="absolute right-2 pointer-events-none text-slate-400 group-hover:text-slate-600 dark:group-hover:text-zinc-300 transition-colors"
+              />
+            </div>
+          </div>
         </div>
       </div>
       <div className="w-full flex-1 min-h-[400px]">
+        <button
+          onClick={onToggleMinimap}
+          className="absolute z-1000 bg-white dark:bg-zinc-800 px-3 py-1 text-sm font-medium text-slate-600 dark:text-zinc-300 bottom-0 right-0"
+        >
+          {isMinimapVisible ? "Hide Minimap" : "Show Minimap"}
+        </button>
         <ReactFlow<NodeType, EdgeType>
           nodes={nodes}
           edges={edges}
@@ -188,7 +214,9 @@ const Flow = <NodeType extends Node, EdgeType extends Edge>({
           onDrop={onDrop}
           colorMode={theme}
         >
-          <MiniMap nodeStrokeWidth={3} zoomable pannable />
+          {isMinimapVisible && (
+            <MiniMap nodeStrokeWidth={3} zoomable pannable />
+          )}
           <Controls position="top-right" />
         </ReactFlow>
       </div>

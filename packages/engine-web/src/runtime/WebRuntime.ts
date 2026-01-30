@@ -1,7 +1,11 @@
 /**
  * External dependencies
  */
-import type { RuntimeInterface, NodeOutput } from "@google-awlt/engine-core";
+import {
+  type RuntimeInterface,
+  type NodeOutput,
+  userActivationManager,
+} from "@google-awlt/engine-core";
 
 export interface ExecutionCallbacks {
   onNodeStart?: (nodeId: string) => void;
@@ -268,6 +272,15 @@ export class WebRuntime implements RuntimeInterface {
 
     document.body.appendChild(tooltip);
     setTimeout(() => tooltip.remove(), 3000);
+  }
+
+  async waitForUserActivation(): Promise<void> {
+    await userActivationManager.requestActivation();
+  }
+
+  async isUserActive(): Promise<boolean> {
+    // @ts-ignore
+    return !!navigator.userActivation?.isActive;
   }
 
   onNodeStart(nodeId: string): void {

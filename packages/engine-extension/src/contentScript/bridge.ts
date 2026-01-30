@@ -1,4 +1,9 @@
 /**
+ * External dependencies
+ */
+import { userActivationManager } from '@google-awlt/engine-core';
+
+/**
  * Internal dependencies
  */
 import type {
@@ -70,6 +75,10 @@ export function initContentScriptBridge(): void {
 
       case 'SHOW_TOOLTIP':
         handleShowTooltip(message.selector, message.content, sendResponse);
+        return true;
+
+      case 'USER_ACTIVATION_REQUEST':
+        handleUserActivationRequest(sendResponse);
         return true;
 
       default:
@@ -270,7 +279,7 @@ export function initContentScriptBridge(): void {
       document.body.appendChild(textarea);
       textarea.select();
       document.execCommand('copy');
-      // document.body.removeChild(textarea);
+      document.body.removeChild(textarea);
       sendResponse({ success: true });
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
@@ -462,7 +471,6 @@ export function initContentScriptBridge(): void {
 
         if (placeBelow) {
           top = rect.bottom + scrollY + 8;
-        } else {
         }
 
         tooltip.style.visibility = 'hidden';
@@ -481,6 +489,22 @@ export function initContentScriptBridge(): void {
       sendResponse({
         success: true,
       });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      sendResponse({ success: false, error: message });
+    }
+  }
+
+  /**
+   * Handle user activation request.
+   */
+  async function handleUserActivationRequest(
+    sendResponse: (response: ContentScriptResponse) => void
+  ): Promise<void> {
+    try {
+      await userActivationManager.requestActivation();
+
+      sendResponse({ success: true });
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       sendResponse({ success: false, error: message });

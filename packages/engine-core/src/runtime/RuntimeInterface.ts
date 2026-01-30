@@ -111,6 +111,18 @@ export interface RuntimeInterface {
   onNodeFinish(nodeId: string, output: NodeOutput): void;
 
   /**
+   * Wait for a user activation gesture (e.g., a click) on the page.
+   * @returns Promise resolving when the user has interacted with the page.
+   */
+  waitForUserActivation(): Promise<void>;
+
+  /**
+   * Check if the user is currently "active" on the page (has recent interaction).
+   * @returns Promise resolving to true if the user is active.
+   */
+  isUserActive(): Promise<boolean>;
+
+  /**
    * Callback invoked when an error occurs during execution.
    * @param error - The error that occurred
    */

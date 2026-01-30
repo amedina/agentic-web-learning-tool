@@ -41,17 +41,23 @@ export const WorkflowConfig = () => {
     [workflowMeta.allowedDomains, updateWorkflowMeta],
   );
 
-  const [otherWorkflowNames, setOtherWorkflowNames] = useState<Set<string>>(
-    new Set(),
-  );
+  const [otherWorkflowNames, setOtherWorkflowNames] = useState<
+    {
+      name: string;
+      id: string;
+    }[]
+  >([]);
 
   useEffect(() => {
     listWorkflows().then((json) => {
       const others = json
         .filter(({ meta }) => meta.id !== workflowMeta.id)
-        .map(({ meta }) => meta.name);
+        .map(({ meta }) => ({
+          name: meta.name,
+          id: meta.id,
+        }));
 
-      setOtherWorkflowNames(new Set(others));
+      setOtherWorkflowNames(others);
     });
   }, [workflowMeta.id]);
 
@@ -76,7 +82,12 @@ export const WorkflowConfig = () => {
           );
         }
 
-        if (otherWorkflowNames.has(workflowMeta.name)) {
+        if (
+          otherWorkflowNames.some(
+            ({ name, id }) =>
+              name === workflowMeta.name && id !== workflowMeta.id,
+          )
+        ) {
           newErrors.push(
             `The name "${workflowMeta.name}" is already used by another workflow. Please change the name for unique identification.`,
           );
