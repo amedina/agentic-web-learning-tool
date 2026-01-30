@@ -26,7 +26,7 @@ import { isLocalTool } from './utils';
 import { useSettings } from '../../../stateProviders';
 import { TABLE_SEARCH_KEYS, ALL_TOOLS_FILTERS } from './constants';
 import { useToolExecution } from './hooks/useToolExecution';
-import { useEventLogs } from './hooks/useEventLogs';
+import { useEventLogs } from './eventLogsProvider';
 
 interface AllToolsRowData extends TableData, Tool {
   originalData: Tool;
@@ -39,7 +39,13 @@ export const WebMCPTools = ({
 }) => {
   const { tools: availableTools } = useMcpClient();
   const { theme } = useSettings(({ state }) => ({ theme: state.theme }));
-  const { setLastRunToolName } = useEventLogs();
+  const { setLastRunToolName, setSelectedKey, selectedKey } = useEventLogs(
+    ({ actions, state }) => ({
+      setLastRunToolName: actions.setLastRunToolName,
+      setSelectedKey: actions.setSelectedKey,
+      selectedKey: state.selectedKey,
+    })
+  );
 
   const onToolSuccess = (toolName: string) => {
     setLastRunToolName(toolName);
@@ -47,7 +53,6 @@ export const WebMCPTools = ({
   };
 
   const [allToolsData, setAllToolsData] = useState<TableData[]>([]);
-  const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const tabId = chrome.devtools?.inspectedWindow?.tabId;
 
   const {

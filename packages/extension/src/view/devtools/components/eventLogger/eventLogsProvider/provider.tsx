@@ -1,34 +1,18 @@
 /**
  * External dependencies
  */
-import {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  type ReactNode,
-} from 'react';
+import { useState, useEffect, useMemo, type PropsWithChildren } from 'react';
 import { type TableData } from '@google-awlt/design-system';
 
 /**
  * Internal dependencies
  */
+import EventLogsContext, { type EventLogsContextProps } from './context';
 import { MESSAGE_TYPES } from '../../../../../utils';
 import type { ToolExecutionLog } from '../types';
 import { isLocalTool, getRowKey } from '../utils';
 
-export interface EventLogsContextType {
-  eventLoggerData: TableData[];
-  selectedKey: string | null;
-  setSelectedKey: (key: string | null) => void;
-  setLastRunToolName: (name: string | null) => void;
-}
-
-const EventLogsContext = createContext<EventLogsContextType | undefined>(
-  undefined
-);
-
-export const EventLogsProvider = ({ children }: { children: ReactNode }) => {
+function EventLogsProvider({ children }: PropsWithChildren) {
   const [eventLoggerData, setEventLoggerData] = useState<TableData[]>([]);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [lastRunToolName, setLastRunToolName] = useState<string | null>(null);
@@ -90,26 +74,26 @@ export const EventLogsProvider = ({ children }: { children: ReactNode }) => {
     return () => chrome.runtime.onMessage.removeListener(handleMessage);
   }, [lastRunToolName, tabId]);
 
-  return (
-    <EventLogsContext.Provider
-      value={{
+  const contextValue = useMemo<EventLogsContextProps>(
+    () => ({
+      state: {
         eventLoggerData,
         selectedKey,
+        lastRunToolName,
+      },
+      actions: {
         setSelectedKey,
         setLastRunToolName,
-      }}
-    >
+      },
+    }),
+    [eventLoggerData, selectedKey, lastRunToolName]
+  );
+
+  return (
+    <EventLogsContext.Provider value={contextValue}>
       {children}
     </EventLogsContext.Provider>
   );
-};
+}
 
-export const useEventLogsContext = () => {
-  const context = useContext(EventLogsContext);
-  if (context === undefined) {
-    throw new Error(
-      'useEventLogsContext must be used within a EventLogsProvider'
-    );
-  }
-  return context;
-};
+export default EventLogsProvider;

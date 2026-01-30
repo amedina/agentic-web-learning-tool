@@ -6,7 +6,7 @@ import { SidebarProvider } from '@google-awlt/design-system';
 /**
  * Internal dependencies.
  */
-import { EventLogsProvider } from '../eventLogger/context';
+import { EventLogsProvider } from '../eventLogger';
 import Sidebar from './sidebar';
 import Main from './main';
 

@@ -20,11 +20,17 @@ import {
   TABLE_SEARCH_KEYS,
 } from './constants';
 import { getRowKey } from './utils';
-import { useEventLogs } from './hooks/useEventLogs';
+import { useEventLogs } from './eventLogsProvider';
 import { useSettings } from '../../../stateProviders';
 
 export const WebMCPInspector = () => {
-  const { eventLoggerData, selectedKey, setSelectedKey } = useEventLogs();
+  const { eventLoggerData, selectedKey, setSelectedKey } = useEventLogs(
+    ({ state, actions }) => ({
+      eventLoggerData: state.eventLoggerData,
+      selectedKey: state.selectedKey,
+      setSelectedKey: actions.setSelectedKey,
+    })
+  );
   const { theme } = useSettings(({ state }) => ({ theme: state.theme }));
 
   const renderDetailPanel = useCallback((row: TableRow) => {
