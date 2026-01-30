@@ -434,6 +434,9 @@ importers:
       ollama-ai-provider-v2:
         specifier: ^1.5.5
         version: 1.5.5(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+      re-resizable:
+        specifier: ^6.11.2
+        version: 6.11.2(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       react:
         specifier: ^19.1.1
         version: 19.2.3

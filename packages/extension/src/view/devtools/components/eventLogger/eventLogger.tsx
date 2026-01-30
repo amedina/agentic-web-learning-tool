@@ -36,7 +36,7 @@ interface AllToolsRowData extends TableData, Tool {
   originalData: Tool;
 }
 
-const EventLogger = () => {
+export const EventLogger = () => {
   const { tools: availableTools, client } = useMcpClient();
   const { theme } = useSettings(({ state }) => ({ theme: state.theme }));
 
@@ -310,5 +310,3 @@ const EventLogger = () => {
     </TableProvider>
   );
 };
-
-export default EventLogger;

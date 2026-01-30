@@ -54,6 +54,7 @@
     "loglevel": "^1.9.2",
     "lucide-react": "^0.542.0",
     "ollama-ai-provider-v2": "^1.5.5",
+    "re-resizable": "^6.11.2",
     "react": "^19.1.1",
     "react-context-selector": "^1.0.3",
     "react-dom": "^19.1.1",
