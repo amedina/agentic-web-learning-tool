@@ -104,10 +104,12 @@ export default function ExtensionCoreHealth() {
             </Button>
         }
       >
-        <StatusIndicator status={swStatus} label={swLabel} />
-        {swStatus === 'error' && (
-             <Button variant="link" size="sm" className="h-auto p-0 text-xs mt-1" onClick={checkServiceWorker}>Retry Connection</Button>
-        )}
+        <div className="flex flex-col items-end">
+            <StatusIndicator status={swStatus} label={swLabel} />
+            {swStatus === 'error' && (
+                <Button variant="link" size="sm" className="h-auto p-0 text-xs mt-1" onClick={checkServiceWorker}>Retry Connection</Button>
+            )}
+        </div>
       </StatusItem>
 
       {/* Storage Status */}

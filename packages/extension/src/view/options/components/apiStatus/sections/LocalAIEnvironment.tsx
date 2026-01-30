@@ -76,7 +76,7 @@ export default function LocalAIEnvironment() {
                         onClick={() => chrome.tabs.create({ url: `chrome://flags/${flag.name}` })}
                         className="text-blue-500 hover:underline flex items-center text-xs cursor-pointer bg-transparent border-0 p-0"
                     >
-                        [Go to flag] <ExternalLink className="w-3 h-3 ml-1"/>
+                        <ExternalLink className="w-3 h-3 ml-1"/>
                     </button>
                 </div>
             ))}
