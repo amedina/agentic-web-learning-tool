@@ -88,7 +88,6 @@ export default function PolyglotPanel() {
     const checkDetectorCapability = async () => {
         try {
             if (window.LanguageDetector) {
-                // @ts-ignore
                  if (typeof window.LanguageDetector.availability === 'function') {
                     // @ts-ignore
                     const status = await window.LanguageDetector.availability();
@@ -99,12 +98,12 @@ export default function PolyglotPanel() {
                  setDetectorStatus('readily');
             } else if (window.ai?.languageDetector) {
                 // Check for different potential API shapes
-                if (typeof window.ai.languageDetector.capabilities === 'function') {
-                     const caps = await window.ai.languageDetector.capabilities();
-                     setDetectorStatus(caps?.available || 'no');
-                } else if (typeof window.ai.languageDetector.availability === 'function') {
+                if (typeof window.ai.languageDetector.availability === 'function') {
                      const status = await window.ai.languageDetector.availability();
                      setDetectorStatus(status);
+                } else if (typeof window.ai.languageDetector.capabilities === 'function') {
+                     const caps = await window.ai.languageDetector.capabilities();
+                     setDetectorStatus(caps?.available || 'no');
                 } else {
                      // Fallback: if we can't check, assume 'no' until proven otherwise by 'create'
                      // OR check if 'create' exists
@@ -399,7 +398,7 @@ export default function PolyglotPanel() {
                              {mode === 'detector' ? (
                                  <Button
                                     onClick={handleDetect}
-                                    disabled={!detectInput.trim() || isDetecting || detectorStatus === 'no'}
+                                    disabled={!detectInput.trim() || isDetecting || detectorStatus === 'no' || detectorStatus === 'unavailable'}
                                  >
                                     {isDetecting ? (
                                         <>
@@ -414,13 +413,13 @@ export default function PolyglotPanel() {
                              ) : (
                                  <Button
                                     onClick={handleTranslate}
-                                    disabled={!translateInput.trim() || isTranslating || translatorStatus === 'no'}
+                                    disabled={!translateInput.trim() || isTranslating || translatorStatus === 'no' || translatorStatus === 'unavailable'}
                                  >
                                     {isTranslating ? (
                                         <>
                                             <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Translating...
                                         </>
-                                    ) : translatorStatus === 'after-download' ? (
+                                    ) : (translatorStatus === 'after-download' || translatorStatus === 'downloadable') ? (
                                         <>
                                             <Download className="w-4 h-4 mr-2" /> Download & Translate
                                         </>
@@ -516,7 +515,7 @@ export default function PolyglotPanel() {
 }
 
 function StatusBadge({ status }: { status: string }) {
-    if (status === 'readily') {
+    if (status === 'readily' || status === 'available') {
         return <span className="text-xs bg-green-500/10 text-green-600 px-2 py-0.5 rounded-full font-medium">Ready</span>;
     }
     if (status === 'after-download' || status === 'downloadable') {
