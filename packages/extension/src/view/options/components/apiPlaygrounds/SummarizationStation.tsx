@@ -25,12 +25,13 @@ import type {
     AISummarizerType,
     AISummarizerFormat,
     AISummarizerLength,
-    AISummarizerSession
+    AISummarizerSession,
+    AIAvailability
 } from '../../../../types/window.ai';
 
 export default function SummarizationStation() {
     // Capability State
-    const [availability, setAvailability] = useState<'readily' | 'after-download' | 'no'>('no');
+    const [availability, setAvailability] = useState<AIAvailability>('no');
     const [isChecking, setIsChecking] = useState(true);
 
     // Configuration State
@@ -51,7 +52,7 @@ export default function SummarizationStation() {
     const checkCapabilities = async () => {
         setIsChecking(true);
         try {
-            let status: 'readily' | 'after-download' | 'no' = 'no';
+            let status: AIAvailability = 'no';
 
             // Check self.Summarizer
             if (window.Summarizer) {
@@ -157,7 +158,7 @@ export default function SummarizationStation() {
     }
 
     const isAvailable = availability !== 'no';
-    const needsDownload = availability === 'after-download';
+    const needsDownload = availability === 'after-download' || availability === 'downloadable';
 
     return (
         <div className="flex flex-col h-[calc(100vh-200px)] max-h-[800px] gap-6">
