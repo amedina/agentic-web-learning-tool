@@ -3,10 +3,7 @@
  */
 import { useState, useEffect } from 'react';
 import type { Tool } from '@modelcontextprotocol/sdk/types.js';
-import {
-  toast,
-  RunToolPanel as RunToolPanelView,
-} from '@google-awlt/design-system';
+import { RunToolPanel as RunToolPanelView } from '@google-awlt/design-system';
 
 interface RunToolPanelProps {
   isOpen: boolean;
@@ -75,16 +72,17 @@ const RunToolPanel = ({
       }
 
       await onRun(tool.name, parsedArgs);
-      onClose();
     } catch (error) {
       console.error('Failed to run tool:', error);
       setValidationError(
         error instanceof Error ? error.message : 'Invalid arguments'
       );
-      toast.error('Failed to run tool');
     } finally {
-      setIsRunning(false);
-      afterRunTool(tool);
+      setTimeout(() => {
+        onClose();
+        setIsRunning(false);
+        afterRunTool(tool);
+      }, 1000);
     }
   };
 

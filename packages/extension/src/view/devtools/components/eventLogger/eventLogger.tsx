@@ -9,6 +9,8 @@ import {
   ToolDetail,
   LogDetail,
   ActionButton,
+  Toaster,
+  toast,
   type TableColumn,
   type TableData,
   type InfoType,
@@ -16,7 +18,6 @@ import {
   type UserStoredTool,
 } from '@google-awlt/design-system';
 import type { Tool } from '@modelcontextprotocol/sdk/types.js';
-import { toast } from '@google-awlt/design-system';
 import { noop } from '@google-awlt/common';
 
 /**
@@ -26,6 +27,7 @@ import RunToolPanel from './runToolPanel';
 import { MESSAGE_TYPES } from '../../../../utils';
 import type { ToolExecutionLog } from './types';
 import { isLocalTool } from './utils';
+import { useSettings } from '../../../stateProviders';
 import {
   TABLE_SEARCH_KEYS,
   ALL_TOOLS_FILTERS,
@@ -39,10 +41,12 @@ interface AllToolsRowData extends TableData, Tool {
 
 const EventLogger = () => {
   const { tools: availableTools, client } = useMcpClient();
+  const { theme } = useSettings(({ state }) => ({ theme: state.theme }));
+
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [showAllTools, setShowAllTools] = useState(true);
   const [allToolsData, setAllToolsData] = useState<TableData[]>([]);
-  const [isRunToolsSidePanelOpen, setIsRunToolsSidePanelOpen] = useState(false);
+  const [isRunToolPanelOpen, setIsRunToolPanelOpen] = useState(false);
   const [selectedToolToRun, setSelectedToolToRun] = useState<Tool | null>(null);
   const [lastRunToolName, setLastRunToolName] = useState<string | null>(null);
   const [logs, setLogs] = useState<ToolExecutionLog[]>([]);
@@ -116,10 +120,10 @@ const EventLogger = () => {
 
     try {
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(
-          () => reject(new Error('Tool execution timed out after 30s')),
-          30000
-        );
+        setTimeout(() => {
+          reject(new Error('Tool execution timed out after 30s'));
+          toast.error('Tool execution timed out after 30s');
+        }, 30000);
       });
 
       await Promise.race([
@@ -131,7 +135,6 @@ const EventLogger = () => {
       ]);
 
       toast.success('Tool execution completed');
-      setIsRunToolsSidePanelOpen(false);
     } catch (error) {
       console.error('Error running tool:', error);
       toast.error(
@@ -143,7 +146,7 @@ const EventLogger = () => {
 
   const openRunToolPanel = (tool: Tool) => {
     setSelectedToolToRun(tool);
-    setIsRunToolsSidePanelOpen(true);
+    setIsRunToolPanelOpen(true);
   };
 
   const allToolsColumns: TableColumn[] = [
@@ -244,6 +247,13 @@ const EventLogger = () => {
         (row?.originalData?.name as string) || (row?.name as string)
       }
     >
+      <Toaster
+        position="top-center"
+        theme={theme === 'auto' ? 'system' : theme}
+        toastOptions={{
+          duration: 1000,
+        }}
+      />
       <Table
         selectedKey={selectedKey}
         isFiltersSidebarOpen={true}
@@ -251,9 +261,9 @@ const EventLogger = () => {
         renderDetailPanel={renderDetailPanel}
       />
       <RunToolPanel
-        isOpen={isRunToolsSidePanelOpen}
+        isOpen={isRunToolPanelOpen}
         onClose={() => {
-          setIsRunToolsSidePanelOpen(false);
+          setIsRunToolPanelOpen(false);
           setSelectedToolToRun(null);
         }}
         tool={selectedToolToRun}
