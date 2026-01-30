@@ -13,7 +13,7 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { Play, Square, Loader, ChevronDown } from "lucide-react";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 
 /**
  * Internal dependencies
@@ -87,6 +87,11 @@ const Flow = <NodeType extends Node, EdgeType extends Edge>({
     },
     [actions],
   );
+
+  const [isMinimapVisible, setIsMinimapVisible] = useState(true);
+  const onToggleMinimap = useCallback(() => {
+    setIsMinimapVisible((isVisible) => !isVisible);
+  }, []);
 
   return (
     <div className="h-full flex-1 flex flex-col rounded bg-gray-100 dark:bg-slate-950 relative min-h-[500px]">
@@ -190,6 +195,12 @@ const Flow = <NodeType extends Node, EdgeType extends Edge>({
         </div>
       </div>
       <div className="w-full flex-1 min-h-[400px]">
+        <button
+          onClick={onToggleMinimap}
+          className="absolute z-1000 bg-white dark:bg-zinc-800 px-3 py-1 text-sm font-medium text-slate-600 dark:text-zinc-300 bottom-0 right-0"
+        >
+          {isMinimapVisible ? "Hide Minimap" : "Show Minimap"}
+        </button>
         <ReactFlow<NodeType, EdgeType>
           nodes={nodes}
           edges={edges}
@@ -203,7 +214,9 @@ const Flow = <NodeType extends Node, EdgeType extends Edge>({
           onDrop={onDrop}
           colorMode={theme}
         >
-          <MiniMap nodeStrokeWidth={3} zoomable pannable />
+          {isMinimapVisible && (
+            <MiniMap nodeStrokeWidth={3} zoomable pannable />
+          )}
           <Controls position="top-right" />
         </ReactFlow>
       </div>
