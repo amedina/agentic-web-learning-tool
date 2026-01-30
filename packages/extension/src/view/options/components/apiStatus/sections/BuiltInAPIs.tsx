@@ -9,17 +9,17 @@ import { RefreshCw, Download } from 'lucide-react';
 interface APIInfo {
   id: string;
   name: string;
-  flag: string;
+  flags: string[];
 }
 
 const APIS: APIInfo[] = [
-  { id: 'prompt', name: 'Prompt API', flag: '#prompt-api-for-gemini-nano' },
-  { id: 'proofreader', name: 'Proofreader API', flag: '#proofreader-api-for-gemini-nano' },
-  { id: 'translator', name: 'Translator API', flag: '#translation-api' },
-  { id: 'languageDetector', name: 'Language Detector API', flag: '#language-detection-api' },
-  { id: 'summarizer', name: 'Summarizer API', flag: '#summarization-api-for-gemini-nano' },
-  { id: 'writer', name: 'Writer API', flag: '#writer-api-for-gemini-nano' },
-  { id: 'rewriter', name: 'Rewriter API', flag: '#rewriter-api-for-gemini-nano' },
+  { id: 'prompt', name: 'Prompt API', flags: ['#optimization-guide-on-device-model', '#prompt-api-for-gemini-nano-multimodal-input'] },
+  { id: 'proofreader', name: 'Proofreader API', flags: ['#proofreader-api-for-gemini-nano'] },
+  { id: 'translator', name: 'Translator API', flags: ['#translation-api'] },
+  { id: 'languageDetector', name: 'Language Detector API', flags: ['#language-detection-api'] },
+  { id: 'summarizer', name: 'Summarizer API', flags: ['#summarization-api-for-gemini-nano'] },
+  { id: 'writer', name: 'Writer API', flags: ['#writer-api-for-gemini-nano'] },
+  { id: 'rewriter', name: 'Rewriter API', flags: ['#rewriter-api-for-gemini-nano'] },
 ];
 
 export default function BuiltInAPIs() {
@@ -216,12 +216,17 @@ export default function BuiltInAPIs() {
                 label={api.name}
                 action={
                     info.status === 'error' ? (
-                        <button
-                            onClick={() => chrome.tabs.create({ url: `chrome://flags/${api.flag}` })}
-                            className="text-xs text-blue-500 hover:underline cursor-pointer bg-transparent border-0 p-0"
-                        >
-                            Enable Flag
-                        </button>
+                        <div className="flex flex-col items-end gap-1">
+                            {api.flags.map(flag => (
+                                <button
+                                    key={flag}
+                                    onClick={() => chrome.tabs.create({ url: `chrome://flags/${flag}` })}
+                                    className="text-xs text-blue-500 hover:underline cursor-pointer bg-transparent border-0 p-0 text-right"
+                                >
+                                    Enable {flag.replace(/^#/, '').replace(/-/g, ' ')}
+                                </button>
+                            ))}
+                        </div>
                     ) : info.status === 'warning' && !isDownloading && (info.label === 'Needs Download') ? (
                          <Button variant="outline" size="sm" onClick={() => downloadModel(api.id)} className="h-6 text-xs px-2">
                             <Download className="w-3 h-3 mr-1" /> Download

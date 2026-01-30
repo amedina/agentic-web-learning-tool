@@ -79,6 +79,16 @@ export default function SummarizationStation() {
         }
     };
 
+    const getTypeDescription = (t: AISummarizerType) => {
+        switch (t) {
+            case 'tldr': return "Summary should be short and to the point, providing a quick overview of the input, suitable for a busy reader.";
+            case 'teaser': return "Summary should focus on the most interesting or intriguing parts of the input, designed to draw the reader in to read more.";
+            case 'key-points': return "Summary should extract the most important points from the input, presented as a bulleted list.";
+            case 'headline': return "Summary should effectively contain the main point of the input in a single sentence, in the format of an article headline.";
+            default: return "";
+        }
+    };
+
     const handleRun = async () => {
         if (!input.trim() || isStreaming) return;
 
@@ -188,6 +198,9 @@ export default function SummarizationStation() {
                                         <SelectItem value="headline">Headline</SelectItem>
                                     </SelectContent>
                                 </Select>
+                                <p className="text-xs text-muted-foreground italic leading-relaxed">
+                                    {getTypeDescription(type)}
+                                </p>
                             </div>
 
                             <div className="space-y-2">

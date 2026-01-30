@@ -23,7 +23,7 @@ export default function APIStatusTab() {
         <h4 className="font-semibold mb-2">Note on Mocked Data & Limitations:</h4>
         <ul className="list-disc pl-4 space-y-1">
             <li><strong>Chrome Flags:</strong> Extensions cannot directly read flag status. We verify the availability of the resulting APIs.</li>
-            <li><strong>Component Download Progress:</strong> Detailed download percentage is not exposed by the `window.ai` API, only general status ('after-download').</li>
+            <li><strong>Model Download:</strong> Models are downloaded on-demand. Availability checks determine if a download is required ('after-download') or if the model is ready ('readily').</li>
         </ul>
       </div>
     </OptionsPageTab>
