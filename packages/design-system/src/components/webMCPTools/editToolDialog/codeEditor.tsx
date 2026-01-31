@@ -8,6 +8,7 @@ import { vs, dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
  * Internal dependencies.
  */
 import { SyntaxHighlighterWhite } from '../../syntaxHighlighter';
+import { CodeEditorGutter } from './codeEditorGutter';
 
 interface CodeEditorProps {
   code: string;
@@ -70,48 +71,17 @@ export function CodeEditor({
   return (
     <div className="flex-1 relative flex text-[12px]">
       {/* Line Numbers Gutter */}
-      <div
+      <CodeEditorGutter
         ref={gutterRef}
-        className="select-none text-right overflow-hidden border-r border-[#e0e0e0] flex-shrink-0 relative z-20 cursor-default"
-        style={{
-          ...commonStyle,
-          width: '2.9rem', // Reduced width as requested (approx 10px less than 3.5rem)
-          backgroundColor: gutterBg,
-          color: gutterText,
-          paddingTop: '1.5rem',
-        }}
-      >
-        {lineNumbers.map((num) => {
-          const hasBreakpoint = breakpoints.includes(num);
-          return (
-            <div
-              key={num}
-              onClick={() => toggleBreakpoint(num)}
-              className={`relative hover:text-gray-800 ${
-                enableBreakpoints ? 'cursor-pointer' : ''
-              }`}
-              style={{
-                height: '18px',
-                lineHeight: '18px',
-                paddingRight: '0.5rem',
-                color: hasBreakpoint ? 'white' : 'inherit',
-              }}
-            >
-              {hasBreakpoint && enableBreakpoints && (
-                <div
-                  className="absolute left-0 top-0 w-full h-full"
-                  style={{
-                    backgroundColor: breakpointColor,
-                    clipPath:
-                      'polygon(0% 0%, 85% 0%, 100% 50%, 85% 100%, 0% 100%)',
-                  }}
-                />
-              )}
-              <span className="relative z-10 font-mono">{num}</span>
-            </div>
-          );
-        })}
-      </div>
+        lineNumbers={lineNumbers}
+        breakpoints={breakpoints}
+        toggleBreakpoint={toggleBreakpoint}
+        enableBreakpoints={enableBreakpoints}
+        commonStyle={commonStyle}
+        gutterBg={gutterBg}
+        gutterText={gutterText}
+        breakpointColor={breakpointColor}
+      />
 
       {/* Editor Area */}
       <div className="relative flex-1">
