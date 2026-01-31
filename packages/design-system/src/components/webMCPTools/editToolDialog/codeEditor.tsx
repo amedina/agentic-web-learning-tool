@@ -13,22 +13,17 @@ interface CodeEditorProps {
   code: string;
   onChange: (code: string) => void;
   isDarkMode?: boolean;
+  styles?: React.CSSProperties;
 }
 
 export function CodeEditor({
   code,
   onChange,
   isDarkMode = false,
+  styles = {},
 }: CodeEditorProps) {
   const backdropRef = useRef<HTMLDivElement>(null);
   const gutterRef = useRef<HTMLDivElement>(null);
-
-  // TODO: We probably do not need these, as they are already added in the SyntaxHighlighterWhite component.
-  const editorFontFamily =
-    '"Fira Code", "Cascadia Code", Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace';
-  const editorFontSize = '14px';
-  const editorLineHeight = '1.5';
-  const editorPadding = '1.5rem 1rem';
 
   const SyntaxHighlighterAny = SyntaxHighlighterWhite as any;
 
@@ -43,10 +38,12 @@ export function CodeEditor({
   };
 
   const commonStyle = {
-    fontFamily: editorFontFamily,
-    fontSize: editorFontSize,
-    lineHeight: editorLineHeight,
-    padding: editorPadding,
+    fontFamily:
+      '"Fira Code", "Cascadia Code", Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace',
+    fontSize: '12px',
+    lineHeight: '1.3',
+    padding: '1.5rem 1rem',
+    ...styles,
   };
 
   const lines = code.split('\n');

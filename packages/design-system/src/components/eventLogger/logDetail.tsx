@@ -89,6 +89,7 @@ export function LogDetail({ log }: LogDetailProps) {
             code={log.script}
             onChange={() => {}}
             isDarkMode={false}
+            styles={{ fontSize: '11px', lineHeight: '1.2', fontWeight: 300 }}
           />
         ) : (
           <div className="flex items-center justify-center h-full text-xs italic p-4 text-center min-h-[200px]">
