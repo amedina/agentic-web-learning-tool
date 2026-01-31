@@ -1,7 +1,7 @@
 /**
  * External dependencies.
  */
-import { CodeEditor } from '../webMCPTools';
+import { CodeEditor } from '../codeEditor';
 
 /**
  * Internal dependencies.

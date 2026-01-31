@@ -31,3 +31,4 @@ export * from './select';
 export * from './sheet';
 export { default as Textarea } from './textarea';
 export * from './combobox';
+export * from './codeEditor';

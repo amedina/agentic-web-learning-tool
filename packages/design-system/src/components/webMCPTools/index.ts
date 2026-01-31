@@ -2,5 +2,5 @@ export * from './webMCPToolsTab';
 export * from './toolList';
 export * from './toolCard';
 export * from './editToolDialog';
-export * from './editToolDialog/codeEditor';
+export * from '../codeEditor/codeEditor';
 export * from './types';

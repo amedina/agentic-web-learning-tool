@@ -7,7 +7,7 @@ import { vs, dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
 /**
  * Internal dependencies.
  */
-import { SyntaxHighlighterWhite } from '../../syntaxHighlighter';
+import { SyntaxHighlighterWhite } from '../syntaxHighlighter';
 import { CodeEditorGutter } from './codeEditorGutter';
 
 interface CodeEditorProps {
@@ -15,6 +15,7 @@ interface CodeEditorProps {
   onChange: (code: string) => void;
   isDarkMode?: boolean;
   styles?: React.CSSProperties;
+  enableBreakpoints?: boolean;
 }
 
 export function CodeEditor({
