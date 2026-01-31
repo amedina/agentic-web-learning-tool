@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import {
   Table,
   TableProvider,
@@ -31,6 +31,10 @@ export const WebMCPInspector = () => {
     })
   );
   const { theme } = useSettings(({ state }) => ({ theme: state.theme }));
+
+  useEffect(() => {
+    console.log(selectedKey, 'selectedKey');
+  }, [selectedKey]);
 
   const renderDetailPanel = useCallback((row: TableRow) => {
     let data = row.originalData;

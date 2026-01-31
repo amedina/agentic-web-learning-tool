@@ -18,8 +18,6 @@ function EventLogsProvider({ children }: PropsWithChildren) {
   const [lastRunToolName, setLastRunToolName] = useState<string | null>(null);
   const [isToolRunning, setIsToolRunning] = useState<boolean>(false);
 
-  console.log('EventLogsProvider');
-
   const tabId = chrome.devtools?.inspectedWindow?.tabId;
 
   useEffect(() => {
@@ -41,32 +39,30 @@ function EventLogsProvider({ children }: PropsWithChildren) {
   useEffect(() => {
     const handleMessage = (message: any) => {
       if (message.type === MESSAGE_TYPES.TOOL_LOG) {
+        const newLog = message.payload as ToolExecutionLog;
+
+        // Filter out if not local tool
+        if (!isLocalTool(newLog.toolName, tabId)) {
+          return;
+        }
+
+        newLog.id = newLog.id || crypto.randomUUID();
+
+        const mappedLog: TableData = {
+          id: newLog.id,
+          name: newLog.toolName,
+          time: new Date(newLog.startTime).toLocaleTimeString(),
+          type: newLog.type,
+          status: newLog.status,
+          duration: newLog.duration ? `${newLog.duration}ms` : '-',
+          originalData: newLog,
+          description: newLog.result ? 'Success' : newLog.error || 'Pending',
+        };
+
         setEventLoggerData((prevData) => {
-          const newLog = message.payload as ToolExecutionLog;
-
-          // Filter out if not local tool
-          if (!isLocalTool(newLog.toolName, tabId)) {
-            return prevData;
-          }
-
           const existingIndex = prevData.findIndex(
             (item) => item.originalData.id === newLog.id
           );
-
-          newLog.id = newLog.id || crypto.randomUUID();
-
-          const mappedLog: TableData = {
-            id: newLog.id,
-            name: newLog.toolName,
-            time: new Date(newLog.startTime).toLocaleTimeString(),
-            type: newLog.type,
-            status: newLog.status,
-            duration: newLog.duration ? `${newLog.duration}ms` : '-',
-            originalData: newLog,
-            description: newLog.result ? 'Success' : newLog.error || 'Pending',
-          };
-
-          let data = [];
 
           if (existingIndex !== -1) {
             const updatedData = [...prevData];
@@ -75,24 +71,21 @@ function EventLogsProvider({ children }: PropsWithChildren) {
               ...mappedLog,
             };
 
-            data = updatedData;
+            return updatedData;
           } else {
-            data = [mappedLog, ...prevData];
+            return [mappedLog, ...prevData];
           }
-
-          // TODO: Why is it running 4 times?
-          if (isToolRunning && newLog.id !== selectedKey) {
-            setSelectedKey(newLog.id);
-          }
-
-          return data;
         });
+
+        if (isToolRunning && newLog.id !== selectedKey) {
+          setSelectedKey(newLog.id);
+        }
       }
     };
 
     chrome.runtime.onMessage.addListener(handleMessage);
     return () => chrome.runtime.onMessage.removeListener(handleMessage);
-  }, [lastRunToolName, isToolRunning, tabId]);
+  }, [lastRunToolName, isToolRunning, tabId, selectedKey]);
 
   const contextValue = useMemo<EventLogsContextProps>(
     () => ({
@@ -108,7 +101,7 @@ function EventLogsProvider({ children }: PropsWithChildren) {
         setIsToolRunning,
       },
     }),
-    [eventLoggerData, selectedKey, lastRunToolName]
+    [eventLoggerData, selectedKey, lastRunToolName, isToolRunning]
   );
 
   return (
