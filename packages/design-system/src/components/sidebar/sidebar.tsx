@@ -32,6 +32,7 @@ export type MenuItem = {
   title: string;
   icon?: () => ReactNode;
   items?: MenuItem[];
+  onClick?: () => void;
 };
 
 type SidebarProps = {
@@ -99,7 +100,11 @@ export function Sidebar({
                     >
                       <div
                         onClick={() => {
-                          setSelectedMenuItem(subItem.id);
+                          if (subItem.onClick) {
+                            subItem.onClick();
+                          } else {
+                            setSelectedMenuItem(subItem.id);
+                          }
                         }}
                       >
                         {subItem.icon && subItem.icon()}
@@ -125,7 +130,11 @@ export function Sidebar({
         >
           <div
             onClick={() => {
-              setSelectedMenuItem(item.id);
+              if (item.onClick) {
+                item.onClick();
+              } else {
+                setSelectedMenuItem(item.id);
+              }
             }}
           >
             {item.icon && item.icon()}

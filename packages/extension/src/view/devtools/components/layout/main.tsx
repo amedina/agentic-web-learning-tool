@@ -21,13 +21,6 @@ const Main = () => {
         );
       case 'inspector':
         return <WebMCPInspector />;
-      case 'settings':
-        return (
-          <div className="p-4">
-            <h2 className="text-xl font-bold mb-4">Settings</h2>
-            <p>Settings panel implementation pending.</p>
-          </div>
-        );
       default:
         return (
           <WebMCPTools setSelectedMenuItem={actions.setSelectedMenuItem} />

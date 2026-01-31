@@ -20,9 +20,10 @@ const Sidebar = () => {
 
   const footerItems = [
     {
-      title: 'Settings',
-      id: 'settings',
+      title: 'Options',
+      id: 'options',
       icon: () => <Settings width="20" height="20" />,
+      onClick: () => chrome.runtime.openOptionsPage(),
     },
   ];
 
