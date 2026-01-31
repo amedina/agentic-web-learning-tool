@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useMcpClient } from '@mcp-b/mcp-react-hooks';
 import type { Tool } from '@modelcontextprotocol/sdk/types.js';
 import { toast } from '@google-awlt/design-system';
@@ -12,6 +12,7 @@ export const useToolExecution = (
   const { client } = useMcpClient();
   const [isRunToolPanelOpen, setIsRunToolPanelOpen] = useState(false);
   const [selectedToolToRun, setSelectedToolToRun] = useState<Tool | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleRunTool = async (toolName: string, args: any) => {
     if (!client) {
@@ -20,19 +21,38 @@ export const useToolExecution = (
 
     try {
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => {
+        timeoutRef.current = setTimeout(() => {
           reject(new Error('Tool execution timed out after 30s'));
           toast.error('Tool execution timed out after 30s');
         }, 30000);
       });
 
-      await Promise.race([
-        client.callTool({
-          name: toolName,
-          arguments: args,
-        }),
-        timeoutPromise,
-      ]);
+      const callToolPromise = new Promise((resolve, reject) => {
+        client
+          .callTool({
+            name: toolName,
+            arguments: args,
+          })
+          .then((result) => {
+            if (timeoutRef.current) {
+              clearTimeout(timeoutRef.current);
+            }
+            resolve(result);
+          })
+          .catch((error) => {
+            if (timeoutRef.current) {
+              clearTimeout(timeoutRef.current);
+            }
+
+            toast.error(
+              error instanceof Error ? error.message : 'Tool execution failed'
+            );
+
+            reject(error);
+          });
+      });
+
+      await Promise.race([callToolPromise, timeoutPromise]);
 
       toast.success('Tool execution completed');
 
