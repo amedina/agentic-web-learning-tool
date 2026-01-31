@@ -1,7 +1,7 @@
 /**
  * External dependencies.
  */
-import React, { type ChangeEvent } from 'react';
+import React, { type ChangeEvent, useEffect } from 'react';
 
 /**
  * Internal dependencies.
@@ -47,8 +47,10 @@ export const RunToolPanel: React.FC<RunToolPanelProps> = ({
   const properties = tool.inputSchema?.properties || {};
   const requiredFields = tool.inputSchema?.required || [];
 
-  React.useEffect(() => {
-    if (!tool) return;
+  useEffect(() => {
+    if (!tool) {
+      return;
+    }
 
     Object.entries(properties).forEach(([key, schema]: [string, any]) => {
       // Skip if we already have a value

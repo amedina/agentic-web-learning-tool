@@ -31,12 +31,16 @@ const RunToolPanel = ({
   const [args, setArgs] = useState<Record<string, string>>({});
   const [validationError, setValidationError] = useState<string | null>(null);
 
+  const [prevToolName, setPrevToolName] = useState<string | null>(null);
+
   useEffect(() => {
-    if (isOpen) {
+    // Reset args when tool changes
+    if (tool?.name !== prevToolName) {
       setArgs({});
       setValidationError(null);
+      setPrevToolName(tool?.name || null);
     }
-  }, [isOpen, tool]);
+  }, [tool]);
 
   const inputSchema = tool?.inputSchema as {
     properties?: Record<string, any>;
