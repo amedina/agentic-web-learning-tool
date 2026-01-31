@@ -28,6 +28,7 @@ export interface RunToolPanelProps {
   onRun: () => void;
   isRunning: boolean;
   validationError: string | null;
+  activeTabId?: number;
 }
 
 export const RunToolPanel: React.FC<RunToolPanelProps> = ({
@@ -39,11 +40,40 @@ export const RunToolPanel: React.FC<RunToolPanelProps> = ({
   onRun,
   isRunning,
   validationError,
+  activeTabId,
 }) => {
   if (!tool) return null;
 
   const properties = tool.inputSchema?.properties || {};
   const requiredFields = tool.inputSchema?.required || [];
+
+  React.useEffect(() => {
+    if (!tool) return;
+
+    Object.entries(properties).forEach(([key, schema]: [string, any]) => {
+      // Skip if we already have a value
+      if (args[key] !== undefined && args[key] !== '') {
+        return;
+      }
+
+      // Handle tabId special case
+      if (key === 'tabId' && activeTabId !== undefined) {
+        onArgsChange(key, activeTabId.toString());
+        return;
+      }
+
+      // Handle explicit defaults from schema
+      if (schema.default !== undefined) {
+        let defaultValue = schema.default;
+        if (typeof defaultValue === 'object') {
+          defaultValue = JSON.stringify(defaultValue);
+        } else {
+          defaultValue = String(defaultValue);
+        }
+        onArgsChange(key, defaultValue);
+      }
+    });
+  }, [tool, activeTabId]);
 
   return (
     <div
@@ -118,7 +148,20 @@ export const RunToolPanel: React.FC<RunToolPanelProps> = ({
                           <span className="text-red-500 ml-0.5">*</span>
                         )}
                       </label>
-                      {schema.type === 'boolean' ? (
+                      {schema.enum ? (
+                        <select
+                          className="block w-full rounded-sm border-gray-300 border p-2 text-sm focus:border-blue-500 focus:ring-blue-500"
+                          value={args[key] || ''}
+                          onChange={(e) => onArgsChange(key, e.target.value)}
+                        >
+                          <option value="">Select...</option>
+                          {schema.enum.map((option: string) => (
+                            <option key={option} value={option}>
+                              {option}
+                            </option>
+                          ))}
+                        </select>
+                      ) : schema.type === 'boolean' ? (
                         <select
                           className="block w-full rounded-sm border-gray-300 border p-2 text-sm focus:border-blue-500 focus:ring-blue-500"
                           value={args[key] || ''}

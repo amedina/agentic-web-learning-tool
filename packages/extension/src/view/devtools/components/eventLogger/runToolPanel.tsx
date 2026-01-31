@@ -16,6 +16,7 @@ interface RunToolPanelProps {
   tool: Tool | null;
   onRun: (toolName: string, args: any) => Promise<void>;
   afterRunTool: (tool: Tool | null) => void;
+  activeTabId?: number;
 }
 
 const RunToolPanel = ({
@@ -24,6 +25,7 @@ const RunToolPanel = ({
   tool,
   onRun,
   afterRunTool,
+  activeTabId,
 }: RunToolPanelProps) => {
   const { state, actions } = useEventLogs();
   const [args, setArgs] = useState<Record<string, string>>({});
@@ -111,6 +113,7 @@ const RunToolPanel = ({
       onRun={handleRun}
       isRunning={state.isToolRunning}
       validationError={validationError}
+      activeTabId={activeTabId}
     />
   );
 };

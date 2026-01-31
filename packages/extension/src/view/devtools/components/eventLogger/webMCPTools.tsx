@@ -162,6 +162,7 @@ export const WebMCPTools = ({
         tool={selectedToolToRun}
         onRun={handleRunTool}
         afterRunTool={(tool) => onToolSuccess(tool?.name || '')}
+        activeTabId={tabId}
       />
     </TableProvider>
   );
