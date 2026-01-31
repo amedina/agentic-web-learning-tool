@@ -19,7 +19,6 @@ import {
   EVENT_LOGGER_COLUMNS,
   TABLE_SEARCH_KEYS,
 } from './constants';
-import { getRowKey } from './utils';
 import { useEventLogs } from './eventLogsProvider';
 import { useSettings } from '../../../stateProviders';
 
@@ -50,15 +49,12 @@ export const WebMCPInspector = () => {
       tableFilterData={EVENT_LOGGER_FILTERS}
       tableSearchKeys={TABLE_SEARCH_KEYS}
       onRowClick={(row: any) => {
-        const rowKey = getRowKey(row?.name, row?.time);
-        setSelectedKey(rowKey);
+        setSelectedKey(row?.id);
       }}
       onRowContextMenu={noop}
       getRowObjectKey={(row: any) => {
-        const data = row.original || row;
-        const name = data?.name as string;
-        const time = data?.time as string;
-        return getRowKey(name, time);
+        const data = row.originalData || row;
+        return data?.id as string;
       }}
     >
       <Toaster

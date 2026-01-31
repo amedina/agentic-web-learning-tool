@@ -10,7 +10,7 @@ import { type TableData } from '@google-awlt/design-system';
 import EventLogsContext, { type EventLogsContextProps } from './context';
 import { MESSAGE_TYPES } from '../../../../../utils';
 import type { ToolExecutionLog } from '../types';
-import { isLocalTool, getRowKey } from '../utils';
+import { isLocalTool } from '../utils';
 
 function EventLogsProvider({ children }: PropsWithChildren) {
   const [eventLoggerData, setEventLoggerData] = useState<TableData[]>([]);
@@ -18,6 +18,22 @@ function EventLogsProvider({ children }: PropsWithChildren) {
   const [lastRunToolName, setLastRunToolName] = useState<string | null>(null);
 
   const tabId = chrome.devtools?.inspectedWindow?.tabId;
+
+  useEffect(() => {
+    if (tabId) {
+      chrome.storage.session.get(`eventLog_${tabId}`, (result) => {
+        if (result[`eventLog_${tabId}`]) {
+          setEventLoggerData(result[`eventLog_${tabId}`] as TableData[]);
+        }
+      });
+    }
+  }, [tabId]);
+
+  useEffect(() => {
+    if (tabId && eventLoggerData.length > 0) {
+      chrome.storage.session.set({ [`eventLog_${tabId}`]: eventLoggerData });
+    }
+  }, [eventLoggerData, tabId]);
 
   useEffect(() => {
     const handleMessage = (message: any) => {
@@ -34,7 +50,10 @@ function EventLogsProvider({ children }: PropsWithChildren) {
             (item) => item.originalData.id === newLog.id
           );
 
+          newLog.id = newLog.id || crypto.randomUUID();
+
           const mappedLog: TableData = {
+            id: newLog.id,
             name: newLog.toolName,
             time: new Date(newLog.startTime).toLocaleTimeString(),
             type: newLog.type,
@@ -50,23 +69,13 @@ function EventLogsProvider({ children }: PropsWithChildren) {
               ...updatedData[existingIndex],
               ...mappedLog,
             };
+
+            setSelectedKey(newLog.id);
             return updatedData;
           } else {
             return [mappedLog, ...prevData];
           }
         });
-
-        const newLog = message.payload as ToolExecutionLog;
-
-        // Auto-select the row if it matches the last run tool
-        if (newLog.toolName === lastRunToolName) {
-          setLastRunToolName(null);
-          const key = getRowKey(
-            newLog.toolName,
-            new Date(newLog.startTime).toLocaleTimeString()
-          );
-          setSelectedKey(key);
-        }
       }
     };
 
