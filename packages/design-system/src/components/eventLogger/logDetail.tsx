@@ -90,6 +90,7 @@ export function LogDetail({ log }: LogDetailProps) {
             onChange={() => {}}
             isDarkMode={false}
             styles={{ fontSize: '11px', lineHeight: '1.2', fontWeight: 300 }}
+            enableBreakpoints={true}
           />
         ) : (
           <div className="flex items-center justify-center h-full text-xs italic p-4 text-center min-h-[200px]">
