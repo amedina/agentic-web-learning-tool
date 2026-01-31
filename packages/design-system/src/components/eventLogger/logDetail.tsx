@@ -78,7 +78,7 @@ export function LogDetail({ log }: LogDetailProps) {
 
       <TabsContent
         value="script"
-        className="overflow-auto min-h-0 mt-0 p-0 border-0 bg-[#1e1e1e]"
+        className="overflow-auto min-h-0 mt-0 p-0 border-0"
       >
         {log.script ? (
           <SyntaxHighlighterWhite
@@ -97,10 +97,10 @@ export function LogDetail({ log }: LogDetailProps) {
             }}
           />
         ) : (
-          <div className="flex items-center justify-center h-full text-[#9aa0a6] text-xs italic p-4 text-center">
+          <div className="flex items-center justify-center h-full text-xs italic p-4 text-center min-h-[200px]">
             Source code not available for this tool.
             <br />
-            (Only accessible for User Defined Tools)
+            (Only accessible for user defined tools)
           </div>
         )}
       </TabsContent>

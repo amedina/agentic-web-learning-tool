@@ -31,6 +31,7 @@ export const EVENT_LOGGER_FILTERS = {
     filterValues: {
       success: { selected: null },
       error: { selected: null },
+      pending: { selected: null },
     },
   },
 };
