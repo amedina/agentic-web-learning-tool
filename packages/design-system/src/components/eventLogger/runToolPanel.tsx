@@ -1,7 +1,7 @@
 /**
  * External dependencies.
  */
-import React, { type ChangeEvent, useEffect } from 'react';
+import React, { type ChangeEvent, useCallback, useEffect } from 'react';
 
 /**
  * Internal dependencies.
@@ -58,12 +58,6 @@ export const RunToolPanel: React.FC<RunToolPanelProps> = ({
         return;
       }
 
-      // Handle tabId special case
-      if (key === 'tabId' && activeTabId !== undefined) {
-        onArgsChange(key, activeTabId.toString());
-        return;
-      }
-
       // Handle explicit defaults from schema
       if (schema.default !== undefined) {
         let defaultValue = schema.default;
@@ -76,6 +70,17 @@ export const RunToolPanel: React.FC<RunToolPanelProps> = ({
       }
     });
   }, [tool, activeTabId]);
+
+  const getInputValue = useCallback(
+    (args: any, key: string) => {
+      if (key === 'tabId' && activeTabId !== undefined) {
+        return activeTabId.toString();
+      }
+
+      return args[key] || '';
+    },
+    [activeTabId]
+  );
 
   return (
     <div
@@ -192,7 +197,7 @@ export const RunToolPanel: React.FC<RunToolPanelProps> = ({
                         <input
                           type={schema.type === 'number' ? 'number' : 'text'}
                           className="block w-full rounded-sm border-gray-300 border p-2 text-sm focus:border-blue-500 focus:ring-blue-500"
-                          value={args[key] || ''}
+                          value={getInputValue(args, key)}
                           onChange={(e: ChangeEvent<HTMLInputElement>) =>
                             onArgsChange(key, e.target.value)
                           }
