@@ -1,8 +1,12 @@
 /**
+ * External dependencies.
+ */
+import { CodeEditor } from '../webMCPTools';
+
+/**
  * Internal dependencies.
  */
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../tabs';
-import { SyntaxHighlighterWhite } from '../syntaxHighlighter';
 
 export interface LogDetailProps {
   log: {
@@ -81,20 +85,10 @@ export function LogDetail({ log }: LogDetailProps) {
         className="overflow-auto min-h-0 mt-0 p-0 border-0"
       >
         {log.script ? (
-          <SyntaxHighlighterWhite
-            language="javascript"
+          <CodeEditor
             code={log.script}
-            components={{
-              Pre: (props) => (
-                <pre
-                  {...props}
-                  className="m-0 p-4 text-[11px] font-mono leading-relaxed"
-                />
-              ),
-              Code: (props) => (
-                <code {...props} className="font-mono bg-transparent" />
-              ),
-            }}
+            onChange={() => {}}
+            isDarkMode={false}
           />
         ) : (
           <div className="flex items-center justify-center h-full text-xs italic p-4 text-center min-h-[200px]">
