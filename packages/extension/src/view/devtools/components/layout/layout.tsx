@@ -12,13 +12,13 @@ import Main from './main';
 
 export const Layout = () => {
   return (
-    <SidebarProvider placement="devtools">
-      <EventLogsProvider>
+    <EventLogsProvider>
+      <SidebarProvider placement="devtools">
         <div className="flex w-full h-screen">
           <Sidebar />
           <Main />
         </div>
-      </EventLogsProvider>
-    </SidebarProvider>
+      </SidebarProvider>
+    </EventLogsProvider>
   );
 };

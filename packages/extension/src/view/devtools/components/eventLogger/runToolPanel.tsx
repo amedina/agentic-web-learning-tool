@@ -5,6 +5,11 @@ import { useState, useEffect } from 'react';
 import type { Tool } from '@modelcontextprotocol/sdk/types.js';
 import { RunToolPanel as RunToolPanelView } from '@google-awlt/design-system';
 
+/**
+ * Internal dependencies.
+ */
+import { useEventLogs } from './eventLogsProvider';
+
 interface RunToolPanelProps {
   isOpen: boolean;
   onClose: () => void;
@@ -20,8 +25,8 @@ const RunToolPanel = ({
   onRun,
   afterRunTool,
 }: RunToolPanelProps) => {
+  const { state, actions } = useEventLogs();
   const [args, setArgs] = useState<Record<string, string>>({});
-  const [isRunning, setIsRunning] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -44,7 +49,7 @@ const RunToolPanel = ({
     }
 
     setValidationError(null);
-    setIsRunning(true);
+    actions.setIsToolRunning(true);
 
     try {
       const parsedArgs: Record<string, any> = {};
@@ -80,7 +85,7 @@ const RunToolPanel = ({
     } finally {
       setTimeout(() => {
         onClose();
-        setIsRunning(false);
+        actions.setIsToolRunning(false);
         afterRunTool(tool);
       }, 1000);
     }
@@ -104,7 +109,7 @@ const RunToolPanel = ({
       args={args}
       onArgsChange={handleArgsChange}
       onRun={handleRun}
-      isRunning={isRunning}
+      isRunning={state.isToolRunning}
       validationError={validationError}
     />
   );

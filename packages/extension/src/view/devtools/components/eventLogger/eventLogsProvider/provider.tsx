@@ -16,6 +16,9 @@ function EventLogsProvider({ children }: PropsWithChildren) {
   const [eventLoggerData, setEventLoggerData] = useState<TableData[]>([]);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [lastRunToolName, setLastRunToolName] = useState<string | null>(null);
+  const [isToolRunning, setIsToolRunning] = useState<boolean>(false);
+
+  console.log('EventLogsProvider');
 
   const tabId = chrome.devtools?.inspectedWindow?.tabId;
 
@@ -63,6 +66,8 @@ function EventLogsProvider({ children }: PropsWithChildren) {
             description: newLog.result ? 'Success' : newLog.error || 'Pending',
           };
 
+          let data = [];
+
           if (existingIndex !== -1) {
             const updatedData = [...prevData];
             updatedData[existingIndex] = {
@@ -70,18 +75,24 @@ function EventLogsProvider({ children }: PropsWithChildren) {
               ...mappedLog,
             };
 
-            setSelectedKey(newLog.id);
-            return updatedData;
+            data = updatedData;
           } else {
-            return [mappedLog, ...prevData];
+            data = [mappedLog, ...prevData];
           }
+
+          // TODO: Why is it running 4 times?
+          if (isToolRunning && newLog.id !== selectedKey) {
+            setSelectedKey(newLog.id);
+          }
+
+          return data;
         });
       }
     };
 
     chrome.runtime.onMessage.addListener(handleMessage);
     return () => chrome.runtime.onMessage.removeListener(handleMessage);
-  }, [lastRunToolName, tabId]);
+  }, [lastRunToolName, isToolRunning, tabId]);
 
   const contextValue = useMemo<EventLogsContextProps>(
     () => ({
@@ -89,10 +100,12 @@ function EventLogsProvider({ children }: PropsWithChildren) {
         eventLoggerData,
         selectedKey,
         lastRunToolName,
+        isToolRunning,
       },
       actions: {
         setSelectedKey,
         setLastRunToolName,
+        setIsToolRunning,
       },
     }),
     [eventLoggerData, selectedKey, lastRunToolName]
