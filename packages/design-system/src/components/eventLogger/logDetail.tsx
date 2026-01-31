@@ -21,7 +21,7 @@ const TAB_TRIGGER_CLASS =
 function LogExecutionDetails({ log }: { log: LogDetailProps['log'] }) {
   return (
     <>
-      <div className="flex-1 p-2 border-b border-[#f1f3f4] overflow-auto min-h-0">
+      <div className="p-2 border-b border-[#f1f3f4] overflow-auto min-h-0">
         <div className="text-[10px] font-bold text-[#5f6368] mb-1">
           ARGUMENTS
         </div>
@@ -29,7 +29,7 @@ function LogExecutionDetails({ log }: { log: LogDetailProps['log'] }) {
           {JSON.stringify(log.args, null, 2)}
         </pre>
       </div>
-      <div className="flex-1 p-2 overflow-auto min-h-0">
+      <div className="p-2 overflow-auto min-h-0">
         <div className="text-[10px] font-bold text-[#5f6368] mb-1">
           {log.status === 'error' ? 'ERROR' : 'OUTPUT'}
         </div>
@@ -50,7 +50,7 @@ export function LogDetail({ log }: LogDetailProps) {
 
   if (!showTabs) {
     return (
-      <div className="flex flex-col h-full">
+      <div className="h-full">
         <LogExecutionDetails log={log} />
       </div>
     );
@@ -71,14 +71,14 @@ export function LogDetail({ log }: LogDetailProps) {
 
       <TabsContent
         value="execution"
-        className="flex-1 flex flex-col min-h-0 mt-0 p-0 border-0 bg-transparent"
+        className="min-h-0 mt-0 p-0 border-0 bg-transparent"
       >
         <LogExecutionDetails log={log} />
       </TabsContent>
 
       <TabsContent
         value="script"
-        className="flex-1 overflow-auto min-h-0 mt-0 p-0 border-0 bg-[#1e1e1e]"
+        className="overflow-auto min-h-0 mt-0 p-0 border-0 bg-[#1e1e1e]"
       >
         {log.script ? (
           <SyntaxHighlighterWhite
