@@ -56,6 +56,12 @@ export function CodeEditor({
     fontSize: '12px',
     lineHeight: '1.5',
     padding: '0',
+    tabSize: 2,
+    MozTabSize: 2,
+    whiteSpace: 'pre',
+    fontVariantLigatures: 'none',
+    letterSpacing: 'normal',
+    fontWeight: 'normal', // Enforce normal weight to prevent bold width mismatch
     ...styles,
   };
 
@@ -94,7 +100,7 @@ export function CodeEditor({
           spellCheck={false}
           style={{
             ...commonStyle,
-            padding: '1.5rem 0 1.5rem 0.5rem',
+            padding: '1.5rem 1rem 1.5rem 0.5rem',
             lineHeight: '18px',
             whiteSpace: 'pre',
             caretColor: caretColor,
@@ -112,7 +118,7 @@ export function CodeEditor({
             style={activeStyle}
             customStyle={{
               margin: 0,
-              padding: '1.5rem 0 1.5rem 0.5rem',
+              padding: '1.5rem 1rem 1.5rem 0.5rem',
               fontSize: commonStyle.fontSize,
               lineHeight: '18px',
               minHeight: '100%',
@@ -133,6 +139,10 @@ export function CodeEditor({
                     ...props.style,
                     fontFamily: commonStyle.fontFamily,
                     fontSize: commonStyle.fontSize,
+                    tabSize: commonStyle.tabSize,
+                    MozTabSize: commonStyle.MozTabSize,
+                    fontWeight: commonStyle.fontWeight,
+                    border: 'none',
                   }}
                 />
               ),
@@ -142,6 +152,9 @@ export function CodeEditor({
                   style={{
                     fontFamily: 'inherit',
                     fontSize: commonStyle.fontSize,
+                    tabSize: commonStyle.tabSize,
+                    MozTabSize: commonStyle.MozTabSize,
+                    fontWeight: commonStyle.fontWeight,
                   }}
                 />
               ),
