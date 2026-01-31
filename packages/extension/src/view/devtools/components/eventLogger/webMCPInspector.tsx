@@ -53,7 +53,9 @@ export const WebMCPInspector = () => {
       tableFilterData={EVENT_LOGGER_FILTERS}
       tableSearchKeys={TABLE_SEARCH_KEYS}
       onRowClick={(row: any) => {
-        setSelectedKey(row?.id);
+        if (row?.id) {
+          setSelectedKey(row?.id);
+        }
       }}
       onRowContextMenu={noop}
       getRowObjectKey={(row: any) => {

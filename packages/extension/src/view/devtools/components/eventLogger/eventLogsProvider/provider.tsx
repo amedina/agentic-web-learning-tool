@@ -1,7 +1,13 @@
 /**
  * External dependencies
  */
-import { useState, useEffect, useMemo, type PropsWithChildren } from 'react';
+import {
+  useState,
+  useEffect,
+  useMemo,
+  type PropsWithChildren,
+  useCallback,
+} from 'react';
 import { type TableData } from '@google-awlt/design-system';
 
 /**
@@ -36,8 +42,8 @@ function EventLogsProvider({ children }: PropsWithChildren) {
     }
   }, [eventLoggerData, tabId]);
 
-  useEffect(() => {
-    const handleMessage = (message: any) => {
+  const handleMessage = useCallback(
+    (message: any) => {
       if (message.type === MESSAGE_TYPES.TOOL_LOG) {
         const newLog = message.payload as ToolExecutionLog;
 
@@ -81,11 +87,14 @@ function EventLogsProvider({ children }: PropsWithChildren) {
           setSelectedKey(newLog.id);
         }
       }
-    };
+    },
+    [lastRunToolName, isToolRunning, tabId, selectedKey]
+  );
 
+  useEffect(() => {
     chrome.runtime.onMessage.addListener(handleMessage);
     return () => chrome.runtime.onMessage.removeListener(handleMessage);
-  }, [lastRunToolName, isToolRunning, tabId, selectedKey]);
+  }, [handleMessage]);
 
   const contextValue = useMemo<EventLogsContextProps>(
     () => ({
