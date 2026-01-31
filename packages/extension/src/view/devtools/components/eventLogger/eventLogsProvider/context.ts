@@ -12,6 +12,7 @@ export type EventLogsContextProps = {
     isToolRunning: boolean;
   };
   actions: {
+    setEventLoggerData: (data: TableData[]) => void;
     setSelectedKey: (key: string | null) => void;
     setLastRunToolName: (name: string | null) => void;
     setIsToolRunning: (isToolRunning: boolean) => void;
@@ -26,6 +27,7 @@ const initialState: EventLogsContextProps = {
     isToolRunning: false,
   },
   actions: {
+    setEventLoggerData: noop,
     setSelectedKey: noop,
     setLastRunToolName: noop,
     setIsToolRunning: noop,

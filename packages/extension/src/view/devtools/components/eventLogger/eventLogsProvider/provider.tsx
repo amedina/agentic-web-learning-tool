@@ -105,6 +105,7 @@ function EventLogsProvider({ children }: PropsWithChildren) {
         isToolRunning,
       },
       actions: {
+        setEventLoggerData,
         setSelectedKey,
         setLastRunToolName,
         setIsToolRunning,

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 import {
   Table,
   TableProvider,
@@ -10,6 +10,7 @@ import {
   type TableRow,
 } from '@google-awlt/design-system';
 import { noop } from '@google-awlt/common';
+import { Ban } from 'lucide-react';
 
 /**
  * Internal Dependencies
@@ -23,18 +24,14 @@ import { useEventLogs } from './eventLogsProvider';
 import { useSettings } from '../../../stateProviders';
 
 export const WebMCPInspector = () => {
-  const { eventLoggerData, selectedKey, setSelectedKey } = useEventLogs(
-    ({ state, actions }) => ({
+  const { eventLoggerData, selectedKey, setSelectedKey, setEventLoggerData } =
+    useEventLogs(({ state, actions }) => ({
       eventLoggerData: state.eventLoggerData,
       selectedKey: state.selectedKey,
       setSelectedKey: actions.setSelectedKey,
-    })
-  );
+      setEventLoggerData: actions.setEventLoggerData,
+    }));
   const { theme } = useSettings(({ state }) => ({ theme: state.theme }));
-
-  useEffect(() => {
-    console.log(selectedKey, 'selectedKey');
-  }, [selectedKey]);
 
   const renderDetailPanel = useCallback((row: TableRow) => {
     let data = row.originalData;
@@ -44,6 +41,21 @@ export const WebMCPInspector = () => {
     }
 
     return <LogDetail log={data as any} />;
+  }, []);
+
+  const resetTable = useCallback(() => {
+    const tabId = chrome.devtools?.inspectedWindow?.tabId;
+    chrome.storage.session.set({ [`eventLog_${tabId}`]: [] });
+    setSelectedKey(null);
+    setEventLoggerData([]);
+  }, []);
+
+  const extraInterfaceToTopBar = useCallback(() => {
+    return (
+      <button onClick={resetTable} title="Reset log">
+        <Ban width={15} height={15} color="#404040" />
+      </button>
+    );
   }, []);
 
   return (
@@ -73,6 +85,7 @@ export const WebMCPInspector = () => {
       <Table
         selectedKey={selectedKey}
         isFiltersSidebarOpen={true}
+        extraInterfaceToTopBar={extraInterfaceToTopBar}
         renderDetailPanel={renderDetailPanel}
       />
     </TableProvider>
