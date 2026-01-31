@@ -33,14 +33,6 @@ export const EVENT_LOGGER_FILTERS = {
       error: { selected: null },
     },
   },
-  duration: {
-    title: 'Duration',
-    hasStaticFilterValues: true,
-    filterValues: {
-      success: { selected: null },
-      error: { selected: null },
-    },
-  },
 };
 
 export const EVENT_LOGGER_COLUMNS: TableColumn[] = [
