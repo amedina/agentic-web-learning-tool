@@ -153,7 +153,8 @@ export const WebMCPTools = ({
       />
       <Table
         selectedKey={selectedKey}
-        isFiltersSidebarOpen={true}
+        isFiltersSidebarOpen={false}
+        hideFiltering={true}
         renderDetailPanel={renderDetailPanel}
       />
       <RunToolPanel
