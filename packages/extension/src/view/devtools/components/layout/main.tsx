@@ -11,7 +11,7 @@ import { WebMCPInspector } from '../eventLogger/webMCPInspector';
 
 const Main = () => {
   const { actions, state } = useSidebar();
-  const { selectedMenuItem } = state || 'tools';
+  const { selectedMenuItem = 'tools' } = state;
 
   const renderContent = () => {
     switch (selectedMenuItem) {

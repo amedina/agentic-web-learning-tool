@@ -500,7 +500,6 @@ class McpHub {
       code?: string;
     }>;
 
-    // Cache user tool scripts, TODO: Not working, debug.
     userTools.forEach((tool) => {
       if (tool.code) {
         this.userToolScripts.set(tool.name, tool.code);
@@ -750,7 +749,7 @@ class McpHub {
           name: string;
           code?: string;
         }>;
-        const found = userTools.find((t) => t.name === toolName);
+        const found = userTools.find((tool) => tool.name === toolName);
 
         if (found && found.code) {
           script = found.code;
