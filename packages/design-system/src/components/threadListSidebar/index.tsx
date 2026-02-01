@@ -18,7 +18,7 @@ export function ThreadListSidebar({
 }: ThreadListSidebarProps) {
   return (
     <SidebarMain collapsible="icon" {...props}>
-      <SidebarContent className="aui-sidebar-content px-2">
+      <SidebarContent className="aui-sidebar-content px-2 py-2">
         <ThreadList isThreadLoading={isThreadLoading} />
       </SidebarContent>
       <SidebarRail />

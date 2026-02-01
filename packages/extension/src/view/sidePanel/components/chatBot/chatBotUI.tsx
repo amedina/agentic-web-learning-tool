@@ -19,7 +19,7 @@ import {
   Settings,
   ChevronDown,
   PlusCircle,
-  History,
+  Menu,
 } from 'lucide-react';
 import {
   Button,
@@ -143,7 +143,12 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 
   return (
     <>
-      <div className="fixed top-0 left-0 z-20 gap-1 flex flex-row items-center md:hidden pl-4">
+      <div className="fixed top-0 left-0 z-20 flex flex-row items-center md:hidden pl-1 pt-1">
+        <Tooltip text="Chat History">
+          <SidebarTrigger>
+            <Menu className="text-primary" />
+          </SidebarTrigger>
+        </Tooltip>
         <Tooltip text="New Chat">
           <Button
             variant="ghost"
@@ -159,11 +164,6 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
           >
             <PlusCircle className="text-primary" />
           </Button>
-        </Tooltip>
-        <Tooltip text="Chat History">
-          <SidebarTrigger>
-            <History className="text-primary" />
-          </SidebarTrigger>
         </Tooltip>
       </div>
       <ThreadListSidebar isThreadLoading={isLoading} />
