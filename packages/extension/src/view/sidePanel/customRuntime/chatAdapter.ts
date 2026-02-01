@@ -6,14 +6,14 @@ import type { ThreadMessage } from '@assistant-ui/react';
 /**
  * Internal dependencies
  */
-import { dbConnection } from './dbConnection';
+import { chatStorage } from './chatStorage';
 import type { RemoteThreadMetadata } from './types';
 
 const ChatAdapter = () => {
   return {
     list: async () => {
       const threads: RemoteThreadMetadata[] =
-        await dbConnection.threads.findAll();
+        await chatStorage.threads.findAll();
 
       return {
         threads: threads.map((thread: RemoteThreadMetadata) => ({
@@ -25,7 +25,7 @@ const ChatAdapter = () => {
       };
     },
     initialize: async (threadId: string) => {
-      const thread = await dbConnection.threads.create({ id: threadId });
+      const thread = await chatStorage.threads.create({ id: threadId });
       console.log('Initialized thread:', thread);
       return {
         remoteId: thread.remoteId,
@@ -35,22 +35,22 @@ const ChatAdapter = () => {
 
     rename: async (remoteId: string, newTitle: string) => {
       console.log('Renaming thread:', remoteId, 'to', newTitle);
-      dbConnection.threads.update(remoteId, {
+      chatStorage.threads.update(remoteId, {
         title: newTitle,
       });
     },
 
     archive: async (remoteId: string) => {
-      dbConnection.threads.update(remoteId, { status: 'archived' });
+      chatStorage.threads.update(remoteId, { status: 'archived' });
     },
 
     unarchive: async (remoteId: string) => {
-      dbConnection.threads.update(remoteId, { status: 'regular' });
+      chatStorage.threads.update(remoteId, { status: 'regular' });
     },
 
     delete: async (remoteId: string) => {
-      dbConnection.messages.deleteByThreadId(remoteId);
-      dbConnection.threads.delete(remoteId);
+      chatStorage.messages.deleteByThreadId(remoteId);
+      chatStorage.threads.delete(remoteId);
     },
 
     generateTitle: async (_remoteId: string, message: ThreadMessage[]) => {
@@ -68,7 +68,7 @@ const ChatAdapter = () => {
 
     fetch: async (threadId: string) => {
       const threads: RemoteThreadMetadata[] =
-        await dbConnection.threads.findAll();
+        await chatStorage.threads.findAll();
       return threads.find(
         (thread) => thread.remoteId === threadId
       ) as RemoteThreadMetadata;

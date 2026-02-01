@@ -16,7 +16,7 @@ import ChatAdapter from './chatAdapter';
 import { HistoryAdapter } from './historyAdpter';
 import type { GeminiNanoChatTransport } from '../transports/geminiNano';
 import type { CloudHostedTransport } from '../transports/cloudHosted';
-import { dbConnection } from './dbConnection';
+import { chatStorage } from './chatStorage';
 
 type CustomRuntimeProviderProps = PropsWithChildren & {
   runtimeRef: RefObject<AssistantRuntime | null>;
@@ -53,7 +53,7 @@ export default function CustomRuntimeProvider({
         return;
       }
 
-      const lastActiveThread = await dbConnection.threads.getLastActiveThreadId(
+      const lastActiveThread = await chatStorage.threads.getLastActiveThreadId(
         activeTab.id
       );
 

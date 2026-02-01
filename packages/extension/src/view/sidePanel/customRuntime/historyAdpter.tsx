@@ -6,7 +6,7 @@ import { RuntimeAdapterProvider, useAssistantApi } from '@assistant-ui/react';
 /**
  * Internal dependencies
  */
-import { dbConnection } from './dbConnection';
+import { chatStorage } from './chatStorage';
 import type {
   LoadFunctionOutputType,
   ExportedMessageRepositoryItem,
@@ -23,7 +23,7 @@ export const HistoryAdapter = () => {
         return { messages: [] };
       }
 
-      const messages = await dbConnection.messages.findByThreadId(remoteId);
+      const messages = await chatStorage.messages.findByThreadId(remoteId);
       return {
         messages,
         unstable_resume: false,
@@ -38,7 +38,7 @@ export const HistoryAdapter = () => {
             return;
           }
 
-          dbConnection.threads.setLastActiveThreadId(threadId, tab.id);
+          chatStorage.threads.setLastActiveThreadId(threadId, tab.id);
         });
     });
 
@@ -50,7 +50,7 @@ export const HistoryAdapter = () => {
           return;
         }
 
-        const messages = await dbConnection.messages.findByThreadId(remoteId);
+        const messages = await chatStorage.messages.findByThreadId(remoteId);
 
         if (message.message.role === 'user' && messages.length === 0) {
           //@ts-expect-error -- We are sure that the first message will have text part.
@@ -59,10 +59,10 @@ export const HistoryAdapter = () => {
             .filter((part) => part.type === 'text')[0]
             .text.substring(0, 30);
 
-          dbConnection.threads.update(remoteId, { title: messageTitle });
+          chatStorage.threads.update(remoteId, { title: messageTitle });
         }
 
-        await dbConnection.messages.create({
+        await chatStorage.messages.create({
           ...message,
           threadId: remoteId,
         });

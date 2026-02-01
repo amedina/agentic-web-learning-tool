@@ -3,7 +3,7 @@
  */
 import type { RemoteThreadMetadata, SingleMessage } from './types';
 
-export const dbConnection = {
+export const chatStorage = {
   threads: {
     async findAll(): Promise<RemoteThreadMetadata[]> {
       const { 'assistant-ui-threads': storedThreads = [] } =
