@@ -61,8 +61,8 @@ export function CodeEditor({
     whiteSpace: 'pre',
     fontVariantLigatures: 'none',
     letterSpacing: 'normal',
-    fontWeight: 'normal', // Enforce normal weight to prevent bold width mismatch
     ...styles,
+    fontWeight: 'normal', // Enforce normal weight to prevent bold width mismatch
   };
 
   const lines = code.split('\n');
@@ -77,9 +77,8 @@ export function CodeEditor({
 
   return (
     <div className="flex-1 relative flex text-[12px]">
-      {/* Line Numbers Gutter */}
       <CodeEditorGutter
-        ref={gutterRef}
+        gutterRef={gutterRef}
         lineNumbers={lineNumbers}
         breakpoints={breakpoints}
         toggleBreakpoint={toggleBreakpoint}
