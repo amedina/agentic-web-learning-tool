@@ -75,12 +75,17 @@
   --text-secondary: #71717a;
   --text-tertiary: #a1a1aa;
   --accent-blue: #3b82f6;
+  --traditional-blue: #3871e0;
 
   --border-subtle: var(--zinc-200);
   --strong-zinc: var(--zinc-50);
   --extreme-zinc: var(--zinc-50);
 }
 
+/*
+* Tailwind would create a theme for each variant of the color palette.
+* For example for --color-fiery-orange, bg-fiery-orange, text-fiery-orange, border-fiery-orange would be created.
+*/
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -128,8 +133,9 @@
   --color-exclusive-plum: var(--text-tertiary);
   --color-darth-vader: var(--border-base);
   --color-baby-blue: var(--accent-blue);
+  --color-traditional-blue: var(--traditional-blue);
   --color-volcanic-sand: var(--border-strong);
-  ---color-muted-stone: var(--muted-stone);
+  --color-muted-stone: var(--muted-stone);
 
   --color-subtle-zinc: var(--border-subtle);
   --color-baby-red: var(--baby-red);
@@ -213,6 +219,7 @@
   --extreme-zinc: var(--zinc-950);
 }
 
+/* For global styles */
 @layer base {
   * {
     border-color: var(--border);
@@ -228,6 +235,7 @@
   }
 }
 
+/* Common helper classes */
 @layer utilities {
   .glass {
     backdrop-filter: blur(12px);
