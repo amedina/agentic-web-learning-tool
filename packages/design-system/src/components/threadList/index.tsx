@@ -67,7 +67,7 @@ const ThreadListItem = () => {
     setOpen: actions.setOpen,
   }));
   return (
-    <ThreadListItemPrimitive.Root className="aui-thread-list-item group flex h-9 items-center rounded-lg transition-colors hover:bg-muted focus-visible:bg-muted focus-visible:outline-none data-active:bg-muted">
+    <ThreadListItemPrimitive.Root className="aui-thread-list-item group flex h-9 items-center rounded-lg transition-colors hover:bg-muted focus-visible:bg-muted focus-visible:outline-none data-active:bg-muted mt-3">
       <ThreadListItemPrimitive.Trigger
         onClick={() => setOpen(false)}
         className="aui-thread-list-item-trigger flex h-full flex-1 items-center truncate px-3 text-start text-sm"
