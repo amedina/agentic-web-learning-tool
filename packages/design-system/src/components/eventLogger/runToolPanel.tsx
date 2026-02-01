@@ -2,6 +2,8 @@
  * External dependencies.
  */
 import React, { type ChangeEvent, useCallback, useEffect } from 'react';
+import clsx from 'clsx';
+import { X } from 'lucide-react';
 
 /**
  * Internal dependencies.
@@ -42,10 +44,8 @@ export const RunToolPanel: React.FC<RunToolPanelProps> = ({
   validationError,
   activeTabId,
 }) => {
-  if (!tool) return null;
-
-  const properties = tool.inputSchema?.properties || {};
-  const requiredFields = tool.inputSchema?.required || [];
+  const properties = tool?.inputSchema?.properties || {};
+  const requiredFields = tool?.inputSchema?.required || [];
 
   useEffect(() => {
     if (!tool) {
@@ -84,24 +84,27 @@ export const RunToolPanel: React.FC<RunToolPanelProps> = ({
 
   return (
     <div
-      className={`fixed inset-0 z-150 flex justify-end ${
+      className={clsx(
+        'fixed inset-0 z-150 flex justify-end',
         open ? 'pointer-events-auto' : 'pointer-events-none'
-      }`}
+      )}
     >
       {/* Backdrop - Fades in/out */}
       <div
-        className={`fixed inset-0 bg-raisin-black/50 transition-opacity duration-300 ease-in-out ${
+        className={clsx(
+          'fixed inset-0 bg-raisin-black/50 transition-opacity duration-300 ease-in-out',
           open ? 'opacity-100' : 'opacity-0'
-        }`}
+        )}
         onClick={() => onOpenChange(false)}
         aria-hidden="true"
       />
 
       {/* Side Panel - Slides in/out */}
       <div
-        className={`relative h-full w-80 bg-white shadow-xl transform transition-transform duration-300 ease-in-out border-l-1 border-gray-200 ${
+        className={clsx(
+          'relative h-full w-80 bg-white shadow-xl transform transition-transform duration-300 ease-in-out border-l-1 border-gray-200',
           open ? 'translate-x-0' : 'translate-x-full'
-        }`}
+        )}
       >
         {/* Header */}
         <div className="px-4 py-3 border-b border-gray-200 bg-gray-50">
@@ -110,21 +113,9 @@ export const RunToolPanel: React.FC<RunToolPanelProps> = ({
             <button
               onClick={() => onOpenChange(false)}
               className="text-gray-500 hover:text-gray-700 focus:outline-none transition-colors"
+              title="Close panel"
             >
-              {/* SVG Close Icon */}
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
+              <X width="16" height="16" />
             </button>
           </div>
           {tool && (
