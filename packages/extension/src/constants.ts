@@ -7,6 +7,8 @@ import type { PromptCommand } from '@google-awlt/design-system';
  */
 import type { SettingsState } from './types';
 
+export const START_MCP_CONNECTION = 'START_MCP_CONNECTION';
+
 export const INITIAL_PROVIDERS = [
   {
     id: 'browser-ai',

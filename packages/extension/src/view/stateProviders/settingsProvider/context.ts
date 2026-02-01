@@ -11,7 +11,7 @@ export type SettingsContextProps = {
   state: SettingsState & {
     isDarkMode: boolean;
     tabData: { [key: string]: chrome.tabs.Tab };
-    currentTab: number;
+    lockedThreads: string[];
   };
   actions: {
     clearSettings: () => void;
@@ -28,7 +28,7 @@ const initialState: SettingsContextProps = {
     logLevel: 'SILENT',
     isDarkMode: false,
     tabData: {},
-    currentTab: 0,
+    lockedThreads: [],
   },
   actions: {
     clearSettings: noop,

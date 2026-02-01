@@ -1,0 +1,12 @@
+diff --git a/dist/core/tool/ToolExecutionStream.js b/dist/core/tool/ToolExecutionStream.js
+index 6e61e948bf450e0142136cdbe678cee5e7ee0a32..5eae340b8e2cd599645979623045a6fd896a821e 100644
+--- a/dist/core/tool/ToolExecutionStream.js
++++ b/dist/core/tool/ToolExecutionStream.js
+@@ -141,7 +141,6 @@ export class ToolExecutionStream extends PipeableTransformStream {
+             });
+             return readable
+                 .pipeThrough(new AssistantMetaTransformStream())
+-                .pipeThrough(transform);
+         });
+     }
+ }
