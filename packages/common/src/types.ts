@@ -23,6 +23,7 @@ export interface MCPServerConfig {
   enabled: boolean;
   name: string;
   isReconnecting?: boolean;
+  oAuthToken?: string;
 }
 export interface MCPConfig {
   mcpServers: Record<string, MCPServerConfig>;

@@ -65,6 +65,7 @@ const Provider = ({ children }: PropsWithChildren) => {
       const headers: HeadersInit = {};
 
       const serverAuthProvider = new InspectorOAuthClientProvider(config.url);
+      let oauthToken;
 
       let finalHeaders: CustomHeaders = config.customHeaders || [];
 
@@ -90,7 +91,7 @@ const Provider = ({ children }: PropsWithChildren) => {
       );
 
       if (needsOAuthToken) {
-        const oauthToken = (await serverAuthProvider.tokens())?.access_token;
+        oauthToken = (await serverAuthProvider.tokens())?.access_token;
         if (oauthToken) {
           // Add the OAuth token
           finalHeaders = [
@@ -159,7 +160,7 @@ const Provider = ({ children }: PropsWithChildren) => {
       await client.connect(transport);
       const toolsList = await client.listTools();
 
-      return { toolsList, transport, client };
+      return { toolsList, transport, client, oauthToken };
     },
     []
   );
@@ -180,10 +181,8 @@ const Provider = ({ children }: PropsWithChildren) => {
           return;
         }
 
-        const { toolsList, transport, client } = await connectToMCPServer(
-          config,
-          serverName
-        );
+        const { toolsList, transport, client, oauthToken } =
+          await connectToMCPServer(config, serverName);
 
         setClients((prev) => {
           if (prev[serverName]) {
@@ -206,6 +205,14 @@ const Provider = ({ children }: PropsWithChildren) => {
             [serverName]: transport,
           };
         });
+
+        if (oauthToken) {
+          setServerConfigs((prev) => {
+            const newValue = { ...prev };
+            newValue[serverName].oAuthToken = oauthToken;
+            return newValue;
+          });
+        }
 
         if (doNotStoreTools) {
           toast.success('Config successfully validated.');
