@@ -16,12 +16,14 @@ import type {
   AnySchema,
   SchemaOutput,
 } from "@modelcontextprotocol/sdk/server/zod-compat.js";
-import { cacheToolOutputSchemas } from "./utils/schemaUtils";
-import { cleanParams } from "./utils/paramUtils";
-import type { JsonSchemaType } from "./utils/jsonUtils";
-import React, { Suspense, useCallback, useRef, useState } from "react";
-import { useDraggablePane } from "./lib/hooks/useDraggablePane";
-
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   Tabs,
   TabsContent,
@@ -39,8 +41,14 @@ import {
   MessageSquare,
   Settings,
 } from "lucide-react";
-
 import { z } from "zod";
+/**
+ * Internal dependencies
+ */
+import { useDraggablePane } from "./lib/hooks/useDraggablePane";
+import { cacheToolOutputSchemas } from "./utils/schemaUtils";
+import { cleanParams } from "./utils/paramUtils";
+import type { JsonSchemaType } from "./utils/jsonUtils";
 import "./App.css";
 import AuthDebugger from "./components/AuthDebugger";
 import ConsoleTab from "./components/ConsoleTab";
@@ -168,7 +176,7 @@ const App = () => {
 
   const currentTabRef = useRef<string>(activeTab);
 
-  React.useEffect(() => {
+  useEffect(() => {
     currentTabRef.current = activeTab;
   }, [activeTab]);
 
@@ -418,9 +426,7 @@ const App = () => {
   );
 
   if (window.location.pathname === "/oauth/callback") {
-    const OAuthCallback = React.lazy(
-      () => import("./components/OAuthCallback"),
-    );
+    const OAuthCallback = lazy(() => import("./components/OAuthCallback"));
     return (
       <Suspense fallback={<div>Loading...</div>}>
         <OAuthCallback onConnect={onOAuthConnect} />
@@ -429,7 +435,7 @@ const App = () => {
   }
 
   if (window.location.pathname === "/oauth/callback/debug") {
-    const OAuthDebugCallback = React.lazy(
+    const OAuthDebugCallback = lazy(
       () => import("./components/OAuthDebugCallback"),
     );
     return (
