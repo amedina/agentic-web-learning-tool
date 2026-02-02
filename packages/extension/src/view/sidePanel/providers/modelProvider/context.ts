@@ -8,12 +8,18 @@ import { noop, createContext } from '@google-awlt/common';
 import type { AgentType, APIKeys } from '../../../../types';
 import type { CloudHostedTransport } from '../../transports/cloudHosted';
 import type { GeminiNanoChatTransport } from '../../transports/geminiNano';
+import { transportGenerator } from '../../transports';
 
+export const FALLBACK_AGENT = transportGenerator(
+  'browser-ai',
+  'prompt-api',
+  {}
+);
 export interface ModelProviderStoreContext {
   state: {
     apiKeys: { [key: string]: APIKeys };
     selectedAgent: AgentType;
-    transport: GeminiNanoChatTransport | CloudHostedTransport | null;
+    transport: GeminiNanoChatTransport | CloudHostedTransport;
     toolNameToMCPMap: Record<string, string>;
   };
   actions: {
@@ -29,7 +35,7 @@ const initialState: ModelProviderStoreContext = {
       model: 'prompt-api',
     },
     toolNameToMCPMap: {},
-    transport: null,
+    transport: FALLBACK_AGENT,
   },
   actions: {
     setSelectedAgent: noop,
