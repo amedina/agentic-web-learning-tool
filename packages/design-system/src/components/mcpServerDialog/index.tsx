@@ -114,7 +114,7 @@ export function MCPServerDialog({
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50" />
-        <Dialog.Content className="fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] w-[70vw] max-h-[90vh] bg-background text-foreground border border-gray-200 rounded-xl shadow-2xl z-50 flex flex-col overflow-hidden">
+        <Dialog.Content className="fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] max-w-[600px] min-w-[200px] max-h-[90vh] bg-background text-foreground border border-gray-200 rounded-xl shadow-2xl z-50 flex flex-col overflow-hidden">
           <Dialog.Description className="hidden">
             This dialog adds/edits an MCP server.
           </Dialog.Description>
