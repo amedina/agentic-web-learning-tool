@@ -102,6 +102,7 @@ export const BUILT_IN_COMMANDS: PromptCommand[] = [
       'Analyze the following code for bugs or potential issues and provide a fixed version:\n\n$ARGUMENTS',
     isBuiltIn: true,
     enabled: true,
+    sendToLLM: true,
   },
   {
     name: 'explain-code',
@@ -110,6 +111,7 @@ export const BUILT_IN_COMMANDS: PromptCommand[] = [
       'Explain how the following code works step-by-step:\n\n$ARGUMENTS',
     isBuiltIn: true,
     enabled: true,
+    sendToLLM: true,
   },
   {
     name: 'settings',
@@ -117,6 +119,7 @@ export const BUILT_IN_COMMANDS: PromptCommand[] = [
     instructions: ' ',
     isBuiltIn: true,
     enabled: true,
+    sendToLLM: false,
   },
   {
     name: 'clear',
@@ -124,6 +127,7 @@ export const BUILT_IN_COMMANDS: PromptCommand[] = [
     instructions: ' ',
     isBuiltIn: true,
     enabled: true,
+    sendToLLM: false,
   },
   {
     name: 'help',
@@ -131,6 +135,7 @@ export const BUILT_IN_COMMANDS: PromptCommand[] = [
     instructions: ' ',
     isBuiltIn: true,
     enabled: true,
+    sendToLLM: false,
   },
   {
     name: 'optimize',
@@ -139,6 +144,7 @@ export const BUILT_IN_COMMANDS: PromptCommand[] = [
       'Optimize the following code for performance and readability:\n\n$ARGUMENTS',
     isBuiltIn: true,
     enabled: true,
+    sendToLLM: true,
   },
   {
     name: 'generate-tests',
@@ -147,6 +153,7 @@ export const BUILT_IN_COMMANDS: PromptCommand[] = [
       'Write comprehensive unit tests for the following code using preferred testing framework:\n\n$ARGUMENTS',
     isBuiltIn: true,
     enabled: true,
+    sendToLLM: true,
   },
 ];
 
