@@ -27,7 +27,7 @@ export default function MCPInspectorTab() {
   }, [inspectedServerName, setSelectedMenuItem]);
 
   return (
-    <div className="min-h-screen w-full bg-background p-6 md:p-10 overflow-auto">
+    <div className="min-h-screen w-full bg-background pb-3 pt-6 px-6 md:pb-5 md:pt-10 md:px-10  overflow-auto">
       <div className="max-w-6xl">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
