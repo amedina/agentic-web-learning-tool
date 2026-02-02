@@ -428,74 +428,76 @@ export function ConfigInput({ config, setConfig }: MCPServerConfigInput) {
             </Button>
             {showConfig && (
               <div className="space-y-2">
-                {Object.entries(config).map(([key, configItem]) => {
-                  const configKey = key as keyof InspectorConfig;
-                  return (
-                    <div key={key} className="space-y-2">
-                      <div className="flex items-center gap-1">
-                        <label
-                          className="text-sm font-medium text-green-600 break-all"
-                          htmlFor={`${configKey}-input`}
-                        >
-                          {configItem.label}
-                        </label>
-                        <Tooltip text={configItem.description}>
-                          <HelpCircle className="h-4 w-4 text-muted-foreground" />
-                        </Tooltip>
+                {Object.entries(config?.inspectorConfig ?? {}).map(
+                  ([key, configItem]) => {
+                    const configKey = key as keyof InspectorConfig;
+                    return (
+                      <div key={key} className="space-y-2">
+                        <div className="flex items-center gap-1">
+                          <label
+                            className="text-sm font-medium text-green-600 break-all"
+                            htmlFor={`${configKey}-input`}
+                          >
+                            {configItem.label}
+                          </label>
+                          <Tooltip text={configItem.description}>
+                            <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                          </Tooltip>
+                        </div>
+                        {typeof configItem.value === 'number' ? (
+                          <Input
+                            id={`${configKey}-input`}
+                            type="number"
+                            data-testid={`${configKey}-input`}
+                            value={configItem.value}
+                            onChange={(e) =>
+                              handleConfigNumberChange(
+                                configKey,
+                                configItem,
+                                e.target.value
+                              )
+                            }
+                            className="font-mono"
+                          />
+                        ) : typeof configItem.value === 'boolean' ? (
+                          <Select
+                            data-testid={`${configKey}-select`}
+                            value={configItem.value.toString()}
+                            onValueChange={(val) =>
+                              handleConfigBooleanChange(
+                                configKey,
+                                configItem,
+                                val
+                              )
+                            }
+                          >
+                            <SelectTrigger id={`${configKey}-input`}>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="true">True</SelectItem>
+                              <SelectItem value="false">False</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        ) : (
+                          <Input
+                            id={`${configKey}-input`}
+                            data-testid={`${configKey}-input`}
+                            value={configItem.value}
+                            onChange={(e) =>
+                              handleConfigStringChange(
+                                configKey,
+                                configItem,
+                                e.target.value
+                              )
+                            }
+                            className="font-mono"
+                          />
+                        )}
                       </div>
-                      {typeof configItem.value === 'number' ? (
-                        <Input
-                          id={`${configKey}-input`}
-                          type="number"
-                          data-testid={`${configKey}-input`}
-                          value={configItem.value}
-                          onChange={(e) =>
-                            handleConfigNumberChange(
-                              configKey,
-                              configItem,
-                              e.target.value
-                            )
-                          }
-                          className="font-mono"
-                        />
-                      ) : typeof configItem.value === 'boolean' ? (
-                        <Select
-                          data-testid={`${configKey}-select`}
-                          value={configItem.value.toString()}
-                          onValueChange={(val) =>
-                            handleConfigBooleanChange(
-                              configKey,
-                              configItem,
-                              val
-                            )
-                          }
-                        >
-                          <SelectTrigger id={`${configKey}-input`}>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="true">True</SelectItem>
-                            <SelectItem value="false">False</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      ) : (
-                        <Input
-                          id={`${configKey}-input`}
-                          data-testid={`${configKey}-input`}
-                          value={configItem.value}
-                          onChange={(e) =>
-                            handleConfigStringChange(
-                              configKey,
-                              configItem,
-                              e.target.value
-                            )
-                          }
-                          className="font-mono"
-                        />
-                      )}
-                    </div>
-                  );
-                })}
+                    );
+                  }
+                )}
               </div>
             )}
           </div>
