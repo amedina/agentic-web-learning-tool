@@ -174,7 +174,7 @@ const ResourcesTab = ({
 
   return (
     <TabsContent value="resources">
-      <div className="grid grid-cols-3 gap-4">
+      <div className="flex gap-5">
         <ListPane
           items={resources}
           listItems={listResources}
@@ -221,7 +221,7 @@ const ResourcesTab = ({
           isButtonDisabled={!nextTemplateCursor && resourceTemplates.length > 0}
         />
 
-        <div className="bg-card border border-border rounded-lg shadow">
+        <div className="bg-card border border-border rounded-lg shadow flex-1">
           <div className="p-4 border-b border-gray-200 dark:border-border flex justify-between items-center">
             <div className="flex items-center gap-2 truncate">
               {(selectedResource || selectedTemplate) && (
