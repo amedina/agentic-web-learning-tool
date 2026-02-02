@@ -43,6 +43,7 @@ import type { AgentType } from '../../../../types';
 import { useCommandProvider } from '../../providers/commandProvider';
 import { createModelDropdown, createToolDropdown } from './utils';
 import { useSettings } from '../../../stateProviders';
+import { openOptionsPage } from '../../../../utils';
 
 type ChatBotUIProps = {
   runtime: AssistantRuntime | null;
@@ -243,7 +244,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
                     <Button
                       size="icon"
                       variant="ghost"
-                      onClick={() => chrome.runtime.openOptionsPage()}
+                      onClick={openOptionsPage}
                     >
                       <Settings className="w-4 h-4" />
                     </Button>

@@ -8,6 +8,7 @@ import { Button } from '@google-awlt/design-system';
  */
 import reactLogo from '../../assets/react.svg';
 import viteLogo from '../../assets/vite.svg';
+import { openOptionsPage } from '../../utils';
 
 function DevTools() {
   const [count, setCount] = useState(0);
@@ -34,10 +35,7 @@ function DevTools() {
       <Button variant="outline" onClick={openSidePanel}>
         Open SidePanel
       </Button>
-      <Button
-        variant="outline"
-        onClick={() => chrome.runtime.openOptionsPage()}
-      >
+      <Button variant="outline" onClick={openOptionsPage}>
         Open Options page
       </Button>
       <h1 className="text-2xl">Vite + React</h1>
