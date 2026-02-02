@@ -184,8 +184,11 @@ export function ConfigInput({ config, setConfig }: MCPServerConfigInput) {
   }, [generateMCPServerFile]);
 
   return (
-    <div className="bg-card border-r border-border flex flex-col h-full">
-      <div className="p-4 flex-1 overflow-auto" style={{ paddingLeft: '1px' }}>
+    <div className="bg-card border-border flex flex-col h-full">
+      <div
+        className="p-4 pt-0 flex-1 overflow-auto"
+        style={{ paddingLeft: '1px' }}
+      >
         <div className="space-y-4">
           <label className="text-sm font-medium" htmlFor="server-name">
             Server Name
@@ -403,7 +406,7 @@ export function ConfigInput({ config, setConfig }: MCPServerConfigInput) {
                       <div key={key} className="space-y-2">
                         <div className="flex items-center gap-1">
                           <label
-                            className="text-sm font-medium text-green-600 break-all"
+                            className="text-sm font-medium break-all"
                             htmlFor={`${configKey}-input`}
                           >
                             {configItem.label}
@@ -482,7 +485,7 @@ export function ConfigInput({ config, setConfig }: MCPServerConfigInput) {
                 ) : (
                   <Copy className="h-4 w-4 mr-2" />
                 )}
-                Server Entry
+                Copy Server Entry
               </Button>
             </Tooltip>
             <Tooltip text="Copy Server File">
@@ -497,7 +500,7 @@ export function ConfigInput({ config, setConfig }: MCPServerConfigInput) {
                 ) : (
                   <Copy className="h-4 w-4 mr-2" />
                 )}
-                Servers File
+                Copy Servers File
               </Button>
             </Tooltip>
           </div>
