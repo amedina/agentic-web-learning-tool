@@ -180,7 +180,11 @@ export function MCPServerDialog({
                     <TrashIcon size={16} /> Delete
                   </Button>
                 )}
-                <Button variant="outline" onClick={handleInspect}>
+                <Button
+                  variant="outline"
+                  disabled={!onDelete}
+                  onClick={handleInspect}
+                >
                   <View size={16} className="mr-2" /> Inspect
                 </Button>
               </div>
