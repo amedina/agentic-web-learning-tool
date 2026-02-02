@@ -7,7 +7,7 @@ import {
   type AssistantRuntime,
 } from '@assistant-ui/react';
 import { lastAssistantMessageIsCompleteWithToolCalls } from 'ai';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Tabs,
   TabsList,
@@ -18,13 +18,41 @@ import {
 /**
  * Internal dependencies
  */
-import { ChatBotUI } from './components';
+import { ChatBotUI, WorkflowList } from './components';
 import { CommandProvider, useModelProvider } from './providers';
 
 const SidePanel = () => {
   const { transport } = useModelProvider(({ state }) => ({
     transport: state.transport,
   }));
+
+  const [activeTab, setActiveTab] = useState<chrome.tabs.Tab | null>(null);
+
+  useEffect(() => {
+    if (typeof chrome !== 'undefined' && chrome.tabs) {
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (tabs.length > 0) {
+          setActiveTab(tabs[0]);
+        }
+      });
+
+      const handleTabCreatedOrUpdated = () => {
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+          if (tabs.length > 0) {
+            setActiveTab(tabs[0]);
+          }
+        });
+      };
+
+      chrome.tabs.onActivated.addListener(handleTabCreatedOrUpdated);
+      chrome.tabs.onUpdated.addListener(handleTabCreatedOrUpdated);
+
+      return () => {
+        chrome.tabs.onActivated.removeListener(handleTabCreatedOrUpdated);
+        chrome.tabs.onUpdated.removeListener(handleTabCreatedOrUpdated);
+      };
+    }
+  }, []);
 
   const runtimeRef = useRef<AssistantRuntime | null>(null);
 
@@ -68,10 +96,10 @@ const SidePanel = () => {
             value="workflows"
             className="flex-1 overflow-hidden p-4 border-none mt-0"
           >
-            <div className="flex flex-col items-center justify-center h-full text-muted-foreground space-y-2">
-              <div className="text-lg font-medium">Workflows</div>
-              <div className="text-sm italic">Coming soon...</div>
-            </div>
+            <WorkflowList
+              activeTabId={activeTab?.id}
+              activeTabUrl={activeTab?.url}
+            />
           </TabsContent>
         </Tabs>
       </CommandProvider>
