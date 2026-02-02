@@ -1,0 +1,20 @@
+{
+  "name": "@google-awlt/chrome-ai-playground",
+  "version": "0.0.0",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "type": "module",
+  "dependencies": {
+    "@google-awlt/design-system": "workspace:*",
+    "lucide-react": "^0.542.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  },
+  "devDependencies": {
+    "@google-awlt/shared-config": "workspace:*",
+    "@types/react": "^19.1.10",
+    "@types/react-dom": "^19.1.7",
+    "typescript": "~5.8.3",
+    "@storybook/react-vite": "^9.1.3"
+  }
+}
