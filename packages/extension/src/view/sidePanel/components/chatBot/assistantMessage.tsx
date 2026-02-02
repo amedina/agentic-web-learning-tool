@@ -20,14 +20,17 @@ import { useSettings } from '../../../stateProviders';
 
 const AssistantMessage: FC = () => {
   const threadId = useAssistantState(({ threadListItem }) => threadListItem.id);
+
   const { lockedThreads } = useSettings(({ state }) => ({
     lockedThreads: state.lockedThreads,
   }));
+
   const lockThread = useCallback(async () => {
     await chrome.storage.session.set({
       lockedThreads: [...lockedThreads, threadId],
     });
   }, [lockedThreads, threadId]);
+
   return (
     <MessagePrimitive.Root className="relative mx-auto flex w-full max-w-screen-md gap-3">
       <div className="flex flex-col mb-10 w-full group">

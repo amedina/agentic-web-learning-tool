@@ -117,25 +117,33 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
     return tools.filter((tool) => tool.name !== 'dummyTool').length;
   }, [tools]);
 
-  const lockThread = useCallback(async () => {
-    await chrome.storage.session.set({
-      lockedThreads: [...lockedThreads, threadId],
-    });
-  }, [lockedThreads, threadId]);
+  const lockThread = useCallback(
+    async (threadIdToLock: string) => {
+      await chrome.storage.session.set({
+        lockedThreads: [...lockedThreads, threadIdToLock],
+      });
+    },
+    [lockedThreads]
+  );
 
-  const unlockThread = useCallback(async () => {
-    const unlockedThreads = lockedThreads.filter((id) => id !== threadId);
-    await chrome.storage.session.set({ lockedThreads: unlockedThreads });
-  }, [lockedThreads, threadId]);
+  const unlockThread = useCallback(
+    async (threadIdToUnlock: string) => {
+      const unlockedThreads = lockedThreads.filter(
+        (id) => id !== threadIdToUnlock
+      );
+      await chrome.storage.session.set({ lockedThreads: unlockedThreads });
+    },
+    [lockedThreads]
+  );
 
-  api.on('thread.run-end', async () => {
+  api.on('thread.run-end', async ({ threadId: threadIdToUnlock }) => {
     setTimeout(async () => {
-      await unlockThread();
+      await unlockThread(threadIdToUnlock);
     }, 500);
   });
 
-  api.on('composer.send', async () => {
-    lockThread();
+  api.on('composer.send', async ({ threadId: threadIdToLock }) => {
+    await lockThread(threadIdToLock);
   });
 
   //Only shows models whose apiKeys have been and have been enabled
