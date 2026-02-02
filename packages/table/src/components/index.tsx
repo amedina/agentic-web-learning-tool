@@ -250,6 +250,9 @@ const Table = ({
       <Resizable
         minHeight={"10%"}
         maxHeight={"90%"}
+        defaultSize={{
+          height: "20%",
+        }}
         enable={{
           top: true,
         }}
