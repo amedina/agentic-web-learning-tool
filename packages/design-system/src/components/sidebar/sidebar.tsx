@@ -33,7 +33,7 @@ export type MenuItem = {
 };
 
 type SidebarProps = {
-  items: MenuItem[];
+  items?: MenuItem[];
   footerItems?: MenuItem[];
   side?: 'left' | 'right';
   sidebarVariant?: 'sidebar' | 'floating' | 'inset';
@@ -148,7 +148,7 @@ export function Sidebar({
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu>{items.map(renderMenuItem)}</SidebarMenu>
+            <SidebarMenu>{items?.map(renderMenuItem)}</SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>

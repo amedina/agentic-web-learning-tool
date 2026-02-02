@@ -6,120 +6,111 @@ z.config({ jitless: true });
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { type CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { ExtensionServerTransport } from '@mcp-b/transports';
-import type { WebMCPTool } from '@google-awlt/design-system';
 /**
  * Internal dependencies
  */
-import { CONNECTION_NAMES, logger } from '../utils';
+import { CONNECTION_NAMES, logger, MESSAGE_TYPES } from '../utils';
 import McpHub from './mcpHub';
 import './chromeListeners';
 import './workflowEngine';
-import onLocalStorageChangedCallback from './chromeListeners/onLocalStorageChangedCallback';
+import handleToolEnableDisableOnLocalStorageChange from './utils/handleToolEnableDisableOnLocalStorageChange';
+import { START_MCP_CONNECTION } from '../constants';
+import { isUrl } from '../view/sidePanel/utils';
 
-const sharedServer = new McpServer(
-  { name: 'Extension-Hub', version: '1.0.0' },
-  { capabilities: { tools: { listChanged: true } } }
-);
+const mcpHubInstances = new Map<number, McpHub>();
+const serverInstances = new Map<number, McpServer>();
 
 chrome.sidePanel
-  .setPanelBehavior({ openPanelOnActionClick: true })
+  .setPanelBehavior({ openPanelOnActionClick: false })
   .catch((error) => {
     logger(['error'], ['Failed to set panel behavior:', error]);
   });
 
-// Initialize the MCP Server and Hub
-const mcpHub = new McpHub(sharedServer);
-chrome.storage.local.onChanged.addListener(
-  async (changes: { [key: string]: chrome.storage.StorageChange }) => {
-    if (changes?.mcpServers) {
-      const { newValue = {}, oldValue = {} } =
-        changes?.mcpServers as unknown as {
-          newValue: Record<string, any>;
-          oldValue: Record<string, any>;
-        };
-      //If old value has more keys then deletion has happened else insertion has happened, if value is equal then updation has happened
-      if (Object.keys(oldValue).length > Object.keys(newValue).length) {
-        await Promise.all(
-          Object.keys(oldValue).map((key) => {
-            if (!newValue?.[key]) {
-              mcpHub.removeMCPServer(key);
-            }
-          })
-        );
-        return;
-      }
+//@ts-expect-error -- for debugging purpose
+globalThis.mcpData = {
+  mcpHubInstances,
+  serverInstances,
+};
 
-      onLocalStorageChangedCallback(mcpHub);
-    }
-
-    if (changes.builtInWebMCPToolsState) {
-      const newValue =
-        (changes.builtInWebMCPToolsState?.newValue as Record<
-          string,
-          boolean
-        >) ?? {};
-
-      Object.keys(newValue).map((key) => {
-        if (newValue?.[key]) {
-          Array.from(mcpHub.registeredTools.entries()).forEach(
-            ([toolName, registeredTool]) => {
-              if (toolName.includes(key)) {
-                registeredTool.enable();
-              }
-            }
-          );
-        } else {
-          Array.from(mcpHub.registeredTools.entries()).forEach(
-            ([toolName, registeredTool]) => {
-              if (toolName.includes(key)) {
-                registeredTool.disable();
-              }
-            }
-          );
-        }
-      });
-    }
-
-    if (changes.userWebMCPTools) {
-      const newValue =
-        (changes.userWebMCPTools?.newValue as WebMCPTool[]) ?? [];
-
-      newValue.map((tool) => {
-        if (tool.enabled) {
-          Array.from(mcpHub.registeredTools.entries()).forEach(
-            ([toolName, registeredTool]) => {
-              if (toolName.includes(tool.name)) {
-                registeredTool.enable();
-              }
-            }
-          );
-        } else {
-          Array.from(mcpHub.registeredTools.entries()).forEach(
-            ([toolName, registeredTool]) => {
-              if (toolName.includes(tool.name)) {
-                registeredTool.disable();
-              }
-            }
-          );
-        }
-      });
-    }
-
-    sharedServer.server?.transport?.send({
-      jsonrpc: '2.0',
-      method: 'get/Tools',
-    });
-  }
-);
+chrome.tabs.onRemoved.addListener((tabId) => {
+  mcpHubInstances.delete(tabId);
+  serverInstances.delete(tabId);
+});
 
 chrome.runtime.onConnect.addListener(async (port) => {
   if (port.name !== CONNECTION_NAMES.MCP_HOST) {
     return;
   }
 
+  let tabId = 0;
+
+  if (!port.sender?.url) {
+    return;
+  }
+
+  if (isUrl(port.sender?.url)) {
+    tabId = parseInt(new URL(port.sender?.url).hash.substring(5));
+  }
+
+  if (!tabId) {
+    return;
+  }
+
+  if (mcpHubInstances.has(tabId)) {
+    const sharedServer = serverInstances.get(tabId);
+    const transport = new ExtensionServerTransport(port, {
+      keepAlive: true,
+    });
+    const mcpHub = mcpHubInstances.get(tabId);
+
+    if (!mcpHub || !sharedServer) {
+      return;
+    }
+
+    sharedServer.connect(transport);
+
+    chrome.tabs
+      .sendMessage(tabId, { type: START_MCP_CONNECTION })
+      .catch((error) => {
+        logger(
+          ['error'],
+          ['Failed to send START_MCP_CONNECTION message:', error]
+        );
+      });
+
+    chrome.tabs
+      .sendMessage(tabId, { type: MESSAGE_TYPES.REFRESH_REQUEST })
+      .catch((error) => {
+        logger(
+          ['error'],
+          ['Failed to send START_MCP_CONNECTION message:', error]
+        );
+      });
+
+    if (mcpHub?.registeredTools.size > 0) {
+      sharedServer?.server?.transport?.send({
+        jsonrpc: '2.0',
+        method: 'get/Tools',
+      });
+    }
+    return;
+  }
+
+  const sharedServer = new McpServer(
+    { name: 'Extension-Hub', version: '1.0.0' },
+    { capabilities: { tools: { listChanged: true } } }
+  );
+
+  const mcpHub = new McpHub(sharedServer, tabId);
+
+  chrome.storage.local.onChanged.addListener(
+    async (changes: { [key: string]: chrome.storage.StorageChange }) => {
+      await handleToolEnableDisableOnLocalStorageChange(changes, mcpHub);
+    }
+  );
+
   const transport = new ExtensionServerTransport(port, {
     keepAlive: true,
-    keepAliveInterval: 25_000,
   });
 
   try {
@@ -145,6 +136,17 @@ chrome.runtime.onConnect.addListener(async (port) => {
 
   sharedServer.connect(transport);
   mcpHub.setupConnections();
+
+  mcpHubInstances.set(tabId, mcpHub);
+  serverInstances.set(tabId, sharedServer);
+  chrome.tabs
+    .sendMessage(tabId, { type: START_MCP_CONNECTION })
+    .catch((error) => {
+      logger(
+        ['error'],
+        ['Failed to send START_MCP_CONNECTION message:', error]
+      );
+    });
 
   if (mcpHub.registeredTools.size > 0) {
     sharedServer.server?.transport?.send({

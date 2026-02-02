@@ -7,12 +7,11 @@ import type { ComponentProps } from 'react';
  * Internal dependencies
  */
 import { useSidebar } from '../sidebarProvider';
-import { cn } from '../../../lib';
 import { Button } from '../../button';
 
 function SidebarTrigger({
-  className,
   onClick,
+  children,
   ...props
 }: ComponentProps<typeof Button>) {
   const { toggleSidebar } = useSidebar(({ actions }) => ({
@@ -25,14 +24,13 @@ function SidebarTrigger({
       data-slot="sidebar-trigger"
       variant="ghost"
       size="icon"
-      className={cn('size-7', className)}
       onClick={(event) => {
         onClick?.(event);
         toggleSidebar();
       }}
       {...props}
     >
-      <PanelLeftIcon />
+      {children || <PanelLeftIcon />}
       <span className="sr-only">Toggle Sidebar</span>
     </Button>
   );

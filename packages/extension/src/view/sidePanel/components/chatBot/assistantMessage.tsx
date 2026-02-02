@@ -1,10 +1,14 @@
 /**
  * External dependencies
  */
-import { MessagePrimitive, ActionBarPrimitive } from '@assistant-ui/react';
+import {
+  MessagePrimitive,
+  ActionBarPrimitive,
+  useAssistantState,
+} from '@assistant-ui/react';
 import { CheckIcon, CopyIcon, ReloadIcon } from '@radix-ui/react-icons';
 import { Bot } from 'lucide-react';
-import type { FC } from 'react';
+import { useCallback, type FC } from 'react';
 import { MarkdownText, ToolFallback } from '@google-awlt/design-system';
 
 /**
@@ -12,8 +16,18 @@ import { MarkdownText, ToolFallback } from '@google-awlt/design-system';
  */
 import ActionButton from './actionButton';
 import { Reasoning, ReasoningGroup } from './reasoning';
+import { useSettings } from '../../../stateProviders';
 
 const AssistantMessage: FC = () => {
+  const threadId = useAssistantState(({ threadListItem }) => threadListItem.id);
+  const { lockedThreads } = useSettings(({ state }) => ({
+    lockedThreads: state.lockedThreads,
+  }));
+  const lockThread = useCallback(async () => {
+    await chrome.storage.session.set({
+      lockedThreads: [...lockedThreads, threadId],
+    });
+  }, [lockedThreads, threadId]);
   return (
     <MessagePrimitive.Root className="relative mx-auto flex w-full max-w-screen-md gap-3">
       <div className="flex flex-col mb-10 w-full group">
@@ -43,9 +57,9 @@ const AssistantMessage: FC = () => {
           hideWhenRunning
           autohide="not-last"
           autohideFloat="single-branch"
-          className="flex items-center gap-1 rounded-lg data-[floating]:absolute data-[floating]:border-2 data-[floating]:p-1"
+          className="flex items-center gap-1 rounded-lg"
         >
-          <ActionBarPrimitive.Reload asChild>
+          <ActionBarPrimitive.Reload onClick={lockThread} asChild>
             <ActionButton tooltip="Try again">
               <ReloadIcon />
             </ActionButton>
