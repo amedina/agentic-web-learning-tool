@@ -89,7 +89,7 @@ export function MCPServerCard({
             variant="ghost"
             size="sm"
             onClick={onView}
-            disabled={!server?.enabled}
+            disabled={!server?.enabled || server.isReconnecting}
             className="text-[var(--primary-color)] hover:text-[var(--primary-hover)] hover:bg-[var(--surface-active)] gap-2"
           >
             <View size={14} />
