@@ -16,6 +16,7 @@ import type {
   InspectorConfig,
   MCPServerConfig,
 } from '@google-awlt/common';
+import { useCallback, useState } from 'react';
 
 /**
  * Internal dependencies.
@@ -30,10 +31,8 @@ import {
 } from '../select';
 import { Tooltip } from '../tooltip';
 import { Button } from '../button';
-import { useCallback, useState } from 'react';
 import { toast } from '../toast';
 import CustomHeaders from './customHeaders';
-import InputGroup from '../inputGroup';
 
 interface MCPServerConfigInput {
   config: MCPServerConfig;
@@ -188,14 +187,15 @@ export function ConfigInput({ config, setConfig }: MCPServerConfigInput) {
     <div className="bg-card border-r border-border flex flex-col h-full">
       <div className="p-4 flex-1 overflow-auto" style={{ paddingLeft: '1px' }}>
         <div className="space-y-4">
-          <InputGroup label="Server Name">
-            <Input
-              id="server-name"
-              placeholder="Servername"
-              value={config.name}
-              onChange={(e) => setConfig('name', e.target.value)}
-            />
-          </InputGroup>
+          <label className="text-sm font-medium" htmlFor="server-name">
+            Server Name
+          </label>
+          <Input
+            id="server-name"
+            placeholder="Servername"
+            value={config.name}
+            onChange={(e) => setConfig('name', e.target.value)}
+          />
           <div className="space-y-2">
             <label
               className="text-sm font-medium"
