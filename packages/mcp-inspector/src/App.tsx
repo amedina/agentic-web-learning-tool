@@ -717,8 +717,11 @@ const App = () => {
           }}
         >
           <div
-            className="absolute w-full h-4 -top-2 cursor-row-resize flex items-center justify-center hover:bg-accent/50 dark:hover:bg-input/40"
+            tabIndex={0}
+            role="button"
+            className="absolute w-full h-4 -top-2 flex items-center justify-center hover:bg-accent/50 dark:hover:bg-input/40"
             onMouseDown={handleDragStart}
+            style={{ cursor: "row-resize" }}
           >
             <div className="w-8 h-1 rounded-full bg-border" />
           </div>
