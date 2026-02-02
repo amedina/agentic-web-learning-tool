@@ -21,7 +21,7 @@ const openOptionsPage = async () => {
     } else {
       await chrome.tabs.create({
         url: optionsPageUrl,
-        index: currentTab?.[0]?.index,
+        index: (currentTab?.[0]?.index ?? 0) + 1,
       });
     }
   } catch (error) {
