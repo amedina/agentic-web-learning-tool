@@ -81,14 +81,14 @@ const ThreadListItem = () => {
 
 const ThreadListItemArchive = () => {
   return (
-    <ThreadListItemPrimitive.Delete asChild>
+    <ThreadListItemPrimitive.Archive asChild>
       <TooltipIconButton
         variant="ghost"
-        tooltip="Archive thread"
+        tooltip="Delete thread"
         className="aui-thread-list-item-archive mr-2 size-7 p-0 opacity-0 transition-opacity group-hover:opacity-100"
       >
         <ArchiveIcon className="size-4" />
       </TooltipIconButton>
-    </ThreadListItemPrimitive.Delete>
+    </ThreadListItemPrimitive.Archive>
   );
 };
