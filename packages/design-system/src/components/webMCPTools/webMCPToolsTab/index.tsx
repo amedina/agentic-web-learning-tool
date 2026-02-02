@@ -16,19 +16,23 @@ import OptionsPageTab from '../../optionsPageTab';
 interface WebMCPToolsTabProps {
   userTools: WebMCPTool[];
   builtInTools: WebMCPTool[];
+  workflowTools?: WebMCPTool[];
   onSaveUserTools: (tools: WebMCPTool[]) => void;
   onSaveBuiltInState: (tools: WebMCPTool[]) => void;
   isDarkMode?: boolean;
   saveExtensionToolsState: (toolName: string, value: boolean) => void;
+  onSaveWorkflowState?: (tool: WebMCPTool, enabled: boolean) => void;
 }
 
 export function WebMCPToolsTab({
   userTools,
   builtInTools,
+  workflowTools = [],
   onSaveUserTools,
   onSaveBuiltInState,
   isDarkMode,
   saveExtensionToolsState,
+  onSaveWorkflowState,
 }: WebMCPToolsTabProps) {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingTool, setEditingTool] = useState<WebMCPTool | undefined>(
@@ -63,6 +67,11 @@ export function WebMCPToolsTab({
 
   const handleToggleTool = useCallback(
     (tool: WebMCPTool, enabled: boolean) => {
+      if (tool.isWorkflow) {
+        onSaveWorkflowState?.(tool, enabled);
+        return;
+      }
+
       if (tool.isBuiltIn) {
         if (tool.isExtension) {
           saveExtensionToolsState(tool.name, enabled);
@@ -86,6 +95,7 @@ export function WebMCPToolsTab({
       builtInTools,
       userTools,
       saveExtensionToolsState,
+      onSaveWorkflowState,
     ]
   );
 
@@ -106,6 +116,7 @@ export function WebMCPToolsTab({
       <ToolList
         userTools={userTools}
         builtInTools={builtInTools}
+        workflowTools={workflowTools}
         onToggleTool={handleToggleTool}
         onEditTool={(tool) => {
           setEditingTool(tool);

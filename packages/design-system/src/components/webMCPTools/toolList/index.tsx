@@ -14,6 +14,7 @@ import OptionsPageTabSection from '../../optionsPageTab/optionsPageTabSection';
 interface ToolListProps {
   userTools: WebMCPTool[];
   builtInTools: WebMCPTool[];
+  workflowTools?: WebMCPTool[];
   onToggleTool: (tool: WebMCPTool, enabled: boolean) => void;
   onEditTool: (tool: WebMCPTool) => void;
   onNewTool: () => void;
@@ -23,6 +24,7 @@ interface ToolListProps {
 export function ToolList({
   userTools,
   builtInTools,
+  workflowTools = [],
   onToggleTool,
   onEditTool,
   onNewTool,
@@ -80,6 +82,21 @@ export function ToolList({
           ))}
         </div>
       </OptionsPageTabSection>
+
+      {/* Workflows Section */}
+      {workflowTools.length > 0 && (
+        <OptionsPageTabSection title="Workflows">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {workflowTools.map((tool) => (
+              <ToolCard
+                key={tool.id || tool.name}
+                tool={tool}
+                onToggle={(enabled) => onToggleTool(tool, enabled)}
+              />
+            ))}
+          </div>
+        </OptionsPageTabSection>
+      )}
     </div>
   );
 }

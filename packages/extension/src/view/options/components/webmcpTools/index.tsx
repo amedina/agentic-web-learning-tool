@@ -2,7 +2,9 @@
  * External dependencies
  */
 import { WebMCPToolsTab as WebMCPToolsUI } from '@google-awlt/design-system';
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
+import { listWorkflows, saveWorkflow } from '@google-awlt/engine-extension';
+import type { WorkflowJSON } from '@google-awlt/engine-core';
 /**
  * Internal Dependencies.
  */
@@ -14,6 +16,17 @@ import {
 } from '../../../../contentScript/tools/builtInTools';
 
 export function WebMCPToolsTab() {
+  const [workflows, setWorkflows] = useState<WorkflowJSON[]>([]);
+
+  useEffect(() => {
+    const fetchWorkflows = async () => {
+      const allWorkflows = await listWorkflows();
+      setWorkflows(allWorkflows);
+    };
+
+    fetchWorkflows();
+  }, []);
+
   const {
     userTools,
     builtInTools,
@@ -43,13 +56,52 @@ export function WebMCPToolsTab() {
     });
   }, [chromeAPIBuiltInToolsState]);
 
+  const workflowTools = useMemo(() => {
+    return workflows
+      .filter((wf) => wf.meta?.isWebMCP)
+      .map((wf) => ({
+        id: wf.meta.id,
+        name: wf.meta.name,
+        namespace: 'Workflow',
+        description: wf.meta.description || '',
+        allowedDomains: wf.meta.allowedDomains || [],
+        inputSchema: {}, // Workflows might need this later
+        enabled: wf.meta.enabled ?? true,
+        isWorkflow: true,
+      }));
+  }, [workflows]);
+
+  const handleSaveWorkflowState = useCallback(
+    async (tool: any, enabled: boolean) => {
+      const workflow = workflows.find((wf) => wf.meta.id === tool.id);
+
+      if (workflow) {
+        const updatedWorkflow = {
+          ...workflow,
+          meta: {
+            ...workflow.meta,
+            enabled,
+          },
+        };
+
+        await saveWorkflow(tool.id, updatedWorkflow);
+        setWorkflows((prev) =>
+          prev.map((wf) => (wf.meta.id === tool.id ? updatedWorkflow : wf))
+        );
+      }
+    },
+    [workflows]
+  );
+
   return (
     <WebMCPToolsUI
       userTools={userTools}
       builtInTools={[...builtInTools, ...extensionTools]}
+      workflowTools={workflowTools}
       onSaveUserTools={saveUserTools}
       onSaveBuiltInState={saveBuiltInState}
       saveExtensionToolsState={saveExtensionToolsState}
+      onSaveWorkflowState={handleSaveWorkflowState}
       isDarkMode={isDarkMode}
     />
   );
