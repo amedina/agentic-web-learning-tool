@@ -1,11 +1,14 @@
+/**
+ * External dependencies
+ */
 import { renderHook, act } from "@testing-library/react";
-import { useConnection } from "../useConnection";
 import { z } from "zod";
 import {
   type ClientRequest,
   type JSONRPCMessage,
 } from "@modelcontextprotocol/sdk/types.js";
-import { DEFAULT_INSPECTOR_CONFIG, CLIENT_IDENTITY } from "../../constants";
+import { Client } from "@modelcontextprotocol/sdk/client";
+import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import {
   type SSEClientTransportOptions,
   SseError,
@@ -15,10 +18,13 @@ import {
   type ElicitRequest,
 } from "@modelcontextprotocol/sdk/types.js";
 import { auth } from "@modelcontextprotocol/sdk/client/auth.js";
+/**
+ * Internal dependencies
+ */
+import { DEFAULT_INSPECTOR_CONFIG, CLIENT_IDENTITY } from "../../constants";
 import { discoverScopes } from "../../auth";
 import { type CustomHeaders } from "../../types/customHeaders";
-import { Client } from "@modelcontextprotocol/sdk/client";
-import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
+import { useConnection } from "../useConnection";
 
 // Mock fetch
 global.fetch = jest.fn().mockResolvedValue({
