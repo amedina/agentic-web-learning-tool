@@ -17,6 +17,8 @@ import {
 import { auth } from "@modelcontextprotocol/sdk/client/auth.js";
 import { discoverScopes } from "../../auth";
 import { type CustomHeaders } from "../../types/customHeaders";
+import { Client } from "@modelcontextprotocol/sdk/client";
+import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 
 // Mock fetch
 global.fetch = jest.fn().mockResolvedValue({
@@ -24,6 +26,11 @@ global.fetch = jest.fn().mockResolvedValue({
   headers: {
     get: jest.fn().mockReturnValue(null),
   },
+});
+
+const client = new Client({
+  name: "testing-client",
+  version: "1.0",
 });
 
 // Mock the SDK dependencies
@@ -135,6 +142,10 @@ describe("useConnection", () => {
     sseUrl: "http://localhost:8080",
     env: {},
     config: DEFAULT_INSPECTOR_CONFIG,
+    client,
+    transport: new StreamableHTTPClientTransport(
+      new URL("https://example.com/mcp"),
+    ),
   };
 
   describe("Request Configuration", () => {
