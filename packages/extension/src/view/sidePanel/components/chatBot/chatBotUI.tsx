@@ -151,33 +151,36 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 
   return (
     <>
-      <div className="fixed top-0 left-0 z-20 flex flex-row items-center md:hidden pl-1 pt-1">
-        <Tooltip text="Chat History">
-          <SidebarTrigger>
-            <Menu className="text-primary" />
-          </SidebarTrigger>
-        </Tooltip>
-        <Tooltip text="New Chat">
-          <Button
-            variant="ghost"
-            size="icon"
-            onKeyDown={(event) =>
-              event.key === 'Enter'
-                ? runtime?.threads.switchToNewThread()
-                : null
-            }
-            role="button"
-            tabIndex={-1}
-            onClick={() => runtime?.threads.switchToNewThread()}
-          >
-            <PlusCircle className="text-primary" />
-          </Button>
-        </Tooltip>
-      </div>
       <ThreadListSidebar isThreadLoading={isLoading} />
       <SidebarInset>
-        <ThreadPrimitive.Root className="h-full flex flex-col">
+        <div className="fixed top-0 left-0 z-20 flex flex-row items-center md:hidden pl-1 pt-1 bg-background">
+          <Tooltip text="Chat History">
+            <SidebarTrigger className="bg-background">
+              <Menu className="text-primary" />
+            </SidebarTrigger>
+          </Tooltip>
+          <Tooltip text="New Chat">
+            <Button
+              variant="ghost"
+              size="icon"
+              onKeyDown={(event) =>
+                event.key === 'Enter'
+                  ? runtime?.threads.switchToNewThread()
+                  : null
+              }
+              role="button"
+              className="bg-background"
+              tabIndex={-1}
+              onClick={() => runtime?.threads.switchToNewThread()}
+            >
+              <PlusCircle className="text-primary" />
+            </Button>
+          </Tooltip>
+        </div>
+        <ThreadPrimitive.Root className="h-screen flex flex-col">
           <ThreadPrimitive.Viewport
+            autoScroll={true}
+            turnAnchor="bottom"
             className={`flex flex-1 items-center overflow-y-auto scroll-smooth px-4 md:px-0 ${messages.length === 0 ? '' : 'h-full'}`}
           >
             <div
