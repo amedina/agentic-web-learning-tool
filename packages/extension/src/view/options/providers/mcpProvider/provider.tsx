@@ -47,10 +47,8 @@ const Provider = ({ children }: PropsWithChildren) => {
   const [toolList, setToolList] = useState<
     MCPProviderContextType['state']['toolList']
   >({});
-
-  const [clients, setClients] = useState<ClientState>({});
-
-  const [transports, setTransports] = useState<TransportState>({});
+  const clients = useRef<ClientState>({});
+  const transports = useRef<TransportState>({});
 
   const [inspectedServerName, setInspectedServerName] =
     useState<MCPProviderContextType['state']['inspectedServerName']>(null);
@@ -158,6 +156,7 @@ const Provider = ({ children }: PropsWithChildren) => {
             });
 
       await client.connect(transport);
+      console.log('connect');
       const toolsList = await client.listTools();
 
       return { toolsList, transport, client, oauthToken };
@@ -184,27 +183,8 @@ const Provider = ({ children }: PropsWithChildren) => {
         const { toolsList, transport, client, oauthToken } =
           await connectToMCPServer(config, serverName);
 
-        setClients((prev) => {
-          if (prev[serverName]) {
-            return prev;
-          }
-
-          return {
-            ...prev,
-            [serverName]: client,
-          };
-        });
-
-        setTransports((prev) => {
-          if (prev[serverName]) {
-            return prev;
-          }
-
-          return {
-            ...prev,
-            [serverName]: transport,
-          };
-        });
+        clients.current[serverName] = client;
+        transports.current[serverName] = transport;
 
         if (oauthToken) {
           setServerConfigs((prev) => {
@@ -251,17 +231,16 @@ const Provider = ({ children }: PropsWithChildren) => {
     [connectToMCPServer]
   );
 
-  const closeConnection = useCallback(
-    async (serverName: string) => {
-      const client = clients[serverName];
-      if (client instanceof StreamableHTTPClientTransport) {
-        await client.terminateSession();
-      } else {
-        await client.close();
-      }
-    },
-    [clients]
-  );
+  const closeConnection = useCallback(async (serverName: string) => {
+    const client = clients.current[serverName];
+    const transport = transports.current[serverName];
+    if (transport instanceof StreamableHTTPClientTransport) {
+      await transport.terminateSession();
+      await client.close();
+    } else {
+      await client.close();
+    }
+  }, []);
 
   const handleToggle = useCallback(
     async (serverName: string, value: boolean) => {
@@ -275,28 +254,21 @@ const Provider = ({ children }: PropsWithChildren) => {
             return newValue;
           });
 
-          const { transport, client } = await connectToMCPServer(
+          const { transport, client, oauthToken } = await connectToMCPServer(
             serverConfigs[serverName],
             serverName
           );
 
-          setClients((prev) => {
-            return {
-              ...prev,
-              [serverName]: client,
-            };
-          });
+          clients.current[serverName] = client;
 
-          setTransports((prev) => {
-            return {
-              ...prev,
-              [serverName]: transport,
-            };
-          });
+          transports.current[serverName] = transport;
 
           setServerConfigs((prev) => {
             const newValue = { ...prev };
             newValue[serverName].isReconnecting = false;
+            if (oauthToken) {
+              newValue[serverName].oAuthToken = oauthToken;
+            }
             return newValue;
           });
         } catch (_error) {
@@ -342,17 +314,8 @@ const Provider = ({ children }: PropsWithChildren) => {
 
       if (serverConfigExists) {
         await closeConnection(serverName);
-        setClients((prev) => {
-          const newClients = { ...prev };
-          delete newClients[serverName];
-          return newClients;
-        });
-
-        setTransports((prev) => {
-          const newTransports = { ...prev };
-          delete newTransports[serverName];
-          return newTransports;
-        });
+        delete clients.current[serverName];
+        delete transports.current[serverName];
       }
 
       await createClientAndListTools(
@@ -419,43 +382,31 @@ const Provider = ({ children }: PropsWithChildren) => {
   /**
    * Action: Remove a Server Configuration
    */
-  const removeConfig = useCallback(
-    (serverName: string) => {
-      // Close client connection if exists
-      if (clients[serverName]) {
-        try {
-          clients[serverName].close();
-        } catch (e) {
-          console.error('Error closing client:', e);
-        }
+  const removeConfig = useCallback((serverName: string) => {
+    // Close client connection if exists
+    if (clients.current[serverName]) {
+      try {
+        clients.current[serverName].close();
+      } catch (e) {
+        console.error('Error closing client:', e);
       }
+    }
 
-      setClients((prev) => {
-        const newClients = { ...prev };
-        delete newClients[serverName];
-        return newClients;
-      });
+    delete clients.current[serverName];
+    delete transports.current[serverName];
 
-      setTransports((prev) => {
-        const newTransports = { ...prev };
-        delete newTransports[serverName];
-        return newTransports;
-      });
+    setToolList((prev) => {
+      const newToolList = { ...prev };
+      delete newToolList[serverName];
+      return newToolList;
+    });
 
-      setToolList((prev) => {
-        const newToolList = { ...prev };
-        delete newToolList[serverName];
-        return newToolList;
-      });
-
-      setServerConfigs((prev) => {
-        const newConfig = structuredClone(prev);
-        delete newConfig[serverName];
-        return newConfig;
-      });
-    },
-    [clients]
-  );
+    setServerConfigs((prev) => {
+      const newConfig = structuredClone(prev);
+      delete newConfig[serverName];
+      return newConfig;
+    });
+  }, []);
 
   /**
    * Action: Validate the Config
@@ -520,8 +471,9 @@ const Provider = ({ children }: PropsWithChildren) => {
       state: {
         serverConfigs,
         toolList,
-        clients,
+        clients: clients.current,
         inspectedServerName,
+        transports: transports.current,
       },
       actions: {
         addConfig,
@@ -534,7 +486,6 @@ const Provider = ({ children }: PropsWithChildren) => {
     [
       serverConfigs,
       toolList,
-      clients,
       inspectedServerName,
       addConfig,
       removeConfig,
@@ -544,14 +495,14 @@ const Provider = ({ children }: PropsWithChildren) => {
   );
 
   return (
-    <MCPContext.Provider value={value}>
-      <McpConnectionProvider
-        client={inspectedServerName ? clients[inspectedServerName] : null}
-        transport={inspectedServerName ? transports[inspectedServerName] : null}
-      >
-        {children}
-      </McpConnectionProvider>
-    </MCPContext.Provider>
+    <McpConnectionProvider
+      client={inspectedServerName ? clients.current[inspectedServerName] : null}
+      transport={
+        inspectedServerName ? transports.current[inspectedServerName] : null
+      }
+    >
+      <MCPContext.Provider value={value}>{children}</MCPContext.Provider>
+    </McpConnectionProvider>
   );
 };
 

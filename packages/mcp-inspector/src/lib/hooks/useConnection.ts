@@ -83,8 +83,7 @@ interface UseConnectionOptions {
   defaultLoggingLevel?: LoggingLevel;
   serverImplementation?: Implementation;
   metadata?: Record<string, string>;
-  client: Client | null;
-  transport: StreamableHTTPClientTransport | SSEClientTransport | null;
+  onDisconnect: () => void;
 }
 
 export function useConnection({
@@ -99,8 +98,7 @@ export function useConnection({
   getRoots,
   defaultLoggingLevel,
   metadata = {},
-  client,
-  transport,
+  onDisconnect,
 }: UseConnectionOptions) {
   const [connectionStatus, setConnectionStatus] =
     useState<ConnectionStatus>("disconnected");
@@ -371,7 +369,12 @@ export function useConnection({
   );
 
   const connect = useCallback(
-    async (_e?: unknown, retryCount: number = 0) => {
+    async (
+      client: Client,
+      transport: StreamableHTTPClientTransport | SSEClientTransport,
+      _e?: unknown,
+      retryCount: number = 0,
+    ) => {
       // Only check proxy health for proxy connections
 
       let lastRequest = "";
@@ -437,7 +440,7 @@ export function useConnection({
 
           const shouldRetry = await handleAuthError(error);
           if (shouldRetry) {
-            return connect(undefined, retryCount + 1);
+            return connect(client, transport, undefined, retryCount + 1);
           }
           if (is401Error(error)) {
             // Don't set error state if we're about to redirect for auth
@@ -511,7 +514,6 @@ export function useConnection({
       }
     },
     [
-      client,
       defaultLoggingLevel,
       getRoots,
       handleAuthError,
@@ -519,24 +521,27 @@ export function useConnection({
       onNotification,
       onPendingRequest,
       toast,
-      transport,
     ],
   );
 
-  useEffect(() => {
-    if (!client) {
-      return;
-    }
-
-    if (connectionStatus !== "connected") {
-      connect();
-    }
-  }, [client, connect, connectionStatus]);
-
-  const clearRequestHistory = () => {
+  const clearRequestHistory = useCallback(() => {
     setRequestHistory([]);
     setServerImplementation(null);
-  };
+  }, []);
+
+  const disconnect = useCallback(
+    async (url: string) => {
+      onDisconnect();
+      const authProvider = new InspectorOAuthClientProvider(url);
+      authProvider.clear();
+      setMcpClient(null);
+      setConnectionStatus("disconnected");
+      setCompletionsSupported(false);
+      setServerCapabilities(null);
+      clearRequestHistory();
+    },
+    [clearRequestHistory, onDisconnect],
+  );
 
   return {
     connectionStatus,
@@ -550,5 +555,6 @@ export function useConnection({
     handleCompletion,
     completionsSupported,
     connect,
+    disconnect,
   };
 }

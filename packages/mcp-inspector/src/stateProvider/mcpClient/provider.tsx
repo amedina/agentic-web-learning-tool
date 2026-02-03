@@ -189,6 +189,13 @@ const McpConnectionProvider = ({
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [tools, setTools] = useState<Tool[]>([]);
 
+  const onDisconnect = useCallback(() => {
+    setTools([]);
+    setResources([]);
+    setPrompts([]);
+    setActiveTab("resources");
+  }, []);
+
   const updateAuthState = useCallback((updates: Partial<AuthDebuggerState>) => {
     setAuthState((prev) => ({ ...prev, ...updates }));
   }, []);
@@ -223,6 +230,7 @@ const McpConnectionProvider = ({
     handleCompletion,
     completionsSupported,
     connect: connectMcpServer,
+    disconnect: disconnectMcpServer,
   } = useConnection({
     sseUrl,
     oauthClientId,
@@ -267,8 +275,7 @@ const McpConnectionProvider = ({
     getRoots: () => rootsRef.current,
     defaultLoggingLevel: logLevel,
     metadata,
-    client,
-    transport,
+    onDisconnect,
   });
 
   useEffect(() => {
@@ -410,11 +417,14 @@ const McpConnectionProvider = ({
 
   const onOAuthConnect = useCallback(
     (serverUrl: string) => {
+      if (!client || !transport) {
+        return;
+      }
       setSseUrl(serverUrl);
       setIsAuthDebuggerVisible(false);
-      void connectMcpServer();
+      void connectMcpServer(client, transport);
     },
-    [connectMcpServer],
+    [connectMcpServer, client, transport],
   );
 
   const onOAuthDebugConnect = useCallback(
@@ -637,6 +647,7 @@ const McpConnectionProvider = ({
         setResources,
         setPrompts,
         setTools,
+        disconnectMcpServer,
       },
     };
   }, [
@@ -681,6 +692,7 @@ const McpConnectionProvider = ({
     handleApproveSampling,
     handleRejectSampling,
     handleResolveElicitation,
+    disconnectMcpServer,
   ]);
 
   return (

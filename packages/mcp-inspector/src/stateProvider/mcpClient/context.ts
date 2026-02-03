@@ -13,6 +13,9 @@ import {
   type Resource,
   type Tool,
 } from "@modelcontextprotocol/sdk/types.js";
+import type { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
+import type { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
+import type { Client } from "@modelcontextprotocol/sdk/client";
 /**
  * Internal dependencies
  */
@@ -139,8 +142,11 @@ export interface McpConnectionContextType {
       context?: Record<string, string>,
       signal?: AbortSignal,
     ) => Promise<string[]>;
-
-    connectMcpServer: () => Promise<void>;
+    disconnectMcpServer: (url: string) => Promise<void>;
+    connectMcpServer: (
+      client: Client,
+      transport: SSEClientTransport | StreamableHTTPClientTransport,
+    ) => Promise<void>;
     handleApproveSampling: (id: number, result: CreateMessageResult) => void;
     handleRejectSampling: (id: number) => void;
     handleResolveElicitation: (
@@ -212,6 +218,7 @@ const INITIAL_STATE = {
     sendNotification: () => Promise.resolve(),
     handleCompletion: () => Promise.resolve([]),
     connectMcpServer: () => Promise.resolve(),
+    disconnectMcpServer: () => Promise.resolve(),
     handleApproveSampling: noop,
     handleRejectSampling: noop,
     handleResolveElicitation: noop,

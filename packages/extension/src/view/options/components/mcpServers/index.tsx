@@ -15,6 +15,7 @@ import { useState } from 'react';
  */
 import { useMcpProvider } from '../../providers';
 import { MCPServerCard } from './mcpServerCard';
+import { useMCPClientProvider } from '@google-awlt/mcp-inspector';
 
 export default function MCPServersTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -28,9 +29,13 @@ export default function MCPServersTab() {
     toolList,
     handleToggle,
     setInspectedServerName,
+    clients,
+    transports,
   } = useMcpProvider(({ state, actions }) => ({
     serverConfigs: state.serverConfigs,
     toolList: state.toolList,
+    transports: state.transports,
+    clients: state.clients,
     addServer: actions.addConfig,
     validator: actions.validateConfig,
     removeConfig: actions.removeConfig,
@@ -41,6 +46,13 @@ export default function MCPServersTab() {
   const { setSelectedMenuItem } = useSidebar(({ actions }) => ({
     setSelectedMenuItem: actions.setSelectedMenuItem,
   }));
+
+  const { connectMcpServer, disconnectMcpServer } = useMCPClientProvider(
+    ({ actions }) => ({
+      connectMcpServer: actions.connectMcpServer,
+      disconnectMcpServer: actions.disconnectMcpServer,
+    })
+  );
 
   return (
     <OptionsPageTab
@@ -63,6 +75,8 @@ export default function MCPServersTab() {
           {Object.keys(serverConfigs).map((server) => (
             <MCPServerCard
               onView={async () => {
+                disconnectMcpServer(serverConfigs[server].url);
+                connectMcpServer(clients[server], transports[server]);
                 setInspectedServerName(server);
                 setSelectedMenuItem('mcp-inspector');
               }}
