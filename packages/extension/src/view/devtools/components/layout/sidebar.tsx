@@ -4,6 +4,11 @@
 import { Sidebar as OptionsPageSidebar } from '@google-awlt/design-system';
 import { Hammer, Settings, Activity } from 'lucide-react';
 
+/**
+ * Internal dependencies
+ */
+import { openOptionsPage } from '../../../../utils';
+
 const Sidebar = () => {
   const items = [
     {
@@ -23,7 +28,7 @@ const Sidebar = () => {
       title: 'Options',
       id: 'options',
       icon: () => <Settings width="20" height="20" />,
-      onClick: () => chrome.runtime.openOptionsPage(),
+      onClick: openOptionsPage,
     },
   ];
 
