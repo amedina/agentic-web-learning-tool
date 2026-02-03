@@ -7,9 +7,12 @@ import { Settings } from "lucide-react";
 /**
  * Internal dependencies
  */
-import { TranslatorApiSchema, type TranslatorApiConfig } from "./translatorApi";
 
 import { getWorkflowClient } from "@google-awlt/engine-extension";
+import {
+  TranslatorApiConfigSchema,
+  type TranslatorApiConfig,
+} from "@google-awlt/engine-core";
 
 interface ToolConfigProps {
   ref: React.Ref<{
@@ -71,7 +74,7 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
           targetLanguage,
         };
 
-        const validation = TranslatorApiSchema.safeParse(configResult);
+        const validation = TranslatorApiConfigSchema.safeParse(configResult);
         if (!validation.success) {
           console.error("Invalid configuration:", validation.error);
           return undefined;

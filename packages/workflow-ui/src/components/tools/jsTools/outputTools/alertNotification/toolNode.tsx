@@ -10,7 +10,7 @@ import { BellRing } from "lucide-react";
  */
 import { ToolNodeContainer } from "../../../../ui";
 import { useApi, useFlow } from "../../../../../stateProviders";
-import type { AlertNotificationConfig } from "./alertNotification";
+import type { AlertNotificationConfig } from "@google-awlt/engine-core";
 
 const ToolNode = () => {
   const nodeId = useNodeId();

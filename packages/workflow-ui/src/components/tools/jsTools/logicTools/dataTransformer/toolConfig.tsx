@@ -3,14 +3,14 @@
  */
 import { useEffect, useImperativeHandle, useState } from "react";
 import { Settings } from "lucide-react";
+import {
+  DataTransformerConfigSchema,
+  type DataTransformerConfig,
+} from "@google-awlt/engine-core";
 
 /**
  * Internal dependencies
  */
-import {
-  DataTransformerSchema,
-  type DataTransformerConfig,
-} from "./dataTransformer";
 
 interface ToolConfigProps {
   ref: React.Ref<{
@@ -76,7 +76,7 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
             break;
         }
 
-        const validation = DataTransformerSchema.safeParse(configResult);
+        const validation = DataTransformerConfigSchema.safeParse(configResult);
         if (!validation.success) {
           console.error("Invalid configuration:", validation.error);
           return undefined;

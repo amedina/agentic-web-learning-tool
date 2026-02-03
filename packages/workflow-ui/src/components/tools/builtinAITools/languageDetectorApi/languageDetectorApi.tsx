@@ -3,22 +3,12 @@
  */
 import { useCallback } from "react";
 import { ScanSearch } from "lucide-react";
-import z from "zod";
 
 /**
  * Internal dependencies
  */
 import { ToolItem } from "../../../ui";
 import { useApi } from "../../../../stateProviders";
-
-export const LanguageDetectorApiSchema = z.object({
-  title: z.string(),
-  description: z.string().optional(),
-});
-
-export type LanguageDetectorApiConfig = z.infer<
-  typeof LanguageDetectorApiSchema
->;
 
 const LanguageDetectorApi = () => {
   const { isAvailable } = useApi(({ state }) => ({

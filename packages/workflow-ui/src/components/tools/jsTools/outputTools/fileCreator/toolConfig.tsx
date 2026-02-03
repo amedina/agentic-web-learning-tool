@@ -3,11 +3,14 @@
  */
 import { useEffect, useImperativeHandle, useState } from "react";
 import { FileDown } from "lucide-react";
+import {
+  FileCreatorConfigSchema,
+  type FileCreatorConfig,
+} from "@google-awlt/engine-core";
 
 /**
  * Internal dependencies
  */
-import { FileCreatorSchema, type FileCreatorConfig } from "./fileCreator";
 
 interface ToolConfigProps {
   ref: React.Ref<{
@@ -37,7 +40,7 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
           filename,
         };
 
-        const validation = FileCreatorSchema.safeParse(configResult);
+        const validation = FileCreatorConfigSchema.safeParse(configResult);
         if (!validation.success) {
           console.error("Invalid configuration:", validation.error);
           return undefined;

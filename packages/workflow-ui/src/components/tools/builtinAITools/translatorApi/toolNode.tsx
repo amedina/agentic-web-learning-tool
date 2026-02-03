@@ -10,7 +10,7 @@ import { Languages } from "lucide-react";
  */
 import { ToolNodeContainer } from "../../../ui";
 import { useApi, useFlow } from "../../../../stateProviders";
-import type { TranslatorApiConfig } from "./translatorApi";
+import type { TranslatorApiConfig } from "@google-awlt/engine-core";
 
 const ToolNode = () => {
   const nodeId = useNodeId();

@@ -10,7 +10,7 @@ import { Pencil } from "lucide-react";
  */
 import { ToolNodeContainer } from "../../../../ui";
 import { useApi, useFlow } from "../../../../../stateProviders";
-import type { DomReplacementConfig } from "./domReplacement";
+import type { DomReplacementConfig } from "@google-awlt/engine-core";
 
 const ToolNode = () => {
   const nodeId = useNodeId();

@@ -3,20 +3,12 @@
  */
 import { useCallback } from "react";
 import { Play } from "lucide-react";
-import z from "zod";
 
 /**
  * Internal dependencies
  */
 import { useFlow } from "../../../../../stateProviders";
 import { ToolItem } from "../../../../ui";
-
-export const StartSchema = z.object({
-  title: z.string(),
-  description: z.string().optional(),
-});
-
-export type StartConfig = z.infer<typeof StartSchema>;
 
 const Start = () => {
   const { nodes } = useFlow(({ state }) => ({

@@ -3,11 +3,11 @@
  */
 import { useEffect, useImperativeHandle, useState } from "react";
 import { Settings } from "lucide-react";
+import { MathConfigSchema, type MathConfig } from "@google-awlt/engine-core";
 
 /**
  * Internal dependencies
  */
-import { MathSchema, type MathConfig } from "./math";
 
 interface ToolConfigProps {
   ref: React.Ref<{
@@ -39,7 +39,7 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
           operand,
         };
 
-        const validation = MathSchema.safeParse(configResult);
+        const validation = MathConfigSchema.safeParse(configResult);
         if (!validation.success) {
           console.error("Invalid configuration:", validation.error);
           return undefined;

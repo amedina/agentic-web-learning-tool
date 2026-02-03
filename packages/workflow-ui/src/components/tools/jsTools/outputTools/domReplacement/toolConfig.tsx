@@ -4,9 +4,9 @@
 import { useEffect, useImperativeHandle, useState } from "react";
 import { Pencil } from "lucide-react";
 import {
-  DomReplacementSchema,
+  DomReplacementConfigSchema,
   type DomReplacementConfig,
-} from "./domReplacement";
+} from "@google-awlt/engine-core";
 
 interface ToolConfigProps {
   ref: React.Ref<{
@@ -44,7 +44,7 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
           mode,
         };
 
-        const validation = DomReplacementSchema.safeParse(configResult);
+        const validation = DomReplacementConfigSchema.safeParse(configResult);
         if (!validation.success) {
           console.error("Invalid configuration:", validation.error);
           return undefined;
