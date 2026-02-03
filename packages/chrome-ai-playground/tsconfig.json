@@ -8,6 +8,7 @@
     "jsx": "react-jsx",
     "noEmit": false,
     "allowImportingTsExtensions": false,
+    "allowSyntheticDefaultImports": true,
     "types": []
   },
   "include": ["src"],

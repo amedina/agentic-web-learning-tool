@@ -45,6 +45,7 @@ class McpHub {
   private port: chrome.runtime.Port | null = null;
   private requestManager = new RequestManager();
   private apiTools: any[] = [];
+  private userToolScripts = new Map<string, string>();
   private tabId: number = 0;
   private toolInjected = false;
 
@@ -472,7 +473,15 @@ class McpHub {
       name: string;
       enabled: boolean;
       allowedDomains?: string[];
+      code?: string;
     }>;
+
+    userTools.forEach((tool) => {
+      if (tool.code) {
+        this.userToolScripts.set(tool.name, tool.code);
+      }
+    });
+
     const userToolsMap = new Map(userTools.map((t) => [t.name, t]));
 
     const currentUrl = this.port?.sender?.tab?.url || '';
@@ -647,14 +656,107 @@ class McpHub {
     args: Record<string, unknown> | unknown,
     isMCPServerTool: boolean
   ) {
-    if (isMCPServerTool) {
-      return this.executeMCPTool(
-        serverOrDomainName,
+    const executionId = crypto.randomUUID();
+    const startTime = Date.now();
+    const type = isMCPServerTool ? 'MCP' : 'WebMCP';
+
+    let script = !isMCPServerTool
+      ? this.userToolScripts.get(toolName)
+      : undefined;
+
+    if (!isMCPServerTool && !script) {
+      try {
+        const storage = await chrome.storage.local.get('userWebMCPTools');
+        const userTools = (storage.userWebMCPTools || []) as Array<{
+          name: string;
+          code?: string;
+        }>;
+        const found = userTools.find((tool) => tool.name === toolName);
+
+        if (found && found.code) {
+          script = found.code;
+          this.userToolScripts.set(toolName, script);
+        }
+      } catch (e) {
+        console.error('Failed to fetch script from storage:', e);
+      }
+    }
+
+    // Broadcast Pending Log
+    this.broadcastLog({
+      id: executionId,
+      type,
+      toolName,
+      args,
+      startTime,
+      status: 'pending',
+      script,
+    });
+
+    let result: CallToolResult;
+
+    try {
+      if (isMCPServerTool) {
+        result = await this.executeMCPTool(
+          serverOrDomainName,
+          toolName,
+          args as Record<string, unknown>
+        );
+      } else {
+        result = await this.executeWebMCPTool(toolName, args);
+      }
+
+      const endTime = Date.now();
+      const duration = endTime - startTime;
+
+      // Broadcast Success Log (with result or error from tool content)
+      this.broadcastLog({
+        id: executionId,
+        type,
         toolName,
-        args as Record<string, unknown>
-      );
-    } else {
-      return this.executeWebMCPTool(toolName, args);
+        args,
+        startTime,
+        endTime,
+        duration,
+        script,
+        status: result.isError ? 'error' : 'success',
+        result: result.content,
+        error: result.isError ? 'Tool returned an error' : undefined,
+      });
+
+      return result;
+    } catch (error) {
+      const endTime = Date.now();
+      const duration = endTime - startTime;
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+
+      // Broadcast Error Log
+      this.broadcastLog({
+        id: executionId,
+        type,
+        toolName,
+        args,
+        startTime,
+        endTime,
+        script,
+        duration,
+        status: 'error',
+        error: errorMessage,
+      });
+
+      throw error;
+    }
+  }
+
+  private broadcastLog(logEntry: any) {
+    try {
+      chrome.runtime.sendMessage({
+        type: MESSAGE_TYPES.TOOL_LOG,
+        payload: logEntry,
+      });
+    } catch (e) {
+      // Ignore errors if no receivers (e.g., DevTools closed)
     }
   }
 

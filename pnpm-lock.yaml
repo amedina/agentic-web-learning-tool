@@ -423,6 +423,9 @@ importers:
       '@google-awlt/mcp-inspector':
         specifier: workspace:*
         version: link:../mcp-inspector
+      '@google-awlt/table':
+        specifier: workspace:*
+        version: link:../table
       '@mcp-b/extension-tools':
         specifier: ^0.2.3
         version: 0.2.3(patch_hash=de61710e62afdb10e9b1aa256f697615f6f694df3f7c35e4aa0ea8ee2eb930fd)(hono@4.11.3)
@@ -450,6 +453,9 @@ importers:
       assistant-stream:
         specifier: ^0.2.45
         version: 0.2.46(patch_hash=46a7cfa2f818f8cbd85e6a5a2dbabd025717a8972464c3d8a538756a169ec3ff)
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
       cross-env:
         specifier: ^10.1.0
         version: 10.1.0

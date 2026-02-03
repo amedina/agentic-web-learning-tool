@@ -26,7 +26,7 @@ const callback = (panel: {
   });
 };
 chrome.devtools.panels.create(
-  'AWL Tool',
+  'WebMCP Tools',
   'icons/icon.svg',
   'devtools/index.html#' + chrome.devtools.inspectedWindow.tabId,
   callback

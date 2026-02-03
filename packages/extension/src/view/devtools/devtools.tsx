@@ -1,56 +1,33 @@
 /**
  * External dependencies
  */
-import { useCallback, useState } from 'react';
-import { Button } from '@google-awlt/design-system';
+import { McpClientProvider } from '@mcp-b/mcp-react-hooks';
+import { ExtensionClientTransport } from '@mcp-b/transports';
+import { Client } from '@modelcontextprotocol/sdk/client';
+
 /**
  * Internal dependencies
  */
-import reactLogo from '../../assets/react.svg';
-import viteLogo from '../../assets/vite.svg';
-import { openOptionsPage } from '../../utils';
+import { CONNECTION_NAMES } from '../../utils';
+import { Layout, EventLogsProvider } from './components';
+
+export const transport = new ExtensionClientTransport({
+  portName: CONNECTION_NAMES.MCP_HOST_DEVTOOLS,
+});
+
+// Connects to the extension service worker.
+export const client = new Client({
+  name: 'Extension DevTools',
+  version: '1.0.0',
+});
 
 function DevTools() {
-  const [count, setCount] = useState(0);
-
-  const openSidePanel = useCallback(async () => {
-    const tab = await chrome.tabs.get(chrome.devtools.inspectedWindow.tabId);
-    chrome.sidePanel.open({ windowId: tab.windowId });
-  }, []);
-
   return (
-    <main className="max-w-7xl m-auto min-h-screen flex flex-col items-center justify-center gap-5">
-      <div className="flex gap-5">
-        <Button variant="link" size="icon">
-          <a href="https://vite.dev" target="_blank" rel="noreferrer">
-            <img src={viteLogo} className="logo" alt="Vite logo" />
-          </a>
-        </Button>
-        <Button variant="link" size="icon">
-          <a href="https://react.dev" target="_blank" rel="noreferrer">
-            <img src={reactLogo} className="logo react" alt="React logo" />
-          </a>
-        </Button>
-      </div>
-      <Button variant="outline" onClick={openSidePanel}>
-        Open SidePanel
-      </Button>
-      <Button variant="outline" onClick={openOptionsPage}>
-        Open Options page
-      </Button>
-      <h1 className="text-2xl">Vite + React</h1>
-      <div className="flex flex-col items-center justify-center">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p className="text-2xl">
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </main>
+    <EventLogsProvider>
+      <McpClientProvider client={client} transport={transport}>
+        <Layout />
+      </McpClientProvider>
+    </EventLogsProvider>
   );
 }
 
