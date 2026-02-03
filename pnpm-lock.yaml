@@ -322,9 +322,6 @@ importers:
       '@google-awlt/engine-core':
         specifier: workspace:*
         version: link:../engine-core
-      '@google-awlt/engine-web':
-        specifier: workspace:*
-        version: link:../engine-web
     devDependencies:
       '@google-awlt/shared-config':
         specifier: workspace:*
