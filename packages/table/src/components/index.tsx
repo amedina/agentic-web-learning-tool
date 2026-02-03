@@ -20,6 +20,7 @@
 import React, { memo, useCallback, useEffect, useState } from "react";
 import { Resizable } from "re-resizable";
 import classNames from "classnames";
+import { TableRow } from "../useTable/types";
 
 /**
  * Internal dependencies.
@@ -33,7 +34,7 @@ import TableChipsBar from "./filtersSidebar/chips";
 import TableFiltersSidebar from "./filtersSidebar";
 import Tray from "./draggableTray";
 
-interface TableProps {
+export interface TableProps {
   selectedKey: string | undefined | null;
   isFiltersSidebarOpen?: boolean;
   hideFiltering?: boolean;
@@ -44,6 +45,8 @@ interface TableProps {
   rowHeightClass?: string;
   shouldScroll?: boolean;
   showOverflow?: boolean;
+  containerClasses?: string;
+  renderDetailPanel?: (row: TableRow) => React.ReactNode;
 }
 
 const Table = ({
@@ -57,6 +60,8 @@ const Table = ({
   rowHeightClass,
   shouldScroll = false,
   showOverflow = true,
+  containerClasses = "",
+  renderDetailPanel,
 }: TableProps) => {
   const {
     filters,
@@ -160,7 +165,9 @@ const Table = ({
   );
 
   return (
-    <div className="h-full flex flex-col">
+    <div
+      className={classNames("h-full w-full flex flex-col", containerClasses)}
+    >
       <div className="w-full flex-1 flex flex-col text-raisin-black dark:text-bright-gray overflow-hidden">
         {!hideTableTopBar && (
           <>
@@ -207,7 +214,7 @@ const Table = ({
           )}
           <div
             ref={tableContainerRef}
-            className={classNames("relative h-full w-full flex-1", {
+            className={classNames("relative min-h-full w-full flex-1", {
               "overflow-auto": showOverflow,
             })}
             onScroll={scrollListener}
@@ -241,14 +248,17 @@ const Table = ({
         </div>
       </div>
       <Resizable
-        minHeight="100px"
-        maxHeight="80%"
+        minHeight={"10%"}
+        maxHeight={"90%"}
+        defaultSize={{
+          height: "20%",
+        }}
         enable={{
           top: true,
         }}
         className="h-full w-full"
       >
-        <Tray selectedRow={selectedRow} />
+        <Tray selectedRow={selectedRow} renderContent={renderDetailPanel} />
       </Resizable>
     </div>
   );

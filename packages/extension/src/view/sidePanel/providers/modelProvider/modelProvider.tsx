@@ -24,7 +24,7 @@ import { CONNECTION_NAMES } from '../../../../utils';
 import type { AgentType, APIKeys } from '../../../../types';
 
 export const transport = new ExtensionClientTransport({
-  portName: CONNECTION_NAMES.MCP_HOST,
+  portName: CONNECTION_NAMES.MCP_HOST_SIDEPANEL,
 });
 
 //MCP client instance that connects to the extension background script
