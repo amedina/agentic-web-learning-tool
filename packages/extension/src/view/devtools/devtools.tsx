@@ -12,7 +12,7 @@ import { CONNECTION_NAMES } from '../../utils';
 import { Layout, EventLogsProvider } from './components';
 
 export const transport = new ExtensionClientTransport({
-  portName: CONNECTION_NAMES.MCP_HOST,
+  portName: CONNECTION_NAMES.MCP_HOST_DEVTOOLS,
 });
 
 // Connects to the extension service worker.

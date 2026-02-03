@@ -1,6 +1,7 @@
 export const CONNECTION_NAMES = {
   CONTENT_SCRIPT: 'mcp-content-script-proxy',
-  MCP_HOST: 'mcp',
+  MCP_HOST_SIDEPANEL: 'mcp-sidepanel',
+  MCP_HOST_DEVTOOLS: 'mcp-devtools',
 } as const;
 
 export const MESSAGE_TYPES = {

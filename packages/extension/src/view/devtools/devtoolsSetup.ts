@@ -28,6 +28,6 @@ const callback = (panel: {
 chrome.devtools.panels.create(
   'WebMCP Tools',
   'icons/icon.svg',
-  'devtools/index.html',
+  'devtools/index.html#' + chrome.devtools.inspectedWindow.tabId,
   callback
 );

@@ -34,7 +34,7 @@ import TableChipsBar from "./filtersSidebar/chips";
 import TableFiltersSidebar from "./filtersSidebar";
 import Tray from "./draggableTray";
 
-interface TableProps {
+export interface TableProps {
   selectedKey: string | undefined | null;
   isFiltersSidebarOpen?: boolean;
   hideFiltering?: boolean;

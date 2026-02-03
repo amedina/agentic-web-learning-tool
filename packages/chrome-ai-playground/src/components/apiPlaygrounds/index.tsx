@@ -15,11 +15,11 @@ import {
 /**
  * Internal dependencies
  */
-import PromptLab from "./PromptLab";
-import WritersStudio from "./WritersStudio";
-import SummarizationStation from "./SummarizationStation";
-import PolyglotPanel from "./PolyglotPanel";
-import Proofreader from "./Proofreader";
+import PromptLab from "./promptLab";
+import WritersStudio from "./writersStudio";
+import SummarizationStation from "./summarizationStation";
+import PolyglotPanel from "./polyglotPanel";
+import Proofreader from "./proofReader";
 
 interface PlaygroundCard {
   id: string;
