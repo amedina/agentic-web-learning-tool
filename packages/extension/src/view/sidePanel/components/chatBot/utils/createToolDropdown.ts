@@ -11,7 +11,7 @@ import {
  * Internal dependencies
  */
 import { ToolNameMap } from '../../../../../contentScript/tools/builtInTools';
-import { isUrl } from '../../../utils';
+import { isUrl } from '../../../../../utils';
 
 type SingleGroupTool = {
   group: string;
