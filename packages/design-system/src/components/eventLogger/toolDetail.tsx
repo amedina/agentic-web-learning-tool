@@ -22,7 +22,7 @@ export function ToolDetail({ tool, getUserTool }: ToolDetailProps) {
       const userTool = await getUserTool(tool);
       setUserTool(userTool);
     })();
-  }, [tool]);
+  }, [tool, getUserTool]);
 
   return (
     <>
