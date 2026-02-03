@@ -7,8 +7,8 @@ import type { Tool as McpTool } from '@modelcontextprotocol/sdk/types.js';
 /**
  * Internal dependencies
  */
+import { isUrl } from '../../../../../utils';
 import { getMcpbToolGroup } from '../../../../../utils';
-import { isUrl } from '../../../utils';
 
 type SingleGroupTool = {
   group: string;
