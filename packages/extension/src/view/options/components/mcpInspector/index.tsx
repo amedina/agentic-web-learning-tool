@@ -8,23 +8,56 @@ import { useSidebar } from '@google-awlt/design-system';
  * Internal dependencies
  */
 import { useMcpProvider } from '../../providers';
+import type { ExtendedMenuItem } from '../../options';
 
 export default function MCPInspectorTab() {
   const { inspectedServerName } = useMcpProvider(({ state }) => ({
     inspectedServerName: state.inspectedServerName,
   }));
 
-  const { setSelectedMenuItem } = useSidebar(({ actions }) => ({
+  const { setSelectedMenuItem, setMenuItems } = useSidebar(({ actions }) => ({
     setSelectedMenuItem: actions.setSelectedMenuItem,
+    setMenuItems: actions.setMenuItems,
   }));
 
   useEffect(() => {
     if (inspectedServerName) {
+      const updateItemInList = (
+        list: ExtendedMenuItem[],
+        targetId: string,
+        key: string,
+        newValue: boolean
+      ): ExtendedMenuItem[] => {
+        return list.map((item) => {
+          if (item.id === targetId) {
+            return { ...item, [key]: newValue };
+          }
+
+          if (item.items && item.items.length > 0) {
+            return {
+              ...item,
+              items: updateItemInList(item.items, targetId, key, newValue),
+            };
+          }
+
+          return item;
+        });
+      };
+
+      setMenuItems((prev) => {
+        const newValue = updateItemInList(
+          prev,
+          'mcp-inspector',
+          'isDisabled',
+          false
+        );
+        return newValue;
+      });
       return;
     }
 
     setSelectedMenuItem('mcp-server');
-  }, [inspectedServerName, setSelectedMenuItem]);
+  }, [inspectedServerName, setSelectedMenuItem, setMenuItems]);
 
   return (
     <div className="min-h-screen w-full bg-background pb-3 pt-6 px-6 md:pb-5 md:pt-10 md:px-10  overflow-auto">

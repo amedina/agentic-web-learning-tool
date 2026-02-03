@@ -14,7 +14,10 @@ import {
  */
 import { cn } from '../../../lib';
 import { Tooltip } from '../../tooltip';
-import SidebarContext, { type SidebarContextProps } from './context';
+import SidebarContext, {
+  type MenuItem,
+  type SidebarContextProps,
+} from './context';
 import {
   SIDEBAR_COOKIE_NAME,
   SIDEBAR_COOKIE_MAX_AGE,
@@ -40,6 +43,7 @@ function SidebarProvider({
   // This is the internal state of the sidebar.
   // We use openProp and setOpenProp for control from outside the component.
   const [_open, _setOpen] = useState(defaultOpen);
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const isMobile = useIsMobile();
   const open = openProp ?? _open;
   const [selectedMenuItem, setSelectedMenuItem] = useState(
@@ -96,14 +100,16 @@ function SidebarProvider({
         selectedMenuItem,
         sidebarState: state,
         isMobile,
+        menuItems,
       },
       actions: {
         setOpen,
         toggleSidebar,
         setSelectedMenuItem,
+        setMenuItems,
       },
     }),
-    [state, open, setOpen, toggleSidebar, selectedMenuItem, isMobile]
+    [open, selectedMenuItem, state, isMobile, menuItems, setOpen, toggleSidebar]
   );
 
   return (

@@ -1,9 +1,9 @@
 /**
  * External dependencies
  */
-import { type ReactNode } from 'react';
 import { ChevronRight } from 'lucide-react';
 import * as CollapsiblePrimitive from '@radix-ui/react-collapsible';
+import { useEffect } from 'react';
 /**
  * Internal dependencies
  */
@@ -23,14 +23,8 @@ import {
   SidebarFooter,
 } from './components';
 import { OwlIcon } from '../../icons';
-import { useSidebar } from './sidebarProvider';
-
-export type MenuItem = {
-  id: string;
-  title: string;
-  icon?: () => ReactNode;
-  items?: MenuItem[];
-};
+import { useSidebar, type MenuItem } from './sidebarProvider';
+import { Button } from '../button';
 
 type SidebarProps = {
   items?: MenuItem[];
@@ -47,13 +41,27 @@ export function Sidebar({
   collapsible = 'offcanvas',
   side = 'left',
 }: SidebarProps) {
-  const { setSelectedMenuItem, sidebarState, selectedMenuItem } = useSidebar(
-    ({ state, actions }) => ({
-      setSelectedMenuItem: actions.setSelectedMenuItem,
-      sidebarState: state.sidebarState,
-      selectedMenuItem: state.selectedMenuItem,
-    })
-  );
+  const {
+    setSelectedMenuItem,
+    sidebarState,
+    selectedMenuItem,
+    setMenuItems,
+    menuItems,
+  } = useSidebar(({ state, actions }) => ({
+    setMenuItems: actions.setMenuItems,
+    setSelectedMenuItem: actions.setSelectedMenuItem,
+    sidebarState: state.sidebarState,
+    selectedMenuItem: state.selectedMenuItem,
+    menuItems: state.menuItems,
+  }));
+
+  useEffect(() => {
+    if (!items) {
+      return;
+    }
+
+    setMenuItems(items);
+  }, [items, setMenuItems]);
 
   const renderMenuItem = (item: MenuItem) => {
     // Check if any child is selected (recursive check not needed for 1-level depth but good to have)
@@ -73,6 +81,7 @@ export function Sidebar({
             <CollapsiblePrimitive.CollapsibleTrigger asChild>
               <SidebarMenuButton
                 tooltip={item.title}
+                disabled={item?.isDisabled}
                 isActive={sidebarState === 'collapsed' && isChildSelected}
               >
                 {item.icon && item.icon()}
@@ -83,20 +92,29 @@ export function Sidebar({
             <CollapsiblePrimitive.CollapsibleContent>
               <SidebarMenuSub>
                 {item.items.map((subItem) => (
-                  <SidebarMenuSubItem key={subItem.id}>
+                  <SidebarMenuSubItem
+                    disabled={subItem?.isDisabled}
+                    key={subItem.id}
+                  >
                     <SidebarMenuSubButton
                       asChild
+                      disabled={subItem?.isDisabled}
                       isActive={selectedMenuItem === subItem.id}
-                      className="cursor-pointer"
+                      className="w-full cursor-pointer"
                     >
-                      <div
-                        onClick={() => {
-                          setSelectedMenuItem(subItem.id);
-                        }}
+                      <Button
+                        disabled={subItem?.isDisabled}
+                        className="justify-start"
+                        variant="ghost"
+                        onClick={
+                          item?.isDisabled
+                            ? () => {}
+                            : () => setSelectedMenuItem(subItem.id)
+                        }
                       >
                         {subItem.icon && subItem.icon()}
                         <span>{subItem.title}</span>
-                      </div>
+                      </Button>
                     </SidebarMenuSubButton>
                   </SidebarMenuSubItem>
                 ))}
@@ -114,15 +132,18 @@ export function Sidebar({
           isActive={selectedMenuItem === item.id}
           className="w-full cursor-pointer"
           tooltip={item.title}
+          disabled={item?.isDisabled}
         >
-          <div
+          <Button
+            variant="ghost"
+            className="justify-start has-[>svg]:px-2"
             onClick={() => {
               setSelectedMenuItem(item.id);
             }}
           >
             {item.icon && item.icon()}
             <span>{item.title}</span>
-          </div>
+          </Button>
         </SidebarMenuButton>
       </SidebarMenuItem>
     );
@@ -148,7 +169,7 @@ export function Sidebar({
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu>{items?.map(renderMenuItem)}</SidebarMenu>
+            <SidebarMenu>{menuItems?.map(renderMenuItem)}</SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
