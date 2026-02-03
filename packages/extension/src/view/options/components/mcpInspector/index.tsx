@@ -23,7 +23,7 @@ export default function MCPInspectorTab() {
       return;
     }
 
-    setSelectedMenuItem('mcp-servers');
+    setSelectedMenuItem('mcp-server');
   }, [inspectedServerName, setSelectedMenuItem]);
 
   return (

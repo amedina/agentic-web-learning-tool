@@ -31,11 +31,13 @@ export default function MCPServersTab() {
     setInspectedServerName,
     clients,
     transports,
+    inspectedServerName,
   } = useMcpProvider(({ state, actions }) => ({
     serverConfigs: state.serverConfigs,
     toolList: state.toolList,
     transports: state.transports,
     clients: state.clients,
+    inspectedServerName: state.inspectedServerName,
     addServer: actions.addConfig,
     validator: actions.validateConfig,
     removeConfig: actions.removeConfig,
@@ -75,8 +77,10 @@ export default function MCPServersTab() {
           {Object.keys(serverConfigs).map((server) => (
             <MCPServerCard
               onView={async () => {
-                disconnectMcpServer(serverConfigs[server].url);
-                connectMcpServer(clients[server], transports[server]);
+                if (inspectedServerName !== server) {
+                  disconnectMcpServer(serverConfigs[server].url);
+                  connectMcpServer(clients[server], transports[server]);
+                }
                 setInspectedServerName(server);
                 setSelectedMenuItem('mcp-inspector');
               }}
