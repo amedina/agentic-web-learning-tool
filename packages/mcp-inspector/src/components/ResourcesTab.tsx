@@ -186,10 +186,7 @@ const ResourcesTab = ({
               {!(resource as WithIcons).icons && (
                 <FileText className="w-4 h-4 mr-2 flex-shrink-0 text-gray-500" />
               )}
-              <span
-                className="flex-1 truncate items-start"
-                title={resource.uri.toString()}
-              >
+              <span className="flex-1 truncate" title={resource.uri.toString()}>
                 {resource.name}
               </span>
               <ChevronRight className="w-4 h-4 flex-shrink-0 text-gray-400" />
@@ -211,10 +208,7 @@ const ResourcesTab = ({
               {!(template as WithIcons).icons && (
                 <FileText className="w-4 h-4 mr-2 flex-shrink-0 text-gray-500" />
               )}
-              <span
-                className="flex-1 truncate items-start"
-                title={template.uriTemplate}
-              >
+              <span className="flex-1 truncate" title={template.uriTemplate}>
                 {template.name}
               </span>
               <ChevronRight className="w-4 h-4 flex-shrink-0 text-gray-400" />

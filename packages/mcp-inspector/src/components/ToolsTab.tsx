@@ -172,7 +172,7 @@ const ToolsTab = ({
               <div className="flex-shrink-0 mt-1">
                 <IconDisplay icons={(tool as WithIcons).icons} size="sm" />
               </div>
-              <div className="flex flex-col flex-1 min-w-0 items-start">
+              <div className="flex flex-col flex-1 min-w-0">
                 <span className="truncate">{tool.name}</span>
                 <span className="text-sm text-gray-500 text-left line-clamp-2">
                   {tool.description}
