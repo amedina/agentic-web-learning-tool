@@ -19,7 +19,7 @@ import PromptLab from "./promptLab";
 import WritersStudio from "./writersStudio";
 import SummarizationStation from "./summarizationStation";
 import PolyglotPanel from "./polyglotPanel";
-import Proofreader from "./proofreader";
+import Proofreader from "./proofReader";
 
 interface PlaygroundCard {
   id: string;
