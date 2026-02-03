@@ -53,16 +53,10 @@ export function CodeEditor({
   const commonStyle = {
     fontFamily:
       '"Fira Code", "Cascadia Code", Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace',
-    fontSize: '12px',
+    fontSize: '14px',
     lineHeight: '1.5',
-    padding: '0',
-    tabSize: 2,
-    MozTabSize: 2,
-    whiteSpace: 'pre',
-    fontVariantLigatures: 'none',
-    letterSpacing: 'normal',
+    padding: '1.5rem 1rem',
     ...styles,
-    fontWeight: 'normal', // Enforce normal weight to prevent bold width mismatch
   };
 
   const lines = code.split('\n');
@@ -71,12 +65,12 @@ export function CodeEditor({
   const activeStyle = isDarkMode ? dracula : vs;
   const backgroundColor = isDarkMode ? '#282a36' : 'white';
   const caretColor = isDarkMode ? '#f8f8f2' : 'black';
-  const gutterBg = isDarkMode ? '#21222c' : 'white';
-  const gutterText = isDarkMode ? '#6272a4' : '#6e6e6e';
+  const gutterBg = isDarkMode ? '#21222c' : '#f3f4f6';
+  const gutterText = isDarkMode ? '#6272a4' : '#9ca3af';
   const breakpointColor = '#1a73e8';
 
   return (
-    <div className="flex-1 relative flex text-[12px]">
+    <div className="flex-1 relative flex">
       <CodeEditorGutter
         gutterRef={gutterRef}
         lineNumbers={lineNumbers}
@@ -99,8 +93,6 @@ export function CodeEditor({
           spellCheck={false}
           style={{
             ...commonStyle,
-            padding: '1.5rem 1rem 1.5rem 0.5rem',
-            lineHeight: '18px',
             whiteSpace: 'pre',
             caretColor: caretColor,
             zIndex: 10,
@@ -115,47 +107,20 @@ export function CodeEditor({
             language="javascript"
             code={code}
             style={activeStyle}
-            customStyle={{
-              margin: 0,
-              padding: '1.5rem 1rem 1.5rem 0.5rem',
-              fontSize: commonStyle.fontSize,
-              lineHeight: '18px',
-              minHeight: '100%',
-              backgroundColor: backgroundColor,
-              fontFamily: commonStyle.fontFamily,
-            }}
-            codeTagProps={{
-              style: {
-                fontSize: commonStyle.fontSize,
-                fontFamily: commonStyle.fontFamily,
-              },
-            }}
             components={{
               Pre: (props: any) => (
                 <pre
                   {...props}
                   style={{
-                    ...props.style,
-                    fontFamily: commonStyle.fontFamily,
-                    fontSize: commonStyle.fontSize,
-                    tabSize: commonStyle.tabSize,
-                    MozTabSize: commonStyle.MozTabSize,
-                    fontWeight: commonStyle.fontWeight,
-                    border: 'none',
+                    margin: 0,
+                    minHeight: '100%',
+                    ...commonStyle,
+                    backgroundColor: backgroundColor,
                   }}
                 />
               ),
               Code: (props: any) => (
-                <code
-                  {...props}
-                  style={{
-                    fontFamily: 'inherit',
-                    fontSize: commonStyle.fontSize,
-                    tabSize: commonStyle.tabSize,
-                    MozTabSize: commonStyle.MozTabSize,
-                    fontWeight: commonStyle.fontWeight,
-                  }}
-                />
+                <code {...props} style={{ fontFamily: 'inherit' }} />
               ),
             }}
           />
