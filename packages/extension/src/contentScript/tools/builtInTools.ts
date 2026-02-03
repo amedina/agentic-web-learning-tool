@@ -13,7 +13,7 @@ import {
 
 export const mcpbTools = {
   dom_extraction: {
-    name: 'Dom Extraction',
+    name: 'DOM Extraction',
     namespace: 'mcp-b',
     allowedDomains: ['<all_urls>'],
     instance: DomExtractionTools,
