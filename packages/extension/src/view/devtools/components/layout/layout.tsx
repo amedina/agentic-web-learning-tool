@@ -11,7 +11,7 @@ import Main from './main';
 
 export const Layout = () => {
   return (
-    <SidebarProvider placement="devtools">
+    <SidebarProvider placement="devtools" defaultSelectedMenuItem="tools">
       <div className="flex w-full h-screen">
         <Sidebar />
         <Main />
