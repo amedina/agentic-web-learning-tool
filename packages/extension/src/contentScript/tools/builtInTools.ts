@@ -1,3 +1,6 @@
+/**
+ * External dependencies.
+ */
 import {
   DomExtractionTools,
   HistoryApiTools,
@@ -8,21 +11,10 @@ import {
   WindowsApiTools,
 } from '@mcp-b/extension-tools';
 
-export const chromeApiBuiltInTools = {
-  // bookmarks: {
-  //   name: 'Bookmarks',
-  //   namespace: 'Bookmarks',
-  //   instance: BookmarksApiTools,
-  //   allowedDomains: ['<all_urls>'],
-  //   inputSchema: {},
-  //   description: '',
-  //   enabled: true,
-  //   isBuiltIn: true,
-  //   isExtension: true,
-  // },
+export const mcpbTools = {
   dom_extraction: {
     name: 'Dom Extraction',
-    namespace: 'chrome_api',
+    namespace: 'mcp-b',
     allowedDomains: ['<all_urls>'],
     instance: DomExtractionTools,
     inputSchema: {},
@@ -34,7 +26,7 @@ export const chromeApiBuiltInTools = {
   },
   history: {
     name: 'History',
-    namespace: 'chrome_api',
+    namespace: 'mcp-b',
     instance: HistoryApiTools,
     allowedDomains: ['<all_urls>'],
     description: 'Performs operations on the Chrome History API',
@@ -45,7 +37,7 @@ export const chromeApiBuiltInTools = {
   },
   scripting: {
     name: 'Scripting',
-    namespace: 'chrome_api',
+    namespace: 'mcp-b',
     instance: ScriptingApiTools,
     allowedDomains: ['<all_urls>'],
     inputSchema: {},
@@ -63,7 +55,7 @@ export const chromeApiBuiltInTools = {
   },
   storage: {
     name: 'Storage',
-    namespace: 'chrome_api',
+    namespace: 'mcp-b',
     instance: StorageApiTools,
     allowedDomains: ['<all_urls>'],
     description: 'Performs operations on Chrome storage API',
@@ -74,7 +66,7 @@ export const chromeApiBuiltInTools = {
   },
   tab_group: {
     name: 'Tab Groups',
-    namespace: 'chrome_api',
+    namespace: 'mcp-b',
     instance: TabGroupsApiTools,
     allowedDomains: ['<all_urls>'],
     description: 'Performs operations on tab groups using Chrome TabGroups API',
@@ -85,7 +77,7 @@ export const chromeApiBuiltInTools = {
   },
   tabs: {
     name: 'Tabs',
-    namespace: 'chrome_api',
+    namespace: 'mcp-b',
     instance: TabsApiTools,
     allowedDomains: ['<all_urls>'],
     description: 'Performs various tab operations using the Chrome Tabs API',
@@ -102,7 +94,7 @@ export const chromeApiBuiltInTools = {
   },
   windows: {
     name: 'Windows',
-    namespace: 'chrome_api',
+    namespace: 'mcp-b',
     instance: WindowsApiTools,
     allowedDomains: ['<all_urls>'],
     inputSchema: {},
@@ -137,4 +129,4 @@ export const ToolNameMap = {
   check_available_apis: 'API Check',
 };
 
-export type keys = keyof typeof chromeApiBuiltInTools;
+export type keys = keyof typeof mcpbTools;

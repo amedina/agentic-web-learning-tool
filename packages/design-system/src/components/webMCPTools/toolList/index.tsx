@@ -14,6 +14,7 @@ import OptionsPageTabSection from '../../optionsPageTab/optionsPageTabSection';
 interface ToolListProps {
   userTools: WebMCPTool[];
   builtInTools: WebMCPTool[];
+  mcpbTools: WebMCPTool[];
   onToggleTool: (tool: WebMCPTool, enabled: boolean) => void;
   onEditTool: (tool: WebMCPTool) => void;
   onNewTool: () => void;
@@ -23,6 +24,7 @@ interface ToolListProps {
 export function ToolList({
   userTools,
   builtInTools,
+  mcpbTools,
   onToggleTool,
   onEditTool,
   onNewTool,
@@ -72,6 +74,18 @@ export function ToolList({
       <OptionsPageTabSection title="Built-in Tools">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {builtInTools.map((tool) => (
+            <ToolCard
+              key={tool.name}
+              tool={tool}
+              onToggle={(enabled) => onToggleTool(tool, enabled)}
+            />
+          ))}
+        </div>
+      </OptionsPageTabSection>
+
+      <OptionsPageTabSection title="MCP-B Tools">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {mcpbTools.map((tool) => (
             <ToolCard
               key={tool.name}
               tool={tool}
