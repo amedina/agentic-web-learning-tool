@@ -9,8 +9,8 @@ declare const chrome: any;
 /**
  * Internal dependencies
  */
-import StatusCard from "../components/StatusCard";
-import StatusItem from "../components/StatusItem";
+import StatusCard from "../components/statusCard";
+import StatusItem from "../components/statusItem";
 
 export default function LocalAIEnvironment() {
   const flags = [

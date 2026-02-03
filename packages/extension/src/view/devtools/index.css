@@ -1,41 +1,5 @@
 @import "@google-awlt/shared-config/tailwind";
 @import "@google-awlt/table/styles.css";
 
-/* TODO: Investigate why these css are not loading for devtools and remove from here. */
-:root {
-  --traditional-blue: #3871e0;
-}
-
-.data-\[active\=true\]\:bg-sidebar-accent[data-active="true"] {
-  background-color: var(--sidebar-accent);
-}
-
-.data-\[active\=true\]\:font-semibold[data-active="true"] {
-  --tw-font-weight: var(--font-weight-semibold);
-  font-weight: var(--font-weight-semibold);
-}
-
-.data-\[active\=true\]\:text-sidebar-accent-foreground[data-active="true"] {
-  color: var(--sidebar-accent-foreground);
-}
-
-.bg-traditional-blue {
-  background-color: var(--traditional-blue);
-}
-
-.hover\:bg-traditional-blue\/90:hover {
-  background-color: var(--traditional-blue);
-}
-
-@supports (color: color-mix(in lab, red, red)) {
-  .hover\:bg-traditional-blue\/90:hover {
-    background-color: color-mix(
-      in oklab,
-      var(--traditional-blue) 90%,
-      transparent
-    );
-  }
-}
-
 @source "../../../../design-system";
 @source "../../../../table";

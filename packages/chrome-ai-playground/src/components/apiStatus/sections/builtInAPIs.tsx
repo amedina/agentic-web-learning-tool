@@ -10,11 +10,11 @@ declare const chrome: any;
 /**
  * Internal dependencies
  */
-import StatusCard from "../components/StatusCard";
-import StatusItem from "../components/StatusItem";
+import StatusCard from "../components/statusCard";
+import StatusItem from "../components/statusItem";
 import StatusIndicator, {
   type StatusType,
-} from "../components/StatusIndicator";
+} from "../components/statusIndicator";
 
 interface APIInfo {
   id: string;

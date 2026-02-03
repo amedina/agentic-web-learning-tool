@@ -6,8 +6,8 @@ import { OptionsPageTab } from "@google-awlt/design-system";
 /**
  * Internal dependencies
  */
-import BuiltInAPIs from "./sections/BuiltInAPIs";
-import LocalAIEnvironment from "./sections/LocalAIEnvironment";
+import BuiltInAPIs from "./sections/builtInAPIs";
+import LocalAIEnvironment from "./sections/localAIEnvironment";
 
 export default function APIStatusTab() {
   return (
