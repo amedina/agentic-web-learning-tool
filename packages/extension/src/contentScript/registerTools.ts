@@ -1,3 +1,6 @@
+/**
+ * Internal dependencies.
+ */
 import { tools } from './tools/index';
 
 // @ts-nocheck
