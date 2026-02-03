@@ -41,6 +41,10 @@ chrome.tabs.onRemoved.addListener((tabId) => {
 
 //sidepanel instance
 chrome.runtime.onConnect.addListener(async (port) => {
+  //Only listen to connections initiated from sidepanel or devtools
+  //If connection is initiated from devtools condition becomes false and function is not returned early
+  //If connection is initiated from sidepanel condition becomes false and function is not returned early
+  //If connection is initiated from content script condition is true and function retrns early
   if (
     port.name !== CONNECTION_NAMES.MCP_HOST_SIDEPANEL &&
     port.name !== CONNECTION_NAMES.MCP_HOST_DEVTOOLS
