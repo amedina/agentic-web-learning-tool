@@ -1,20 +1,20 @@
 /**
  * External dependencies.
  */
-import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { Meta, StoryObj } from "@storybook/react-vite";
 
 /**
  * Internal dependencies.
  */
-import APIStatusTab from './index';
+import APIStatusTab from "./index";
 
 const meta = {
-  title: 'Components/APIStatus',
+  title: "Components/APIStatus",
   component: APIStatusTab,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
 } satisfies Meta<typeof APIStatusTab>;
 
 export default meta;

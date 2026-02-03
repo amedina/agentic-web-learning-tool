@@ -8,7 +8,6 @@ import type {
   CallToolResult,
 } from '@modelcontextprotocol/sdk/types.js';
 import { useEffect, useMemo } from 'react';
-import { WEBSITE_TOOL_PREFIX } from '@google-awlt/common';
 /**
  * Internal dependencies
  */
@@ -40,9 +39,11 @@ export function useAssistantMCP(
   mcpTools: McpTool[],
   client: Client | null, // Allow null for initial loading states
   threadId: string,
-  runtime: AssistantRuntime,
-  currentTabId: number
+  runtime: AssistantRuntime | null
 ): void {
+  const currentTabId = parseInt(
+    new URL(window.location.href).hash.substring(5)
+  );
   // 1. Filter tools based on thread preferences
   const filteredTools = useMemo(() => {
     if (!threadId) {
@@ -70,24 +71,10 @@ export function useAssistantMCP(
 
   // 2. Register tools with the Assistant Runtime
   useEffect(() => {
-    if (!client) return;
+    if (!client || !runtime) return;
 
     // Transform MCP tools into Assistant UI tools
     const assistantTools = filteredTools
-      .filter((tool) => {
-        if (tool.name.startsWith(WEBSITE_TOOL_PREFIX)) {
-          const match = tool.name
-            .substring(WEBSITE_TOOL_PREFIX.length)
-            .match(/(?<=tab)\d+/);
-          const tabId = match ? match[0] : '';
-          if (currentTabId === parseInt(tabId)) {
-            return true;
-          } else {
-            return false;
-          }
-        }
-        return true;
-      })
       .map((toolName) => {
         // Generate a clean name for the UI (handles length limits & hashing if needed)
         const uiToolName = toolName.name;
@@ -134,7 +121,7 @@ export function useAssistantMCP(
       .filter((singleTool) => singleTool.name !== 'dummyTool');
 
     // Register the Context Provider with the Runtime
-    const unregister = runtime.registerModelContextProvider({
+    const unregister = runtime?.registerModelContextProvider({
       getModelContext: () => ({
         // Hint to the model that tools are available
         system: filteredTools.length > 0 ? 'TOOLS:' : '',

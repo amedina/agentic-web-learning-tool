@@ -1,15 +1,12 @@
 /**
  * External dependencies
  */
-import {
-  EXTENSION_TOOL_PREFIX,
-  WEBSITE_TOOL_PREFIX,
-} from '@google-awlt/common';
+import { EXTENSION_TOOL_PREFIX } from '@google-awlt/common';
 
 /**
  * Extracts the user-facing tool name from a fully qualified internal tool identifier.
  *
- * This utility strips specific prefixes (e.g., `wt_`, `extension_tool_`) and
+ * This utility strips specific prefixes (e.g. `extension_tool_`) and
  * removes internal routing information such as domain names and tab identifiers
  * (e.g., `_tab123_`) to return a clean, human-readable name for the UI.
  *
@@ -31,16 +28,6 @@ import {
  */
 function getToolNameWithoutPrefix(toolName: string) {
   let toolNameWithoutHardCodePrefix = '';
-
-  if (toolName.startsWith(WEBSITE_TOOL_PREFIX)) {
-    toolNameWithoutHardCodePrefix = toolName.substring(
-      WEBSITE_TOOL_PREFIX.length - 1
-    );
-    const pieces = toolNameWithoutHardCodePrefix.split('_');
-    pieces.shift();
-    pieces.shift();
-    return pieces.join('_');
-  }
 
   if (toolName.startsWith(EXTENSION_TOOL_PREFIX)) {
     toolNameWithoutHardCodePrefix = toolName.substring(

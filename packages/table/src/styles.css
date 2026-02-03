@@ -17,7 +17,6 @@
   --text-color-green-600: #16a34a;
   --text-color-red-600: #dc2626;
   --background-color-red-600: #dc2626;
-  --background-color-*: initial;
   --background-color-transparent: transparent;
   --background-color-white: #fff;
   --background-color-slate-gray: #ececec;
@@ -47,8 +46,6 @@
   --border-color-quartz: #494c50;
   --border-color-baby-blue-eyes: #a8c7fa;
   --border-color-sapphire: #0b57d0;
-  --color-*: initial;
-  --stroke-*: initial;
 
   --text-xxxs: 0.625rem;
 

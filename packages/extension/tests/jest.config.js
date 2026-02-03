@@ -1,5 +1,5 @@
 import baseConfig from '@google-awlt/shared-config/jest/react';
-import { resolve } from 'path';
+import { resolve, join } from 'path';
 
 /** @type {import('jest').Config} */
 const config = {
@@ -14,6 +14,7 @@ const config = {
   transformIgnorePatterns: ['<rootDir>node_modules/'],
   testMatch: ['<rootDir>/src/**/tests/*.{ts,tsx}'],
   moduleNameMapper: {
+    '\\.svg': resolve('./tests/svgmock.js'),
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
     '@assistant-ui/tap/react': resolve(
       '../../node_modules/.pnpm/node_modules/@assistant-ui/tap/dist/react/index.js'

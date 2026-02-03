@@ -7,7 +7,7 @@ interface CodeEditorGutterProps {
   gutterBg: string;
   gutterText: string;
   breakpointColor: string;
-  gutterRef: React.Ref<HTMLDivElement>;
+  gutterRef: React.RefObject<HTMLDivElement | null>;
 }
 
 export const CodeEditorGutter = ({

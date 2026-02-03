@@ -26,7 +26,7 @@ export function CodeEditor({
   enableBreakpoints = false,
 }: CodeEditorProps & { enableBreakpoints?: boolean }) {
   const backdropRef = useRef<HTMLDivElement>(null);
-  const gutterRef = useRef<HTMLDivElement>(null);
+  const gutterRef = useRef<HTMLDivElement | null>(null);
   const [breakpoints, setBreakpoints] = useState<number[]>([]);
 
   const SyntaxHighlighterAny = SyntaxHighlighterWhite as any;
