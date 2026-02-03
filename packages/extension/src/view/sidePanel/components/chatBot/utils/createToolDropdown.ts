@@ -3,14 +3,11 @@
  */
 import { getToolNameWithoutPrefix } from '@google-awlt/design-system';
 import type { Tool as McpTool } from '@modelcontextprotocol/sdk/types.js';
-import {
-  EXTENSION_TOOL_PREFIX,
-  DOM_TOOL_NAME_PREFIX,
-} from '@google-awlt/common';
+
 /**
  * Internal dependencies
  */
-import { ToolNameMap } from '../../../../../contentScript/tools/builtInTools';
+import { getMcpbToolGroup } from '../../../../../utils';
 import { isUrl } from '../../../utils';
 
 type SingleGroupTool = {
@@ -49,25 +46,14 @@ const createToolDropdown = (
       tabIdToUrlMap[currentTabId].url && isUrl(tabIdToUrlMap[currentTabId].url)
         ? new URL(tabIdToUrlMap[currentTabId].url).hostname
         : 'others';
-    if (
-      tool.name.startsWith(EXTENSION_TOOL_PREFIX) ||
-      tool.name.startsWith(DOM_TOOL_NAME_PREFIX)
-    ) {
-      const prefixToUse = tool.name.startsWith(EXTENSION_TOOL_PREFIX)
-        ? EXTENSION_TOOL_PREFIX
-        : '';
-      const toolNameWithoutHardCodePrefix = tool.name.substring(
-        prefixToUse.length
-      );
-      const result =
-        ToolNameMap[toolNameWithoutHardCodePrefix as keyof typeof ToolNameMap];
-
-      if (acc[result]) {
-        acc[result].items.push(tool);
+    const mcpbGroup = getMcpbToolGroup(tool.name);
+    if (mcpbGroup) {
+      if (acc[mcpbGroup]) {
+        acc[mcpbGroup].items.push(tool);
       } else {
-        acc[result] = {
-          group: result,
-          key: result,
+        acc[mcpbGroup] = {
+          group: mcpbGroup,
+          key: mcpbGroup,
           isMCPTool: false,
           isWebSiteTool: false,
           isExtensionTool: true,

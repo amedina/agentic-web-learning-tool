@@ -16,9 +16,9 @@ import type { WebMCPTool } from '@google-awlt/design-system';
 import Context from './context';
 import { tools } from '../../../../contentScript/tools';
 import {
-  chromeApiBuiltInTools,
+  mcpbTools,
   type keys,
-} from '../../../../contentScript/tools/builtInTools';
+} from '../../../../contentScript/tools/mcpbTools';
 
 const builtInWebMCPTools: WebMCPTool[] = tools.map((tool) => ({
   name: tool.name,
@@ -32,7 +32,7 @@ const builtInWebMCPTools: WebMCPTool[] = tools.map((tool) => ({
 
 const _chromeAPIBuiltInToolsState: { [key: string]: { enabled: boolean } } = {};
 
-Object.keys(chromeApiBuiltInTools).forEach(
+Object.keys(mcpbTools).forEach(
   (toolKey) =>
     (_chromeAPIBuiltInToolsState[toolKey] = {
       enabled: true,
@@ -149,8 +149,8 @@ const Provider = ({ children }: PropsWithChildren) => {
     (toolName: string, value: boolean) => {
       setChromeAPIBuiltInToolsState((prev) => {
         const newValue = structuredClone(prev);
-        const keyToChange = Object.keys(chromeApiBuiltInTools).filter(
-          (key) => chromeApiBuiltInTools[key as keys].name === toolName
+        const keyToChange = Object.keys(mcpbTools).filter(
+          (key) => mcpbTools[key as keys].name === toolName
         );
         newValue[keyToChange[0]].enabled = value;
         chrome.storage.local.set({ chromeAPIBuiltInToolsState: newValue });
