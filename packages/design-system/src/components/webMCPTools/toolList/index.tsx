@@ -32,7 +32,7 @@ export function ToolList({
 }: ToolListProps) {
   return (
     <div className="flex flex-col gap-8">
-      <OptionsPageTabSection title="Custom Tools">
+      <OptionsPageTabSection title="User Tools">
         <div className="flex justify-end">{newScriptButton}</div>
         {userTools.length === 0 ? (
           <div className="flex flex-col items-center justify-center p-12 bg-[var(--surface-color)]/50 rounded-xl border border-dashed border-gray-200 text-center">
