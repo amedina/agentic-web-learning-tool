@@ -11,7 +11,7 @@ import { useSettings } from '../../../stateProviders';
 import {
   type keys,
   mcpbTools,
-} from '../../../../contentScript/tools/builtInTools';
+} from '../../../../contentScript/tools/mcpbTools';
 
 export function WebMCPToolsTab() {
   const {

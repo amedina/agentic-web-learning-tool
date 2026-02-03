@@ -10,7 +10,7 @@ import {
 /**
  * Internal dependencies
  */
-import { ToolNameMap } from '../../../../../contentScript/tools/builtInTools';
+import { ToolNameMap } from '../../../../../contentScript/tools/mcpbTools';
 import { isUrl } from '../../../utils';
 
 type SingleGroupTool = {

@@ -25,7 +25,7 @@ import {
   jsonSchemaToZod,
 } from '../utils';
 import type { ContentScriptMessage } from './types';
-import { mcpbTools, type keys } from '../contentScript/tools/builtInTools';
+import { mcpbTools, type keys } from '../contentScript/tools/mcpbTools';
 /**
  * The central hub managing connections between the MCP Server and Chrome Tabs.
  * It acts as a proxy, registering tools found in browser tabs and forwarding execution requests.

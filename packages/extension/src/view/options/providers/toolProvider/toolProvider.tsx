@@ -18,7 +18,7 @@ import { tools } from '../../../../contentScript/tools';
 import {
   mcpbTools,
   type keys,
-} from '../../../../contentScript/tools/builtInTools';
+} from '../../../../contentScript/tools/mcpbTools';
 
 const builtInWebMCPTools: WebMCPTool[] = tools.map((tool) => ({
   name: tool.name,

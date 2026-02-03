@@ -4,7 +4,7 @@
 import { settingsSetter, setLogLevelFromSyncSettings } from '../../utils';
 import type { AgentType, SettingsState } from '../../types';
 import { DEFAULT_SETTINGS } from '../../constants';
-import { mcpbTools } from '../../contentScript/tools/builtInTools';
+import { mcpbTools } from '../../contentScript/tools/mcpbTools';
 
 const onInstalledCallback = async (
   details: chrome.runtime.InstalledDetails
