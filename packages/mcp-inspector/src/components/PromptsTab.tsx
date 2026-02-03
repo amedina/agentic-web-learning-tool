@@ -133,7 +133,7 @@ const PromptsTab = ({
               {!(prompt as WithIcons).icons && (
                 <MessageSquare className="w-4 h-4 mr-2 flex-shrink-0 text-gray-500" />
               )}
-              <span className="flex-1 truncate">{prompt.name}</span>
+              <span className="flex-1 truncate items-start">{prompt.name}</span>
               <ChevronRight className="w-4 h-4 flex-shrink-0 text-gray-400" />
             </div>
           )}

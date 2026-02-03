@@ -22,6 +22,8 @@ export default function MCPInspectorTab() {
     if (inspectedServerName) {
       return;
     }
+
+    setSelectedMenuItem('mcp-servers');
   }, [inspectedServerName, setSelectedMenuItem]);
 
   return (

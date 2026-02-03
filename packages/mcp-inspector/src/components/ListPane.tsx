@@ -117,13 +117,14 @@ const ListPane = <T extends object>({
         </Button>
         <div className="space-y-2 overflow-y-auto max-h-96">
           {filteredItems.map((item, index) => (
-            <div
+            <Button
               key={index}
-              className="flex items-center py-2 px-4 rounded hover:bg-gray-50 dark:hover:bg-secondary cursor-pointer"
+              variant="ghost"
+              className="flex items-center py-2 px-4 rounded"
               onClick={() => setSelectedItem(item)}
             >
               {renderItem(item)}
-            </div>
+            </Button>
           ))}
           {filteredItems.length === 0 && searchQuery && items.length > 0 && (
             <div className="text-center py-4 text-muted-foreground">
