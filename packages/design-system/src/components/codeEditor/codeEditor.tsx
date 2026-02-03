@@ -65,8 +65,8 @@ export function CodeEditor({
   const activeStyle = isDarkMode ? dracula : vs;
   const backgroundColor = isDarkMode ? '#282a36' : 'white';
   const caretColor = isDarkMode ? '#f8f8f2' : 'black';
-  const gutterBg = isDarkMode ? '#21222c' : '#f3f4f6';
-  const gutterText = isDarkMode ? '#6272a4' : '#9ca3af';
+  const gutterBg = isDarkMode ? '#21222c' : 'white';
+  const gutterText = isDarkMode ? '#6272a4' : '#6e6e6e';
   const breakpointColor = '#1a73e8';
 
   return (

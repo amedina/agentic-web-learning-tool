@@ -24,11 +24,11 @@ export const CodeEditorGutter = ({
   return (
     <div
       ref={gutterRef}
-      className="select-none text-right overflow-hidden border-r border-gray-100 flex-shrink-0"
+      className="select-none text-right overflow-hidden border-r border-[#e0e0e0] flex-shrink-0 relative z-20 cursor-default"
       style={{
         ...commonStyle,
-        padding: '1.5rem 0.5rem',
-        width: '3rem',
+        padding: '1.5rem 0 0 0',
+        width: '2.9rem',
         whiteSpace: 'pre',
         backgroundColor: gutterBg,
         color: gutterText,
@@ -53,8 +53,8 @@ export const CodeEditorGutter = ({
                 className="absolute left-0 top-0 w-full h-full"
                 style={{
                   backgroundColor: breakpointColor,
-                  borderRadius: '50%',
-                  transform: 'scale(0.4)',
+                  clipPath:
+                    'polygon(0% 0%, 85% 0%, 100% 50%, 85% 100%, 0% 100%)',
                 }}
               />
             )}
