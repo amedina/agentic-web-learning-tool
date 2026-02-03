@@ -6,6 +6,8 @@
     "sourceMap": true,
     "baseUrl": ".",
     "jsx": "react-jsx",
+    "noEmit": false,
+    "allowImportingTsExtensions": false,
     "types": []
   },
   "include": ["src"],
