@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import { OptionsPageTab } from '@google-awlt/design-system';
-import { useState } from 'react';
+import { OptionsPageTab } from "@google-awlt/design-system";
+import { useState } from "react";
 import {
   Terminal,
   PenTool,
@@ -10,13 +10,16 @@ import {
   Languages,
   ArrowLeft,
   CheckCheck,
-} from 'lucide-react';
+} from "lucide-react";
 
-import PromptLab from './PromptLab';
-import WritersStudio from './WritersStudio';
-import SummarizationStation from './SummarizationStation';
-import PolyglotPanel from './PolyglotPanel';
-import Proofreader from './Proofreader';
+/**
+ * Internal dependencies
+ */
+import PromptLab from "./promptLab";
+import WritersStudio from "./writersStudio";
+import SummarizationStation from "./summarizationStation";
+import PolyglotPanel from "./polyglotPanel";
+import Proofreader from "./proofreader";
 
 interface PlaygroundCard {
   id: string;
@@ -27,36 +30,37 @@ interface PlaygroundCard {
 
 const CARDS: PlaygroundCard[] = [
   {
-    id: 'prompt-lab',
-    title: 'Prompt Lab',
+    id: "prompt-lab",
+    title: "Prompt Lab",
     description:
-      'Experiment with the Prompt API and prompt engineering parameters.',
+      "Experiment with the Prompt API and prompt engineering parameters.",
     icon: Terminal,
   },
   {
-    id: 'writers-studio',
+    id: "writers-studio",
     title: "Writer's Studio",
     description:
-      'Content generation and refinement using the Writer and Rewriter APIs.',
+      "Content generation and refinement using the Writer and Rewriter APIs.",
     icon: PenTool,
   },
   {
-    id: 'summarization-station',
-    title: 'Summarization Station',
-    description: 'Test the Summarizer API with various strategies and formats.',
+    id: "summarization-station",
+    title: "Summarization Station",
+    description: "Test the Summarizer API with various strategies and formats.",
     icon: FileText,
   },
   {
-    id: 'polyglot-panel',
-    title: 'Polyglot Panel',
+    id: "polyglot-panel",
+    title: "Polyglot Panel",
     description:
-      'Test on-device translation and language detection with the Translator API.',
+      "Test on-device translation and language detection with the Translator API.",
     icon: Languages,
   },
   {
-    id: 'proofreader',
-    title: 'Proofreader',
-    description: 'Verify text for spelling and grammar errors using the Proofreader API.',
+    id: "proofreader",
+    title: "Proofreader",
+    description:
+      "Verify text for spelling and grammar errors using the Proofreader API.",
     icon: CheckCheck,
   },
 ];
@@ -88,15 +92,15 @@ export default function APIPlaygroundsTab() {
             </div>
           </div>
 
-          {activeCard.id === 'prompt-lab' ? (
+          {activeCard.id === "prompt-lab" ? (
             <PromptLab />
-          ) : activeCard.id === 'writers-studio' ? (
+          ) : activeCard.id === "writers-studio" ? (
             <WritersStudio />
-          ) : activeCard.id === 'polyglot-panel' ? (
+          ) : activeCard.id === "polyglot-panel" ? (
             <PolyglotPanel />
-          ) : activeCard.id === 'summarization-station' ? (
+          ) : activeCard.id === "summarization-station" ? (
             <SummarizationStation />
-          ) : activeCard.id === 'proofreader' ? (
+          ) : activeCard.id === "proofreader" ? (
             <Proofreader />
           ) : (
             /* Content Placeholder */

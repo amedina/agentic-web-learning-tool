@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import { useState, useEffect } from "react";
 import {
   FileText,
@@ -21,13 +24,16 @@ import {
   SelectItem,
 } from "@google-awlt/design-system";
 
+/**
+ * Internal dependencies
+ */
 import type {
   AISummarizerType,
   AISummarizerFormat,
   AISummarizerLength,
   AISummarizerSession,
   AIAvailability,
-} from "../../types/window.ai";
+} from "../../types/window";
 
 export default function SummarizationStation() {
   // Capability State

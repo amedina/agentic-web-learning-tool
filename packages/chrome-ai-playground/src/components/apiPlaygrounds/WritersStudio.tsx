@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import { useState, useEffect } from "react";
 import {
   PenTool,
@@ -26,6 +29,9 @@ import {
   TabsTrigger,
 } from "@google-awlt/design-system";
 
+/**
+ * Internal dependencies
+ */
 import type {
   AIWriterTone,
   AIWriterLength,
@@ -35,7 +41,7 @@ import type {
   AIRewriterFormat,
   AIWriter,
   AIRewriter,
-} from "../../types/window.ai";
+} from "../../types/window";
 
 export default function WritersStudio() {
   // Mode State

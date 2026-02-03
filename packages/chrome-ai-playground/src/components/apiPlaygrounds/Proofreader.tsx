@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import { useState, useEffect } from "react";
 import {
   CheckCheck,
@@ -17,11 +20,15 @@ import {
   Checkbox,
 } from "@google-awlt/design-system";
 
+/**
+ * Internal dependencies
+ */
+import StatusBadge from "../shared/statusBadge";
 import type {
   AIProofreader,
   AIProofreaderResult,
   AIAvailability,
-} from "../../types/window.ai";
+} from "../../types/window";
 
 const SUPPORTED_LANGUAGES = [
   { code: "en", name: "English" },
@@ -454,27 +461,5 @@ export default function Proofreader() {
         </div>
       </div>
     </div>
-  );
-}
-
-function StatusBadge({ status }: { status: string }) {
-  if (status === "readily" || status === "available") {
-    return (
-      <span className="text-xs bg-green-500/10 text-green-600 px-2 py-0.5 rounded-full font-medium">
-        Ready
-      </span>
-    );
-  }
-  if (status === "after-download" || status === "downloadable") {
-    return (
-      <span className="text-xs bg-yellow-500/10 text-yellow-600 px-2 py-0.5 rounded-full font-medium">
-        Download Req.
-      </span>
-    );
-  }
-  return (
-    <span className="text-xs bg-destructive/10 text-destructive px-2 py-0.5 rounded-full font-medium">
-      Unavailable
-    </span>
   );
 }

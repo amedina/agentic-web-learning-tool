@@ -1,27 +1,29 @@
 export interface AILanguageModel {
   capabilities(): Promise<AILanguageModelCapabilities>;
-  create(options?: AILanguageModelCreateOptions): Promise<AILanguageModelSession>;
+  create(
+    options?: AILanguageModelCreateOptions,
+  ): Promise<AILanguageModelSession>;
   params(): Promise<AILanguageModelParams>;
 }
 
 export interface AILanguageModelCapabilities {
-  available: 'readily' | 'after-download' | 'no';
+  available: "readily" | "after-download" | "no";
   defaultTopK: number;
   maxTopK: number;
   defaultTemperature: number;
 }
 
 export interface AILanguageModelParams {
-    defaultTopK: number;
-    maxTopK: number;
-    defaultTemperature: number;
-    maxTemperature: number;
+  defaultTopK: number;
+  maxTopK: number;
+  defaultTemperature: number;
+  maxTemperature: number;
 }
 
 export interface AILanguageModelCreateOptions {
   topK?: number;
   temperature?: number;
-  initialPrompts?: { role: 'system' | 'user' | 'assistant'; content: string }[];
+  initialPrompts?: { role: "system" | "user" | "assistant"; content: string }[];
   signal?: AbortSignal;
   monitor?: (monitor: any) => void;
   expectedOutputLanguage?: string;
@@ -29,7 +31,9 @@ export interface AILanguageModelCreateOptions {
 
 export interface AILanguageModelSession {
   prompt(text: string): Promise<string>;
-  promptStreaming(text: string): Promise<ReadableStream<string> & AsyncIterable<string>>;
+  promptStreaming(
+    text: string,
+  ): Promise<ReadableStream<string> & AsyncIterable<string>>;
   destroy(): void;
   clone(): Promise<AILanguageModelSession>;
 
@@ -47,21 +51,30 @@ export interface AILanguageModelSession {
   inputUsage?: number;
 }
 
-export type AIAvailability = 'readily' | 'after-download' | 'downloadable' | 'no' | 'downloading' | 'available' | 'unavailable';
+export type AIAvailability =
+  | "readily"
+  | "after-download"
+  | "downloadable"
+  | "no"
+  | "downloading"
+  | "available"
+  | "unavailable";
 
 // Spec API Interface (LanguageModel)
 export interface LanguageModelFactory {
   availability(options?: AILanguageModelCreateOptions): Promise<AIAvailability>;
-  create(options?: AILanguageModelCreateOptions): Promise<AILanguageModelSession>;
+  create(
+    options?: AILanguageModelCreateOptions,
+  ): Promise<AILanguageModelSession>;
   params(): Promise<AILanguageModelParams>;
 }
 
 // Writer & Rewriter APIs
 
 // Writer Types
-export type AIWriterTone = 'formal' | 'neutral' | 'casual';
-export type AIWriterLength = 'short' | 'medium' | 'long';
-export type AIWriterFormat = 'markdown' | 'plain-text';
+export type AIWriterTone = "formal" | "neutral" | "casual";
+export type AIWriterLength = "short" | "medium" | "long";
+export type AIWriterFormat = "markdown" | "plain-text";
 
 export interface AIWriterCreateOptions {
   tone?: AIWriterTone;
@@ -73,9 +86,9 @@ export interface AIWriterCreateOptions {
 }
 
 // Rewriter Types
-export type AIRewriterTone = 'as-is' | 'more-formal' | 'more-casual';
-export type AIRewriterLength = 'as-is' | 'shorter' | 'longer';
-export type AIRewriterFormat = 'as-is' | 'markdown' | 'plain-text';
+export type AIRewriterTone = "as-is" | "more-formal" | "more-casual";
+export type AIRewriterLength = "as-is" | "shorter" | "longer";
+export type AIRewriterFormat = "as-is" | "markdown" | "plain-text";
 
 export interface AIRewriterCreateOptions {
   tone?: AIRewriterTone;
@@ -87,13 +100,17 @@ export interface AIRewriterCreateOptions {
 }
 
 export interface AIWriter {
-  writeStreaming(prompt: string): ReadableStream<string> & AsyncIterable<string>;
+  writeStreaming(
+    prompt: string,
+  ): ReadableStream<string> & AsyncIterable<string>;
   write(prompt: string): Promise<string>;
   destroy(): void;
 }
 
 export interface AIRewriter {
-  rewriteStreaming(text: string): Promise<ReadableStream<string> & AsyncIterable<string>>;
+  rewriteStreaming(
+    text: string,
+  ): Promise<ReadableStream<string> & AsyncIterable<string>>;
   rewrite(text: string): Promise<string>;
   destroy(): void;
 }
@@ -112,7 +129,9 @@ export interface AIRewriterFactory {
 
 // Language Detector API
 export interface AILanguageDetector {
-  detect(text: string): Promise<{ detectedLanguage: string; confidence: number }[]>;
+  detect(
+    text: string,
+  ): Promise<{ detectedLanguage: string; confidence: number }[]>;
 }
 
 export interface AILanguageDetectorCapabilities {
@@ -120,7 +139,9 @@ export interface AILanguageDetectorCapabilities {
 }
 
 export interface AILanguageDetectorFactory {
-  create(options?: { monitor?: (monitor: any) => void }): Promise<AILanguageDetector>;
+  create(options?: {
+    monitor?: (monitor: any) => void;
+  }): Promise<AILanguageDetector>;
   capabilities?(): Promise<AILanguageDetectorCapabilities>;
   availability?(): Promise<AIAvailability>;
 }
@@ -135,42 +156,49 @@ export interface AITranslatorCreateOptions {
 
 export interface AITranslator {
   translate(text: string): Promise<string>;
-  translateStreaming(text: string): ReadableStream<string> & AsyncIterable<string>;
+  translateStreaming(
+    text: string,
+  ): ReadableStream<string> & AsyncIterable<string>;
 }
 
 export interface AITranslatorFactory {
   create(options: AITranslatorCreateOptions): Promise<AITranslator>;
-  availability(options: { sourceLanguage: string; targetLanguage: string }): Promise<AIAvailability>;
+  availability(options: {
+    sourceLanguage: string;
+    targetLanguage: string;
+  }): Promise<AIAvailability>;
 }
 
 // Summarizer API
 
-export type AISummarizerType = 'key-points' | 'tldr' | 'teaser' | 'headline';
-export type AISummarizerFormat = 'markdown' | 'plain-text';
-export type AISummarizerLength = 'short' | 'medium' | 'long';
+export type AISummarizerType = "key-points" | "tldr" | "teaser" | "headline";
+export type AISummarizerFormat = "markdown" | "plain-text";
+export type AISummarizerLength = "short" | "medium" | "long";
 
 export interface AISummarizerCreateOptions {
-    type?: AISummarizerType;
-    format?: AISummarizerFormat;
-    length?: AISummarizerLength;
-    signal?: AbortSignal;
-    monitor?: (monitor: any) => void;
+  type?: AISummarizerType;
+  format?: AISummarizerFormat;
+  length?: AISummarizerLength;
+  signal?: AbortSignal;
+  monitor?: (monitor: any) => void;
 }
 
 export interface AISummarizerSession {
-    summarize(text: string): Promise<string>;
-    summarizeStreaming?(text: string): ReadableStream<string> & AsyncIterable<string>;
-    destroy(): void;
-    measureInputUsage?(text: string): Promise<number>;
+  summarize(text: string): Promise<string>;
+  summarizeStreaming?(
+    text: string,
+  ): ReadableStream<string> & AsyncIterable<string>;
+  destroy(): void;
+  measureInputUsage?(text: string): Promise<number>;
 
-    // Quota props
-    inputQuota?: number;
+  // Quota props
+  inputQuota?: number;
 }
 
 export interface AISummarizerFactory {
-    create(options?: AISummarizerCreateOptions): Promise<AISummarizerSession>;
-    availability?(): Promise<AIAvailability>;
-    capabilities?(): Promise<{ available: AIAvailability }>;
+  create(options?: AISummarizerCreateOptions): Promise<AISummarizerSession>;
+  availability?(): Promise<AIAvailability>;
+  capabilities?(): Promise<{ available: AIAvailability }>;
 }
 
 // Proofreader API

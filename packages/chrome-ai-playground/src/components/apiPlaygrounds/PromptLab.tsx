@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import React, { useState, useEffect, useRef } from "react";
 import {
   Send,
@@ -12,8 +15,12 @@ import {
 } from "lucide-react";
 import { Button, Collapsible, Input, toast } from "@google-awlt/design-system";
 
-// Import our custom types
-import type { AILanguageModelSession } from "../../types/window.ai.d";
+/**
+ * Internal dependencies
+ */
+import { useDebounce } from "../../hooks/useDebounce";
+import TerminalIcon from "../icons/terminalIcon";
+import type { AILanguageModelSession } from "../../types/window";
 
 interface TokenUsage {
   used: number;
@@ -29,23 +36,6 @@ interface Message {
 }
 
 const DEFAULT_SYSTEM_PROMPT = "You are a helpful and friendly assistant.";
-
-// Debounce hook
-function useDebounce<T>(value: T, delay: number): T {
-  const [debouncedValue, setDebouncedValue] = useState(value);
-
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [value, delay]);
-
-  return debouncedValue;
-}
 
 export default function PromptLab() {
   // Session State
@@ -692,24 +682,5 @@ export default function PromptLab() {
         </div>
       </div>
     </div>
-  );
-}
-
-function TerminalIcon() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <polyline points="4 17 10 11 4 5" />
-      <line x1="12" y1="19" x2="20" y2="19" />
-    </svg>
   );
 }
