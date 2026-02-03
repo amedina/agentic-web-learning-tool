@@ -135,7 +135,6 @@ chrome.runtime.onConnect.addListener(async (port) => {
   }
 
   sharedServer.connect(transport);
-  mcpHub.setupConnections();
 
   mcpHubInstances.set(tabId, mcpHub);
   serverInstances.set(tabId, sharedServer);

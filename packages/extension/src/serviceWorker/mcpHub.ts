@@ -219,6 +219,10 @@ class McpHub {
 
   async addNewServer(serverConfig: MCPServerConfig, serverName: string) {
     try {
+      if (this.clientList.get(serverName)?.toolsFetched) {
+        return;
+      }
+
       if (!serverConfig.url) {
         logger(
           ['warn'],
