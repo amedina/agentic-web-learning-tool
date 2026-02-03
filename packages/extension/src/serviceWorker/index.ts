@@ -155,3 +155,9 @@ chrome.runtime.onConnect.addListener(async (port) => {
     });
   }
 });
+
+chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+  if (message.type === 'PING') {
+    sendResponse({ status: 'ok' });
+  }
+});
