@@ -103,7 +103,7 @@ const FiltersSidebar = ({
 
   return (
     <div
-      className="h-full overflow-auto p-3 flex flex-col gap-1.5"
+      className="h-full overflow-auto p-3 flex flex-col gap-1.5 min-w-[130px]"
       data-testid="filters-sidebar"
     >
       <a

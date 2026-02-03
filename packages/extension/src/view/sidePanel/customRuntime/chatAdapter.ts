@@ -42,6 +42,8 @@ const ChatAdapter = () => {
 
     archive: async (remoteId: string) => {
       chatStorage.threads.update(remoteId, { status: 'archived' });
+      chatStorage.messages.deleteByThreadId(remoteId);
+      chatStorage.threads.delete(remoteId);
     },
 
     unarchive: async (remoteId: string) => {

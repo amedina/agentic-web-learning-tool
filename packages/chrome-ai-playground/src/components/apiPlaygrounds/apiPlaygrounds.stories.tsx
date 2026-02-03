@@ -1,20 +1,20 @@
 /**
  * External dependencies.
  */
-import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { Meta, StoryObj } from "@storybook/react-vite";
 
 /**
  * Internal dependencies.
  */
-import APIPlaygroundsTab from './index';
+import APIPlaygroundsTab from "./index";
 
 const meta = {
-  title: 'Components/APIPlaygrounds',
+  title: "Components/APIPlaygrounds",
   component: APIPlaygroundsTab,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
 } satisfies Meta<typeof APIPlaygroundsTab>;
 
 export default meta;

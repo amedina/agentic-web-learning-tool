@@ -4,6 +4,8 @@
 import { ChevronRight } from 'lucide-react';
 import * as CollapsiblePrimitive from '@radix-ui/react-collapsible';
 import { useEffect } from 'react';
+import clsx from 'clsx';
+
 /**
  * Internal dependencies
  */
@@ -47,12 +49,14 @@ export function Sidebar({
     selectedMenuItem,
     setMenuItems,
     menuItems,
+    placement,
   } = useSidebar(({ state, actions }) => ({
     setMenuItems: actions.setMenuItems,
     setSelectedMenuItem: actions.setSelectedMenuItem,
     sidebarState: state.sidebarState,
     selectedMenuItem: state.selectedMenuItem,
     menuItems: state.menuItems,
+    placement: state.placement,
   }));
 
   useEffect(() => {
@@ -62,6 +66,12 @@ export function Sidebar({
 
     setMenuItems(items);
   }, [items, setMenuItems]);
+
+  const classConfig = {
+    menuItemText: placement === 'devtools' ? 'text-xs font-medium' : '',
+    menuTitle: placement === 'devtools' ? 'text-sm font-medium' : 'text-lg',
+    owlIcon: placement === 'devtools' ? 'h-5 w-5' : 'h-6 w-6',
+  };
 
   const renderMenuItem = (item: MenuItem) => {
     // Check if any child is selected (recursive check not needed for 1-level depth but good to have)
@@ -138,11 +148,15 @@ export function Sidebar({
             variant="ghost"
             className="justify-start has-[>svg]:px-2"
             onClick={() => {
-              setSelectedMenuItem(item.id);
+              if (item.onClick) {
+                item.onClick();
+              } else {
+                setSelectedMenuItem(item.id);
+              }
             }}
           >
             {item.icon && item.icon()}
-            <span>{item.title}</span>
+            <span className={classConfig.menuItemText}>{item.title}</span>
           </Button>
         </SidebarMenuButton>
       </SidebarMenuItem>
@@ -156,10 +170,14 @@ export function Sidebar({
           <div
             className={`ml-2 ${sidebarState === 'expanded' ? '' : 'hidden'}`}
           >
-            <OwlIcon className={`h-6 w-6`} />
+            <OwlIcon className={classConfig.owlIcon} />
           </div>
           <span
-            className={`text-lg font-bold ${sidebarState === 'expanded' ? '' : 'hidden'}`}
+            className={clsx(
+              'font-bold',
+              sidebarState === 'expanded' ? '' : 'hidden',
+              classConfig.menuTitle
+            )}
           >
             AWLT
           </span>

@@ -43,6 +43,7 @@ import type { AgentType } from '../../../../types';
 import { useCommandProvider } from '../../providers/commandProvider';
 import { createModelDropdown, createToolDropdown } from './utils';
 import { useSettings } from '../../../stateProviders';
+import { openOptionsPage } from '../../../../utils';
 
 type ChatBotUIProps = {
   runtime: AssistantRuntime | null;
@@ -117,25 +118,33 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
     return tools.filter((tool) => tool.name !== 'dummyTool').length;
   }, [tools]);
 
-  const lockThread = useCallback(async () => {
-    await chrome.storage.session.set({
-      lockedThreads: [...lockedThreads, threadId],
-    });
-  }, [lockedThreads, threadId]);
+  const lockThread = useCallback(
+    async (threadIdToLock: string) => {
+      await chrome.storage.session.set({
+        lockedThreads: [...lockedThreads, threadIdToLock],
+      });
+    },
+    [lockedThreads]
+  );
 
-  const unlockThread = useCallback(async () => {
-    const unlockedThreads = lockedThreads.filter((id) => id !== threadId);
-    await chrome.storage.session.set({ lockedThreads: unlockedThreads });
-  }, [lockedThreads, threadId]);
+  const unlockThread = useCallback(
+    async (threadIdToUnlock: string) => {
+      const unlockedThreads = lockedThreads.filter(
+        (id) => id !== threadIdToUnlock
+      );
+      await chrome.storage.session.set({ lockedThreads: unlockedThreads });
+    },
+    [lockedThreads]
+  );
 
-  api.on('thread.run-end', async () => {
+  api.on('thread.run-end', async ({ threadId: threadIdToUnlock }) => {
     setTimeout(async () => {
-      await unlockThread();
+      await unlockThread(threadIdToUnlock);
     }, 500);
   });
 
-  api.on('composer.send', async () => {
-    lockThread();
+  api.on('composer.send', async ({ threadId: threadIdToLock }) => {
+    await lockThread(threadIdToLock);
   });
 
   //Only shows models whose apiKeys have been and have been enabled
@@ -143,33 +152,36 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 
   return (
     <>
-      <div className="fixed top-0 left-0 z-20 flex flex-row items-center md:hidden pl-1 pt-1">
-        <Tooltip text="Chat History">
-          <SidebarTrigger>
-            <Menu className="text-primary" />
-          </SidebarTrigger>
-        </Tooltip>
-        <Tooltip text="New Chat">
-          <Button
-            variant="ghost"
-            size="icon"
-            onKeyDown={(event) =>
-              event.key === 'Enter'
-                ? runtime?.threads.switchToNewThread()
-                : null
-            }
-            role="button"
-            tabIndex={-1}
-            onClick={() => runtime?.threads.switchToNewThread()}
-          >
-            <PlusCircle className="text-primary" />
-          </Button>
-        </Tooltip>
-      </div>
       <ThreadListSidebar isThreadLoading={isLoading} />
       <SidebarInset>
-        <ThreadPrimitive.Root className="h-full flex flex-col">
+        <div className="fixed top-0 left-0 z-20 flex flex-row items-center md:hidden pl-1 pt-1 bg-background">
+          <Tooltip text="Chat History">
+            <SidebarTrigger className="bg-background">
+              <Menu className="text-primary" />
+            </SidebarTrigger>
+          </Tooltip>
+          <Tooltip text="New Chat">
+            <Button
+              variant="ghost"
+              size="icon"
+              onKeyDown={(event) =>
+                event.key === 'Enter'
+                  ? runtime?.threads.switchToNewThread()
+                  : null
+              }
+              role="button"
+              className="bg-background"
+              tabIndex={-1}
+              onClick={() => runtime?.threads.switchToNewThread()}
+            >
+              <PlusCircle className="text-primary" />
+            </Button>
+          </Tooltip>
+        </div>
+        <ThreadPrimitive.Root className="h-screen flex flex-col">
           <ThreadPrimitive.Viewport
+            autoScroll={true}
+            turnAnchor="bottom"
             className={`flex flex-1 items-center overflow-y-auto scroll-smooth px-4 md:px-0 ${messages.length === 0 ? '' : 'h-full'}`}
           >
             <div
@@ -232,7 +244,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
                     <Button
                       size="icon"
                       variant="ghost"
-                      onClick={() => chrome.runtime.openOptionsPage()}
+                      onClick={openOptionsPage}
                     >
                       <Settings className="w-4 h-4" />
                     </Button>

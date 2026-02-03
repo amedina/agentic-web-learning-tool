@@ -8,6 +8,7 @@ import type { AssistantRuntime } from '@assistant-ui/react';
  * Internal dependencies
  */
 import { BUILT_IN_COMMANDS } from '../../../constants';
+import { openOptionsPage } from '../../../utils';
 
 const replaceSlashCommands = (_command: string, runtime: AssistantRuntime) => {
   return createUIMessageStream({
@@ -22,8 +23,8 @@ const replaceSlashCommands = (_command: string, runtime: AssistantRuntime) => {
           delta: 'Opening Settings page',
         });
 
-        setTimeout(() => {
-          chrome.runtime.openOptionsPage();
+        setTimeout(async () => {
+          await openOptionsPage();
         }, 500);
       }
 

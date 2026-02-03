@@ -21,7 +21,7 @@ createRoot(document.getElementById('root')!).render(
         <ToolProvider>
           <MCPProvider>
             <SettingsProvider view="options">
-              <SidebarProvider>
+              <SidebarProvider defaultSelectedMenuItem="models">
                 <Options />
               </SidebarProvider>
             </SettingsProvider>

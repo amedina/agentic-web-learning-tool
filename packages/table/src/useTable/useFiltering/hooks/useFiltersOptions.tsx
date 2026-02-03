@@ -34,7 +34,9 @@ const useFiltersOptions = (
 ) => {
   const runOptionsOnSelectAllFilters = useCallback(() => {
     setSelectAllFilterSelection((prev) => {
-      const newSelectAllFilterSelection = { ...prev };
+      const newSelectAllFilterSelection = JSON.parse(
+        JSON.stringify(prev),
+      ) as typeof prev;
 
       Object.keys(newSelectAllFilterSelection).forEach((filterKey) => {
         const savedFilters = options.current?.[filterKey];

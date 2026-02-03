@@ -11,6 +11,7 @@ export interface SidebarContextProps {
     selectedMenuItem: string;
     isMobile: boolean;
     menuItems: MenuItem[];
+    placement: 'options-page' | 'devtools';
   };
   actions: {
     setOpen: (open: boolean) => void;
@@ -26,6 +27,7 @@ export type MenuItem = {
   icon?: () => ReactNode;
   items?: MenuItem[];
   isDisabled?: boolean;
+  onClick?: () => void;
 };
 
 const initialState: SidebarContextProps = {
@@ -35,6 +37,7 @@ const initialState: SidebarContextProps = {
     selectedMenuItem: '',
     isMobile: false,
     menuItems: [],
+    placement: 'options-page',
   },
   actions: {
     setOpen: noop,
