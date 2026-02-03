@@ -4,7 +4,6 @@
   "description": "Chrome AI Playground for build-in AI and API status",
   "type": "module",
   "main": "dist/index.js",
-  "types": "dist/index.d.ts",
   "source": "src/index.ts",
   "exports": {
     ".": {
