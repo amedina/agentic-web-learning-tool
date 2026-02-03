@@ -5,6 +5,7 @@
   "type": "module",
   "main": "dist/index.js",
   "source": "src/index.ts",
+  "./styles.css": "./src/styles.css",
   "exports": {
     ".": {
       "default": "./dist/index.js"
