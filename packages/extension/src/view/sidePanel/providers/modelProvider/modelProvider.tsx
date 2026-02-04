@@ -49,35 +49,29 @@ const Provider = ({ children }: PropsWithChildren) => {
   const initialFetchDone = useRef<boolean>(false);
 
   useEffect(() => {
-    const updateTransport = async () => {
-      if (!initialFetchDone.current) {
-        return;
-      }
+    if (!initialFetchDone.current) {
+      return;
+    }
 
-      if (selectedAgent && selectedAgent?.modelProvider !== 'browser-ai') {
-        setTransport(
-          transportGenerator(
-            selectedAgent?.modelProvider,
-            selectedAgent?.model,
-            {
-              ...apiKeys[selectedAgent?.modelProvider],
-            },
-            apiKeys[selectedAgent.modelProvider]?.thinkingMode
-          )
-        );
-      } else {
-        setTransport(transportGenerator('browser-ai', 'prompt-api', {}));
-      }
-      const { selectedAgent: _selectedAgent } =
-        await chrome.storage.sync.get('selectedAgent');
-      if (!isEqual(_selectedAgent, selectedAgent)) {
-        chrome.storage.sync.set({
-          selectedAgent,
-        });
-      }
-    };
+    if (selectedAgent && selectedAgent?.modelProvider !== 'browser-ai') {
+      setTransport(
+        transportGenerator(
+          selectedAgent?.modelProvider,
+          selectedAgent?.model,
+          {
+            ...apiKeys[selectedAgent?.modelProvider],
+          },
+          apiKeys[selectedAgent.modelProvider]?.thinkingMode,
+          apiKeys[selectedAgent.modelProvider]?.systemPrompt
+        )
+      );
+    } else {
+      setTransport(transportGenerator('browser-ai', 'prompt-api', {}));
+    }
 
-    updateTransport();
+    chrome.storage.sync.set({
+      selectedAgent,
+    });
   }, [apiKeys, selectedAgent]);
 
   const fetchMCPServersAndCreateMapping = useCallback(async () => {

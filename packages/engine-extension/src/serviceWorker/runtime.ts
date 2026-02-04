@@ -185,7 +185,7 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
     if (chrome.runtime.lastError) {
       throw new Error(chrome.runtime.lastError.message);
     }
-    if (!response.success) {
+    if (!response?.success) {
       throw new Error(response.error ?? 'DOM query failed');
     }
 
@@ -210,7 +210,7 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
     if (chrome.runtime.lastError) {
       throw new Error(chrome.runtime.lastError.message);
     }
-    if (!response.success) {
+    if (!response?.success) {
       throw new Error(response.error ?? 'Alert failed');
     }
   }
@@ -241,7 +241,7 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
     if (chrome.runtime.lastError) {
       throw new Error(chrome.runtime.lastError.message);
     }
-    if (!response.success) {
+    if (!response?.success) {
       throw new Error(response.error ?? 'Replace DOM failed');
     }
   }
@@ -262,7 +262,7 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
     if (chrome.runtime.lastError) {
       throw new Error(chrome.runtime.lastError.message);
     }
-    if (!response.success) {
+    if (!response?.success) {
       throw new Error(response.error ?? 'Copy to clipboard failed');
     }
   }
@@ -284,7 +284,7 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
     if (chrome.runtime.lastError) {
       throw new Error(chrome.runtime.lastError.message);
     }
-    if (!response.success) {
+    if (!response?.success) {
       throw new Error(response.error ?? 'Download file failed');
     }
   }
@@ -305,7 +305,7 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
     if (chrome.runtime.lastError) {
       throw new Error(chrome.runtime.lastError.message);
     }
-    if (!response.success) {
+    if (!response?.success) {
       throw new Error(response.error ?? 'Speak text failed');
     }
   }
@@ -326,7 +326,7 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
     if (chrome.runtime.lastError) {
       throw new Error(chrome.runtime.lastError.message);
     }
-    if (!response.success) {
+    if (!response?.success) {
       throw new Error(response.error ?? 'Show tooltip failed');
     }
   }
