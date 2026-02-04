@@ -131,7 +131,7 @@ const Provider = ({ children }: PropsWithChildren) => {
       );
     }
     initialFetchDone.current = true;
-  }, [fetchMCPServersAndCreateMapping]);
+  }, [apiKeys, fetchMCPServersAndCreateMapping, selectedAgent.modelProvider]);
 
   const onSyncStorageChangedListener = useCallback(
     async (changes: { [key: string]: chrome.storage.StorageChange }) => {
