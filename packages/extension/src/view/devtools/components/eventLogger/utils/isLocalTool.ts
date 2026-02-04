@@ -18,5 +18,6 @@ export const isLocalTool = (toolName: string, tabId: number) => {
   if (toolName.includes('wt_tab')) {
     return toolName.includes(`wt_tab${tabId}_`);
   }
+
   return true;
 };
