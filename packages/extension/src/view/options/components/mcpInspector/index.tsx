@@ -76,6 +76,13 @@ export default function MCPInspectorTab() {
         </div>
       </div>
       <div className="w-full font-sans antialiased mt-6">
+        <div className="flex gap-3 items-center">
+          <h1 className="font-normal text-accent-foreground text-xl">
+            Inspecting Github
+          </h1>
+        </div>
+      </div>
+      <div className="w-full font-sans antialiased">
         <MCPInspectorTabComponent />
       </div>
     </div>
