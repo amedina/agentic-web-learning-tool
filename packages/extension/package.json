@@ -15,7 +15,7 @@
     "prebuild": "rimraf ../../dist",
     "build": "pnpm run build:engine-core && pnpm run build:engine-extension && pnpm run build:engine-web && pnpm run build:table && pnpm run build:workflow-ui && tsc -b && concurrently \"pnpm run build:contentScript\" \"pnpm run build:extension\"",
     "build:workflow-ui": "pnpm --filter @google-awlt/workflow-ui build",
-    "build:contentScript": "cross-env NODE_ENV=production node scripts/build-content.js",
+    "build:contentScript": "cross-env NODE_ENV=production node scripts/contentScript.config.ts",
     "build:extension": "cross-env NODE_ENV=production vite build --config vite.config.ts",
     "build:table": "pnpm --filter @google-awlt/table build",
     "build:engine-core": "pnpm --filter @google-awlt/engine-core build",
