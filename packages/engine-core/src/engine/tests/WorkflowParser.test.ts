@@ -22,6 +22,8 @@ describe("WorkflowParser", () => {
           version: "1.0",
           allowedDomains: [],
           isWebMCP: false,
+          enabled: true,
+          savedAt: "2024-01-01T00:00:00.000Z",
         },
         graph: {
           nodes: [
@@ -87,6 +89,8 @@ describe("WorkflowParser", () => {
           version: "1",
           allowedDomains: [],
           isWebMCP: false,
+          enabled: true,
+          savedAt: "2024-01-01T00:00:00.000Z",
         },
         graph: {
           nodes: [
@@ -111,6 +115,8 @@ describe("WorkflowParser", () => {
           version: "1",
           allowedDomains: [],
           isWebMCP: false,
+          enabled: true,
+          savedAt: "2024-01-01T00:00:00.000Z",
         },
         graph: {
           nodes: [
@@ -134,6 +140,8 @@ describe("WorkflowParser", () => {
           version: "1",
           allowedDomains: [],
           isWebMCP: false,
+          enabled: true,
+          savedAt: "2024-01-01T00:00:00.000Z",
         },
         graph: {
           nodes: [
@@ -163,6 +171,8 @@ describe("WorkflowParser", () => {
           version: "1",
           allowedDomains: [],
           isWebMCP: false,
+          enabled: true,
+          savedAt: "2024-01-01T00:00:00.000Z",
         },
         graph: {
           nodes: [
@@ -185,6 +195,8 @@ describe("WorkflowParser", () => {
           version: "1",
           allowedDomains: [],
           isWebMCP: false,
+          enabled: true,
+          savedAt: "2024-01-01T00:00:00.000Z",
         },
         graph: {
           nodes: [
@@ -208,6 +220,8 @@ describe("WorkflowParser", () => {
           version: "1",
           allowedDomains: [],
           isWebMCP: false,
+          enabled: true,
+          savedAt: "2024-01-01T00:00:00.000Z",
         },
         graph: {
           nodes: [
@@ -244,6 +258,8 @@ describe("WorkflowParser", () => {
           version: "1",
           allowedDomains: [],
           isWebMCP: false,
+          enabled: true,
+          savedAt: "2024-01-01T00:00:00.000Z",
         },
         graph: {
           nodes: [
@@ -310,6 +326,8 @@ describe("WorkflowParser", () => {
           version: "1",
           allowedDomains: [],
           isWebMCP: false,
+          enabled: true,
+          savedAt: "2024-01-01T00:00:00.000Z",
         },
         graph: {
           nodes: [
@@ -340,6 +358,8 @@ describe("WorkflowParser", () => {
           version: "1",
           allowedDomains: [],
           isWebMCP: false,
+          enabled: true,
+          savedAt: "2024-01-01T00:00:00.000Z",
         },
         graph: {
           nodes: [
@@ -379,6 +399,8 @@ describe("WorkflowParser", () => {
           version: "1",
           allowedDomains: [],
           isWebMCP: false,
+          enabled: true,
+          savedAt: "2024-01-01T00:00:00.000Z",
         },
         graph: {
           nodes: [
@@ -450,6 +472,8 @@ describe("WorkflowParser", () => {
           version: "1",
           allowedDomains: [],
           isWebMCP: false,
+          enabled: true,
+          savedAt: "2024-01-01T00:00:00.000Z",
         },
         graph: {
           nodes: [
@@ -473,6 +497,8 @@ describe("WorkflowParser", () => {
           version: "1",
           allowedDomains: [],
           isWebMCP: false,
+          enabled: true,
+          savedAt: "2024-01-01T00:00:00.000Z",
         },
         graph: {
           nodes: [

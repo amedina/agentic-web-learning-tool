@@ -4,7 +4,7 @@ import {
   listWorkflows,
   deleteWorkflow,
   type WorkflowMetadata,
-} from "../../../utils/storage";
+} from "@google-awlt/engine-extension";
 
 interface SavedWorkflowsDialogProps {
   isOpen: boolean;
@@ -24,7 +24,7 @@ const SavedWorkflowsDialog: React.FC<SavedWorkflowsDialogProps> = ({
     setIsLoading(true);
     try {
       const list = await listWorkflows();
-      setWorkflows(list);
+      setWorkflows(list.map(({ meta }) => meta));
     } catch (error) {
       console.error("Failed to list workflows:", error);
     } finally {

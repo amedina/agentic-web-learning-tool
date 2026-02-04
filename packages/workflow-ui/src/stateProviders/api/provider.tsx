@@ -27,8 +27,10 @@ const ApiProvider = ({ children }: PropsWithChildren) => {
     name: "New Workflow",
     description: "",
     version: "1.0.0",
+    savedAt: new Date().toISOString(),
     allowedDomains: [],
     isWebMCP: false,
+    autosave: false,
   });
 
   const getNode = useCallback(
@@ -104,8 +106,10 @@ const ApiProvider = ({ children }: PropsWithChildren) => {
       name: "New Workflow",
       description: "",
       version: "1.0.0",
+      savedAt: new Date().toISOString(),
       allowedDomains: [],
       isWebMCP: false,
+      autosave: false,
     });
   }, []);
 

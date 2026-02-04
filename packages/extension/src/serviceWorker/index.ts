@@ -7,6 +7,10 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 /**
  * Internal dependencies
  */
+import {
+  updateWorkflowsContextMenu,
+  handleContextMenuClick,
+} from '../view/contextMenu';
 import { CONNECTION_NAMES, logger, isUrl } from '../utils';
 import McpHub from './mcpHub';
 import './chromeListeners';
@@ -92,5 +96,21 @@ chrome.runtime.onConnect.addListener(async (port) => {
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message.type === 'PING') {
     sendResponse({ status: 'ok' });
+  }
+});
+
+// Context Menu Listeners
+chrome.contextMenus.onClicked.addListener(handleContextMenuClick);
+
+chrome.tabs.onUpdated.addListener((_tabId, changeInfo, tab) => {
+  if (changeInfo.status === 'complete' && tab.url) {
+    updateWorkflowsContextMenu(tab.url);
+  }
+});
+
+chrome.tabs.onActivated.addListener(async (activeInfo) => {
+  const tab = await chrome.tabs.get(activeInfo.tabId);
+  if (tab?.url) {
+    updateWorkflowsContextMenu(tab.url);
   }
 });

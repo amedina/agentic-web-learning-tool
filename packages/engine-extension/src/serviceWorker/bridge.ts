@@ -45,14 +45,14 @@ function handleMessage(
 /**
  * Handle workflow execution request.
  */
-async function handleRunWorkflow(
+export async function handleRunWorkflow(
   workflow: any,
   tabId: number | undefined,
   sender: chrome.runtime.MessageSender,
   sendResponse: (response: WorkflowResponse) => void
 ) {
   const runner = getWorkflowRunner();
-  const targetTabId = tabId ?? sender.tab?.id;
+  const targetTabId = tabId ?? sender?.tab?.id;
 
   try {
     if (targetTabId) {
@@ -70,7 +70,6 @@ async function handleRunWorkflow(
         await chrome.scripting.executeScript({
           target: { tabId: targetTabId },
           func: initContentScriptBridge,
-          world: 'MAIN',
           injectImmediately: true,
         });
       }

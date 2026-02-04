@@ -2,7 +2,8 @@
  * External dependencies
  */
 import { AlertCircle, Plus, X } from "lucide-react";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
+import { listWorkflows } from "@google-awlt/engine-extension";
 
 /**
  * Internal dependencies
@@ -40,36 +41,81 @@ export const WorkflowConfig = () => {
     [workflowMeta.allowedDomains, updateWorkflowMeta],
   );
 
+  const [otherWorkflowNames, setOtherWorkflowNames] = useState<
+    {
+      name: string;
+      id: string;
+    }[]
+  >([]);
+
+  useEffect(() => {
+    listWorkflows().then((json) => {
+      const others = json
+        .filter(({ meta }) => meta.id !== workflowMeta.id)
+        .map(({ meta }) => ({
+          name: meta.name,
+          id: meta.id,
+        }));
+
+      setOtherWorkflowNames(others);
+    });
+  }, [workflowMeta.id]);
+
   const [errors, setErrors] = useState<string[]>([]);
 
   const handleIsWebMCPChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      if (workflowMeta.isWebMCP) {
+      const isChecking = e.target.checked;
+
+      if (isChecking) {
+        const newErrors: string[] = [];
         if (!workflowMeta.description) {
-          setErrors((prev) => [
-            ...prev,
-            "Description is required when WebMCP is enabled.",
-          ]);
+          newErrors.push("Description is required when WebMCP is enabled.");
         }
 
         if (
           !workflowMeta.allowedDomains ||
           workflowMeta.allowedDomains.length === 0
         ) {
-          setErrors((prev) => [
-            ...prev,
+          newErrors.push(
             "At least one allowed domain is required when WebMCP is enabled.",
-          ]);
+          );
         }
 
-        return;
+        if (
+          otherWorkflowNames.some(
+            ({ name, id }) =>
+              name === workflowMeta.name && id !== workflowMeta.id,
+          )
+        ) {
+          newErrors.push(
+            `The name "${workflowMeta.name}" is already used by another workflow. Please change the name for unique identification.`,
+          );
+        }
+
+        if (newErrors.length > 0) {
+          setErrors(newErrors);
+          return;
+        }
+
+        setErrors([]);
+      } else {
+        setErrors([]);
       }
 
       updateWorkflowMeta({
-        isWebMCP: e.target.checked,
+        isWebMCP: isChecking,
+        enabled: isChecking,
       });
     },
-    [updateWorkflowMeta],
+    [
+      updateWorkflowMeta,
+      workflowMeta.description,
+      workflowMeta.allowedDomains,
+      workflowMeta.name,
+      workflowMeta.enabled,
+      otherWorkflowNames,
+    ],
   );
 
   return (
@@ -175,21 +221,61 @@ export const WorkflowConfig = () => {
         </div>
 
         <div className="pt-2 border-t border-slate-200 dark:border-border">
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              className="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500 border-gray-300"
-              checked={!!workflowMeta.isWebMCP}
-              onChange={handleIsWebMCPChange}
-            />
-            <span className="text-sm font-medium text-slate-700 dark:text-zinc-300">
-              Enable as WebMCP Tool
-            </span>
-          </label>
-          <p className="text-xs text-slate-500 dark:text-zinc-500 mt-1 ml-6">
-            Allows this workflow to be used as a tool by AI agents. Requires
-            description and allowed domains.
-          </p>
+          <div className="flex flex-col gap-4">
+            <div>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500 border-gray-300"
+                  checked={!!workflowMeta.isWebMCP}
+                  onChange={handleIsWebMCPChange}
+                />
+                <span className="text-sm font-medium text-slate-700 dark:text-zinc-300">
+                  Enable as WebMCP Tool
+                </span>
+              </label>
+
+              {workflowMeta.isWebMCP && (
+                <label className="flex items-center gap-2 cursor-pointer ml-6">
+                  <input
+                    type="checkbox"
+                    className="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500 border-gray-300"
+                    checked={workflowMeta.enabled !== false}
+                    onChange={(e) =>
+                      updateWorkflowMeta({ enabled: e.target.checked })
+                    }
+                  />
+                  <span className="text-sm font-medium text-slate-700 dark:text-zinc-300">
+                    Active
+                  </span>
+                </label>
+              )}
+              <p className="text-xs text-slate-500 dark:text-zinc-500 ml-6">
+                Allows this workflow to be used as a tool by AI agents. Requires
+                unique name, description and allowed domains.
+              </p>
+            </div>
+
+            <div>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500 border-gray-300"
+                  checked={!!workflowMeta.autosave}
+                  onChange={(e) =>
+                    updateWorkflowMeta({ autosave: e.target.checked })
+                  }
+                />
+                <span className="text-sm font-medium text-slate-700 dark:text-zinc-300">
+                  Autosave
+                </span>
+              </label>
+              <p className="text-xs text-slate-500 dark:text-zinc-500 ml-6">
+                When enabled, changes are saved automatically. Otherwise, use
+                the Save button in the toolbar.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 

@@ -65,6 +65,7 @@ export interface RuntimeInterface {
     selector: string,
     content: string,
     isMultiple?: boolean,
+    mode?: 'textContent' | 'innerText' | 'innerHTML' | 'value',
     index?: number
   ): Promise<void>;
 
@@ -108,6 +109,18 @@ export interface RuntimeInterface {
    * @param output - The node's output
    */
   onNodeFinish(nodeId: string, output: NodeOutput): void;
+
+  /**
+   * Wait for a user activation gesture (e.g., a click) on the page.
+   * @returns Promise resolving when the user has interacted with the page.
+   */
+  waitForUserActivation(): Promise<void>;
+
+  /**
+   * Check if the user is currently "active" on the page (has recent interaction).
+   * @returns Promise resolving to true if the user is active.
+   */
+  isUserActive(): Promise<boolean>;
 
   /**
    * Callback invoked when an error occurs during execution.

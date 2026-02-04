@@ -3,13 +3,11 @@
  */
 import { useEffect, useImperativeHandle, useState } from "react";
 import { FileDown } from "lucide-react";
-import z from "zod";
 
-export const FileCreatorSchema = z.object({
-  filename: z.string().optional(),
-});
-
-export type FileCreatorConfig = z.infer<typeof FileCreatorSchema>;
+/**
+ * Internal dependencies
+ */
+import { FileCreatorSchema, type FileCreatorConfig } from "./fileCreator";
 
 interface ToolConfigProps {
   ref: React.Ref<{
@@ -31,9 +29,11 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
     ref,
     () => ({
       getConfig: (formData: FormData) => {
+        const title = formData.get("title") as string;
         const filename = formData.get("filename") as string;
 
         const configResult = {
+          title,
           filename,
         };
 

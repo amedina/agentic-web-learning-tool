@@ -20,3 +20,5 @@ export {
   languageDetectorApiExecutor,
   summarizerApiExecutor,
 } from './executors';
+
+export * from './utils/userActivation';

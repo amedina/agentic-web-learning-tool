@@ -9,6 +9,11 @@ import {
 import { Client } from '@modelcontextprotocol/sdk/client';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import {
+  listWorkflows,
+  transformWorkflowToTool,
+} from '@google-awlt/engine-extension';
+
+import {
   DOM_TOOL_NAME_PREFIX,
   EXTENSION_TOOL_PREFIX,
   type MCPConfig,
@@ -374,6 +379,7 @@ class McpHub {
                 false
               );
               await this.injectToolsAndRegisterFunction(tabId);
+              await this.injectWorkflowToolsAndRegisterFunction(tabId);
             }
             break;
           case MESSAGE_TYPES.UPDATE:
@@ -497,7 +503,33 @@ class McpHub {
       }
     }
 
-    const activeTools = tools.filter((tool) => {
+    const workflows = await listWorkflows();
+
+    const workflowTools = workflows
+      .map((workflow) => workflow.meta)
+      .filter((t) => t.isWebMCP)
+      .map(transformWorkflowToTool)
+      .filter((t) => t.enabled);
+
+    const allTools = [...tools, ...workflowTools] as Tool[];
+
+    const activeTools = allTools.filter((tool) => {
+      // Workflows Logic
+      if ('namespace' in tool && tool.namespace === 'workflow') {
+        if (
+          (tool as unknown as (typeof workflowTools)[0]).allowedDomains
+            ?.length &&
+          !isDomainAllowed(
+            currentUrl,
+            (tool as unknown as (typeof workflowTools)[0]).allowedDomains
+          )
+        ) {
+          return false;
+        }
+
+        return true;
+      }
+
       if (disabledToolNames.has(tool.name)) {
         return false;
       }
@@ -629,6 +661,7 @@ class McpHub {
           isError: true,
         };
       }
+
       // Forward request to content script using RequestManager
       const response = await this.requestManager.create(this.port, {
         type: MESSAGE_TYPES.EXECUTE,
@@ -846,6 +879,116 @@ class McpHub {
             toolWrapper.name,
             err
           );
+        }
+      }
+    }
+  }
+
+  async injectWorkflowToolsAndRegisterFunction(tabId: number) {
+    const workflows = await listWorkflows();
+    console.log('[Workflow]', workflows);
+
+    let tabUrl = '';
+
+    try {
+      const tab = await chrome.tabs.get(tabId);
+      tabUrl = tab.url || '';
+    } catch (e) {
+      console.warn(
+        `WebMCP: Could not get tab URL for injection (tabId: ${tabId})`,
+        e
+      );
+    }
+
+    const enabledWorkflows = workflows.filter(({ meta }) => {
+      if (meta.enabled === false) return false;
+      return isDomainAllowed(tabUrl, meta.allowedDomains);
+    });
+
+    const transformedWorkflows = enabledWorkflows.map((workflow) => {
+      const transformedMeta = transformWorkflowToTool(workflow.meta);
+
+      return {
+        meta: transformedMeta,
+        json: workflow,
+      };
+    });
+
+    chrome.scripting
+      .executeScript({
+        target: { tabId: tabId },
+        world: 'MAIN',
+        func: registerDynamicWorkflowToolFromScripting,
+        args: [transformedWorkflows],
+      })
+      .then((result) => {
+        console.log('WebMCP: tools registered', result);
+      })
+      .catch((error) => {
+        console.error('WebMCP: Error injecting user tools', error);
+      });
+
+    async function registerDynamicWorkflowToolFromScripting(
+      transformedWorkflows: any
+    ) {
+      //@ts-expect-error -- window.navigator.modelContext is injected dynamically
+      const mcp = window.navigator.modelContext;
+
+      for (const tool of transformedWorkflows) {
+        try {
+          const toolToRegister = {
+            ...tool.meta,
+            execute: async () => {
+              // @ts-expect-error -- window.awltWorkflow is injected through registerWorkflowTools
+              if (window.awltWorkflow) {
+                if (!navigator.userActivation.isActive) {
+                  const runWorkflowButton = document.createElement('button');
+                  document.body.appendChild(runWorkflowButton);
+                  runWorkflowButton.click();
+                  document.body.removeChild(runWorkflowButton);
+                }
+
+                // @ts-expect-error -- window.awltWorkflow is injected
+                const result = (await window.awltWorkflow.runWorkflow(
+                  tool.json
+                )) as {
+                  steps: Record<string, any>;
+                };
+
+                return {
+                  content: [
+                    {
+                      type: 'text',
+                      text:
+                        'Workflow returned with: ' +
+                        Object.entries(result.steps).filter(([key]) =>
+                          key.endsWith('end')
+                        )[0][1].data,
+                    },
+                  ],
+                  isError: false,
+                };
+              }
+            },
+          };
+
+          console.log(
+            'WebMCP: Registering user workflow tool:',
+            toolToRegister
+          );
+
+          if (mcp) {
+            await mcp.registerTool(toolToRegister);
+
+            console.log(
+              'WebMCP: User Workflow tool registered successfully:',
+              toolToRegister.name
+            );
+          } else {
+            console.log('WebMCP: Cannot register tool, mcp missing');
+          }
+        } catch (err) {
+          console.log('WebMCP: Failed to register user tool:', tool.name, err);
         }
       }
     }

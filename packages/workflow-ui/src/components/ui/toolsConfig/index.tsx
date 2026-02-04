@@ -155,10 +155,6 @@ const ToolsConfig = ({
           </form>
         )}
       </div>
-
-      <div className="p-4 border-t border-slate-200 dark:border-border bg-slate-50 dark:bg-zinc-900/50 text-xs text-slate-500 dark:text-zinc-500 text-center">
-        <p>Changes are saved automatically</p>
-      </div>
     </div>
   );
 };
