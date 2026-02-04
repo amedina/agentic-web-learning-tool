@@ -29,11 +29,10 @@ function SettingsProvider({
   const [tabData, setTabData] = useState<{
     [key: string]: chrome.tabs.Tab;
   }>({});
-  const [currentTab, setCurrentTab] = useState<number>(0);
+  const [lockedThreads, setLockedThreads] = useState<string[]>([]);
 
   const fetchTabData = useCallback(async () => {
     const tabs = await chrome.tabs.query({});
-    tabs.forEach((tab) => (tab.id && tab.active ? setCurrentTab(tab.id) : ''));
     setTabData(
       tabs.reduce(
         (acc, tab) => {
@@ -51,9 +50,25 @@ function SettingsProvider({
     );
   }, []);
 
+  const sessionStorageListener = useCallback(
+    async (changes: { [key: string]: chrome.storage.StorageChange }) => {
+      if (!changes['lockedThreads']?.newValue) {
+        return;
+      }
+
+      const updatedLockedThreads = changes['lockedThreads']
+        .newValue as string[];
+      setLockedThreads(updatedLockedThreads);
+    },
+    []
+  );
+
   const fetchAndUpdateSettings = useCallback(async () => {
     const { theme: _theme, logLevel: _logLevel } = await settingsGetter();
+    const { lockedThreads: _lockedThreads }: { lockedThreads: string[] } =
+      await chrome.storage.session.get('lockedThreads');
 
+    setLockedThreads(_lockedThreads || []);
     setTheme(_theme);
     setLogLevel(_logLevel);
   }, []);
@@ -175,13 +190,6 @@ function SettingsProvider({
     []
   );
 
-  const onActivatedListener = useCallback(
-    (tab: chrome.tabs.OnActivatedInfo) => {
-      setCurrentTab(tab.tabId);
-    },
-    []
-  );
-
   useEffect(() => {
     (async () => {
       await fetchAndUpdateSettings();
@@ -191,19 +199,19 @@ function SettingsProvider({
 
     chrome.storage.sync.onChanged.addListener(syncStorageChangedListener);
     chrome.tabs.onCreated.addListener(addTabData);
+    chrome.storage.session.onChanged.addListener(sessionStorageListener);
     chrome.webNavigation.onCommitted.addListener(updateTabsData);
-    chrome.tabs.onActivated.addListener(onActivatedListener);
     return () => {
       chrome.storage.sync.onChanged.removeListener(syncStorageChangedListener);
       chrome.webNavigation.onCommitted.removeListener(updateTabsData);
       chrome.tabs.onCreated.removeListener(addTabData);
-      chrome.tabs.onActivated.removeListener(onActivatedListener);
+      chrome.storage.session.onChanged.removeListener(sessionStorageListener);
     };
   }, [
-    onActivatedListener,
+    fetchTabData,
+    sessionStorageListener,
     addTabData,
     fetchAndUpdateSettings,
-    fetchTabData,
     syncStorageChangedListener,
     updateTabsData,
   ]);
@@ -216,7 +224,7 @@ function SettingsProvider({
         isDarkMode,
         workflowId,
         tabData,
-        currentTab,
+        lockedThreads,
       },
       actions: {
         clearSettings,
@@ -225,12 +233,12 @@ function SettingsProvider({
       },
     }),
     [
+      lockedThreads,
+      tabData,
       theme,
       logLevel,
       isDarkMode,
       workflowId,
-      tabData,
-      currentTab,
       clearSettings,
       toggleSettings,
     ]

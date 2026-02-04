@@ -10,16 +10,12 @@ import {
   type EdgeChange,
   type NodeChange,
 } from "@xyflow/react";
+import { NodeType } from "@google-awlt/engine-core";
 
 /**
  * Internal dependencies
  */
-import { NodeType } from "@google-awlt/engine-core";
-import Context, {
-  FlowCleaner,
-  type FlowEdgeType,
-  type FlowNodeType,
-} from "./context";
+import Context, { type FlowEdgeType, type FlowNodeType } from "./context";
 import { useApi } from "../api";
 import {
   LanguageDetectorApiToolNode,
@@ -191,7 +187,6 @@ const FlowProvider = ({ children }: PropsWithChildren) => {
         },
       }}
     >
-      <FlowCleaner />
       {children}
     </Context.Provider>
   );

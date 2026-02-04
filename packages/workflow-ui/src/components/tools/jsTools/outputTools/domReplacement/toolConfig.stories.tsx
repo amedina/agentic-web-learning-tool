@@ -23,6 +23,7 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     config: {
+      title: "Replace Me",
       selector: ".replace-me",
       isMultiple: false,
     },
@@ -32,6 +33,7 @@ export const Default: Story = {
 export const WithMultiple: Story = {
   args: {
     config: {
+      title: "Replace Me",
       selector: "p.paragraph",
       isMultiple: true,
     },
@@ -41,6 +43,7 @@ export const WithMultiple: Story = {
 export const Empty: Story = {
   args: {
     config: {
+      title: "Replace Me",
       selector: "",
       isMultiple: false,
     },

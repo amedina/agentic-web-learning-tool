@@ -1,13 +1,9 @@
 /**
  * External dependencies
  */
-import { createContext } from "react";
-import { createContextSelector } from "react-context-selector";
-import {
-  type NodeConfig,
-  type WorkflowMeta,
-  NodeType,
-} from "@google-awlt/engine-core";
+import { type NodeConfig, NodeType } from "@google-awlt/engine-core";
+import { type WorkflowMeta } from "@google-awlt/engine-core";
+import { createContext } from "@google-awlt/common";
 
 /**
  * Internal dependencies
@@ -71,9 +67,6 @@ const initialState: ApiStoreContext = {
   },
 };
 
-const context = createContext<ApiStoreContext>(initialState);
+const ApiContext = createContext<ApiStoreContext>(initialState);
 
-export default context;
-
-export const [ApiCleaner, apiUseContextSelector] =
-  createContextSelector(context);
+export default ApiContext;

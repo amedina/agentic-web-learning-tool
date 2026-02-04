@@ -4,7 +4,7 @@
 import { settingsSetter, setLogLevelFromSyncSettings } from '../../utils';
 import type { AgentType, SettingsState } from '../../types';
 import { DEFAULT_SETTINGS } from '../../constants';
-import { chromeApiBuiltInTools } from '../../contentScript/tools/builtInTools';
+import { mcpbTools } from '../../contentScript/tools/mcpbTools';
 
 const onInstalledCallback = async (
   details: chrome.runtime.InstalledDetails
@@ -22,7 +22,7 @@ const onInstalledCallback = async (
     const chromeAPIBuiltInToolsState: { [key: string]: { enabled: boolean } } =
       {};
 
-    Object.keys(chromeApiBuiltInTools).forEach(
+    Object.keys(mcpbTools).forEach(
       (tool) =>
         (chromeAPIBuiltInToolsState[tool] = {
           enabled: true,
@@ -66,7 +66,7 @@ const onInstalledCallback = async (
         [key: string]: { enabled: boolean };
       } = {};
 
-      Object.keys(chromeApiBuiltInTools).forEach(
+      Object.keys(mcpbTools).forEach(
         (tool) =>
           (chromeAPIBuiltInToolsState[tool] = {
             enabled: true,

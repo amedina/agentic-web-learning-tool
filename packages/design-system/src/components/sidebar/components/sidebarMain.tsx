@@ -8,7 +8,10 @@ import { type ComponentProps } from 'react';
  */
 import { cn } from '../../../lib';
 import { useSidebar } from '../sidebarProvider';
-import { SIDEBAR_WIDTH_MOBILE } from '../constants';
+import {
+  SIDEBAR_WIDTH_MOBILE,
+  SIDEBAR_WIDTH_MOBILE_DEVTOOLS,
+} from '../constants';
 import {
   Sheet,
   SheetContent,
@@ -29,12 +32,13 @@ function SidebarMain({
   variant?: 'sidebar' | 'floating' | 'inset';
   collapsible?: 'offcanvas' | 'icon' | 'none';
 }) {
-  const { sidebarState, isMobile, setOpen, open } = useSidebar(
+  const { sidebarState, isMobile, setOpen, open, placement } = useSidebar(
     ({ state, actions }) => ({
       sidebarState: state.sidebarState,
       isMobile: state.isMobile,
       setOpen: actions.setOpen,
       open: state.open,
+      placement: state.placement,
     })
   );
 
@@ -60,10 +64,14 @@ function SidebarMain({
           data-sidebar="sidebar"
           data-slot="sidebar"
           data-mobile="true"
-          className="bg-sidebar text-sidebar-foreground w-(--sidebar-width) p-0 [&>button]:hidden"
+          className="bg-white text-sidebar-foreground w-(--sidebar-width) p-0 [&>button]:hidden"
+          // @ts-ignore - ts(2322)
           style={
             {
-              '--sidebar-width': SIDEBAR_WIDTH_MOBILE,
+              '--sidebar-width':
+                placement === 'devtools'
+                  ? SIDEBAR_WIDTH_MOBILE_DEVTOOLS
+                  : SIDEBAR_WIDTH_MOBILE,
             } as React.CSSProperties
           }
           side={side}

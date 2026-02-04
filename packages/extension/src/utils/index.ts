@@ -5,3 +5,6 @@ export * from './settingsGetter';
 export * from './jsonSchemaToZod';
 export { default as settingsValidator } from './settingsValidator';
 export * from './jsonSchemaToZod';
+export { default as openOptionsPage } from './openOptionsPage';
+export { default as isUrl } from './isUrl';
+export * from './getMcpbToolGroup';

@@ -2,13 +2,12 @@
  * External dependencies
  */
 import type { Connection, EdgeChange, NodeChange } from "@xyflow/react";
-import { createContext } from "react";
-import { createContextSelector } from "react-context-selector";
 import {
   NodeType,
   type EdgeConfig,
   type NodeUIConfig,
 } from "@google-awlt/engine-core";
+import { createContext } from "@google-awlt/common";
 
 export type FlowNodeType = {
   id: string;
@@ -67,9 +66,6 @@ const initialState: FlowStoreContext = {
   },
 };
 
-const context = createContext<FlowStoreContext>(initialState);
+const FlowContext = createContext<FlowStoreContext>(initialState);
 
-export default context;
-
-export const [FlowCleaner, flowUseContextSelector] =
-  createContextSelector(context);
+export default FlowContext;

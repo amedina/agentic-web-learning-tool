@@ -16,13 +16,13 @@ import { ModelProvider, ToolProvider, MCPProvider } from './providers';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <div className="w-screen h-screen">
+    <div className="h-screen">
       <McpConnectionProvider>
         <ModelProvider>
           <ToolProvider>
             <MCPProvider>
               <SettingsProvider view="options">
-                <SidebarProvider>
+                <SidebarProvider defaultSelectedMenuItem="models">
                   <Options />
                 </SidebarProvider>
               </SettingsProvider>

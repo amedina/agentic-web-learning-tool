@@ -4,9 +4,6 @@
 import { z } from 'zod';
 z.config({ jitless: true });
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { type CallToolResult } from '@modelcontextprotocol/sdk/types.js';
-import { ExtensionServerTransport } from '@mcp-b/transports';
-import type { WebMCPTool } from '@google-awlt/design-system';
 /**
  * Internal dependencies
  */
@@ -14,147 +11,91 @@ import {
   updateWorkflowsContextMenu,
   handleContextMenuClick,
 } from '../view/contextMenu';
-import { CONNECTION_NAMES, logger } from '../utils';
+import { CONNECTION_NAMES, logger, isUrl } from '../utils';
 import McpHub from './mcpHub';
 import './chromeListeners';
 import './workflowEngine';
-import onLocalStorageChangedCallback from './chromeListeners/onLocalStorageChangedCallback';
+import { createAndAssignHub } from './utils';
 
-const sharedServer = new McpServer(
-  { name: 'Extension-Hub', version: '1.0.0' },
-  { capabilities: { tools: { listChanged: true } } }
-);
+const mcpHubSidepanelInstances = new Map<number, McpHub>();
+const mcpHubDevtoolInstances = new Map<number, McpHub>();
+const mcpHubOptionsInstances = new Map<number, McpHub>();
+const serverInstances = new Map<number, McpServer>();
 
 chrome.sidePanel
-  .setPanelBehavior({ openPanelOnActionClick: true })
+  .setPanelBehavior({ openPanelOnActionClick: false })
   .catch((error) => {
     logger(['error'], ['Failed to set panel behavior:', error]);
   });
 
-// Initialize the MCP Server and Hub
-const mcpHub = new McpHub(sharedServer);
-chrome.storage.local.onChanged.addListener(
-  async (changes: { [key: string]: chrome.storage.StorageChange }) => {
-    if (changes?.mcpServers) {
-      const { newValue = {}, oldValue = {} } =
-        changes?.mcpServers as unknown as {
-          newValue: Record<string, any>;
-          oldValue: Record<string, any>;
-        };
-      //If old value has more keys then deletion has happened else insertion has happened, if value is equal then updation has happened
-      if (Object.keys(oldValue).length > Object.keys(newValue).length) {
-        await Promise.all(
-          Object.keys(oldValue).map((key) => {
-            if (!newValue?.[key]) {
-              mcpHub.removeMCPServer(key);
-            }
-          })
-        );
-        return;
-      }
+//@ts-expect-error -- for debugging purpose
+globalThis.mcpData = {
+  mcpHubDevtoolInstances,
+  mcpHubOptionsInstances,
+  mcpHubSidepanelInstances,
+  serverInstances,
+};
 
-      onLocalStorageChangedCallback(mcpHub);
-    }
+chrome.tabs.onRemoved.addListener((tabId) => {
+  mcpHubDevtoolInstances.delete(tabId);
+  mcpHubOptionsInstances.delete(tabId);
+  mcpHubSidepanelInstances.delete(tabId);
+  serverInstances.delete(tabId);
+});
 
-    if (changes.builtInWebMCPToolsState) {
-      const newValue =
-        (changes.builtInWebMCPToolsState?.newValue as Record<
-          string,
-          boolean
-        >) ?? {};
-
-      Object.keys(newValue).map((key) => {
-        if (newValue?.[key]) {
-          Array.from(mcpHub.registeredTools.entries()).forEach(
-            ([toolName, registeredTool]) => {
-              if (toolName.includes(key)) {
-                registeredTool.enable();
-              }
-            }
-          );
-        } else {
-          Array.from(mcpHub.registeredTools.entries()).forEach(
-            ([toolName, registeredTool]) => {
-              if (toolName.includes(key)) {
-                registeredTool.disable();
-              }
-            }
-          );
-        }
-      });
-    }
-
-    if (changes.userWebMCPTools) {
-      const newValue =
-        (changes.userWebMCPTools?.newValue as WebMCPTool[]) ?? [];
-
-      newValue.map((tool) => {
-        if (tool.enabled) {
-          Array.from(mcpHub.registeredTools.entries()).forEach(
-            ([toolName, registeredTool]) => {
-              if (toolName.includes(tool.name)) {
-                registeredTool.enable();
-              }
-            }
-          );
-        } else {
-          Array.from(mcpHub.registeredTools.entries()).forEach(
-            ([toolName, registeredTool]) => {
-              if (toolName.includes(tool.name)) {
-                registeredTool.disable();
-              }
-            }
-          );
-        }
-      });
-    }
-
-    sharedServer.server?.transport?.send({
-      jsonrpc: '2.0',
-      method: 'get/Tools',
-    });
-  }
-);
-
+//sidepanel instance
 chrome.runtime.onConnect.addListener(async (port) => {
-  if (port.name !== CONNECTION_NAMES.MCP_HOST) {
+  //Only listen to connections initiated from sidepanel or devtools
+  //If connection is initiated from devtools condition becomes false and function is not returned early
+  //If connection is initiated from sidepanel condition becomes false and function is not returned early
+  //If connection is initiated from content script condition is true and function retrns early
+  if (
+    port.name !== CONNECTION_NAMES.MCP_HOST_SIDEPANEL &&
+    port.name !== CONNECTION_NAMES.MCP_HOST_DEVTOOLS
+  ) {
     return;
   }
 
-  const transport = new ExtensionServerTransport(port, {
-    keepAlive: true,
-    keepAliveInterval: 25_000,
-  });
+  if (port.name === CONNECTION_NAMES.MCP_HOST_SIDEPANEL) {
+    let tabId = 0;
 
-  try {
-    //Why this is being done look here https://github.com/modelcontextprotocol/typescript-sdk/issues/893
-    sharedServer.registerTool(
-      'dummyTool',
-      {},
-      () =>
-        ({
-          content: [
-            {
-              type: 'text',
-              text: `Failed to execute tool: Tab connection lost or closed.`,
-            },
-          ],
-          isError: true,
-        }) as CallToolResult
-    );
-  } catch (_error) {
-    //supress error
-    logger(['warn', 'error'], ['Error registering tool:', _error]);
+    if (!port.sender?.url) {
+      return;
+    }
+
+    if (isUrl(port.sender?.url)) {
+      tabId = parseInt(new URL(port.sender?.url).hash.substring(5));
+    }
+
+    if (!tabId) {
+      return;
+    }
+
+    createAndAssignHub(mcpHubSidepanelInstances, port, serverInstances, tabId);
   }
 
-  sharedServer.connect(transport);
-  mcpHub.setupConnections();
+  if (port.name === CONNECTION_NAMES.MCP_HOST_DEVTOOLS) {
+    let tabId = 0;
 
-  if (mcpHub.registeredTools.size > 0) {
-    sharedServer.server?.transport?.send({
-      jsonrpc: '2.0',
-      method: 'get/Tools',
-    });
+    if (!port.sender?.url) {
+      return;
+    }
+
+    if (isUrl(port.sender?.url)) {
+      tabId = parseInt(new URL(port.sender?.url).hash.substring(1));
+    }
+
+    if (!tabId) {
+      return;
+    }
+
+    createAndAssignHub(mcpHubDevtoolInstances, port, serverInstances, tabId);
+  }
+});
+
+chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+  if (message.type === 'PING') {
+    sendResponse({ status: 'ok' });
   }
 });
 
