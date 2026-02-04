@@ -236,9 +236,9 @@ const Provider = ({ children }: PropsWithChildren) => {
     const transport = transports.current[serverName];
     if (transport instanceof StreamableHTTPClientTransport) {
       await transport.terminateSession();
-      await client.close();
+      await client?.close();
     } else {
-      await client.close();
+      await client?.close();
     }
   }, []);
 

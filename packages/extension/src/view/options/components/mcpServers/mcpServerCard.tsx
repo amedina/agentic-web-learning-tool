@@ -54,17 +54,32 @@ export function MCPServerCard({
     return tools?.tools.length;
   }, [server?.enabled, tools]);
 
-  const iconToRender = useMemo(() => {
+  const buttonChildren = useMemo(() => {
     if (server.isReconnecting) {
       return <Loader2 className="mr-2 h-4 w-4 animate-spin" />;
     }
 
     if (server.enabled) {
-      return <RefreshCwOff className=" w-4 h-4" />;
+      if (tools && tools.isError) {
+        return (
+          <>
+            <RotateCcw className=" w-4 h-4" /> Reconnect
+          </>
+        );
+      }
+      return (
+        <>
+          <RefreshCwOff className=" w-4 h-4" /> Disconnect
+        </>
+      );
     }
 
-    return <RotateCcw className=" w-4 h-4" />;
-  }, [server.enabled, server.isReconnecting]);
+    return (
+      <>
+        <RotateCcw className=" w-4 h-4" /> Reconnect
+      </>
+    );
+  }, [server.enabled, server.isReconnecting, tools]);
 
   return (
     <div className="flex flex-col p-5 bg-[var(--surface-color)] rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
@@ -76,8 +91,7 @@ export function MCPServerCard({
           className="flex items-center"
           onClick={() => onToggle(!server.enabled)}
         >
-          {iconToRender}
-          {server.enabled ? 'Disconnect' : 'Reconnect'}
+          {buttonChildren}
         </Button>
       </div>
       <div className="flex justify-between items-center mt-auto pt-3 border-t border-gray-200">
