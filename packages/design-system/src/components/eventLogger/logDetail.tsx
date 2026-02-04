@@ -1,14 +1,13 @@
 /**
  * External dependencies.
  */
-import { useCallback } from 'react';
 import { CodeEditor } from '../codeEditor';
 
 /**
  * Internal dependencies.
  */
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../tabs';
-import { SyntaxHighlighterWhite } from '../syntaxHighlighter';
+import { SyntaxHighlighterJSON } from '../syntaxHighlighter';
 
 export interface LogDetailProps {
   log: {
@@ -25,44 +24,21 @@ const TAB_TRIGGER_CLASS =
   'text-[11px] px-2 py-1 data-[state=active]:bg-[#e8f0fe] data-[state=active]:text-[#1967d2] rounded-none border-b-2 border-transparent data-[state=active]:border-[#1967d2]';
 
 function LogExecutionDetails({ log }: { log: LogDetailProps['log'] }) {
-  const highlighter = useCallback((args: any) => {
-    return (
-      <SyntaxHighlighterWhite
-        language="json"
-        code={JSON.stringify(args, null, 2)}
-        components={{
-          Pre: (props: any) => (
-            <pre
-              {...props}
-              style={{
-                margin: 0,
-                minHeight: '100%',
-              }}
-            />
-          ),
-          Code: (props: any) => (
-            <code {...props} style={{ fontFamily: 'inherit' }} />
-          ),
-        }}
-      />
-    );
-  }, []);
-
   return (
     <>
       <div className="p-2 border-b border-[#f1f3f4] overflow-auto min-h-0">
         <div className="text-[10px] font-bold text-[#5f6368] mb-1">
           ARGUMENTS
         </div>
-        <div>{highlighter(log.args)}</div>
+        <SyntaxHighlighterJSON json={log.args} />
       </div>
       <div className="p-2 overflow-auto min-h-0">
         <div className="text-[10px] font-bold text-[#5f6368] mb-1">
           {log.status === 'error' ? 'ERROR' : 'OUTPUT'}
         </div>
-        <div>
-          {highlighter(log.status === 'error' ? log.error : log.result)}
-        </div>
+        <SyntaxHighlighterJSON
+          json={log.status === 'error' ? log.error : log.result}
+        />
       </div>
     </>
   );
