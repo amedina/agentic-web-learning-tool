@@ -54,7 +54,12 @@ export function ToolDetail({ tool, getUserTool }: ToolDetailProps) {
               language="javascript"
               code={userTool.code as string}
               components={{
-                Pre: (props: any) => <pre {...props} />,
+                Pre: (props: any) => (
+                  <pre
+                    {...props}
+                    style={{ fontSize: '12px', lineHeight: '1.5' }}
+                  />
+                ),
                 Code: (props: any) => (
                   <code {...props} style={{ fontFamily: 'inherit' }} />
                 ),
