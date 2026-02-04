@@ -1,12 +1,42 @@
 /**
  * Internal dependencies
  */
-import { logger } from '../../utils';
+import { logger, MESSAGE_TYPES } from '../../utils';
 import { configureTabPanel } from '../utils';
 
 const onActionClickedCallback = async (tab: chrome.tabs.Tab) => {
   if (tab?.id) {
     const tabId = tab.id;
+
+    const sidebarKey = `sidebar_tab_${tabId}`;
+
+    chrome.storage.session.get(
+      sidebarKey,
+      (result: {
+        [key: string]: {
+          tabId: number;
+          isOpen: boolean;
+          timestamp: number;
+        };
+      }) => {
+        if (result[sidebarKey]?.isOpen) {
+          chrome.runtime.sendMessage({
+            type: MESSAGE_TYPES.CLOSE_SIDEPANEL,
+            payload: {
+              tabId,
+            },
+          });
+          chrome.storage.session.set({
+            [`sidebar_tab_${tabId}`]: {
+              tabId,
+              isOpen: false,
+              timestamp: Date.now(),
+            },
+          });
+          return;
+        }
+      }
+    );
 
     // Using callback instead of async/await because we need to handle chrome.runtime.lastError
     // Try to open immediately (synchronously) - panel might already be configured
@@ -34,6 +64,13 @@ const onActionClickedCallback = async (tab: chrome.tabs.Tab) => {
                   ]
                 );
               } else {
+                chrome.storage.session.set({
+                  [`sidebar_tab_${tabId}`]: {
+                    tabId,
+                    isOpen: true,
+                    timestamp: Date.now(),
+                  },
+                });
                 logger(
                   ['debug'],
                   ['Panel opened after configuration for tab:', tabId]
@@ -46,7 +83,17 @@ const onActionClickedCallback = async (tab: chrome.tabs.Tab) => {
           });
       } else {
         logger(['debug'], ['Panel opened immediately for tab:', tabId]);
-        configureTabPanel(tabId).catch(() => {});
+        configureTabPanel(tabId)
+          .catch(() => {})
+          .then(() => {
+            chrome.storage.session.set({
+              [`sidebar_tab_${tabId}`]: {
+                tabId,
+                isOpen: true,
+                timestamp: Date.now(),
+              },
+            });
+          });
       }
     });
   }

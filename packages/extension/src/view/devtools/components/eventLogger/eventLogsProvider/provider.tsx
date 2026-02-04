@@ -88,7 +88,7 @@ function EventLogsProvider({ children }: PropsWithChildren) {
         }
       }
     },
-    [lastRunToolName, isToolRunning, tabId, selectedKey]
+    [isToolRunning, tabId, selectedKey]
   );
 
   useEffect(() => {
