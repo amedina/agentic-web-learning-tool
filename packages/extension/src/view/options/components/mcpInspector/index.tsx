@@ -11,9 +11,12 @@ import { useMcpProvider } from '../../providers';
 import type { ExtendedMenuItem } from '../../options';
 
 export default function MCPInspectorTab() {
-  const { inspectedServerName } = useMcpProvider(({ state }) => ({
-    inspectedServerName: state.inspectedServerName,
-  }));
+  const { inspectedServerName, serverConfigs } = useMcpProvider(
+    ({ state }) => ({
+      inspectedServerName: state.inspectedServerName,
+      serverConfigs: state.serverConfigs,
+    })
+  );
 
   const { setSelectedMenuItem, setMenuItems } = useSidebar(({ actions }) => ({
     setSelectedMenuItem: actions.setSelectedMenuItem,
@@ -75,13 +78,15 @@ export default function MCPInspectorTab() {
           </div>
         </div>
       </div>
-      <div className="w-full font-sans antialiased mt-6">
-        <div className="flex gap-3 items-center">
-          <h1 className="font-normal text-accent-foreground text-xl">
-            Inspecting Github
-          </h1>
+      {inspectedServerName && (
+        <div className="w-full font-sans antialiased mt-6">
+          <div className="flex gap-3 items-center">
+            <h1 className="font-normal text-accent-foreground text-xl">
+              Inspecting {serverConfigs?.[inspectedServerName]?.name}
+            </h1>
+          </div>
         </div>
-      </div>
+      )}
       <div className="w-full font-sans antialiased">
         <MCPInspectorTabComponent />
       </div>
