@@ -70,9 +70,15 @@ export class CloudHostedTransport implements ChatTransport<UIMessage> {
   private providerOptions: SharedV2ProviderOptions = {};
   formattedTools: any = {};
   private modelId: string = '';
-  constructor(modelId: string, providerOptions: SharedV2ProviderOptions) {
+  private systemPrompt: string = '';
+  constructor(
+    modelId: string,
+    providerOptions: SharedV2ProviderOptions,
+    systemPrompt: string
+  ) {
     this.modelId = modelId;
     this.providerOptions = providerOptions;
+    this.systemPrompt = systemPrompt;
   }
 
   setRuntime(runtime: AssistantRuntime) {
@@ -165,6 +171,7 @@ export class CloudHostedTransport implements ChatTransport<UIMessage> {
             tools: this.formattedTools,
             providerOptions: this.providerOptions,
             abortSignal,
+            system: this.systemPrompt,
             stopWhen: ({ steps }) => steps.length === 100,
             onError: (err) => {
               logger(['error'], [`AI SDK error [chatId=]:`, err.error]);

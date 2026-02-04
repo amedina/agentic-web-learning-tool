@@ -23,6 +23,7 @@ export type APIKeys = {
   apiKey: string;
   thinkingMode?: boolean;
   status: boolean;
+  systemPrompt: string;
 };
 
 export type SettingsType = {
