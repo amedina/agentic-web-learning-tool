@@ -55,14 +55,14 @@ const Provider = ({ children }: PropsWithChildren) => {
           let expansion = command.instructions;
           expansion = expansion.replaceAll('$ARGUMENTS', match[2] ?? '');
 
-          if (command.isBuiltIn) {
+          if (command.isBuiltIn && !command.sendToLLM) {
             //@ts-expect-error -- this is being done to avoid delays for communication with LLM transports.
             window.command = command.name;
           }
 
           return expansion;
         } else if (command && !command?.instructions.includes('$ARGUMENTS')) {
-          if (command.isBuiltIn) {
+          if (command.isBuiltIn && !command.sendToLLM) {
             //@ts-expect-error -- this is being done to avoid delays for communication with LLM transports.
             window.command = command.name;
           }
@@ -72,7 +72,7 @@ const Provider = ({ children }: PropsWithChildren) => {
         }
       }
     },
-    [allCommands, api]
+    [allCommands]
   );
 
   const handleMessageChange = useCallback(

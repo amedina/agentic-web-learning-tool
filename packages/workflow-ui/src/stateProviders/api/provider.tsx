@@ -13,7 +13,7 @@ import { type WorkflowMeta } from "@google-awlt/engine-core";
 /**
  * Internal dependencies
  */
-import Context, { ApiCleaner, type NodeConfig } from "./context";
+import Context, { type NodeConfig } from "./context";
 
 const ApiProvider = ({ children }: PropsWithChildren) => {
   const [nodes, setNodes] = useState<{
@@ -165,7 +165,6 @@ const ApiProvider = ({ children }: PropsWithChildren) => {
         } as any
       }
     >
-      <ApiCleaner />
       {children}
     </Context.Provider>
   );

@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-
 import {
   Sidebar,
   SidebarTrigger,
@@ -9,6 +8,10 @@ import {
   useSidebar,
   type MenuItem,
 } from '@google-awlt/design-system';
+import {
+  APIStatusTab,
+  APIPlaygroundsTab,
+} from '@google-awlt/chrome-ai-playground';
 import {
   CpuIcon,
   CodeIcon,
@@ -34,8 +37,6 @@ import {
   PromptCommandsTab,
   Workflow,
   MCPInspectorTab,
-  APIStatusTab,
-  APIPlaygroundsTab,
 } from './components';
 import MCPServersTab from './components/mcpServers';
 import { useSettings } from '../stateProviders';

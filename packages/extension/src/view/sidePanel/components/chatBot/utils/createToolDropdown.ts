@@ -3,16 +3,12 @@
  */
 import { getToolNameWithoutPrefix } from '@google-awlt/design-system';
 import type { Tool as McpTool } from '@modelcontextprotocol/sdk/types.js';
-import {
-  WEBSITE_TOOL_PREFIX,
-  EXTENSION_TOOL_PREFIX,
-  DOM_TOOL_NAME_PREFIX,
-} from '@google-awlt/common';
+
 /**
  * Internal dependencies
  */
-import { ToolNameMap } from '../../../../../contentScript/tools/builtInTools';
-import { isUrl } from '../../../utils';
+import { isUrl } from '../../../../../utils';
+import { getMcpbToolGroup } from '../../../../../utils';
 
 type SingleGroupTool = {
   group: string;
@@ -42,113 +38,64 @@ const createToolDropdown = (
   }
 
   const toolGroups: SingleGroupTool[] = [];
-  const toolToTypeMap = tools
-    .filter((tool) => {
-      if (tool.name.startsWith(WEBSITE_TOOL_PREFIX)) {
-        const match = tool.name
-          .substring(WEBSITE_TOOL_PREFIX.length)
-          .match(/(?<=tab)\d+/);
-        const tabId = match ? match[0] : '';
-        if (currentTabId === parseInt(tabId)) {
-          return true;
-        } else {
-          return false;
-        }
-      }
-      return true;
-    })
-    .reduce((acc, tool) => {
-      if (getToolNameWithoutPrefix(tool.name) === 'dummyTool') {
-        return acc;
-      }
-
-      if (tool.name.startsWith(WEBSITE_TOOL_PREFIX)) {
-        const toolNameWithoutHardCodePrefix = tool.name.substring(
-          WEBSITE_TOOL_PREFIX.length
-        );
-        const match = toolNameWithoutHardCodePrefix.match(/(?<=tab)\d+/);
-        const tabId = match ? match[0] : '';
-        const result =
-          tabIdToUrlMap[tabId].url && isUrl(tabIdToUrlMap[tabId].url)
-            ? new URL(tabIdToUrlMap[tabId].url).hostname
-            : 'others';
-
-        if (acc[result]) {
-          acc[result].items.push(tool);
-        } else {
-          acc[result] = {
-            group: result,
-            key: result,
-            isMCPTool: false,
-            isWebSiteTool: true,
-            isExtensionTool: false,
-            items: [tool],
-          };
-        }
-        return acc;
-      } else if (
-        tool.name.startsWith(EXTENSION_TOOL_PREFIX) ||
-        tool.name.startsWith(DOM_TOOL_NAME_PREFIX)
-      ) {
-        const prefixToUse = tool.name.startsWith(EXTENSION_TOOL_PREFIX)
-          ? EXTENSION_TOOL_PREFIX
-          : '';
-        const toolNameWithoutHardCodePrefix = tool.name.substring(
-          prefixToUse.length
-        );
-        const result =
-          ToolNameMap[
-            toolNameWithoutHardCodePrefix as keyof typeof ToolNameMap
-          ];
-
-        if (acc[result]) {
-          acc[result].items.push(tool);
-        } else {
-          acc[result] = {
-            group: result,
-            key: result,
-            isMCPTool: false,
-            isWebSiteTool: false,
-            isExtensionTool: true,
-            items: [tool],
-          };
-        }
-      } else if (tool.name.includes('_mcp')) {
-        const match = tool.name.match(/^(.*?)_mcp_/);
-        const mcpServerId = tool.name.substring(match?.[0].length ?? 0);
-        const mcpServerName =
-          mcpServerId && toolNameToMCPMap[mcpServerId]
-            ? toolNameToMCPMap[mcpServerId]
-            : 'others';
-
-        if (acc[mcpServerName]) {
-          acc[mcpServerName].items.push(tool);
-        } else {
-          acc[mcpServerName] = {
-            group: mcpServerName,
-            key: mcpServerName,
-            isMCPTool: true,
-            isWebSiteTool: false,
-            isExtensionTool: false,
-            items: [tool],
-          };
-        }
-      } else {
-        if (acc['others']) {
-          acc['others'].items.push(tool);
-        } else {
-          acc['others'] = {
-            group: 'others',
-            key: 'others',
-            isWebSiteTool: true,
-            isMCPTool: false,
-            isExtensionTool: false,
-            items: [tool],
-          };
-        }
-      }
+  const toolToTypeMap = tools.reduce((acc, tool) => {
+    if (getToolNameWithoutPrefix(tool.name) === 'dummyTool') {
       return acc;
-    }, {} as GroupedTool);
+    }
+    const result =
+      tabIdToUrlMap[currentTabId].url && isUrl(tabIdToUrlMap[currentTabId].url)
+        ? new URL(tabIdToUrlMap[currentTabId].url).hostname
+        : 'others';
+    const mcpbGroup = getMcpbToolGroup(tool.name);
+    if (mcpbGroup) {
+      if (acc[mcpbGroup]) {
+        acc[mcpbGroup].items.push(tool);
+      } else {
+        acc[mcpbGroup] = {
+          group: mcpbGroup,
+          key: mcpbGroup,
+          isMCPTool: false,
+          isWebSiteTool: false,
+          isExtensionTool: true,
+          items: [tool],
+        };
+      }
+    } else if (tool.name.includes('_mcp')) {
+      const match = tool.name.match(/^(.*?)_mcp_/);
+      const mcpServerId = tool.name.substring(match?.[0].length ?? 0);
+      const mcpServerName =
+        mcpServerId && toolNameToMCPMap[mcpServerId]
+          ? toolNameToMCPMap[mcpServerId]
+          : 'others';
+
+      if (acc[mcpServerName]) {
+        acc[mcpServerName].items.push(tool);
+      } else {
+        acc[mcpServerName] = {
+          group: mcpServerName,
+          key: mcpServerName,
+          isMCPTool: true,
+          isWebSiteTool: false,
+          isExtensionTool: false,
+          items: [tool],
+        };
+      }
+    } else {
+      if (acc[result]) {
+        acc[result].items.push(tool);
+      } else {
+        acc[result] = {
+          group: result,
+          key: result,
+          isWebSiteTool: true,
+          isMCPTool: false,
+          isExtensionTool: false,
+          items: [tool],
+        };
+      }
+    }
+    return acc;
+  }, {} as GroupedTool);
 
   Object.keys(toolToTypeMap).forEach((key) => {
     if (toolToTypeMap[key].isWebSiteTool) {

@@ -19,12 +19,12 @@ import type { MCPServerConfig } from '@google-awlt/common';
 import { transportGenerator } from '../../transports';
 import type { CloudHostedTransport } from '../../transports/cloudHosted';
 import { GeminiNanoChatTransport } from '../../transports/geminiNano';
-import Context from './context';
+import Context, { FALLBACK_AGENT } from './context';
 import { CONNECTION_NAMES } from '../../../../utils';
 import type { AgentType, APIKeys } from '../../../../types';
 
 export const transport = new ExtensionClientTransport({
-  portName: CONNECTION_NAMES.MCP_HOST,
+  portName: CONNECTION_NAMES.MCP_HOST_SIDEPANEL,
 });
 
 //MCP client instance that connects to the extension background script
@@ -32,8 +32,6 @@ export const client = new Client({
   name: 'Extension Sidepanel',
   version: '1.0.0',
 });
-
-const FALLBACK_AGENT = transportGenerator('browser-ai', 'prompt-api', {});
 
 const Provider = ({ children }: PropsWithChildren) => {
   const [apiKeys, setApiKeys] = useState<{ [key: string]: APIKeys }>({});
@@ -46,7 +44,7 @@ const Provider = ({ children }: PropsWithChildren) => {
   >({});
 
   const [_transport, setTransport] = useState<
-    GeminiNanoChatTransport | CloudHostedTransport | null
+    GeminiNanoChatTransport | CloudHostedTransport
   >(FALLBACK_AGENT);
   const initialFetchDone = useRef<boolean>(false);
 

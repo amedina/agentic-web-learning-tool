@@ -16,6 +16,7 @@ import OptionsPageTab from '../../optionsPageTab';
 interface WebMCPToolsTabProps {
   userTools: WebMCPTool[];
   builtInTools: WebMCPTool[];
+  mcpbTools: WebMCPTool[];
   onSaveUserTools: (tools: WebMCPTool[]) => void;
   onSaveBuiltInState: (tools: WebMCPTool[]) => void;
   isDarkMode?: boolean;
@@ -25,6 +26,7 @@ interface WebMCPToolsTabProps {
 export function WebMCPToolsTab({
   userTools,
   builtInTools,
+  mcpbTools,
   onSaveUserTools,
   onSaveBuiltInState,
   isDarkMode,
@@ -106,6 +108,7 @@ export function WebMCPToolsTab({
       <ToolList
         userTools={userTools}
         builtInTools={builtInTools}
+        mcpbTools={mcpbTools}
         onToggleTool={handleToggleTool}
         onEditTool={(tool) => {
           setEditingTool(tool);

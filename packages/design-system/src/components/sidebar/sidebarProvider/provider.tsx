@@ -20,21 +20,26 @@ import {
   SIDEBAR_COOKIE_MAX_AGE,
   SIDEBAR_KEYBOARD_SHORTCUT,
   SIDEBAR_WIDTH,
+  SIDEBAR_WIDTH_DEVTOOLS,
   SIDEBAR_WIDTH_ICON,
 } from '../constants';
 import useIsMobile from '../hooks/useIsMobile';
 
 function SidebarProvider({
   defaultOpen = true,
+  placement = 'options-page',
   open: openProp,
   onOpenChange: setOpenProp,
   className,
   style,
+  defaultSelectedMenuItem = '',
   children,
   ...props
 }: ComponentProps<'div'> & {
   defaultOpen?: boolean;
+  placement?: 'options-page' | 'devtools';
   open?: boolean;
+  defaultSelectedMenuItem?: string;
   onOpenChange?: (open: boolean) => void;
 }) {
   // This is the internal state of the sidebar.
@@ -43,7 +48,8 @@ function SidebarProvider({
   const isMobile = useIsMobile();
   const open = openProp ?? _open;
   const [selectedMenuItem, setSelectedMenuItem] = useState(
-    localStorage.getItem('sidebarSelectedMenuItem') ?? ''
+    localStorage.getItem('sidebar-selected-menu-item-' + placement) ??
+      defaultSelectedMenuItem
   );
   const setOpen = useCallback(
     (value: boolean | ((value: boolean) => boolean)) => {
@@ -82,7 +88,10 @@ function SidebarProvider({
   }, [toggleSidebar]);
 
   useEffect(() => {
-    localStorage.setItem('sidebarSelectedMenuItem', selectedMenuItem);
+    localStorage.setItem(
+      'sidebar-selected-menu-item-' + placement,
+      selectedMenuItem
+    );
   }, [selectedMenuItem]);
 
   // We add a state so that we can do data-state="expanded" or "collapsed".
@@ -96,6 +105,7 @@ function SidebarProvider({
         selectedMenuItem,
         sidebarState: state,
         isMobile,
+        placement,
       },
       actions: {
         setOpen,
@@ -113,7 +123,10 @@ function SidebarProvider({
           data-slot="sidebar-wrapper"
           style={
             {
-              '--sidebar-width': SIDEBAR_WIDTH,
+              '--sidebar-width':
+                placement === 'devtools'
+                  ? SIDEBAR_WIDTH_DEVTOOLS
+                  : SIDEBAR_WIDTH,
               '--sidebar-width-icon': SIDEBAR_WIDTH_ICON,
               ...style,
             } as CSSProperties
