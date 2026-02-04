@@ -26,6 +26,7 @@ const ApiProvider = ({ children }: PropsWithChildren) => {
     id: `wf_${crypto.randomUUID()}`,
     name: "New Workflow",
     savedAt: new Date().toISOString(),
+    autosave: true,
   });
 
   const getNode = useCallback(
@@ -93,6 +94,7 @@ const ApiProvider = ({ children }: PropsWithChildren) => {
       id: crypto.randomUUID(),
       name: "New Workflow",
       savedAt: new Date().toISOString(),
+      autosave: true,
     });
   }, []);
 

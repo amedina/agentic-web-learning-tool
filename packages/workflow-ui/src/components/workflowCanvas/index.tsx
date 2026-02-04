@@ -586,6 +586,8 @@ const WorkflowCanvas = ({
       updateWorkflowMeta({
         id: newId,
         name: "Untitled Workflow",
+        savedAt: new Date().toISOString(),
+        autosave: true,
       });
       clearFlow();
       initializeStandardNodes();
