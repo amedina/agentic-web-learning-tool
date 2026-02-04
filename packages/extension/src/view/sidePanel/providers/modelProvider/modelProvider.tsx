@@ -12,7 +12,7 @@ import {
 import { McpClientProvider } from '@mcp-b/mcp-react-hooks';
 import { ExtensionClientTransport } from '@mcp-b/transports';
 import { Client } from '@modelcontextprotocol/sdk/client';
-import type { MCPServerConfig } from '@google-awlt/common';
+import { isEqual, type MCPServerConfig } from '@google-awlt/common';
 /**
  * Internal dependencies.
  */
@@ -49,29 +49,35 @@ const Provider = ({ children }: PropsWithChildren) => {
   const initialFetchDone = useRef<boolean>(false);
 
   useEffect(() => {
-    if (!initialFetchDone.current) {
-      return;
-    }
+    const updateTransport = async () => {
+      if (!initialFetchDone.current) {
+        return;
+      }
 
-    if (selectedAgent && selectedAgent?.modelProvider !== 'browser-ai') {
-      setTransport(
-        transportGenerator(
-          selectedAgent?.modelProvider,
-          selectedAgent?.model,
-          {
-            ...apiKeys[selectedAgent?.modelProvider],
-          },
-          apiKeys[selectedAgent.modelProvider]?.thinkingMode,
-          apiKeys[selectedAgent.modelProvider]?.systemPrompt
-        )
-      );
-    } else {
-      setTransport(transportGenerator('browser-ai', 'prompt-api', {}));
-    }
+      if (selectedAgent && selectedAgent?.modelProvider !== 'browser-ai') {
+        setTransport(
+          transportGenerator(
+            selectedAgent?.modelProvider,
+            selectedAgent?.model,
+            {
+              ...apiKeys[selectedAgent?.modelProvider],
+            },
+            apiKeys[selectedAgent.modelProvider]?.thinkingMode
+          )
+        );
+      } else {
+        setTransport(transportGenerator('browser-ai', 'prompt-api', {}));
+      }
+      const { selectedAgent: _selectedAgent } =
+        await chrome.storage.sync.get('selectedAgent');
+      if (!isEqual(_selectedAgent, selectedAgent)) {
+        chrome.storage.sync.set({
+          selectedAgent,
+        });
+      }
+    };
 
-    chrome.storage.sync.set({
-      selectedAgent,
-    });
+    updateTransport();
   }, [apiKeys, selectedAgent]);
 
   const fetchMCPServersAndCreateMapping = useCallback(async () => {
@@ -126,12 +132,12 @@ const Provider = ({ children }: PropsWithChildren) => {
             ..._apiKeys[_selectedAgent?.modelProvider],
           },
           _apiKeys[_selectedAgent.modelProvider]?.thinkingMode,
-          apiKeys[selectedAgent.modelProvider]?.systemPrompt
+          _apiKeys[_selectedAgent.modelProvider]?.systemPrompt
         )
       );
     }
     initialFetchDone.current = true;
-  }, [apiKeys, fetchMCPServersAndCreateMapping, selectedAgent.modelProvider]);
+  }, [fetchMCPServersAndCreateMapping]);
 
   const onSyncStorageChangedListener = useCallback(
     async (changes: { [key: string]: chrome.storage.StorageChange }) => {
