@@ -22,7 +22,7 @@ function SidebarMenuSubButton({
     disabled?: boolean;
   }) {
   const Comp = asChild ? Slot : 'a';
-  console.log(props);
+
   return (
     <Comp
       data-slot="sidebar-menu-sub-button"
