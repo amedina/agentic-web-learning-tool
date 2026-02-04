@@ -223,7 +223,7 @@ export function ConfigInput({ config, setConfig }: MCPServerConfigInput) {
             <label className="text-sm font-medium" htmlFor="sse-url-input">
               URL
             </label>
-            {config.url ? (
+          
               <Tooltip text={config.url}>
                 <Input
                   id="sse-url-input"
@@ -233,15 +233,6 @@ export function ConfigInput({ config, setConfig }: MCPServerConfigInput) {
                   className="font-mono"
                 />
               </Tooltip>
-            ) : (
-              <Input
-                id="sse-url-input"
-                placeholder="URL"
-                value={config.url}
-                onChange={(e) => setConfig('url', e.target.value)}
-                className="font-mono"
-              />
-            )}
           </div>
 
           <Tooltip text="Connect to server directly (requires CORS config on server) or via MCP Inspector Proxy">
