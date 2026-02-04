@@ -70,6 +70,7 @@ async function handleRunWorkflow(
         await chrome.scripting.executeScript({
           target: { tabId: targetTabId },
           func: initContentScriptBridge,
+          world: 'MAIN',
           injectImmediately: true,
         });
       }

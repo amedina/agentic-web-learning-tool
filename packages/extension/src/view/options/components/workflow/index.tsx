@@ -1,27 +1,28 @@
 /**
  * External dependencies
  */
-import { ReactFlowProvider } from '@xyflow/react';
-import { initContentScriptBridge } from '@google-awlt/engine-extension';
+import { Workflow as Panel } from '@google-awlt/workflow-ui';
 
 /**
- * Internal dependencies
+ * Internal depedencies
  */
-import { ApiProvider, FlowProvider } from './stateProviders';
-import Panel from './panel';
-
-// Initialize the bridge so workflows can run on the Options page itself
-initContentScriptBridge();
+import { useSettings } from '../../../stateProviders';
 
 const Workflow = () => {
+  const { theme, workflowId, setWorkflowId } = useSettings(
+    ({ state, actions }) => ({
+      theme: state.theme,
+      workflowId: state.workflowId,
+      setWorkflowId: actions.setWorkflowId,
+    })
+  );
+
   return (
-    <ApiProvider>
-      <FlowProvider>
-        <ReactFlowProvider>
-          <Panel />
-        </ReactFlowProvider>
-      </FlowProvider>
-    </ApiProvider>
+    <Panel
+      theme={theme === 'auto' ? 'system' : theme}
+      workflowId={workflowId}
+      setWorkflowId={setWorkflowId}
+    />
   );
 };
 

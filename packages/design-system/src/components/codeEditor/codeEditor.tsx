@@ -91,6 +91,7 @@ export function CodeEditor({
           onChange={(e) => onChange(e.target.value)}
           onScroll={handleScroll}
           spellCheck={false}
+          // @ts-ignore - ts(2322)
           style={{
             ...commonStyle,
             whiteSpace: 'pre',
