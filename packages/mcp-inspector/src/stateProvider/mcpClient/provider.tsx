@@ -193,7 +193,6 @@ const McpConnectionProvider = ({
     setTools([]);
     setResources([]);
     setPrompts([]);
-    setActiveTab("resources");
   }, []);
 
   const updateAuthState = useCallback((updates: Partial<AuthDebuggerState>) => {
