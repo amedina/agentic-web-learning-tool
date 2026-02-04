@@ -452,7 +452,7 @@ const App = () => {
           {mcpClient ? (
             <Tabs
               value={activeTab}
-              className="w-full p-4"
+              className="w-full"
               onValueChange={(value) => {
                 setActiveTab(value);
                 window.location.hash = value;
@@ -691,7 +691,7 @@ const App = () => {
           ) : isAuthDebuggerVisible ? (
             <Tabs
               defaultValue={"auth"}
-              className="w-full p-4"
+              className="w-full"
               onValueChange={(value) => (window.location.hash = value)}
             >
               <AuthDebuggerWrapper />

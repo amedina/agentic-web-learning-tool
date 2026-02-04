@@ -156,7 +156,6 @@ const Provider = ({ children }: PropsWithChildren) => {
             });
 
       await client.connect(transport);
-      console.log('connect');
       const toolsList = await client.listTools();
 
       return { toolsList, transport, client, oauthToken };
@@ -244,9 +243,9 @@ const Provider = ({ children }: PropsWithChildren) => {
 
   const handleToggle = useCallback(
     async (serverName: string, value: boolean) => {
-      if (!value) {
+      if (!value && clients.current[serverName]) {
         await closeConnection(serverName);
-      } else {
+      } else if (value || !clients.current[serverName]) {
         try {
           setServerConfigs((prev) => {
             const newValue = { ...prev };
@@ -272,7 +271,24 @@ const Provider = ({ children }: PropsWithChildren) => {
             return newValue;
           });
         } catch (_error) {
-          //ignore
+          console.log(_error);
+          let errorMessage = '';
+          setServerConfigs((prev) => {
+            const newValue = { ...prev };
+            newValue[serverName].isReconnecting = false;
+            newValue[serverName].enabled = value;
+            errorMessage = `Couldnt add ${newValue[serverName].name} Error fetching tools from MCP Server. Please check the server URL, check the token expiry.`;
+            return newValue;
+          });
+          toast.error(errorMessage);
+          setToolList((prev) => ({
+            ...prev,
+            [serverName]: {
+              tools: [],
+              isError: true,
+            },
+          }));
+          return;
         }
       }
 
