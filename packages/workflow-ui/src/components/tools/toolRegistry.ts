@@ -8,9 +8,9 @@ export const TOOL_CONFIGS: Record<
   { label: string; config: NodeConfig["config"] }
 > = {
   [NodeType.PROMPT_API]: {
-    label: "Chat Assistant",
+    label: "Prompt API",
     config: {
-      title: "Chat Assistant",
+      title: "Prompt API",
       context: "You are a helpful assistant",
       topK: 3,
       temperature: 1,

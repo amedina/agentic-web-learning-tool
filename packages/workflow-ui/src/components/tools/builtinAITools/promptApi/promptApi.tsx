@@ -26,7 +26,7 @@ const PromptApi = () => {
 
   return (
     <ToolItem
-      label="Chat Assistant"
+      label="Prompt API"
       onDragStart={handleDragStart}
       Icon={NotebookTextIcon}
       disabled={!isAvailable}
