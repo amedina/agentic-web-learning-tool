@@ -5,7 +5,7 @@ import type { MCPServerConfig } from '@google-awlt/common';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
-import type { Tool } from '@modelcontextprotocol/sdk/types.js';
+
 /**
  * Internal dependencies
  */
@@ -28,19 +28,6 @@ const filledConfig: MCPServerConfig = {
   name: 'Production Python Server',
 };
 
-const mockTools: Tool[] = [
-  {
-    name: 'get_page_title',
-    description: 'Get page title',
-    inputSchema: { type: 'object', properties: {} },
-  },
-  {
-    name: 'change_bg_color',
-    description: 'Changes background color',
-    inputSchema: { type: 'object', properties: { color: { type: 'string' } } },
-  },
-];
-
 const meta: Meta<typeof MCPServerDialog> = {
   title: 'components/MCPServerDialog',
   component: MCPServerDialog,
@@ -59,12 +46,16 @@ const meta: Meta<typeof MCPServerDialog> = {
     onSave: fn(),
     onDelete: fn(),
     open: false,
+    validator: async (_config: MCPServerConfig, _name: string) => {
+      await new Promise((resolve) => setTimeout(resolve, 800));
+      return { isValid: true, errors: [] };
+    },
   },
   argTypes: {
     server: {
       transport: {
         control: { type: 'select' },
-        options: ['http', 'stdio'],
+        options: ['http', 'sse'],
       },
     },
   },
@@ -108,14 +99,11 @@ export const AddNewServer: Story = {
     open: false,
     serverId: '',
     server: emptyConfig,
-    toolList: [],
-    defaultTab: 'config',
   },
 };
 
 /**
  * State for editing an existing server configuration.
- * Includes tools in the tools tab.
  */
 export const EditServer: Story = {
   render: (args: Story['args']) => <DialogWrapper {...args} />,
@@ -123,22 +111,6 @@ export const EditServer: Story = {
     open: false,
     serverId: 'srv-123-abc',
     server: filledConfig,
-    toolList: mockTools,
-    defaultTab: 'config',
-  },
-};
-
-/**
- * Demonstrates the "Tools" tab being active by default.
- */
-export const ViewTools: Story = {
-  render: (args: Story['args']) => <DialogWrapper {...args} />,
-  args: {
-    open: false, // Auto open for this story
-    serverId: 'srv-123-abc',
-    server: filledConfig,
-    toolList: mockTools,
-    defaultTab: 'tools',
   },
 };
 
@@ -152,7 +124,6 @@ export const ValidationFailure: Story = {
     open: false,
     serverId: '',
     server: { ...emptyConfig, name: 'Invalid Server' },
-    toolList: [],
     validator: async (_config: MCPServerConfig, _name: string) => {
       await new Promise((resolve) => setTimeout(resolve, 500));
       return {

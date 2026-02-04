@@ -19,6 +19,7 @@ import {
   type ServerNotification,
 } from "@modelcontextprotocol/sdk/types.js";
 import { OAuthTokensSchema } from "@modelcontextprotocol/sdk/shared/auth.js";
+import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 /**
  * Internal dependencies
  */
@@ -40,8 +41,6 @@ import {
   getMCPProxyAuthToken,
   getInitialSseUrl,
   getInitialTransportType,
-  getInitialCommand,
-  getInitialArgs,
   saveInspectorConfig,
 } from "../../utils/configUtils";
 import { type PendingElicitationRequest } from "../../components/ElicitationTab";
@@ -52,6 +51,8 @@ import {
 } from "../../lib/types/customHeaders";
 import type { ElicitationResponse } from "../../components/ElicitationTab";
 import McpConnectionContext, { LOCALSTORAGEMOCK } from "./context";
+import type { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
+import type { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
 
 const CONFIG_LOCAL_STORAGE_KEY = "inspectorConfig_v1";
 
@@ -73,13 +74,19 @@ const filterReservedMetadata = (
   );
 };
 
-const McpConnectionProvider = ({ children }: { children: ReactNode }) => {
-  const [command, setCommand] = useState<string>(getInitialCommand);
-  const [args, setArgs] = useState<string>(getInitialArgs);
+const McpConnectionProvider = ({
+  children,
+  client,
+  transport,
+}: {
+  children: ReactNode;
+  client: Client | null;
+  transport: StreamableHTTPClientTransport | SSEClientTransport | null;
+}) => {
   const [sseUrl, setSseUrl] = useState<string>(getInitialSseUrl);
-  const [transportType, setTransportType] = useState<
-    "stdio" | "sse" | "streamable-http"
-  >(getInitialTransportType);
+  const [transportType, setTransportType] = useState<"sse" | "streamable-http">(
+    getInitialTransportType,
+  );
   const [connectionType, setConnectionType] = useState<"direct" | "proxy">(
     () => {
       return (
@@ -92,7 +99,6 @@ const McpConnectionProvider = ({ children }: { children: ReactNode }) => {
   const [logLevel, setLogLevel] = useState<LoggingLevel>("debug");
   const [notifications, setNotifications] = useState<ServerNotification[]>([]);
   const [roots, setRoots] = useState<Root[]>([]);
-  const [env, setEnv] = useState<Record<string, string>>({});
   const [config, setConfig] = useState<InspectorConfig>(LOCALSTORAGEMOCK);
 
   // Auth
@@ -183,6 +189,12 @@ const McpConnectionProvider = ({ children }: { children: ReactNode }) => {
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [tools, setTools] = useState<Tool[]>([]);
 
+  const onDisconnect = useCallback(() => {
+    setTools([]);
+    setResources([]);
+    setPrompts([]);
+  }, []);
+
   const updateAuthState = useCallback((updates: Partial<AuthDebuggerState>) => {
     setAuthState((prev) => ({ ...prev, ...updates }));
   }, []);
@@ -219,12 +231,7 @@ const McpConnectionProvider = ({ children }: { children: ReactNode }) => {
     connect: connectMcpServer,
     disconnect: disconnectMcpServer,
   } = useConnection({
-    transportType,
-    command,
-    args,
     sseUrl,
-    env,
-    customHeaders,
     oauthClientId,
     oauthClientSecret,
     oauthScope,
@@ -267,6 +274,7 @@ const McpConnectionProvider = ({ children }: { children: ReactNode }) => {
     getRoots: () => rootsRef.current,
     defaultLoggingLevel: logLevel,
     metadata,
+    onDisconnect,
   });
 
   useEffect(() => {
@@ -296,14 +304,6 @@ const McpConnectionProvider = ({ children }: { children: ReactNode }) => {
       }
     }
   }, [serverCapabilities]);
-
-  useEffect(() => {
-    localStorage.setItem("lastCommand", command);
-  }, [command]);
-
-  useEffect(() => {
-    localStorage.setItem("lastArgs", args);
-  }, [args]);
 
   useEffect(() => {
     localStorage.setItem("lastSseUrl", sseUrl);
@@ -379,17 +379,8 @@ const McpConnectionProvider = ({ children }: { children: ReactNode }) => {
     fetch(`${getMCPProxyAddress(config)}/config`, { headers })
       .then((response) => response.json())
       .then((data) => {
-        setEnv(data.defaultEnvironment);
-        if (data.defaultCommand) {
-          setCommand(data.defaultCommand);
-        }
-        if (data.defaultArgs) {
-          setArgs(data.defaultArgs);
-        }
         if (data.defaultTransport) {
-          setTransportType(
-            data.defaultTransport as "stdio" | "sse" | "streamable-http",
-          );
+          setTransportType(data.defaultTransport as "sse" | "streamable-http");
         }
         if (data.defaultServerUrl) {
           setSseUrl(data.defaultServerUrl);
@@ -425,11 +416,14 @@ const McpConnectionProvider = ({ children }: { children: ReactNode }) => {
 
   const onOAuthConnect = useCallback(
     (serverUrl: string) => {
+      if (!client || !transport) {
+        return;
+      }
       setSseUrl(serverUrl);
       setIsAuthDebuggerVisible(false);
-      void connectMcpServer();
+      void connectMcpServer(client, transport);
     },
-    [connectMcpServer],
+    [connectMcpServer, client, transport],
   );
 
   const onOAuthDebugConnect = useCallback(
@@ -592,10 +586,7 @@ const McpConnectionProvider = ({ children }: { children: ReactNode }) => {
   const value = useMemo(() => {
     return {
       state: {
-        command,
-        args,
         sseUrl,
-        env,
         connectionType,
         transportType,
         logLevel,
@@ -626,14 +617,11 @@ const McpConnectionProvider = ({ children }: { children: ReactNode }) => {
         prompts,
       },
       actions: {
-        setCommand,
-        setArgs,
         setSseUrl,
         setTransportType,
         setConnectionType,
         setLogLevel,
         setConfig,
-        setEnv,
         setBearerToken,
         setHeaderName,
         setCustomHeaders,
@@ -650,7 +638,6 @@ const McpConnectionProvider = ({ children }: { children: ReactNode }) => {
         sendNotification,
         handleCompletion,
         connectMcpServer,
-        disconnectMcpServer,
         handleApproveSampling,
         handleRejectSampling,
         handleResolveElicitation,
@@ -659,13 +646,11 @@ const McpConnectionProvider = ({ children }: { children: ReactNode }) => {
         setResources,
         setPrompts,
         setTools,
+        disconnectMcpServer,
       },
     };
   }, [
-    command,
-    args,
     sseUrl,
-    env,
     connectionType,
     transportType,
     logLevel,
@@ -703,10 +688,10 @@ const McpConnectionProvider = ({ children }: { children: ReactNode }) => {
     sendNotification,
     handleCompletion,
     connectMcpServer,
-    disconnectMcpServer,
     handleApproveSampling,
     handleRejectSampling,
     handleResolveElicitation,
+    disconnectMcpServer,
   ]);
 
   return (

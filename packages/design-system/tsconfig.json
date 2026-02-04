@@ -9,6 +9,7 @@
     "noEmit": false,
     "allowImportingTsExtensions": false,
     "baseUrl": ".",
+    "rootDir": "./src",
     "paths": {
       "@/*": ["./src/*"]
     },
@@ -17,7 +18,6 @@
   },
   "include": [
     "src",
-    "tests",
     "storybook.d.ts",
     "node_modules/jest-extended/types/index.d.ts",
     "**/*.test.ts",

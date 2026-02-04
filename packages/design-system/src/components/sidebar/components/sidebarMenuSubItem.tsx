@@ -7,7 +7,10 @@ import type { ComponentProps } from 'react';
  */
 import { cn } from '../../../lib';
 
-function SidebarMenuSubItem({ className, ...props }: ComponentProps<'li'>) {
+function SidebarMenuSubItem({
+  className,
+  ...props
+}: ComponentProps<'li'> & { disabled?: boolean }) {
   return (
     <li
       data-slot="sidebar-menu-sub-item"

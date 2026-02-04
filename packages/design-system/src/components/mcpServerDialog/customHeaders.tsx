@@ -1,23 +1,22 @@
 /**
  * External dependencies
  */
-import { useState, useCallback } from "react";
+import { useState, useCallback } from 'react';
 import {
   Button,
   Input,
   Textarea,
   ToggleSwitch as Switch,
-} from "@google-awlt/design-system";
-import { Plus, Trash2, Eye, EyeOff } from "lucide-react";
-
-/**
- * Internal dependencies
- */
+} from '@google-awlt/design-system';
+import { Plus, Trash2, Eye, EyeOff } from 'lucide-react';
 import {
   type CustomHeaders as CustomHeadersType,
   type CustomHeader,
-  createEmptyHeader,
-} from "../lib/types/customHeaders";
+} from '@google-awlt/common';
+/**
+ * Internal dependencies
+ */
+import { createEmptyHeader } from './customHeaderUtils';
 
 interface CustomHeadersProps {
   headers: CustomHeadersType;
@@ -31,7 +30,7 @@ const CustomHeaders = ({
   className,
 }: CustomHeadersProps) => {
   const [isJsonMode, setIsJsonMode] = useState(false);
-  const [jsonValue, setJsonValue] = useState("");
+  const [jsonValue, setJsonValue] = useState('');
   const [jsonError, setJsonError] = useState<string | null>(null);
   const [visibleValues, setVisibleValues] = useState<Set<number>>(new Set());
 
@@ -41,7 +40,7 @@ const CustomHeaders = ({
       newHeaders[index] = { ...newHeaders[index], [field]: value };
       onChange(newHeaders);
     },
-    [headers, onChange],
+    [headers, onChange]
   );
 
   const addHeader = useCallback(() => {
@@ -53,7 +52,7 @@ const CustomHeaders = ({
       const newHeaders = headers.filter((_, i) => i !== index);
       onChange(newHeaders);
     },
-    [headers, onChange],
+    [headers, onChange]
   );
 
   const toggleValueVisibility = useCallback((index: number) => {
@@ -84,11 +83,11 @@ const CustomHeaders = ({
     try {
       const parsed = JSON.parse(jsonValue);
       if (
-        typeof parsed !== "object" ||
+        typeof parsed !== 'object' ||
         parsed === null ||
         Array.isArray(parsed)
       ) {
-        setJsonError("JSON must be an object with string key-value pairs");
+        setJsonError('JSON must be an object with string key-value pairs');
         return;
       }
 
@@ -97,14 +96,14 @@ const CustomHeaders = ({
           name,
           value: String(value),
           enabled: true,
-        }),
+        })
       );
 
       onChange(newHeaders);
       setJsonError(null);
       setIsJsonMode(false);
     } catch {
-      setJsonError("Invalid JSON format");
+      setJsonError('Invalid JSON format');
     }
   }, [jsonValue, onChange]);
 
@@ -189,7 +188,7 @@ const CustomHeaders = ({
               <Switch
                 checked={header.enabled}
                 onCheckedChange={(enabled) =>
-                  updateHeader(index, "enabled", enabled)
+                  updateHeader(index, 'enabled', enabled)
                 }
                 className="shrink-0 mt-2"
               />
@@ -197,7 +196,7 @@ const CustomHeaders = ({
                 <Input
                   placeholder="Header Name"
                   value={header.name}
-                  onChange={(e) => updateHeader(index, "name", e.target.value)}
+                  onChange={(e) => updateHeader(index, 'name', e.target.value)}
                   className="font-mono text-xs"
                   data-testid={`header-name-input-${index}`}
                 />
@@ -206,9 +205,9 @@ const CustomHeaders = ({
                     placeholder="Header Value"
                     value={header.value}
                     onChange={(e) =>
-                      updateHeader(index, "value", e.target.value)
+                      updateHeader(index, 'value', e.target.value)
                     }
-                    type={visibleValues.has(index) ? "text" : "password"}
+                    type={visibleValues.has(index) ? 'text' : 'password'}
                     className="font-mono text-xs pr-8"
                     data-testid={`header-value-input-${index}`}
                   />

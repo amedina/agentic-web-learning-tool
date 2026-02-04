@@ -11,6 +11,10 @@ const onCompletedCallback = async (
     return;
   }
 
+  if (details.url.startsWith('chrome://')) {
+    return;
+  }
+
   chrome.tabs
     .sendMessage(details.tabId, { type: START_MCP_CONNECTION })
     .catch((error) => {

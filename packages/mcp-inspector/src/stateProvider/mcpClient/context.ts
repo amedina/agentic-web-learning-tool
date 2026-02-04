@@ -13,6 +13,9 @@ import {
   type Resource,
   type Tool,
 } from "@modelcontextprotocol/sdk/types.js";
+import type { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
+import type { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
+import type { Client } from "@modelcontextprotocol/sdk/client";
 /**
  * Internal dependencies
  */
@@ -67,10 +70,7 @@ export const LOCALSTORAGEMOCK = {
 
 export interface McpConnectionContextType {
   state: {
-    command: string;
-    args: string;
     sseUrl: string;
-    env: Record<string, string>;
     connectionType: "direct" | "proxy";
     transportType: "stdio" | "sse" | "streamable-http";
     logLevel: LoggingLevel;
@@ -112,14 +112,11 @@ export interface McpConnectionContextType {
   };
 
   actions: {
-    setCommand: (cmd: string) => void;
-    setArgs: (args: string) => void;
     setSseUrl: (url: string) => void;
-    setTransportType: (type: "stdio" | "sse" | "streamable-http") => void;
+    setTransportType: (type: "sse" | "streamable-http") => void;
     setConnectionType: (type: "direct" | "proxy") => void;
     setLogLevel: (level: LoggingLevel) => void;
     setConfig: (config: InspectorConfig) => void;
-    setEnv: (env: Record<string, string>) => void;
     setBearerToken: (token: string) => void;
     setHeaderName: (name: string) => void;
     setCustomHeaders: (headers: CustomHeaders) => void;
@@ -145,9 +142,11 @@ export interface McpConnectionContextType {
       context?: Record<string, string>,
       signal?: AbortSignal,
     ) => Promise<string[]>;
-
-    connectMcpServer: () => Promise<void>;
-    disconnectMcpServer: () => void;
+    disconnectMcpServer: (url: string) => Promise<void>;
+    connectMcpServer: (
+      client: Client,
+      transport: SSEClientTransport | StreamableHTTPClientTransport,
+    ) => Promise<void>;
     handleApproveSampling: (id: number, result: CreateMessageResult) => void;
     handleRejectSampling: (id: number) => void;
     handleResolveElicitation: (
@@ -164,14 +163,11 @@ export interface McpConnectionContextType {
 
 const INITIAL_STATE = {
   state: {
-    command: "",
-    args: "",
     sseUrl: "",
-    env: {},
     connectionType:
       "direct" as McpConnectionContextType["state"]["connectionType"],
     transportType:
-      "stdio" as McpConnectionContextType["state"]["transportType"],
+      "streamable-http" as McpConnectionContextType["state"]["transportType"],
     logLevel: "info" as McpConnectionContextType["state"]["logLevel"],
     config: LOCALSTORAGEMOCK,
     bearerToken: "",
@@ -201,14 +197,11 @@ const INITIAL_STATE = {
     prompts: [],
   },
   actions: {
-    setCommand: noop,
-    setArgs: noop,
     setSseUrl: noop,
     setTransportType: noop,
     setConnectionType: noop,
     setLogLevel: noop,
     setConfig: noop,
-    setEnv: noop,
     setBearerToken: noop,
     setHeaderName: noop,
     setCustomHeaders: noop,
@@ -225,7 +218,7 @@ const INITIAL_STATE = {
     sendNotification: () => Promise.resolve(),
     handleCompletion: () => Promise.resolve([]),
     connectMcpServer: () => Promise.resolve(),
-    disconnectMcpServer: noop,
+    disconnectMcpServer: () => Promise.resolve(),
     handleApproveSampling: noop,
     handleRejectSampling: noop,
     handleResolveElicitation: noop,
