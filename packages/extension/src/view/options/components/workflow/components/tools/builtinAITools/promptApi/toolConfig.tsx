@@ -176,12 +176,6 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
               <option value="ja" className="dark:bg-slate-900">
                 Japanese
               </option>
-              <option value="fr" className="dark:bg-slate-900">
-                French
-              </option>
-              <option value="de" className="dark:bg-slate-900">
-                German
-              </option>
             </select>
             <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">
               Hold Ctrl/Cmd to select multiple
@@ -215,12 +209,6 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
               </option>
               <option value="ja" className="dark:bg-slate-900">
                 Japanese
-              </option>
-              <option value="fr" className="dark:bg-slate-900">
-                French
-              </option>
-              <option value="de" className="dark:bg-slate-900">
-                German
               </option>
             </select>
             <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">

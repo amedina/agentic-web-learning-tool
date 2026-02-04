@@ -10,7 +10,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { CONNECTION_NAMES, logger, isUrl } from '../utils';
 import McpHub from './mcpHub';
 import './chromeListeners';
-import './engine';
+import './workflowEngine';
 import { createAndAssignHub } from './utils';
 
 const mcpHubSidepanelInstances = new Map<number, McpHub>();

@@ -8,6 +8,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
+    "test": "jest",
     "prettier": "prettier . --write",
     "lint": "eslint ."
   },
@@ -17,9 +18,12 @@
   "devDependencies": {
     "@google-awlt/shared-config": "workspace:*",
     "@types/chrome": "^0.1.27",
-    "@types/dom-chromium-ai": "^0.0.13",
-    "@types/jest": "^29.5.14",
+    "@types/jest": "^30.0.0",
     "@types/node": "^24.3.0",
+    "@types/dom-chromium-ai": "^0.0.13",
+    "jest-environment-node": "^30.2.0",
+    "jest-environment-jsdom": "^30.0.0",
+    "ts-jest": "^29.4.6",
     "globals": "^16.3.0",
     "prettier": "^3.0.0",
     "eslint": "^9.33.0",
