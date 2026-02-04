@@ -248,7 +248,7 @@ const AuthDebugger = ({
   }, [serverUrl, updateAuthState]);
 
   return (
-    <div className="w-full p-4">
+    <div className="w-full">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">Authentication Settings</h2>
         <Button variant="outline" onClick={onBack}>

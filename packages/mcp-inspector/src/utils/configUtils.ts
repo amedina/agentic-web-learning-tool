@@ -58,20 +58,12 @@ export const getMCPProxyAuthToken = (
   };
 };
 
-export const getInitialTransportType = ():
-  | "stdio"
-  | "sse"
-  | "streamable-http" => {
+export const getInitialTransportType = (): "sse" | "streamable-http" => {
   const param = getSearchParam("transport");
-  if (param === "stdio" || param === "sse" || param === "streamable-http") {
+  if (param === "sse" || param === "streamable-http") {
     return param;
   }
-  return (
-    (localStorage.getItem("lastTransportType") as
-      | "stdio"
-      | "sse"
-      | "streamable-http") || "stdio"
-  );
+  return localStorage.getItem("lastTransportType") as "sse" | "streamable-http";
 };
 
 export const getInitialSseUrl = (): string => {

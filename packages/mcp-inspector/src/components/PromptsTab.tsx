@@ -121,7 +121,7 @@ const PromptsTab = ({
 
   return (
     <TabsContent value="prompts">
-      <div className="grid grid-cols-2 gap-4">
+      <div className="flex gap-5">
         <ListPane
           items={prompts}
           listItems={listPrompts}
@@ -142,7 +142,7 @@ const PromptsTab = ({
           isButtonDisabled={!nextCursor && prompts.length > 0}
         />
 
-        <div className="bg-card border border-border rounded-lg shadow">
+        <div className="bg-card border border-border rounded-lg shadow flex-1">
           <div className="p-4 border-b border-gray-200 dark:border-border flex items-center gap-2">
             {selectedPrompt && (
               <IconDisplay

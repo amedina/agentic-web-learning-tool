@@ -8,6 +8,7 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 import { Client } from '@modelcontextprotocol/sdk/client';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
+import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
 import {
   listWorkflows,
   transformWorkflowToTool,
@@ -16,6 +17,7 @@ import {
 import {
   DOM_TOOL_NAME_PREFIX,
   EXTENSION_TOOL_PREFIX,
+  type CustomHeaders,
   type MCPConfig,
   type MCPServerConfig,
 } from '@google-awlt/common';
@@ -41,7 +43,7 @@ class McpHub {
     string,
     {
       client: Client;
-      transport: StreamableHTTPClientTransport;
+      transport: StreamableHTTPClientTransport | SSEClientTransport;
       connected: boolean;
       toolsFetched: boolean;
     }
@@ -220,40 +222,108 @@ class McpHub {
 
   async addNewServer(serverConfig: MCPServerConfig, serverName: string) {
     try {
-      const storedConfig = this.clientList.get(serverName);
-
-      if (storedConfig?.toolsFetched) {
-        this.enableMCPServerTools(serverName);
+      if (this.clientList.get(serverName)?.toolsFetched) {
         return;
       }
 
-      const requestInit: RequestInit = {};
+      if (!serverConfig.url) {
+        logger(
+          ['warn'],
+          [`Skipping server ${serverName} as it is missing a URL.`]
+        );
+        return;
+      }
+      const headers: HeadersInit = {};
 
-      if (serverConfig.authToken) {
-        requestInit.headers = {
-          Authorization: `Bearer ${serverConfig.authToken}`,
-        };
+      let finalHeaders: CustomHeaders = serverConfig.customHeaders || [];
+
+      const isEmptyAuthHeader = (header: CustomHeaders[number]) =>
+        header.name.trim().toLowerCase() === 'authorization' &&
+        header.value.trim().toLowerCase() === 'bearer';
+
+      // Check for empty Authorization headers and show validation error
+      const hasEmptyAuthHeader = finalHeaders.some(
+        (header) => header.enabled && isEmptyAuthHeader(header)
+      );
+
+      if (hasEmptyAuthHeader) {
+        return;
       }
 
-      const transport = new StreamableHTTPClientTransport(
-        new URL(serverConfig.url),
-        {
-          requestInit,
-        }
+      const needsOAuthToken = !finalHeaders.some(
+        (header) =>
+          header.enabled && header.name.trim().toLowerCase() === 'authorization'
       );
+
+      if (needsOAuthToken) {
+        const oauthToken = serverConfig?.oAuthToken;
+        if (oauthToken) {
+          // Add the OAuth token
+          finalHeaders = [
+            // Remove any existing Authorization headers with empty tokens
+            ...finalHeaders.filter((header) => !isEmptyAuthHeader(header)),
+            {
+              name: 'Authorization',
+              value: `Bearer ${oauthToken}`,
+              enabled: true,
+            },
+          ];
+        }
+      }
+
+      // Process all enabled custom headers
+      const customHeaderNames: string[] = [];
+      finalHeaders.forEach((header) => {
+        if (header.enabled && header.name.trim() && header.value.trim()) {
+          const headerName = header.name.trim();
+          const headerValue = header.value.trim();
+
+          headers[headerName] = headerValue;
+
+          // Track custom header names for server processing
+          if (headerName.toLowerCase() !== 'authorization') {
+            customHeaderNames.push(headerName);
+          }
+        }
+      });
+
+      // Add custom header names as a special request header for server processing
+      if (customHeaderNames.length > 0) {
+        headers['x-custom-auth-headers'] = JSON.stringify(customHeaderNames);
+      }
 
       const client = new Client(
         {
-          name: 'chrome-extension-client',
-          version: '1.0.0',
+          name: 'chrome-options-page-client',
+          version: '1.0',
         },
         {
-          capabilities: {},
+          capabilities: {
+            sampling: {},
+            elicitation: {},
+            roots: {
+              listChanged: true,
+            },
+          },
         }
       );
 
+      const transport =
+        serverConfig.transport === 'streamable-http'
+          ? new StreamableHTTPClientTransport(new URL(serverConfig.url), {
+              requestInit: {
+                headers: headers,
+              },
+            })
+          : new SSEClientTransport(new URL(serverConfig.url), {
+              requestInit: {
+                headers: headers,
+              },
+            });
+
       await client.connect(transport);
       const toolsList = await client.listTools();
+
       this.clientList.set(serverName, {
         client,
         transport,

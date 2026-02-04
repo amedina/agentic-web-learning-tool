@@ -4,3 +4,4 @@ export {
   McpConnectionProvider,
   useMCPClientProvider,
 } from "./stateProvider";
+export { InspectorOAuthClientProvider } from "./lib/auth";

@@ -11,7 +11,7 @@ import '@testing-library/jest-dom';
 import TooltipIconButton from '../tooltipIconButton';
 
 // Radix UI Tooltip requires a ResizeObserver mock in JSDOM
-global.ResizeObserver = class ResizeObserver {
+globalThis.ResizeObserver = class ResizeObserver {
   observe() {}
   unobserve() {}
   disconnect() {}

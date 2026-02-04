@@ -1,11 +1,14 @@
+/**
+ * External dependencies
+ */
 import { renderHook, act } from "@testing-library/react";
-import { useConnection } from "../useConnection";
 import { z } from "zod";
 import {
   type ClientRequest,
   type JSONRPCMessage,
 } from "@modelcontextprotocol/sdk/types.js";
-import { DEFAULT_INSPECTOR_CONFIG, CLIENT_IDENTITY } from "../../constants";
+import { Client } from "@modelcontextprotocol/sdk/client";
+import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import {
   type SSEClientTransportOptions,
   SseError,
@@ -15,8 +18,13 @@ import {
   type ElicitRequest,
 } from "@modelcontextprotocol/sdk/types.js";
 import { auth } from "@modelcontextprotocol/sdk/client/auth.js";
+/**
+ * Internal dependencies
+ */
+import { DEFAULT_INSPECTOR_CONFIG, CLIENT_IDENTITY } from "../../constants";
 import { discoverScopes } from "../../auth";
 import { type CustomHeaders } from "../../types/customHeaders";
+import { useConnection } from "../useConnection";
 
 // Mock fetch
 global.fetch = jest.fn().mockResolvedValue({
@@ -24,6 +32,11 @@ global.fetch = jest.fn().mockResolvedValue({
   headers: {
     get: jest.fn().mockReturnValue(null),
   },
+});
+
+const client = new Client({
+  name: "testing-client",
+  version: "1.0",
 });
 
 // Mock the SDK dependencies
@@ -135,6 +148,11 @@ describe("useConnection", () => {
     sseUrl: "http://localhost:8080",
     env: {},
     config: DEFAULT_INSPECTOR_CONFIG,
+    client,
+    transport: new StreamableHTTPClientTransport(
+      new URL("https://example.com/mcp"),
+    ),
+    onDisconnect: () => {},
   };
 
   describe("Request Configuration", () => {
@@ -147,7 +165,7 @@ describe("useConnection", () => {
 
       // Connect the client
       await act(async () => {
-        await result.current.connect();
+        await result.current.connect(client, defaultProps.transport);
       });
 
       // Wait for state update
@@ -187,7 +205,7 @@ describe("useConnection", () => {
 
       // Connect the client
       await act(async () => {
-        await result.current.connect();
+        await result.current.connect(client, defaultProps.transport);
       });
 
       // Wait for state update
@@ -254,7 +272,7 @@ describe("useConnection", () => {
       const { result } = renderHook(() => useConnection(defaultProps));
 
       await act(async () => {
-        await result.current.connect();
+        await result.current.connect(client, defaultProps.transport);
       });
 
       expect(Client).toHaveBeenCalledWith(
@@ -280,7 +298,7 @@ describe("useConnection", () => {
       const { result } = renderHook(() => useConnection(propsWithElicitation));
 
       await act(async () => {
-        await result.current.connect();
+        await result.current.connect(client, defaultProps.transport);
       });
 
       const elicitRequestHandlerCall =
@@ -318,7 +336,7 @@ describe("useConnection", () => {
       const { result } = renderHook(() => useConnection(defaultProps));
 
       await act(async () => {
-        await result.current.connect();
+        await result.current.connect(client, defaultProps.transport);
       });
 
       const elicitRequestHandlerCall =
@@ -358,7 +376,7 @@ describe("useConnection", () => {
       const { result } = renderHook(() => useConnection(propsWithElicitation));
 
       await act(async () => {
-        await result.current.connect();
+        await result.current.connect(client, defaultProps.transport);
       });
 
       const elicitRequestHandlerCall =
@@ -426,7 +444,7 @@ describe("useConnection", () => {
       const { result } = renderHook(() => useConnection(propsWithElicitation));
 
       await act(async () => {
-        await result.current.connect();
+        await result.current.connect(client, defaultProps.transport);
       });
 
       const elicitRequestHandlerCall =
@@ -500,7 +518,7 @@ describe("useConnection", () => {
       const { result } = renderHook(() => useConnection(defaultProps));
 
       await act(async () => {
-        await result.current.connect();
+        await result.current.connect(client, defaultProps.transport);
       });
 
       const mockRequestWithRef: JSONRPCMessage = {
@@ -547,7 +565,7 @@ describe("useConnection", () => {
       const { result } = renderHook(() => useConnection(defaultProps));
 
       await act(async () => {
-        await result.current.connect();
+        await result.current.connect(client, defaultProps.transport);
       });
 
       const mockRequestWithDefs: JSONRPCMessage = {
@@ -632,7 +650,10 @@ describe("useConnection", () => {
       const { result } = renderHook(() => useConnection(props));
 
       await act(async () => {
-        await result.current.connect();
+        await result.current.connect(
+          client,
+          new SSEClientTransport(props.sseUrl),
+        );
       });
 
       const call = SSEClientTransport.mock.calls[0][0];
@@ -651,7 +672,10 @@ describe("useConnection", () => {
       const { result } = renderHook(() => useConnection(props));
 
       await act(async () => {
-        await result.current.connect();
+        await result.current.connect(
+          client,
+          new SSEClientTransport(props.sseUrl),
+        );
       });
 
       const call = SSEClientTransport.mock.calls[0][0];
@@ -670,7 +694,10 @@ describe("useConnection", () => {
       const { result } = renderHook(() => useConnection(props));
 
       await act(async () => {
-        await result.current.connect();
+        await result.current.connect(
+          client,
+          new SSEClientTransport(props.sseUrl),
+        );
       });
 
       const call = SSEClientTransport.mock.calls[0][0];
@@ -688,7 +715,10 @@ describe("useConnection", () => {
       const { result } = renderHook(() => useConnection(props));
 
       await act(async () => {
-        await result.current.connect();
+        await result.current.connect(
+          client,
+          new StreamableHTTPClientTransport(props.sseUrl),
+        );
       });
 
       const call = StreamableHTTPClientTransport.mock.calls[0][0];
@@ -724,7 +754,7 @@ describe("useConnection", () => {
       const { result } = renderHook(() => useConnection(propsWithProxyAuth));
 
       await act(async () => {
-        await result.current.connect();
+        await result.current.connect(client, defaultProps.transport);
       });
 
       // Check that the transport was created with the correct headers
@@ -777,7 +807,7 @@ describe("useConnection", () => {
       const { result } = renderHook(() => useConnection(propsWithProxyAuth));
 
       await act(async () => {
-        await result.current.connect();
+        await result.current.connect(client, defaultProps.transport);
       });
 
       // Check that the transport was created with the correct headers
@@ -823,7 +853,7 @@ describe("useConnection", () => {
       const { result } = renderHook(() => useConnection(propsWithProxyAuth));
 
       await act(async () => {
-        await result.current.connect();
+        await result.current.connect(client, defaultProps.transport);
       });
 
       // Check that Authorization header is NOT used for proxy auth
@@ -857,7 +887,7 @@ describe("useConnection", () => {
       const { result } = renderHook(() => useConnection(propsWithBothAuth));
 
       await act(async () => {
-        await result.current.connect();
+        await result.current.connect(client, defaultProps.transport);
       });
 
       // Check that both headers are present and distinct
@@ -890,7 +920,7 @@ describe("useConnection", () => {
       const { result } = renderHook(() => useConnection(propsWithProxyAuth));
 
       await act(async () => {
-        await result.current.connect();
+        await result.current.connect(client, defaultProps.transport);
       });
 
       // Find the health check call
@@ -923,7 +953,7 @@ describe("useConnection", () => {
       );
 
       await act(async () => {
-        await result.current.connect();
+        await result.current.connect(client, defaultProps.transport);
       });
 
       // Check that the streamable HTTP transport was created with the correct headers
@@ -961,7 +991,7 @@ describe("useConnection", () => {
       );
 
       await act(async () => {
-        await result.current.connect();
+        await result.current.connect(client, defaultProps.transport);
       });
 
       // Check that the transport was created with the correct headers
@@ -995,7 +1025,7 @@ describe("useConnection", () => {
       );
 
       await act(async () => {
-        await result.current.connect();
+        await result.current.connect(client, defaultProps.transport);
       });
 
       const headers = mockSSETransport.options?.requestInit?.headers;
@@ -1018,7 +1048,7 @@ describe("useConnection", () => {
       const { result } = renderHook(() => useConnection(propsWithMigratedAuth));
 
       await act(async () => {
-        await result.current.connect();
+        await result.current.connect(client, defaultProps.transport);
       });
 
       const headers = mockSSETransport.options?.requestInit?.headers;
@@ -1037,7 +1067,7 @@ describe("useConnection", () => {
       const { result } = renderHook(() => useConnection(propsWithoutAuth));
 
       await act(async () => {
-        await result.current.connect();
+        await result.current.connect(client, defaultProps.transport);
       });
 
       const headers = mockSSETransport.options?.requestInit?.headers;
@@ -1063,7 +1093,7 @@ describe("useConnection", () => {
       const { result } = renderHook(() => useConnection(propsWithEmptyBearer));
 
       await act(async () => {
-        await result.current.connect();
+        await result.current.connect(client, defaultProps.transport);
       });
 
       const headers = mockSSETransport.options?.requestInit?.headers;
@@ -1095,7 +1125,7 @@ describe("useConnection", () => {
       const { result } = renderHook(() => useConnection(propsWithBothAuth));
 
       await act(async () => {
-        await result.current.connect();
+        await result.current.connect(client, defaultProps.transport);
       });
 
       const headers = mockSSETransport.options?.requestInit?.headers;
@@ -1122,7 +1152,7 @@ describe("useConnection", () => {
       const { result } = renderHook(() => useConnection(directProps));
 
       await act(async () => {
-        await result.current.connect();
+        await result.current.connect(client, defaultProps.transport);
       });
 
       // Verify the transport was created with the direct server URL
@@ -1139,7 +1169,7 @@ describe("useConnection", () => {
       const { result } = renderHook(() => useConnection(proxyProps));
 
       await act(async () => {
-        await result.current.connect();
+        await result.current.connect(client, defaultProps.transport);
       });
 
       // Verify the transport was created with a proxy server URL
@@ -1174,7 +1204,7 @@ describe("useConnection", () => {
       const { result } = renderHook(() => useConnection(props));
       await act(async () => {
         try {
-          await result.current.connect();
+          await result.current.connect(client, defaultProps.transport);
         } catch {
           // Expected error from auth handling
         }
@@ -1323,7 +1353,7 @@ describe("useConnection", () => {
       );
 
       await act(async () => {
-        await result.current.connect();
+        await result.current.connect(client, defaultProps.transport);
       });
 
       // Check that the URL contains the proxyFullAddress parameter
@@ -1351,7 +1381,7 @@ describe("useConnection", () => {
       );
 
       await act(async () => {
-        await result.current.connect();
+        await result.current.connect(client, defaultProps.transport);
       });
 
       // Check that the URL contains the proxyFullAddress parameter
@@ -1379,7 +1409,7 @@ describe("useConnection", () => {
       const { result } = renderHook(() => useConnection(propsWithEmptyProxy));
 
       await act(async () => {
-        await result.current.connect();
+        await result.current.connect(client, defaultProps.transport);
       });
 
       // Check that the URL does not contain the proxyFullAddress parameter
@@ -1407,7 +1437,7 @@ describe("useConnection", () => {
       );
 
       await act(async () => {
-        await result.current.connect();
+        await result.current.connect(client, defaultProps.transport);
       });
 
       // Check that streamable-http transport doesn't get proxyFullAddress parameter
