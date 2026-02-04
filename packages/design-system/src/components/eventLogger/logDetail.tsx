@@ -7,6 +7,7 @@ import { CodeEditor } from '../codeEditor';
  * Internal dependencies.
  */
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../tabs';
+import { SyntaxHighlighterJSON } from '../syntaxHighlighter';
 
 export interface LogDetailProps {
   log: {
@@ -29,21 +30,15 @@ function LogExecutionDetails({ log }: { log: LogDetailProps['log'] }) {
         <div className="text-[10px] font-bold text-[#5f6368] mb-1">
           ARGUMENTS
         </div>
-        <pre className="font-mono text-[11px] text-[#202124] whitespace-pre-wrap break-all select-text bg-[#f8f9fa] p-2 rounded border border-[#f1f3f4]">
-          {JSON.stringify(log.args, null, 2)}
-        </pre>
+        <SyntaxHighlighterJSON json={log.args} />
       </div>
       <div className="p-2 overflow-auto min-h-0">
         <div className="text-[10px] font-bold text-[#5f6368] mb-1">
           {log.status === 'error' ? 'ERROR' : 'OUTPUT'}
         </div>
-        <pre
-          className={`font-mono text-[11px] whitespace-pre-wrap break-all select-text bg-[#f8f9fa] p-2 rounded border border-[#f1f3f4] ${log.status === 'error' ? 'text-red-600' : 'text-[#188038]'}`}
-        >
-          {log.status === 'error'
-            ? log.error
-            : JSON.stringify(log.result, null, 2)}
-        </pre>
+        <SyntaxHighlighterJSON
+          json={log.status === 'error' ? log.error : log.result}
+        />
       </div>
     </>
   );
@@ -63,7 +58,7 @@ export function LogDetail({ log }: LogDetailProps) {
   return (
     <Tabs defaultValue="execution" className="flex flex-col h-full">
       <div className="px-2 pt-2 border-b border-[#f1f3f4]">
-        <TabsList className="h-7 p-0 bg-transparent gap-2">
+        <TabsList className="h-7 p-0 bg-transparent">
           <TabsTrigger value="execution" className={TAB_TRIGGER_CLASS}>
             Execution
           </TabsTrigger>

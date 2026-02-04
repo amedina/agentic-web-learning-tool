@@ -14,7 +14,7 @@ import {
 export const mcpbTools = {
   dom_extraction: {
     name: 'DOM Extraction',
-    namespace: 'mcp-b',
+    namespace: 'mcp_b',
     allowedDomains: ['<all_urls>'],
     instance: DomExtractionTools,
     inputSchema: {},
@@ -26,7 +26,7 @@ export const mcpbTools = {
   },
   history: {
     name: 'History',
-    namespace: 'mcp-b',
+    namespace: 'mcp_b',
     instance: HistoryApiTools,
     allowedDomains: ['<all_urls>'],
     description: 'Performs operations on the Chrome History API',
@@ -37,7 +37,7 @@ export const mcpbTools = {
   },
   scripting: {
     name: 'Scripting',
-    namespace: 'mcp-b',
+    namespace: 'mcp_b',
     instance: ScriptingApiTools,
     allowedDomains: ['<all_urls>'],
     inputSchema: {},
@@ -55,7 +55,7 @@ export const mcpbTools = {
   },
   storage: {
     name: 'Storage',
-    namespace: 'mcp-b',
+    namespace: 'mcp_b',
     instance: StorageApiTools,
     allowedDomains: ['<all_urls>'],
     description: 'Performs operations on Chrome storage API',
@@ -66,7 +66,7 @@ export const mcpbTools = {
   },
   tab_group: {
     name: 'Tab Groups',
-    namespace: 'mcp-b',
+    namespace: 'mcp_b',
     instance: TabGroupsApiTools,
     allowedDomains: ['<all_urls>'],
     description: 'Performs operations on tab groups using Chrome TabGroups API',
@@ -77,7 +77,7 @@ export const mcpbTools = {
   },
   tabs: {
     name: 'Tabs',
-    namespace: 'mcp-b',
+    namespace: 'mcp_b',
     instance: TabsApiTools,
     allowedDomains: ['<all_urls>'],
     description: 'Performs various tab operations using the Chrome Tabs API',
@@ -94,7 +94,7 @@ export const mcpbTools = {
   },
   windows: {
     name: 'Windows',
-    namespace: 'mcp-b',
+    namespace: 'mcp_b',
     instance: WindowsApiTools,
     allowedDomains: ['<all_urls>'],
     inputSchema: {},

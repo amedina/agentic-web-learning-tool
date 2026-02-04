@@ -72,6 +72,18 @@ class McpHub {
         this.onLocalStoreChangedListener();
       }
     });
+
+    chrome.webNavigation.onCommitted.addListener((details) => {
+      if (details.frameId !== 0) {
+        return;
+      }
+
+      if (details.url.startsWith('chrome://')) {
+        return;
+      }
+
+      this.toolInjected = false;
+    });
   }
 
   async fetchLocalStorageAndRegisterTools() {
@@ -483,12 +495,14 @@ class McpHub {
 
   private registerMCPServerTools(serverName: string, tools: Tool[]) {
     for (const tool of tools) {
+      const { name, ...rest } = tool;
+
+      const prefixedToolName = `${name}_mcp_${serverName}`;
       const config = {
-        ...tool,
+        name: prefixedToolName,
+        ...rest,
         inputSchema: jsonSchemaToZod(tool.inputSchema),
       };
-
-      const prefixedToolName = `${tool.name}_mcp_${serverName}`;
 
       if (this.registeredTools.has(prefixedToolName)) {
         // Update existing tool

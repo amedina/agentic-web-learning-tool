@@ -9,10 +9,15 @@ export const isLocalTool = (toolName: string, tabId: number) => {
     return true;
   }
 
+  if (toolName === 'dummyTool') {
+    return false;
+  }
+
   // Assuming all WebMCP tools follow the naming convention: wt_tab<ID>_<name>
   // TODO: Need to verify this assumption.
   if (toolName.includes('wt_tab')) {
     return toolName.includes(`wt_tab${tabId}_`);
   }
+
   return true;
 };
