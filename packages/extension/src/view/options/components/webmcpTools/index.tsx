@@ -10,8 +10,8 @@ import { useToolProvider } from '../../providers';
 import { useSettings } from '../../../stateProviders';
 import {
   type keys,
-  chromeApiBuiltInTools,
-} from '../../../../contentScript/tools/builtInTools';
+  mcpbTools,
+} from '../../../../contentScript/tools/mcpbTools';
 
 export function WebMCPToolsTab() {
   const {
@@ -34,10 +34,10 @@ export function WebMCPToolsTab() {
     isDarkMode: state.isDarkMode,
   }));
 
-  const extensionTools = useMemo(() => {
-    return Object.keys(chromeApiBuiltInTools).map((toolkey) => {
+  const mcpbBuiltInTools = useMemo(() => {
+    return Object.keys(mcpbTools).map((toolkey) => {
       return {
-        ...chromeApiBuiltInTools[toolkey as keys],
+        ...mcpbTools[toolkey as keys],
         enabled: chromeAPIBuiltInToolsState[toolkey]?.enabled,
       };
     });
@@ -46,7 +46,8 @@ export function WebMCPToolsTab() {
   return (
     <WebMCPToolsUI
       userTools={userTools}
-      builtInTools={[...builtInTools, ...extensionTools]}
+      builtInTools={builtInTools}
+      mcpbTools={mcpbBuiltInTools}
       onSaveUserTools={saveUserTools}
       onSaveBuiltInState={saveBuiltInState}
       saveExtensionToolsState={saveExtensionToolsState}

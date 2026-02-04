@@ -10,6 +10,7 @@ export interface SidebarContextProps {
     open: boolean;
     selectedMenuItem: string;
     isMobile: boolean;
+    placement: 'options-page' | 'devtools';
   };
   actions: {
     setOpen: (open: boolean) => void;
@@ -24,6 +25,7 @@ const initialState: SidebarContextProps = {
     open: true,
     selectedMenuItem: '',
     isMobile: false,
+    placement: 'options-page',
   },
   actions: {
     setOpen: noop,

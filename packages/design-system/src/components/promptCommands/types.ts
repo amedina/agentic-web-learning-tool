@@ -4,4 +4,5 @@ export interface PromptCommand {
   description: string;
   isBuiltIn?: boolean;
   enabled?: boolean;
+  sendToLLM?: boolean;
 }

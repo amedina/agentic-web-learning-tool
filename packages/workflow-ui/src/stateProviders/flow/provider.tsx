@@ -14,7 +14,7 @@ import {
 /**
  * Internal dependencies
  */
-import Context, { FlowCleaner, type EdgeType, type NodeType } from "./context";
+import Context, { type EdgeType, type NodeType } from "./context";
 import { useApi } from "../api";
 import {
   LanguageDetectorApiToolNode,
@@ -186,7 +186,6 @@ const FlowProvider = ({ children }: PropsWithChildren) => {
         },
       }}
     >
-      <FlowCleaner />
       {children}
     </Context.Provider>
   );

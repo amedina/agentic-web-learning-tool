@@ -25,6 +25,7 @@ const meta = {
         'secondary',
         'ghost',
         'link',
+        'run',
       ],
     },
     size: {
@@ -101,6 +102,15 @@ export const Destructive: Story = {
 export const Link: Story = {
   args: {
     variant: 'link',
+  },
+};
+
+/**
+ * Use the `run` button for primary run actions.
+ */
+export const Run: Story = {
+  args: {
+    variant: 'run',
   },
 };
 

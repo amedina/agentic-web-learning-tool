@@ -23,6 +23,7 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     config: {
+      title: "Tooltip",
       selector: ".my-element",
     },
   },
@@ -31,6 +32,7 @@ export const Default: Story = {
 export const Empty: Story = {
   args: {
     config: {
+      title: "Tooltip",
       selector: "",
     },
   },

@@ -31,7 +31,7 @@
     "immer": "^9.0.21",
     "lucide-react": "^0.379.0",
     "react": "^19.0.0",
-    "react-context-selector": "^1.0.3",
+    "use-context-selector": "^2.0.0",
     "react-dom": "^19.0.0",
     "tailwind-merge": "^2.5.2",
     "zod": "4.1.13"

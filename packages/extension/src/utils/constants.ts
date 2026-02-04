@@ -1,6 +1,7 @@
 export const CONNECTION_NAMES = {
   CONTENT_SCRIPT: 'mcp-content-script-proxy',
-  MCP_HOST: 'mcp',
+  MCP_HOST_SIDEPANEL: 'mcp-sidepanel',
+  MCP_HOST_DEVTOOLS: 'mcp-devtools',
 } as const;
 
 export const MESSAGE_TYPES = {
@@ -9,6 +10,7 @@ export const MESSAGE_TYPES = {
   RESULT: 'tool-result',
   REFRESH_REQUEST: 'request-tools-refresh',
   EXECUTE: 'execute-tool',
+  TOOL_LOG: 'tool-execution-log',
 } as const;
 
 export const LOG_OPTS = [
