@@ -8,7 +8,10 @@ import type { Tool } from '@modelcontextprotocol/sdk/types.js';
  * Internal dependencies.
  */
 import type { UserStoredTool } from './types';
-import { SyntaxHighlighterJSON } from '../syntaxHighlighter';
+import {
+  SyntaxHighlighterJSON,
+  SyntaxHighlighterWhite,
+} from '../syntaxHighlighter';
 
 interface ToolDetailProps {
   tool: Tool;
@@ -46,9 +49,18 @@ export function ToolDetail({ tool, getUserTool }: ToolDetailProps) {
           <div className="text-[10px] font-bold text-[#5f6368] mb-1">
             SCRIPT
           </div>
-          <pre className="font-mono text-[11px] text-[#db4437] whitespace-pre-wrap break-all select-text bg-[#f8f9fa] p-2 rounded border border-[#f1f3f4]">
-            {userTool.code}
-          </pre>
+          <div>
+            <SyntaxHighlighterWhite
+              language="javascript"
+              code={userTool.code as string}
+              components={{
+                Pre: (props: any) => <pre {...props} />,
+                Code: (props: any) => (
+                  <code {...props} style={{ fontFamily: 'inherit' }} />
+                ),
+              }}
+            />
+          </div>
         </div>
       )}
     </>
