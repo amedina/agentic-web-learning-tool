@@ -459,27 +459,33 @@ const App = () => {
               }}
             >
               <TabsList className="mb-4 py-0">
-                <TabsTrigger
-                  value="resources"
-                  disabled={!serverCapabilities?.resources}
-                >
-                  <Files className="w-4 h-4 mr-2" />
-                  Resources
-                </TabsTrigger>
-                <TabsTrigger
-                  value="prompts"
-                  disabled={!serverCapabilities?.prompts}
-                >
-                  <MessageSquare className="w-4 h-4 mr-2" />
-                  Prompts
-                </TabsTrigger>
-                <TabsTrigger
-                  value="tools"
-                  disabled={!serverCapabilities?.tools}
-                >
-                  <Hammer className="w-4 h-4 mr-2" />
-                  Tools
-                </TabsTrigger>
+                {serverCapabilities?.resources && (
+                  <TabsTrigger
+                    value="resources"
+                    disabled={!serverCapabilities?.resources}
+                  >
+                    <Files className="w-4 h-4 mr-2" />
+                    Resources
+                  </TabsTrigger>
+                )}
+                {serverCapabilities?.prompts && (
+                  <TabsTrigger
+                    value="prompts"
+                    disabled={!serverCapabilities?.prompts}
+                  >
+                    <MessageSquare className="w-4 h-4 mr-2" />
+                    Prompts
+                  </TabsTrigger>
+                )}
+                {serverCapabilities?.tools && (
+                  <TabsTrigger
+                    value="tools"
+                    disabled={!serverCapabilities?.tools}
+                  >
+                    <Hammer className="w-4 h-4 mr-2" />
+                    Tools
+                  </TabsTrigger>
+                )}
                 <TabsTrigger value="ping">
                   <Bell className="w-4 h-4 mr-2" />
                   Ping
