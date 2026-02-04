@@ -4,10 +4,13 @@
 import { useCallback, useEffect, useState } from "react";
 import { useReactFlow } from "@xyflow/react";
 import { WorkflowClient } from "@google-awlt/engine-extension";
-import type {
-  ExecutionContext,
-  NodeOutput,
-  WorkflowJSON,
+import {
+  type ExecutionContext,
+  type NodeConfig,
+  type NodeOutput,
+  NodeType,
+  type WorkflowJSON,
+  WorkflowJSONSchema,
 } from "@google-awlt/engine-core";
 import { saveWorkflow, loadWorkflow } from "@google-awlt/engine-extension";
 
@@ -15,11 +18,11 @@ import { saveWorkflow, loadWorkflow } from "@google-awlt/engine-extension";
  * Internal dependencies
  */
 import {
-  type EdgeType,
-  type NodeType,
+  type FlowEdgeType,
+  type FlowNodeType,
   useFlow,
   useApi,
-  type NodeConfig,
+  type ApiNodeConfig,
 } from "../../stateProviders";
 import { Flow, Toast, SavedWorkflowsDialog, ImportDialog } from "../ui";
 import { TOOL_CONFIGS } from "../tools/toolRegistry";
@@ -44,12 +47,16 @@ const WorkflowCanvas = ({
   setWorkflowId,
 }: WorkflowCanvasProps) => {
   const [showImportDialog, setShowImportDialog] = useState(false);
-  const [importJson, setImportJson] = useState("");
+  const [importJson, _setImportJson] = useState("");
   const [tabs, setTabs] = useState<chrome.tabs.Tab[]>([]);
   const [selectedTabId, _setSelectedTabId] = useState<number | null>(() => {
     const saved = localStorage.getItem(STORAGE_KEY_SELECTED_TAB);
     return saved ? Number(saved) : null;
   });
+
+  const setImportJson = useCallback((json: string) => {
+    _setImportJson(json);
+  }, []);
 
   const setSelectedTabId = useCallback((id: number | null) => {
     _setSelectedTabId(id);
@@ -116,9 +123,15 @@ const WorkflowCanvas = ({
     (event: React.DragEvent) => {
       event.preventDefault();
 
-      const type = event.dataTransfer.getData("workflow-composer/flow");
+      const type = event.dataTransfer.getData(
+        "workflow-composer/flow",
+      ) as NodeType;
 
-      if (!type || !TOOL_CONFIGS[type]) {
+      if (
+        !type ||
+        !Object.values(NodeType).includes(type) ||
+        !TOOL_CONFIGS[type]
+      ) {
         return;
       }
 
@@ -191,11 +204,11 @@ const WorkflowCanvas = ({
 
       if (graphNodes && Array.isArray(graphNodes)) {
         graphNodes.forEach((node) => {
-          const flowNode: NodeType = {
+          const flowNode: FlowNodeType = {
             id: node.id,
             type: node.type,
             position: node.ui?.position || { x: 0, y: 0 },
-            data: { label: node.label || "Node" },
+            data: { label: node.type },
           };
 
           addNode(flowNode);
@@ -211,7 +224,7 @@ const WorkflowCanvas = ({
       }
 
       if (graphEdges && Array.isArray(graphEdges)) {
-        graphEdges.forEach((edge: EdgeType) => {
+        graphEdges.forEach((edge: FlowEdgeType) => {
           onConnect(edge);
         });
       }
@@ -226,14 +239,14 @@ const WorkflowCanvas = ({
 
     addNode({
       id: startId,
-      type: "start",
+      type: NodeType.START,
       position: { x: 50, y: 50 },
       data: { label: "Start" },
     });
 
     addApiNode({
       id: startId,
-      type: "start",
+      type: NodeType.START,
       config: {
         title: "Start",
         description: "Workflow entry point.",
@@ -242,14 +255,14 @@ const WorkflowCanvas = ({
 
     addNode({
       id: endId,
-      type: "end",
+      type: NodeType.END,
       position: { x: 750, y: 500 },
       data: { label: "End" },
     });
 
     addApiNode({
       id: endId,
-      type: "end",
+      type: NodeType.END,
       config: {
         title: "End",
         description: "Workflow exit point.",
@@ -289,12 +302,12 @@ const WorkflowCanvas = ({
   const serializeWorkflow = useCallback(
     (
       id: string | null,
-      currentNodes: NodeType[],
-      currentEdges: EdgeType[],
+      currentNodes: FlowNodeType[],
+      currentEdges: FlowEdgeType[],
       currentApiData: {
-        [id: string]: NodeConfig;
+        [id: string]: ApiNodeConfig;
       },
-    ) => {
+    ): WorkflowJSON => {
       return {
         meta: {
           ...workflowMeta,
@@ -303,10 +316,12 @@ const WorkflowCanvas = ({
           savedAt: new Date().toISOString(),
         },
         graph: {
-          nodes: currentNodes.map((node) => ({
+          // @ts-ignore - node.type is defined as NodeType, and type as z.liternal, which is causing mismatch.
+          nodes: currentNodes.map<NodeConfig>((node) => ({
             id: node.id,
-            type: node.type || "default",
-            config: currentApiData[node.id]?.config || {},
+            type: node.type,
+            config: currentApiData[node.id].config,
+            label: node.data.label,
             ui: {
               position: node.position,
             },
@@ -367,6 +382,24 @@ const WorkflowCanvas = ({
         nodesApiData,
       );
 
+      // Validate workflow data before saving
+      const validation = WorkflowJSONSchema.safeParse(workflowData);
+      if (!validation.success) {
+        const firstError = validation.error.issues[0];
+
+        const node = workflowData.graph.nodes.find(
+          (_, index) => index === firstError?.path[2],
+        );
+
+        showToast(
+          `Validation Error: ${firstError?.message} at ${node?.label} on ${firstError?.path.slice(3).join(".")}`,
+          "error",
+        );
+        console.error("Workflow validation failed:", validation.error);
+
+        return;
+      }
+
       await saveWorkflow(workflowId, workflowData);
       showToast("Workflow saved successfully!", "success");
     } catch (error) {
@@ -416,13 +449,20 @@ const WorkflowCanvas = ({
 
   const handleImportSubmit = useCallback(() => {
     try {
-      clearFlow();
-
       const workflowData = JSON.parse(importJson);
 
-      if (!workflowData.graph || !workflowData.meta) {
-        throw new Error("Invalid workflow format: Missing graph or meta");
+      // Validate workflow data before importing
+      const validation = WorkflowJSONSchema.safeParse(workflowData);
+      if (!validation.success) {
+        const errorMsg = "Invalid workflow JSON";
+
+        showToast(errorMsg, "error");
+        console.error("Workflow import validation failed:", validation.error);
+
+        return;
       }
+
+      clearFlow();
 
       const newId = generateId();
       setWorkflowId(newId);
@@ -546,20 +586,15 @@ const WorkflowCanvas = ({
       updateWorkflowMeta({
         id: newId,
         name: "Untitled Workflow",
-        description: "",
-        version: "1.0.0",
-        allowedDomains: [],
-        isWebMCP: false,
       });
       clearFlow();
       initializeStandardNodes();
 
-      const initialData = {
+      const initialData: WorkflowJSON = {
         meta: {
           id: newId,
           name: "Untitled Workflow",
           description: "",
-          version: "1.0.0",
           savedAt: new Date().toISOString(),
           allowedDomains: [],
           isWebMCP: false,
@@ -568,7 +603,7 @@ const WorkflowCanvas = ({
           nodes: [
             {
               id: "start_node",
-              type: "start",
+              type: NodeType.START,
               label: "Start",
               config: {
                 title: "Start",
@@ -580,6 +615,7 @@ const WorkflowCanvas = ({
           edges: [],
         },
       };
+
       saveWorkflow(newId, initialData);
       showToast("New workflow created!", "success");
     }

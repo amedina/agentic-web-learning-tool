@@ -50,7 +50,7 @@ const WorkflowCard = ({
 
       <div className="flex justify-between items-center pt-3 border-t border-gray-100">
         <div className="flex gap-1 flex-wrap h-4">
-          {workflow.meta.allowedDomains.slice(0, 2).map((domain, idx) => (
+          {workflow.meta.allowedDomains?.slice(0, 2).map((domain, idx) => (
             <span
               key={idx}
               className="bg-(--surface-active) text-gray-500 px-1.5 py-0.5 rounded-md text-[9px] font-mono border border-(--border-color) truncate max-w-[100px]"
@@ -58,11 +58,12 @@ const WorkflowCard = ({
               {domain}
             </span>
           ))}
-          {workflow.meta.allowedDomains.length > 2 && (
-            <span className="text-[9px] text-amethyst-haze self-center whitespace-nowrap">
-              +{workflow.meta.allowedDomains.length - 2}
-            </span>
-          )}
+          {workflow.meta.allowedDomains &&
+            workflow.meta.allowedDomains.length > 2 && (
+              <span className="text-[9px] text-amethyst-haze self-center whitespace-nowrap">
+                +{workflow.meta.allowedDomains.length - 2}
+              </span>
+            )}
         </div>
 
         <Button

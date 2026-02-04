@@ -16,12 +16,15 @@
     "@google-awlt/shared-config": "workspace:*",
     "@types/jest": "^30.0.0",
     "@types/node": "^24.3.0",
-    "jest-environment-node": "^30.2.0",
-    "ts-jest": "^29.4.6",
-    "globals": "^16.3.0",
-    "prettier": "^3.0.0",
     "eslint": "^9.33.0",
     "eslint-plugin-react-hooks": "^5.2.0",
+    "globals": "^16.3.0",
+    "jest-environment-node": "^30.2.0",
+    "prettier": "^3.0.0",
+    "ts-jest": "^29.4.6",
     "typescript": "~5.8.3"
+  },
+  "dependencies": {
+    "zod": "^4.3.5"
   }
 }

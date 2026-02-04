@@ -121,7 +121,7 @@ export class WorkflowParser {
         throw new Error('Each node must have an id');
       }
       if (!node.type) {
-        throw new Error(`Node ${node.id} must have a type`);
+        throw new Error(`Node ${json.meta.id} must have a type`);
       }
     }
 

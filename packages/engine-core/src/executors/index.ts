@@ -48,34 +48,39 @@ import { mathExecutor } from './mathExecutor';
 import { startExecutor } from './start';
 import { endExecutor } from './end';
 
+import { NodeType } from '../types';
+
 /**
  * Register all built-in node executors with the NodeRegistry.
  * This should be called once during engine initialization.
  */
 export function registerBuiltinExecutors(): void {
   // JS Tool Nodes
-  NodeRegistry.register('staticInput', staticInputExecutor);
-  NodeRegistry.register('domInput', domInputExecutor);
-  NodeRegistry.register('alertNotification', alertNotificationExecutor);
-  NodeRegistry.register('condition', conditionExecutor);
-  NodeRegistry.register('loop', loopExecutor);
-  NodeRegistry.register('dataTransformer', dataTransformerExecutor);
-  NodeRegistry.register('math', mathExecutor);
-  NodeRegistry.register('domReplacement', domReplacementExecutor);
-  NodeRegistry.register('clipboardWriter', clipboardWriterExecutor);
-  NodeRegistry.register('fileCreator', fileCreatorExecutor);
-  NodeRegistry.register('textToSpeech', textToSpeechExecutor);
-  NodeRegistry.register('tooltip', tooltipExecutor);
+  NodeRegistry.register(NodeType.STATIC_INPUT, staticInputExecutor);
+  NodeRegistry.register(NodeType.DOM_INPUT, domInputExecutor);
+  NodeRegistry.register(NodeType.ALERT_NOTIFICATION, alertNotificationExecutor);
+  NodeRegistry.register(NodeType.CONDITION, conditionExecutor);
+  NodeRegistry.register(NodeType.LOOP, loopExecutor);
+  NodeRegistry.register(NodeType.DATA_TRANSFORMER, dataTransformerExecutor);
+  NodeRegistry.register(NodeType.MATH, mathExecutor);
+  NodeRegistry.register(NodeType.DOM_REPLACEMENT, domReplacementExecutor);
+  NodeRegistry.register(NodeType.CLIPBOARD_WRITER, clipboardWriterExecutor);
+  NodeRegistry.register(NodeType.FILE_CREATOR, fileCreatorExecutor);
+  NodeRegistry.register(NodeType.TEXT_TO_SPEECH, textToSpeechExecutor);
+  NodeRegistry.register(NodeType.TOOLTIP, tooltipExecutor);
 
   // Built-in AI API Nodes
-  NodeRegistry.register('promptApi', promptApiExecutor);
-  NodeRegistry.register('writerApi', writerApiExecutor);
-  NodeRegistry.register('rewriterApi', rewriterApiExecutor);
-  NodeRegistry.register('proofreaderApi', proofreaderApiExecutor);
-  NodeRegistry.register('translatorApi', translatorApiExecutor);
-  NodeRegistry.register('languageDetectorApi', languageDetectorApiExecutor);
-  NodeRegistry.register('summarizerApi', summarizerApiExecutor);
+  NodeRegistry.register(NodeType.PROMPT_API, promptApiExecutor);
+  NodeRegistry.register(NodeType.WRITER_API, writerApiExecutor);
+  NodeRegistry.register(NodeType.REWRITER_API, rewriterApiExecutor);
+  NodeRegistry.register(NodeType.PROOFREADER_API, proofreaderApiExecutor);
+  NodeRegistry.register(NodeType.TRANSLATOR_API, translatorApiExecutor);
+  NodeRegistry.register(
+    NodeType.LANGUAGE_DETECTOR_API,
+    languageDetectorApiExecutor
+  );
+  NodeRegistry.register(NodeType.SUMMARIZER_API, summarizerApiExecutor);
 
-  NodeRegistry.register('start', startExecutor);
-  NodeRegistry.register('end', endExecutor);
+  NodeRegistry.register(NodeType.START, startExecutor);
+  NodeRegistry.register(NodeType.END, endExecutor);
 }

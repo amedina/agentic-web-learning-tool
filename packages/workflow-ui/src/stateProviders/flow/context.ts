@@ -4,39 +4,38 @@
 import type { Connection, EdgeChange, NodeChange } from "@xyflow/react";
 import { createContext } from "react";
 import { createContextSelector } from "react-context-selector";
+import {
+  NodeType,
+  type EdgeConfig,
+  type NodeUIConfig,
+} from "@google-awlt/engine-core";
 
-export type NodeType = {
+export type FlowNodeType = {
   id: string;
-  type?: string;
-  position: { x: number; y: number };
+  type: NodeType;
+  position: NodeUIConfig["position"];
   data: { label: string };
   status?: "running" | "success" | "error";
 };
 
-export type EdgeType = {
-  id: string;
-  source: string;
-  target: string;
-  sourceHandle?: string | null;
-  targetHandle?: string | null;
-};
+export type FlowEdgeType = EdgeConfig;
 
 export interface FlowStoreContext {
   state: {
-    nodes: NodeType[];
-    edges: EdgeType[];
+    nodes: FlowNodeType[];
+    edges: FlowEdgeType[];
     nodeTypes: {
       [key: string]: React.ComponentType<any>;
     };
     isRunning: boolean;
   };
   actions: {
-    onNodesChange: (changes: NodeChange<NodeType>[]) => void;
-    onEdgesChange: (changes: EdgeChange<EdgeType>[]) => void;
-    onNodesDelete: (deletedNodes: NodeType[]) => void;
-    onEdgesDelete: (deletedEdges: EdgeType[]) => void;
-    onConnect: (params: Connection | EdgeType) => void;
-    addNode: (node: NodeType) => void;
+    onNodesChange: (changes: NodeChange<FlowNodeType>[]) => void;
+    onEdgesChange: (changes: EdgeChange<FlowEdgeType>[]) => void;
+    onNodesDelete: (deletedNodes: FlowNodeType[]) => void;
+    onEdgesDelete: (deletedEdges: FlowEdgeType[]) => void;
+    onConnect: (params: Connection | FlowEdgeType) => void;
+    addNode: (node: FlowNodeType) => void;
     deleteNode: (id: string) => void;
     updateNodeStatus: (
       id: string,

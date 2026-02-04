@@ -1,4 +1,8 @@
 /**
+ * External dependencies
+ */
+import z from 'zod';
+/**
  * Internal dependencies
  */
 import type {
@@ -10,6 +14,7 @@ import type {
 import type { RuntimeInterface } from '../runtime';
 import { WorkflowParser, type ParsedGraph } from './WorkflowParser';
 import { NodeRegistry } from './NodeRegistry';
+import { WorkflowJSONSchema } from '../validation/workflow';
 
 /**
  * Regular expression to match variable placeholders.
@@ -77,6 +82,8 @@ export class WorkflowEngine {
       );
       await this.verifyCapabilities(requiredCaps);
 
+      await WorkflowJSONSchema.parseAsync(json);
+
       const executionPlan = this.parser.getExecutionPlan(this.parsedGraph);
       this.context = this.createContext(json.meta.id, options.initialVariables);
 
@@ -114,7 +121,12 @@ export class WorkflowEngine {
       this.context.status = 'completed';
       return this.context;
     } catch (error) {
-      const err = error instanceof Error ? error : new Error(String(error));
+      const err =
+        error instanceof z.ZodError
+          ? new Error('Workflow validation failed!')
+          : error instanceof Error
+            ? error
+            : new Error(String(error));
 
       if (
         this.abortController?.signal.aborted ||

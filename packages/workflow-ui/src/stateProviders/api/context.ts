@@ -3,71 +3,38 @@
  */
 import { createContext } from "react";
 import { createContextSelector } from "react-context-selector";
-import { type WorkflowMeta } from "@google-awlt/engine-core";
+import {
+  type NodeConfig,
+  type WorkflowMeta,
+  NodeType,
+} from "@google-awlt/engine-core";
 
 /**
  * Internal dependencies
  */
-import {
-  type AlertNotificationConfig,
-  type ConditionConfig,
-  type DomInputConfig,
-  type LanguageDetectorApiConfig,
-  type PromptApiConfig,
-  type ProofreaderApiConfig,
-  type RewriterApiConfig,
-  type StaticInputConfig,
-  type SummarizerApiConfig,
-  type TranslatorApiConfig,
-  type WriterApiConfig,
-  type LoopConfig,
-  type DomReplacementConfig,
-  type FileCreatorConfig,
-  type TooltipConfig,
-  type DataTransformerConfig,
-  type MathConfig,
-} from "./../../components";
 
-export type NodeConfig = {
-  type: string;
-  config: Partial<
-    | LanguageDetectorApiConfig
-    | PromptApiConfig
-    | ProofreaderApiConfig
-    | RewriterApiConfig
-    | SummarizerApiConfig
-    | TranslatorApiConfig
-    | WriterApiConfig
-    | DomInputConfig
-    | StaticInputConfig
-    | ConditionConfig
-    | AlertNotificationConfig
-    | LoopConfig
-    | DomReplacementConfig
-    | FileCreatorConfig
-    | TooltipConfig
-    | DataTransformerConfig
-    | MathConfig
-  >;
+export type ApiNodeConfig = {
+  type: NodeType;
+  config: NodeConfig["config"];
 };
 
 export interface ApiStoreContext {
   state: {
     nodes: {
-      [id: string]: NodeConfig;
+      [id: string]: ApiNodeConfig;
     };
     selectedNode: string | null;
     capabilities: Record<string, boolean>;
     workflowMeta: WorkflowMeta;
   };
   actions: {
-    getNode: (id: string) => NodeConfig | undefined;
-    addNode: (node: NodeConfig & { id: string }) => void;
+    getNode: (id: string) => ApiNodeConfig | undefined;
+    addNode: (node: ApiNodeConfig & { id: string }) => void;
     updateNode: (
       id: string,
       updates: {
         type?: string;
-        config?: NodeConfig["config"];
+        config?: ApiNodeConfig["config"];
       },
     ) => void;
     removeNode: (id: string) => void;
@@ -87,7 +54,6 @@ const initialState: ApiStoreContext = {
       id: "",
       name: "",
       description: "",
-      version: "1.0.0",
       savedAt: "",
       allowedDomains: [],
       isWebMCP: false,

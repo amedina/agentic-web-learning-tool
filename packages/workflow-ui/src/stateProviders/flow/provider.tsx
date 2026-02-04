@@ -14,7 +14,12 @@ import {
 /**
  * Internal dependencies
  */
-import Context, { FlowCleaner, type EdgeType, type NodeType } from "./context";
+import { NodeType } from "@google-awlt/engine-core";
+import Context, {
+  FlowCleaner,
+  type FlowEdgeType,
+  type FlowNodeType,
+} from "./context";
 import { useApi } from "../api";
 import {
   LanguageDetectorApiToolNode,
@@ -41,31 +46,31 @@ import {
 } from "../../components";
 
 const FlowProvider = ({ children }: PropsWithChildren) => {
-  const [nodes, setNodes] = useState<NodeType[]>([]);
-  const [edges, setEdges] = useState<EdgeType[]>([]);
+  const [nodes, setNodes] = useState<FlowNodeType[]>([]);
+  const [edges, setEdges] = useState<FlowEdgeType[]>([]);
   const nodeTypes = useMemo(
     () => ({
-      promptApi: PromptApiToolNode,
-      writerApi: WriterApiToolNode,
-      rewriterApi: RewriterApiToolNode,
-      proofreaderApi: ProofreaderApiToolNode,
-      translatorApi: TranslatorApiToolNode,
-      languageDetectorApi: LanguageDetectorApiToolNode,
-      summarizerApi: SummarizerApiToolNode,
-      alertNotification: AlertNotificationToolNode,
-      domInput: DomInputToolNode,
-      condition: ConditionToolNode,
-      staticInput: StaticInputToolNode,
-      loop: LoopToolNode,
-      clipboardWriter: ClipboardWriterNode,
-      textToSpeech: TextToSpeechNode,
-      domReplacement: DomReplacementNode,
-      fileCreator: FileCreatorNode,
-      tooltip: TooltipNode,
-      start: StartNode,
-      end: EndNode,
-      dataTransformer: DataTransformerToolNode,
-      math: MathToolNode,
+      [NodeType.PROMPT_API]: PromptApiToolNode,
+      [NodeType.WRITER_API]: WriterApiToolNode,
+      [NodeType.REWRITER_API]: RewriterApiToolNode,
+      [NodeType.PROOFREADER_API]: ProofreaderApiToolNode,
+      [NodeType.TRANSLATOR_API]: TranslatorApiToolNode,
+      [NodeType.LANGUAGE_DETECTOR_API]: LanguageDetectorApiToolNode,
+      [NodeType.SUMMARIZER_API]: SummarizerApiToolNode,
+      [NodeType.ALERT_NOTIFICATION]: AlertNotificationToolNode,
+      [NodeType.DOM_INPUT]: DomInputToolNode,
+      [NodeType.CONDITION]: ConditionToolNode,
+      [NodeType.STATIC_INPUT]: StaticInputToolNode,
+      [NodeType.LOOP]: LoopToolNode,
+      [NodeType.CLIPBOARD_WRITER]: ClipboardWriterNode,
+      [NodeType.TEXT_TO_SPEECH]: TextToSpeechNode,
+      [NodeType.DOM_REPLACEMENT]: DomReplacementNode,
+      [NodeType.FILE_CREATOR]: FileCreatorNode,
+      [NodeType.TOOLTIP]: TooltipNode,
+      [NodeType.START]: StartNode,
+      [NodeType.END]: EndNode,
+      [NodeType.DATA_TRANSFORMER]: DataTransformerToolNode,
+      [NodeType.MATH]: MathToolNode,
     }),
     [],
   );
@@ -77,12 +82,12 @@ const FlowProvider = ({ children }: PropsWithChildren) => {
   const [isRunning, setIsRunning] = useState(false);
 
   const onNodesChange = useCallback(
-    (changes: NodeChange<NodeType>[]) =>
+    (changes: NodeChange<FlowNodeType>[]) =>
       setNodes((nodesSnapshot) => applyNodeChanges(changes, nodesSnapshot)),
     [],
   );
   const onEdgesChange = useCallback(
-    (changes: EdgeChange<EdgeType>[]) =>
+    (changes: EdgeChange<FlowEdgeType>[]) =>
       setEdges((edgesSnapshot) => applyEdgeChanges(changes, edgesSnapshot)),
     [],
   );
@@ -104,7 +109,7 @@ const FlowProvider = ({ children }: PropsWithChildren) => {
   }, []);
 
   const onNodesDelete = useCallback(
-    (deletedNodes: NodeType[]) => {
+    (deletedNodes: FlowNodeType[]) => {
       deletedNodes.forEach((node) => {
         deleteNode(node.id);
       });
@@ -113,7 +118,7 @@ const FlowProvider = ({ children }: PropsWithChildren) => {
   );
 
   const onEdgesDelete = useCallback(
-    (deletedEdges: EdgeType[]) => {
+    (deletedEdges: FlowEdgeType[]) => {
       deletedEdges.forEach((edge) => {
         deleteEdge(edge.id);
       });
@@ -122,7 +127,7 @@ const FlowProvider = ({ children }: PropsWithChildren) => {
   );
 
   const onConnect = useCallback(
-    (params: Connection | EdgeType) =>
+    (params: Connection | FlowEdgeType) =>
       setEdges((edgesSnapshot) => {
         const isTargetConnected = edgesSnapshot.some((edge) => {
           const sameTargetId = edge.target === params.target;
@@ -144,7 +149,7 @@ const FlowProvider = ({ children }: PropsWithChildren) => {
     [],
   );
 
-  const addNode = useCallback((node: NodeType) => {
+  const addNode = useCallback((node: FlowNodeType) => {
     setNodes((prev) => [...prev, node]);
   }, []);
 

@@ -1,10 +1,13 @@
-import type { NodeConfig } from "../../stateProviders";
+/**
+ * External dependencies
+ */
+import { NodeType, type NodeConfig } from "@google-awlt/engine-core";
 
 export const TOOL_CONFIGS: Record<
-  string,
+  NodeType,
   { label: string; config: NodeConfig["config"] }
 > = {
-  promptApi: {
+  [NodeType.PROMPT_API]: {
     label: "Chat Assistant",
     config: {
       title: "Chat Assistant",
@@ -16,7 +19,7 @@ export const TOOL_CONFIGS: Record<
       initialPrompts: [],
     },
   },
-  writerApi: {
+  [NodeType.WRITER_API]: {
     label: "Writer API",
     config: {
       title: "Writer",
@@ -29,7 +32,7 @@ export const TOOL_CONFIGS: Record<
       outputLanguage: "en",
     },
   },
-  rewriterApi: {
+  [NodeType.REWRITER_API]: {
     label: "Rewriter API",
     config: {
       title: "Rewriter",
@@ -42,7 +45,7 @@ export const TOOL_CONFIGS: Record<
       outputLanguage: "en",
     },
   },
-  proofreaderApi: {
+  [NodeType.PROOFREADER_API]: {
     label: "Proofreader API",
     config: {
       title: "Proofreader",
@@ -52,7 +55,7 @@ export const TOOL_CONFIGS: Record<
       outputLanguage: "en",
     },
   },
-  translatorApi: {
+  [NodeType.TRANSLATOR_API]: {
     label: "Translator API",
     config: {
       title: "Translator",
@@ -62,14 +65,14 @@ export const TOOL_CONFIGS: Record<
       targetLanguage: "es",
     },
   },
-  languageDetectorApi: {
+  [NodeType.LANGUAGE_DETECTOR_API]: {
     label: "Language Detector",
     config: {
       title: "Language Detector",
       description: "Detects the language of the provided text.",
     },
   },
-  summarizerApi: {
+  [NodeType.SUMMARIZER_API]: {
     label: "Summarizer API",
     config: {
       title: "Summarizer",
@@ -82,22 +85,23 @@ export const TOOL_CONFIGS: Record<
       outputLanguage: "en",
     },
   },
-  domInput: {
+  [NodeType.DOM_INPUT]: {
     label: "DOM Input",
     config: {
       title: "DOM Input",
       description: "Extract text from a website using a CSS selector.",
     },
   },
-  staticInput: {
+  [NodeType.STATIC_INPUT]: {
     label: "Static Input",
     config: {
       title: "Static Input",
       description: "Provide a static text input.",
       inputValue: "",
+      isMultiple: false,
     },
   },
-  condition: {
+  [NodeType.CONDITION]: {
     label: "Condition",
     config: {
       title: "Condition",
@@ -106,7 +110,7 @@ export const TOOL_CONFIGS: Record<
       comparisonValue: "",
     },
   },
-  math: {
+  [NodeType.MATH]: {
     label: "Math",
     config: {
       title: "Math",
@@ -115,14 +119,14 @@ export const TOOL_CONFIGS: Record<
       operand: "0",
     },
   },
-  loop: {
+  [NodeType.LOOP]: {
     label: "Loop",
     config: {
       title: "Loop",
       description: "Iterate over an array of items.",
     },
   },
-  dataTransformer: {
+  [NodeType.DATA_TRANSFORMER]: {
     label: "Data Transformer",
     config: {
       title: "Data Transformer",
@@ -131,7 +135,7 @@ export const TOOL_CONFIGS: Record<
       formatType: "trim",
     },
   },
-  alertNotification: {
+  [NodeType.ALERT_NOTIFICATION]: {
     label: "Alert Notification",
     config: {
       title: "Alert Notification",
@@ -140,7 +144,7 @@ export const TOOL_CONFIGS: Record<
       message: "",
     },
   },
-  domReplacement: {
+  [NodeType.DOM_REPLACEMENT]: {
     label: "DOM Replacement",
     config: {
       title: "DOM Replacement",
@@ -148,14 +152,14 @@ export const TOOL_CONFIGS: Record<
       selector: "",
     },
   },
-  clipboardWriter: {
+  [NodeType.CLIPBOARD_WRITER]: {
     label: "Clipboard Writer",
     config: {
       title: "Clipboard Writer",
       description: "Copy input to the clipboard.",
     },
   },
-  fileCreator: {
+  [NodeType.FILE_CREATOR]: {
     label: "File Creator",
     config: {
       title: "File Creator",
@@ -163,14 +167,14 @@ export const TOOL_CONFIGS: Record<
       filename: "output.txt",
     },
   },
-  textToSpeech: {
+  [NodeType.TEXT_TO_SPEECH]: {
     label: "Text to Speech",
     config: {
       title: "Text to Speech",
       description: "Read input text aloud.",
     },
   },
-  tooltip: {
+  [NodeType.TOOLTIP]: {
     label: "Tooltip",
     config: {
       title: "Tooltip",
@@ -178,14 +182,14 @@ export const TOOL_CONFIGS: Record<
       selector: "",
     },
   },
-  start: {
+  [NodeType.START]: {
     label: "Start",
     config: {
       title: "Start",
       description: "Workflow entry point.",
     },
   },
-  end: {
+  [NodeType.END]: {
     label: "End",
     config: {
       title: "End",

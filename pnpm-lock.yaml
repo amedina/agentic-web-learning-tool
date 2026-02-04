@@ -285,6 +285,10 @@ importers:
         version: 5.9.2
 
   packages/engine-core:
+    dependencies:
+      zod:
+        specifier: ^4.1.13
+        version: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
     devDependencies:
       '@google-awlt/shared-config':
         specifier: workspace:*
