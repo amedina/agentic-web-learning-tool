@@ -27,6 +27,7 @@
     "dev:styles": "tailwindcss -i ./src/styles.css -o ./dist/index.css --watch",
     "dev:components": "tsc --watch",
     "dev": "concurrently pnpm run \"dev:styles\" \"pnpm run dev:components\"",
+    "prebuild": "rimraf dist dist-types",
     "build": "pnpm run build:styles & npm run build:components",
     "lint": "eslint .",
     "format": "prettier . --write",
@@ -91,6 +92,7 @@
     "jest-extended": "^7.0.0",
     "node-fetch": "^3.3.2",
     "prettier": "^3.6.2",
+    "rimraf": "^5.0.10",
     "tailwindcss": "^4.1.5",
     "typescript": "5.9.2"
   }

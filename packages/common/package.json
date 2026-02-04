@@ -17,6 +17,7 @@
   "scripts": {
     "build": "tsc",
     "check-types": "tsc --noEmit",
+    "prebuild": "rimraf dist dist-types",
     "dev": "tsc --watch",
     "lint": "eslint .",
     "format": "prettier . --write",
@@ -50,6 +51,7 @@
     "jest-extended": "^7.0.0",
     "node-fetch": "^3.3.2",
     "prettier": "^3.6.2",
+    "rimraf": "^5.0.10",
     "typescript": "5.9.2"
   }
 }
