@@ -1,0 +1,177 @@
+/**
+ * External dependencies
+ */
+import {
+  useCallback,
+  useState,
+  useEffect,
+  type PropsWithChildren,
+} from "react";
+import { getWorkflowClient } from "@google-awlt/engine-extension";
+import { type WorkflowMeta } from "@google-awlt/engine-core";
+
+/**
+ * Internal dependencies
+ */
+import Context, { type NodeConfig } from "./context";
+
+const ApiProvider = ({ children }: PropsWithChildren) => {
+  const [nodes, setNodes] = useState<{
+    [id: string]: NodeConfig;
+  }>({});
+
+  const [selectedNode, setSelectedNode] = useState<string | null>(null);
+  const [capabilities, setCapabilities] = useState<Record<string, boolean>>({});
+  const [workflowMeta, setWorkflowMeta] = useState<WorkflowMeta>({
+    id: `wf_${crypto.randomUUID()}`,
+    name: "New Workflow",
+    description: "",
+    version: "1.0.0",
+    savedAt: new Date().toISOString(),
+    allowedDomains: [],
+    isWebMCP: false,
+    autosave: false,
+  });
+
+  const getNode = useCallback(
+    (id: string) => {
+      return nodes[id];
+    },
+    [nodes],
+  );
+
+  const addNode = useCallback(
+    (
+      node: {
+        id: string;
+      } & NodeConfig,
+    ) => {
+      setNodes((prev) => ({
+        ...prev,
+        [node.id]: {
+          type: node.type,
+          config: node.config,
+        },
+      }));
+
+      setSelectedNode(node.id);
+    },
+    [],
+  );
+
+  const updateNode = useCallback(
+    (
+      id: string,
+      updates: {
+        type?: string;
+        config?: NodeConfig["config"];
+      },
+    ) => {
+      setNodes((prev) => {
+        if (!prev || !prev[id]) return prev;
+
+        return {
+          ...prev,
+          [id]: {
+            ...prev[id],
+            ...updates,
+            config: {
+              ...prev[id].config,
+              ...updates.config,
+            },
+          },
+        };
+      });
+    },
+    [],
+  );
+
+  const removeNode = useCallback((id: string) => {
+    setNodes((prev) => {
+      if (!prev || !prev[id]) return prev;
+
+      const updated = { ...prev };
+      delete updated[id];
+      setSelectedNode((current) => (current === id ? null : current));
+
+      return updated;
+    });
+  }, []);
+
+  const clearApiData = useCallback(() => {
+    setNodes({});
+    setSelectedNode(null);
+    setWorkflowMeta({
+      id: crypto.randomUUID(),
+      name: "New Workflow",
+      description: "",
+      version: "1.0.0",
+      savedAt: new Date().toISOString(),
+      allowedDomains: [],
+      isWebMCP: false,
+      autosave: false,
+    });
+  }, []);
+
+  const updateWorkflowMeta = useCallback((updates: Partial<WorkflowMeta>) => {
+    setWorkflowMeta((prev) => ({
+      ...prev,
+      ...updates,
+    }));
+  }, []);
+
+  const checkCapabilities = useCallback(async () => {
+    try {
+      const client = getWorkflowClient();
+      const results = await client.checkCapabilities([
+        "promptApi",
+        "writerApi",
+        "rewriterApi",
+        "summarizerApi",
+        "translatorApi",
+        "languageDetectorApi",
+        "proofreaderApi",
+      ]);
+
+      setCapabilities({
+        ...results,
+        translatorApi: true, // Always show in UI per user request
+      });
+    } catch (error) {
+      console.error("Failed to check capabilities:", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    checkCapabilities();
+  }, [checkCapabilities]);
+
+  return (
+    <Context.Provider
+      value={
+        {
+          state: {
+            nodes,
+            selectedNode,
+            capabilities,
+            workflowMeta,
+          },
+          actions: {
+            getNode,
+            addNode,
+            updateNode,
+            removeNode,
+            setSelectedNode,
+            updateWorkflowMeta,
+            clearApiData,
+            checkCapabilities,
+          },
+        } as any
+      }
+    >
+      {children}
+    </Context.Provider>
+  );
+};
+
+export default ApiProvider;

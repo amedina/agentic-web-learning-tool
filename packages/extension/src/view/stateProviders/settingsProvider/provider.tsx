@@ -25,6 +25,7 @@ function SettingsProvider({
   const [theme, setTheme] = useState<SettingsState['theme']>('auto');
   const [logLevel, setLogLevel] = useState<SettingsState['logLevel']>('SILENT');
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [workflowId, setWorkflowId] = useState<string | null>(null);
   const [tabData, setTabData] = useState<{
     [key: string]: chrome.tabs.Tab;
   }>({});
@@ -221,12 +222,14 @@ function SettingsProvider({
         theme,
         logLevel,
         isDarkMode,
+        workflowId,
         tabData,
         lockedThreads,
       },
       actions: {
         clearSettings,
         toggleSettings,
+        setWorkflowId,
       },
     }),
     [
@@ -235,6 +238,7 @@ function SettingsProvider({
       theme,
       logLevel,
       isDarkMode,
+      workflowId,
       clearSettings,
       toggleSettings,
     ]

@@ -1,4 +1,9 @@
 /**
+ * External dependencies
+ */
+import { userActivationManager } from '@google-awlt/engine-core';
+
+/**
  * Internal dependencies
  */
 import type {
@@ -51,6 +56,7 @@ export function initContentScriptBridge(): void {
           message.content,
           message.isMultiple,
           sendResponse,
+          message.mode,
           message.index
         );
         return true;
@@ -69,6 +75,10 @@ export function initContentScriptBridge(): void {
 
       case 'SHOW_TOOLTIP':
         handleShowTooltip(message.selector, message.content, sendResponse);
+        return true;
+
+      case 'USER_ACTIVATION_REQUEST':
+        handleUserActivationRequest(sendResponse);
         return true;
 
       default:
@@ -200,9 +210,28 @@ export function initContentScriptBridge(): void {
     content: string,
     isMultiple: boolean | undefined,
     sendResponse: (response: ContentScriptResponse) => void,
+    mode: 'textContent' | 'innerText' | 'innerHTML' | 'value' = 'textContent',
     index?: number
   ): void {
     try {
+      const updateElement = (element: Element) => {
+        switch (mode) {
+          case 'innerHTML':
+            element.innerHTML = content;
+            break;
+          case 'innerText':
+            (element as HTMLElement).innerText = content;
+            break;
+          case 'value':
+            (element as HTMLInputElement).value = content;
+            break;
+          case 'textContent':
+          default:
+            element.textContent = content;
+            break;
+        }
+      };
+
       if (typeof index === 'number') {
         const elements = document.querySelectorAll(selector);
         if (!elements || elements.length <= index) {
@@ -210,21 +239,24 @@ export function initContentScriptBridge(): void {
             `No element found at index ${index} for selector: ${selector}`
           );
         }
-        elements[index].textContent = content;
+
+        updateElement(elements[index]);
       } else if (isMultiple) {
         const elements = document.querySelectorAll(selector);
         if (!elements || elements.length === 0) {
           throw new Error(`No elements found for selector: ${selector}`);
         }
+
         elements.forEach((el) => {
-          el.textContent = content;
+          updateElement(el);
         });
       } else {
         const element = document.querySelector(selector);
         if (!element) {
           throw new Error(`No element found for selector: ${selector}`);
         }
-        element.textContent = content;
+
+        updateElement(element);
       }
 
       sendResponse({ success: true });
@@ -242,7 +274,12 @@ export function initContentScriptBridge(): void {
     sendResponse: (response: ContentScriptResponse) => void
   ): Promise<void> {
     try {
-      await navigator.clipboard.writeText(text);
+      const textarea = document.createElement('textarea');
+      textarea.textContent = text;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
       sendResponse({ success: true });
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
@@ -434,7 +471,6 @@ export function initContentScriptBridge(): void {
 
         if (placeBelow) {
           top = rect.bottom + scrollY + 8;
-        } else {
         }
 
         tooltip.style.visibility = 'hidden';
@@ -453,6 +489,22 @@ export function initContentScriptBridge(): void {
       sendResponse({
         success: true,
       });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      sendResponse({ success: false, error: message });
+    }
+  }
+
+  /**
+   * Handle user activation request.
+   */
+  async function handleUserActivationRequest(
+    sendResponse: (response: ContentScriptResponse) => void
+  ): Promise<void> {
+    try {
+      await userActivationManager.requestActivation();
+
+      sendResponse({ success: true });
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       sendResponse({ success: false, error: message });

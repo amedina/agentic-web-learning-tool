@@ -80,10 +80,31 @@ export class WorkflowEngine {
       const executionPlan = this.parser.getExecutionPlan(this.parsedGraph);
       this.context = this.createContext(json.meta.id, options.initialVariables);
 
+      const sensitiveCapabilities = [
+        'promptApi',
+        'writerApi',
+        'rewriterApi',
+        'summarizerApi',
+        'translatorApi',
+        'languageDetectorApi',
+        'proofreaderApi',
+      ];
+      const hasSensitiveCap = Object.keys(requiredCaps).some((cap) =>
+        sensitiveCapabilities.includes(cap)
+      );
+
+      if (hasSensitiveCap) {
+        const isActive = await this.runtime.isUserActive();
+
+        if (!isActive) {
+          await this.runtime.waitForUserActivation();
+        }
+      }
+
       const executedNodes = new Set<string>();
 
       for (const node of executionPlan) {
-        if (this.abortController.signal.aborted) {
+        if (this.abortController?.signal.aborted) {
           throw new Error('Workflow aborted');
         }
         if (executedNodes.has(node.id)) continue;

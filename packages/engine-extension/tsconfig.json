@@ -21,5 +21,5 @@
     "node_modules/@types/chrome/index.d.ts",
     "node_modules/@types/dom-chromium-ai/index.d.ts"
   ],
-  "exclude": ["node_modules", "dist"]
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.test.tsx"]
 }

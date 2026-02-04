@@ -48,6 +48,7 @@ export interface ReplaceDOMMessage {
   selector: string;
   content: string;
   isMultiple?: boolean;
+  mode?: 'textContent' | 'innerText' | 'innerHTML' | 'value';
   index?: number;
 }
 
@@ -94,6 +95,13 @@ export interface ContentScriptActiveMessage {
 }
 
 /**
+ * Request user activation on the page.
+ */
+export interface UserActivationRequestMessage {
+  type: 'USER_ACTIVATION_REQUEST';
+}
+
+/**
  * All messages that can be sent to the content script.
  */
 export type ContentScriptMessage =
@@ -105,7 +113,8 @@ export type ContentScriptMessage =
   | CopyToClipboardMessage
   | DownloadFileMessage
   | SpeakTextMessage
-  | ShowTooltipMessage;
+  | ShowTooltipMessage
+  | UserActivationRequestMessage;
 
 // Options Page / UI -> Service Worker Messages
 

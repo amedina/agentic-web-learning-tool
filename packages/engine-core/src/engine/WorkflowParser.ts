@@ -286,7 +286,9 @@ export class WorkflowParser {
 
       for (const neighbor of neighbors) {
         if (current.id === nodeId && sourceHandle !== undefined) {
-          if (neighbor.sourceHandle !== sourceHandle) continue;
+          const normalizedNeighborHandle = neighbor.sourceHandle ?? null;
+          const normalizedSourceHandle = sourceHandle ?? null;
+          if (normalizedNeighborHandle !== normalizedSourceHandle) continue;
         }
 
         if (!reachable.has(neighbor.target)) {

@@ -25,6 +25,7 @@ export const CodeEditorGutter = ({
     <div
       ref={gutterRef}
       className="select-none text-right overflow-hidden border-r border-[#e0e0e0] flex-shrink-0 relative z-20 cursor-default"
+      // @ts-ignore - ts(2322)
       style={{
         ...commonStyle,
         padding: '1.5rem 0 0 0',
