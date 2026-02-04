@@ -153,7 +153,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
   return (
     <>
       <ThreadListSidebar isThreadLoading={isLoading} />
-      <SidebarInset>
+      <SidebarInset className="h-full">
         <div className="fixed top-15 left-0 z-20 flex flex-row items-center md:hidden pl-1 pt-1 bg-background">
           <Tooltip text="Chat History">
             <SidebarTrigger className="bg-background">
@@ -178,7 +178,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
             </Button>
           </Tooltip>
         </div>
-        <ThreadPrimitive.Root className="h-screen flex flex-col">
+        <ThreadPrimitive.Root className="h-full flex flex-col">
           <ThreadPrimitive.Viewport
             autoScroll={true}
             turnAnchor="bottom"
