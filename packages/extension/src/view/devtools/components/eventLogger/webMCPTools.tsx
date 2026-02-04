@@ -14,6 +14,7 @@ import {
   type InfoType,
   type TableRow,
   type UserStoredTool,
+  getToolNameWithoutPrefix,
 } from '@google-awlt/design-system';
 import type { Tool } from '@modelcontextprotocol/sdk/types.js';
 import { noop } from '@google-awlt/common';
@@ -68,7 +69,7 @@ export const WebMCPTools = ({
       const tools = availableTools
         .filter((tool) => isLocalTool(tool.name, tabId))
         .map((tool) => ({
-          name: tool.name,
+          name: getToolNameWithoutPrefix(tool.name),
           type: 'MCP',
           originalData: tool,
           inputSchema: tool.inputSchema,
