@@ -33,24 +33,37 @@ const IconDisplay = ({
   };
 
   const sizeClass = sizeClasses[size];
+  const isDarkTheme = document.documentElement.classList.contains("dark");
 
   return (
     <div className={`flex gap-1 ${className}`}>
-      {icons.map((icon, index) => (
-        <img
-          key={index}
-          src={icon.src}
-          alt=""
-          className={`${sizeClass} object-contain flex-shrink-0`}
-          style={{
-            imageRendering: "auto",
-          }}
-          onError={(e) => {
-            // Hide broken images
-            e.currentTarget.style.display = "none";
-          }}
-        />
-      ))}
+      {icons
+        .filter((icon) => {
+          if (!icon?.theme) {
+            return true;
+          }
+
+          if (isDarkTheme) {
+            return icon?.theme === "dark" ? true : false;
+          }
+
+          return icon?.theme === "light" ? true : false;
+        })
+        .map((icon, index) => (
+          <img
+            key={index}
+            src={icon.src}
+            alt=""
+            className={`${sizeClass} object-contain flex-shrink-0`}
+            style={{
+              imageRendering: "auto",
+            }}
+            onError={(e) => {
+              // Hide broken images
+              e.currentTarget.style.display = "none";
+            }}
+          />
+        ))}
     </div>
   );
 };

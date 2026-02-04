@@ -41,7 +41,7 @@ import {
 import MCPServersTab from './components/mcpServers';
 import { useSettings } from '../stateProviders';
 
-type ExtendedMenuItem = MenuItem & {
+export type ExtendedMenuItem = MenuItem & {
   component?: React.ReactNode;
   items?: ExtendedMenuItem[];
 };
@@ -52,29 +52,34 @@ const Items: ExtendedMenuItem[] = [
     id: 'models',
     icon: () => <CpuIcon />,
     component: <ModelsTab />,
+    isDisabled: false,
   },
   {
     title: 'MCP',
     id: 'mcp-group',
     icon: () => <Database />,
+    isDisabled: false,
     items: [
       {
         title: 'MCP Servers',
         id: 'mcp-server',
         icon: () => <Server />,
         component: <MCPServersTab />,
+        isDisabled: false,
       },
       {
         title: 'WebMCP Tools',
         id: 'webmcp-tools',
         icon: () => <CodeIcon />,
         component: <WebMCPToolsTab />,
+        isDisabled: false,
       },
       {
         title: 'MCP Inspector',
         id: 'mcp-inspector',
         icon: () => <View />,
         component: <MCPInspectorTab />,
+        isDisabled: true,
       },
     ],
   },
@@ -82,24 +87,28 @@ const Items: ExtendedMenuItem[] = [
     title: 'Built-in AI',
     id: 'builtin-ai-group',
     icon: () => <Sparkles />,
+    isDisabled: false,
     items: [
       {
         title: 'API Status',
         id: 'api-status',
         icon: () => <Activity />,
         component: <APIStatusTab />,
+        isDisabled: false,
       },
       {
         title: 'API Playgrounds',
         id: 'api-playgrounds',
         icon: () => <Play />,
         component: <APIPlaygroundsTab />,
+        isDisabled: false,
       },
       {
         title: 'Workflow Composer',
         id: 'workflow-composer',
         icon: () => <WorkflowIcon />,
         component: <Workflow />,
+        isDisabled: false,
       },
     ],
   },
@@ -108,6 +117,7 @@ const Items: ExtendedMenuItem[] = [
     id: 'prompt-commands',
     icon: () => <MessageSquare />,
     component: <PromptCommandsTab />,
+    isDisabled: false,
   },
 ];
 

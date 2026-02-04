@@ -38,7 +38,7 @@ const HistoryAndNotifications = ({
 
   return (
     <div className="bg-card overflow-hidden flex h-full">
-      <div className="flex-1 overflow-y-auto p-4 border-r">
+      <div className="flex-1 overflow-y-auto p-4 pl-0 border-r">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">History</h2>
           <Button

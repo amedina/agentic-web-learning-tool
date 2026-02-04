@@ -5,10 +5,6 @@ import { useState, useMemo, useRef, useCallback } from "react";
 import { Search } from "lucide-react";
 import { Button, Input } from "@google-awlt/design-system";
 
-/**
- * Internal dependencies
- */
-
 type ListPaneProps<T> = {
   items: T[];
   listItems: () => void;
@@ -69,7 +65,7 @@ const ListPane = <T extends object>({
   );
 
   return (
-    <div className="bg-card border border-border rounded-lg shadow">
+    <div className="bg-card border border-border rounded-lg shadow flex-1">
       <div className="p-4 border-b border-gray-200 dark:border-border">
         <div className="flex items-center justify-between gap-4">
           <h3 className="font-semibold dark:text-white flex-shrink-0">
@@ -87,19 +83,16 @@ const ListPane = <T extends object>({
               </button>
             ) : (
               <div className="flex items-center w-full max-w-xs">
-                <div className="relative w-full">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none z-10" />
-                  <Input
-                    ref={searchInputRef}
-                    name="search"
-                    type="text"
-                    placeholder="Search..."
-                    value={searchQuery}
-                    onChange={handleSearchChange}
-                    onBlur={handleSearchBlur}
-                    className="pl-10 w-full transition-all duration-300 ease-in-out"
-                  />
-                </div>
+                <Input
+                  ref={searchInputRef}
+                  name="search"
+                  type="text"
+                  placeholder="Search..."
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                  onBlur={handleSearchBlur}
+                  className="pl-10 w-full transition-all duration-300 ease-in-out"
+                />
               </div>
             )}
           </div>
@@ -126,8 +119,11 @@ const ListPane = <T extends object>({
           {filteredItems.map((item, index) => (
             <div
               key={index}
-              className="flex items-center py-2 px-4 rounded hover:bg-gray-50 dark:hover:bg-secondary cursor-pointer"
+              className="flex items-center py-2 px-4 rounded hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 cursor-pointer"
               onClick={() => setSelectedItem(item)}
+              role="button"
+              onKeyDown={() => {}}
+              tabIndex={0}
             >
               {renderItem(item)}
             </div>

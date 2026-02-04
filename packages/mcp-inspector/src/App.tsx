@@ -11,21 +11,19 @@ import {
   type Resource,
   type ResourceTemplate,
   type Tool,
-  type LoggingLevel,
 } from "@modelcontextprotocol/sdk/types.js";
 import type {
   AnySchema,
   SchemaOutput,
 } from "@modelcontextprotocol/sdk/server/zod-compat.js";
-import { cacheToolOutputSchemas } from "./utils/schemaUtils";
-import { cleanParams } from "./utils/paramUtils";
-import type { JsonSchemaType } from "./utils/jsonUtils";
-import React, { Suspense, useCallback, useRef, useState } from "react";
 import {
-  useDraggablePane,
-  useDraggableSidebar,
-} from "./lib/hooks/useDraggablePane";
-
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   Tabs,
   TabsContent,
@@ -43,8 +41,14 @@ import {
   MessageSquare,
   Settings,
 } from "lucide-react";
-
 import { z } from "zod";
+/**
+ * Internal dependencies
+ */
+import { useDraggablePane } from "./lib/hooks/useDraggablePane";
+import { cacheToolOutputSchemas } from "./utils/schemaUtils";
+import { cleanParams } from "./utils/paramUtils";
+import type { JsonSchemaType } from "./utils/jsonUtils";
 import "./App.css";
 import AuthDebugger from "./components/AuthDebugger";
 import ConsoleTab from "./components/ConsoleTab";
@@ -54,7 +58,6 @@ import PromptsTab, { type Prompt } from "./components/PromptsTab";
 import ResourcesTab from "./components/ResourcesTab";
 import RootsTab from "./components/RootsTab";
 import SamplingTab from "./components/SamplingTab";
-import Sidebar from "./components/Sidebar";
 import ToolsTab from "./components/ToolsTab";
 import ElicitationTab from "./components/ElicitationTab";
 import MetadataTab from "./components/MetadataTab";
@@ -62,18 +65,7 @@ import { useMCPClientProvider } from "./stateProvider";
 
 const App = () => {
   const {
-    command,
-    args,
     sseUrl,
-    transportType,
-    connectionType,
-    logLevel,
-    config,
-    env,
-    customHeaders,
-    oauthClientId,
-    oauthScope,
-    oauthClientSecret,
     isAuthDebuggerVisible,
     authState,
     metadata,
@@ -81,12 +73,10 @@ const App = () => {
     mcpClient,
     roots,
     notifications,
+    serverCapabilities,
+    requestHistory,
     pendingSampleRequests,
     pendingElicitationRequests,
-    connectionStatus,
-    serverCapabilities,
-    serverImplementation,
-    requestHistory,
     completionsSupported,
     lastToolCallOriginTabRef,
     resources,
@@ -97,18 +87,6 @@ const App = () => {
     setPrompts,
     onOAuthConnect,
     onOAuthDebugConnect,
-    setCommand,
-    setArgs,
-    setSseUrl,
-    setTransportType,
-    setConnectionType,
-    setLogLevel,
-    setConfig,
-    setEnv,
-    setOauthClientId,
-    setCustomHeaders,
-    setOauthScope,
-    setOauthClientSecret,
     setIsAuthDebuggerVisible,
     updateAuthState,
     handleMetadataChange,
@@ -116,26 +94,13 @@ const App = () => {
     makeRequest,
     sendNotification,
     handleCompletion,
-    connectMcpServer,
-    disconnectMcpServer,
     handleApproveSampling,
     handleRejectSampling,
     handleResolveElicitation,
     setRoots,
     setActiveTab,
   } = useMCPClientProvider(({ actions, state }) => ({
-    command: state.command,
-    args: state.args,
     sseUrl: state.sseUrl,
-    transportType: state.transportType,
-    connectionType: state.connectionType,
-    logLevel: state.logLevel,
-    config: state.config,
-    env: state.env,
-    customHeaders: state.customHeaders,
-    oauthClientId: state.oauthClientId,
-    oauthScope: state.oauthScope,
-    oauthClientSecret: state.oauthClientSecret,
     isAuthDebuggerVisible: state.isAuthDebuggerVisible,
     authState: state.authState,
     metadata: state.metadata,
@@ -145,9 +110,7 @@ const App = () => {
     notifications: state.notifications,
     pendingSampleRequests: state.pendingSampleRequests,
     pendingElicitationRequests: state.pendingElicitationRequests,
-    connectionStatus: state.connectionStatus,
     serverCapabilities: state.serverCapabilities,
-    serverImplementation: state.serverImplementation,
     requestHistory: state.requestHistory,
     completionsSupported: state.completionsSupported,
     lastToolCallOriginTabRef: state.lastToolCallOriginTabRef,
@@ -156,18 +119,7 @@ const App = () => {
     prompts: state.prompts,
     onOAuthConnect: actions.onOAuthConnect,
     onOAuthDebugConnect: actions.onOAuthDebugConnect,
-    setCommand: actions.setCommand,
-    setArgs: actions.setArgs,
-    setSseUrl: actions.setSseUrl,
-    setTransportType: actions.setTransportType,
-    setConnectionType: actions.setConnectionType,
     setLogLevel: actions.setLogLevel,
-    setConfig: actions.setConfig,
-    setEnv: actions.setEnv,
-    setOauthClientId: actions.setOauthClientId,
-    setCustomHeaders: actions.setCustomHeaders,
-    setOauthScope: actions.setOauthScope,
-    setOauthClientSecret: actions.setOauthClientSecret,
     setIsAuthDebuggerVisible: actions.setIsAuthDebuggerVisible,
     updateAuthState: actions.updateAuthState,
     handleMetadataChange: actions.handleMetadataChange,
@@ -175,8 +127,6 @@ const App = () => {
     makeRequest: actions.makeRequest,
     sendNotification: actions.sendNotification,
     handleCompletion: actions.handleCompletion,
-    connectMcpServer: actions.connectMcpServer,
-    disconnectMcpServer: actions.disconnectMcpServer,
     handleApproveSampling: actions.handleApproveSampling,
     handleRejectSampling: actions.handleRejectSampling,
     handleResolveElicitation: actions.handleResolveElicitation,
@@ -226,16 +176,11 @@ const App = () => {
 
   const currentTabRef = useRef<string>(activeTab);
 
-  React.useEffect(() => {
+  useEffect(() => {
     currentTabRef.current = activeTab;
   }, [activeTab]);
 
   const { height: historyPaneHeight, handleDragStart } = useDraggablePane(300);
-  const {
-    width: sidebarWidth,
-    isDragging: isSidebarDragging,
-    handleDragStart: handleSidebarDragStart,
-  } = useDraggableSidebar(320);
 
   const clearError = useCallback((tabKey: keyof typeof errors) => {
     setErrors((prev) => ({ ...prev, [tabKey]: null }));
@@ -469,17 +414,6 @@ const App = () => {
     // Let's update Context file first quickly to add `clearNotifications`.
   };
 
-  const sendLogLevelRequest = async (level: LoggingLevel) => {
-    await sendMCPRequest(
-      {
-        method: "logging/setLevel" as const,
-        params: { level },
-      },
-      z.object({}),
-    );
-    setLogLevel(level);
-  };
-
   const AuthDebuggerWrapper = () => (
     <TabsContent value="auth">
       <AuthDebugger
@@ -492,9 +426,7 @@ const App = () => {
   );
 
   if (window.location.pathname === "/oauth/callback") {
-    const OAuthCallback = React.lazy(
-      () => import("./components/OAuthCallback"),
-    );
+    const OAuthCallback = lazy(() => import("./components/OAuthCallback"));
     return (
       <Suspense fallback={<div>Loading...</div>}>
         <OAuthCallback onConnect={onOAuthConnect} />
@@ -503,7 +435,7 @@ const App = () => {
   }
 
   if (window.location.pathname === "/oauth/callback/debug") {
-    const OAuthDebugCallback = React.lazy(
+    const OAuthDebugCallback = lazy(
       () => import("./components/OAuthDebugCallback"),
     );
     return (
@@ -515,95 +447,45 @@ const App = () => {
 
   return (
     <div className="flex h-screen bg-background py-4">
-      <div
-        style={{
-          width: sidebarWidth,
-          minWidth: 200,
-          maxWidth: 600,
-          transition: isSidebarDragging ? "none" : "width 0.15s",
-        }}
-        className="bg-card border-r border-border flex flex-col h-full relative"
-      >
-        <Sidebar
-          connectionStatus={connectionStatus}
-          transportType={transportType}
-          setTransportType={setTransportType}
-          command={command}
-          setCommand={setCommand}
-          args={args}
-          setArgs={setArgs}
-          sseUrl={sseUrl}
-          setSseUrl={setSseUrl}
-          env={env}
-          setEnv={setEnv}
-          config={config}
-          setConfig={setConfig}
-          customHeaders={customHeaders}
-          setCustomHeaders={setCustomHeaders}
-          oauthClientId={oauthClientId}
-          setOauthClientId={setOauthClientId}
-          oauthClientSecret={oauthClientSecret}
-          setOauthClientSecret={setOauthClientSecret}
-          oauthScope={oauthScope}
-          setOauthScope={setOauthScope}
-          onConnect={connectMcpServer}
-          onDisconnect={disconnectMcpServer}
-          logLevel={logLevel}
-          sendLogLevelRequest={sendLogLevelRequest}
-          loggingSupported={!!serverCapabilities?.logging || false}
-          connectionType={connectionType}
-          setConnectionType={setConnectionType}
-          serverImplementation={serverImplementation}
-        />
-        <div
-          onMouseDown={handleSidebarDragStart}
-          style={{
-            cursor: "col-resize",
-            position: "absolute",
-            top: 0,
-            right: 0,
-            width: 6,
-            height: "100%",
-            zIndex: 10,
-            background: isSidebarDragging ? "rgba(0,0,0,0.08)" : "transparent",
-          }}
-          aria-label="Resize sidebar"
-          data-testid="sidebar-drag-handle"
-        />
-      </div>
       <div className="flex-1 flex flex-col overflow-hidden">
         <div className="flex-1 overflow-auto">
           {mcpClient ? (
             <Tabs
               value={activeTab}
-              className="w-full p-4"
+              className="w-full"
               onValueChange={(value) => {
                 setActiveTab(value);
                 window.location.hash = value;
               }}
             >
               <TabsList className="mb-4 py-0">
-                <TabsTrigger
-                  value="resources"
-                  disabled={!serverCapabilities?.resources}
-                >
-                  <Files className="w-4 h-4 mr-2" />
-                  Resources
-                </TabsTrigger>
-                <TabsTrigger
-                  value="prompts"
-                  disabled={!serverCapabilities?.prompts}
-                >
-                  <MessageSquare className="w-4 h-4 mr-2" />
-                  Prompts
-                </TabsTrigger>
-                <TabsTrigger
-                  value="tools"
-                  disabled={!serverCapabilities?.tools}
-                >
-                  <Hammer className="w-4 h-4 mr-2" />
-                  Tools
-                </TabsTrigger>
+                {serverCapabilities?.resources && (
+                  <TabsTrigger
+                    value="resources"
+                    disabled={!serverCapabilities?.resources}
+                  >
+                    <Files className="w-4 h-4 mr-2" />
+                    Resources
+                  </TabsTrigger>
+                )}
+                {serverCapabilities?.prompts && (
+                  <TabsTrigger
+                    value="prompts"
+                    disabled={!serverCapabilities?.prompts}
+                  >
+                    <MessageSquare className="w-4 h-4 mr-2" />
+                    Prompts
+                  </TabsTrigger>
+                )}
+                {serverCapabilities?.tools && (
+                  <TabsTrigger
+                    value="tools"
+                    disabled={!serverCapabilities?.tools}
+                  >
+                    <Hammer className="w-4 h-4 mr-2" />
+                    Tools
+                  </TabsTrigger>
+                )}
                 <TabsTrigger value="ping">
                   <Bell className="w-4 h-4 mr-2" />
                   Ping
@@ -809,7 +691,7 @@ const App = () => {
           ) : isAuthDebuggerVisible ? (
             <Tabs
               defaultValue={"auth"}
-              className="w-full p-4"
+              className="w-full"
               onValueChange={(value) => (window.location.hash = value)}
             >
               <AuthDebuggerWrapper />
@@ -841,8 +723,11 @@ const App = () => {
           }}
         >
           <div
-            className="absolute w-full h-4 -top-2 cursor-row-resize flex items-center justify-center hover:bg-accent/50 dark:hover:bg-input/40"
+            tabIndex={0}
+            role="button"
+            className="absolute w-full h-4 -top-2 flex items-center justify-center hover:bg-accent/50 dark:hover:bg-input/40"
             onMouseDown={handleDragStart}
+            style={{ cursor: "row-resize" }}
           >
             <div className="w-8 h-1 rounded-full bg-border" />
           </div>

@@ -2,7 +2,7 @@
  * External dependencies
  */
 import type { ComponentProps } from 'react';
-import { Slot } from '@radix-ui/react-slot';
+import { Slot, type SlotProps } from '@radix-ui/react-slot';
 /**
  * Internal dependencies
  */
@@ -14,11 +14,13 @@ function SidebarMenuSubButton({
   isActive = false,
   className,
   ...props
-}: ComponentProps<'a'> & {
-  asChild?: boolean;
-  size?: 'sm' | 'md';
-  isActive?: boolean;
-}) {
+}: ComponentProps<'a'> &
+  SlotProps & {
+    asChild?: boolean;
+    size?: 'sm' | 'md';
+    isActive?: boolean;
+    disabled?: boolean;
+  }) {
   const Comp = asChild ? Slot : 'a';
 
   return (

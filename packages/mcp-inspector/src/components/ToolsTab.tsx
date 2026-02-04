@@ -158,7 +158,7 @@ const ToolsTab = ({
 
   return (
     <TabsContent value="tools">
-      <div className="grid grid-cols-2 gap-4">
+      <div className="flex gap-5">
         <ListPane
           items={tools}
           listItems={listTools}
@@ -186,7 +186,7 @@ const ToolsTab = ({
           isButtonDisabled={!nextCursor && tools.length > 0}
         />
 
-        <div className="bg-card border border-border rounded-lg shadow">
+        <div className="bg-card border border-border rounded-lg shadow flex-1">
           <div className="p-4 border-b border-gray-200 dark:border-border">
             <div className="flex items-center gap-2">
               {selectedTool && (
