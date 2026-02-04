@@ -3,25 +3,12 @@
  */
 import { useCallback } from "react";
 import { PenTool } from "lucide-react";
-import z from "zod";
 
 /**
  * Internal dependencies
  */
 import { ToolItem } from "../../../ui";
 import { useApi } from "../../../../stateProviders";
-
-export const WriterApiSchema = z.object({
-  title: z.string(),
-  context: z.string(),
-  tone: z.enum(["formal", "neutral", "casual"]),
-  format: z.enum(["markdown", "plain-text"]),
-  length: z.enum(["short", "medium", "long"]),
-  expectedInputLanguages: z.array(z.enum(["en", "ja", "es"])),
-  outputLanguage: z.enum(["en", "ja", "es"]),
-});
-
-export type WriterApiConfig = z.infer<typeof WriterApiSchema>;
 
 const WriterApi = () => {
   const { isAvailable } = useApi(({ state }) => ({

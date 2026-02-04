@@ -10,7 +10,7 @@ import { PenTool } from "lucide-react";
  */
 import { useApi, useFlow } from "../../../../stateProviders";
 import { ToolNodeContainer } from "../../../ui";
-import type { WriterApiConfig } from "./writerApi";
+import type { WriterApiConfig } from "@google-awlt/engine-core";
 
 const ToolNode = () => {
   const nodeId = useNodeId();

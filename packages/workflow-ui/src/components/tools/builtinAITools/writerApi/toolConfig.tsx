@@ -3,11 +3,14 @@
  */
 import { useEffect, useImperativeHandle, useState } from "react";
 import { Settings } from "lucide-react";
+import {
+  WriterApiConfigSchema,
+  type WriterApiConfig,
+} from "@google-awlt/engine-core";
 
 /**
  * Internal dependencies
  */
-import { WriterApiSchema, type WriterApiConfig } from ".";
 
 interface ToolConfigProps {
   ref: React.Ref<{
@@ -61,7 +64,7 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
           outputLanguage,
         };
 
-        const validation = WriterApiSchema.safeParse(configResult);
+        const validation = WriterApiConfigSchema.safeParse(configResult);
         if (!validation.success) {
           console.error("Invalid configuration:", validation.error);
           return undefined;

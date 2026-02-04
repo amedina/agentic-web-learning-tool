@@ -10,7 +10,7 @@ import { ScanSearch } from "lucide-react";
  */
 import { useApi, useFlow } from "../../../../stateProviders";
 import { ToolNodeContainer } from "../../../ui";
-import type { LanguageDetectorApiConfig } from "./languageDetectorApi";
+import type { LanguageDetectorApiConfig } from "@google-awlt/engine-core";
 
 const ToolNode = () => {
   const nodeId = useNodeId();

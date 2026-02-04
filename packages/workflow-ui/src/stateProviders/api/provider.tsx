@@ -13,11 +13,11 @@ import { type WorkflowMeta } from "@google-awlt/engine-core";
 /**
  * Internal dependencies
  */
-import Context, { type NodeConfig } from "./context";
+import Context, { type ApiNodeConfig } from "./context";
 
 const ApiProvider = ({ children }: PropsWithChildren) => {
   const [nodes, setNodes] = useState<{
-    [id: string]: NodeConfig;
+    [id: string]: ApiNodeConfig;
   }>({});
 
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
@@ -25,12 +25,8 @@ const ApiProvider = ({ children }: PropsWithChildren) => {
   const [workflowMeta, setWorkflowMeta] = useState<WorkflowMeta>({
     id: `wf_${crypto.randomUUID()}`,
     name: "New Workflow",
-    description: "",
-    version: "1.0.0",
     savedAt: new Date().toISOString(),
-    allowedDomains: [],
-    isWebMCP: false,
-    autosave: false,
+    autosave: true,
   });
 
   const getNode = useCallback(
@@ -40,31 +36,24 @@ const ApiProvider = ({ children }: PropsWithChildren) => {
     [nodes],
   );
 
-  const addNode = useCallback(
-    (
-      node: {
-        id: string;
-      } & NodeConfig,
-    ) => {
-      setNodes((prev) => ({
-        ...prev,
-        [node.id]: {
-          type: node.type,
-          config: node.config,
-        },
-      }));
+  const addNode = useCallback((node: ApiNodeConfig & { id: string }) => {
+    setNodes((prev) => ({
+      ...prev,
+      [node.id]: {
+        type: node.type,
+        config: node.config,
+      },
+    }));
 
-      setSelectedNode(node.id);
-    },
-    [],
-  );
+    setSelectedNode(node.id);
+  }, []);
 
   const updateNode = useCallback(
     (
       id: string,
       updates: {
-        type?: string;
-        config?: NodeConfig["config"];
+        type?: ApiNodeConfig["type"];
+        config?: ApiNodeConfig["config"];
       },
     ) => {
       setNodes((prev) => {
@@ -104,12 +93,8 @@ const ApiProvider = ({ children }: PropsWithChildren) => {
     setWorkflowMeta({
       id: crypto.randomUUID(),
       name: "New Workflow",
-      description: "",
-      version: "1.0.0",
       savedAt: new Date().toISOString(),
-      allowedDomains: [],
-      isWebMCP: false,
-      autosave: false,
+      autosave: true,
     });
   }, []);
 

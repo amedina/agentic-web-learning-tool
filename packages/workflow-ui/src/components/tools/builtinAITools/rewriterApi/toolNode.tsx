@@ -10,7 +10,7 @@ import { RefreshCcw } from "lucide-react";
  */
 import { ToolNodeContainer } from "../../../ui";
 import { useApi, useFlow } from "../../../../stateProviders";
-import type { RewriterApiConfig } from "./rewriterApi";
+import type { RewriterApiConfig } from "@google-awlt/engine-core";
 
 const ToolNode = () => {
   const nodeId = useNodeId();

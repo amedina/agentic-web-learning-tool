@@ -3,11 +3,14 @@
  */
 import { useEffect, useImperativeHandle, useState } from "react";
 import { Settings } from "lucide-react";
+import {
+  ConditionConfigSchema,
+  type ConditionConfig,
+} from "@google-awlt/engine-core";
 
 /**
  * Internal dependencies
  */
-import { ConditionSchema, type ConditionConfig } from "./conditionTool";
 
 interface ToolConfigProps {
   ref: React.Ref<{
@@ -52,7 +55,7 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
           comparisonValue,
         };
 
-        const validation = ConditionSchema.safeParse(configResult);
+        const validation = ConditionConfigSchema.safeParse(configResult);
         if (!validation.success) {
           console.error("Invalid configuration:", validation.error);
           return undefined;

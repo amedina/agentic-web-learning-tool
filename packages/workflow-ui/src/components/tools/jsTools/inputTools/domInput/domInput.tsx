@@ -3,30 +3,11 @@
  */
 import { useCallback } from "react";
 import { FileSearch } from "lucide-react";
-import z from "zod";
 
 /**
  * Internal dependencies
  */
 import { ToolItem } from "../../../../ui";
-
-export const DomInputSchema = z.object({
-  title: z.string(),
-  description: z.string().optional(),
-  cssSelector: z.string(),
-  extract: z.enum([
-    "textContent",
-    "innerText",
-    "innerHTML",
-    "value",
-    "src",
-    "href",
-  ]),
-  defaultValue: z.string(),
-  isMultiple: z.boolean().optional(),
-});
-
-export type DomInputConfig = z.infer<typeof DomInputSchema>;
 
 const DomInput = () => {
   const handleDragStart = useCallback((event: React.DragEvent) => {

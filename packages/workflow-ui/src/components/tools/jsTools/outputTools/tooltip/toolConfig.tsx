@@ -3,11 +3,14 @@
  */
 import { useEffect, useImperativeHandle, useState } from "react";
 import { MessageSquare } from "lucide-react";
+import {
+  TooltipConfigSchema,
+  type TooltipConfig,
+} from "@google-awlt/engine-core";
 
 /**
  * Internal dependencies
  */
-import { TooltipSchema, type TooltipConfig } from "./tooltip";
 
 interface ToolConfigProps {
   ref: React.Ref<{
@@ -35,7 +38,7 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
           selector,
         };
 
-        const validation = TooltipSchema.safeParse(configResult);
+        const validation = TooltipConfigSchema.safeParse(configResult);
         if (!validation.success) {
           console.error("Invalid configuration:", validation.error);
           return undefined;

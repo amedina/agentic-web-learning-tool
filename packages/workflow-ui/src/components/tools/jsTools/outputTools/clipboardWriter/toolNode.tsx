@@ -10,7 +10,7 @@ import { ClipboardCopy } from "lucide-react";
  */
 import { ToolNodeContainer } from "../../../../ui";
 import { useApi, useFlow } from "../../../../../stateProviders";
-import type { ClipboardWriterConfig } from "./clipboardWriter";
+import type { ClipboardWriterConfig } from "@google-awlt/engine-core";
 
 const ToolNode = () => {
   const nodeId = useNodeId();

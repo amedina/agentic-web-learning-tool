@@ -10,7 +10,7 @@ import { NotebookText } from "lucide-react";
  */
 import { useApi, useFlow } from "../../../../stateProviders";
 import { ToolNodeContainer } from "../../../ui";
-import type { PromptApiConfig } from "./promptApi";
+import type { PromptApiConfig } from "@google-awlt/engine-core";
 
 const ToolNode = () => {
   const nodeId = useNodeId();

@@ -3,22 +3,12 @@
  */
 import { useCallback } from "react";
 import { Languages } from "lucide-react";
-import z from "zod";
 
 /**
  * Internal dependencies
  */
 import { ToolItem } from "../../../ui";
 import { useApi } from "../../../../stateProviders";
-
-export const TranslatorApiSchema = z.object({
-  title: z.string(),
-  description: z.string().optional(),
-  sourceLanguage: z.enum(["en", "ja", "es"]),
-  targetLanguage: z.enum(["en", "ja", "es"]),
-});
-
-export type TranslatorApiConfig = z.infer<typeof TranslatorApiSchema>;
 
 const TranslatorApi = () => {
   const { isAvailable } = useApi(({ state }) => ({

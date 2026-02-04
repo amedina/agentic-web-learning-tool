@@ -10,7 +10,7 @@ import { BookCheck } from "lucide-react";
  */
 import { useApi, useFlow } from "../../../../stateProviders";
 import { ToolNodeContainer } from "../../../ui";
-import type { ProofreaderApiConfig } from "./proofreaderApi";
+import type { ProofreaderApiConfig } from "@google-awlt/engine-core";
 
 const ToolNode = () => {
   const nodeId = useNodeId();
