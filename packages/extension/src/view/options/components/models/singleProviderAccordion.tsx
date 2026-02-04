@@ -2,12 +2,13 @@
  * External dependencies
  */
 import { useState, useCallback, useEffect, useMemo } from 'react';
-import { ShieldCheck } from 'lucide-react';
+import { Loader2, ShieldCheck } from 'lucide-react';
 import {
   Accordion,
   Button,
   Input,
   InputGroup,
+  Textarea,
   toast,
   ToggleSwitch,
 } from '@google-awlt/design-system';
@@ -18,10 +19,37 @@ import {
 import { INITIAL_PROVIDERS } from '../../../../constants';
 import type { APIKeys } from '../../../../types';
 
+const MODEL_ENDPOINTS = {
+  anthropic: 'https://api.anthropic.com/v1/models',
+  'open-ai': 'https://api.openai.com/v1/models',
+  gemini: 'https://generativelanguage.googleapis.com/v1beta/models',
+} as const;
+
 type SingleProviderAccordion = {
   provider: (typeof INITIAL_PROVIDERS)[0];
   storedData: APIKeys;
   apiKeys: Record<string, APIKeys>;
+};
+
+const createUrlAndHeaderOptions = (
+  provider: keyof typeof MODEL_ENDPOINTS,
+  apiKey: string
+) => {
+  const url = MODEL_ENDPOINTS[provider];
+  const headers: Record<string, string> = {};
+  switch (provider) {
+    case 'open-ai':
+      headers['Authorization'] = `Bearer ${apiKey}`;
+      return { headers, url };
+    case 'gemini':
+      return { headers, url: `${url}?key=${apiKey}` };
+    case 'anthropic':
+      headers['anthropic-version'] = '2023-06-01';
+      headers['X-Api-Key'] = `${apiKey}`;
+      return { headers, url };
+    default:
+      return { headers, url };
+  }
 };
 
 export default function SingleProviderAccordion({
@@ -33,24 +61,53 @@ export default function SingleProviderAccordion({
   const [thinkingMode, setThinkingMode] = useState<boolean>(false);
   const [inputType, setInputType] = useState<string>('password');
   const [status, setStatus] = useState<boolean>(true);
+  const [systemPrompt, setSystemPrompt] = useState<string>('');
   const [hasSaved, setSavedStatus] = useState<boolean>(false);
+  const [isSaving, setIsSaving] = useState<boolean>(false);
 
   const handleSetModelProviderDetails = useCallback(
-    (provider: string) => {
+    async (provider: string) => {
+      setIsSaving(true);
+      if (storedData?.apiKey !== apiKey) {
+        const { url, headers } = createUrlAndHeaderOptions(
+          provider as keyof typeof MODEL_ENDPOINTS,
+          apiKey.trim()
+        );
+
+        const result = await fetch(url, {
+          headers: headers,
+        });
+        const response = await result.json();
+        if (response?.data && response?.data?.length > 0) {
+          toast.success(
+            'Api Key entered is correct and has been validated successfully'
+          );
+        } else if (response?.models && response?.models.length > 0) {
+          toast.success(
+            'Api Key entered is correct and has been validated successfully'
+          );
+        } else {
+          toast.error('Please re-check the Api Key.');
+          setIsSaving(false);
+          return;
+        }
+      }
       setSavedStatus(true);
       chrome.storage.sync.set({
         apiKeys: {
           ...apiKeys,
           [provider]: {
-            apiKey,
+            apiKey: apiKey.trim(),
             thinkingMode,
             status,
+            systemPrompt: systemPrompt.trim(),
           },
         },
       });
       toast.success('Provider settings have been updated.');
+      setIsSaving(false);
     },
-    [apiKey, thinkingMode, status, apiKeys]
+    [apiKeys, apiKey, thinkingMode, status, systemPrompt, storedData?.apiKey]
   );
 
   useEffect(() => {
@@ -59,6 +116,7 @@ export default function SingleProviderAccordion({
       setThinkingMode(storedData.thinkingMode ?? false);
       setStatus(storedData.status);
       setSavedStatus(true);
+      setSystemPrompt(storedData?.systemPrompt?.trim() ?? '');
     }
   }, [storedData]);
 
@@ -70,13 +128,23 @@ export default function SingleProviderAccordion({
     if (
       apiKey === storedData?.apiKey &&
       thinkingMode === storedData?.thinkingMode &&
-      status === storedData?.status
+      status === storedData?.status &&
+      systemPrompt.trim() === storedData?.systemPrompt?.trim()
     ) {
       return true;
     }
 
     return false;
-  }, [storedData, apiKey, thinkingMode, status]);
+  }, [
+    apiKey,
+    storedData?.apiKey,
+    storedData?.thinkingMode,
+    storedData?.status,
+    storedData?.systemPrompt,
+    thinkingMode,
+    status,
+    systemPrompt,
+  ]);
 
   return (
     <Accordion
@@ -87,6 +155,7 @@ export default function SingleProviderAccordion({
         if (!hasSaved) {
           setAPIKey('');
           setInputType('password');
+          setSystemPrompt('');
           setThinkingMode(false);
           setSavedStatus(false);
         }
@@ -118,6 +187,15 @@ export default function SingleProviderAccordion({
           </Button>
         </div>
         <div className="flex flex-col gap-2 justify-between pr-[76px] my-2">
+          <div className="w-full">
+            <div className="text-[13px] font-medium text-accent-foreground">
+              System Prompt
+            </div>
+            <Textarea
+              value={systemPrompt}
+              onChange={(event) => setSystemPrompt(event.target.value)}
+            />
+          </div>
           <div className="flex items-center gap-5 justify-between">
             <div>
               <div className="text-[13px] font-medium text-accent-foreground">
@@ -152,6 +230,7 @@ export default function SingleProviderAccordion({
             onClick={() => handleSetModelProviderDetails(provider.id)}
             disabled={shouldSubmitButtonBeDisabled}
           >
+            {isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
             {storedData?.apiKey ? 'Update' : 'Set'}
           </Button>
         </div>

@@ -17,7 +17,8 @@ function transportGenerator(
   provider = 'browser-ai',
   model = 'prompt-api',
   config: ProviderSettings,
-  thinkingMode = false
+  thinkingMode = false,
+  systemPrompt = ''
 ) {
   let modelInstance = null;
   logger(
@@ -30,28 +31,32 @@ function transportGenerator(
     case 'ollama':
       modelInstance = new CloudHostedTransport(
         model,
-        buildProviderOptions(thinkingMode, provider) ?? {}
+        buildProviderOptions(thinkingMode, provider) ?? {},
+        systemPrompt
       );
       modelInstance.initializeSession(createOllama, config);
       return modelInstance;
     case 'open-ai':
       modelInstance = new CloudHostedTransport(
         model,
-        buildProviderOptions(thinkingMode, provider) ?? {}
+        buildProviderOptions(thinkingMode, provider) ?? {},
+        systemPrompt
       );
       modelInstance.initializeSession(createOpenAI, config);
       return modelInstance;
     case 'anthropic':
       modelInstance = new CloudHostedTransport(
         model,
-        buildProviderOptions(thinkingMode, provider) ?? {}
+        buildProviderOptions(thinkingMode, provider) ?? {},
+        systemPrompt
       );
       modelInstance.initializeSession(createAnthropic, config);
       return modelInstance;
     case 'gemini':
       modelInstance = new CloudHostedTransport(
         model,
-        buildProviderOptions(thinkingMode, provider) ?? {}
+        buildProviderOptions(thinkingMode, provider) ?? {},
+        systemPrompt
       );
       modelInstance.initializeSession(createGoogleGenerativeAI, config);
       return modelInstance;
