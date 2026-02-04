@@ -12,7 +12,7 @@ import {
 import { McpClientProvider } from '@mcp-b/mcp-react-hooks';
 import { ExtensionClientTransport } from '@mcp-b/transports';
 import { Client } from '@modelcontextprotocol/sdk/client';
-import { isEqual, type MCPServerConfig } from '@google-awlt/common';
+import { type MCPServerConfig } from '@google-awlt/common';
 /**
  * Internal dependencies.
  */
