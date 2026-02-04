@@ -49,7 +49,9 @@ describe('createModelDropdown', () => {
 
   it('should return the correct data structure for the dropdown', () => {
     // Test with just one active provider for clarity
-    const input = { ['open-ai']: { apiKey: '123', status: true } };
+    const input = {
+      ['open-ai']: { apiKey: '123', status: true, systemPrompt: '' },
+    };
     const result = createModelDropdown(input);
 
     // Expected structure for OpenAI based on the Mock

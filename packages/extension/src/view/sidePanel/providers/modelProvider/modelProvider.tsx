@@ -61,7 +61,8 @@ const Provider = ({ children }: PropsWithChildren) => {
           {
             ...apiKeys[selectedAgent?.modelProvider],
           },
-          apiKeys[selectedAgent.modelProvider]?.thinkingMode
+          apiKeys[selectedAgent.modelProvider]?.thinkingMode,
+          apiKeys[selectedAgent.modelProvider]?.systemPrompt
         )
       );
     } else {
@@ -124,7 +125,8 @@ const Provider = ({ children }: PropsWithChildren) => {
           {
             ..._apiKeys[_selectedAgent?.modelProvider],
           },
-          _apiKeys[_selectedAgent.modelProvider]?.thinkingMode
+          _apiKeys[_selectedAgent.modelProvider]?.thinkingMode,
+          apiKeys[selectedAgent.modelProvider]?.systemPrompt
         )
       );
     }

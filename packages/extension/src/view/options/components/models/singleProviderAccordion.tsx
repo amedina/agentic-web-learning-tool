@@ -8,6 +8,7 @@ import {
   Button,
   Input,
   InputGroup,
+  Textarea,
   toast,
   ToggleSwitch,
 } from '@google-awlt/design-system';
@@ -33,6 +34,7 @@ export default function SingleProviderAccordion({
   const [thinkingMode, setThinkingMode] = useState<boolean>(false);
   const [inputType, setInputType] = useState<string>('password');
   const [status, setStatus] = useState<boolean>(true);
+  const [systemPrompt, setSystemPrompt] = useState<string>('');
   const [hasSaved, setSavedStatus] = useState<boolean>(false);
 
   const handleSetModelProviderDetails = useCallback(
@@ -42,15 +44,16 @@ export default function SingleProviderAccordion({
         apiKeys: {
           ...apiKeys,
           [provider]: {
-            apiKey,
+            apiKey: apiKey.trim(),
             thinkingMode,
             status,
+            systemPrompt: systemPrompt.trim(),
           },
         },
       });
       toast.success('Provider settings have been updated.');
     },
-    [apiKey, thinkingMode, status, apiKeys]
+    [apiKeys, apiKey, thinkingMode, status, systemPrompt]
   );
 
   useEffect(() => {
@@ -59,6 +62,7 @@ export default function SingleProviderAccordion({
       setThinkingMode(storedData.thinkingMode ?? false);
       setStatus(storedData.status);
       setSavedStatus(true);
+      setSystemPrompt(storedData?.systemPrompt?.trim() ?? '');
     }
   }, [storedData]);
 
@@ -70,13 +74,23 @@ export default function SingleProviderAccordion({
     if (
       apiKey === storedData?.apiKey &&
       thinkingMode === storedData?.thinkingMode &&
-      status === storedData?.status
+      status === storedData?.status &&
+      systemPrompt.trim() === storedData?.systemPrompt?.trim()
     ) {
       return true;
     }
 
     return false;
-  }, [storedData, apiKey, thinkingMode, status]);
+  }, [
+    apiKey,
+    storedData?.apiKey,
+    storedData?.thinkingMode,
+    storedData?.status,
+    storedData?.systemPrompt,
+    thinkingMode,
+    status,
+    systemPrompt,
+  ]);
 
   return (
     <Accordion
@@ -118,6 +132,15 @@ export default function SingleProviderAccordion({
           </Button>
         </div>
         <div className="flex flex-col gap-2 justify-between pr-[76px] my-2">
+          <div className="w-full">
+            <div className="text-[13px] font-medium text-accent-foreground">
+              System Prompt
+            </div>
+            <Textarea
+              value={systemPrompt}
+              onChange={(event) => setSystemPrompt(event.target.value)}
+            />
+          </div>
           <div className="flex items-center gap-5 justify-between">
             <div>
               <div className="text-[13px] font-medium text-accent-foreground">
