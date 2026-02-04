@@ -84,7 +84,8 @@ export const WebMCPInspector = () => {
       />
       <Table
         selectedKey={selectedKey}
-        isFiltersSidebarOpen={true}
+        isFiltersSidebarOpen={eventLoggerData.length > 0}
+        hideFiltering={eventLoggerData.length === 0}
         extraInterfaceToTopBar={extraInterfaceToTopBar}
         renderDetailPanel={renderDetailPanel}
       />
