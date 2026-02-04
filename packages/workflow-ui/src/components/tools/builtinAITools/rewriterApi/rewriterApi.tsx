@@ -3,25 +3,12 @@
  */
 import { useCallback } from "react";
 import { RefreshCcw } from "lucide-react";
-import z from "zod";
 
 /**
  * Internal dependencies
  */
 import { ToolItem } from "../../../ui";
 import { useApi } from "../../../../stateProviders";
-
-export const RewriterApiSchema = z.object({
-  title: z.string(),
-  context: z.string(),
-  tone: z.enum(["more-formal", "as-is", "more-casual"]),
-  format: z.enum(["as-is", "markdown", "plain-text"]),
-  length: z.enum(["shorter", "as-is", "longer"]),
-  expectedInputLanguages: z.array(z.enum(["en", "ja", "es"])),
-  outputLanguage: z.enum(["en", "ja", "es"]),
-});
-
-export type RewriterApiConfig = z.infer<typeof RewriterApiSchema>;
 
 const RewriterApi = () => {
   const { isAvailable } = useApi(({ state }) => ({

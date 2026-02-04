@@ -3,14 +3,14 @@
  */
 import { useEffect, useImperativeHandle, useState } from "react";
 import { Settings } from "lucide-react";
+import {
+  ProofreaderApiConfigSchema,
+  type ProofreaderApiConfig,
+} from "@google-awlt/engine-core";
 
 /**
  * Internal dependencies
  */
-import {
-  ProofreaderApiSchema,
-  type ProofreaderApiConfig,
-} from "./proofreaderApi";
 
 interface ToolConfigProps {
   ref: React.Ref<{
@@ -40,7 +40,7 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
           expectedInputLanguages: inputLanguages,
         };
 
-        const validation = ProofreaderApiSchema.safeParse(configResult);
+        const validation = ProofreaderApiConfigSchema.safeParse(configResult);
         if (!validation.success) {
           console.error("Invalid configuration:", validation.error);
           return undefined;

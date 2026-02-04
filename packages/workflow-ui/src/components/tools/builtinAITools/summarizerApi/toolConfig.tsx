@@ -3,11 +3,14 @@
  */
 import { useEffect, useImperativeHandle, useState } from "react";
 import { Settings } from "lucide-react";
+import {
+  SummarizerApiConfigSchema,
+  type SummarizerApiConfig,
+} from "@google-awlt/engine-core";
 
 /**
  * Internal dependencies
  */
-import { SummarizerApiSchema, type SummarizerApiConfig } from "./summarizerApi";
 
 interface ToolConfigProps {
   ref: React.Ref<{
@@ -61,7 +64,7 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
           outputLanguage,
         };
 
-        const validation = SummarizerApiSchema.safeParse(configResult);
+        const validation = SummarizerApiConfigSchema.safeParse(configResult);
         if (!validation.success) {
           console.error("Invalid configuration:", validation.error);
           return undefined;

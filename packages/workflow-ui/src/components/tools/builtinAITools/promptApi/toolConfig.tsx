@@ -3,11 +3,14 @@
  */
 import { useEffect, useImperativeHandle, useState } from "react";
 import { Settings } from "lucide-react";
+import {
+  PromptApiConfigSchema,
+  type PromptApiConfig,
+} from "@google-awlt/engine-core";
 
 /**
  * Internal dependencies
  */
-import { type PromptApiConfig, PromptApiSchema } from "./promptApi";
 
 interface ToolConfigProps {
   ref: React.Ref<{
@@ -73,7 +76,7 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
           initialPrompts: parsedInitialPrompts,
         };
 
-        const validation = PromptApiSchema.safeParse(configResult);
+        const validation = PromptApiConfigSchema.safeParse(configResult);
         if (!validation.success) {
           console.error("Configuration validation failed:", validation.error);
           return undefined;

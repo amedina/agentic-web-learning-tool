@@ -6,7 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 /**
  * Internal dependencies
  */
-import { useApi, type NodeConfig } from "../../stateProviders";
+import { useApi, type ApiNodeConfig } from "../../stateProviders";
 import {
   PromptApiToolConfig,
   ProofreaderApiToolConfig,
@@ -27,29 +27,30 @@ import {
 } from "../tools";
 import { WorkflowConfig } from "./workflowConfig";
 import { ToolsConfig } from "../ui";
+import { NodeType } from "@google-awlt/engine-core";
 
 const TOOLS = {
-  promptApi: PromptApiToolConfig,
-  writerApi: WriterApiToolConfig,
-  rewriterApi: RewriterApiToolConfig,
-  proofreaderApi: ProofreaderApiToolConfig,
-  translatorApi: TranslatorApiToolConfig,
-  languageDetectorApi: null,
-  summarizerApi: SummarizerApiToolConfig,
-  alertNotification: AlertNotificationToolConfig,
-  domInput: DomInputToolConfig,
-  condition: ConditionToolConfig,
-  dataTransformer: DataTransformerToolConfig,
-  math: MathToolConfig,
-  staticInput: StaticInputToolConfig,
-  loop: LoopToolConfig,
-  domReplacement: DomReplacementToolConfig,
-  clipboardWriter: null,
-  fileCreator: FileCreatorToolConfig,
-  textToSpeech: null,
-  tooltip: TooltipToolConfig,
-  start: null,
-  end: null,
+  [NodeType.PROMPT_API]: PromptApiToolConfig,
+  [NodeType.WRITER_API]: WriterApiToolConfig,
+  [NodeType.REWRITER_API]: RewriterApiToolConfig,
+  [NodeType.PROOFREADER_API]: ProofreaderApiToolConfig,
+  [NodeType.TRANSLATOR_API]: TranslatorApiToolConfig,
+  [NodeType.LANGUAGE_DETECTOR_API]: null,
+  [NodeType.SUMMARIZER_API]: SummarizerApiToolConfig,
+  [NodeType.ALERT_NOTIFICATION]: AlertNotificationToolConfig,
+  [NodeType.DOM_INPUT]: DomInputToolConfig,
+  [NodeType.CONDITION]: ConditionToolConfig,
+  [NodeType.DATA_TRANSFORMER]: DataTransformerToolConfig,
+  [NodeType.MATH]: MathToolConfig,
+  [NodeType.STATIC_INPUT]: StaticInputToolConfig,
+  [NodeType.LOOP]: LoopToolConfig,
+  [NodeType.DOM_REPLACEMENT]: DomReplacementToolConfig,
+  [NodeType.CLIPBOARD_WRITER]: null,
+  [NodeType.FILE_CREATOR]: FileCreatorToolConfig,
+  [NodeType.TEXT_TO_SPEECH]: null,
+  [NodeType.TOOLTIP]: TooltipToolConfig,
+  [NodeType.START]: null,
+  [NodeType.END]: null,
 };
 
 interface ToolsConfigPanelProps {
@@ -70,11 +71,11 @@ const ToolsConfigPanel = ({
   );
 
   const [activeTab, setActiveTab] = useState<"node" | "workflow">("workflow");
-  const [node, setNode] = useState<NodeConfig>();
-  const [config, setConfig] = useState<NodeConfig["config"]>();
+  const [node, setNode] = useState<ApiNodeConfig>();
+  const [config, setConfig] = useState<ApiNodeConfig["config"]>();
 
   const toolNodeRef = useRef<{
-    getConfig: (formData: FormData) => NodeConfig["config"] | undefined;
+    getConfig: (formData: FormData) => ApiNodeConfig["config"] | undefined;
   }>(null);
 
   useEffect(() => {

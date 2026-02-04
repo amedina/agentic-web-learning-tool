@@ -3,11 +3,11 @@
  */
 import { useImperativeHandle } from "react";
 import { Settings } from "lucide-react";
+import { LoopConfigSchema, type LoopConfig } from "@google-awlt/engine-core";
 
 /**
  * Internal dependencies
  */
-import { LoopSchema, type LoopConfig } from "./loopTool";
 
 interface ToolConfigProps {
   ref: React.Ref<{
@@ -29,7 +29,7 @@ const ToolConfig = ({ ref }: ToolConfigProps) => {
           description,
         };
 
-        const validation = LoopSchema.safeParse(configResult);
+        const validation = LoopConfigSchema.safeParse(configResult);
         if (!validation.success) {
           console.error("Invalid configuration:", validation.error);
           return undefined;

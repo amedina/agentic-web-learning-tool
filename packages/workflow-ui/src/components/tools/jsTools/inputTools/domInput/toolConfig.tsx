@@ -3,11 +3,14 @@
  */
 import { useEffect, useImperativeHandle, useState } from "react";
 import { Settings } from "lucide-react";
+import {
+  DomInputConfigSchema,
+  type DomInputConfig,
+} from "@google-awlt/engine-core";
 
 /**
  * Internal dependencies
  */
-import { DomInputSchema, type DomInputConfig } from "./domInput";
 
 interface ToolConfigProps {
   ref: React.Ref<{
@@ -55,7 +58,7 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
           isMultiple,
         };
 
-        const validation = DomInputSchema.safeParse(configResult);
+        const validation = DomInputConfigSchema.safeParse(configResult);
         if (!validation.success) {
           console.error("Invalid configuration:", validation.error);
           return undefined;

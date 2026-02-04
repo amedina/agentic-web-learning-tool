@@ -1,20 +1,11 @@
 import { useCallback } from "react";
 import { BookCheck } from "lucide-react";
-import z from "zod";
 
 /**
  * Internal dependencies
  */
 import { useApi } from "../../../../stateProviders";
 import { ToolItem } from "../../../ui";
-
-export const ProofreaderApiSchema = z.object({
-  title: z.string(),
-  description: z.string().optional(),
-  expectedInputLanguages: z.array(z.enum(["en", "ja", "es"])),
-});
-
-export type ProofreaderApiConfig = z.infer<typeof ProofreaderApiSchema>;
 
 const ProofreaderApi = () => {
   const { isAvailable } = useApi(({ state }) => ({

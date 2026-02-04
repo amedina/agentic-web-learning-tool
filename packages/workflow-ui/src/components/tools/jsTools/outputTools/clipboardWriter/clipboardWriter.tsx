@@ -3,19 +3,11 @@
  */
 import { useCallback } from "react";
 import { ClipboardCopy } from "lucide-react";
-import z from "zod";
 
 /**
  * Internal dependencies
  */
 import { ToolItem } from "../../../../ui";
-
-export const ClipboardWriterSchema = z.object({
-  title: z.string(),
-  description: z.string().optional(),
-});
-
-export type ClipboardWriterConfig = z.infer<typeof ClipboardWriterSchema>;
 
 const ClipboardWriter = () => {
   const handleDragStart = useCallback((event: React.DragEvent) => {

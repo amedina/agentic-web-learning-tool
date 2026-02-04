@@ -1,4 +1,5 @@
 export interface WebMCPTool {
+  id?: string;
   name: string;
   namespace: string;
   description: string;
@@ -8,4 +9,5 @@ export interface WebMCPTool {
   enabled: boolean;
   isBuiltIn?: boolean;
   isExtension?: boolean;
+  isWorkflow?: boolean;
 }

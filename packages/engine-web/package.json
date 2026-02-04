@@ -14,7 +14,8 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "test": "jest"
+    "test": "jest",
+    "build:web": "vite build"
   },
   "dependencies": {
     "@google-awlt/engine-core": "workspace:*"
@@ -24,6 +25,7 @@
     "@types/node": "^24.3.0",
     "jest-environment-jsdom": "^30.0.0",
     "ts-jest": "^29.4.6",
-    "typescript": "~5.9.2"
+    "typescript": "~5.9.2",
+    "vite": "^7.1.11"
   }
 }

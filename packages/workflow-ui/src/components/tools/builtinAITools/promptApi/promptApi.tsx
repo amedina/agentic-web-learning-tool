@@ -3,30 +3,12 @@
  */
 import { useCallback } from "react";
 import { NotebookTextIcon } from "lucide-react";
-import z from "zod";
 
 /**
  * Internal dependencies
  */
 import { useApi } from "../../../../stateProviders";
 import { ToolItem } from "../../../ui";
-
-export const PromptApiSchema = z.object({
-  title: z.string(),
-  context: z.string(),
-  topK: z.number().min(1).max(128),
-  temperature: z.number().min(0).max(2),
-  expectedInputsLanguages: z.array(z.enum(["en", "es", "ja"])),
-  expectedOutputsLanguages: z.array(z.enum(["en", "es", "ja"])),
-  initialPrompts: z.array(
-    z.object({
-      role: z.enum(["system", "user", "assistant"]),
-      content: z.string(),
-    }),
-  ),
-});
-
-export type PromptApiConfig = z.infer<typeof PromptApiSchema>;
 
 const PromptApi = () => {
   const { isAvailable } = useApi(({ state }) => ({
@@ -44,7 +26,7 @@ const PromptApi = () => {
 
   return (
     <ToolItem
-      label="Chat Assistant"
+      label="Prompt API"
       onDragStart={handleDragStart}
       Icon={NotebookTextIcon}
       disabled={!isAvailable}

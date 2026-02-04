@@ -10,7 +10,7 @@ import { Repeat } from "lucide-react";
  */
 import { ToolNodeContainer } from "../../../../ui";
 import { useApi, useFlow } from "../../../../../stateProviders";
-import type { LoopConfig } from "./loopTool";
+import type { LoopConfig } from "@google-awlt/engine-core";
 
 const ToolNode = () => {
   const nodeId = useNodeId();

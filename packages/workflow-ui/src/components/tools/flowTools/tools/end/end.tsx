@@ -3,20 +3,12 @@
  */
 import { useCallback } from "react";
 import { Flag } from "lucide-react";
-import z from "zod";
 
 /**
  * Internal dependencies
  */
 import { useFlow } from "../../../../../stateProviders";
 import { ToolItem } from "../../../../ui";
-
-export const EndSchema = z.object({
-  title: z.string(),
-  description: z.string().optional(),
-});
-
-export type EndConfig = z.infer<typeof EndSchema>;
 
 const End = () => {
   const { nodes } = useFlow(({ state }) => ({

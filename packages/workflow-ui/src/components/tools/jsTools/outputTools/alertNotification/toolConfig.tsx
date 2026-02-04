@@ -3,14 +3,14 @@
  */
 import { useImperativeHandle } from "react";
 import { Settings } from "lucide-react";
+import {
+  AlertNotificationConfigSchema,
+  type AlertNotificationConfig,
+} from "@google-awlt/engine-core";
 
 /**
  * Internal dependencies
  */
-import {
-  AlertNotificationSchema,
-  type AlertNotificationConfig,
-} from "./alertNotification";
 
 interface ToolConfigProps {
   ref: React.Ref<{
@@ -34,7 +34,8 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
           message,
         };
 
-        const validation = AlertNotificationSchema.safeParse(configResult);
+        const validation =
+          AlertNotificationConfigSchema.safeParse(configResult);
         if (!validation.success) {
           console.error("Invalid configuration:", validation.error);
           return undefined;

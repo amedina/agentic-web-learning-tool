@@ -10,7 +10,7 @@ import { Speech } from "lucide-react";
  */
 import { ToolNodeContainer } from "../../../../ui";
 import { useApi, useFlow } from "../../../../../stateProviders";
-import type { TextToSpeechConfig } from "./textToSpeech";
+import type { TextToSpeechConfig } from "@google-awlt/engine-core";
 
 const ToolNode = () => {
   const nodeId = useNodeId();

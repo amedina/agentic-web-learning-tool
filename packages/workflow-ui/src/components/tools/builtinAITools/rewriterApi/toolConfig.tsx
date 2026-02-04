@@ -3,11 +3,14 @@
  */
 import { useEffect, useImperativeHandle, useState } from "react";
 import { Settings } from "lucide-react";
+import {
+  RewriterApiConfigSchema,
+  type RewriterApiConfig,
+} from "@google-awlt/engine-core";
 
 /**
  * Internal dependencies
  */
-import { RewriterApiSchema, type RewriterApiConfig } from "./rewriterApi";
 
 interface ToolConfigProps {
   ref: React.Ref<{
@@ -60,7 +63,7 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
           outputLanguage,
         };
 
-        const validation = RewriterApiSchema.safeParse(configResult);
+        const validation = RewriterApiConfigSchema.safeParse(configResult);
         if (!validation.success) {
           console.error("Invalid configuration:", validation.error);
           return undefined;
