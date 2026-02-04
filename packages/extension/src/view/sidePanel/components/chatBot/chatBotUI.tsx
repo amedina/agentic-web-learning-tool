@@ -154,7 +154,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
     <>
       <ThreadListSidebar isThreadLoading={isLoading} />
       <SidebarInset>
-        <div className="fixed top-0 left-0 z-20 flex flex-row items-center md:hidden pl-1 pt-1 bg-background">
+        <div className="fixed top-15 left-0 z-20 flex flex-row items-center md:hidden pl-1 pt-1 bg-background">
           <Tooltip text="Chat History">
             <SidebarTrigger className="bg-background">
               <Menu className="text-primary" />

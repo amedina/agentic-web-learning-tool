@@ -68,7 +68,7 @@ const SidePanel = () => {
         <SidebarProvider defaultOpen={false}>
           <Tabs
             defaultValue="chat"
-            className="flex flex-col h-screen bg-background"
+            className="flex flex-col h-screen w-full bg-background"
           >
             <div className="px-4 py-2 border-b">
               <TabsList className="grid w-full grid-cols-2">

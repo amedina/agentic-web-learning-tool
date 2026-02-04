@@ -98,7 +98,7 @@ const WorkflowList = ({ activeTabId, activeTabUrl }: WorkflowListProps) => {
   }
 
   return (
-    <div className="flex flex-col gap-4 py-2 h-full overflow-y-auto pr-1 custom-scrollbar">
+    <div className="flex flex-col gap-4 py-2 h-full w-full overflow-y-auto pr-1 custom-scrollbar">
       {filteredWorkflows.map((wf) => (
         <WorkflowCard
           key={wf.meta.id}
