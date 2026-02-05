@@ -72,8 +72,8 @@ export class WorkflowClient {
     if (chrome.runtime.lastError) {
       throw new Error(chrome.runtime.lastError.message);
     }
-    if (!response.success) {
-      throw new Error(response.error ?? 'Workflow execution failed');
+    if (!response?.success) {
+      throw new Error(response?.error ?? 'Workflow execution failed');
     }
 
     return response.context!;
@@ -97,8 +97,8 @@ export class WorkflowClient {
     if (chrome.runtime.lastError) {
       throw new Error(chrome.runtime.lastError.message);
     }
-    if (!response.success) {
-      throw new Error(response.error ?? 'Capability check failed');
+    if (!response?.success) {
+      throw new Error(response?.error ?? 'Capability check failed');
     }
 
     return response.results ?? {};
@@ -137,7 +137,7 @@ export class WorkflowClient {
           break;
 
         case 'WORKFLOW_ERROR':
-          this.callbacks.onError?.(message.error);
+          this.callbacks.onError?.(message?.error);
           break;
       }
     });

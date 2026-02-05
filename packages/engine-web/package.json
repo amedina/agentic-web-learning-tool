@@ -13,6 +13,7 @@
   },
   "scripts": {
     "build": "tsc",
+    "prebuild": "rimraf dist dist-types",
     "dev": "tsc --watch",
     "test": "jest",
     "build:web": "vite build"
@@ -26,6 +27,7 @@
     "jest-environment-jsdom": "^30.0.0",
     "ts-jest": "^29.4.6",
     "typescript": "~5.9.2",
+    "rimraf": "^5.0.10",
     "vite": "^7.1.11"
   }
 }

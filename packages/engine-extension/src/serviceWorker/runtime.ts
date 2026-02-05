@@ -185,8 +185,8 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
     if (chrome.runtime.lastError) {
       throw new Error(chrome.runtime.lastError.message);
     }
-    if (!response.success) {
-      throw new Error(response.error ?? 'DOM query failed');
+    if (!response?.success) {
+      throw new Error(response?.error ?? 'DOM query failed');
     }
 
     return response.data;
@@ -203,15 +203,13 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
       message,
     };
 
-    console.log(message);
-
     const response = await chrome.tabs.sendMessage(tabId, msg);
 
     if (chrome.runtime.lastError) {
       throw new Error(chrome.runtime.lastError.message);
     }
-    if (!response.success) {
-      throw new Error(response.error ?? 'Alert failed');
+    if (!response?.success) {
+      throw new Error(response?.error ?? 'Alert failed');
     }
   }
 
@@ -241,8 +239,8 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
     if (chrome.runtime.lastError) {
       throw new Error(chrome.runtime.lastError.message);
     }
-    if (!response.success) {
-      throw new Error(response.error ?? 'Replace DOM failed');
+    if (!response?.success) {
+      throw new Error(response?.error ?? 'Replace DOM failed');
     }
   }
 
@@ -262,8 +260,8 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
     if (chrome.runtime.lastError) {
       throw new Error(chrome.runtime.lastError.message);
     }
-    if (!response.success) {
-      throw new Error(response.error ?? 'Copy to clipboard failed');
+    if (!response?.success) {
+      throw new Error(response?.error ?? 'Copy to clipboard failed');
     }
   }
 
@@ -284,8 +282,8 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
     if (chrome.runtime.lastError) {
       throw new Error(chrome.runtime.lastError.message);
     }
-    if (!response.success) {
-      throw new Error(response.error ?? 'Download file failed');
+    if (!response?.success) {
+      throw new Error(response?.error ?? 'Download file failed');
     }
   }
 
@@ -305,8 +303,8 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
     if (chrome.runtime.lastError) {
       throw new Error(chrome.runtime.lastError.message);
     }
-    if (!response.success) {
-      throw new Error(response.error ?? 'Speak text failed');
+    if (!response?.success) {
+      throw new Error(response?.error ?? 'Speak text failed');
     }
   }
 
@@ -326,8 +324,8 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
     if (chrome.runtime.lastError) {
       throw new Error(chrome.runtime.lastError.message);
     }
-    if (!response.success) {
-      throw new Error(response.error ?? 'Show tooltip failed');
+    if (!response?.success) {
+      throw new Error(response?.error ?? 'Show tooltip failed');
     }
   }
 

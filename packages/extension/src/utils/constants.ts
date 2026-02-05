@@ -11,6 +11,7 @@ export const MESSAGE_TYPES = {
   REFRESH_REQUEST: 'request-tools-refresh',
   EXECUTE: 'execute-tool',
   TOOL_LOG: 'tool-execution-log',
+  CLOSE_SIDEPANEL: 'close-sidepanel',
 } as const;
 
 export const LOG_OPTS = [
