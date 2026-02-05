@@ -97,7 +97,6 @@ const createAndAssignHub = (
   }
 
   sharedServer.connect(transport);
-  mcpHub.setupConnections();
 
   mcpHubInstances.set(tabId, mcpHub);
   serverInstances.set(tabId, sharedServer);

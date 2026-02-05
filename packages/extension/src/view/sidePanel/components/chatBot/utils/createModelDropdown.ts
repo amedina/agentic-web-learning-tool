@@ -30,7 +30,9 @@ const createModelDropdown = (apiKeys: { [key: string]: APIKeys }) => {
           id,
           label: name,
           mainLabel: 'Models',
-          submenu: models,
+          submenu: apiKeys[provider]?.thinkingMode
+            ? models.filter((model) => model?.thinking)
+            : models,
         },
       ],
     };

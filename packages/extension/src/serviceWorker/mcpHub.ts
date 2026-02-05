@@ -220,8 +220,8 @@ class McpHub {
     Array.from(this.registeredTools.entries()).map(
       ([toolName, registeredTool]) => {
         if (toolName.startsWith(serverName)) {
-          this.registeredTools.delete(toolName);
           registeredTool.remove();
+          this.registeredTools.delete(toolName);
         }
       }
     );
@@ -665,6 +665,12 @@ class McpHub {
       );
 
       for (const [toolName] of removedTools) {
+        if (
+          toolName.startsWith('extension_tool') ||
+          toolName.includes(`_mcp_`)
+        ) {
+          continue;
+        }
         this.registeredTools.get(toolName)?.remove();
         this.registeredTools.delete(toolName);
       }
