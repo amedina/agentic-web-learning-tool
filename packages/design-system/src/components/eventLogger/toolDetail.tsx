@@ -30,25 +30,19 @@ export function ToolDetail({ tool, getUserTool }: ToolDetailProps) {
 
   return (
     <>
-      <div className="p-2 border-b border-[#f1f3f4]">
-        <div className="text-[10px] font-bold text-[#5f6368] mb-1">
-          DESCRIPTION
-        </div>
-        <div className="text-[#202124] select-text text-xs">
+      <div className="p-2 py-4 border-b">
+        <div className="text-xs font-bold mb-1">DESCRIPTION</div>
+        <div className="select-text text-xs">
           {tool.description || 'No description provided.'}
         </div>
       </div>
-      <div className="flex-1 p-2 bg-white max-h-full overflow-auto">
-        <div className="text-[10px] font-bold text-[#5f6368] mb-1">
-          INPUT SCHEMA
-        </div>
+      <div className="flex-1 p-2 py-4 bg-white max-h-full overflow-auto border-b">
+        <div className="text-xs font-bold mb-1">INPUT SCHEMA</div>
         <SyntaxHighlighterJSON json={tool.inputSchema} />
       </div>
       {userTool && (
-        <div className="p-2 border-b border-[#f1f3f4]">
-          <div className="text-[10px] font-bold text-[#5f6368] mb-1">
-            SCRIPT
-          </div>
+        <div className="p-2 py-4 border-b">
+          <div className="text-xs font-bold mb-1">SCRIPT</div>
           <div>
             <SyntaxHighlighterWhite
               language="javascript"
@@ -57,7 +51,7 @@ export function ToolDetail({ tool, getUserTool }: ToolDetailProps) {
                 Pre: (props: any) => (
                   <pre
                     {...props}
-                    style={{ fontSize: '12px', lineHeight: '1.5' }}
+                    style={{ fontSize: '11px', lineHeight: '1.3' }}
                   />
                 ),
                 Code: (props: any) => (
