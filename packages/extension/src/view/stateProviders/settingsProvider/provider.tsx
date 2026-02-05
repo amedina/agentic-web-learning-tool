@@ -16,6 +16,7 @@ import Logger, { type LogLevelDesc } from 'loglevel';
 import type { LogLevel, SettingsState, ThemeMode } from '../../../types';
 import SettingsContext, { type SettingsContextProps } from './context';
 import { settingsGetter, settingsSetter } from '../../../utils/settingsGetter';
+import { MESSAGE_TYPES } from '../../../utils';
 
 function SettingsProvider({
   children,
@@ -30,9 +31,15 @@ function SettingsProvider({
     [key: string]: chrome.tabs.Tab;
   }>({});
   const [lockedThreads, setLockedThreads] = useState<string[]>([]);
+  const [currentTab, setCurrentTab] = useState<chrome.tabs.Tab | null>(null);
 
   const fetchTabData = useCallback(async () => {
     const tabs = await chrome.tabs.query({});
+    const _currentTab = await chrome.tabs.query({
+      active: true,
+      currentWindow: true,
+    });
+    setCurrentTab(_currentTab[0]);
     setTabData(
       tabs.reduce(
         (acc, tab) => {
@@ -49,6 +56,27 @@ function SettingsProvider({
       )
     );
   }, []);
+
+  const handleMessage = useCallback(
+    (message: any) => {
+      if (
+        message.type === MESSAGE_TYPES.CLOSE_SIDEPANEL &&
+        view === 'sidepanel' &&
+        currentTab &&
+        message.payload.tabId === currentTab?.id
+      ) {
+        chrome.storage.session.set({
+          [`sidebar_tab_${currentTab?.id}`]: {
+            tabId: currentTab?.id,
+            isOpen: false,
+            timestamp: Date.now(),
+          },
+        });
+        window.close();
+      }
+    },
+    [currentTab, view]
+  );
 
   const sessionStorageListener = useCallback(
     async (changes: { [key: string]: chrome.storage.StorageChange }) => {
@@ -196,7 +224,7 @@ function SettingsProvider({
       await fetchTabData();
       initialFetch.current = true;
     })();
-
+    chrome.runtime.onMessage.addListener(handleMessage);
     chrome.storage.sync.onChanged.addListener(syncStorageChangedListener);
     chrome.tabs.onCreated.addListener(addTabData);
     chrome.storage.session.onChanged.addListener(sessionStorageListener);
@@ -206,8 +234,10 @@ function SettingsProvider({
       chrome.webNavigation.onCommitted.removeListener(updateTabsData);
       chrome.tabs.onCreated.removeListener(addTabData);
       chrome.storage.session.onChanged.removeListener(sessionStorageListener);
+      chrome.runtime.onMessage.removeListener(handleMessage);
     };
   }, [
+    handleMessage,
     fetchTabData,
     sessionStorageListener,
     addTabData,

@@ -125,7 +125,7 @@ export const ToolNameMap = {
   execute_user_script: 'Scripting',
   execute_user_script_legacy: 'Scripting',
   insert_css: 'Scripting',
-  remove_cs: 'Scripting',
+  remove_css: 'Scripting',
   check_available_apis: 'API Check',
 };
 
