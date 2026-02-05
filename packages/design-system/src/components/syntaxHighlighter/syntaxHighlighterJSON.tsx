@@ -19,6 +19,8 @@ const SyntaxHighlighterJSON = ({ json }: SyntaxHighlighterJSONProps) => {
             style={{
               margin: 0,
               minHeight: '100%',
+              fontSize: '11px',
+              lineHeight: '1.4',
             }}
           />
         ),
