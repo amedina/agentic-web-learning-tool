@@ -62,10 +62,14 @@ export async function handleRunWorkflow(
 
       // Try-catch to handle cases where content script is not active
       try {
-        await chrome.tabs.sendMessage(targetTabId, {
+        const response = await chrome.tabs.sendMessage(targetTabId, {
           type: 'CONTENT_SCRIPT_ACTIVE',
           targetTabId,
         });
+
+        if (!response || !response?.success) {
+          throw new Error('No Content Script!');
+        }
       } catch (error) {
         await chrome.scripting.executeScript({
           target: { tabId: targetTabId },

@@ -454,7 +454,8 @@ const WorkflowCanvas = ({
       // Validate workflow data before importing
       const validation = WorkflowJSONSchema.safeParse(workflowData);
       if (!validation.success) {
-        const errorMsg = "Invalid workflow JSON";
+        const errorMsg =
+          "Failed to import workflow. Please check the JSON format.";
 
         showToast(errorMsg, "error");
         console.error("Workflow import validation failed:", validation.error);
@@ -479,10 +480,7 @@ const WorkflowCanvas = ({
       showToast("Workflow imported successfully!", "success");
     } catch (error) {
       console.error("Failed to import workflow:", error);
-      showToast(
-        "Failed to import workflow. Please check the JSON format.",
-        "error",
-      );
+      showToast("Invalid workflow JSON.", "error");
     }
   }, [clearFlow, importJson, loadWorkflowData, setWorkflowId, showToast]);
 

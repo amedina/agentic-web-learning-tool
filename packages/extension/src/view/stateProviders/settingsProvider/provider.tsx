@@ -219,11 +219,6 @@ function SettingsProvider({
   );
 
   useEffect(() => {
-    (async () => {
-      await fetchAndUpdateSettings();
-      await fetchTabData();
-      initialFetch.current = true;
-    })();
     chrome.runtime.onMessage.addListener(handleMessage);
     chrome.storage.sync.onChanged.addListener(syncStorageChangedListener);
     chrome.tabs.onCreated.addListener(addTabData);
@@ -238,13 +233,22 @@ function SettingsProvider({
     };
   }, [
     handleMessage,
-    fetchTabData,
     sessionStorageListener,
     addTabData,
-    fetchAndUpdateSettings,
     syncStorageChangedListener,
     updateTabsData,
   ]);
+
+  useEffect(() => {
+    (async () => {
+      if (initialFetch.current) {
+        return;
+      }
+      await fetchAndUpdateSettings();
+      await fetchTabData();
+      initialFetch.current = true;
+    })();
+  }, [fetchTabData, fetchAndUpdateSettings]);
 
   const contextValue = useMemo<SettingsContextProps>(
     () => ({

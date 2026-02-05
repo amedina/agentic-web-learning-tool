@@ -38,9 +38,6 @@ const WorkflowCard = ({
           <h3 className="text-sm font-bold text-accent-foreground truncate transition-colors">
             {workflow.meta.name || 'Untitled Workflow'}
           </h3>
-          <div className="text-[10px] text-amethyst-haze font-mono opacity-80">
-            {workflow.meta.id.substring(0, 8)}
-          </div>
         </div>
       </div>
 
@@ -74,8 +71,8 @@ const WorkflowCard = ({
           variant="ghost"
           size="sm"
           className={cn(
-            'h-8 w-8 p-0 rounded-full shadow-sm bg-blue-600 hover:bg-blue-700 text-white border-none transition-all',
-            'opacity-0 group-hover:opacity-100 scale-90 group-hover:scale-100',
+            'h-8 w-8 p-0 rounded-full shadow-sm bg-blue-600 hover:bg-blue-400 dark:hover:bg-blue-700 text-white border-none transition-all',
+            'opacity-0 group-hover:opacity-100 scale-90 group-hover:scale-100 hover:text-white',
             isRunning && 'opacity-100 scale-100 bg-blue-400 cursor-default'
           )}
           title={isRunning ? 'Running...' : 'Run Workflow'}
@@ -83,7 +80,7 @@ const WorkflowCard = ({
           {isRunning ? (
             <div className="h-3 w-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
           ) : (
-            <PlayIcon size={14} fill="currentColor" className="ml-0.5" />
+            <PlayIcon size={14} fill="white" className="ml-0.5" />
           )}
         </Button>
       </div>
