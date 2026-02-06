@@ -60,105 +60,111 @@ const Provider = ({ children }: PropsWithChildren) => {
 
   const connectToMCPServer = useCallback(
     async (config: MCPServerConfig, serverName: string) => {
-      const headers: HeadersInit = {};
+      try {
+        const headers: HeadersInit = {};
 
-      const serverAuthProvider = new InspectorOAuthClientProvider(config.url);
-      let oauthToken;
+        const serverAuthProvider = new InspectorOAuthClientProvider(config.url);
+        let oauthToken;
 
-      let finalHeaders: CustomHeaders = config.customHeaders || [];
+        let finalHeaders: CustomHeaders = config.customHeaders || [];
 
-      const isEmptyAuthHeader = (header: CustomHeaders[number]) =>
-        header.name.trim().toLowerCase() === 'authorization' &&
-        header.value.trim().toLowerCase() === 'bearer';
+        const isEmptyAuthHeader = (header: CustomHeaders[number]) =>
+          header.name.trim().toLowerCase() === 'authorization' &&
+          header.value.trim().toLowerCase() === 'bearer';
 
-      // Check for empty Authorization headers and show validation error
-      const hasEmptyAuthHeader = finalHeaders.some(
-        (header) => header.enabled && isEmptyAuthHeader(header)
-      );
+        // Check for empty Authorization headers and show validation error
+        const hasEmptyAuthHeader = finalHeaders.some(
+          (header) => header.enabled && isEmptyAuthHeader(header)
+        );
 
-      if (hasEmptyAuthHeader) {
-        toast.error('Invalid Authorization Header', {
-          description:
-            'Authorization header is enabled but empty. Please add a token or disable the header.',
-        });
-      }
-
-      const needsOAuthToken = !finalHeaders.some(
-        (header) =>
-          header.enabled && header.name.trim().toLowerCase() === 'authorization'
-      );
-
-      if (needsOAuthToken) {
-        oauthToken = (await serverAuthProvider.tokens())?.access_token;
-        if (oauthToken) {
-          // Add the OAuth token
-          finalHeaders = [
-            // Remove any existing Authorization headers with empty tokens
-            ...finalHeaders.filter((header) => !isEmptyAuthHeader(header)),
-            {
-              name: 'Authorization',
-              value: `Bearer ${oauthToken}`,
-              enabled: true,
-            },
-          ];
+        if (hasEmptyAuthHeader) {
+          toast.error('Invalid Authorization Header', {
+            description:
+              'Authorization header is enabled but empty. Please add a token or disable the header.',
+          });
         }
-      }
 
-      // Process all enabled custom headers
-      const customHeaderNames: string[] = [];
-      finalHeaders.forEach((header) => {
-        if (header.enabled && header.name.trim() && header.value.trim()) {
-          const headerName = header.name.trim();
-          const headerValue = header.value.trim();
+        const needsOAuthToken = !finalHeaders.some(
+          (header) =>
+            header.enabled &&
+            header.name.trim().toLowerCase() === 'authorization'
+        );
 
-          headers[headerName] = headerValue;
-
-          // Track custom header names for server processing
-          if (headerName.toLowerCase() !== 'authorization') {
-            customHeaderNames.push(headerName);
+        if (needsOAuthToken) {
+          oauthToken = (await serverAuthProvider.tokens())?.access_token;
+          if (oauthToken) {
+            // Add the OAuth token
+            finalHeaders = [
+              // Remove any existing Authorization headers with empty tokens
+              ...finalHeaders.filter((header) => !isEmptyAuthHeader(header)),
+              {
+                name: 'Authorization',
+                value: `Bearer ${oauthToken}`,
+                enabled: true,
+              },
+            ];
           }
         }
-      });
 
-      // Add custom header names as a special request header for server processing
-      if (customHeaderNames.length > 0) {
-        headers['x-custom-auth-headers'] = JSON.stringify(customHeaderNames);
-      }
-      initalSyncToolFetchRef.current.add(serverName);
+        // Process all enabled custom headers
+        const customHeaderNames: string[] = [];
+        finalHeaders.forEach((header) => {
+          if (header.enabled && header.name.trim() && header.value.trim()) {
+            const headerName = header.name.trim();
+            const headerValue = header.value.trim();
 
-      const client = new Client(
-        {
-          name: 'chrome-options-page-client',
-          version: '1.0',
-        },
-        {
-          capabilities: {
-            sampling: {},
-            elicitation: {},
-            roots: {
-              listChanged: true,
-            },
-          },
+            headers[headerName] = headerValue;
+
+            // Track custom header names for server processing
+            if (headerName.toLowerCase() !== 'authorization') {
+              customHeaderNames.push(headerName);
+            }
+          }
+        });
+
+        // Add custom header names as a special request header for server processing
+        if (customHeaderNames.length > 0) {
+          headers['x-custom-auth-headers'] = JSON.stringify(customHeaderNames);
         }
-      );
+        initalSyncToolFetchRef.current.add(serverName);
 
-      const transport =
-        config.transport === 'streamable-http'
-          ? new StreamableHTTPClientTransport(new URL(config.url), {
-              requestInit: {
-                headers: headers,
+        const client = new Client(
+          {
+            name: 'chrome-options-page-client',
+            version: '1.0',
+          },
+          {
+            capabilities: {
+              sampling: {},
+              elicitation: {},
+              roots: {
+                listChanged: true,
               },
-            })
-          : new SSEClientTransport(new URL(config.url), {
-              requestInit: {
-                headers: headers,
-              },
-            });
+            },
+          }
+        );
 
-      await client.connect(transport);
-      const toolsList = await client.listTools();
+        const transport =
+          config.transport === 'streamable-http'
+            ? new StreamableHTTPClientTransport(new URL(config.url), {
+                requestInit: {
+                  headers: headers,
+                },
+              })
+            : new SSEClientTransport(new URL(config.url), {
+                requestInit: {
+                  headers: headers,
+                },
+              });
 
-      return { toolsList, transport, client, oauthToken };
+        await client.connect(transport);
+        const toolsList = await client.listTools();
+
+        return { toolsList, transport, client, oauthToken };
+      } catch (error) {
+        logger(['error'], [error]);
+      }
+      return null;
     },
     []
   );
@@ -179,8 +185,13 @@ const Provider = ({ children }: PropsWithChildren) => {
           return;
         }
 
-        const { toolsList, transport, client, oauthToken } =
-          await connectToMCPServer(config, serverName);
+        const result = await connectToMCPServer(config, serverName);
+
+        if (!result) {
+          throw Error('');
+        }
+
+        const { toolsList, transport, client, oauthToken } = result;
 
         clients.current[serverName] = client;
         transports.current[serverName] = transport;
@@ -210,7 +221,8 @@ const Provider = ({ children }: PropsWithChildren) => {
           toast.success('MCP Server successfully added to extension');
         }
       } catch (_error) {
-        const errorMessage = `Couldnt add ${config.name} ${'Error fetching tools from MCP Server. Please check the server URL, check the token expiry.'}`;
+        console.log(_error);
+        const errorMessage = `Couldnt add ${config.name}. Error fetching tools from MCP Server. Please check the server URL, check the token expiry.`;
 
         if (doNotStoreTools) {
           return errorMessage;
@@ -253,10 +265,16 @@ const Provider = ({ children }: PropsWithChildren) => {
             return newValue;
           });
 
-          const { transport, client, oauthToken } = await connectToMCPServer(
+          const result = await connectToMCPServer(
             serverConfigs[serverName],
             serverName
           );
+
+          if (!result) {
+            throw Error('');
+          }
+
+          const { transport, client, oauthToken } = result;
 
           clients.current[serverName] = client;
 
