@@ -16,5 +16,11 @@
     "node_modules/@types/chrome/index.d.ts",
     "node_modules/@types/dom-chromium-ai/index.d.ts"
   ],
-  "exclude": ["dist", "build", "tests", "node_modules"]
+  "exclude": [
+    "dist",
+    "build",
+    "tests",
+    "node_modules",
+    "src/contentScript/assets/webmcp-polyfill.js"
+  ]
 }
