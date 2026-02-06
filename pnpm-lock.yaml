@@ -379,6 +379,9 @@ importers:
       '@google-awlt/engine-core':
         specifier: workspace:*
         version: link:../engine-core
+      loglevel:
+        specifier: ^1.9.2
+        version: 1.9.2
     devDependencies:
       '@google-awlt/shared-config':
         specifier: workspace:*
