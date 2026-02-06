@@ -87,7 +87,7 @@ const mcpConnectionInitialiser = async (refreshTools = false) => {
   });
 
   if (refreshTools) {
-    sendToolUpdate(MESSAGE_TYPES.REFRESH_REQUEST);
+    await sendToolUpdate(MESSAGE_TYPES.REFRESH_REQUEST);
   }
 
   async function setupToolChangeListener() {
@@ -165,7 +165,7 @@ const mcpConnectionInitialiser = async (refreshTools = false) => {
       }
       if (client.transport) {
         clearInterval(interval);
-        setupToolChangeListener();
+        await setupToolChangeListener();
 
         // client.listTools sends message to TabServerTransport which is implemented by the MCP-B polyfill in real world page context.
         // @see https://github.com/WebMCP-org/npm-packages/blob/a262b42b7dc260f47f6fbc5b6dd82937ec01fb83/global/src/global.ts#L2167-L2170
