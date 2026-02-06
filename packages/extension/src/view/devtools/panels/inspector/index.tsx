@@ -20,7 +20,7 @@ import {
   EVENT_LOGGER_COLUMNS,
   TABLE_SEARCH_KEYS,
 } from '../../constants';
-import { useEventLogs } from '../../stateProviders';
+import { useEventLogs } from '../../providers';
 import { useSettings } from '../../../stateProviders';
 
 export const Inspector = () => {

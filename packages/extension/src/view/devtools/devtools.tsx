@@ -10,7 +10,7 @@ import { Client } from '@modelcontextprotocol/sdk/client';
  */
 import { CONNECTION_NAMES } from '../../utils';
 import { Layout } from './layout';
-import { EventLogsProvider } from './stateProviders';
+import { EventLogsProvider } from './providers';
 
 export const transport = new ExtensionClientTransport({
   portName: CONNECTION_NAMES.MCP_HOST_DEVTOOLS,

@@ -27,7 +27,7 @@ import { isLocalTool } from '../../utils';
 import { useSettings } from '../../../stateProviders';
 import { TABLE_SEARCH_KEYS, ALL_TOOLS_FILTERS } from '../../constants';
 import { useToolExecution } from '../../hooks/useToolExecution';
-import { useEventLogs } from '../../stateProviders';
+import { useEventLogs } from '../../providers';
 
 interface AllToolsRowData extends TableData, Tool {
   originalData: Tool;
