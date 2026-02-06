@@ -7,7 +7,6 @@ import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 /**
  * Internal dependencies
  */
-import { START_MCP_CONNECTION } from '../../constants';
 import { logger, MESSAGE_TYPES } from '../../utils';
 import McpHub from '../mcpHub';
 import handleToolEnableDisableOnLocalStorageChange from './handleToolEnableDisableOnLocalStorageChange';
@@ -35,10 +34,7 @@ const createAndAssignHub = async (
       chrome.tabs
         .sendMessage(tabId, { type: MESSAGE_TYPES.REFRESH_REQUEST })
         .catch((error) => {
-          logger(
-            ['error'],
-            ['Failed to send START_MCP_CONNECTION message:', error]
-          );
+          logger(['error'], ['Failed to send REFRESH_REQUEST message:', error]);
         });
 
       if (mcpHub?.registeredTools.size > 0) {
@@ -93,7 +89,7 @@ const createAndAssignHub = async (
     mcpHubInstances.set(tabId, mcpHub);
     serverInstances.set(tabId, sharedServer);
     chrome.tabs
-      .sendMessage(tabId, { type: START_MCP_CONNECTION })
+      .sendMessage(tabId, { type: MESSAGE_TYPES.REFRESH_REQUEST })
       .then(() => {
         if (chrome?.runtime?.lastError) {
           return;
@@ -102,10 +98,7 @@ const createAndAssignHub = async (
         mcpHub.injectWorkflowToolsAndRegisterFunction(tabId);
       })
       .catch((error) => {
-        logger(
-          ['error'],
-          ['Failed to send START_MCP_CONNECTION message:', error]
-        );
+        logger(['error'], ['Failed to send REFRESH_REQUEST message:', error]);
       });
 
     if (mcpHub.registeredTools.size > 0) {
