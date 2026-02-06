@@ -78,7 +78,12 @@ chrome.runtime.onConnect.addListener(async (port) => {
       return;
     }
 
-    createAndAssignHub(mcpHubSidepanelInstances, port, serverInstances, tabId);
+    await createAndAssignHub(
+      mcpHubSidepanelInstances,
+      port,
+      serverInstances,
+      tabId
+    );
   }
 
   if (port.name === CONNECTION_NAMES.MCP_HOST_DEVTOOLS) {
@@ -96,7 +101,12 @@ chrome.runtime.onConnect.addListener(async (port) => {
       return;
     }
 
-    createAndAssignHub(mcpHubDevtoolInstances, port, serverInstances, tabId);
+    await createAndAssignHub(
+      mcpHubDevtoolInstances,
+      port,
+      serverInstances,
+      tabId
+    );
   }
 });
 
