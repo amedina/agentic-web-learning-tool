@@ -14,7 +14,7 @@ import { type TableData } from '@google-awlt/design-system';
  * Internal dependencies
  */
 import EventLogsContext, { type EventLogsContextProps } from './context';
-import { MESSAGE_TYPES } from '../../../../../utils';
+import { MESSAGE_TYPES } from '../../../utils';
 import type { ToolExecutionLog } from '../types';
 import { isLocalTool } from '../utils';
 

@@ -23,17 +23,17 @@ import { noop } from '@google-awlt/common';
  * Internal Dependencies
  */
 import RunToolPanel from './runToolPanel';
-import { isLocalTool } from './utils';
+import { isLocalTool } from '../../utils';
 import { useSettings } from '../../../stateProviders';
-import { TABLE_SEARCH_KEYS, ALL_TOOLS_FILTERS } from './constants';
-import { useToolExecution } from './hooks/useToolExecution';
-import { useEventLogs } from './eventLogsProvider';
+import { TABLE_SEARCH_KEYS, ALL_TOOLS_FILTERS } from '../../constants';
+import { useToolExecution } from '../../hooks/useToolExecution';
+import { useEventLogs } from '../../stateProviders';
 
 interface AllToolsRowData extends TableData, Tool {
   originalData: Tool;
 }
 
-export const WebMCPTools = ({
+export const Tools = ({
   setSelectedMenuItem,
 }: {
   setSelectedMenuItem: (view: string) => void;

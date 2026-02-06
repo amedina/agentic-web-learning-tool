@@ -8,7 +8,7 @@ import { RunToolPanel as RunToolPanelView } from '@google-awlt/design-system';
 /**
  * Internal dependencies.
  */
-import { useEventLogs } from './eventLogsProvider';
+import { useEventLogs } from '../../stateProviders';
 
 interface RunToolPanelProps {
   isOpen: boolean;

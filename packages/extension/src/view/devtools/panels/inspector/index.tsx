@@ -19,11 +19,11 @@ import {
   EVENT_LOGGER_FILTERS,
   EVENT_LOGGER_COLUMNS,
   TABLE_SEARCH_KEYS,
-} from './constants';
-import { useEventLogs } from './eventLogsProvider';
+} from '../../constants';
+import { useEventLogs } from '../../stateProviders';
 import { useSettings } from '../../../stateProviders';
 
-export const WebMCPInspector = () => {
+export const Inspector = () => {
   const { eventLoggerData, selectedKey, setSelectedKey, setEventLoggerData } =
     useEventLogs(({ state, actions }) => ({
       eventLoggerData: state.eventLoggerData,
