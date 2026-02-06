@@ -8,7 +8,7 @@ import { LoopConfigSchema, type LoopConfig } from "@google-awlt/engine-core";
 /**
  * Internal dependencies
  */
-
+import logger from "../../../../../logger";
 interface ToolConfigProps {
   ref: React.Ref<{
     getConfig: (formData: FormData) => LoopConfig | undefined;
@@ -31,7 +31,7 @@ const ToolConfig = ({ ref }: ToolConfigProps) => {
 
         const validation = LoopConfigSchema.safeParse(configResult);
         if (!validation.success) {
-          console.error("Invalid configuration:", validation.error);
+          logger(["error"], ["Invalid configuration:", validation.error]);
           return undefined;
         }
 

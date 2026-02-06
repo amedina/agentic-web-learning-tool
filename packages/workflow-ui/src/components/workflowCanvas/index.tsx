@@ -26,6 +26,7 @@ import {
 } from "../../stateProviders";
 import { Flow, Toast, SavedWorkflowsDialog, ImportDialog } from "../ui";
 import { TOOL_CONFIGS } from "../tools/toolRegistry";
+import logger from "../../logger";
 
 const ID_PREFIX = "wf_";
 const STORAGE_KEY_SELECTED_TAB = "awl_wc_selected_tab_id";
@@ -282,7 +283,7 @@ const WorkflowCanvas = ({
             loadWorkflowData(savedData);
           }
         } catch (error) {
-          console.error("Failed to load workflow from storage", error);
+          logger(["error"], ["Failed to load workflow from storage", error]);
         }
       } else {
         const newId = generateId();
@@ -395,7 +396,7 @@ const WorkflowCanvas = ({
           `Validation Error: ${firstError?.message} at ${node?.label} on ${firstError?.path.slice(3).join(".")}`,
           "error",
         );
-        console.error("Workflow validation failed:", validation.error);
+        logger(["error"], ["Workflow validation failed:", validation.error]);
 
         return;
       }
@@ -403,7 +404,7 @@ const WorkflowCanvas = ({
       await saveWorkflow(workflowId, workflowData);
       showToast("Workflow saved successfully!", "success");
     } catch (error) {
-      console.error("Failed to save workflow:", error);
+      logger(["error"], ["Failed to save workflow:", error]);
       showToast("Failed to save workflow", "error");
     }
   }, [workflowId, serializeWorkflow, nodes, edges, nodesApiData, showToast]);
@@ -434,7 +435,7 @@ const WorkflowCanvas = ({
 
       showToast("Workflow exported as JSON file!", "success");
     } catch (error) {
-      console.error("Failed to export workflow:", error);
+      logger(["error"], ["Failed to export workflow:", error]);
       showToast("Failed to export workflow", "error");
     }
   }, [
@@ -458,7 +459,10 @@ const WorkflowCanvas = ({
           "Failed to import workflow. Please check the JSON format.";
 
         showToast(errorMsg, "error");
-        console.error("Workflow import validation failed:", validation.error);
+        logger(
+          ["error"],
+          ["Workflow import validation failed:", validation.error],
+        );
 
         return;
       }
@@ -479,7 +483,7 @@ const WorkflowCanvas = ({
       setImportJson("");
       showToast("Workflow imported successfully!", "success");
     } catch (error) {
-      console.error("Failed to import workflow:", error);
+      logger(["error"], ["Failed to import workflow:", error]);
       showToast("Invalid workflow JSON.", "error");
     }
   }, [clearFlow, importJson, loadWorkflowData, setWorkflowId, showToast]);
@@ -520,13 +524,13 @@ const WorkflowCanvas = ({
           setIsRunning(false);
           setIsStopping(false);
           showToast("Workflow completed successfully!", "success");
-          console.log("Workflow context:", context);
+          logger(["debug"], ["Workflow context:", context]);
         },
         onError: (error: string) => {
           setIsRunning(false);
           setIsStopping(false);
           showToast(`Workflow failed: ${error}`, "error");
-          console.error("Workflow error:", error);
+          logger(["error"], ["Workflow error:", error]);
         },
       });
     } catch (error) {

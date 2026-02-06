@@ -1109,6 +1109,9 @@ importers:
       immer:
         specifier: ^9.0.21
         version: 9.0.21
+      loglevel:
+        specifier: ^1.9.2
+        version: 1.9.2
       lucide-react:
         specifier: ^0.379.0
         version: 0.379.0(react@19.1.1)

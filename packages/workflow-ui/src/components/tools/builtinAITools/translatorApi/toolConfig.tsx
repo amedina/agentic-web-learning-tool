@@ -3,17 +3,16 @@
  */
 import { useEffect, useImperativeHandle, useState } from "react";
 import { Settings } from "lucide-react";
-
-/**
- * Internal dependencies
- */
-
 import { getWorkflowClient } from "@google-awlt/engine-extension";
 import {
   TranslatorApiConfigSchema,
   type TranslatorApiConfig,
 } from "@google-awlt/engine-core";
 
+/**
+ * Internal dependencies
+ */
+import logger from "../../../../logger";
 interface ToolConfigProps {
   ref: React.Ref<{
     getConfig: (formData: FormData) => TranslatorApiConfig | undefined;
@@ -45,7 +44,7 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 
         setIsAvailable(!!results.translatorApi);
       } catch (error) {
-        console.error("Failed to check translator availability:", error);
+        logger(["error"], ["Failed to check translator availability:", error]);
         setIsAvailable(false);
       } finally {
         setIsChecking(false);
@@ -76,7 +75,7 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 
         const validation = TranslatorApiConfigSchema.safeParse(configResult);
         if (!validation.success) {
-          console.error("Invalid configuration:", validation.error);
+          logger(["error"], ["Invalid configuration:", validation.error]);
           return undefined;
         }
 
