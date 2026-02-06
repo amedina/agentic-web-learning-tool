@@ -23,7 +23,6 @@ import { noop } from '@google-awlt/common';
  * Internal Dependencies
  */
 import RunToolPanel from './runToolPanel';
-import { isLocalTool } from '../../utils';
 import { useSettings } from '../../../stateProviders';
 import { TABLE_SEARCH_KEYS, ALL_TOOLS_FILTERS } from '../../constants';
 import { useToolExecution } from '../../hooks/useToolExecution';
@@ -67,7 +66,7 @@ export const Tools = ({
   useEffect(() => {
     if (availableTools) {
       const tools = availableTools
-        .filter((tool) => isLocalTool(tool.name, tabId))
+        .filter((tool) => tool.name !== 'dummyTool')
         .map((tool) => ({
           name: getToolNameWithoutPrefix(tool.name),
           type: 'MCP',
