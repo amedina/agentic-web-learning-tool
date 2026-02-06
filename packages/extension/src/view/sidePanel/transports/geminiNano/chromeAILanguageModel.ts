@@ -122,12 +122,7 @@ class ChromeAILanguageModel {
           languages: ['en'],
         },
       ],
-      expectedOutputs: [
-        {
-          type: 'text',
-          languages: ['en'],
-        },
-      ],
+      expectedOutputs: [{ type: 'text', languages: ['en'] }],
     });
   }
 

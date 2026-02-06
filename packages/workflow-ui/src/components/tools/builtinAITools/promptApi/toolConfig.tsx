@@ -11,7 +11,7 @@ import {
 /**
  * Internal dependencies
  */
-
+import logger from "../../../../logger";
 interface ToolConfigProps {
   ref: React.Ref<{
     getConfig: (formData: FormData) => PromptApiConfig | undefined;
@@ -62,7 +62,7 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
         try {
           parsedInitialPrompts = JSON.parse(initialPrompts);
         } catch (error) {
-          console.error("Invalid JSON for initialPrompts:", error);
+          logger(["error"], ["Invalid JSON for initialPrompts:", error]);
           parsedInitialPrompts = [];
         }
 
@@ -78,7 +78,10 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 
         const validation = PromptApiConfigSchema.safeParse(configResult);
         if (!validation.success) {
-          console.error("Configuration validation failed:", validation.error);
+          logger(
+            ["error"],
+            ["Configuration validation failed:", validation.error],
+          );
           return undefined;
         }
 

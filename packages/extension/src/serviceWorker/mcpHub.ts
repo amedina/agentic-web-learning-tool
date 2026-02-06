@@ -170,7 +170,7 @@ class McpHub {
           try {
             permissions = await chrome.permissions.getAll();
           } catch (error) {
-            console.error('Failed to get permissions:', error);
+            logger(['error'], ['Failed to get permissions:', error]);
           }
         }
 
@@ -460,8 +460,6 @@ class McpHub {
                 false,
                 false
               );
-              await this.injectToolsAndRegisterFunction(tabId);
-              await this.injectWorkflowToolsAndRegisterFunction(tabId);
             }
             break;
           case MESSAGE_TYPES.UPDATE:
@@ -923,10 +921,10 @@ class McpHub {
       })
       .then((result) => {
         this.toolInjected = true;
-        console.log('WebMCP: tools registered', result);
+        logger(['debug'], ['WebMCP: tools registered', result]);
       })
       .catch((error) => {
-        console.error('WebMCP: Error injecting user tools', error);
+        logger(['error'], ['WebMCP: Error injecting user tools', error]);
       });
 
     async function registerDynamicToolFromScripting(tools: any) {
@@ -949,25 +947,27 @@ class McpHub {
             ...module.metadata,
             execute: module.execute,
           };
-          console.log('WebMCP: Tool to register:', toolToRegister);
+          logger(['debug'], ['WebMCP: Tool to register:', toolToRegister]);
           // 4. Register
           if (mcp) {
             await mcp.registerTool(toolToRegister);
-            console.log(
-              'WebMCP: User tool registered successfully:',
-              toolToRegister.name
+            logger(
+              ['debug'],
+              [
+                'WebMCP: User tool registered successfully:',
+                toolToRegister.name,
+              ]
             );
           } else {
-            console.log('WebMCP: Cannot register tool, mcp missing');
+            logger(['error'], ['WebMCP: Cannot register tool, mcp missing']);
           }
 
           // Clean up
           URL.revokeObjectURL(url);
         } catch (err) {
-          console.log(
-            'WebMCP: Failed to register user tool:',
-            toolWrapper.name,
-            err
+          logger(
+            ['error'],
+            ['WebMCP: Failed to register user tool:', toolWrapper.name, err]
           );
         }
       }
@@ -976,17 +976,15 @@ class McpHub {
 
   async injectWorkflowToolsAndRegisterFunction(tabId: number) {
     const workflows = await listWorkflows();
-    console.log('[Workflow]', workflows);
-
     let tabUrl = '';
 
     try {
       const tab = await chrome.tabs.get(tabId);
       tabUrl = tab.url || '';
     } catch (e) {
-      console.warn(
-        `WebMCP: Could not get tab URL for injection (tabId: ${tabId})`,
-        e
+      logger(
+        ['warn'],
+        [`WebMCP: Could not get tab URL for injection (tabId: ${tabId})`, e]
       );
     }
 
@@ -1012,10 +1010,10 @@ class McpHub {
         args: [transformedWorkflows],
       })
       .then((result) => {
-        console.log('WebMCP: tools registered', result);
+        logger(['debug'], ['WebMCP: tools registered', result]);
       })
       .catch((error) => {
-        console.error('WebMCP: Error injecting user tools', error);
+        logger(['error'], ['WebMCP: Error injecting user tools', error]);
       });
 
     async function registerDynamicWorkflowToolFromScripting(
@@ -1062,23 +1060,29 @@ class McpHub {
             },
           };
 
-          console.log(
-            'WebMCP: Registering user workflow tool:',
-            toolToRegister
+          logger(
+            ['debug'],
+            ['WebMCP: Registering user workflow tool:', toolToRegister]
           );
 
           if (mcp) {
             await mcp.registerTool(toolToRegister);
 
-            console.log(
-              'WebMCP: User Workflow tool registered successfully:',
-              toolToRegister.name
+            logger(
+              ['debug'],
+              [
+                'WebMCP: User Workflow tool registered successfully:',
+                toolToRegister.name,
+              ]
             );
           } else {
-            console.log('WebMCP: Cannot register tool, mcp missing');
+            logger(['warn'], ['WebMCP: Cannot register tool, mcp missing']);
           }
         } catch (err) {
-          console.log('WebMCP: Failed to register user tool:', tool.name, err);
+          logger(
+            ['error'],
+            ['WebMCP: Failed to register user tool:', tool.name, err]
+          );
         }
       }
     }

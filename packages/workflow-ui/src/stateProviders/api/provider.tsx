@@ -14,6 +14,7 @@ import { type WorkflowMeta } from "@google-awlt/engine-core";
  * Internal dependencies
  */
 import Context, { type ApiNodeConfig } from "./context";
+import logger from "../../logger";
 
 const ApiProvider = ({ children }: PropsWithChildren) => {
   const [nodes, setNodes] = useState<{
@@ -123,7 +124,7 @@ const ApiProvider = ({ children }: PropsWithChildren) => {
         translatorApi: true, // Always show in UI per user request
       });
     } catch (error) {
-      console.error("Failed to check capabilities:", error);
+      logger(["error"], ["Failed to check capabilities:", error]);
     }
   }, []);
 

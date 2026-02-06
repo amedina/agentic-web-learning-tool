@@ -11,7 +11,7 @@ import {
 /**
  * Internal dependencies
  */
-
+import logger from "../../../../logger";
 interface ToolConfigProps {
   ref: React.Ref<{
     getConfig: (formData: FormData) => SummarizerApiConfig | undefined;
@@ -66,7 +66,7 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 
         const validation = SummarizerApiConfigSchema.safeParse(configResult);
         if (!validation.success) {
-          console.error("Invalid configuration:", validation.error);
+          logger(["error"], ["Invalid configuration:", validation.error]);
           return undefined;
         }
 

@@ -7,7 +7,10 @@ import {
   DomReplacementConfigSchema,
   type DomReplacementConfig,
 } from "@google-awlt/engine-core";
-
+/**
+ * Internal dependencies
+ */
+import logger from "../../../../../logger";
 interface ToolConfigProps {
   ref: React.Ref<{
     getConfig: (formData: FormData) => DomReplacementConfig | undefined;
@@ -46,7 +49,7 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 
         const validation = DomReplacementConfigSchema.safeParse(configResult);
         if (!validation.success) {
-          console.error("Invalid configuration:", validation.error);
+          logger(["error"], ["Invalid configuration:", validation.error]);
           return undefined;
         }
 

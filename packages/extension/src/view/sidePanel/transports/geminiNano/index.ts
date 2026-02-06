@@ -71,7 +71,16 @@ export class GeminiNanoChatTransport implements ChatTransport<UIMessage> {
         );
       }
 
-      const availability = await lm.availability();
+      const availability = await lm.availability({
+        expectedInputs: [
+          {
+            type: 'text',
+            languages: ['en'],
+          },
+        ],
+        expectedOutputs: [{ type: 'text', languages: ['en'] }],
+      });
+
       if (availability === 'unavailable') {
         throw new Error('On-device Gemini Nano model is unavailable.');
       }

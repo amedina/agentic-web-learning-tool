@@ -5,12 +5,13 @@ import {
   ExecutionContext,
   NodeOutput,
   WorkflowJSON,
-} from "@google-awlt/engine-core";
+} from '@google-awlt/engine-core';
 
 /**
  * Internal dependencies
  */
-import { WorkflowClient, WorkflowClientCallbacks } from "./WorkflowClient";
+import { WorkflowClient, WorkflowClientCallbacks } from './WorkflowClient';
+import logger from '../utils/logger';
 
 /**
  * Workflow Adapter
@@ -21,23 +22,23 @@ export function workflowAdapter(workflowJson: WorkflowJSON, tabId: number) {
   return async () => {
     const callbacks: WorkflowClientCallbacks = {
       onNodeStart: (nodeId: string) => {
-        console.log("Node started", nodeId);
+        logger(['debug'], ['Node started', nodeId]);
       },
       onNodeFinish: (nodeId: string, output: NodeOutput) => {
-        console.log("Node finished", nodeId, output);
+        logger(['debug'], ['Node finished', nodeId, output]);
       },
       onComplete: (context: ExecutionContext) => {
-        console.log("Workflow completed", context);
+        logger(['debug'], ['Workflow completed', context]);
       },
       onError: (error: string) => {
-        console.error("Workflow error", error);
+        logger(['error'], ['Workflow error', error]);
       },
     };
 
     const response = {
       content: {
-        type: "text",
-        text: "",
+        type: 'text',
+        text: '',
       },
       isError: false,
     };
@@ -47,13 +48,13 @@ export function workflowAdapter(workflowJson: WorkflowJSON, tabId: number) {
       const executionContext = await client.runWorkflow(
         workflowJson,
         tabId,
-        callbacks,
+        callbacks
       );
 
       response.content.text = Object.entries(executionContext)
-        .filter(([key]) => key.endsWith("end"))
+        .filter(([key]) => key.endsWith('end'))
         .map(([value]) => value)
-        .join("\n");
+        .join('\n');
     } catch (error: any) {
       response.content.text = error.message;
       response.isError = true;

@@ -11,7 +11,7 @@ import {
 /**
  * Internal dependencies
  */
-
+import logger from "../../../../../logger";
 interface ToolConfigProps {
   ref: React.Ref<{
     getConfig: (formData: FormData) => StaticInputConfig | undefined;
@@ -48,14 +48,14 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
           try {
             JSON.parse(inputValue);
           } catch (error) {
-            console.error("Invalid JSON array:", error);
+            logger(["error"], ["Invalid JSON array:", error]);
             return undefined;
           }
         }
 
         const validation = StaticInputConfigSchema.safeParse(configResult);
         if (!validation.success) {
-          console.error("Invalid configuration:", validation.error);
+          logger(["error"], ["Invalid configuration:", validation.error]);
           return undefined;
         }
 

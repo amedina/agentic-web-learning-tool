@@ -29,6 +29,7 @@
     "@xyflow/react": "^12.9.3",
     "clsx": "^2.1.1",
     "immer": "^9.0.21",
+    "loglevel": "^1.9.2",
     "lucide-react": "^0.379.0",
     "react": "^19.0.0",
     "use-context-selector": "^2.0.0",
