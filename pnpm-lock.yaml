@@ -20,7 +20,7 @@ patchedDependencies:
     hash: de61710e62afdb10e9b1aa256f697615f6f694df3f7c35e4aa0ea8ee2eb930fd
     path: patches/@mcp-b__extension-tools@0.2.3.patch
   '@mcp-b/transports@1.2.0':
-    hash: 963055dcb88758be42aa22af317034582da6169da467e943d346124643fb4c2f
+    hash: 9773364c7c75c141c62bbbee48a314c66a4f18c4b81170c0ec406dd66b5355dc
     path: patches/@mcp-b__transports@1.2.0.patch
   assistant-stream@0.2.46:
     hash: 46a7cfa2f818f8cbd85e6a5a2dbabd025717a8972464c3d8a538756a169ec3ff
@@ -506,7 +506,7 @@ importers:
         version: 0.2.2(@assistant-ui/react@0.11.51(patch_hash=40b5d6f4a740cd075a826a70ab85afc316315cc5e5086562aadfa8f3ef70843d)(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(immer@9.0.21)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(use-sync-external-store@1.6.0(react@19.1.1)))(hono@4.11.3)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
       '@mcp-b/transports':
         specifier: ^1.2.0
-        version: 1.2.0(patch_hash=963055dcb88758be42aa22af317034582da6169da467e943d346124643fb4c2f)(@modelcontextprotocol/sdk@1.25.1(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))
+        version: 1.2.0(patch_hash=9773364c7c75c141c62bbbee48a314c66a4f18c4b81170c0ec406dd66b5355dc)(@modelcontextprotocol/sdk@1.25.1(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))
       '@modelcontextprotocol/sdk':
         specifier: ^1.25.0
         version: 1.25.1(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
@@ -9396,7 +9396,7 @@ snapshots:
       '@modelcontextprotocol/sdk': 1.25.1(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
       zod: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
 
-  '@mcp-b/transports@1.2.0(patch_hash=963055dcb88758be42aa22af317034582da6169da467e943d346124643fb4c2f)(@modelcontextprotocol/sdk@1.25.1(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))':
+  '@mcp-b/transports@1.2.0(patch_hash=9773364c7c75c141c62bbbee48a314c66a4f18c4b81170c0ec406dd66b5355dc)(@modelcontextprotocol/sdk@1.25.1(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))':
     dependencies:
       '@modelcontextprotocol/sdk': 1.25.1(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
       zod: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
