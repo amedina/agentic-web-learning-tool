@@ -11,11 +11,18 @@ import {
   updateWorkflowsContextMenu,
   handleContextMenuClick,
 } from '../view/contextMenu';
-import { CONNECTION_NAMES, logger, isUrl } from '../utils';
+import {
+  CONNECTION_NAMES,
+  logger,
+  isUrl,
+  setLogLevelFromSyncSettings,
+} from '../utils';
 import McpHub from './mcpHub';
 import './chromeListeners';
 import './workflowEngine';
 import { createAndAssignHub } from './utils';
+
+(async () => await setLogLevelFromSyncSettings())();
 
 const mcpHubSidepanelInstances = new Map<number, McpHub>();
 const mcpHubDevtoolInstances = new Map<number, McpHub>();

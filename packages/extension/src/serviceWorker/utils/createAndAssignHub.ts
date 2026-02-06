@@ -32,15 +32,6 @@ const createAndAssignHub = (
     sharedServer.connect(transport);
 
     chrome.tabs
-      .sendMessage(tabId, { type: START_MCP_CONNECTION })
-      .catch((error) => {
-        logger(
-          ['error'],
-          ['Failed to send START_MCP_CONNECTION message:', error]
-        );
-      });
-
-    chrome.tabs
       .sendMessage(tabId, { type: MESSAGE_TYPES.REFRESH_REQUEST })
       .catch((error) => {
         logger(
@@ -102,6 +93,13 @@ const createAndAssignHub = (
   serverInstances.set(tabId, sharedServer);
   chrome.tabs
     .sendMessage(tabId, { type: START_MCP_CONNECTION })
+    .then(() => {
+      if (chrome?.runtime?.lastError) {
+        return;
+      }
+      mcpHub.injectToolsAndRegisterFunction(tabId);
+      mcpHub.injectWorkflowToolsAndRegisterFunction(tabId);
+    })
     .catch((error) => {
       logger(
         ['error'],

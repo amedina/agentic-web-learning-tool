@@ -88,7 +88,6 @@ const mcpConnectionInitialiser = async (refreshTools = false) => {
 
   if (refreshTools) {
     sendToolUpdate(MESSAGE_TYPES.REFRESH_REQUEST);
-    insertAndRegisterScripts();
   }
 
   async function setupToolChangeListener() {
