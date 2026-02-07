@@ -172,8 +172,7 @@ export const Tools = ({
       />
       <Table
         selectedKey={selectedKey}
-        isFiltersSidebarOpen={false}
-        hideFiltering={true}
+        isFiltersSidebarOpen={true}
         renderDetailPanel={renderDetailPanel}
       />
       <RunToolPanel
