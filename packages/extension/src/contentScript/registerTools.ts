@@ -1,7 +1,7 @@
 /**
  * Internal dependencies.
  */
-import { tools } from './tools/index';
+import { builtInTools } from './tools/index';
 
 // @ts-nocheck
 (function () {
@@ -20,7 +20,7 @@ import { tools } from './tools/index';
     console.log('WebMCP: Registering tools...');
 
     try {
-      for (const tool of tools) {
+      for (const tool of builtInTools) {
         if (!mcp?.toolRegistrationTimestamps?.has(tool.name)) {
           mcp.registerTool(tool);
         }

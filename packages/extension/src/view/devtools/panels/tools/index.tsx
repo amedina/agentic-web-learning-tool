@@ -27,6 +27,7 @@ import { useSettings } from '../../../stateProviders';
 import { TABLE_SEARCH_KEYS, ALL_TOOLS_FILTERS } from '../../constants';
 import { useToolExecution } from '../../hooks/useToolExecution';
 import { useEventLogs } from '../../providers';
+import useToolCategoryMapping from '../../hooks/useToolCategoryMapping';
 
 interface AllToolsRowData extends TableData, Tool {
   originalData: Tool;
@@ -38,6 +39,7 @@ export const Tools = ({
   setSelectedMenuItem: (view: string) => void;
 }) => {
   const { tools: availableTools } = useMcpClient();
+  const toolCategoryMapping = useToolCategoryMapping(availableTools);
   const { theme } = useSettings(({ state }) => ({ theme: state.theme }));
   const { setLastRunToolName, setSelectedKey, selectedKey } = useEventLogs(
     ({ actions, state }) => ({
@@ -46,6 +48,10 @@ export const Tools = ({
       selectedKey: state.selectedKey,
     })
   );
+
+  useEffect(() => {
+    console.log(toolCategoryMapping);
+  }, [toolCategoryMapping]);
 
   const onToolSuccess = (toolName: string) => {
     setLastRunToolName(toolName);
