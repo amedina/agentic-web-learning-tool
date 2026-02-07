@@ -12,15 +12,7 @@ import type { Tool } from '@modelcontextprotocol/sdk/types.js';
  * Internal dependencies.
  */
 import { builtInTools } from '../../../contentScript/tools';
-
-const TOOL_CATEGORIES = {
-  USER: 'user',
-  BUILT_IN: 'built-in', // done
-  MCP_SERVER: 'mcp-server', // done
-  MCP_B: 'mcp-b', // done
-  WEBSITE: 'website', // done
-  WORKFLOW: 'workflow',
-};
+import { TOOL_CATEGORIES } from '../constants';
 
 const getToolCategory = (
   toolName: string,
@@ -109,8 +101,6 @@ const useToolCategoryMapping = (tools: Tool[]) => {
           .filter((toolName) => toolName !== '')
       );
     }
-
-    console.log(userTools, workflowTools);
   }, [setUserTools, setWorkflowTools, tools]);
 
   useEffect(() => {

@@ -68,3 +68,12 @@ export const EVENT_LOGGER_COLUMNS: TableColumn[] = [
     enableHiding: false,
   },
 ];
+
+export const TOOL_CATEGORIES = {
+  USER: 'user',
+  BUILT_IN: 'built-in',
+  MCP_SERVER: 'mcp-server',
+  MCP_B: 'mcp-b',
+  WEBSITE: 'website',
+  WORKFLOW: 'workflow',
+};

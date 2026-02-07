@@ -28,6 +28,7 @@ import { TABLE_SEARCH_KEYS, ALL_TOOLS_FILTERS } from '../../constants';
 import { useToolExecution } from '../../hooks/useToolExecution';
 import { useEventLogs } from '../../providers';
 import useToolCategoryMapping from '../../hooks/useToolCategoryMapping';
+import { TOOL_CATEGORIES } from '../../constants';
 
 interface AllToolsRowData extends TableData, Tool {
   originalData: Tool;
@@ -49,10 +50,6 @@ export const Tools = ({
     })
   );
 
-  useEffect(() => {
-    console.log(toolCategoryMapping);
-  }, [toolCategoryMapping]);
-
   const onToolSuccess = (toolName: string) => {
     setLastRunToolName(toolName);
     setSelectedMenuItem('inspector');
@@ -73,13 +70,17 @@ export const Tools = ({
     if (availableTools) {
       const tools = availableTools
         .filter((tool) => tool.name !== 'dummyTool')
-        .map((tool) => ({
-          name: getToolNameWithoutPrefix(tool.name),
-          type: 'MCP',
-          originalData: tool,
-          inputSchema: tool.inputSchema,
-          description: tool.description,
-        }));
+        .map((tool) => {
+          const category = toolCategoryMapping.get(tool.name);
+          return {
+            name: getToolNameWithoutPrefix(tool.name),
+            type: category === TOOL_CATEGORIES.MCP_SERVER ? 'MCP' : 'WebMCP',
+            category,
+            originalData: tool,
+            inputSchema: tool.inputSchema,
+            description: tool.description,
+          };
+        });
 
       setAllToolsData(tools);
     }
@@ -96,6 +97,18 @@ export const Tools = ({
       {
         header: 'Description',
         accessorKey: 'description',
+        cell: (info: InfoType) => info,
+        enableHiding: false,
+      },
+      {
+        header: 'Type',
+        accessorKey: 'type',
+        cell: (info: InfoType) => info,
+        enableHiding: false,
+      },
+      {
+        header: 'Category',
+        accessorKey: 'category',
         cell: (info: InfoType) => info,
         enableHiding: false,
       },
