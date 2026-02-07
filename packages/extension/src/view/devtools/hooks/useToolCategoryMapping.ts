@@ -14,11 +14,23 @@ import type { Tool } from '@modelcontextprotocol/sdk/types.js';
 import { builtInTools } from '../../../contentScript/tools';
 import { TOOL_CATEGORIES } from '../constants';
 
+interface WorkflowComposerData {
+  graph: {};
+  meta: {
+    name: string;
+    isWebMCP?: boolean;
+  };
+}
+interface StorageData {
+  userWebMCPTools: Tool[];
+  'workflow-composer': Record<string, WorkflowComposerData>;
+}
+
 const getToolCategory = (
   toolName: string,
   userTools: string[],
   workflowTools: string[]
-) => {
+): string => {
   if (
     toolName.startsWith(EXTENSION_TOOL_PREFIX) ||
     toolName.startsWith(DOM_TOOL_NAME_PREFIX)
@@ -44,19 +56,6 @@ const getToolCategory = (
 
   return TOOL_CATEGORIES.WEBSITE;
 };
-
-interface workflowComposerData {
-  graph: {};
-  meta: {
-    name: string;
-    isWebMCP?: boolean;
-  };
-}
-
-interface StorageData {
-  userWebMCPTools: Tool[];
-  'workflow-composer': Record<string, workflowComposerData>;
-}
 
 /**
  * Get tool category mapping for tools.
