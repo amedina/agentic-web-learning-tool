@@ -5,6 +5,7 @@ import { WebMCPToolsTab as WebMCPToolsUI } from '@google-awlt/design-system';
 import { useMemo, useState, useEffect, useCallback } from 'react';
 import { listWorkflows, saveWorkflow } from '@google-awlt/engine-extension';
 import type { WorkflowJSON } from '@google-awlt/engine-core';
+import { PREDEFINED_WORKFLOWS } from '@google-awlt/workflow-ui';
 /**
  * Internal Dependencies.
  */
@@ -20,7 +21,8 @@ export function WebMCPToolsTab() {
 
   useEffect(() => {
     const fetchWorkflows = async () => {
-      const allWorkflows = await listWorkflows();
+      let allWorkflows = await listWorkflows();
+      allWorkflows = [...allWorkflows, ...PREDEFINED_WORKFLOWS];
       setWorkflows(allWorkflows);
     };
 

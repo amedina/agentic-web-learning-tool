@@ -8,6 +8,7 @@ import {
   handleRunWorkflow,
 } from '@google-awlt/engine-extension';
 import type { WorkflowJSON } from '@google-awlt/engine-core';
+import { PREDEFINED_WORKFLOWS } from '@google-awlt/workflow-ui';
 
 /**
  * Internal dependencies
@@ -29,7 +30,8 @@ const WorkflowList = ({ activeTabId, activeTabUrl }: WorkflowListProps) => {
 
   const fetchWorkflows = useCallback(async () => {
     try {
-      const list = await listWorkflows();
+      let list = await listWorkflows();
+      list = [...list, ...PREDEFINED_WORKFLOWS];
       setWorkflows(list);
     } catch (error) {
       console.error('Failed to list workflows:', error);

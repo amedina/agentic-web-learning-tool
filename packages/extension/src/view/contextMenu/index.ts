@@ -6,6 +6,7 @@ import {
   loadWorkflow,
   handleRunWorkflow,
 } from '@google-awlt/engine-extension';
+import { PREDEFINED_WORKFLOWS } from '@google-awlt/workflow-ui';
 
 /**
  * Internal dependencies
@@ -35,7 +36,8 @@ export const updateWorkflowsContextMenu = async (url?: string) => {
   }
 
   try {
-    const workflows = await listWorkflows();
+    let workflows = await listWorkflows();
+    workflows = [...workflows, ...PREDEFINED_WORKFLOWS];
     const matchingWorkflows = workflows.filter((wf) =>
       isDomainAllowed(url, wf.meta.allowedDomains)
     );

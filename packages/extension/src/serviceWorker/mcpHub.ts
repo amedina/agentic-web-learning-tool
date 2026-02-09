@@ -21,6 +21,7 @@ import {
   type MCPConfig,
   type MCPServerConfig,
 } from '@google-awlt/common';
+import { PREDEFINED_WORKFLOWS } from '@google-awlt/workflow-ui';
 /**
  * Internal dependencies
  */
@@ -600,7 +601,8 @@ class McpHub {
       }
     }
 
-    const workflows = await listWorkflows();
+    let workflows = await listWorkflows();
+    workflows = [...workflows, ...PREDEFINED_WORKFLOWS];
 
     const workflowTools = workflows
       .map((workflow) => workflow.meta)
@@ -988,7 +990,10 @@ class McpHub {
     if (this.toolInjected) {
       return;
     }
-    const workflows = await listWorkflows();
+
+    let workflows = await listWorkflows();
+    workflows = [...workflows, ...PREDEFINED_WORKFLOWS];
+
     let tabUrl = '';
 
     try {
