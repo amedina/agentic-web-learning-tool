@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import { type WorkflowJSON, NodeType } from "@google-awlt/engine-core";
 
 export const PREDEFINED_WORKFLOWS: WorkflowJSON[] = [
