@@ -35,7 +35,10 @@ export interface ApiStoreContext {
     ) => void;
     removeNode: (id: string) => void;
     setSelectedNode: (id: string | null) => void;
-    updateWorkflowMeta: (updates: Partial<WorkflowMeta>) => void;
+    updateWorkflowMeta: (
+      updates: Partial<WorkflowMeta>,
+      newMeta?: boolean,
+    ) => void;
     clearApiData: () => void;
     checkCapabilities: () => Promise<void>;
   };

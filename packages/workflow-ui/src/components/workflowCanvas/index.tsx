@@ -41,15 +41,9 @@ const generateId = () => {
 
 interface WorkflowCanvasProps {
   theme: "light" | "dark" | "system";
-  workflowId: string | null;
-  setWorkflowId: (id: string | null) => void;
 }
 
-const WorkflowCanvas = ({
-  theme,
-  workflowId,
-  setWorkflowId,
-}: WorkflowCanvasProps) => {
+const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
   const [showImportDialog, setShowImportDialog] = useState(false);
   const [importJson, _setImportJson] = useState("");
   const [tabs, setTabs] = useState<chrome.tabs.Tab[]>([]);
@@ -120,6 +114,42 @@ const WorkflowCanvas = ({
     updateWorkflowMeta: actions.updateWorkflowMeta,
     setSelectedNode: actions.setSelectedNode,
   }));
+
+  useEffect(() => {
+    const autoLoad = async () => {
+      const lastId = await getLastOpenedWorkflowId();
+
+      if (lastId?.startsWith("demo-")) {
+        const demoWorkflow = PREDEFINED_WORKFLOWS.find(
+          (wf) => wf.meta.id === lastId,
+        );
+        if (demoWorkflow) {
+          loadWorkflowData(demoWorkflow);
+        }
+
+        return;
+      }
+
+      if (lastId) {
+        const savedData = await loadWorkflow(lastId);
+        if (savedData) {
+          loadWorkflowData(savedData);
+        }
+      } else {
+        updateWorkflowMeta(
+          {
+            id: `wf_${crypto.randomUUID()}`,
+            name: "New Workflow",
+            savedAt: new Date().toISOString(),
+            autosave: true,
+          },
+          true,
+        );
+      }
+    };
+
+    autoLoad();
+  }, []);
 
   const { screenToFlowPosition } = useReactFlow();
 
@@ -200,7 +230,7 @@ const WorkflowCanvas = ({
       clearFlow();
 
       if (workflowData.meta) {
-        updateWorkflowMeta(workflowData.meta);
+        updateWorkflowMeta(workflowData.meta, true);
       }
 
       const graphNodes = workflowData.graph?.nodes;
@@ -276,36 +306,8 @@ const WorkflowCanvas = ({
     setSelectedNode(null);
   }, [addNode, addApiNode]);
 
-  useEffect(() => {
-    (async () => {
-      if (workflowId) {
-        try {
-          const savedData = await loadWorkflow(workflowId);
-
-          if (savedData) {
-            loadWorkflowData(savedData);
-          }
-        } catch (error) {
-          console.error("Failed to load workflow from storage", error);
-        }
-      } else {
-        const newId = generateId();
-        setWorkflowId(newId);
-        initializeStandardNodes();
-      }
-    })();
-  }, [
-    loadWorkflowData,
-    addNode,
-    addApiNode,
-    initializeStandardNodes,
-    setWorkflowId,
-    workflowId,
-  ]);
-
   const serializeWorkflow = useCallback(
     (
-      id: string | null,
       currentNodes: FlowNodeType[],
       currentEdges: FlowEdgeType[],
       currentApiData: {
@@ -315,8 +317,8 @@ const WorkflowCanvas = ({
       return {
         meta: {
           ...workflowMeta,
-          id: id || generateId(),
-          name: workflowMeta.name || "Untitled Workflow",
+          id: workflowMeta?.id || generateId(),
+          name: workflowMeta?.name || "Untitled Workflow",
           savedAt: new Date().toISOString(),
         },
         graph: {
@@ -345,31 +347,26 @@ const WorkflowCanvas = ({
 
   useEffect(() => {
     if (
-      !workflowId ||
+      !workflowMeta?.id ||
       !workflowMeta.autosave ||
       workflowMeta.id.startsWith("demo-")
     )
       return;
 
     const timeoutId = setTimeout(() => {
-      const workflowData = serializeWorkflow(
-        workflowId,
-        nodes,
-        edges,
-        nodesApiData,
-      );
+      const workflowData = serializeWorkflow(nodes, edges, nodesApiData);
 
-      saveWorkflow(workflowId, workflowData);
+      saveWorkflow(workflowMeta.id, workflowData);
     }, 1000); // Debounce save by 1s
 
     return () => clearTimeout(timeoutId);
   }, [
-    workflowId,
+    workflowMeta?.id,
     nodes,
     edges,
     nodesApiData,
     serializeWorkflow,
-    workflowMeta.autosave,
+    workflowMeta?.autosave,
   ]);
 
   const showToast = useCallback(
@@ -381,15 +378,10 @@ const WorkflowCanvas = ({
   );
 
   const handleSave = useCallback(async () => {
-    if (!workflowId || workflowMeta.id.startsWith("demo-")) return;
+    if (workflowMeta?.id.startsWith("demo-")) return;
 
     try {
-      const workflowData = serializeWorkflow(
-        workflowId,
-        nodes,
-        edges,
-        nodesApiData,
-      );
+      const workflowData = serializeWorkflow(nodes, edges, nodesApiData);
 
       // Validate workflow data before saving
       const validation = WorkflowJSONSchema.safeParse(workflowData);
@@ -409,22 +401,24 @@ const WorkflowCanvas = ({
         return;
       }
 
-      await saveWorkflow(workflowId, workflowData);
+      await saveWorkflow(workflowMeta?.id, workflowData);
       showToast("Workflow saved successfully!", "success");
     } catch (error) {
       console.error("Failed to save workflow:", error);
       showToast("Failed to save workflow", "error");
     }
-  }, [workflowId, serializeWorkflow, nodes, edges, nodesApiData, showToast]);
+  }, [
+    workflowMeta?.id,
+    serializeWorkflow,
+    nodes,
+    edges,
+    nodesApiData,
+    showToast,
+  ]);
 
   const handleExport = useCallback(async () => {
     try {
-      const workflowData = serializeWorkflow(
-        workflowId,
-        nodes,
-        edges,
-        nodesApiData,
-      );
+      const workflowData = serializeWorkflow(nodes, edges, nodesApiData);
 
       const blob = new Blob([JSON.stringify(workflowData, null, 2)], {
         type: "application/json",
@@ -433,7 +427,7 @@ const WorkflowCanvas = ({
       const link = document.createElement("a");
       link.href = url;
       link.download = `${
-        workflowMeta.name.toLowerCase().replace(/\s+/g, "-") || "workflow"
+        workflowMeta?.name.toLowerCase().replace(/\s+/g, "-") || "workflow"
       }.json`;
       document.body.appendChild(link);
       link.click();
@@ -452,8 +446,7 @@ const WorkflowCanvas = ({
     nodesApiData,
     serializeWorkflow,
     showToast,
-    workflowId,
-    workflowMeta.name,
+    workflowMeta?.name,
   ]);
 
   const handleImportSubmit = useCallback(() => {
@@ -474,15 +467,13 @@ const WorkflowCanvas = ({
 
       clearFlow();
 
-      const newId = generateId();
-      setWorkflowId(newId);
       loadWorkflowData(workflowData);
 
       const newWorkflowData = {
         ...workflowData,
-        meta: { ...workflowData.meta, id: newId },
+        meta: { ...workflowData.meta, id: workflowData.meta.id },
       };
-      saveWorkflow(newId, newWorkflowData);
+      saveWorkflow(workflowData.meta.id, newWorkflowData);
 
       setShowImportDialog(false);
       setImportJson("");
@@ -491,7 +482,7 @@ const WorkflowCanvas = ({
       console.error("Failed to import workflow:", error);
       showToast("Invalid workflow JSON.", "error");
     }
-  }, [clearFlow, importJson, loadWorkflowData, setWorkflowId, showToast]);
+  }, [clearFlow, importJson, loadWorkflowData, showToast]);
 
   const handleRun = useCallback(async () => {
     if (isRunning) return;
@@ -505,12 +496,7 @@ const WorkflowCanvas = ({
     // Reset statuses
     nodes.forEach((node) => updateNodeStatus(node.id, undefined));
 
-    const workflowData = serializeWorkflow(
-      workflowId,
-      nodes,
-      edges,
-      nodesApiData,
-    );
+    const workflowData = serializeWorkflow(nodes, edges, nodesApiData);
 
     const client = new WorkflowClient();
 
@@ -554,7 +540,6 @@ const WorkflowCanvas = ({
     setIsRunning,
     showToast,
     updateNodeStatus,
-    workflowId,
   ]);
 
   const handleStop = useCallback(async () => {
@@ -578,6 +563,7 @@ const WorkflowCanvas = ({
       )
     ) {
       clearFlow();
+      initializeStandardNodes();
     }
   }, [clearFlow]);
 
@@ -587,72 +573,53 @@ const WorkflowCanvas = ({
         "Create a new workflow? This will start a fresh canvas. Your current workflow is auto-saved.",
       )
     ) {
-      const newId = generateId();
-
-      setWorkflowId(newId);
-      updateWorkflowMeta({
-        id: newId,
-        name: "Untitled Workflow",
-        savedAt: new Date().toISOString(),
-        autosave: true,
-      });
       clearFlow();
       initializeStandardNodes();
+      const newId = generateId();
 
-      const initialData: WorkflowJSON = {
-        meta: {
+      updateWorkflowMeta(
+        {
           id: newId,
-          name: "Untitled Workflow",
-          description: "",
+          name: "New Workflow",
           savedAt: new Date().toISOString(),
-          allowedDomains: [],
-          isWebMCP: false,
+          autosave: true,
         },
-        graph: {
-          nodes: [
-            {
-              id: "start_node",
-              type: NodeType.START,
-              label: "Start",
-              config: {
-                title: "Start",
-                description: "Workflow entry point.",
-              },
-              ui: { position: { x: 100, y: 100 } },
-            },
-          ],
-          edges: [],
-        },
-      };
-
-      saveWorkflow(newId, initialData);
+        true,
+      );
       showToast("New workflow created!", "success");
     }
-  }, [
-    clearFlow,
-    initializeStandardNodes,
-    setWorkflowId,
-    showToast,
-    updateWorkflowMeta,
-  ]);
+  }, [clearFlow, initializeStandardNodes, showToast, updateWorkflowMeta]);
 
   const handleLoadSaved = useCallback(() => {
     setShowSavedWorkflows(true);
   }, []);
 
   const handleWorkflowLoad = useCallback(
-    async (id: string) => {
-      setWorkflowId(id);
+    async (id: string, workflowData?: WorkflowJSON) => {
+      let data = workflowData;
 
-      const data = await loadWorkflow(id);
+      // If no data provided directly, check predefined demos first
+      if (!data && id.startsWith("demo-")) {
+        data = PREDEFINED_WORKFLOWS.find((w) => w.meta.id === id);
+      }
+
       if (data) {
         loadWorkflowData(data);
+        showToast("Workflow loaded successfully", "success");
+        return;
+      }
+
+      // Fallback to loading from storage
+      const savedData = await loadWorkflow(id);
+
+      if (savedData) {
+        loadWorkflowData(savedData);
         showToast("Workflow loaded successfully", "success");
       } else {
         showToast("Failed to load workflow", "error");
       }
     },
-    [loadWorkflowData, setWorkflowId, showToast],
+    [loadWorkflowData, showToast],
   );
 
   return (
@@ -692,7 +659,7 @@ const WorkflowCanvas = ({
           onNodesDelete={onNodesDelete}
           onEdgesDelete={onEdgesDelete}
           onConnect={onConnect}
-          title={workflowMeta.name}
+          title={workflowMeta?.name || ""}
           onTitleChange={(name) => updateWorkflowMeta({ name })}
           selectedTabId={selectedTabId}
           setSelectedTabId={setSelectedTabId}
@@ -712,7 +679,7 @@ const WorkflowCanvas = ({
             onRefreshTabs: refetchTabs,
             onSave: handleSave,
           }}
-          autosaveEnabled={!!workflowMeta.autosave}
+          autosaveEnabled={!!workflowMeta?.autosave}
         />
       </div>
     </div>
