@@ -7,9 +7,10 @@ import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 /**
  * Internal dependencies
  */
-import { logger, MESSAGE_TYPES } from '../../utils';
+import { logger } from '../../utils';
 import McpHub from '../mcpHub';
 import handleToolEnableDisableOnLocalStorageChange from './handleToolEnableDisableOnLocalStorageChange';
+import { START_MCP_CONNECTION } from '../../constants';
 
 const createAndAssignHub = async (
   mcpHubInstances: Map<number, McpHub>,
@@ -30,12 +31,19 @@ const createAndAssignHub = async (
       }
 
       await sharedServer.connect(transport);
-
-      chrome.tabs
-        .sendMessage(tabId, { type: MESSAGE_TYPES.REFRESH_REQUEST })
-        .catch((error) => {
-          logger(['error'], ['Failed to send REFRESH_REQUEST message:', error]);
-        });
+      try {
+        await chrome.tabs.sendMessage(tabId, { type: START_MCP_CONNECTION });
+        if (chrome.runtime.lastError) {
+          logger(['error'], ['Port disconnected due to url change']);
+        }
+        await mcpHub.injectToolsAndRegisterFunction(tabId);
+        await mcpHub.injectWorkflowToolsAndRegisterFunction(tabId);
+      } catch (error) {
+        logger(
+          ['error'],
+          ['Failed to send START_MCP_CONNECTION message:', error]
+        );
+      }
 
       if (mcpHub?.registeredTools.size > 0) {
         sharedServer?.server?.transport?.send({
@@ -88,18 +96,20 @@ const createAndAssignHub = async (
 
     mcpHubInstances.set(tabId, mcpHub);
     serverInstances.set(tabId, sharedServer);
-    chrome.tabs
-      .sendMessage(tabId, { type: MESSAGE_TYPES.REFRESH_REQUEST })
-      .then(() => {
-        if (chrome?.runtime?.lastError) {
-          return;
-        }
-        mcpHub.injectToolsAndRegisterFunction(tabId);
-        mcpHub.injectWorkflowToolsAndRegisterFunction(tabId);
-      })
-      .catch((error) => {
-        logger(['error'], ['Failed to send REFRESH_REQUEST message:', error]);
-      });
+    mcpHub.setupConnections();
+    try {
+      await chrome.tabs.sendMessage(tabId, { type: START_MCP_CONNECTION });
+      if (chrome.runtime.lastError) {
+        logger(['error'], ['Port disconnected due to url change']);
+      }
+      await mcpHub.injectToolsAndRegisterFunction(tabId);
+      await mcpHub.injectWorkflowToolsAndRegisterFunction(tabId);
+    } catch (error) {
+      logger(
+        ['error'],
+        ['Failed to send START_MCP_CONNECTION message:', error]
+      );
+    }
 
     if (mcpHub.registeredTools.size > 0) {
       sharedServer.server?.transport?.send({
