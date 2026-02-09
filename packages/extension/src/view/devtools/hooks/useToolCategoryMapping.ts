@@ -2,17 +2,12 @@
  * External dependencies.
  */
 import { useEffect, useCallback, useState } from 'react';
-import {
-  EXTENSION_TOOL_PREFIX,
-  DOM_TOOL_NAME_PREFIX,
-} from '@google-awlt/common';
 import type { Tool } from '@modelcontextprotocol/sdk/types.js';
 
 /**
  * Internal dependencies.
  */
-import { builtInTools } from '../../../contentScript/tools';
-import { TOOL_CATEGORIES } from '../constants';
+import { getToolCategory } from '../../../utils';
 
 interface WorkflowComposerData {
   graph: {};
@@ -25,37 +20,6 @@ interface StorageData {
   userWebMCPTools: Tool[];
   'workflow-composer': Record<string, WorkflowComposerData>;
 }
-
-const getToolCategory = (
-  toolName: string,
-  userTools: string[],
-  workflowTools: string[]
-): string => {
-  if (
-    toolName.startsWith(EXTENSION_TOOL_PREFIX) ||
-    toolName.startsWith(DOM_TOOL_NAME_PREFIX)
-  ) {
-    return TOOL_CATEGORIES.MCP_B;
-  }
-
-  if (toolName.includes('_mcp_') && toolName.match(/^(.*?)_mcp_/)) {
-    return TOOL_CATEGORIES.MCP_SERVER;
-  }
-
-  if (builtInTools.find((tool) => tool.name === toolName)) {
-    return TOOL_CATEGORIES.BUILT_IN;
-  }
-
-  if (userTools.includes(toolName)) {
-    return TOOL_CATEGORIES.USER;
-  }
-
-  if (workflowTools.includes(toolName)) {
-    return TOOL_CATEGORIES.WORKFLOW;
-  }
-
-  return TOOL_CATEGORIES.WEBSITE;
-};
 
 /**
  * Get tool category mapping for tools.
@@ -71,12 +35,11 @@ const getToolCategory = (
  * @returns mapping of tool name to tool category
  */
 const useToolCategoryMapping = (tools: Tool[]) => {
-  const [userTools, setUserTools] = useState<string[]>([]);
-  const [workflowTools, setWorkflowTools] = useState<string[]>([]);
+  const [userTools, setUserTools] = useState<string[] | null>(null);
+  const [workflowTools, setWorkflowTools] = useState<string[] | null>(null);
+  const [mapping, setMapping] = useState<Record<string, string>>({});
 
-  const mapping = new Map<string, string>();
-
-  const intitialSync = useCallback(async () => {
+  const createMappingFromStorage = useCallback(async () => {
     const {
       userWebMCPTools,
       'workflow-composer': workflowWebMCPTools,
@@ -87,6 +50,8 @@ const useToolCategoryMapping = (tools: Tool[]) => {
 
     if (userWebMCPTools && userWebMCPTools.length > 0) {
       setUserTools(userWebMCPTools.map((tool) => tool.name));
+    } else {
+      setUserTools([]);
     }
 
     if (workflowWebMCPTools && Object.keys(workflowWebMCPTools).length > 0) {
@@ -99,21 +64,43 @@ const useToolCategoryMapping = (tools: Tool[]) => {
           )
           .filter((toolName) => toolName !== '')
       );
+    } else {
+      setWorkflowTools([]);
     }
-  }, [setUserTools, setWorkflowTools, tools]);
+  }, [setUserTools, setWorkflowTools]);
+
+  const onLocalStorageChange = useCallback(
+    (changes: { [key: string]: chrome.storage.StorageChange }) => {
+      if (changes.userWebMCPTools || changes['workflow-composer']) {
+        createMappingFromStorage();
+      }
+    },
+    [createMappingFromStorage]
+  );
 
   useEffect(() => {
-    intitialSync();
-  }, [intitialSync, tools]);
+    createMappingFromStorage();
+
+    chrome.storage.local.onChanged.addListener(onLocalStorageChange);
+
+    return () => {
+      chrome.storage.local.onChanged.removeListener(onLocalStorageChange);
+    };
+  }, [createMappingFromStorage, onLocalStorageChange]);
 
   useEffect(() => {
+    // We want to wait for userTools and workflowTools to be set.
+    if (!userTools || !workflowTools) {
+      return;
+    }
+
     tools.forEach((tool) => {
-      mapping.set(
-        tool.name,
-        getToolCategory(tool.name, userTools, workflowTools)
-      );
+      setMapping((prevMapping) => ({
+        ...prevMapping,
+        [tool.name]: getToolCategory(tool.name, userTools, workflowTools),
+      }));
     });
-  }, [tools]);
+  }, [tools, userTools, workflowTools]);
 
   return mapping;
 };

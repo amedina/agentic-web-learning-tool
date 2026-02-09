@@ -71,7 +71,7 @@ export const Tools = ({
       const tools = availableTools
         .filter((tool) => tool.name !== 'dummyTool')
         .map((tool) => {
-          const category = toolCategoryMapping.get(tool.name);
+          const category = toolCategoryMapping[tool.name] || '';
           return {
             name: getToolNameWithoutPrefix(tool.name),
             type: category === TOOL_CATEGORIES.MCP_SERVER ? 'MCP' : 'WebMCP',
@@ -84,7 +84,7 @@ export const Tools = ({
 
       setAllToolsData(tools);
     }
-  }, [availableTools, tabId]);
+  }, [availableTools, tabId, toolCategoryMapping]);
 
   const allToolsColumns: TableColumn[] = useMemo(
     () => [
