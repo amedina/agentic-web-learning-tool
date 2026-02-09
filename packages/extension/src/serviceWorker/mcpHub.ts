@@ -680,7 +680,10 @@ class McpHub {
       for (const [toolName] of removedTools) {
         if (
           toolName.startsWith('extension_tool') ||
-          toolName.includes(`_mcp_`)
+          toolName.includes(`_mcp_`) ||
+          workflows.some(
+            (workflow) => sanitizeToolName(workflow.meta.name) === toolName
+          )
         ) {
           continue;
         }
