@@ -3,7 +3,10 @@
  */
 import { useCallback, useEffect, useState } from "react";
 import { useReactFlow } from "@xyflow/react";
-import { WorkflowClient } from "@google-awlt/engine-extension";
+import {
+  getLastOpenedWorkflowId,
+  WorkflowClient,
+} from "@google-awlt/engine-extension";
 import {
   type ExecutionContext,
   type NodeConfig,
@@ -25,6 +28,7 @@ import {
   type ApiNodeConfig,
 } from "../../stateProviders";
 import { Flow, Toast, SavedWorkflowsDialog, ImportDialog } from "../ui";
+import { PREDEFINED_WORKFLOWS } from "../ui/flow/demoWorkflows";
 import { TOOL_CONFIGS } from "../tools/toolRegistry";
 
 const ID_PREFIX = "wf_";
@@ -340,7 +344,12 @@ const WorkflowCanvas = ({
   );
 
   useEffect(() => {
-    if (!workflowId || !workflowMeta.autosave) return;
+    if (
+      !workflowId ||
+      !workflowMeta.autosave ||
+      workflowMeta.id.startsWith("demo-")
+    )
+      return;
 
     const timeoutId = setTimeout(() => {
       const workflowData = serializeWorkflow(
@@ -372,7 +381,7 @@ const WorkflowCanvas = ({
   );
 
   const handleSave = useCallback(async () => {
-    if (!workflowId) return;
+    if (!workflowId || workflowMeta.id.startsWith("demo-")) return;
 
     try {
       const workflowData = serializeWorkflow(
