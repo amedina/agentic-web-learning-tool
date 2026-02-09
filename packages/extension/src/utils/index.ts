@@ -8,3 +8,4 @@ export * from './jsonSchemaToZod';
 export { default as openOptionsPage } from './openOptionsPage';
 export { default as isUrl } from './isUrl';
 export * from './getMcpbToolGroup';
+export * from './getToolsCategory';

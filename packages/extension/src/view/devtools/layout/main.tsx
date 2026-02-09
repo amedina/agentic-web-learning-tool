@@ -6,8 +6,8 @@ import { useSidebar } from '@google-awlt/design-system';
 /**
  * Internal dependencies.
  */
-import { WebMCPTools } from '../eventLogger/webMCPTools';
-import { WebMCPInspector } from '../eventLogger/webMCPInspector';
+import { Tools } from '../panels/tools';
+import { Inspector } from '../panels/inspector';
 
 const Main = () => {
   const { actions, state } = useSidebar();
@@ -16,15 +16,11 @@ const Main = () => {
   const renderContent = () => {
     switch (selectedMenuItem) {
       case 'tools':
-        return (
-          <WebMCPTools setSelectedMenuItem={actions.setSelectedMenuItem} />
-        );
+        return <Tools setSelectedMenuItem={actions.setSelectedMenuItem} />;
       case 'inspector':
-        return <WebMCPInspector />;
+        return <Inspector />;
       default:
-        return (
-          <WebMCPTools setSelectedMenuItem={actions.setSelectedMenuItem} />
-        );
+        return <Tools setSelectedMenuItem={actions.setSelectedMenuItem} />;
     }
   };
 
