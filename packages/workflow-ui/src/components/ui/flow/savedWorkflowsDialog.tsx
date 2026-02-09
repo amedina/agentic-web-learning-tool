@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import React, { useEffect, useState } from "react";
 import { X, FolderOpen, Trash2, Clock } from "lucide-react";
 import {
@@ -11,6 +14,7 @@ import { type WorkflowJSON } from "@google-awlt/engine-core";
  * Internal dependencies
  */
 import { PREDEFINED_WORKFLOWS } from "./demoWorkflows";
+import logger from "../../../logger";
 
 interface SavedWorkflowsDialogProps {
   isOpen: boolean;
@@ -33,7 +37,7 @@ const SavedWorkflowsDialog: React.FC<SavedWorkflowsDialogProps> = ({
       const list = await listWorkflows();
       setWorkflows(list.map(({ meta }) => meta));
     } catch (error) {
-      console.error("Failed to list workflows:", error);
+      logger(["error"], ["Failed to list workflows:", error]);
     } finally {
       setIsLoading(false);
     }

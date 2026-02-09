@@ -71,10 +71,20 @@ class McpHub {
       if (changes?.chromeAPIBuiltInToolsState) {
         this.onLocalStoreChangedListener();
       }
+      if (changes?.userWebMCPTools) {
+        this.toolInjected = false;
+        this.injectToolsAndRegisterFunction(this.tabId);
+        this.toolInjected = true;
+      }
+      if (changes?.['workflow-composer']) {
+        this.toolInjected = false;
+        this.injectWorkflowToolsAndRegisterFunction(this.tabId);
+        this.toolInjected = true;
+      }
     });
 
-    chrome.webNavigation.onCommitted.addListener((details) => {
-      if (details.frameId !== 0) {
+    chrome.webNavigation.onCompleted.addListener(async (details) => {
+      if (details.frameId !== 0 || details.tabId !== this.tabId) {
         return;
       }
 
@@ -83,6 +93,8 @@ class McpHub {
       }
 
       this.toolInjected = false;
+      await this.injectToolsAndRegisterFunction(details.tabId);
+      await this.injectWorkflowToolsAndRegisterFunction(details.tabId);
     });
   }
 
@@ -170,7 +182,7 @@ class McpHub {
           try {
             permissions = await chrome.permissions.getAll();
           } catch (error) {
-            console.error('Failed to get permissions:', error);
+            logger(['error'], ['Failed to get permissions:', error]);
           }
         }
 
@@ -460,8 +472,6 @@ class McpHub {
                 false,
                 false
               );
-              await this.injectToolsAndRegisterFunction(tabId);
-              await this.injectWorkflowToolsAndRegisterFunction(tabId);
             }
             break;
           case MESSAGE_TYPES.UPDATE:
@@ -489,6 +499,9 @@ class McpHub {
 
     // Cleanup on disconnect
     this.port.onDisconnect.addListener(() => {
+      if (chrome.runtime.lastError) {
+        logger(['error'], ['Port disconnected due to url change']);
+      }
       this.unregisterTab();
     });
   }
@@ -629,7 +642,7 @@ class McpHub {
     });
 
     for (const tool of activeTools) {
-      const uniqueToolName = this.generateUniqueToolName(tool.name);
+      const uniqueToolName = sanitizeToolName(tool.name);
 
       const config = {
         title: tool.title,
@@ -883,15 +896,10 @@ class McpHub {
     }
   }
 
-  private generateUniqueToolName(rawToolName: string): string {
-    return `${sanitizeToolName(rawToolName)}`;
-  }
-
   async injectToolsAndRegisterFunction(tabId: number) {
     if (this.toolInjected) {
       return;
     }
-
     const storage = await chrome.storage.local.get();
     const userWebMCPTools = storage && storage['userWebMCPTools'];
     let tabUrl = '';
@@ -922,11 +930,10 @@ class McpHub {
         args: [enabledUserTools],
       })
       .then((result) => {
-        this.toolInjected = true;
-        console.log('WebMCP: tools registered', result);
+        logger(['debug'], ['WebMCP: tools registered', result]);
       })
       .catch((error) => {
-        console.error('WebMCP: Error injecting user tools', error);
+        logger(['error'], ['WebMCP: Error injecting user tools', error]);
       });
 
     async function registerDynamicToolFromScripting(tools: any) {
@@ -975,16 +982,17 @@ class McpHub {
   }
 
   async injectWorkflowToolsAndRegisterFunction(tabId: number) {
+    if (this.toolInjected) {
+      return;
+    }
     const workflows = await listWorkflows();
-    console.log('[Workflow]', workflows);
-
     let tabUrl = '';
 
     try {
       const tab = await chrome.tabs.get(tabId);
       tabUrl = tab.url || '';
     } catch (e) {
-      console.warn(
+      console.log(
         `WebMCP: Could not get tab URL for injection (tabId: ${tabId})`,
         e
       );
@@ -1012,10 +1020,11 @@ class McpHub {
         args: [transformedWorkflows],
       })
       .then((result) => {
-        console.log('WebMCP: tools registered', result);
+        this.toolInjected = true;
+        logger(['debug'], ['WebMCP: tools registered', result]);
       })
       .catch((error) => {
-        console.error('WebMCP: Error injecting user tools', error);
+        logger(['error'], ['WebMCP: Error injecting user tools', error]);
       });
 
     async function registerDynamicWorkflowToolFromScripting(

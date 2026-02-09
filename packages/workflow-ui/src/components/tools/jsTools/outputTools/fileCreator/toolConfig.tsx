@@ -11,7 +11,7 @@ import {
 /**
  * Internal dependencies
  */
-
+import logger from "../../../../../logger";
 interface ToolConfigProps {
   ref: React.Ref<{
     getConfig: (formData: FormData) => FileCreatorConfig | undefined;
@@ -42,7 +42,7 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
 
         const validation = FileCreatorConfigSchema.safeParse(configResult);
         if (!validation.success) {
-          console.error("Invalid configuration:", validation.error);
+          logger(["error"], ["Invalid configuration:", validation.error]);
           return undefined;
         }
 

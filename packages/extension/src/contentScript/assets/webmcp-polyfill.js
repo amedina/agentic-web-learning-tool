@@ -4,6 +4,37 @@
  * Version: 1.2.1
  * License: MIT
  */
+//@see https://github.com/w3c/trusted-types/wiki/Trusted-Types-for-function-constructor
+class TrustedFunction {
+  static policy = trustedTypes.createPolicy('TrustedFunctionWorkaround', {
+    createScript: (_, ...args) => {
+      args.forEach((arg) => {
+        if (!trustedTypes.isScript(arg)) {
+          throw new Error('TrustedScripts only, please');
+        }
+      });
+
+      // NOTE: This is insecure without parsing the arguments and body,
+      // Malicious inputs  can escape the function body and execute immediately!
+
+      const fnArgs = args.slice(0, -1).join(',');
+      const fnBody = args.pop().toString();
+      const body = `(function anonymous(
+       ${fnArgs}
+       ) {
+       ${fnBody}
+       })`;
+      return body;
+    },
+  });
+
+  constructor(...args) {
+    return (window || self).eval(
+      TrustedFunction.policy.createScript('', ...args)
+    );
+  }
+}
+
 var WebMCP = (function (e) {
   var t = Object.create,
     n = Object.defineProperty,
@@ -3930,7 +3961,7 @@ var WebMCP = (function (e) {
     if (typeof navigator < `u` && navigator?.userAgent?.includes(`Cloudflare`))
       return !1;
     try {
-      return (Function(``), !0);
+      return (TrustedFunction(``), !0);
     } catch {
       return !1;
     }

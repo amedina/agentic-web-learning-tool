@@ -21,7 +21,9 @@ import { tools } from './tools/index';
 
     try {
       for (const tool of tools) {
-        mcp.registerTool(tool);
+        if (!mcp?.toolRegistrationTimestamps?.has(tool.name)) {
+          mcp.registerTool(tool);
+        }
       }
 
       console.log('WebMCP: Tools registered.');

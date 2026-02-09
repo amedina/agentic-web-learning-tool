@@ -14,7 +14,8 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@google-awlt/engine-core": "workspace:*"
+    "@google-awlt/engine-core": "workspace:*",
+    "loglevel": "^1.9.2"
   },
   "devDependencies": {
     "@google-awlt/shared-config": "workspace:*",

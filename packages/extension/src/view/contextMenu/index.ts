@@ -11,6 +11,7 @@ import {
  * Internal dependencies
  */
 import { isDomainAllowed } from '../../serviceWorker/utils';
+import { logger } from '../../utils';
 
 const WORKFLOW_MENU_ID = 'run-workflow-parent';
 const WORKFLOW_ID_PREFIX = 'workflow-run-';
@@ -60,7 +61,7 @@ export const updateWorkflowsContextMenu = async (url?: string) => {
       });
     });
   } catch (error) {
-    console.error('Failed to update workflows context menu:', error);
+    logger(['error'], ['Failed to update workflows context menu:', error]);
   }
 };
 
@@ -89,13 +90,13 @@ export const handleContextMenuClick = async (
     }
 
     await handleRunWorkflow(workflow, tab?.id, {}, (response) => {
-      console.log('Workflow response:', response);
+      logger(['debug'], ['Workflow response:', response]);
 
       if (!response.success) {
         throw new Error(response.error);
       }
     });
   } catch (error) {
-    console.error(`Failed to execute workflow ${workflowId}:`, error);
+    logger(['error'], [`Failed to execute workflow ${workflowId}:`, error]);
   }
 };

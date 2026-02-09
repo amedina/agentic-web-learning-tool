@@ -17,7 +17,7 @@ export default defineConfig(
   [
     ...baseConfig,
     ...reactConfig,
-    globalIgnores(['dist']),
+    globalIgnores(['dist', 'src/contentScript/assets/webmcp-polyfill.js']),
     {
       files: ['**/*.{ts,tsx}'],
       extends: [reactRefresh.configs.vite],
