@@ -179,7 +179,7 @@ export function Sidebar({
               classConfig.menuTitle
             )}
           >
-            AWLT
+            AWL Tool
           </span>
         </div>
         <SidebarTrigger />
