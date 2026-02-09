@@ -13,6 +13,7 @@ import { PREDEFINED_WORKFLOWS } from '@google-awlt/workflow-ui';
  */
 import { isDomainAllowed } from '../../serviceWorker/utils';
 import { logger } from '../../utils';
+import type { WorkflowJSON } from '@google-awlt/engine-core';
 
 const WORKFLOW_MENU_ID = 'run-workflow-parent';
 const WORKFLOW_ID_PREFIX = 'workflow-run-';
@@ -85,10 +86,18 @@ export const handleContextMenuClick = async (
   const workflowId = menuItemId.replace(WORKFLOW_ID_PREFIX, '');
 
   try {
-    const workflow = await loadWorkflow(workflowId);
+    let workflow: WorkflowJSON | undefined | null =
+      await loadWorkflow(workflowId);
+
     if (!workflow) {
-      console.error(`Workflow ${workflowId} not found`);
-      return;
+      if (PREDEFINED_WORKFLOWS.find((wf) => wf.meta.id === workflowId)) {
+        workflow = PREDEFINED_WORKFLOWS.find((wf) => wf.meta.id === workflowId);
+      }
+
+      if (!workflow) {
+        console.error(`Workflow ${workflowId} not found`);
+        return;
+      }
     }
 
     await handleRunWorkflow(workflow, tab?.id, {}, (response) => {
