@@ -71,10 +71,20 @@ class McpHub {
       if (changes?.chromeAPIBuiltInToolsState) {
         this.onLocalStoreChangedListener();
       }
+      if (changes?.userWebMCPTools) {
+        this.toolInjected = false;
+        this.injectToolsAndRegisterFunction(this.tabId);
+        this.toolInjected = true;
+      }
+      if (changes?.['workflow-composer']) {
+        this.toolInjected = false;
+        this.injectWorkflowToolsAndRegisterFunction(this.tabId);
+        this.toolInjected = true;
+      }
     });
 
-    chrome.webNavigation.onCommitted.addListener((details) => {
-      if (details.frameId !== 0) {
+    chrome.webNavigation.onCompleted.addListener(async (details) => {
+      if (details.frameId !== 0 || details.tabId !== this.tabId) {
         return;
       }
 
@@ -83,6 +93,8 @@ class McpHub {
       }
 
       this.toolInjected = false;
+      await this.injectToolsAndRegisterFunction(details.tabId);
+      await this.injectWorkflowToolsAndRegisterFunction(details.tabId);
     });
   }
 
@@ -487,6 +499,9 @@ class McpHub {
 
     // Cleanup on disconnect
     this.port.onDisconnect.addListener(() => {
+      if (chrome.runtime.lastError) {
+        logger(['error'], ['Port disconnected due to url change']);
+      }
       this.unregisterTab();
     });
   }
@@ -627,7 +642,7 @@ class McpHub {
     });
 
     for (const tool of activeTools) {
-      const uniqueToolName = this.generateUniqueToolName(tool.name);
+      const uniqueToolName = sanitizeToolName(tool.name);
 
       const config = {
         title: tool.title,
@@ -881,15 +896,10 @@ class McpHub {
     }
   }
 
-  private generateUniqueToolName(rawToolName: string): string {
-    return `${sanitizeToolName(rawToolName)}`;
-  }
-
   async injectToolsAndRegisterFunction(tabId: number) {
     if (this.toolInjected) {
       return;
     }
-
     const storage = await chrome.storage.local.get();
     const userWebMCPTools = storage && storage['userWebMCPTools'];
     let tabUrl = '';
@@ -920,7 +930,6 @@ class McpHub {
         args: [enabledUserTools],
       })
       .then((result) => {
-        this.toolInjected = true;
         logger(['debug'], ['WebMCP: tools registered', result]);
       })
       .catch((error) => {
@@ -947,27 +956,25 @@ class McpHub {
             ...module.metadata,
             execute: module.execute,
           };
-          logger(['debug'], ['WebMCP: Tool to register:', toolToRegister]);
+          console.log('WebMCP: Tool to register:', toolToRegister);
           // 4. Register
           if (mcp) {
             await mcp.registerTool(toolToRegister);
-            logger(
-              ['debug'],
-              [
-                'WebMCP: User tool registered successfully:',
-                toolToRegister.name,
-              ]
+            console.log(
+              'WebMCP: User tool registered successfully:',
+              toolToRegister.name
             );
           } else {
-            logger(['error'], ['WebMCP: Cannot register tool, mcp missing']);
+            console.log('WebMCP: Cannot register tool, mcp missing');
           }
 
           // Clean up
           URL.revokeObjectURL(url);
         } catch (err) {
-          logger(
-            ['error'],
-            ['WebMCP: Failed to register user tool:', toolWrapper.name, err]
+          console.log(
+            'WebMCP: Failed to register user tool:',
+            toolWrapper.name,
+            err
           );
         }
       }
@@ -975,6 +982,9 @@ class McpHub {
   }
 
   async injectWorkflowToolsAndRegisterFunction(tabId: number) {
+    if (this.toolInjected) {
+      return;
+    }
     const workflows = await listWorkflows();
     let tabUrl = '';
 
@@ -982,9 +992,9 @@ class McpHub {
       const tab = await chrome.tabs.get(tabId);
       tabUrl = tab.url || '';
     } catch (e) {
-      logger(
-        ['warn'],
-        [`WebMCP: Could not get tab URL for injection (tabId: ${tabId})`, e]
+      console.log(
+        `WebMCP: Could not get tab URL for injection (tabId: ${tabId})`,
+        e
       );
     }
 
@@ -1010,6 +1020,7 @@ class McpHub {
         args: [transformedWorkflows],
       })
       .then((result) => {
+        this.toolInjected = true;
         logger(['debug'], ['WebMCP: tools registered', result]);
       })
       .catch((error) => {
@@ -1060,29 +1071,23 @@ class McpHub {
             },
           };
 
-          logger(
-            ['debug'],
-            ['WebMCP: Registering user workflow tool:', toolToRegister]
+          console.log(
+            'WebMCP: Registering user workflow tool:',
+            toolToRegister
           );
 
           if (mcp) {
             await mcp.registerTool(toolToRegister);
 
-            logger(
-              ['debug'],
-              [
-                'WebMCP: User Workflow tool registered successfully:',
-                toolToRegister.name,
-              ]
+            console.log(
+              'WebMCP: User Workflow tool registered successfully:',
+              toolToRegister.name
             );
           } else {
-            logger(['warn'], ['WebMCP: Cannot register tool, mcp missing']);
+            console.log('WebMCP: Cannot register tool, mcp missing');
           }
         } catch (err) {
-          logger(
-            ['error'],
-            ['WebMCP: Failed to register user tool:', tool.name, err]
-          );
+          console.log('WebMCP: Failed to register user tool:', tool.name, err);
         }
       }
     }

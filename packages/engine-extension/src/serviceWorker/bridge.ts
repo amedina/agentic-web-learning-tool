@@ -67,6 +67,10 @@ export async function handleRunWorkflow(
           targetTabId,
         });
 
+        if (chrome.runtime.lastError) {
+          throw new Error('No Content Script!');
+        }
+
         if (!response || !response?.success) {
           throw new Error('No Content Script!');
         }
