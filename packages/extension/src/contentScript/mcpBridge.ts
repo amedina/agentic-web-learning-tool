@@ -221,6 +221,10 @@ const mcpConnectionInitialiser = async (refreshTools = false) => {
       return;
     }
 
+    if (chrome.runtime.lastError) {
+      logger(['error'], ['Port disconnected due to url change']);
+    }
+
     transport.close();
     connectionStarted = false;
   });

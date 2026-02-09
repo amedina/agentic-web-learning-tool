@@ -31,12 +31,19 @@ const createAndAssignHub = async (
       }
 
       await sharedServer.connect(transport);
-
-      chrome.tabs
-        .sendMessage(tabId, { type: START_MCP_CONNECTION })
-        .catch((error) => {
-          logger(['error'], ['Failed to send REFRESH_REQUEST message:', error]);
-        });
+      try {
+        await chrome.tabs.sendMessage(tabId, { type: START_MCP_CONNECTION });
+        if (chrome.runtime.lastError) {
+          logger(['error'], ['Port disconnected due to url change']);
+        }
+        await mcpHub.injectToolsAndRegisterFunction(tabId);
+        await mcpHub.injectWorkflowToolsAndRegisterFunction(tabId);
+      } catch (error) {
+        logger(
+          ['error'],
+          ['Failed to send START_MCP_CONNECTION message:', error]
+        );
+      }
 
       if (mcpHub?.registeredTools.size > 0) {
         sharedServer?.server?.transport?.send({
@@ -90,18 +97,19 @@ const createAndAssignHub = async (
     mcpHubInstances.set(tabId, mcpHub);
     serverInstances.set(tabId, sharedServer);
     mcpHub.setupConnections();
-    chrome.tabs
-      .sendMessage(tabId, { type: START_MCP_CONNECTION })
-      .then(async () => {
-        if (chrome?.runtime?.lastError) {
-          return;
-        }
-        await mcpHub.injectToolsAndRegisterFunction(tabId);
-        await mcpHub.injectWorkflowToolsAndRegisterFunction(tabId);
-      })
-      .catch((error) => {
-        logger(['error'], ['Failed to send REFRESH_REQUEST message:', error]);
-      });
+    try {
+      await chrome.tabs.sendMessage(tabId, { type: START_MCP_CONNECTION });
+      if (chrome.runtime.lastError) {
+        logger(['error'], ['Port disconnected due to url change']);
+      }
+      await mcpHub.injectToolsAndRegisterFunction(tabId);
+      await mcpHub.injectWorkflowToolsAndRegisterFunction(tabId);
+    } catch (error) {
+      logger(
+        ['error'],
+        ['Failed to send START_MCP_CONNECTION message:', error]
+      );
+    }
 
     if (mcpHub.registeredTools.size > 0) {
       sharedServer.server?.transport?.send({
