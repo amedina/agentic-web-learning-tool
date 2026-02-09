@@ -23,22 +23,24 @@ import { noop } from '@google-awlt/common';
  * Internal Dependencies
  */
 import RunToolPanel from './runToolPanel';
-import { isLocalTool } from './utils';
 import { useSettings } from '../../../stateProviders';
-import { TABLE_SEARCH_KEYS, ALL_TOOLS_FILTERS } from './constants';
-import { useToolExecution } from './hooks/useToolExecution';
-import { useEventLogs } from './eventLogsProvider';
+import { TABLE_SEARCH_KEYS, ALL_TOOLS_FILTERS } from '../../constants';
+import { useToolExecution } from '../../hooks/useToolExecution';
+import { useEventLogs } from '../../providers';
+import useToolCategoryMapping from '../../hooks/useToolCategoryMapping';
+import { TOOL_CATEGORIES } from '../../constants';
 
 interface AllToolsRowData extends TableData, Tool {
   originalData: Tool;
 }
 
-export const WebMCPTools = ({
+export const Tools = ({
   setSelectedMenuItem,
 }: {
   setSelectedMenuItem: (view: string) => void;
 }) => {
   const { tools: availableTools } = useMcpClient();
+  const toolCategoryMapping = useToolCategoryMapping(availableTools);
   const { theme } = useSettings(({ state }) => ({ theme: state.theme }));
   const { setLastRunToolName, setSelectedKey, selectedKey } = useEventLogs(
     ({ actions, state }) => ({
@@ -67,18 +69,22 @@ export const WebMCPTools = ({
   useEffect(() => {
     if (availableTools) {
       const tools = availableTools
-        .filter((tool) => isLocalTool(tool.name, tabId))
-        .map((tool) => ({
-          name: getToolNameWithoutPrefix(tool.name),
-          type: 'MCP',
-          originalData: tool,
-          inputSchema: tool.inputSchema,
-          description: tool.description,
-        }));
+        .filter((tool) => tool.name !== 'dummyTool')
+        .map((tool) => {
+          const category = toolCategoryMapping[tool.name] || '';
+          return {
+            name: getToolNameWithoutPrefix(tool.name),
+            type: category === TOOL_CATEGORIES.MCP_SERVER ? 'MCP' : 'WebMCP',
+            category,
+            originalData: tool,
+            inputSchema: tool.inputSchema,
+            description: tool.description,
+          };
+        });
 
       setAllToolsData(tools);
     }
-  }, [availableTools, tabId]);
+  }, [availableTools, tabId, toolCategoryMapping]);
 
   const allToolsColumns: TableColumn[] = useMemo(
     () => [
@@ -91,6 +97,18 @@ export const WebMCPTools = ({
       {
         header: 'Description',
         accessorKey: 'description',
+        cell: (info: InfoType) => info,
+        enableHiding: false,
+      },
+      {
+        header: 'Type',
+        accessorKey: 'type',
+        cell: (info: InfoType) => info,
+        enableHiding: false,
+      },
+      {
+        header: 'Category',
+        accessorKey: 'category',
         cell: (info: InfoType) => info,
         enableHiding: false,
       },
@@ -154,8 +172,7 @@ export const WebMCPTools = ({
       />
       <Table
         selectedKey={selectedKey}
-        isFiltersSidebarOpen={false}
-        hideFiltering={true}
+        isFiltersSidebarOpen={true}
         renderDetailPanel={renderDetailPanel}
       />
       <RunToolPanel

@@ -7,7 +7,7 @@ import { Hammer, Settings, Activity } from 'lucide-react';
 /**
  * Internal dependencies
  */
-import { openOptionsPage } from '../../../../utils';
+import { openOptionsPage } from '../../../utils';
 
 const Sidebar = () => {
   const items = [

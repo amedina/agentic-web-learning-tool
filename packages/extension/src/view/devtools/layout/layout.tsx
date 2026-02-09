@@ -10,7 +10,7 @@ import { useMcpClient } from '@mcp-b/mcp-react-hooks';
  */
 import Sidebar from './sidebar';
 import Main from './main';
-import { transport } from '../../devtools';
+import { transport } from '../devtools';
 
 export const Layout = () => {
   const { client } = useMcpClient();

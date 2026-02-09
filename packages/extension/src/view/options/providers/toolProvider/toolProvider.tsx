@@ -14,13 +14,13 @@ import type { WebMCPTool } from '@google-awlt/design-system';
  * Internal dependencies.
  */
 import Context from './context';
-import { tools } from '../../../../contentScript/tools';
+import { builtInTools } from '../../../../contentScript/tools';
 import {
   mcpbTools,
   type keys,
 } from '../../../../contentScript/tools/mcpbTools';
 
-const builtInWebMCPTools: WebMCPTool[] = tools.map((tool) => ({
+const builtInWebMCPTools: WebMCPTool[] = builtInTools.map((tool) => ({
   name: tool.name,
   namespace: 'built_in',
   description: tool.description,
