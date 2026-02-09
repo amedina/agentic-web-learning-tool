@@ -17,6 +17,11 @@ const onCompletedCallback = async (
 
   chrome.tabs
     .sendMessage(details.tabId, { type: START_MCP_CONNECTION })
+    .then(() => {
+      if (chrome.runtime.lastError) {
+        logger(['error'], ['Port disconnected due to url change']);
+      }
+    })
     .catch((error) => {
       logger(
         ['error'],
