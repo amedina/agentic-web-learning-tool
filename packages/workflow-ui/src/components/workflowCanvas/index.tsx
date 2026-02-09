@@ -380,10 +380,30 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
   );
 
   const handleSave = useCallback(async () => {
-    if (workflowMeta?.id.startsWith("demo-")) return;
+    const isBuiltIn = workflowMeta?.id.startsWith("demo-");
 
     try {
+      let saveId = workflowMeta?.id;
+      let finalMeta = workflowMeta;
+
+      if (isBuiltIn && workflowMeta) {
+        saveId = generateId();
+        finalMeta = {
+          ...workflowMeta,
+          id: saveId,
+          name: workflowMeta.name
+            .replace("Built-in: ", "")
+            .replace("Demo: ", ""),
+          autosave: true,
+          savedAt: new Date().toISOString(),
+        };
+        updateWorkflowMeta(finalMeta, true);
+      }
+
       const workflowData = serializeWorkflow(nodes, edges, nodesApiData);
+      if (isBuiltIn) {
+        workflowData.meta = finalMeta || workflowData.meta;
+      }
 
       // Validate workflow data before saving
       const validation = WorkflowJSONSchema.safeParse(workflowData);
@@ -403,14 +423,20 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
         return;
       }
 
-      await saveWorkflow(workflowMeta?.id, workflowData);
-      showToast("Workflow saved successfully!", "success");
+      await saveWorkflow(saveId || workflowMeta?.id || "", workflowData);
+      showToast(
+        isBuiltIn
+          ? "Built-in workflow copied to your list!"
+          : "Workflow saved successfully!",
+        "success",
+      );
     } catch (error) {
       logger(["error"], ["Failed to save workflow:", error]);
       showToast("Failed to save workflow", "error");
     }
   }, [
-    workflowMeta?.id,
+    workflowMeta,
+    updateWorkflowMeta,
     serializeWorkflow,
     nodes,
     edges,
@@ -685,6 +711,7 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
             onSave: handleSave,
           }}
           autosaveEnabled={!!workflowMeta?.autosave}
+          isBuiltIn={workflowMeta?.id.startsWith("demo-")}
         />
       </div>
     </div>

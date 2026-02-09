@@ -7,11 +7,12 @@ export const PREDEFINED_WORKFLOWS: WorkflowJSON[] = [
   {
     meta: {
       id: "demo-translation",
-      name: "Demo: Smart Translator",
+      name: "Built-in: Smart Translator",
       description: "Automatically translates selected text into Spanish.",
       savedAt: new Date().toISOString(),
       allowedDomains: ["*"],
-      isWebMCP: false,
+      isWebMCP: true,
+      autosave: false,
     },
     graph: {
       nodes: [
@@ -74,11 +75,12 @@ export const PREDEFINED_WORKFLOWS: WorkflowJSON[] = [
   {
     meta: {
       id: "demo-summarizer",
-      name: "Demo: Quick Summarizer",
+      name: "Built-in: Quick Summarizer",
       description: "Summarizes the current page into key points.",
       savedAt: new Date().toISOString(),
       allowedDomains: ["*"],
-      isWebMCP: false,
+      isWebMCP: true,
+      autosave: false,
     },
     graph: {
       nodes: [

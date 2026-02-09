@@ -256,25 +256,27 @@ export const WorkflowConfig = () => {
               </p>
             </div>
 
-            <div>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  className="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500 border-gray-300"
-                  checked={!!workflowMeta?.autosave}
-                  onChange={(e) =>
-                    updateWorkflowMeta({ autosave: e.target.checked })
-                  }
-                />
-                <span className="text-sm font-medium text-slate-700 dark:text-zinc-300">
-                  Autosave
-                </span>
-              </label>
-              <p className="text-xs text-slate-500 dark:text-zinc-500 ml-6">
-                When enabled, changes are saved automatically. Otherwise, use
-                the Save button in the toolbar.
-              </p>
-            </div>
+            {!workflowMeta?.id.startsWith("demo-") && (
+              <div>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500 border-gray-300"
+                    checked={!!workflowMeta?.autosave}
+                    onChange={(e) =>
+                      updateWorkflowMeta({ autosave: e.target.checked })
+                    }
+                  />
+                  <span className="text-sm font-medium text-slate-700 dark:text-zinc-300">
+                    Autosave
+                  </span>
+                </label>
+                <p className="text-xs text-slate-500 dark:text-zinc-500 ml-6">
+                  When enabled, changes are saved automatically. Otherwise, use
+                  the Save button in the toolbar.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>
