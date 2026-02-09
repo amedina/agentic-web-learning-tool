@@ -137,6 +137,7 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
           loadWorkflowData(savedData);
         }
       } else {
+        initializeStandardNodes();
         updateWorkflowMeta(
           {
             id: `wf_${crypto.randomUUID()}`,
