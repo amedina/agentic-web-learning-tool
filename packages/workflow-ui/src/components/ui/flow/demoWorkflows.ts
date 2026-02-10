@@ -130,7 +130,7 @@ export const PREDEFINED_WORKFLOWS: WorkflowJSON[] = [
       id: "demo-summarizer",
       name: "Built-in: Quick Summarizer",
       description: "Summarizes the current page into key points.",
-      savedAt: "2026-02-09T14:31:40.051Z",
+      savedAt: new Date().toISOString(),
       allowedDomains: ["<all_urls>"],
       isWebMCP: true,
       autosave: false,
@@ -252,15 +252,14 @@ export const PREDEFINED_WORKFLOWS: WorkflowJSON[] = [
   },
   {
     meta: {
-      id: "snowfall-effect-v1",
-      name: "Built-in:Let It Snow!",
+      id: "demo-snowfall",
+      name: "Built-in: Let It Snow!",
       description:
         "Injects a snowfall effect into the current page. WARNING: Resets DOM state (forms, video, etc).",
-      savedAt: "2026-02-09T14:35:03.602Z",
+      savedAt: new Date().toISOString(),
       allowedDomains: ["<all_urls>"],
-      isWebMCP: false,
-      enabled: true,
-      autosave: true,
+      isWebMCP: true,
+      autosave: false,
     },
     graph: {
       nodes: [
