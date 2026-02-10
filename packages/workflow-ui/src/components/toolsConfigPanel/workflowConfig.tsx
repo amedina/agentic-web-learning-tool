@@ -135,16 +135,11 @@ export const WorkflowConfig = () => {
             className="block text-sm font-medium text-slate-700 dark:text-zinc-300 mb-2"
             htmlFor="wf-name"
           >
-            Name
+            Sanitized WebMCP Name
           </label>
-          <input
-            id="wf-name"
-            type="text"
-            className="w-full p-3 border border-slate-300 dark:border-border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-white dark:bg-zinc-950 text-slate-900 dark:text-foreground"
-            value={workflowMeta?.name}
-            onChange={(e) => updateWorkflowMeta({ name: e.target.value })}
-            placeholder="Workflow Name"
-          />
+          <p className="w-full p-3 border border-slate-300 dark:border-border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-white dark:bg-zinc-950 text-slate-900 dark:text-foreground">
+            {workflowMeta?.sanitizedName}
+          </p>
         </div>
 
         <div>

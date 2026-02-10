@@ -7,13 +7,13 @@ import {
   listWorkflows,
   deleteWorkflow,
   type WorkflowMetadata,
+  PREDEFINED_WORKFLOWS,
 } from "@google-awlt/engine-extension";
 import { type WorkflowJSON } from "@google-awlt/engine-core";
 
 /**
  * Internal dependencies
  */
-import { PREDEFINED_WORKFLOWS } from "./demoWorkflows";
 import logger from "../../../logger";
 
 interface SavedWorkflowsDialogProps {
@@ -119,42 +119,46 @@ const SavedWorkflowsDialog: React.FC<SavedWorkflowsDialogProps> = ({
               </div>
             ) : (
               <div className="grid gap-3">
-                {workflows.map((workflow) => (
-                  <div
-                    key={workflow.id}
-                    onClick={() => {
-                      onLoad(workflow.id);
-                      onClose();
-                    }}
-                    className="group relative flex items-center justify-between p-4 bg-gray-50 dark:bg-slate-950 hover:bg-white dark:hover:bg-slate-900 border border-gray-200 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-700/50 rounded-lg transition-all cursor-pointer hover:shadow-md"
-                  >
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-gray-900 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 truncate transition-colors">
-                        {workflow.name || "Untitled Workflow"}
-                      </h3>
-                      <div className="flex items-center gap-4 mt-1 text-xs text-gray-500 dark:text-slate-400">
-                        <span className="flex items-center gap-1">
-                          <Clock size={12} />
-                          {new Date(workflow.savedAt).toLocaleDateString()}{" "}
-                          {new Date(workflow.savedAt).toLocaleTimeString()}
-                        </span>
-                        {workflow.description && (
-                          <span className="truncate max-w-[200px] italic">
-                            {workflow.description}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    <button
-                      onClick={(e) => handleDelete(e, workflow.id)}
-                      className="p-2 text-gray-400 dark:text-slate-600 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-md transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
-                      title="Delete workflow"
+                {workflows
+                  .filter((workflow) => !workflow.id.startsWith("demo-"))
+                  .map((workflow) => (
+                    <div
+                      key={workflow.id}
+                      onClick={() => {
+                        onLoad(workflow.id);
+                        onClose();
+                      }}
+                      className="group relative flex items-center justify-between p-4 bg-gray-50 dark:bg-slate-950 hover:bg-white dark:hover:bg-slate-900 border border-gray-200 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-700/50 rounded-lg transition-all cursor-pointer hover:shadow-md"
                     >
-                      <Trash2 size={18} />
-                    </button>
-                  </div>
-                ))}
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-gray-900 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 truncate transition-colors">
+                          {workflow.name || "Untitled Workflow"}
+                        </h3>
+                        <div className="flex items-center gap-4 mt-1 text-xs text-gray-500 dark:text-slate-400">
+                          <span className="flex items-center gap-1">
+                            <Clock size={12} />
+                            {new Date(
+                              workflow.savedAt,
+                            ).toLocaleDateString()}{" "}
+                            {new Date(workflow.savedAt).toLocaleTimeString()}
+                          </span>
+                          {workflow.description && (
+                            <span className="truncate max-w-[200px] italic">
+                              {workflow.description}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={(e) => handleDelete(e, workflow.id)}
+                        className="p-2 text-gray-400 dark:text-slate-600 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-md transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+                        title="Delete workflow"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  ))}
               </div>
             )
           ) : (

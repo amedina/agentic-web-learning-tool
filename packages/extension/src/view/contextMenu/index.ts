@@ -6,7 +6,6 @@ import {
   loadWorkflow,
   handleRunWorkflow,
 } from '@google-awlt/engine-extension';
-import { PREDEFINED_WORKFLOWS } from '@google-awlt/workflow-ui';
 
 /**
  * Internal dependencies
@@ -37,8 +36,7 @@ export const updateWorkflowsContextMenu = async (url?: string) => {
   }
 
   try {
-    let workflows = await listWorkflows();
-    workflows = [...workflows, ...PREDEFINED_WORKFLOWS];
+    const workflows = await listWorkflows();
     const matchingWorkflows = workflows.filter((wf) =>
       isDomainAllowed(url, wf.meta.allowedDomains)
     );
@@ -101,18 +99,12 @@ export const handleContextMenuClick = async (
   const workflowId = menuItemId.replace(WORKFLOW_ID_PREFIX, '');
 
   try {
-    let workflow: WorkflowJSON | undefined | null =
+    const workflow: WorkflowJSON | undefined | null =
       await loadWorkflow(workflowId);
 
     if (!workflow) {
-      if (PREDEFINED_WORKFLOWS.find((wf) => wf.meta.id === workflowId)) {
-        workflow = PREDEFINED_WORKFLOWS.find((wf) => wf.meta.id === workflowId);
-      }
-
-      if (!workflow) {
-        console.error(`Workflow ${workflowId} not found`);
-        return;
-      }
+      console.error(`Workflow ${workflowId} not found`);
+      return;
     }
 
     await handleRunWorkflow(workflow, tab?.id, {}, (response) => {

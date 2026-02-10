@@ -52,6 +52,7 @@ const initialState: ApiStoreContext = {
     workflowMeta: {
       id: "",
       name: "",
+      sanitizedName: "",
       description: "",
       savedAt: "",
       allowedDomains: [],

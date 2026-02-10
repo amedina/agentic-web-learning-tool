@@ -95,6 +95,7 @@ const ApiProvider = ({ children }: PropsWithChildren) => {
       return {
         id: prev.id,
         name: prev.name,
+        sanitizedName: prev.sanitizedName,
         description: prev.description,
         allowedDomains: prev.allowedDomains,
         savedAt: new Date().toISOString(),

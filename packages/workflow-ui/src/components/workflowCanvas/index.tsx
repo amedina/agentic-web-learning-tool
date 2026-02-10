@@ -28,7 +28,6 @@ import {
   type ApiNodeConfig,
 } from "../../stateProviders";
 import { Flow, Toast, SavedWorkflowsDialog, ImportDialog } from "../ui";
-import { PREDEFINED_WORKFLOWS } from "../ui/flow/demoWorkflows";
 import { TOOL_CONFIGS } from "../tools/toolRegistry";
 import logger from "../../logger";
 
@@ -120,17 +119,6 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
     const autoLoad = async () => {
       const lastId = await getLastOpenedWorkflowId();
 
-      if (lastId?.startsWith("demo-")) {
-        const demoWorkflow = PREDEFINED_WORKFLOWS.find(
-          (wf) => wf.meta.id === lastId,
-        );
-        if (demoWorkflow) {
-          loadWorkflowData(demoWorkflow);
-        }
-
-        return;
-      }
-
       if (lastId) {
         const savedData = await loadWorkflow(lastId);
         if (savedData) {
@@ -142,6 +130,7 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
           {
             id: `wf_${crypto.randomUUID()}`,
             name: "New Workflow",
+            sanitizedName: "New_Workflow",
             savedAt: new Date().toISOString(),
             autosave: true,
           },
@@ -394,6 +383,7 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
           name: workflowMeta.name
             .replace("Built-in: ", "")
             .replace("Demo: ", ""),
+          sanitizedName: workflowMeta.name.replace(/[^a-zA-Z0-9_]/g, "_"),
           autosave: true,
           savedAt: new Date().toISOString(),
         };
@@ -612,6 +602,7 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
         {
           id: newId,
           name: "New Workflow",
+          sanitizedName: "New_Workflow",
           savedAt: new Date().toISOString(),
           autosave: true,
         },
@@ -628,11 +619,6 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
   const handleWorkflowLoad = useCallback(
     async (id: string, workflowData?: WorkflowJSON) => {
       let data = workflowData;
-
-      // If no data provided directly, check predefined demos first
-      if (!data && id.startsWith("demo-")) {
-        data = PREDEFINED_WORKFLOWS.find((w) => w.meta.id === id);
-      }
 
       if (data) {
         loadWorkflowData(data);
@@ -691,7 +677,12 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
           onEdgesDelete={onEdgesDelete}
           onConnect={onConnect}
           title={workflowMeta?.name || ""}
-          onTitleChange={(name) => updateWorkflowMeta({ name })}
+          onTitleChange={(name) =>
+            updateWorkflowMeta({
+              name,
+              sanitizedName: name.replace(/[^a-zA-Z0-9_]/g, "_"),
+            })
+          }
           selectedTabId={selectedTabId}
           setSelectedTabId={setSelectedTabId}
           tabs={tabs}

@@ -5,14 +5,13 @@ import {
   EXTENSION_TOOL_PREFIX,
   DOM_TOOL_NAME_PREFIX,
 } from '@google-awlt/common';
-import { PREDEFINED_WORKFLOWS } from '@google-awlt/workflow-ui';
+import { PREDEFINED_WORKFLOWS } from '@google-awlt/engine-extension';
 
 /**
  * Internal dependencies.
  */
 import { builtInTools } from '../contentScript/tools';
 import { TOOL_CATEGORIES } from '../view/devtools/constants';
-import { sanitizeToolName } from '../serviceWorker/utils';
 
 /**
  * Get tool category for a tool.
@@ -46,16 +45,16 @@ export const getToolCategory = (
     return TOOL_CATEGORIES.USER;
   }
 
-  if (workflowTools && workflowTools.includes(toolName)) {
-    return TOOL_CATEGORIES.WORKFLOW;
-  }
-
   if (
     PREDEFINED_WORKFLOWS.find(
-      (workflow) => sanitizeToolName(workflow.meta.name) === toolName
+      (workflow) => workflow.meta.sanitizedName === toolName
     )
   ) {
     return TOOL_CATEGORIES.BUILT_IN_WORKFLOW;
+  }
+
+  if (workflowTools && workflowTools.includes(toolName)) {
+    return TOOL_CATEGORIES.WORKFLOW;
   }
 
   return TOOL_CATEGORIES.WEBSITE;

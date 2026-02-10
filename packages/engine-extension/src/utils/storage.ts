@@ -3,6 +3,11 @@
  */
 import type { WorkflowJSON } from '@google-awlt/engine-core';
 
+/**
+ * Internal dependencies
+ */
+import { PREDEFINED_WORKFLOWS } from '../builtInWorkflows';
+
 export const STORAGE_PREFIX = 'workflow-composer';
 
 export type WorkflowMetadata = WorkflowJSON['meta'];
@@ -14,6 +19,10 @@ export const saveWorkflow = async (
   id: string,
   workflow: WorkflowJSON
 ): Promise<void> => {
+  if (id.startsWith('demo-')) {
+    return;
+  }
+
   const prev = await chrome.storage.local.get(STORAGE_PREFIX);
 
   await chrome.storage.local.set({
@@ -30,6 +39,10 @@ export const saveWorkflow = async (
 export const loadWorkflow = async (
   id: string
 ): Promise<WorkflowJSON | null> => {
+  if (id.startsWith('demo-')) {
+    return PREDEFINED_WORKFLOWS.find((wf) => wf.meta.id === id) || null;
+  }
+
   const result = (await chrome.storage.local.get(STORAGE_PREFIX)) as {
     [STORAGE_PREFIX]: Record<string, WorkflowJSON>;
   };
@@ -56,6 +69,8 @@ export const listWorkflows = async (): Promise<WorkflowJSON[]> => {
     }
   });
 
+  workflows.push(...PREDEFINED_WORKFLOWS);
+
   // Sort by savedAt descending (newest first)
   workflows.sort(
     (a, b) =>
@@ -69,6 +84,10 @@ export const listWorkflows = async (): Promise<WorkflowJSON[]> => {
  * Delete a workflow from local storage
  */
 export const deleteWorkflow = async (id: string): Promise<void> => {
+  if (id.startsWith('demo-')) {
+    return;
+  }
+
   const result = (await chrome.storage.local.get(STORAGE_PREFIX)) as {
     [STORAGE_PREFIX]: Record<string, WorkflowJSON>;
   };

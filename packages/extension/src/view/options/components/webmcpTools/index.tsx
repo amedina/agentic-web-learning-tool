@@ -5,7 +5,6 @@ import { WebMCPToolsTab as WebMCPToolsUI } from '@google-awlt/design-system';
 import { useMemo, useState, useEffect, useCallback } from 'react';
 import { listWorkflows, saveWorkflow } from '@google-awlt/engine-extension';
 import type { WorkflowJSON } from '@google-awlt/engine-core';
-import { PREDEFINED_WORKFLOWS } from '@google-awlt/workflow-ui';
 /**
  * Internal Dependencies.
  */
@@ -15,14 +14,14 @@ import {
   type keys,
   mcpbTools,
 } from '../../../../contentScript/tools/mcpbTools';
+import { sanitizeToolName } from '../../../../serviceWorker/utils';
 
 export function WebMCPToolsTab() {
   const [workflows, setWorkflows] = useState<WorkflowJSON[]>([]);
 
   useEffect(() => {
     const fetchWorkflows = async () => {
-      let allWorkflows = await listWorkflows();
-      allWorkflows = [...allWorkflows, ...PREDEFINED_WORKFLOWS];
+      const allWorkflows = await listWorkflows();
       setWorkflows(allWorkflows);
     };
 
@@ -63,7 +62,7 @@ export function WebMCPToolsTab() {
       .filter((wf) => wf.meta?.isWebMCP)
       .map((wf) => ({
         id: wf.meta.id,
-        name: wf.meta.name,
+        name: wf.meta.sanitizedName || sanitizeToolName(wf.meta.name),
         namespace: 'Workflow',
         description: wf.meta.description || '',
         allowedDomains: wf.meta.allowedDomains || [],
