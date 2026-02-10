@@ -8,6 +8,7 @@ import type { Tool } from '@modelcontextprotocol/sdk/types.js';
  * Internal dependencies.
  */
 import { getToolCategory } from '../../../utils';
+import { sanitizeToolName } from '../../../serviceWorker/utils';
 
 interface WorkflowComposerData {
   graph: {};
@@ -59,7 +60,7 @@ const useToolCategoryMapping = (tools: Tool[]) => {
         Object.keys(workflowWebMCPTools)
           .map((key) =>
             workflowWebMCPTools[key].meta.isWebMCP
-              ? workflowWebMCPTools[key].meta.name
+              ? sanitizeToolName(workflowWebMCPTools[key].meta.name)
               : ''
           )
           .filter((toolName) => toolName !== '')
