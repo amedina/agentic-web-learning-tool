@@ -1002,6 +1002,12 @@ class McpHub {
           console.log('WebMCP: Tool to register:', toolToRegister);
           // 4. Register
           if (mcp) {
+            if (toolWrapper.editedScript?.code) {
+              const unregisterFunction = mcp.toolUnregisterFunctions.get(
+                toolWrapper.name
+              );
+              unregisterFunction?.();
+            }
             await mcp.registerTool(toolToRegister);
             console.log(
               'WebMCP: User tool registered successfully:',
