@@ -48,20 +48,35 @@ export const updateWorkflowsContextMenu = async (url?: string) => {
     }
 
     // Create parent menu
-    chrome.contextMenus.create({
-      id: WORKFLOW_MENU_ID,
-      title: 'Run Workflow',
-      contexts: ['page', 'selection'],
-    });
-
+    chrome.contextMenus.create(
+      {
+        id: WORKFLOW_MENU_ID,
+        title: 'Run Workflow',
+        contexts: ['page', 'selection'],
+      },
+      () => {
+        if (chrome.runtime.lastError) {
+          logger(['error'], [chrome.runtime.lastError]);
+          return;
+        }
+      }
+    );
     // Create child menus for each workflow
     matchingWorkflows.forEach((wf) => {
-      chrome.contextMenus.create({
-        id: `${WORKFLOW_ID_PREFIX}${wf.meta.id}`,
-        parentId: WORKFLOW_MENU_ID,
-        title: wf.meta.name || 'Untitled Workflow',
-        contexts: ['page', 'selection'],
-      });
+      chrome.contextMenus.create(
+        {
+          id: `${WORKFLOW_ID_PREFIX}${wf.meta.id}`,
+          parentId: WORKFLOW_MENU_ID,
+          title: wf.meta.name || 'Untitled Workflow',
+          contexts: ['page', 'selection'],
+        },
+        () => {
+          if (chrome.runtime.lastError) {
+            logger(['error'], [chrome.runtime.lastError]);
+            return;
+          }
+        }
+      );
     });
   } catch (error) {
     logger(['error'], ['Failed to update workflows context menu:', error]);

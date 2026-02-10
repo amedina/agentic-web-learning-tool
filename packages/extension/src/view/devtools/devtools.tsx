@@ -22,6 +22,9 @@ export const client = new Client({
   version: '1.0.0',
 });
 
+if (window.location.hash === '') {
+  window.location.hash = chrome.devtools.inspectedWindow.tabId.toString();
+}
 function DevTools() {
   return (
     <EventLogsProvider>
