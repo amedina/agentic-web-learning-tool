@@ -6,6 +6,8 @@ import { useReactFlow } from "@xyflow/react";
 import {
   getLastOpenedWorkflowId,
   WorkflowClient,
+  listWorkflows,
+  type WorkflowMetadata,
 } from "@google-awlt/engine-extension";
 import {
   type ExecutionContext,
@@ -37,6 +39,29 @@ const STORAGE_KEY_SELECTED_TAB = "awl_wc_selected_tab_id";
 const generateId = () => {
   const id = crypto.randomUUID();
   return `${ID_PREFIX}${id}`;
+};
+
+const getUniqueNames = async (
+  name: string,
+  excludeId?: string,
+): Promise<{ name: string; sanitizedName: string }> => {
+  const list = await listWorkflows();
+  const existingWorkflows = list.map((w: { meta: WorkflowMetadata }) => w.meta);
+
+  let sanitizedName = name.replace(/[^a-zA-Z0-9_]/g, "_");
+  let counter = 1;
+
+  const isDuplicate = (sName: string) =>
+    existingWorkflows.some(
+      (w) => w.sanitizedName === sName && w.id !== excludeId,
+    );
+
+  while (isDuplicate(sanitizedName)) {
+    sanitizedName = `${name.replace(/[^a-zA-Z0-9_]/g, "_")}_${counter}`;
+    counter++;
+  }
+
+  return { name, sanitizedName };
 };
 
 interface WorkflowCanvasProps {
@@ -126,11 +151,13 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
         }
       } else {
         initializeStandardNodes();
+
+        const sanitizedName = await getUniqueNames("New Workflow");
         updateWorkflowMeta(
           {
             id: `wf_${crypto.randomUUID()}`,
-            name: "New Workflow",
-            sanitizedName: "New_Workflow",
+            name: sanitizedName.name,
+            sanitizedName: sanitizedName.sanitizedName,
             savedAt: new Date().toISOString(),
             autosave: true,
           },
@@ -377,13 +404,14 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
 
       if (isBuiltIn && workflowMeta) {
         saveId = generateId();
+        const baseName = workflowMeta.name.replace("Built-in: ", "");
+        const { name, sanitizedName } = await getUniqueNames(baseName);
+
         finalMeta = {
           ...workflowMeta,
           id: saveId,
-          name: workflowMeta.name
-            .replace("Built-in: ", "")
-            .replace("Demo: ", ""),
-          sanitizedName: workflowMeta.name.replace(/[^a-zA-Z0-9_]/g, "_"),
+          name,
+          sanitizedName,
           autosave: true,
           savedAt: new Date().toISOString(),
         };
@@ -467,7 +495,7 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
     workflowMeta?.name,
   ]);
 
-  const handleImportSubmit = useCallback(() => {
+  const handleImportSubmit = useCallback(async () => {
     try {
       const workflowData = JSON.parse(importJson);
 
@@ -488,13 +516,22 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
 
       clearFlow();
 
-      loadWorkflowData(workflowData);
+      const { name, sanitizedName } = await getUniqueNames(
+        workflowData.meta.name,
+      );
 
-      const newWorkflowData = {
+      const resolvedWorkflowData = {
         ...workflowData,
-        meta: { ...workflowData.meta, id: workflowData.meta.id },
+        meta: {
+          ...workflowData.meta,
+          name,
+          sanitizedName,
+          id: workflowData.meta.id,
+        },
       };
-      saveWorkflow(workflowData.meta.id, newWorkflowData);
+
+      loadWorkflowData(resolvedWorkflowData);
+      saveWorkflow(workflowData.meta.id, resolvedWorkflowData);
 
       setShowImportDialog(false);
       setImportJson("");
@@ -588,7 +625,7 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
     }
   }, [clearFlow]);
 
-  const handleNewWorkflow = useCallback(() => {
+  const handleNewWorkflow = useCallback(async () => {
     if (
       window.confirm(
         "Create a new workflow? This will start a fresh canvas. Your current workflow is auto-saved.",
@@ -597,12 +634,12 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
       clearFlow();
       initializeStandardNodes();
       const newId = generateId();
-
+      const { name, sanitizedName } = await getUniqueNames("New Workflow");
       updateWorkflowMeta(
         {
           id: newId,
-          name: "New Workflow",
-          sanitizedName: "New_Workflow",
+          name,
+          sanitizedName,
           savedAt: new Date().toISOString(),
           autosave: true,
         },
@@ -639,6 +676,23 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
     [loadWorkflowData, showToast],
   );
 
+  const onTitleChange = useCallback(
+    async (newName: string) => {
+      if (workflowMeta) {
+        const { name, sanitizedName } = await getUniqueNames(
+          newName,
+          workflowMeta.id,
+        );
+
+        updateWorkflowMeta({
+          name,
+          sanitizedName,
+        });
+      }
+    },
+    [workflowMeta, updateWorkflowMeta],
+  );
+
   return (
     <div className="h-full flex-1 flex flex-col rounded bg-gray-100 dark:bg-background relative">
       {/* Import Dialog */}
@@ -665,7 +719,6 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
           onClose={() => setToast(null)}
         />
       )}
-
       <div className="flex-1 w-full h-full">
         <Flow
           nodes={nodes}
@@ -677,12 +730,7 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
           onEdgesDelete={onEdgesDelete}
           onConnect={onConnect}
           title={workflowMeta?.name || ""}
-          onTitleChange={(name) =>
-            updateWorkflowMeta({
-              name,
-              sanitizedName: name.replace(/[^a-zA-Z0-9_]/g, "_"),
-            })
-          }
+          onTitleChange={onTitleChange}
           selectedTabId={selectedTabId}
           setSelectedTabId={setSelectedTabId}
           tabs={tabs}

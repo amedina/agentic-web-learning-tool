@@ -131,8 +131,13 @@ const SavedWorkflowsDialog: React.FC<SavedWorkflowsDialogProps> = ({
                       className="group relative flex items-center justify-between p-4 bg-gray-50 dark:bg-slate-950 hover:bg-white dark:hover:bg-slate-900 border border-gray-200 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-700/50 rounded-lg transition-all cursor-pointer hover:shadow-md"
                     >
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-gray-900 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 truncate transition-colors">
+                        <h3 className="font-semibold text-gray-900 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 truncate transition-colors flex items-center gap-2">
                           {workflow.name || "Untitled Workflow"}
+                          {workflow.sanitizedName && (
+                            <span className="text-[10px] bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-slate-500 dark:text-slate-400 font-mono">
+                              {workflow.sanitizedName}
+                            </span>
+                          )}
                         </h3>
                         <div className="flex items-center gap-4 mt-1 text-xs text-gray-500 dark:text-slate-400">
                           <span className="flex items-center gap-1">
@@ -175,6 +180,11 @@ const SavedWorkflowsDialog: React.FC<SavedWorkflowsDialogProps> = ({
                   <div className="flex-1 min-w-0">
                     <h3 className="font-semibold text-gray-900 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 truncate transition-colors">
                       {workflow.meta.name}
+                      {workflow.meta.sanitizedName && (
+                        <span className="text-[10px] bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-slate-500 dark:text-slate-400 font-mono">
+                          {workflow.meta.sanitizedName}
+                        </span>
+                      )}
                     </h3>
                     <p className="text-xs text-gray-500 dark:text-slate-400 mt-1 italic">
                       {workflow.meta.description}
