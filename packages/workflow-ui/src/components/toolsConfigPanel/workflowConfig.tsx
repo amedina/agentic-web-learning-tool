@@ -20,7 +20,7 @@ export const WorkflowConfig = () => {
 
   const handleAddDomain = useCallback(() => {
     if (!domainInput) return;
-    const currentDomains = workflowMeta.allowedDomains || [];
+    const currentDomains = workflowMeta?.allowedDomains || [];
 
     if (!currentDomains.includes(domainInput)) {
       updateWorkflowMeta({
@@ -29,16 +29,16 @@ export const WorkflowConfig = () => {
     }
 
     setDomainInput("");
-  }, [domainInput, workflowMeta.allowedDomains, updateWorkflowMeta]);
+  }, [domainInput, workflowMeta?.allowedDomains, updateWorkflowMeta]);
 
   const handleRemoveDomain = useCallback(
     (domain: string) => {
-      const currentDomains = workflowMeta.allowedDomains || [];
+      const currentDomains = workflowMeta?.allowedDomains || [];
       updateWorkflowMeta({
         allowedDomains: currentDomains.filter((d) => d !== domain),
       });
     },
-    [workflowMeta.allowedDomains, updateWorkflowMeta],
+    [workflowMeta?.allowedDomains, updateWorkflowMeta],
   );
 
   const [otherWorkflowNames, setOtherWorkflowNames] = useState<
@@ -51,7 +51,7 @@ export const WorkflowConfig = () => {
   useEffect(() => {
     listWorkflows().then((json) => {
       const others = json
-        .filter(({ meta }) => meta.id !== workflowMeta.id)
+        .filter(({ meta }) => meta.id !== workflowMeta?.id)
         .map(({ meta }) => ({
           name: meta.name,
           id: meta.id,
@@ -59,7 +59,7 @@ export const WorkflowConfig = () => {
 
       setOtherWorkflowNames(others);
     });
-  }, [workflowMeta.id]);
+  }, [workflowMeta?.id]);
 
   const [errors, setErrors] = useState<string[]>([]);
 
@@ -69,13 +69,13 @@ export const WorkflowConfig = () => {
 
       if (isChecking) {
         const newErrors: string[] = [];
-        if (!workflowMeta.description) {
+        if (!workflowMeta?.description) {
           newErrors.push("Description is required when WebMCP is enabled.");
         }
 
         if (
-          !workflowMeta.allowedDomains ||
-          workflowMeta.allowedDomains.length === 0
+          !workflowMeta?.allowedDomains ||
+          workflowMeta?.allowedDomains.length === 0
         ) {
           newErrors.push(
             "At least one allowed domain is required when WebMCP is enabled.",
@@ -83,13 +83,13 @@ export const WorkflowConfig = () => {
         }
 
         if (
-          otherWorkflowNames.some(
+          otherWorkflowNames?.some(
             ({ name, id }) =>
-              name === workflowMeta.name && id !== workflowMeta.id,
+              name === workflowMeta?.name && id !== workflowMeta?.id,
           )
         ) {
           newErrors.push(
-            `The name "${workflowMeta.name}" is already used by another workflow. Please change the name for unique identification.`,
+            `The name "${workflowMeta?.name}" is already used by another workflow. Please change the name for unique identification.`,
           );
         }
 
@@ -110,10 +110,10 @@ export const WorkflowConfig = () => {
     },
     [
       updateWorkflowMeta,
-      workflowMeta.description,
-      workflowMeta.allowedDomains,
-      workflowMeta.name,
-      workflowMeta.enabled,
+      workflowMeta?.description,
+      workflowMeta?.allowedDomains,
+      workflowMeta?.name,
+      workflowMeta?.enabled,
       otherWorkflowNames,
     ],
   );
@@ -135,16 +135,11 @@ export const WorkflowConfig = () => {
             className="block text-sm font-medium text-slate-700 dark:text-zinc-300 mb-2"
             htmlFor="wf-name"
           >
-            Name
+            Sanitized WebMCP Name
           </label>
-          <input
-            id="wf-name"
-            type="text"
-            className="w-full p-3 border border-slate-300 dark:border-border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-white dark:bg-zinc-950 text-slate-900 dark:text-foreground"
-            value={workflowMeta.name}
-            onChange={(e) => updateWorkflowMeta({ name: e.target.value })}
-            placeholder="Workflow Name"
-          />
+          <p className="w-full p-3 border border-slate-300 dark:border-border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-white dark:bg-zinc-950 text-slate-900 dark:text-foreground">
+            {workflowMeta?.sanitizedName}
+          </p>
         </div>
 
         <div>
@@ -153,7 +148,7 @@ export const WorkflowConfig = () => {
             htmlFor="wf-desc"
           >
             Description
-            {workflowMeta.isWebMCP && (
+            {workflowMeta?.isWebMCP && (
               <span className="text-red-500 ml-1">*</span>
             )}
           </label>
@@ -161,7 +156,7 @@ export const WorkflowConfig = () => {
             id="wf-desc"
             className="w-full p-3 border border-slate-300 dark:border-border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm resize-none bg-white dark:bg-zinc-950 text-slate-900 dark:text-foreground"
             rows={4}
-            value={workflowMeta.description || ""}
+            value={workflowMeta?.description || ""}
             onChange={(e) =>
               updateWorkflowMeta({ description: e.target.value })
             }
@@ -175,7 +170,7 @@ export const WorkflowConfig = () => {
             htmlFor="wf-domains"
           >
             Allowed Domains
-            {workflowMeta.isWebMCP && (
+            {workflowMeta?.isWebMCP && (
               <span className="text-red-500 ml-1">*</span>
             )}
           </label>
@@ -203,7 +198,7 @@ export const WorkflowConfig = () => {
             </button>
           </div>
           <div className="flex flex-wrap gap-2">
-            {workflowMeta.allowedDomains?.map((domain) => (
+            {workflowMeta?.allowedDomains?.map((domain) => (
               <div
                 key={domain}
                 className="flex items-center gap-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 px-2 py-1 rounded-md text-xs border border-indigo-200 dark:border-indigo-800"
@@ -227,7 +222,7 @@ export const WorkflowConfig = () => {
                 <input
                   type="checkbox"
                   className="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500 border-gray-300"
-                  checked={!!workflowMeta.isWebMCP}
+                  checked={!!workflowMeta?.isWebMCP}
                   onChange={handleIsWebMCPChange}
                 />
                 <span className="text-sm font-medium text-slate-700 dark:text-zinc-300">
@@ -235,12 +230,12 @@ export const WorkflowConfig = () => {
                 </span>
               </label>
 
-              {workflowMeta.isWebMCP && (
+              {workflowMeta?.isWebMCP && (
                 <label className="flex items-center gap-2 cursor-pointer ml-6">
                   <input
                     type="checkbox"
                     className="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500 border-gray-300"
-                    checked={workflowMeta.enabled !== false}
+                    checked={workflowMeta?.enabled !== false}
                     onChange={(e) =>
                       updateWorkflowMeta({ enabled: e.target.checked })
                     }
@@ -256,25 +251,27 @@ export const WorkflowConfig = () => {
               </p>
             </div>
 
-            <div>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  className="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500 border-gray-300"
-                  checked={!!workflowMeta.autosave}
-                  onChange={(e) =>
-                    updateWorkflowMeta({ autosave: e.target.checked })
-                  }
-                />
-                <span className="text-sm font-medium text-slate-700 dark:text-zinc-300">
-                  Autosave
-                </span>
-              </label>
-              <p className="text-xs text-slate-500 dark:text-zinc-500 ml-6">
-                When enabled, changes are saved automatically. Otherwise, use
-                the Save button in the toolbar.
-              </p>
-            </div>
+            {!workflowMeta?.id.startsWith("demo-") && (
+              <div>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500 border-gray-300"
+                    checked={!!workflowMeta?.autosave}
+                    onChange={(e) =>
+                      updateWorkflowMeta({ autosave: e.target.checked })
+                    }
+                  />
+                  <span className="text-sm font-medium text-slate-700 dark:text-zinc-300">
+                    Autosave
+                  </span>
+                </label>
+                <p className="text-xs text-slate-500 dark:text-zinc-500 ml-6">
+                  When enabled, changes are saved automatically. Otherwise, use
+                  the Save button in the toolbar.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>

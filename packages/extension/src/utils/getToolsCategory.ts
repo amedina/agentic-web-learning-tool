@@ -5,6 +5,7 @@ import {
   EXTENSION_TOOL_PREFIX,
   DOM_TOOL_NAME_PREFIX,
 } from '@google-awlt/common';
+import { PREDEFINED_WORKFLOWS } from '@google-awlt/engine-extension';
 
 /**
  * Internal dependencies.
@@ -42,6 +43,14 @@ export const getToolCategory = (
 
   if (userTools && userTools.includes(toolName)) {
     return TOOL_CATEGORIES.USER;
+  }
+
+  if (
+    PREDEFINED_WORKFLOWS.find(
+      (workflow) => workflow.meta.sanitizedName === toolName
+    )
+  ) {
+    return TOOL_CATEGORIES.BUILT_IN_WORKFLOW;
   }
 
   if (workflowTools && workflowTools.includes(toolName)) {

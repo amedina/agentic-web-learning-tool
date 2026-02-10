@@ -12,6 +12,7 @@ import {
  */
 import { isDomainAllowed } from '../../serviceWorker/utils';
 import { logger } from '../../utils';
+import type { WorkflowJSON } from '@google-awlt/engine-core';
 
 const WORKFLOW_MENU_ID = 'run-workflow-parent';
 const WORKFLOW_ID_PREFIX = 'workflow-run-';
@@ -45,20 +46,35 @@ export const updateWorkflowsContextMenu = async (url?: string) => {
     }
 
     // Create parent menu
-    chrome.contextMenus.create({
-      id: WORKFLOW_MENU_ID,
-      title: 'Run Workflow',
-      contexts: ['page', 'selection'],
-    });
-
+    chrome.contextMenus.create(
+      {
+        id: WORKFLOW_MENU_ID,
+        title: 'Run Workflow',
+        contexts: ['page', 'selection'],
+      },
+      () => {
+        if (chrome.runtime.lastError) {
+          logger(['error'], [chrome.runtime.lastError]);
+          return;
+        }
+      }
+    );
     // Create child menus for each workflow
     matchingWorkflows.forEach((wf) => {
-      chrome.contextMenus.create({
-        id: `${WORKFLOW_ID_PREFIX}${wf.meta.id}`,
-        parentId: WORKFLOW_MENU_ID,
-        title: wf.meta.name || 'Untitled Workflow',
-        contexts: ['page', 'selection'],
-      });
+      chrome.contextMenus.create(
+        {
+          id: `${WORKFLOW_ID_PREFIX}${wf.meta.id}`,
+          parentId: WORKFLOW_MENU_ID,
+          title: wf.meta.name || 'Untitled Workflow',
+          contexts: ['page', 'selection'],
+        },
+        () => {
+          if (chrome.runtime.lastError) {
+            logger(['error'], [chrome.runtime.lastError]);
+            return;
+          }
+        }
+      );
     });
   } catch (error) {
     logger(['error'], ['Failed to update workflows context menu:', error]);
@@ -83,7 +99,9 @@ export const handleContextMenuClick = async (
   const workflowId = menuItemId.replace(WORKFLOW_ID_PREFIX, '');
 
   try {
-    const workflow = await loadWorkflow(workflowId);
+    const workflow: WorkflowJSON | undefined | null =
+      await loadWorkflow(workflowId);
+
     if (!workflow) {
       console.error(`Workflow ${workflowId} not found`);
       return;

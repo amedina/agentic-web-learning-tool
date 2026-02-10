@@ -12,6 +12,7 @@ export const TOOL_CATEGORIES: Record<string, string> = {
   MCP_B: 'mcp-b',
   WEBSITE: 'website',
   WORKFLOW: 'workflow',
+  BUILT_IN_WORKFLOW: 'built-in-workflow',
 };
 
 export const ALL_TOOLS_FILTERS = {

@@ -680,7 +680,8 @@ class McpHub {
       for (const [toolName] of removedTools) {
         if (
           toolName.startsWith('extension_tool') ||
-          toolName.includes(`_mcp_`)
+          toolName.includes(`_mcp_`) ||
+          workflows.some((workflow) => workflow.meta.sanitizedName === toolName)
         ) {
           continue;
         }
@@ -985,7 +986,9 @@ class McpHub {
     if (this.toolInjected) {
       return;
     }
+
     const workflows = await listWorkflows();
+
     let tabUrl = '';
 
     try {
