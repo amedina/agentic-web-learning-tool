@@ -1,7 +1,7 @@
 /**
  * External dependencies.
  */
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { vs, dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 /**
@@ -31,6 +31,17 @@ export function CodeEditor({
 
   const SyntaxHighlighterAny = SyntaxHighlighterWhite as any;
 
+  useEffect(() => {
+    let lines = code.split('\n');
+    const _breakpoints: number[] = [];
+    lines.forEach((line, index) => {
+      if (line.trim() === 'debugger;') {
+        _breakpoints.push(index + 1);
+      }
+    });
+    setBreakpoints(_breakpoints);
+  }, [code]);
+
   const handleScroll = (e: React.UIEvent<HTMLTextAreaElement>) => {
     if (backdropRef.current) {
       backdropRef.current.scrollTop = e.currentTarget.scrollTop;
@@ -43,11 +54,25 @@ export function CodeEditor({
 
   const toggleBreakpoint = (lineNum: number) => {
     if (!enableBreakpoints) return;
-    setBreakpoints((prev) =>
-      prev.includes(lineNum)
+    let originalText = code;
+    setBreakpoints((prev) => {
+      const newValue = prev.includes(lineNum)
         ? prev.filter((n) => n !== lineNum)
-        : [...prev, lineNum]
-    );
+        : [...prev, lineNum];
+      newValue.forEach((breakpoint, index) => {
+        let lines = code.split('\n');
+        const lineIndex = breakpoint + index;
+        const newContent = '  debugger;';
+
+        // 3. Use Array.splice()
+        // Syntax: lines.splice(index, deleteCount, itemToAdd)
+        lines.splice(lineIndex, 0, newContent);
+        originalText = lines.join('\n');
+      });
+
+      return newValue;
+    });
+    onChange(originalText);
   };
 
   const commonStyle = {

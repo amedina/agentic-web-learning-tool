@@ -33,6 +33,7 @@ import {
 } from '../utils';
 import type { ContentScriptMessage } from './types';
 import { mcpbTools, type keys } from '../contentScript/tools/mcpbTools';
+import type { WebMCPTool } from '@google-awlt/design-system';
 /**
  * The central hub managing connections between the MCP Server and Chrome Tabs.
  * It acts as a proxy, registering tools found in browser tabs and forwarding execution requests.
@@ -800,17 +801,36 @@ class McpHub {
       ? this.userToolScripts.get(toolName)
       : undefined;
 
+    let editedScript: WebMCPTool['editedScript'] = {
+      code: null,
+      tabId: [this.tabId],
+    };
+
+    try {
+      const storage = await chrome.storage.local.get('userWebMCPTools');
+      const userTools = (storage.userWebMCPTools || []) as WebMCPTool[];
+      const found = userTools.find((tool) => tool.name === toolName);
+
+      if (
+        found &&
+        found?.editedScript &&
+        found.editedScript.tabId.includes(this.tabId)
+      ) {
+        editedScript = found?.editedScript;
+      }
+    } catch (e) {
+      console.error('Failed to fetch script from storage:', e);
+    }
+
     if (!isMCPServerTool && !script) {
       try {
         const storage = await chrome.storage.local.get('userWebMCPTools');
-        const userTools = (storage.userWebMCPTools || []) as Array<{
-          name: string;
-          code?: string;
-        }>;
+        const userTools = (storage.userWebMCPTools || []) as WebMCPTool[];
         const found = userTools.find((tool) => tool.name === toolName);
 
         if (found && found.code) {
           script = found.code;
+          editedScript = found?.editedScript;
           this.userToolScripts.set(toolName, script);
         }
       } catch (e) {
@@ -858,6 +878,10 @@ class McpHub {
         status: result.isError ? 'error' : 'success',
         result: result.content,
         error: result.isError ? 'Tool returned an error' : undefined,
+        editedScript: {
+          code: editedScript?.code,
+          tabId: this.tabId,
+        },
       });
 
       return result;
@@ -879,6 +903,10 @@ class McpHub {
         duration,
         status: 'error',
         error: errorMessage,
+        editedScript: {
+          code: editedScript?.code,
+          tabId: this.tabId,
+        },
       });
 
       throw error;
@@ -916,18 +944,30 @@ class McpHub {
 
     // Filter out disabled user tools AND tools not allowed on this domain
     const enabledUserTools = Array.isArray(userWebMCPTools)
-      ? userWebMCPTools.filter((t: any) => {
+      ? (userWebMCPTools as WebMCPTool[]).filter((t: any) => {
           if (t.enabled === false) return false;
           return isDomainAllowed(tabUrl, t.allowedDomains);
         })
       : [];
+
+    enabledUserTools.forEach((tool) => {
+      const editedScript = (userWebMCPTools as WebMCPTool[]).find(
+        (_tool) => _tool.name === tool.name
+      )?.editedScript;
+
+      if (editedScript?.code && editedScript?.tabId.includes(this.tabId)) {
+        const _tool = this.registeredTools.get(tool.name);
+        _tool?.remove();
+        this.registeredTools.delete(tool.name);
+      }
+    });
 
     chrome.scripting
       .executeScript({
         target: { tabId: tabId },
         world: 'MAIN',
         func: registerDynamicToolFromScripting,
-        args: [enabledUserTools],
+        args: [enabledUserTools, this.tabId],
       })
       .then((result) => {
         logger(['debug'], ['WebMCP: tools registered', result]);
@@ -936,13 +976,16 @@ class McpHub {
         logger(['error'], ['WebMCP: Error injecting user tools', error]);
       });
 
-    async function registerDynamicToolFromScripting(tools: any) {
+    async function registerDynamicToolFromScripting(tools: any, tabId: number) {
       //@ts-expect-error -- window.navigator.modelContext is injected dynamically
       const mcp = window.navigator.modelContext;
       for (const toolWrapper of tools) {
         try {
           // 1. Create a Blob from the code string
-          const blob = new Blob([toolWrapper.code], {
+          const codeToUse = toolWrapper?.editedScript?.tabId.includes(tabId)
+            ? toolWrapper.editedScript?.code
+            : toolWrapper.code;
+          const blob = new Blob([codeToUse], {
             type: 'text/javascript',
           });
           const url = URL.createObjectURL(blob);

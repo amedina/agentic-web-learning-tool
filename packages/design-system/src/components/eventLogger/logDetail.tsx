@@ -8,6 +8,8 @@ import { CodeEditor } from '../codeEditor';
  */
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../tabs';
 import { SyntaxHighlighterJSON } from '../syntaxHighlighter';
+import { useState } from 'react';
+import type { WebMCPTool } from '../webMCPTools';
 
 export interface LogDetailProps {
   log: {
@@ -17,7 +19,9 @@ export interface LogDetailProps {
     result?: any;
     error?: string;
     script?: string;
+    editedScript?: WebMCPTool['editedScript'];
   };
+  onScriptChange?: (newCode: string) => Promise<void>;
 }
 
 const TAB_TRIGGER_CLASS =
@@ -44,8 +48,11 @@ function LogExecutionDetails({ log }: { log: LogDetailProps['log'] }) {
   );
 }
 
-export function LogDetail({ log }: LogDetailProps) {
+export function LogDetail({ log, onScriptChange }: LogDetailProps) {
   const showTabs = log.type === 'WebMCP' || !!log.script;
+  const [script, setNewScript] = useState(
+    log?.editedScript?.code ?? log.script
+  );
 
   if (!showTabs) {
     return (
@@ -79,10 +86,13 @@ export function LogDetail({ log }: LogDetailProps) {
         value="script"
         className="overflow-auto min-h-0 mt-0 p-0 border-0"
       >
-        {log.script ? (
+        {script ? (
           <CodeEditor
-            code={log.script}
-            onChange={() => {}}
+            code={script}
+            onChange={(value) => {
+              setNewScript(value);
+              onScriptChange?.(value);
+            }}
             isDarkMode={false}
             styles={{ fontSize: '11px', lineHeight: '1.2', fontWeight: 300 }}
             enableBreakpoints={true}
