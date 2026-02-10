@@ -24,22 +24,50 @@ export function CodeEditor({
   isDarkMode = false,
   styles = {},
   enableBreakpoints = false,
-}: CodeEditorProps & { enableBreakpoints?: boolean }) {
+}: CodeEditorProps) {
   const backdropRef = useRef<HTMLDivElement>(null);
   const gutterRef = useRef<HTMLDivElement | null>(null);
   const [breakpoints, setBreakpoints] = useState<number[]>([]);
 
+  // _code represents the "Visual" code (without debugger statements)
+  const [_code, setCode] = useState('');
+
   const SyntaxHighlighterAny = SyntaxHighlighterWhite as any;
 
+  // 1. Parsing Effect: Separates 'debugger;' statements from the code logic
   useEffect(() => {
-    let lines = code.split('\n');
-    const _breakpoints: number[] = [];
-    lines.forEach((line, index) => {
+    // Split the raw file content
+    const rawLines = code.split('\n');
+    const cleanLines: string[] = [];
+    const detectedBreakpoints: number[] = [];
+
+    rawLines.forEach((line) => {
       if (line.trim() === 'debugger;') {
-        _breakpoints.push(index + 1);
+        // If we hit a debugger, mark the CURRENT line index of the CLEAN code
+        // as a breakpoint. This effectively attaches the debugger to the *next* // line of code that will be pushed.
+        detectedBreakpoints.push(cleanLines.length);
+      } else {
+        cleanLines.push(line);
       }
     });
-    setBreakpoints(_breakpoints);
+
+    // Only update state if there is a mismatch to prevent infinite loops
+    // when onChange triggers this effect again.
+    const newCleanCode = cleanLines.join('\n');
+
+    // We update the internal visual state only if the parsing results in different content
+    // This check is crucial because onChange updates 'code', which fires this effect.
+    // We want to ensure the visual cursor doesn't jump unnecessarily.
+    setCode((prev) => {
+      if (newCleanCode !== prev) {
+        return newCleanCode;
+      }
+      return prev;
+    });
+
+    // We always synchronize breakpoints from the source
+    // (A deep comparison could be added here for optimization, but setting array is fine)
+    setBreakpoints(detectedBreakpoints);
   }, [code]);
 
   const handleScroll = (e: React.UIEvent<HTMLTextAreaElement>) => {
@@ -52,27 +80,54 @@ export function CodeEditor({
     }
   };
 
-  const toggleBreakpoint = (lineNum: number) => {
+  // 2. Toggle Logic: Updates the list and RECONSTRUCTS the file
+  const toggleBreakpoint = (lineIndex: number) => {
     if (!enableBreakpoints) return;
-    let originalText = code;
-    setBreakpoints((prev) => {
-      const newValue = prev.includes(lineNum)
-        ? prev.filter((n) => n !== lineNum)
-        : [...prev, lineNum];
-      newValue.forEach((breakpoint, index) => {
-        let lines = code.split('\n');
-        const lineIndex = breakpoint + index;
-        const newContent = '  debugger;';
 
-        // 3. Use Array.splice()
-        // Syntax: lines.splice(index, deleteCount, itemToAdd)
-        lines.splice(lineIndex, 0, newContent);
-        originalText = lines.join('\n');
-      });
+    // Calculate new breakpoint list
+    const isRemoving = breakpoints.includes(lineIndex);
+    const newBreakpoints = isRemoving
+      ? breakpoints.filter((b) => b !== lineIndex)
+      : [...breakpoints, lineIndex].sort((a, b) => a - b);
 
-      return newValue;
+    // Update Local State for immediate UI feedback
+    setBreakpoints(newBreakpoints);
+
+    // Reconstruct the file content:
+    // We take the current "Clean" code and inject 'debugger;' statements
+    // based on the new breakpoint list.
+    const cleanLines = _code.split('\n');
+    const finalLines: string[] = [];
+
+    cleanLines.forEach((line, index) => {
+      // If this index has a breakpoint, insert debugger BEFORE the line
+      if (newBreakpoints.includes(index)) {
+        finalLines.push('debugger;');
+      }
+      finalLines.push(line);
     });
-    onChange(originalText);
+
+    // Notify parent with the valid JS code (containing debuggers)
+    onChange(finalLines.join('\n'));
+  };
+
+  // 3. Editor Changes: Handle typing in the editor
+  const handleEditorChange = (newVisualCode: string) => {
+    // Update local visual state immediately
+    setCode(newVisualCode);
+
+    // When the user types, we need to reconstruct the file with EXISTING breakpoints.
+    const cleanLines = newVisualCode.split('\n');
+    const finalLines: string[] = [];
+
+    cleanLines.forEach((line, index) => {
+      if (breakpoints.includes(index)) {
+        finalLines.push('debugger;');
+      }
+      finalLines.push(line);
+    });
+
+    onChange(finalLines.join('\n'));
   };
 
   const commonStyle = {
@@ -84,7 +139,7 @@ export function CodeEditor({
     ...styles,
   };
 
-  const lines = code.split('\n');
+  const lines = _code.split('\n');
   const lineNumbers = lines.map((_, index) => index + 1);
 
   const activeStyle = isDarkMode ? dracula : vs;
@@ -112,8 +167,8 @@ export function CodeEditor({
       <div className="relative flex-1">
         <textarea
           className="absolute inset-0 w-full h-full bg-transparent text-transparent resize-none outline-none border-none focus:ring-0 whitespace-nowrap overflow-auto max-w-full"
-          value={code}
-          onChange={(e) => onChange(e.target.value)}
+          value={_code}
+          onChange={(e) => handleEditorChange(e.target.value)}
           onScroll={handleScroll}
           spellCheck={false}
           // @ts-ignore - ts(2322)
@@ -131,7 +186,7 @@ export function CodeEditor({
         >
           <SyntaxHighlighterAny
             language="javascript"
-            code={code}
+            code={_code}
             style={activeStyle}
             components={{
               Pre: (props: any) => (
