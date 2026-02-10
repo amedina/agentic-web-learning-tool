@@ -1126,6 +1126,12 @@ class McpHub {
           );
 
           if (mcp) {
+            if (mcp.toolUnregisterFunctions.get(toolToRegister.name)) {
+              const unregisterFunction = mcp.toolUnregisterFunctions.get(
+                toolToRegister.name
+              );
+              unregisterFunction?.();
+            }
             await mcp.registerTool(toolToRegister);
 
             console.log(
