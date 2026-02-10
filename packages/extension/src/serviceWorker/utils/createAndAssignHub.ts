@@ -19,7 +19,7 @@ const createAndAssignHub = async (
   tabId: number
 ) => {
   try {
-    if (mcpHubInstances.has(tabId)) {
+    const restartServer = async () => {
       const sharedServer = serverInstances.get(tabId);
       const transport = new ExtensionServerTransport(port, {
         keepAlive: true,
@@ -51,6 +51,11 @@ const createAndAssignHub = async (
           method: 'get/Tools',
         });
       }
+      return;
+    };
+
+    if (mcpHubInstances.has(tabId)) {
+      await restartServer();
       return;
     }
 
@@ -96,6 +101,10 @@ const createAndAssignHub = async (
 
     mcpHubInstances.set(tabId, mcpHub);
     serverInstances.set(tabId, sharedServer);
+    if (transport.onclose) {
+      transport.onclose = async () => await restartServer();
+    }
+
     mcpHub.setupConnections();
     try {
       await chrome.tabs.sendMessage(tabId, { type: START_MCP_CONNECTION });
