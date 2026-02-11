@@ -230,7 +230,7 @@ export default function Proofreader() {
 
             {/* Options */}
             <div className="space-y-4 pt-2 flex-1 flex flex-col min-h-0">
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center gap-2">
                 <Checkbox
                   id="include-types"
                   checked={includeTypes}
@@ -246,7 +246,7 @@ export default function Proofreader() {
                 </label>
               </div>
 
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center gap-2">
                 <Checkbox
                   id="include-explanations"
                   checked={includeExplanations}
@@ -279,7 +279,7 @@ export default function Proofreader() {
                     {SUPPORTED_LANGUAGES.map((lang) => (
                       <div
                         key={`lang-${lang.code}`}
-                        className="flex items-center space-x-2"
+                        className="flex items-center gap-2"
                       >
                         <Checkbox
                           id={`lang-${lang.code}`}
