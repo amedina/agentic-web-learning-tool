@@ -2,6 +2,7 @@
  * External dependencies
  */
 import type { PromptCommand } from '@google-awlt/design-system';
+import type { WorkflowJSON } from '@google-awlt/engine-core';
 /**
  * Internal dependencies
  */
@@ -38,6 +39,7 @@ export type SettingsType = {
     builtInToolsState?: Record<string, boolean>;
     promptCommands?: PromptCommand[];
     builtInPromptCommands?: PromptCommand[];
+    workflows?: WorkflowJSON[];
     chromeAPIBuiltInToolsState?: {
       [key: string]: {
         enabled: boolean;

@@ -6,8 +6,8 @@ import { useReactFlow } from "@xyflow/react";
 import {
   getLastOpenedWorkflowId,
   WorkflowClient,
-  listWorkflows,
-  type WorkflowMetadata,
+  saveWorkflow,
+  loadWorkflow,
 } from "@google-awlt/engine-extension";
 import {
   type ExecutionContext,
@@ -17,7 +17,6 @@ import {
   type WorkflowJSON,
   WorkflowJSONSchema,
 } from "@google-awlt/engine-core";
-import { saveWorkflow, loadWorkflow } from "@google-awlt/engine-extension";
 
 /**
  * Internal dependencies
@@ -32,6 +31,7 @@ import {
 import { Flow, Toast, SavedWorkflowsDialog, ImportDialog } from "../ui";
 import { TOOL_CONFIGS } from "../tools/toolRegistry";
 import logger from "../../logger";
+import { getUniqueNames } from "../../utils/workflowUtils";
 
 const ID_PREFIX = "wf_";
 const STORAGE_KEY_SELECTED_TAB = "awl_wc_selected_tab_id";
@@ -39,29 +39,6 @@ const STORAGE_KEY_SELECTED_TAB = "awl_wc_selected_tab_id";
 const generateId = () => {
   const id = crypto.randomUUID();
   return `${ID_PREFIX}${id}`;
-};
-
-const getUniqueNames = async (
-  name: string,
-  excludeId?: string,
-): Promise<{ name: string; sanitizedName: string }> => {
-  const list = await listWorkflows();
-  const existingWorkflows = list.map((w: { meta: WorkflowMetadata }) => w.meta);
-
-  let sanitizedName = name.replace(/[^a-zA-Z0-9_]/g, "_");
-  let counter = 1;
-
-  const isDuplicate = (sName: string) =>
-    existingWorkflows.some(
-      (w) => w.sanitizedName === sName && w.id !== excludeId,
-    );
-
-  while (isDuplicate(sanitizedName)) {
-    sanitizedName = `${name.replace(/[^a-zA-Z0-9_]/g, "_")}_${counter}`;
-    counter++;
-  }
-
-  return { name, sanitizedName };
 };
 
 interface WorkflowCanvasProps {

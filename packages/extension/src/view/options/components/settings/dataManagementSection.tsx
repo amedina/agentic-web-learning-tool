@@ -22,6 +22,9 @@ import {
   OptionsPageTabSection,
   toast,
 } from '@google-awlt/design-system';
+import { saveWorkflow } from '@google-awlt/engine-extension';
+import { WorkflowJSONSchema } from '@google-awlt/engine-core';
+import { getUniqueNames } from '@google-awlt/workflow-ui';
 
 /**
  * Internal dependencies
@@ -127,19 +130,72 @@ export default function DataManagementSection({
         builtInPromptCommands: validationResult.builtInPromptCommands,
       });
 
-      logger(
-        ['debug'],
-        [
-          'Validation successfull, settings have been imported reloading options page',
-        ]
-      );
-      toast.success(
-        'Validation successfull, settings have been imported reloading options page'
+      let corruptWorkflow = false;
+
+      // Import workflows if present
+      if (
+        settings.config?.workflows &&
+        Array.isArray(settings.config.workflows)
+      ) {
+        let importedCount = 0;
+
+        for (const wf of settings.config.workflows) {
+          const result = WorkflowJSONSchema.safeParse(wf);
+
+          if (result.success) {
+            const validatedWf = result.data;
+            const { sanitizedName } = await getUniqueNames(
+              validatedWf.meta.name
+            );
+
+            validatedWf.meta.sanitizedName = sanitizedName;
+
+            await saveWorkflow(validatedWf.meta.id, validatedWf);
+            importedCount++;
+          } else {
+            logger(
+              ['error'],
+              [`Invalid workflow found in backup: ${wf.meta.name}`]
+            );
+
+            corruptWorkflow = true;
+          }
+        }
+
+        logger(['debug'], [`Imported ${importedCount} workflows from backup`]);
+      }
+
+      if (corruptWorkflow) {
+        logger(
+          ['error'],
+          [
+            'Settings imported successfully, but some workflows were not imported due to validation errors.',
+          ]
+        );
+
+        toast.error(
+          'Settings imported successfully, but some workflows were not imported due to validation errors. Reloading options page.'
+        );
+      } else {
+        logger(
+          ['debug'],
+          [
+            'Validation successful, settings have been imported reloading options page.',
+          ]
+        );
+
+        toast.success(
+          'Validation successful, settings have been imported reloading options page.'
+        );
+      }
+
+      setTimeout(
+        () => {
+          window.location.reload();
+        },
+        1000 * (corruptWorkflow ? 5 : 2)
       );
 
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
       setIsImporting(false);
     };
 
