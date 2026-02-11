@@ -22,10 +22,10 @@ const ExtensionReloadNotification = ({
         <Button
           onClick={() => {
             globalThis?.location?.reload();
-            if (localStorage.getItem('psatOpenedAfterPageLoad') && tabId) {
+            if (localStorage.getItem('awlOpenedAfterPageLoad') && tabId) {
               try {
                 chrome.tabs.reload(tabId);
-                localStorage.removeItem('psatOpenedAfterPageLoad');
+                localStorage.removeItem('awlOpenedAfterPageLoad');
               } catch (error) {
                 //Fail silenlty
               }
