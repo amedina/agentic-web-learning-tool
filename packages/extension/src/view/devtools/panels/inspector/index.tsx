@@ -64,6 +64,7 @@ export const Inspector = () => {
       tableColumns={EVENT_LOGGER_COLUMNS}
       tableFilterData={EVENT_LOGGER_FILTERS}
       tableSearchKeys={TABLE_SEARCH_KEYS}
+      tablePersistentSettingsKey="inspectorTable"
       onRowClick={(row: any) => {
         if (row?.id) {
           setSelectedKey(row?.id);
