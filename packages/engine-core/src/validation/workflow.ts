@@ -8,6 +8,7 @@ export const WorkflowMetaSchema = z
   .object({
     id: z.string(),
     name: z.string().min(1, 'Name is required'),
+    sanitizedName: z.string(),
     description: z.string().optional(),
     savedAt: z.string(),
     allowedDomains: z.array(z.string()).optional(),

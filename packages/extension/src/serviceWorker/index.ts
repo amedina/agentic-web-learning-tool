@@ -58,7 +58,7 @@ chrome.runtime.onConnect.addListener(async (port) => {
   //If connection is initiated from content script condition is true and function retrns early
   if (
     port.name !== CONNECTION_NAMES.MCP_HOST_SIDEPANEL &&
-    port.name !== CONNECTION_NAMES.MCP_HOST_DEVTOOLS
+    !port.name.startsWith(CONNECTION_NAMES.MCP_HOST_DEVTOOLS)
   ) {
     return;
   }
@@ -86,16 +86,11 @@ chrome.runtime.onConnect.addListener(async (port) => {
     );
   }
 
-  if (port.name === CONNECTION_NAMES.MCP_HOST_DEVTOOLS) {
+  if (port.name.startsWith(CONNECTION_NAMES.MCP_HOST_DEVTOOLS)) {
     let tabId = 0;
-
-    if (!port.sender?.url) {
-      return;
-    }
-
-    if (isUrl(port.sender?.url)) {
-      tabId = parseInt(new URL(port.sender?.url).hash.substring(1));
-    }
+    tabId = parseInt(
+      port.name.substring(CONNECTION_NAMES.MCP_HOST_DEVTOOLS.length)
+    );
 
     if (!tabId) {
       return;

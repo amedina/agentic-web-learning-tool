@@ -13,7 +13,9 @@ import { Layout } from './layout';
 import { EventLogsProvider } from './providers';
 
 export const transport = new ExtensionClientTransport({
-  portName: CONNECTION_NAMES.MCP_HOST_DEVTOOLS,
+  portName:
+    CONNECTION_NAMES.MCP_HOST_DEVTOOLS +
+    chrome.devtools.inspectedWindow.tabId.toString(),
 });
 
 // Connects to the extension service worker.

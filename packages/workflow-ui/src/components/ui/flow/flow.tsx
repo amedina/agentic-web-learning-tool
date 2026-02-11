@@ -53,6 +53,7 @@ export interface FlowProps<
     onRefreshTabs: () => void;
     onSave: () => void;
   };
+  isBuiltIn?: boolean;
 }
 
 const Flow = <NodeType extends Node, EdgeType extends Edge>({
@@ -74,6 +75,7 @@ const Flow = <NodeType extends Node, EdgeType extends Edge>({
   isRunning,
   isStopping,
   actions,
+  isBuiltIn,
 }: FlowProps<NodeType, EdgeType>) => {
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault();
@@ -109,20 +111,31 @@ const Flow = <NodeType extends Node, EdgeType extends Edge>({
           />
           <div className="w-px h-6 bg-slate-300 dark:bg-border mx-1"></div>
           <input
-            className="bg-slate-100 dark:bg-zinc-950 px-3 py-1 rounded text-sm font-medium text-slate-600 dark:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white dark:focus:bg-zinc-900 transition-all border border-transparent dark:border-border"
+            className="bg-slate-100 dark:bg-zinc-950 px-3 py-1 rounded text-sm font-medium text-slate-600 dark:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white dark:focus:bg-zinc-900 transition-all border border-transparent dark:border-border disabled:opacity-80 disabled:cursor-not-allowed"
             value={title}
             onChange={(e) => onTitleChange(e.target.value)}
             placeholder="Enter workflow title..."
+            disabled={isBuiltIn}
           />
         </div>
 
         <div className="flex items-center gap-4 mr-2">
-          {!autosaveEnabled && (
+          {!autosaveEnabled && !isBuiltIn && (
             <button
               onClick={actions.onSave}
               className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-md transition-colors shadow-sm uppercase tracking-wider"
             >
               Save
+            </button>
+          )}
+
+          {isBuiltIn && (
+            <button
+              onClick={actions.onSave}
+              className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-md transition-colors shadow-sm uppercase tracking-wider"
+              title="Save a copy to your workflows"
+            >
+              Save Copy
             </button>
           )}
 

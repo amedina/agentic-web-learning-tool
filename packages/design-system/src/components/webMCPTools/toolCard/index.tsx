@@ -12,7 +12,7 @@ import type { WebMCPTool } from '../types';
 
 interface ToolCardProps {
   tool: WebMCPTool;
-  onToggle: (enabled: boolean) => void;
+  onToggle?: (enabled: boolean) => void;
   onEdit?: () => void;
 }
 
@@ -28,7 +28,9 @@ export function ToolCard({ tool, onToggle, onEdit }: ToolCardProps) {
             {tool.namespace}
           </div>
         </div>
-        <ToggleSwitch checked={tool.enabled} onCheckedChange={onToggle} />
+        {onToggle && (
+          <ToggleSwitch checked={tool.enabled} onCheckedChange={onToggle} />
+        )}
       </div>
 
       <p className="text-sm text-amethyst-haze mb-5 flex-grow leading-relaxed">

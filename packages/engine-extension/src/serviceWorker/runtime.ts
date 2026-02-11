@@ -335,7 +335,9 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
       type: 'USER_ACTIVATION_REQUEST',
     };
     const response = await chrome.tabs.sendMessage(tabId, message);
-
+    if (chrome.runtime.lastError) {
+      throw new Error(chrome.runtime.lastError.message);
+    }
     if (!response?.success) {
       throw new Error(response?.error || 'User activation failed');
     }
