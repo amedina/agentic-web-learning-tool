@@ -159,23 +159,6 @@ function Options() {
         (item) => item.id === selectedMenuItem
       );
 
-      const storedTabId = localStorage.getItem('optionsPageTabId');
-      const currentTabId = (
-        await chrome.tabs.query({
-          active: true,
-          currentWindow: true,
-        })
-      )?.[0]?.id;
-
-      if (
-        currentTabId &&
-        storedTabId &&
-        storedTabId !== currentTabId.toString()
-      ) {
-        setSelectedMenuItem('models');
-        return;
-      }
-
       if (!selectedMenuItem || !isValidSelection) {
         // Find the first item that has a component (is a leaf node or a clickable parent)
         const defaultItem = flatItems.find((item) => item.component);
@@ -187,23 +170,6 @@ function Options() {
   }, [selectedMenuItem, flatItems, setSelectedMenuItem]);
 
   const { theme } = useSettings(({ state }) => ({ theme: state.theme }));
-
-  useEffect(() => {
-    return () => {
-      (async () => {
-        const currentTab = (
-          await chrome.tabs.query({
-            active: true,
-            currentWindow: true,
-          })
-        )?.[0]?.id;
-
-        if (currentTab) {
-          localStorage.setItem('optionsPageTabId', String(currentTab));
-        }
-      })();
-    };
-  }, []);
 
   return (
     <>
