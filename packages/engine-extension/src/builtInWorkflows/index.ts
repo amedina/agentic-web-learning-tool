@@ -354,7 +354,7 @@ export const PREDEFINED_WORKFLOWS: WorkflowJSON[] = [
       edges: [
         {
           id: 'edge-1',
-          source: 'start-node',
+          source: 'start',
           target: 'get-body-content',
           sourceHandle: null,
           targetHandle: null,
