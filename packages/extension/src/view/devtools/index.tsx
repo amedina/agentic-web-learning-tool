@@ -3,6 +3,7 @@
  */
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { TablePersistentSettingsProvider } from '@google-awlt/design-system';
 /**
  * Internal dependencies
  */
@@ -12,8 +13,10 @@ import { SettingsProvider } from '../stateProviders';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <SettingsProvider view="devtools">
-      <DevTools />
-    </SettingsProvider>
+    <TablePersistentSettingsProvider>
+      <SettingsProvider view="devtools">
+        <DevTools />
+      </SettingsProvider>
+    </TablePersistentSettingsProvider>
   </StrictMode>
 );
