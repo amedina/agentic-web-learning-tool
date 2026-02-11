@@ -1,7 +1,7 @@
 /**
  * External dependencies.
  */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import type { Tool } from '@modelcontextprotocol/sdk/types.js';
 import { RunToolPanel as RunToolPanelView } from '@google-awlt/design-system';
 
@@ -30,6 +30,7 @@ const RunToolPanel = ({
   const { state, actions } = useEventLogs();
   const [args, setArgs] = useState<Record<string, string>>({});
   const [validationError, setValidationError] = useState<string | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const [prevToolName, setPrevToolName] = useState<string | null>(null);
 
@@ -49,7 +50,7 @@ const RunToolPanel = ({
   };
   const properties = inputSchema?.properties || {};
 
-  const handleRun = async () => {
+  const handleRun = useCallback(async () => {
     if (!tool) {
       return;
     }
@@ -89,28 +90,47 @@ const RunToolPanel = ({
         error instanceof Error ? error.message : 'Invalid arguments'
       );
     } finally {
-      setTimeout(() => {
+      timeoutRef.current = setTimeout(() => {
         onClose();
         actions.setIsToolRunning(false);
         afterRunTool(tool);
       }, 1000);
     }
-  };
+  }, [setValidationError, actions, onClose, afterRunTool, onRun, args, tool]);
 
-  const handleArgsChange = (key: string, value: string) => {
-    setArgs((prev) => ({ ...prev, [key]: value }));
-  };
+  const handleArgsChange = useCallback(
+    (key: string, value: string) => {
+      setArgs((prev) => ({ ...prev, [key]: value }));
+    },
+    [setArgs]
+  );
 
-  const handleOpenChange = (open: boolean) => {
-    if (!open) {
-      onClose();
+  const handleOpenChange = useCallback(
+    (open: boolean) => {
+      if (!open) {
+        onClose();
+      }
+    },
+    [onClose]
+  );
+
+  const onCancel = useCallback(() => {
+    onClose();
+    actions.setIsToolRunning(false);
+    setArgs({});
+    setValidationError(null);
+    setPrevToolName(null);
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
     }
-  };
+  }, [onClose]);
 
   return (
     <RunToolPanelView
       open={isOpen}
       onOpenChange={handleOpenChange}
+      onCancel={onCancel}
       tool={tool as any}
       args={args}
       onArgsChange={handleArgsChange}
