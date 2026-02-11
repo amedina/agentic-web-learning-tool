@@ -41,6 +41,13 @@ const RunToolPanel = ({
       setValidationError(null);
       setPrevToolName(tool?.name || null);
     }
+
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+    };
   }, [tool]);
 
   const inputSchema = tool?.inputSchema as {
