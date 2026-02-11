@@ -84,6 +84,7 @@ const McpConnectionProvider = ({
   transport: StreamableHTTPClientTransport | SSEClientTransport | null;
 }) => {
   const [sseUrl, setSseUrl] = useState<string>(getInitialSseUrl);
+  const [pingResults, setPingResults] = useState<any[]>([]);
   const [transportType, setTransportType] = useState<"sse" | "streamable-http">(
     getInitialTransportType,
   );
@@ -193,6 +194,7 @@ const McpConnectionProvider = ({
     setTools([]);
     setResources([]);
     setPrompts([]);
+    setPingResults([]);
   }, []);
 
   const updateAuthState = useCallback((updates: Partial<AuthDebuggerState>) => {
@@ -615,6 +617,7 @@ const McpConnectionProvider = ({
         resources,
         tools,
         prompts,
+        pingResults,
       },
       actions: {
         setSseUrl,
@@ -647,6 +650,7 @@ const McpConnectionProvider = ({
         setPrompts,
         setTools,
         disconnectMcpServer,
+        setPingResults,
       },
     };
   }, [
@@ -692,6 +696,7 @@ const McpConnectionProvider = ({
     handleRejectSampling,
     handleResolveElicitation,
     disconnectMcpServer,
+    pingResults,
   ]);
 
   return (
