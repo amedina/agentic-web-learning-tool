@@ -267,7 +267,7 @@ export const PREDEFINED_WORKFLOWS: WorkflowJSON[] = [
     graph: {
       nodes: [
         {
-          id: 'start-node',
+          id: 'start',
           type: NodeType.START,
           config: {
             title: 'Start',
@@ -336,7 +336,7 @@ export const PREDEFINED_WORKFLOWS: WorkflowJSON[] = [
           },
         },
         {
-          id: 'end-node',
+          id: 'end',
           type: NodeType.END,
           config: {
             title: 'End',
