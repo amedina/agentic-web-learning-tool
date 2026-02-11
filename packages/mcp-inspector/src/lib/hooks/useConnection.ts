@@ -3,14 +3,8 @@
  */
 import { useCallback, useEffect, useState } from "react";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
-import {
-  SSEClientTransport,
-  SseError,
-} from "@modelcontextprotocol/sdk/client/sse.js";
-import {
-  StreamableHTTPClientTransport,
-  StreamableHTTPError,
-} from "@modelcontextprotocol/sdk/client/streamableHttp.js";
+import { SseError } from "@modelcontextprotocol/sdk/client/sse.js";
+import { StreamableHTTPError } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import {
   auth,
   discoverOAuthProtectedResourceMetadata,
@@ -64,6 +58,7 @@ import {
 } from "../../utils/configUtils";
 import type { InspectorConfig } from "../configurationTypes";
 import { resolveRefsInMessage } from "../../utils/schemaUtils";
+import type { Transport } from "@modelcontextprotocol/sdk/shared/transport.js";
 
 interface UseConnectionOptions {
   sseUrl: string;
@@ -371,7 +366,7 @@ export function useConnection({
   const connect = useCallback(
     async (
       client: Client,
-      transport: StreamableHTTPClientTransport | SSEClientTransport,
+      transport: Transport,
       _e?: unknown,
       retryCount: number = 0,
     ) => {

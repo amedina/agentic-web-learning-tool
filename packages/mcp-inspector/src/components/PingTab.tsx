@@ -11,6 +11,7 @@ const PingTab = ({
   onPingClick: () => void;
   result: any;
 }) => {
+  console.log(result);
   return (
     <TabsContent value="ping" className="flex flex-col gap-2">
       <div className="flex">
@@ -28,7 +29,7 @@ const PingTab = ({
               <span className="text-green-600 font-semibold">Success</span>
             )}
           </h4>
-          <JsonView data={result?.result ?? ""} />
+          <JsonView data={result.result} isError={result.isError} />
         </>
       )}
     </TabsContent>

@@ -110,6 +110,13 @@ export function ConfigInput({ config, setConfig }: MCPServerConfigInput) {
         note: 'For Streamable HTTP connections, add this URL directly in your MCP Client',
       };
     }
+    if (config.transport === 'stateless-http') {
+      return {
+        type: 'stateless-http',
+        url: config.url,
+        note: 'For Stateless HTTP connections, add this URL directly in your MCP Client',
+      };
+    }
     return {};
   }, [config.transport, config.url]);
 
@@ -216,6 +223,7 @@ export function ConfigInput({ config, setConfig }: MCPServerConfigInput) {
               <SelectContent>
                 <SelectItem value="sse">SSE</SelectItem>
                 <SelectItem value="streamable-http">Streamable HTTP</SelectItem>
+                <SelectItem value="stateless-http">Stateless HTTP</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -223,16 +231,16 @@ export function ConfigInput({ config, setConfig }: MCPServerConfigInput) {
             <label className="text-sm font-medium" htmlFor="sse-url-input">
               URL
             </label>
-          
-              <Tooltip text={config.url}>
-                <Input
-                  id="sse-url-input"
-                  placeholder="URL"
-                  value={config.url}
-                  onChange={(e) => setConfig('url', e.target.value)}
-                  className="font-mono"
-                />
-              </Tooltip>
+
+            <Tooltip text={config.url}>
+              <Input
+                id="sse-url-input"
+                placeholder="URL"
+                value={config.url}
+                onChange={(e) => setConfig('url', e.target.value)}
+                className="font-mono"
+              />
+            </Tooltip>
           </div>
 
           <Tooltip text="Connect to server directly (requires CORS config on server) or via MCP Inspector Proxy">

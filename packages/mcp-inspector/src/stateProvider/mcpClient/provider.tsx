@@ -51,8 +51,7 @@ import {
 } from "../../lib/types/customHeaders";
 import type { ElicitationResponse } from "../../components/ElicitationTab";
 import McpConnectionContext, { LOCALSTORAGEMOCK } from "./context";
-import type { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
-import type { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
+import type { Transport } from "@modelcontextprotocol/sdk/shared/transport.js";
 
 const CONFIG_LOCAL_STORAGE_KEY = "inspectorConfig_v1";
 
@@ -81,7 +80,7 @@ const McpConnectionProvider = ({
 }: {
   children: ReactNode;
   client: Client | null;
-  transport: StreamableHTTPClientTransport | SSEClientTransport | null;
+  transport: Transport | null;
 }) => {
   const [sseUrl, setSseUrl] = useState<string>(getInitialSseUrl);
   const [pingResults, setPingResults] = useState<any[]>([]);
