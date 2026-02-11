@@ -154,6 +154,7 @@ export const Tools = ({
       tableColumns={allToolsColumns}
       tableFilterData={ALL_TOOLS_FILTERS}
       tableSearchKeys={TABLE_SEARCH_KEYS}
+      tablePersistentSettingsKey="toolsTable"
       onRowContextMenu={noop}
       onRowClick={(row: TableData) => {
         setSelectedKey(row?.name ?? null);

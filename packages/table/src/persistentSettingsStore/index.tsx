@@ -56,14 +56,16 @@ const initialState: TablePersistentSettingsStoreContext = {
   state: {},
   actions: {
     setPreferences: () => Promise.resolve(),
-    getPreferences: () => ({}),
+    getPreferences: () => undefined,
   },
 };
 
 export const SettingsContext =
   createContext<TablePersistentSettingsStoreContext>(initialState);
 
-export const Provider = ({ children }: PropsWithChildren) => {
+export const TablePersistentSettingsProvider = ({
+  children,
+}: PropsWithChildren) => {
   const PROMISE_QUEUE = useMemo(() => new PQueue({ concurrency: 1 }), []);
 
   const isChromeExtension = useMemo(() => {
