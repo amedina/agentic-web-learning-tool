@@ -19,7 +19,7 @@ const createAndAssignHub = async (
   tabId: number
 ) => {
   try {
-    if (mcpHubInstances.has(tabId)) {
+    const restartServer = async () => {
       const sharedServer = serverInstances.get(tabId);
       const transport = new ExtensionServerTransport(port, {
         keepAlive: true,
@@ -29,15 +29,20 @@ const createAndAssignHub = async (
       if (!mcpHub || !sharedServer) {
         return;
       }
-
+      port.onDisconnect.addListener(async () => await restartServer());
       await sharedServer.connect(transport);
       try {
-        await chrome.tabs.sendMessage(tabId, { type: START_MCP_CONNECTION });
-        if (chrome.runtime.lastError) {
-          logger(['error'], ['Port disconnected due to url change']);
-        }
-        await mcpHub.injectToolsAndRegisterFunction(tabId);
-        await mcpHub.injectWorkflowToolsAndRegisterFunction(tabId);
+        chrome.tabs.sendMessage(
+          tabId,
+          { type: START_MCP_CONNECTION },
+          async () => {
+            if (chrome.runtime.lastError) {
+              logger(['error'], ['Port disconnected due to url change']);
+            }
+            await mcpHub.injectToolsAndRegisterFunction(tabId);
+            await mcpHub.injectWorkflowToolsAndRegisterFunction(tabId);
+          }
+        );
       } catch (error) {
         logger(
           ['error'],
@@ -51,6 +56,11 @@ const createAndAssignHub = async (
           method: 'get/Tools',
         });
       }
+      return;
+    };
+
+    if (mcpHubInstances.has(tabId)) {
+      await restartServer();
       return;
     }
 
@@ -70,7 +80,7 @@ const createAndAssignHub = async (
     const transport = new ExtensionServerTransport(port, {
       keepAlive: true,
     });
-
+    port.onDisconnect.addListener(async () => await restartServer());
     try {
       //Why this is being done look here https://github.com/modelcontextprotocol/typescript-sdk/issues/893
       sharedServer.registerTool(
@@ -96,14 +106,20 @@ const createAndAssignHub = async (
 
     mcpHubInstances.set(tabId, mcpHub);
     serverInstances.set(tabId, sharedServer);
+
     mcpHub.setupConnections();
     try {
-      await chrome.tabs.sendMessage(tabId, { type: START_MCP_CONNECTION });
-      if (chrome.runtime.lastError) {
-        logger(['error'], ['Port disconnected due to url change']);
-      }
-      await mcpHub.injectToolsAndRegisterFunction(tabId);
-      await mcpHub.injectWorkflowToolsAndRegisterFunction(tabId);
+      chrome.tabs.sendMessage(
+        tabId,
+        { type: START_MCP_CONNECTION },
+        async () => {
+          if (chrome.runtime.lastError) {
+            logger(['error'], ['Port disconnected due to url change']);
+          }
+          await mcpHub.injectToolsAndRegisterFunction(tabId);
+          await mcpHub.injectWorkflowToolsAndRegisterFunction(tabId);
+        }
+      );
     } catch (error) {
       logger(
         ['error'],

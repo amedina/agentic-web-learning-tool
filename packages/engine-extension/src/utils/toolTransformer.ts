@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import type { WorkflowMeta } from "@google-awlt/engine-core";
+import type { WorkflowMeta } from '@google-awlt/engine-core';
 
 /**
  * Transforms a workflow JSON object into a WebMCPTool object.
@@ -12,13 +12,13 @@ import type { WorkflowMeta } from "@google-awlt/engine-core";
  */
 export function transformWorkflowToTool(meta: WorkflowMeta) {
   return {
-    name: meta.name,
+    name: meta.sanitizedName || meta.name,
     title: meta.name, // Use name as title
-    description: meta.description || "A user-defined workflow",
+    description: meta.description || 'A user-defined workflow',
     allowedDomains: meta.allowedDomains || [],
-    namespace: "workflow",
+    namespace: 'workflow',
     inputSchema: {
-      type: "object",
+      type: 'object',
       properties: {},
     },
     enabled: meta.enabled ?? false,

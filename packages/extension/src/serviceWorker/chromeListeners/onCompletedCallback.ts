@@ -16,12 +16,17 @@ const onCompletedCallback = async (
   }
 
   try {
-    await chrome.tabs.sendMessage(details.tabId, {
-      type: START_MCP_CONNECTION,
-    });
-    if (chrome.runtime.lastError) {
-      logger(['error'], ['Port disconnected due to url change']);
-    }
+    await chrome.tabs.sendMessage(
+      details.tabId,
+      {
+        type: START_MCP_CONNECTION,
+      },
+      () => {
+        if (chrome.runtime.lastError) {
+          logger(['error'], ['Port disconnected due to url change']);
+        }
+      }
+    );
   } catch (error) {
     logger(['error'], ['Failed to send START_MCP_CONNECTION message:', error]);
   }

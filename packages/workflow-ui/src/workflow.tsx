@@ -15,20 +15,14 @@ initContentScriptBridge();
 
 interface WorkflowProps {
   theme: "light" | "dark" | "system";
-  workflowId: string | null;
-  setWorkflowId: (id: string | null) => void;
 }
 
-const Workflow = ({ theme, workflowId, setWorkflowId }: WorkflowProps) => {
+const Workflow = ({ theme }: WorkflowProps) => {
   return (
     <ApiProvider>
       <FlowProvider>
         <ReactFlowProvider>
-          <Panel
-            theme={theme}
-            workflowId={workflowId}
-            setWorkflowId={setWorkflowId}
-          />
+          <Panel theme={theme} />
         </ReactFlowProvider>
       </FlowProvider>
     </ApiProvider>
