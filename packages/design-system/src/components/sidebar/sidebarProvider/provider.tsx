@@ -52,7 +52,7 @@ function SidebarProvider({
   const isMobile = useIsMobile();
   const open = openProp ?? _open;
   const [selectedMenuItem, setSelectedMenuItem] = useState(
-    localStorage.getItem('sidebar-selected-menu-item-' + placement) ??
+    sessionStorage.getItem('sidebar-selected-menu-item-' + placement) ??
       defaultSelectedMenuItem
   );
   const setOpen = useCallback(
@@ -92,7 +92,7 @@ function SidebarProvider({
   }, [toggleSidebar]);
 
   useEffect(() => {
-    localStorage.setItem(
+    sessionStorage.setItem(
       'sidebar-selected-menu-item-' + placement,
       selectedMenuItem
     );

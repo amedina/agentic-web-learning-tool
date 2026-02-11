@@ -376,7 +376,7 @@ export const PREDEFINED_WORKFLOWS: WorkflowJSON[] = [
         {
           id: 'edge-4',
           source: 'apply-changes',
-          target: 'end-node',
+          target: 'end',
           sourceHandle: null,
           targetHandle: null,
         },
