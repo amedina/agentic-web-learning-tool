@@ -9,6 +9,7 @@ import {
 import { Client } from '@modelcontextprotocol/sdk/client';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
+import type { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
 import {
   listWorkflows,
   transformWorkflowToTool,
@@ -33,6 +34,8 @@ import {
 } from '../utils';
 import type { ContentScriptMessage } from './types';
 import { mcpbTools, type keys } from '../contentScript/tools/mcpbTools';
+import { StatelessHTTPClientTransport } from '../view/options/providers/mcpProvider/StatelessHTTPClientTransport';
+
 /**
  * The central hub managing connections between the MCP Server and Chrome Tabs.
  * It acts as a proxy, registering tools found in browser tabs and forwarding execution requests.
@@ -43,7 +46,7 @@ class McpHub {
     string,
     {
       client: Client;
-      transport: StreamableHTTPClientTransport | SSEClientTransport;
+      transport: Transport;
       connected: boolean;
       toolsFetched: boolean;
     }
@@ -333,17 +336,21 @@ class McpHub {
       );
 
       const transport =
-        serverConfig.transport === 'streamable-http'
-          ? new StreamableHTTPClientTransport(new URL(serverConfig.url), {
-              requestInit: {
-                headers: headers,
-              },
+        serverConfig.transport === 'stateless-http'
+          ? new StatelessHTTPClientTransport(new URL(serverConfig.url), {
+              headers: headers,
             })
-          : new SSEClientTransport(new URL(serverConfig.url), {
-              requestInit: {
-                headers: headers,
-              },
-            });
+          : serverConfig.transport === 'streamable-http'
+            ? new StreamableHTTPClientTransport(new URL(serverConfig.url), {
+                requestInit: {
+                  headers: headers,
+                },
+              })
+            : new SSEClientTransport(new URL(serverConfig.url), {
+                requestInit: {
+                  headers: headers,
+                },
+              });
 
       await client.connect(transport);
       const toolsList = await client.listTools();
