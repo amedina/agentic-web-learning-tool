@@ -20,7 +20,7 @@ export const getUniqueNames = async (
   const list = await listWorkflows();
   const existingWorkflows = list.map((w: { meta: WorkflowMetadata }) => w.meta);
 
-  let sanitizedName = name.replace(/[^a-zA-Z0-9_]/g, "_");
+  let sanitizedName = name.toLowerCase().replace(/[^a-zA-Z0-9_]/g, "_");
   let counter = 1;
 
   const isDuplicate = (sName: string) =>

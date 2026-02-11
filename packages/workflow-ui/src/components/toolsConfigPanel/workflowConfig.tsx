@@ -92,7 +92,7 @@ export const WorkflowConfig = () => {
           )
         ) {
           newErrors.push(
-            `The WebMCP identifier "${workflowMeta?.sanitizedName}" is already used by another workflow.`,
+            `The name "${workflowMeta?.name}" is already used by another workflow.`,
           );
         }
 
@@ -125,22 +125,19 @@ export const WorkflowConfig = () => {
   return (
     <div className="p-4 space-y-6">
       <div className="bg-slate-100 dark:bg-zinc-800/50 rounded-lg p-3 border border-slate-200 dark:border-border">
-        <div className="text-xs text-slate-500 dark:text-zinc-500 mb-1 uppercase tracking-wide">
+        <p className="text-xs text-slate-500 dark:text-zinc-500 mb-1 uppercase tracking-wide">
           Workflow
-        </div>
-        <div className="text-sm font-medium text-slate-800 dark:text-zinc-200">
+        </p>
+        <p className="text-sm font-medium text-slate-800 dark:text-zinc-200">
           Global Settings
-        </div>
+        </p>
       </div>
 
       <div className="space-y-4">
         <div className="bg-slate-100 dark:bg-zinc-800/50 rounded-lg p-3 border border-slate-200 dark:border-border">
-          <label
-            className="block text-sm font-medium text-slate-700 dark:text-zinc-300 mb-2"
-            htmlFor="wf-name"
-          >
-            Sanitized WebMCP Name
-          </label>
+          <p className="text-xs text-slate-500 dark:text-zinc-500 mb-1 uppercase tracking-wide">
+            WebMCP Name
+          </p>
           <p className="w-full text-sm text-slate-900 dark:text-foreground">
             {workflowMeta?.sanitizedName}
           </p>

@@ -8,7 +8,7 @@ export const PREDEFINED_WORKFLOWS: WorkflowJSON[] = [
     meta: {
       id: 'demo-translation',
       name: 'Built-in: Smart Translator',
-      sanitizedName: 'Built_in__Smart_Translator',
+      sanitizedName: 'built_in__smart_translator',
       description: 'Automatically translates selected text into Spanish.',
       savedAt: new Date().toISOString(),
       allowedDomains: ['<all_urls>'],
@@ -130,7 +130,7 @@ export const PREDEFINED_WORKFLOWS: WorkflowJSON[] = [
     meta: {
       id: 'demo-summarizer',
       name: 'Built-in: Quick Summarizer',
-      sanitizedName: 'Built_in__Quick_Summarizer',
+      sanitizedName: 'built_in__quick_summarizer',
       description: 'Summarizes the current page into key points.',
       savedAt: new Date().toISOString(),
       allowedDomains: ['<all_urls>'],
@@ -256,7 +256,7 @@ export const PREDEFINED_WORKFLOWS: WorkflowJSON[] = [
     meta: {
       id: 'demo-snowfall',
       name: 'Built-in: Let It Snow!',
-      sanitizedName: 'Built_in__Let_It_Snow',
+      sanitizedName: 'built_in__let_it_snow',
       description:
         'Injects a snowfall effect into the current page. WARNING: Resets DOM state (forms, video, etc).',
       savedAt: new Date().toISOString(),
