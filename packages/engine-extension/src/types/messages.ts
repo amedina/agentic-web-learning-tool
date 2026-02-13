@@ -87,6 +87,13 @@ export interface ShowTooltipMessage {
 }
 
 /**
+ * Request user to select text on the page.
+ */
+export interface GetSelectionMessage {
+  type: 'GET_SELECTION';
+}
+
+/**
  * Content script is active.
  */
 export interface ContentScriptActiveMessage {
@@ -114,6 +121,7 @@ export type ContentScriptMessage =
   | DownloadFileMessage
   | SpeakTextMessage
   | ShowTooltipMessage
+  | GetSelectionMessage
   | UserActivationRequestMessage;
 
 // Options Page / UI -> Service Worker Messages
@@ -132,7 +140,7 @@ export interface RunWorkflowMessage {
  */
 export interface CheckCapabilitiesMessage {
   type: 'CHECK_CAPABILITIES';
-  capabilities: string[] | Record<string, any>;
+  capabilities: string[] | Record<string, unknown>;
 }
 
 /**

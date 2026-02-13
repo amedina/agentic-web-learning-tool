@@ -39,6 +39,7 @@ import {
   EndNode,
   DataTransformerToolNode,
   MathToolNode,
+  SelectionToolNode,
 } from "../../components";
 
 const FlowProvider = ({ children }: PropsWithChildren) => {
@@ -63,6 +64,7 @@ const FlowProvider = ({ children }: PropsWithChildren) => {
       [NodeType.DOM_REPLACEMENT]: DomReplacementNode,
       [NodeType.FILE_CREATOR]: FileCreatorNode,
       [NodeType.TOOLTIP]: TooltipNode,
+      [NodeType.SELECTION_TOOL]: SelectionToolNode,
       [NodeType.START]: StartNode,
       [NodeType.END]: EndNode,
       [NodeType.DATA_TRANSFORMER]: DataTransformerToolNode,

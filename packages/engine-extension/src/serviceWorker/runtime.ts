@@ -15,6 +15,7 @@ import type {
   SpeakTextMessage,
   ShowTooltipMessage,
   UserActivationRequestMessage,
+  GetSelectionMessage,
 } from '../types/messages';
 
 /**
@@ -55,7 +56,10 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
    * Check if a capability is available.
    * Built-in AI APIs are checked in the service worker context.
    */
-  async checkCapability(capability: string, options?: any): Promise<boolean> {
+  async checkCapability(
+    capability: string,
+    options?: unknown
+  ): Promise<boolean> {
     try {
       switch (capability) {
         case 'promptApi': {
@@ -92,7 +96,9 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
 
         case 'translatorApi': {
           let available = 'Translator' in self;
-          const status = await Translator.availability(options);
+          const status = await Translator.availability(
+            options as TranslatorCreateCoreOptions
+          );
           available = available && status !== 'unavailable';
 
           return available;
@@ -125,12 +131,13 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
         case 'fileCreator':
         case 'speechGenerator':
         case 'toastNotification':
+        case 'selectionInput':
           return true;
 
         default:
           return false;
       }
-    } catch (error) {
+    } catch {
       return false;
     }
   }
@@ -341,6 +348,25 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
     if (!response?.success) {
       throw new Error(response?.error || 'User activation failed');
     }
+  }
+
+  async waitForSelection(): Promise<string> {
+    const tabId = await this.getTargetTabId();
+    const message: GetSelectionMessage = {
+      type: 'GET_SELECTION',
+    };
+
+    const response = await chrome.tabs.sendMessage(tabId, message);
+
+    if (chrome.runtime.lastError) {
+      throw new Error(chrome.runtime.lastError.message);
+    }
+
+    if (!response?.success) {
+      throw new Error(response?.error || 'Selection failed');
+    }
+
+    return response.data as string;
   }
 
   async isUserActive(): Promise<boolean> {

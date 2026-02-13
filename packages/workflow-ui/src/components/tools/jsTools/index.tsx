@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { DomInput, StaticInput } from "./inputTools";
+import { DomInput, StaticInput, SelectionTool } from "./inputTools";
 import { Condition, Loop, DataTransformer, MathTool } from "./logicTools";
 import {
   AlertNotification,
@@ -30,6 +30,7 @@ const JSTools = ({ collapsed }: JSToolsProps) => {
         <div className="space-y-1">
           <DomInput />
           <StaticInput />
+          <SelectionTool />
         </div>
       </div>
 

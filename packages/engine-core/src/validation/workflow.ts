@@ -254,6 +254,11 @@ export const TooltipConfigSchema = z.object({
   selector: z.string().min(1, 'Selector is required'),
 });
 
+export const SelectionToolConfigSchema = z.object({
+  title: z.string().min(1, 'Title is required'),
+  description: z.string().optional(),
+});
+
 export const StartEndConfigSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   description: z.string().optional(),
@@ -394,6 +399,13 @@ export const NodeConfigSchema = z.discriminatedUnion('type', [
     type: z.literal(NodeType.TOOLTIP),
     ui: NodeUIConfigSchema.optional(),
     config: TooltipConfigSchema,
+    label: z.string(),
+  }),
+  z.object({
+    id: z.string(),
+    type: z.literal(NodeType.SELECTION_TOOL),
+    ui: NodeUIConfigSchema.optional(),
+    config: SelectionToolConfigSchema,
     label: z.string(),
   }),
   z.object({

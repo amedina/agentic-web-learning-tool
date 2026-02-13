@@ -81,6 +81,10 @@ export function initContentScriptBridge(): void {
         handleUserActivationRequest(sendResponse);
         return true;
 
+      case 'GET_SELECTION':
+        handleGetSelection(sendResponse);
+        return true;
+
       default:
         sendResponse({ success: false, error: 'Unknown message type' });
         return false;
@@ -509,5 +513,114 @@ export function initContentScriptBridge(): void {
       const message = error instanceof Error ? error.message : String(error);
       sendResponse({ success: false, error: message });
     }
+  }
+
+  /**
+   * Handle text selection request.
+   */
+  function handleGetSelection(
+    sendResponse: (response: ContentScriptResponse) => void
+  ): void {
+    const containerId = 'awlt-selection-container';
+    if (document.getElementById(containerId)) {
+      document.getElementById(containerId)?.remove();
+    }
+
+    const container = document.createElement('div');
+    container.id = containerId;
+    Object.assign(container.style, {
+      position: 'fixed',
+      bottom: '24px',
+      left: '50%',
+      transform: 'translateX(-50%)',
+      zIndex: '2147483647',
+      background: '#18181b',
+      border: '2px solid #3f3f46',
+      borderRadius: '12px',
+      padding: '12px 16px',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '16px',
+      boxShadow:
+        '0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2)',
+      color: '#f4f4f5',
+      fontFamily:
+        '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      fontSize: '14px',
+      minWidth: '320px',
+      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+      opacity: '0',
+    });
+
+    const icon = document.createElement('div');
+    icon.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3V5"></path><path d="M12 19V21"></path><path d="M3 12H5"></path><path d="M19 12H21"></path><path d="M18.364 5.636L16.95 7.05"></path><path d="M7.05 16.95L5.636 18.364"></path><path d="M18.364 18.364L16.95 16.95"></path><path d="M7.05 7.05L5.636 5.636"></path></svg>`;
+    container.appendChild(icon);
+
+    const message = document.createElement('div');
+    message.style.flex = '1';
+    message.textContent = 'Please select text on the page...';
+    container.appendChild(message);
+
+    const finishBtn = document.createElement('button');
+    finishBtn.textContent = 'Finish Selection';
+    Object.assign(finishBtn.style, {
+      padding: '6px 16px',
+      background: '#3f3f46',
+      border: 'none',
+      borderRadius: '6px',
+      color: '#fff',
+      cursor: 'not-allowed',
+      fontSize: '13px',
+      fontWeight: '600',
+      transition: 'all 0.2s',
+      opacity: '0.5',
+    });
+    finishBtn.disabled = true;
+
+    const cleanup = () => {
+      document.removeEventListener('selectionchange', updateSelection);
+      container.style.opacity = '0';
+      container.style.transform = 'translateX(-50%) translateY(20px)';
+      setTimeout(() => container.remove(), 300);
+    };
+
+    const updateSelection = () => {
+      const selection = window.getSelection()?.toString().trim();
+      if (selection && selection.length > 0) {
+        message.textContent = `Text captured (${selection.length} chars)`;
+        finishBtn.style.background = '#6366f1';
+        finishBtn.style.cursor = 'pointer';
+        finishBtn.style.opacity = '1';
+        finishBtn.disabled = false;
+      } else {
+        message.textContent = 'Please select text on the page...';
+        finishBtn.style.background = '#3f3f46';
+        finishBtn.style.cursor = 'not-allowed';
+        finishBtn.style.opacity = '0.5';
+        finishBtn.disabled = true;
+      }
+    };
+
+    finishBtn.onclick = () => {
+      const selection = window.getSelection()?.toString().trim();
+      if (selection) {
+        cleanup();
+        sendResponse({ success: true, data: selection });
+      }
+    };
+
+    container.appendChild(finishBtn);
+    document.body.appendChild(container);
+
+    // Fade in
+    requestAnimationFrame(() => {
+      container.style.opacity = '1';
+      container.style.transform = 'translateX(-50%) translateY(0)';
+    });
+
+    document.addEventListener('selectionchange', updateSelection);
+
+    // Initial check
+    updateSelection();
   }
 }
