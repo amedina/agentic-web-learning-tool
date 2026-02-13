@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import type { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
 import type { JSONRPCMessage } from '@modelcontextprotocol/sdk/types.js';
 

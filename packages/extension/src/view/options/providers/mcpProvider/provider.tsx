@@ -19,17 +19,16 @@ import {
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import { toast } from '@google-awlt/design-system';
 import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
-import { StatelessHTTPClientTransport } from './StatelessHTTPClientTransport';
-
+import {
+  InspectorOAuthClientProvider,
+  McpConnectionProvider,
+} from '@google-awlt/mcp-inspector';
 /**
  * Internal dependencies
  */
 import MCPContext, { type MCPProviderContextType } from './context';
 import { logger } from '../../../../utils';
-import {
-  InspectorOAuthClientProvider,
-  McpConnectionProvider,
-} from '@google-awlt/mcp-inspector';
+import { StatelessHTTPClientTransport } from './StatelessHTTPClientTransport';
 
 type ClientState = {
   [key: string]: Client;

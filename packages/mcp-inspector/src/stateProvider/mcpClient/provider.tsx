@@ -20,6 +20,7 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 import { OAuthTokensSchema } from "@modelcontextprotocol/sdk/shared/auth.js";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import type { Transport } from "@modelcontextprotocol/sdk/shared/transport.js";
 /**
  * Internal dependencies
  */
@@ -51,7 +52,6 @@ import {
 } from "../../lib/types/customHeaders";
 import type { ElicitationResponse } from "../../components/ElicitationTab";
 import McpConnectionContext, { LOCALSTORAGEMOCK } from "./context";
-import type { Transport } from "@modelcontextprotocol/sdk/shared/transport.js";
 
 const CONFIG_LOCAL_STORAGE_KEY = "inspectorConfig_v1";
 

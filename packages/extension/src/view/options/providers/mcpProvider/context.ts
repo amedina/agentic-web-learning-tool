@@ -6,6 +6,9 @@ import type { Client } from '@modelcontextprotocol/sdk/client';
 import type { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
 import type { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import type { Tool } from '@modelcontextprotocol/sdk/types.js';
+/**
+ * Internal dependencies
+ */
 import type { StatelessHTTPClientTransport } from './StatelessHTTPClientTransport';
 
 export interface MCPProviderContextType {

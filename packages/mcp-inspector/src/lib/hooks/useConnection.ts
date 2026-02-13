@@ -36,7 +36,7 @@ import type {
   SchemaOutput,
 } from "@modelcontextprotocol/sdk/server/zod-compat.js";
 import type { RequestOptions } from "@modelcontextprotocol/sdk/shared/protocol.js";
-
+import type { Transport } from "@modelcontextprotocol/sdk/shared/transport.js";
 /**
  * Internal dependencies
  */
@@ -58,7 +58,6 @@ import {
 } from "../../utils/configUtils";
 import type { InspectorConfig } from "../configurationTypes";
 import { resolveRefsInMessage } from "../../utils/schemaUtils";
-import type { Transport } from "@modelcontextprotocol/sdk/shared/transport.js";
 
 interface UseConnectionOptions {
   sseUrl: string;

@@ -2,6 +2,9 @@
  * External dependencies
  */
 import { TabsContent, Button } from "@google-awlt/design-system";
+/**
+ * Internal dependencies
+ */
 import JsonView from "./JsonView";
 
 const PingTab = ({
