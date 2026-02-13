@@ -43,13 +43,13 @@ export const Tools = ({
   const { tools: availableTools } = useMcpClient();
   const toolCategoryMapping = useToolCategoryMapping(availableTools);
   const { theme } = useSettings(({ state }) => ({ theme: state.theme }));
-  const { setLastRunToolName, setSelectedKey, selectedKey } = useEventLogs(
-    ({ actions, state }) => ({
+  const { setLastRunToolName, setSelectedKey, selectedKey, setIsToolRunning } =
+    useEventLogs(({ actions, state }) => ({
       setLastRunToolName: actions.setLastRunToolName,
       setSelectedKey: actions.setSelectedKey,
       selectedKey: state.selectedKey,
-    })
-  );
+      setIsToolRunning: actions.setIsToolRunning,
+    }));
 
   const onToolSuccess = (toolName: string) => {
     const isMcpbTool =
@@ -70,7 +70,7 @@ export const Tools = ({
     openRunToolPanel,
     closeRunToolPanel,
     handleRunTool,
-  } = useToolExecution(onToolSuccess);
+  } = useToolExecution(setIsToolRunning, onToolSuccess);
 
   useEffect(() => {
     if (availableTools) {
