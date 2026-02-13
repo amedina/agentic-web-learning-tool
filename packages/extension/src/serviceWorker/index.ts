@@ -4,6 +4,8 @@
 import { z } from 'zod';
 z.config({ jitless: true });
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import type { WebMCPTool } from '@google-awlt/design-system';
+import PQueue from 'p-queue';
 /**
  * Internal dependencies
  */
@@ -21,6 +23,15 @@ import McpHub from './mcpHub';
 import './chromeListeners';
 import './workflowEngine';
 import { createAndAssignHub } from './utils';
+
+const PromiseQueue = new PQueue({
+  concurrency: 1,
+});
+//@ts-expect-error -- Adding this so this can be accessed across files in service worker
+if (!globalThis.PromiseQueue) {
+  //@ts-expect-error -- Adding this so this can be accessed across files in service worker
+  globalThis.PromiseQueue = PromiseQueue;
+}
 
 (async () => await setLogLevelFromSyncSettings())();
 
@@ -108,6 +119,41 @@ chrome.runtime.onConnect.addListener(async (port) => {
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message.type === 'PING') {
     sendResponse({ status: 'ok' });
+  }
+
+  if (message.type === 'updateScript') {
+    //@ts-expect-error -- PromiseQueue is added to globalThis in service worker
+    globalThis.PromiseQueue.add(async () => {
+      const { newCode, toolName, tabId } = message.payload;
+      const { userWebMCPTools } =
+        await chrome.storage.local.get('userWebMCPTools');
+
+      const reformedWebMcpTools = (userWebMCPTools as WebMCPTool[]).map(
+        (tool) => {
+          if (tool.name !== toolName) {
+            return tool;
+          }
+
+          if (tool.editedScript) {
+            tool.editedScript.code = newCode;
+            tool.editedScript.tabId.push(tabId);
+          } else {
+            tool = {
+              ...tool,
+              editedScript: {
+                tabId,
+                code: newCode,
+              },
+            };
+          }
+          return tool;
+        }
+      );
+
+      chrome.storage.local.set({
+        userWebMCPTools: reformedWebMcpTools,
+      });
+    });
   }
 });
 

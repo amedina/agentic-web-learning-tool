@@ -8,7 +8,6 @@ import {
   LogDetail,
   Toaster,
   type TableRow,
-  type WebMCPTool,
 } from '@google-awlt/design-system';
 import { noop } from '@google-awlt/common';
 import { Ban } from 'lucide-react';
@@ -42,32 +41,14 @@ export const Inspector = () => {
     }
 
     const onScriptChange = async (newCode: string) => {
-      const { userWebMCPTools } =
-        await chrome.storage.local.get('userWebMCPTools');
-      const reformedWebMcpTools = (userWebMCPTools as WebMCPTool[]).map(
-        (tool) => {
-          if (tool.name !== data.toolName) {
-            return tool;
-          }
-
-          if (tool.editedScript) {
-            tool.editedScript.code = newCode;
-            tool.editedScript.tabId.push(chrome.devtools.inspectedWindow.tabId);
-          } else {
-            tool = {
-              ...tool,
-              editedScript: {
-                tabId: [chrome.devtools.inspectedWindow.tabId],
-                code: newCode,
-              },
-            };
-          }
-          return tool;
-        }
-      );
-
-      chrome.storage.local.set({
-        userWebMCPTools: reformedWebMcpTools,
+      chrome.runtime.sendMessage({
+        method: 'updateScript',
+        jsonrpc: '2.0',
+        payload: {
+          newCode,
+          toolName: data.toolName,
+          tabId: chrome.devtools.inspectedWindow.tabId,
+        },
       });
     };
 
