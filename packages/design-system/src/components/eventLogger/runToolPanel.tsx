@@ -9,6 +9,7 @@ import { X } from 'lucide-react';
  * Internal dependencies.
  */
 import { Button } from '../button';
+import { getToolNameWithoutPrefix } from '../../lib';
 
 export interface RunToolPanelTool {
   name: string;
@@ -125,7 +126,7 @@ export const RunToolPanel: React.FC<RunToolPanelProps> = ({
               className="text-xs text-gray-900 break-words block mt-2"
               title={tool.name}
             >
-              {tool.name}
+              {getToolNameWithoutPrefix(tool.name)}
             </span>
           )}
         </div>

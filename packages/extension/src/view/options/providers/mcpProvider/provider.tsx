@@ -19,23 +19,26 @@ import {
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import { toast } from '@google-awlt/design-system';
 import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
-
+import {
+  InspectorOAuthClientProvider,
+  McpConnectionProvider,
+} from '@google-awlt/mcp-inspector';
 /**
  * Internal dependencies
  */
 import MCPContext, { type MCPProviderContextType } from './context';
 import { logger } from '../../../../utils';
-import {
-  InspectorOAuthClientProvider,
-  McpConnectionProvider,
-} from '@google-awlt/mcp-inspector';
+import { StatelessHTTPClientTransport } from './StatelessHTTPClientTransport';
 
 type ClientState = {
   [key: string]: Client;
 };
 
 type TransportState = {
-  [key: string]: StreamableHTTPClientTransport | SSEClientTransport;
+  [key: string]:
+    | StreamableHTTPClientTransport
+    | SSEClientTransport
+    | StatelessHTTPClientTransport;
 };
 
 const Provider = ({ children }: PropsWithChildren) => {
@@ -144,18 +147,24 @@ const Provider = ({ children }: PropsWithChildren) => {
           }
         );
 
-        const transport =
-          config.transport === 'streamable-http'
-            ? new StreamableHTTPClientTransport(new URL(config.url), {
-                requestInit: {
-                  headers: headers,
-                },
-              })
-            : new SSEClientTransport(new URL(config.url), {
-                requestInit: {
-                  headers: headers,
-                },
-              });
+        let transport;
+        if (config.transport === 'stateless-http') {
+          transport = new StatelessHTTPClientTransport(new URL(config.url), {
+            headers: headers,
+          });
+        } else if (config.transport === 'streamable-http') {
+          transport = new StreamableHTTPClientTransport(new URL(config.url), {
+            requestInit: {
+              headers: headers,
+            },
+          });
+        } else {
+          transport = new SSEClientTransport(new URL(config.url), {
+            requestInit: {
+              headers: headers,
+            },
+          });
+        }
 
         await client.connect(transport);
         const toolsList = await client.listTools();
@@ -247,6 +256,10 @@ const Provider = ({ children }: PropsWithChildren) => {
     const transport = transports.current[serverName];
     if (transport instanceof StreamableHTTPClientTransport) {
       await transport.terminateSession();
+      await client?.close();
+    } else if (transport instanceof StatelessHTTPClientTransport) {
+      // Stateless transport doesn't need explicit session termination,
+      // but we can call close if needed (it's a no-op in our implementation)
       await client?.close();
     } else {
       await client?.close();

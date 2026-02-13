@@ -547,12 +547,22 @@ const App = () => {
                             EmptyResultSchema,
                           );
                           setPingResults((prev) => {
-                            prev.push({ isError: false, result });
+                            prev.push({
+                              isError: false,
+                              result: JSON.stringify(result),
+                            });
                             return prev;
                           });
-                        } catch (e) {
+                        } catch (error) {
                           setPingResults((prev) => {
-                            prev.push({ isError: true, result: e });
+                            const errorMessage =
+                              error instanceof Error
+                                ? error.message
+                                : String(error);
+                            prev.push({
+                              isError: true,
+                              result: JSON.stringify({ error: errorMessage }),
+                            });
                             return prev;
                           });
                         }
@@ -681,12 +691,22 @@ const App = () => {
                             EmptyResultSchema,
                           );
                           setPingResults((prev) => {
-                            prev.push({ isError: false, result });
+                            prev.push({
+                              isError: false,
+                              result: JSON.stringify(result),
+                            });
                             return prev;
                           });
-                        } catch (e) {
+                        } catch (error) {
                           setPingResults((prev) => {
-                            prev.push({ isError: true, result: e });
+                            const errorMessage =
+                              error instanceof Error
+                                ? error.message
+                                : String(error);
+                            prev.push({
+                              isError: true,
+                              result: JSON.stringify({ error: errorMessage }),
+                            });
                             return prev;
                           });
                         }

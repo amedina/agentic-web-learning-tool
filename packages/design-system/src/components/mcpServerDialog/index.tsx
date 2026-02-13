@@ -4,7 +4,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { X, TrashIcon, SaveIcon, Loader2, View } from 'lucide-react';
-import type { MCPServerConfig } from '@google-awlt/common';
+import { isEqual, type MCPServerConfig } from '@google-awlt/common';
 import { toast } from 'sonner';
 
 /**
@@ -132,12 +132,7 @@ export function MCPServerDialog({
       return;
     }
 
-    return (
-      config.name !== server.name ||
-      config.authToken !== server.authToken ||
-      config.url !== server.url ||
-      config.transport !== server.transport
-    );
+    return !isEqual(config, server);
   }, [config, server]);
 
   const handleChange = useCallback((key: string, value: any) => {
