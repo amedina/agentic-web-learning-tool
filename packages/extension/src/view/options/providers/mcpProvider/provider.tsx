@@ -148,22 +148,24 @@ const Provider = ({ children }: PropsWithChildren) => {
           }
         );
 
-        const transport =
-          config.transport === 'stateless-http'
-            ? new StatelessHTTPClientTransport(new URL(config.url), {
-                headers: headers,
-              })
-            : config.transport === 'streamable-http'
-              ? new StreamableHTTPClientTransport(new URL(config.url), {
-                  requestInit: {
-                    headers: headers,
-                  },
-                })
-              : new SSEClientTransport(new URL(config.url), {
-                  requestInit: {
-                    headers: headers,
-                  },
-                });
+        let transport;
+        if (config.transport === 'stateless-http') {
+          transport = new StatelessHTTPClientTransport(new URL(config.url), {
+            headers: headers,
+          });
+        } else if (config.transport === 'streamable-http') {
+          transport = new StreamableHTTPClientTransport(new URL(config.url), {
+            requestInit: {
+              headers: headers,
+            },
+          });
+        } else {
+          transport = new SSEClientTransport(new URL(config.url), {
+            requestInit: {
+              headers: headers,
+            },
+          });
+        }
 
         await client.connect(transport);
         const toolsList = await client.listTools();
