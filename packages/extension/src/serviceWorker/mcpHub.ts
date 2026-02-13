@@ -319,6 +319,31 @@ class McpHub {
         headers['x-custom-auth-headers'] = JSON.stringify(customHeaderNames);
       }
 
+      let transport;
+      if (serverConfig.transport === 'stateless-http') {
+        transport = new StatelessHTTPClientTransport(
+          new URL(serverConfig.url),
+          {
+            headers: headers,
+          }
+        );
+      } else if (serverConfig.transport === 'streamable-http') {
+        transport = new StreamableHTTPClientTransport(
+          new URL(serverConfig.url),
+          {
+            requestInit: {
+              headers: headers,
+            },
+          }
+        );
+      } else {
+        transport = new SSEClientTransport(new URL(serverConfig.url), {
+          requestInit: {
+            headers: headers,
+          },
+        });
+      }
+
       const client = new Client(
         {
           name: 'chrome-options-page-client',
@@ -334,23 +359,6 @@ class McpHub {
           },
         }
       );
-
-      const transport =
-        serverConfig.transport === 'stateless-http'
-          ? new StatelessHTTPClientTransport(new URL(serverConfig.url), {
-              headers: headers,
-            })
-          : serverConfig.transport === 'streamable-http'
-            ? new StreamableHTTPClientTransport(new URL(serverConfig.url), {
-                requestInit: {
-                  headers: headers,
-                },
-              })
-            : new SSEClientTransport(new URL(serverConfig.url), {
-                requestInit: {
-                  headers: headers,
-                },
-              });
 
       await client.connect(transport);
       const toolsList = await client.listTools();
