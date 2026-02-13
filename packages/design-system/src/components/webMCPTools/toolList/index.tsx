@@ -88,13 +88,26 @@ export function ToolList({
       {/* Workflows Section */}
       <OptionsPageTabSection title="Workflows">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {workflowTools.map((tool) => (
-            <ToolCard
-              key={tool.id || tool.name}
-              tool={tool}
-              onToggle={(enabled) => onToggleTool(tool, enabled)}
-            />
-          ))}
+          {workflowTools
+            .filter((tool) => !tool.id?.startsWith('demo-'))
+            .map((tool) => (
+              <ToolCard
+                key={tool.id || tool.name}
+                tool={tool}
+                onToggle={(enabled) => onToggleTool(tool, enabled)}
+              />
+            ))}
+        </div>
+      </OptionsPageTabSection>
+
+      {/* Built-in Workflows */}
+      <OptionsPageTabSection title="Built-in Workflows">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {workflowTools
+            .filter((tool) => tool.id?.startsWith('demo-'))
+            .map((tool) => (
+              <ToolCard key={tool.id || tool.name} tool={tool} />
+            ))}
         </div>
       </OptionsPageTabSection>
 

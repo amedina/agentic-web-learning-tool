@@ -14,6 +14,7 @@ import {
   type keys,
   mcpbTools,
 } from '../../../../contentScript/tools/mcpbTools';
+import { sanitizeToolName } from '../../../../serviceWorker/utils';
 
 export function WebMCPToolsTab() {
   const [workflows, setWorkflows] = useState<WorkflowJSON[]>([]);
@@ -61,7 +62,7 @@ export function WebMCPToolsTab() {
       .filter((wf) => wf.meta?.isWebMCP)
       .map((wf) => ({
         id: wf.meta.id,
-        name: wf.meta.name,
+        name: wf.meta.sanitizedName || sanitizeToolName(wf.meta.name),
         namespace: 'Workflow',
         description: wf.meta.description || '',
         allowedDomains: wf.meta.allowedDomains || [],

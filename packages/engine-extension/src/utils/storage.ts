@@ -1,19 +1,28 @@
 /**
  * External dependencies
  */
-import type { WorkflowJSON } from "@google-awlt/engine-core";
+import type { WorkflowJSON } from '@google-awlt/engine-core';
 
-export const STORAGE_PREFIX = "workflow-composer";
+/**
+ * Internal dependencies
+ */
+import { PREDEFINED_WORKFLOWS } from '../builtInWorkflows';
 
-export type WorkflowMetadata = WorkflowJSON["meta"];
+export const STORAGE_PREFIX = 'workflow-composer';
+
+export type WorkflowMetadata = WorkflowJSON['meta'];
 
 /**
  * Save a workflow to local storage
  */
 export const saveWorkflow = async (
   id: string,
-  workflow: WorkflowJSON,
+  workflow: WorkflowJSON
 ): Promise<void> => {
+  if (id.startsWith('demo-')) {
+    return;
+  }
+
   const prev = await chrome.storage.local.get(STORAGE_PREFIX);
 
   await chrome.storage.local.set({
@@ -28,8 +37,12 @@ export const saveWorkflow = async (
  * Load a workflow from local storage
  */
 export const loadWorkflow = async (
-  id: string,
+  id: string
 ): Promise<WorkflowJSON | null> => {
+  if (id.startsWith('demo-')) {
+    return PREDEFINED_WORKFLOWS.find((wf) => wf.meta.id === id) || null;
+  }
+
   const result = (await chrome.storage.local.get(STORAGE_PREFIX)) as {
     [STORAGE_PREFIX]: Record<string, WorkflowJSON>;
   };
@@ -56,10 +69,12 @@ export const listWorkflows = async (): Promise<WorkflowJSON[]> => {
     }
   });
 
+  workflows.push(...PREDEFINED_WORKFLOWS);
+
   // Sort by savedAt descending (newest first)
   workflows.sort(
     (a, b) =>
-      new Date(b.meta.savedAt).getTime() - new Date(a.meta.savedAt).getTime(),
+      new Date(b.meta.savedAt).getTime() - new Date(a.meta.savedAt).getTime()
   );
 
   return workflows;
@@ -69,10 +84,33 @@ export const listWorkflows = async (): Promise<WorkflowJSON[]> => {
  * Delete a workflow from local storage
  */
 export const deleteWorkflow = async (id: string): Promise<void> => {
+  if (id.startsWith('demo-')) {
+    return;
+  }
+
   const result = (await chrome.storage.local.get(STORAGE_PREFIX)) as {
     [STORAGE_PREFIX]: Record<string, WorkflowJSON>;
   };
 
   delete result?.[STORAGE_PREFIX]?.[id];
   await chrome.storage.local.set(result);
+};
+
+/**
+ * Save the ID of the last opened workflow
+ */
+export const setLastOpenedWorkflowId = async (id: string): Promise<void> => {
+  await chrome.storage.local.set({
+    [`${STORAGE_PREFIX}-last-opened`]: id,
+  });
+};
+
+/**
+ * Get the ID of the last opened workflow
+ */
+export const getLastOpenedWorkflowId = async (): Promise<string | null> => {
+  const key = `${STORAGE_PREFIX}-last-opened`;
+  const result = await chrome.storage.local.get(key);
+  const idValue = result[key];
+  return typeof idValue === 'string' ? idValue : null;
 };

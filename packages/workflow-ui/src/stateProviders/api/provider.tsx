@@ -7,7 +7,10 @@ import {
   useEffect,
   type PropsWithChildren,
 } from "react";
-import { getWorkflowClient } from "@google-awlt/engine-extension";
+import {
+  getWorkflowClient,
+  setLastOpenedWorkflowId,
+} from "@google-awlt/engine-extension";
 import { type WorkflowMeta } from "@google-awlt/engine-core";
 
 /**
@@ -23,12 +26,7 @@ const ApiProvider = ({ children }: PropsWithChildren) => {
 
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
   const [capabilities, setCapabilities] = useState<Record<string, boolean>>({});
-  const [workflowMeta, setWorkflowMeta] = useState<WorkflowMeta>({
-    id: `wf_${crypto.randomUUID()}`,
-    name: "New Workflow",
-    savedAt: new Date().toISOString(),
-    autosave: true,
-  });
+  const [workflowMeta, setWorkflowMeta] = useState<WorkflowMeta | undefined>();
 
   const getNode = useCallback(
     (id: string) => {
@@ -91,20 +89,43 @@ const ApiProvider = ({ children }: PropsWithChildren) => {
   const clearApiData = useCallback(() => {
     setNodes({});
     setSelectedNode(null);
-    setWorkflowMeta({
-      id: crypto.randomUUID(),
-      name: "New Workflow",
-      savedAt: new Date().toISOString(),
-      autosave: true,
+    setWorkflowMeta((prev) => {
+      if (!prev) return undefined;
+
+      return {
+        id: prev.id,
+        name: prev.name,
+        sanitizedName: prev.sanitizedName,
+        description: prev.description,
+        allowedDomains: prev.allowedDomains,
+        savedAt: new Date().toISOString(),
+        autosave: prev.autosave,
+      };
     });
   }, []);
 
-  const updateWorkflowMeta = useCallback((updates: Partial<WorkflowMeta>) => {
-    setWorkflowMeta((prev) => ({
-      ...prev,
-      ...updates,
-    }));
-  }, []);
+  const updateWorkflowMeta = useCallback(
+    (updates: Partial<WorkflowMeta>, newMeta?: boolean) => {
+      // @ts-ignore
+      setWorkflowMeta((prev) => {
+        if (newMeta) return updates;
+
+        if (!prev) return undefined;
+
+        return {
+          ...prev,
+          ...updates,
+        };
+      });
+    },
+    [],
+  );
+
+  useEffect(() => {
+    if (workflowMeta?.id) {
+      setLastOpenedWorkflowId(workflowMeta.id);
+    }
+  }, [workflowMeta?.id]);
 
   const checkCapabilities = useCallback(async () => {
     try {

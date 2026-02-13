@@ -29,6 +29,7 @@ import { useToolExecution } from '../../hooks/useToolExecution';
 import { useEventLogs } from '../../providers';
 import useToolCategoryMapping from '../../hooks/useToolCategoryMapping';
 import { TOOL_CATEGORIES } from '../../constants';
+import { getToolCategory } from '../../../../utils';
 
 interface AllToolsRowData extends TableData, Tool {
   originalData: Tool;
@@ -51,8 +52,13 @@ export const Tools = ({
   );
 
   const onToolSuccess = (toolName: string) => {
-    setLastRunToolName(toolName);
-    setSelectedMenuItem('inspector');
+    const isMcpbTool =
+      getToolCategory(toolName, null, null) === TOOL_CATEGORIES.MCP_B;
+
+    if (!isMcpbTool) {
+      setLastRunToolName(toolName);
+      setSelectedMenuItem('inspector');
+    }
   };
 
   const [allToolsData, setAllToolsData] = useState<TableData[]>([]);
@@ -154,6 +160,7 @@ export const Tools = ({
       tableColumns={allToolsColumns}
       tableFilterData={ALL_TOOLS_FILTERS}
       tableSearchKeys={TABLE_SEARCH_KEYS}
+      tablePersistentSettingsKey="toolsTable"
       onRowContextMenu={noop}
       onRowClick={(row: TableData) => {
         setSelectedKey(row?.name ?? null);
