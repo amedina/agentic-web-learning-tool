@@ -46,6 +46,8 @@ function EventLogsProvider({ children }: PropsWithChildren) {
       if (changes?.['userWebMCPTools']?.newValue) {
         const userWebMCPTool = changes?.['userWebMCPTools']
           ?.newValue as WebMCPTool;
+        const oldUserWebMCPTool = changes?.['userWebMCPTools']
+          ?.oldValue as WebMCPTool;
 
         const updatedEventLoggerData = eventLoggerData.map((tool) => {
           const regexp = new RegExp('debugger');
@@ -56,9 +58,14 @@ function EventLogsProvider({ children }: PropsWithChildren) {
             ?.matchAll(regexp)
             //@ts-expect-error -- matchAll is not available in older versions of typescript
             .toArray().length;
-          if (debuggerCount < debuggerCountInUserTool) {
+
+          if (
+            debuggerCount < debuggerCountInUserTool &&
+            !oldUserWebMCPTool?.editedScript
+          ) {
             return tool;
           }
+
           if (
             tool.originalData.name === userWebMCPTool.name &&
             tool.originalData?.editedScript &&
