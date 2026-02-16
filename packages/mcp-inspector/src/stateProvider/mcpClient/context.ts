@@ -13,10 +13,9 @@ import {
   type Resource,
   type Tool,
 } from "@modelcontextprotocol/sdk/types.js";
-import type { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
-import type { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import type { SchemaOutput } from "@modelcontextprotocol/sdk/server/zod-compat.js";
 import type { Client } from "@modelcontextprotocol/sdk/client";
+import type { Transport } from "@modelcontextprotocol/sdk/shared/transport.js";
 /**
  * Internal dependencies
  */
@@ -145,10 +144,7 @@ export interface McpConnectionContextType {
       signal?: AbortSignal,
     ) => Promise<string[]>;
     disconnectMcpServer: (url: string) => Promise<void>;
-    connectMcpServer: (
-      client: Client,
-      transport: SSEClientTransport | StreamableHTTPClientTransport,
-    ) => Promise<void>;
+    connectMcpServer: (client: Client, transport: Transport) => Promise<void>;
     handleApproveSampling: (id: number, result: CreateMessageResult) => void;
     handleRejectSampling: (id: number) => void;
     handleResolveElicitation: (

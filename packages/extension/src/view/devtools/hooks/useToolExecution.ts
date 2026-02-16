@@ -13,6 +13,7 @@ import { getToolCategory } from '../../../utils';
 import { TOOL_CATEGORIES } from '../../../view/devtools/constants';
 
 export const useToolExecution = (
+  setIsToolRunning: (isToolRunning: boolean) => void,
   onToolSuccess?: (toolName: string) => void
 ) => {
   const { client } = useMcpClient();
@@ -52,10 +53,12 @@ export const useToolExecution = (
 
             if (_isMcpb) {
               closeRunToolPanel();
+              setIsToolRunning(false);
             }
 
             if (onToolSuccess) {
               onToolSuccess(toolName);
+              setIsToolRunning(false);
             }
 
             toast.success('Tool execution completed');
@@ -64,14 +67,16 @@ export const useToolExecution = (
             toast.error(
               error instanceof Error ? error.message : 'Tool execution failed'
             );
+            setIsToolRunning(false);
           });
       } catch (error) {
         toast.error(
           error instanceof Error ? error.message : 'Tool execution failed'
         );
+        setIsToolRunning(false);
       }
     },
-    [client, closeRunToolPanel]
+    [client, closeRunToolPanel, onToolSuccess, setIsToolRunning]
   );
 
   return {

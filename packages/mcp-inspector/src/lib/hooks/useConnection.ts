@@ -3,14 +3,8 @@
  */
 import { useCallback, useEffect, useState } from "react";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
-import {
-  SSEClientTransport,
-  SseError,
-} from "@modelcontextprotocol/sdk/client/sse.js";
-import {
-  StreamableHTTPClientTransport,
-  StreamableHTTPError,
-} from "@modelcontextprotocol/sdk/client/streamableHttp.js";
+import { SseError } from "@modelcontextprotocol/sdk/client/sse.js";
+import { StreamableHTTPError } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import {
   auth,
   discoverOAuthProtectedResourceMetadata,
@@ -42,7 +36,7 @@ import type {
   SchemaOutput,
 } from "@modelcontextprotocol/sdk/server/zod-compat.js";
 import type { RequestOptions } from "@modelcontextprotocol/sdk/shared/protocol.js";
-
+import type { Transport } from "@modelcontextprotocol/sdk/shared/transport.js";
 /**
  * Internal dependencies
  */
@@ -371,7 +365,7 @@ export function useConnection({
   const connect = useCallback(
     async (
       client: Client,
-      transport: StreamableHTTPClientTransport | SSEClientTransport,
+      transport: Transport,
       _e?: unknown,
       retryCount: number = 0,
     ) => {

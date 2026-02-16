@@ -2,6 +2,9 @@
  * External dependencies
  */
 import { TabsContent, Button } from "@google-awlt/design-system";
+/**
+ * Internal dependencies
+ */
 import JsonView from "./JsonView";
 
 const PingTab = ({
@@ -28,7 +31,7 @@ const PingTab = ({
               <span className="text-green-600 font-semibold">Success</span>
             )}
           </h4>
-          <JsonView data={result?.result ?? ""} />
+          <JsonView data={result.result} isError={result.isError} />
         </>
       )}
     </TabsContent>
