@@ -18,7 +18,7 @@ interface WebMCPToolsTabProps {
   builtInTools: WebMCPTool[];
   workflowTools?: WebMCPTool[];
   mcpbTools: WebMCPTool[];
-  onSaveUserTools: (tools: WebMCPTool[]) => void;
+  onSaveUserTools: (tools: WebMCPTool[], updatedTool?: WebMCPTool) => void;
   onSaveBuiltInState: (tools: WebMCPTool[]) => void;
   isDarkMode?: boolean;
   saveExtensionToolsState: (toolName: string, value: boolean) => void;
@@ -62,7 +62,7 @@ export function WebMCPToolsTab({
         }
       }
 
-      onSaveUserTools(newTools);
+      onSaveUserTools(newTools, editingTool ? tool : undefined);
     },
     [editingTool, userTools, onSaveUserTools]
   );

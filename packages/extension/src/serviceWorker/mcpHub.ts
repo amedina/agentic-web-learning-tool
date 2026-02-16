@@ -70,18 +70,18 @@ class McpHub {
     this.setupConnections();
     this.registerAllExtensionTools();
     this.tabId = tabId;
-    chrome.storage.local.onChanged.addListener((changes) => {
+    chrome.storage.local.onChanged.addListener(async (changes) => {
       if (changes?.chromeAPIBuiltInToolsState) {
         this.onLocalStoreChangedListener();
       }
       if (changes?.userWebMCPTools) {
         this.toolInjected = false;
-        this.injectToolsAndRegisterFunction(this.tabId);
+        await this.injectToolsAndRegisterFunction(this.tabId);
         this.toolInjected = true;
       }
       if (changes?.['workflow-composer']) {
         this.toolInjected = false;
-        this.injectWorkflowToolsAndRegisterFunction(this.tabId);
+        await this.injectWorkflowToolsAndRegisterFunction(this.tabId);
         this.toolInjected = true;
       }
     });
@@ -1017,7 +1017,7 @@ class McpHub {
           console.log('WebMCP: Tool to register:', toolToRegister);
           // 4. Register
           if (mcp) {
-            if (toolWrapper.editedScript?.code) {
+            if (mcp.toolUnregisterFunctions.get(toolWrapper.name)) {
               const unregisterFunction = mcp.toolUnregisterFunctions.get(
                 toolWrapper.name
               );

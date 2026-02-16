@@ -52,7 +52,13 @@ export const Inspector = () => {
       });
     };
 
-    return <LogDetail log={data as any} onScriptChange={onScriptChange} />;
+    return (
+      <LogDetail
+        log={data as any}
+        onScriptChange={onScriptChange}
+        scriptToUse={data.editedScript?.code ?? data.script}
+      />
+    );
   }, []);
 
   const resetTable = useCallback(() => {

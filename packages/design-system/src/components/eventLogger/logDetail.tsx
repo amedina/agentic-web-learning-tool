@@ -8,7 +8,7 @@ import { CodeEditor } from '../codeEditor';
  */
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../tabs';
 import { SyntaxHighlighterJSON } from '../syntaxHighlighter';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { WebMCPTool } from '../webMCPTools';
 
 export interface LogDetailProps {
@@ -48,11 +48,17 @@ function LogExecutionDetails({ log }: { log: LogDetailProps['log'] }) {
   );
 }
 
-export function LogDetail({ log, onScriptChange }: LogDetailProps) {
+export function LogDetail({
+  log,
+  onScriptChange,
+  scriptToUse,
+}: LogDetailProps & { scriptToUse: string }) {
   const showTabs = log.type === 'WebMCP' || !!log.script;
-  const [script, setNewScript] = useState(
-    log?.editedScript?.code ?? log.script
-  );
+  const [script, setNewScript] = useState(scriptToUse);
+
+  useEffect(() => {
+    setNewScript(scriptToUse);
+  }, [scriptToUse]);
 
   if (!showTabs) {
     return (

@@ -121,7 +121,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     sendResponse({ status: 'ok' });
   }
 
-  if (message.type === 'updateScript') {
+  if (message.method === 'updateScript') {
     //@ts-expect-error -- PromiseQueue is added to globalThis in service worker
     globalThis.PromiseQueue.add(async () => {
       const { newCode, toolName, tabId } = message.payload;
@@ -136,12 +136,14 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 
           if (tool.editedScript) {
             tool.editedScript.code = newCode;
-            tool.editedScript.tabId.push(tabId);
+            if (!tool.editedScript?.tabId?.includes(tabId)) {
+              tool.editedScript.tabId.push(tabId);
+            }
           } else {
             tool = {
               ...tool,
               editedScript: {
-                tabId,
+                tabId: [tabId],
                 code: newCode,
               },
             };

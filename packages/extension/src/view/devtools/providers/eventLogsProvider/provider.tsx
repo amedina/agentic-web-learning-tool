@@ -8,7 +8,7 @@ import {
   type PropsWithChildren,
   useCallback,
 } from 'react';
-import { type TableData } from '@google-awlt/design-system';
+import { type TableData, type WebMCPTool } from '@google-awlt/design-system';
 
 /**
  * Internal dependencies
@@ -40,6 +40,52 @@ function EventLogsProvider({ children }: PropsWithChildren) {
       chrome.storage.session.set({ [`eventLog_${tabId}`]: eventLoggerData });
     }
   }, [eventLoggerData, tabId]);
+
+  const onLocalStorageChangedListener = useCallback(
+    (changes: any) => {
+      if (changes?.['userWebMCPTools']?.newValue) {
+        const userWebMCPTool = changes?.['userWebMCPTools']
+          ?.newValue as WebMCPTool;
+
+        const updatedEventLoggerData = eventLoggerData.map((tool) => {
+          const regexp = new RegExp('debugger');
+          const debuggerCount = tool.originalData?.editedScript.code
+            .matchAll(regexp)
+            .toArray().length;
+          const debuggerCountInUserTool = userWebMCPTool?.editedScript?.code
+            ?.matchAll(regexp)
+            //@ts-expect-error -- matchAll is not available in older versions of typescript
+            .toArray().length;
+          if (debuggerCount < debuggerCountInUserTool) {
+            return tool;
+          }
+          if (
+            tool.originalData.name === userWebMCPTool.name &&
+            tool.originalData?.editedScript &&
+            tool.originalData.editedScript.tabId ===
+              chrome.devtools.inspectedWindow.tabId
+          ) {
+            delete tool.originalData.editedScript;
+          }
+          return tool;
+        });
+
+        setEventLoggerData(updatedEventLoggerData);
+        chrome.storage.session.set({
+          [`eventLog_${tabId}`]: updatedEventLoggerData,
+        });
+      }
+    },
+    [eventLoggerData]
+  );
+
+  useEffect(() => {
+    chrome.storage.local.onChanged.addListener(onLocalStorageChangedListener);
+    return () =>
+      chrome.storage.local.onChanged.removeListener(
+        onLocalStorageChangedListener
+      );
+  }, [onLocalStorageChangedListener]);
 
   const handleMessage = useCallback(
     (message: any) => {

@@ -9,7 +9,7 @@ import {
   useMemo,
   useRef,
 } from 'react';
-import type { WebMCPTool } from '@google-awlt/design-system';
+import { toast, type WebMCPTool } from '@google-awlt/design-system';
 /**
  * Internal dependencies.
  */
@@ -140,10 +140,37 @@ const Provider = ({ children }: PropsWithChildren) => {
     };
   }, [intitialSync, onLocalStorageChangedListener]);
 
-  const saveUserTools = useCallback((tools: WebMCPTool[]) => {
-    setUserTools(tools);
-    chrome.storage.local.set({ userWebMCPTools: tools });
-  }, []);
+  const saveUserTools = useCallback(
+    async (tools: WebMCPTool[], editedTool?: WebMCPTool) => {
+      setUserTools(tools);
+      let hadBreakpointAttached = false;
+      const { userWebMCPTools }: { userWebMCPTools: WebMCPTool[] } =
+        await chrome.storage.local.get('userWebMCPTools');
+
+      const updatedTools = tools.map((tool) => {
+        const storedTool = userWebMCPTools.find(
+          (tool) => tool.name === editedTool?.name
+        );
+        if (
+          tool.name === storedTool?.name &&
+          storedTool?.editedScript?.tabId &&
+          storedTool?.editedScript?.tabId.length > 0
+        ) {
+          hadBreakpointAttached = true;
+        }
+        return tool;
+      });
+
+      if (hadBreakpointAttached) {
+        toast.info('Breakpoint removed from tool.', {
+          duration: 2000,
+        });
+      }
+
+      chrome.storage.local.set({ userWebMCPTools: updatedTools });
+    },
+    []
+  );
 
   const saveExtensionToolsState = useCallback(
     (toolName: string, value: boolean) => {
