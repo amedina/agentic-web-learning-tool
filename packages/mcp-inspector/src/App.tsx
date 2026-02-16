@@ -82,6 +82,7 @@ const App = () => {
     resources,
     prompts,
     tools,
+    pingResults,
     setResources,
     setTools,
     setPrompts,
@@ -99,6 +100,7 @@ const App = () => {
     handleResolveElicitation,
     setRoots,
     setActiveTab,
+    setPingResults,
   } = useMCPClientProvider(({ actions, state }) => ({
     sseUrl: state.sseUrl,
     isAuthDebuggerVisible: state.isAuthDebuggerVisible,
@@ -117,6 +119,7 @@ const App = () => {
     resources: state.resources,
     tools: state.tools,
     prompts: state.prompts,
+    pingResults: state.pingResults,
     onOAuthConnect: actions.onOAuthConnect,
     onOAuthDebugConnect: actions.onOAuthDebugConnect,
     setLogLevel: actions.setLogLevel,
@@ -135,6 +138,7 @@ const App = () => {
     setPrompts: actions.setPrompts,
     setTools: actions.setTools,
     setActiveTab: actions.setActiveTab,
+    setPingResults: actions.setPingResults,
   }));
 
   const [resourceTemplates, setResourceTemplates] = useState<
@@ -534,14 +538,36 @@ const App = () => {
                       </p>
                     </div>
                     <PingTab
-                      onPingClick={() => {
-                        void sendMCPRequest(
-                          {
-                            method: "ping" as const,
-                          },
-                          EmptyResultSchema,
-                        );
+                      onPingClick={async () => {
+                        try {
+                          const result = await sendMCPRequest(
+                            {
+                              method: "ping" as const,
+                            },
+                            EmptyResultSchema,
+                          );
+                          setPingResults((prev) => {
+                            prev.push({
+                              isError: false,
+                              result: JSON.stringify(result),
+                            });
+                            return prev;
+                          });
+                        } catch (error) {
+                          setPingResults((prev) => {
+                            const errorMessage =
+                              error instanceof Error
+                                ? error.message
+                                : String(error);
+                            prev.push({
+                              isError: true,
+                              result: JSON.stringify({ error: errorMessage }),
+                            });
+                            return prev;
+                          });
+                        }
                       }}
+                      result={pingResults[pingResults.length - 1]}
                     />
                   </>
                 ) : (
@@ -656,14 +682,36 @@ const App = () => {
                     />
                     <ConsoleTab />
                     <PingTab
-                      onPingClick={() => {
-                        void sendMCPRequest(
-                          {
-                            method: "ping" as const,
-                          },
-                          EmptyResultSchema,
-                        );
+                      onPingClick={async () => {
+                        try {
+                          const result = await sendMCPRequest(
+                            {
+                              method: "ping" as const,
+                            },
+                            EmptyResultSchema,
+                          );
+                          setPingResults((prev) => {
+                            prev.push({
+                              isError: false,
+                              result: JSON.stringify(result),
+                            });
+                            return prev;
+                          });
+                        } catch (error) {
+                          setPingResults((prev) => {
+                            const errorMessage =
+                              error instanceof Error
+                                ? error.message
+                                : String(error);
+                            prev.push({
+                              isError: true,
+                              result: JSON.stringify({ error: errorMessage }),
+                            });
+                            return prev;
+                          });
+                        }
                       }}
+                      result={pingResults[pingResults.length - 1]}
                     />
                     <SamplingTab
                       pendingRequests={pendingSampleRequests}

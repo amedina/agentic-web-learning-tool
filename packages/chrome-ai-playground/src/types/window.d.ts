@@ -29,10 +29,15 @@ export interface AILanguageModelCreateOptions {
   expectedOutputLanguage?: string;
 }
 
+export interface AILanguageModelPromptOptions {
+  signal?: AbortSignal;
+}
+
 export interface AILanguageModelSession {
-  prompt(text: string): Promise<string>;
+  prompt(text: string, options?: AILanguageModelPromptOptions): Promise<string>;
   promptStreaming(
     text: string,
+    options?: AILanguageModelPromptOptions,
   ): Promise<ReadableStream<string> & AsyncIterable<string>>;
   destroy(): void;
   clone(): Promise<AILanguageModelSession>;

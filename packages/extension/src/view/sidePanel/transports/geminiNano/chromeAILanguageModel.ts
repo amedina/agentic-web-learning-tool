@@ -344,7 +344,9 @@ class ChromeAILanguageModel {
 
               // Start the browser stream
               activeStreamReader = this.session
-                .promptStreaming(messageContext)
+                .promptStreaming(messageContext, {
+                  signal: callOptions.abortSignal,
+                })
                 .getReader();
 
               // Parsing State

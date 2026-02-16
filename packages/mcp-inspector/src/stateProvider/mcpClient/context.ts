@@ -13,9 +13,9 @@ import {
   type Resource,
   type Tool,
 } from "@modelcontextprotocol/sdk/types.js";
-import type { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
-import type { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
+import type { SchemaOutput } from "@modelcontextprotocol/sdk/server/zod-compat.js";
 import type { Client } from "@modelcontextprotocol/sdk/client";
+import type { Transport } from "@modelcontextprotocol/sdk/shared/transport.js";
 /**
  * Internal dependencies
  */
@@ -109,6 +109,7 @@ export interface McpConnectionContextType {
     resources: Resource[];
     tools: Tool[];
     prompts: Prompt[];
+    pingResults: SchemaOutput<any>[];
   };
 
   actions: {
@@ -143,10 +144,7 @@ export interface McpConnectionContextType {
       signal?: AbortSignal,
     ) => Promise<string[]>;
     disconnectMcpServer: (url: string) => Promise<void>;
-    connectMcpServer: (
-      client: Client,
-      transport: SSEClientTransport | StreamableHTTPClientTransport,
-    ) => Promise<void>;
+    connectMcpServer: (client: Client, transport: Transport) => Promise<void>;
     handleApproveSampling: (id: number, result: CreateMessageResult) => void;
     handleRejectSampling: (id: number) => void;
     handleResolveElicitation: (
@@ -158,6 +156,7 @@ export interface McpConnectionContextType {
     setPrompts: Dispatch<SetStateAction<Prompt[]>>;
     setResources: Dispatch<SetStateAction<Resource[]>>;
     setTools: Dispatch<SetStateAction<Tool[]>>;
+    setPingResults: Dispatch<SetStateAction<any[]>>;
   };
 }
 
@@ -166,6 +165,7 @@ const INITIAL_STATE = {
     sseUrl: "",
     connectionType:
       "direct" as McpConnectionContextType["state"]["connectionType"],
+    pingResult: [],
     transportType:
       "streamable-http" as McpConnectionContextType["state"]["transportType"],
     logLevel: "info" as McpConnectionContextType["state"]["logLevel"],
@@ -195,6 +195,7 @@ const INITIAL_STATE = {
     tools: [],
     resources: [],
     prompts: [],
+    pingResults: [],
   },
   actions: {
     setSseUrl: noop,
@@ -227,6 +228,7 @@ const INITIAL_STATE = {
     setPrompts: noop,
     setResources: noop,
     setTools: noop,
+    setPingResults: noop,
   },
 };
 export default createContext<McpConnectionContextType>(INITIAL_STATE);

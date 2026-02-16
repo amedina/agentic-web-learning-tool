@@ -1,6 +1,7 @@
 export {
   Table,
   TableProvider,
+  TablePersistentSettingsProvider,
   TableFiltersSidebar,
   TableChipsBar,
   TableTopBar,

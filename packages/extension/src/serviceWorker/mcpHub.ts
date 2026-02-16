@@ -9,11 +9,11 @@ import {
 import { Client } from '@modelcontextprotocol/sdk/client';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
+import type { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
 import {
   listWorkflows,
   transformWorkflowToTool,
 } from '@google-awlt/engine-extension';
-
 import {
   DOM_TOOL_NAME_PREFIX,
   EXTENSION_TOOL_PREFIX,
@@ -33,6 +33,8 @@ import {
 } from '../utils';
 import type { ContentScriptMessage } from './types';
 import { mcpbTools, type keys } from '../contentScript/tools/mcpbTools';
+import { StatelessHTTPClientTransport } from '../view/options/providers/mcpProvider/StatelessHTTPClientTransport';
+
 /**
  * The central hub managing connections between the MCP Server and Chrome Tabs.
  * It acts as a proxy, registering tools found in browser tabs and forwarding execution requests.
@@ -43,7 +45,7 @@ class McpHub {
     string,
     {
       client: Client;
-      transport: StreamableHTTPClientTransport | SSEClientTransport;
+      transport: Transport;
       connected: boolean;
       toolsFetched: boolean;
     }
@@ -316,6 +318,31 @@ class McpHub {
         headers['x-custom-auth-headers'] = JSON.stringify(customHeaderNames);
       }
 
+      let transport;
+      if (serverConfig.transport === 'stateless-http') {
+        transport = new StatelessHTTPClientTransport(
+          new URL(serverConfig.url),
+          {
+            headers: headers,
+          }
+        );
+      } else if (serverConfig.transport === 'streamable-http') {
+        transport = new StreamableHTTPClientTransport(
+          new URL(serverConfig.url),
+          {
+            requestInit: {
+              headers: headers,
+            },
+          }
+        );
+      } else {
+        transport = new SSEClientTransport(new URL(serverConfig.url), {
+          requestInit: {
+            headers: headers,
+          },
+        });
+      }
+
       const client = new Client(
         {
           name: 'chrome-options-page-client',
@@ -331,19 +358,6 @@ class McpHub {
           },
         }
       );
-
-      const transport =
-        serverConfig.transport === 'streamable-http'
-          ? new StreamableHTTPClientTransport(new URL(serverConfig.url), {
-              requestInit: {
-                headers: headers,
-              },
-            })
-          : new SSEClientTransport(new URL(serverConfig.url), {
-              requestInit: {
-                headers: headers,
-              },
-            });
 
       await client.connect(transport);
       const toolsList = await client.listTools();

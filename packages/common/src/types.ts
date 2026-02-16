@@ -6,7 +6,7 @@ export interface CustomHeader {
 
 export type CustomHeaders = CustomHeader[];
 export interface MCPServerConfig {
-  transport: 'sse' | 'streamable-http';
+  transport: 'sse' | 'streamable-http' | 'stateless-http';
   url: string;
   command?: string;
   args?: string[];
