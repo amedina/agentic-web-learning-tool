@@ -280,6 +280,8 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
           onConnect(edge);
         });
       }
+
+      setSelectedNode(null);
     },
     [clearFlow, addNode, addApiNode, onConnect, updateWorkflowMeta],
   );
