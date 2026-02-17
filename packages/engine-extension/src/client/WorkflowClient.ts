@@ -10,12 +10,14 @@ import type {
 /**
  * Internal dependencies
  */
-import type {
-  RunWorkflowMessage,
-  CheckCapabilitiesMessage,
-  StatusUpdate,
-  StopWorkflowMessage,
+import {
+  type RunWorkflowMessage,
+  type CheckCapabilitiesMessage,
+  type StatusUpdate,
+  type StopWorkflowMessage,
+  type GetGlobalStatusMessage,
 } from '../types/messages';
+import { type GlobalWorkflowState } from '../serviceWorker/stateManager';
 
 /**
  * Callbacks for workflow execution events.
@@ -28,21 +30,81 @@ export interface WorkflowClientCallbacks {
 }
 
 /**
+ * Callback for global status updates.
+ */
+export type GlobalStatusCallback = (state: GlobalWorkflowState) => void;
+
+/**
  * Workflow Client
  *
  * Client-side API for communicating with the service worker.
  * Used by the Options page and other UI contexts.
  */
 export class WorkflowClient {
-  private callbacks: WorkflowClientCallbacks = {};
+  private globalCallbacks: Set<GlobalStatusCallback> = new Set();
+  private executionListeners: Set<WorkflowClientCallbacks> = new Set();
   private listening = false;
 
   /**
-   * Set callbacks for execution events.
+   * Subscribe to global workflow status updates (idle, running, etc.)
    */
-  public setCallbacks(callbacks: WorkflowClientCallbacks): void {
-    this.callbacks = callbacks;
+  public subscribeToGlobalStatus(callback: GlobalStatusCallback): () => void {
+    this.globalCallbacks.add(callback);
     this.startListening();
+
+    this.getGlobalStatus()
+      .then((state) => {
+        callback(state);
+      })
+      .catch(() => {});
+
+    return () => {
+      this.globalCallbacks.delete(callback);
+    };
+  }
+
+  /**
+   * Subscribe to global execution events (node progress, completion).
+   */
+  public subscribeToUpdates(callbacks: WorkflowClientCallbacks): () => void {
+    this.executionListeners.add(callbacks);
+    this.startListening();
+
+    this.getGlobalStatus()
+      .then((state) => {
+        if (state.status === 'running' && state.currentNodeId) {
+          callbacks.onNodeStart?.(state.currentNodeId);
+        }
+      })
+      .catch(() => {});
+
+    return () => {
+      this.executionListeners.delete(callbacks);
+    };
+  }
+
+  /**
+   * Get the current global workflow status.
+   */
+  public async getGlobalStatus(): Promise<GlobalWorkflowState> {
+    const message: GetGlobalStatusMessage = {
+      type: 'GET_GLOBAL_STATUS',
+    };
+
+    const response = (await chrome.runtime.sendMessage(message)) as {
+      success: boolean;
+      state: GlobalWorkflowState;
+      error?: string;
+    };
+
+    if (chrome.runtime.lastError) {
+      throw new Error(chrome.runtime.lastError.message);
+    }
+    if (!response?.success) {
+      throw new Error(response?.error ?? 'Failed to get global status');
+    }
+
+    return response.state;
   }
 
   /**
@@ -57,8 +119,22 @@ export class WorkflowClient {
     tabId?: number,
     callbacks?: WorkflowClientCallbacks
   ): Promise<ExecutionContext> {
+    let unsubscribe: (() => void) | undefined;
+
     if (callbacks) {
-      this.setCallbacks(callbacks);
+      const wrappedCallbacks: WorkflowClientCallbacks = {
+        ...callbacks,
+        onComplete: (ctx) => {
+          callbacks.onComplete?.(ctx);
+          unsubscribe?.();
+        },
+        onError: (err) => {
+          callbacks.onError?.(err);
+          unsubscribe?.();
+        },
+      };
+
+      unsubscribe = this.subscribeToUpdates(wrappedCallbacks);
     }
 
     const message: RunWorkflowMessage = {
@@ -67,16 +143,24 @@ export class WorkflowClient {
       tabId,
     };
 
-    const response = await chrome.runtime.sendMessage(message);
+    try {
+      const response = await chrome.runtime.sendMessage(message);
 
-    if (chrome.runtime.lastError) {
-      throw new Error(chrome.runtime.lastError.message);
-    }
-    if (!response?.success) {
-      throw new Error(response?.error ?? 'Workflow execution failed');
-    }
+      if (chrome.runtime.lastError) {
+        unsubscribe?.();
+        throw new Error(chrome.runtime.lastError.message);
+      }
 
-    return response.context!;
+      if (!response?.success) {
+        unsubscribe?.();
+        throw new Error(response?.error ?? 'Workflow execution failed');
+      }
+
+      return response.context!;
+    } catch (error) {
+      unsubscribe?.();
+      throw error;
+    }
   }
 
   /**
@@ -85,7 +169,7 @@ export class WorkflowClient {
    * @returns Map of capability to availability
    */
   public async checkCapabilities(
-    capabilities: string[] | Record<string, any>
+    capabilities: string[] | Record<string, unknown>
   ): Promise<Record<string, boolean>> {
     const message: CheckCapabilitiesMessage = {
       type: 'CHECK_CAPABILITIES',
@@ -126,18 +210,28 @@ export class WorkflowClient {
       switch (message.type) {
         case 'NODE_STATUS':
           if (message.output.status === 'running') {
-            this.callbacks.onNodeStart?.(message.nodeId);
+            this.executionListeners.forEach((l) =>
+              l.onNodeStart?.(message.nodeId)
+            );
           } else {
-            this.callbacks.onNodeFinish?.(message.nodeId, message.output);
+            this.executionListeners.forEach((l) =>
+              l.onNodeFinish?.(message.nodeId, message.output)
+            );
           }
           break;
 
         case 'WORKFLOW_COMPLETE':
-          this.callbacks.onComplete?.(message.context);
+          this.executionListeners.forEach((l) =>
+            l.onComplete?.(message.context)
+          );
           break;
 
         case 'WORKFLOW_ERROR':
-          this.callbacks.onError?.(message?.error);
+          this.executionListeners.forEach((l) => l.onError?.(message?.error));
+          break;
+
+        case 'WORKFLOW_STATUS_CHANGE':
+          this.globalCallbacks.forEach((cb) => cb(message.state));
           break;
       }
     });

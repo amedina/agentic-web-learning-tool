@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useReactFlow } from "@xyflow/react";
 import {
   getLastOpenedWorkflowId,
-  WorkflowClient,
+  getWorkflowClient,
   saveWorkflow,
   loadWorkflow,
 } from "@google-awlt/engine-extension";
@@ -577,7 +577,7 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
 
     const workflowData = serializeWorkflow(nodes, edges, nodesApiData);
 
-    const client = new WorkflowClient();
+    const client = getWorkflowClient();
 
     try {
       await client.runWorkflow(workflowData, selectedTabId, {
@@ -620,9 +620,42 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
     showToast,
     updateNodeStatus,
   ]);
+  useEffect(() => {
+    const client = getWorkflowClient();
+
+    // Subscribe to background status changes (status, tab, etc.)
+    const unsubscribeStatus = client.subscribeToGlobalStatus((state) => {
+      if (state.workflowId === workflowMeta?.id) {
+        setIsRunning(state.status === "running");
+      }
+    });
+
+    // Subscribe to background execution progress (node updates)
+    const unsubscribeUpdates = client.subscribeToUpdates({
+      onNodeStart: (nodeId) => {
+        // Validation of workflowId is implicitly handled by the broadcast filter
+        // or we could add check here if we wanted to be extra safe
+        updateNodeStatus(nodeId, "running");
+      },
+      onNodeFinish: (nodeId, output) => {
+        updateNodeStatus(nodeId, output.status as any);
+      },
+      onComplete: () => {
+        setIsRunning(false);
+      },
+      onError: () => {
+        setIsRunning(false);
+      },
+    });
+
+    return () => {
+      unsubscribeStatus();
+      unsubscribeUpdates();
+    };
+  }, [workflowMeta?.id, updateNodeStatus]);
 
   const handleStop = useCallback(async () => {
-    const client = new WorkflowClient();
+    const client = getWorkflowClient();
 
     try {
       setIsStopping(true);

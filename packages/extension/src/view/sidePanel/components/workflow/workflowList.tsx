@@ -5,7 +5,7 @@ import { useEffect, useState, useMemo, useCallback } from 'react';
 import { TerminalIcon } from 'lucide-react';
 import {
   listWorkflows,
-  handleRunWorkflow,
+  getWorkflowClient,
 } from '@google-awlt/engine-extension';
 import type { WorkflowJSON } from '@google-awlt/engine-core';
 
@@ -14,6 +14,7 @@ import type { WorkflowJSON } from '@google-awlt/engine-core';
  */
 import { isDomainAllowed } from '../../../../serviceWorker/utils';
 import WorkflowCard from './workflowCard';
+import { useWorkflowSync } from '../../hooks/useWorkflowSync';
 
 interface WorkflowListProps {
   activeTabId?: number;
@@ -23,9 +24,12 @@ interface WorkflowListProps {
 const WorkflowList = ({ activeTabId, activeTabUrl }: WorkflowListProps) => {
   const [workflows, setWorkflows] = useState<WorkflowJSON[]>([]);
   const [loading, setLoading] = useState(true);
-  const [runningWorkflowId, setRunningWorkflowId] = useState<string | null>(
-    null
-  );
+
+  const { workflowId: globalRunningWorkflowId, status: globalStatus } =
+    useWorkflowSync();
+
+  const runningWorkflowId =
+    globalStatus === 'running' ? globalRunningWorkflowId : null;
 
   const fetchWorkflows = useCallback(async () => {
     try {
@@ -53,18 +57,31 @@ const WorkflowList = ({ activeTabId, activeTabUrl }: WorkflowListProps) => {
   const handleRun = useCallback(
     async (workflow: WorkflowJSON) => {
       if (runningWorkflowId) return;
+      let unsubscribeUpdates: (() => void) | undefined = undefined;
 
-      setRunningWorkflowId(workflow.meta.id);
       try {
-        await handleRunWorkflow(workflow, activeTabId, {}, (response) => {
-          setRunningWorkflowId(null);
-          if (!response.success) {
-            console.error('Workflow execution failed:', response.error);
-          }
+        const client = getWorkflowClient();
+
+        unsubscribeUpdates = client.subscribeToUpdates({
+          onNodeStart: (nodeId) => {
+            console.log('Node started:', nodeId);
+          },
+          onNodeFinish: (nodeId, output) => {
+            console.log('Node finished:', nodeId, output);
+          },
+          onComplete: () => {
+            console.log('Workflow completed');
+          },
+          onError: () => {
+            console.log('Workflow error');
+          },
         });
+
+        await client.runWorkflow(workflow, activeTabId);
       } catch (error) {
-        setRunningWorkflowId(null);
         console.error('Failed to run workflow:', error);
+      } finally {
+        unsubscribeUpdates?.();
       }
     },
     [activeTabId, runningWorkflowId]
