@@ -38,7 +38,7 @@ const ID_PREFIX = "wf_";
 const STORAGE_KEY_SELECTED_TAB = "awl_wc_selected_tab_id";
 const STORAGE_KEY_OPEN_WORKFLOWS = "awl_wc_open_workflows";
 
-interface OpenWorkflow {
+export interface OpenWorkflow {
   id: string;
   name: string;
 }
@@ -722,22 +722,9 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
             "Closing the last tab will create a new workflow. Continue?",
           )
         ) {
-          clearFlow();
-          initializeStandardNodes();
-          const newId = generateId();
-          const { name, sanitizedName } = await getUniqueNames("New Workflow");
-
-          const newMeta: WorkflowMeta = {
-            id: newId,
-            name,
-            sanitizedName,
-            savedAt: new Date().toISOString(),
-            autosave: true,
-          };
-          updateWorkflowMeta(newMeta, true);
-          setOpenWorkflows([{ id: newId, name: newMeta.name }]);
-          showToast("New workflow created!", "success");
+          handleNewWorkflow();
         }
+
         return;
       }
 
@@ -801,6 +788,11 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
         isOpen={showSavedWorkflows}
         onClose={() => setShowSavedWorkflows(false)}
         onLoad={handleWorkflowLoad}
+        openWorkflows={openWorkflows}
+        setOpenWorkflows={setOpenWorkflows}
+        onNew={handleNewWorkflow}
+        updateWorkflowMeta={updateWorkflowMeta}
+        activeWorkflowId={workflowMeta?.id || ""}
       />
 
       {/* Toast Notification */}

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { X, FolderOpen, Trash2, Clock } from "lucide-react";
 import {
   listWorkflows,
@@ -15,17 +15,31 @@ import { type WorkflowJSON } from "@google-awlt/engine-core";
  * Internal dependencies
  */
 import logger from "../../../logger";
+import type { OpenWorkflow } from "../../workflowCanvas";
 
 interface SavedWorkflowsDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onLoad: (id: string, workflow?: WorkflowJSON) => void;
+  onNew: () => void;
+  updateWorkflowMeta: (
+    updates: Partial<WorkflowMetadata>,
+    isNew?: boolean,
+  ) => void;
+  activeWorkflowId: string | null;
+  openWorkflows: OpenWorkflow[];
+  setOpenWorkflows: (workflows: OpenWorkflow[]) => void;
 }
 
 const SavedWorkflowsDialog: React.FC<SavedWorkflowsDialogProps> = ({
   isOpen,
   onClose,
   onLoad,
+  onNew,
+  updateWorkflowMeta,
+  activeWorkflowId,
+  openWorkflows,
+  setOpenWorkflows,
 }) => {
   const [activeTab, setActiveTab] = useState<"saved" | "demo">("saved");
   const [workflows, setWorkflows] = useState<WorkflowMetadata[]>([]);
@@ -49,17 +63,38 @@ const SavedWorkflowsDialog: React.FC<SavedWorkflowsDialogProps> = ({
     }
   }, [isOpen]);
 
-  const handleDelete = async (e: React.MouseEvent, id: string) => {
-    e.stopPropagation();
-    if (
-      window.confirm(
-        "Are you sure you want to delete this workflow? This cannot be undone.",
-      )
-    ) {
-      await deleteWorkflow(id);
-      await fetchWorkflows();
-    }
-  };
+  const handleDelete = useCallback(
+    async (e: React.MouseEvent, id: string) => {
+      e.stopPropagation();
+      if (
+        window.confirm(
+          "Are you sure you want to delete this workflow? This cannot be undone.",
+        )
+      ) {
+        await deleteWorkflow(id);
+        const filteredWorkflows = workflows.filter(
+          (workflow) => workflow.id !== id,
+        );
+
+        setOpenWorkflows(
+          openWorkflows.filter((workflow) => workflow.id !== id),
+        );
+
+        if (activeWorkflowId === id) {
+          if (!filteredWorkflows.length) {
+            onNew();
+            onClose();
+          } else {
+            updateWorkflowMeta(filteredWorkflows[0], true);
+            onLoad(filteredWorkflows[0].id);
+          }
+        }
+
+        await fetchWorkflows();
+      }
+    },
+    [openWorkflows, activeWorkflowId, onNew, updateWorkflowMeta, workflows],
+  );
 
   if (!isOpen) return null;
 
