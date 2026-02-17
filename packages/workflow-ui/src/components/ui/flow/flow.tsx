@@ -12,7 +12,17 @@ import {
   type OnNodesChange,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { Play, Square, Loader, ChevronDown, History, X } from "lucide-react";
+import {
+  Play,
+  Square,
+  Loader,
+  ChevronDown,
+  History,
+  X,
+  Save,
+  CopyPlus,
+  Plus,
+} from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Tabs, TabsList, TabsTrigger } from "@google-awlt/design-system";
 
@@ -153,19 +163,20 @@ const Flow = <NodeType extends Node, EdgeType extends Edge>({
           {!autosaveEnabled && !isBuiltIn && (
             <button
               onClick={actions.onSave}
-              className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-md transition-colors shadow-sm uppercase tracking-wider"
+              className="flex items-center justify-center p-2 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-foreground transition-all rounded-md"
+              title="Save Workflow"
             >
-              Save
+              <Save size={20} />
             </button>
           )}
 
           {isBuiltIn && (
             <button
               onClick={actions.onSave}
-              className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-md transition-colors shadow-sm uppercase tracking-wider"
+              className="flex items-center justify-center p-2 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-foreground transition-all rounded-md"
               title="Save a copy to your workflows"
             >
-              Save Copy
+              <CopyPlus size={20} />
             </button>
           )}
 
@@ -253,8 +264,7 @@ const Flow = <NodeType extends Node, EdgeType extends Edge>({
                 <TabsTrigger
                   key={wf.id}
                   value={wf.id}
-                  className="h-9 px-3 pr-8 relative group data-[state=active]:bg-gray-100 dark:data-[state=active]:bg-slate-950 data-[state=active]:shadow-none border-r border-l border-l-transparent border-slate-300 dark:border-border -ml-px first:ml-0 rounded-none text-xs font-semibold normal-case min-w-[100px] hover:bg-slate-300/50 dark:hover:bg-zinc-800/50 data-[state=active]:hover:bg-gray-100 dark:data-[state=active]:hover:bg-slate-950 transition-colors
-                             data-[state=active]:border-t-2 data-[state=active]:border-t-indigo-500 data-[state=active]:border-l-slate-300 dark:data-[state=active]:border-l-border data-[state=active]:top-[1px] data-[state=active]:z-10"
+                  className="h-9 px-3 pr-8 relative group data-[state=active]:bg-gray-100 dark:data-[state=active]:bg-slate-950 data-[state=active]:shadow-none border-r border-l border-l-transparent border-slate-300 dark:border-border -ml-px first:ml-0 rounded-none text-xs font-semibold normal-case min-w-[100px] hover:bg-slate-300/50 dark:hover:bg-zinc-800/50 data-[state=active]:hover:bg-gray-100 dark:data-[state=active]:hover:bg-slate-950 transition-colors data-[state=active]:border-t-2 data-[state=active]:border-t-indigo-500 data-[state=active]:border-l-slate-300 dark:data-[state=active]:border-l-border data-[state=active]:top-[1px] data-[state=active]:z-10"
                 >
                   <span className="max-w-[120px] truncate">{wf.name}</span>
                   <span
@@ -269,6 +279,13 @@ const Flow = <NodeType extends Node, EdgeType extends Edge>({
                   </span>
                 </TabsTrigger>
               ))}
+
+              <TabsTrigger
+                value="new"
+                className="h-9 px-2 relative group data-[state=active]:bg-gray-100 dark:data-[state=active]:bg-slate-950 data-[state=active]:shadow-none border-r border-l border-l-transparent border-slate-300 dark:border-border -ml-px first:ml-0 rounded-none text-xs font-semibold normal-case hover:bg-slate-300/50 dark:hover:bg-zinc-800/50 data-[state=active]:hover:bg-gray-100 dark:data-[state=active]:hover:bg-slate-950 transition-colors data-[state=active]:border-t-2 data-[state=active]:border-t-indigo-500 data-[state=active]:border-l-slate-300 dark:data-[state=active]:border-l-border data-[state=active]:top-[1px] data-[state=active]:z-10"
+              >
+                <Plus size={16} onClick={actions.onNew} />
+              </TabsTrigger>
             </TabsList>
           </Tabs>
         </div>

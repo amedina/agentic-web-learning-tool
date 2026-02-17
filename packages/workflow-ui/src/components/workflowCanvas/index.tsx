@@ -415,7 +415,6 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
           autosave: true,
           savedAt: new Date().toISOString(),
         };
-        updateWorkflowMeta(finalMeta, true);
       }
 
       const workflowData = serializeWorkflow(nodes, edges, nodesApiData);
@@ -445,13 +444,15 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
 
       // If it was a built-in, update the tab in openWorkflows
       if (isBuiltIn && workflowMeta?.id && saveId) {
-        setOpenWorkflows(
-          openWorkflows.map((wf) =>
-            wf.id === workflowMeta.id
-              ? { id: saveId, name: finalMeta!.name }
-              : wf,
-          ),
-        );
+        updateWorkflowMeta(finalMeta, true);
+
+        setOpenWorkflows([
+          ...openWorkflows,
+          {
+            id: saveId,
+            name: finalMeta.name,
+          },
+        ]);
       }
 
       showToast(
@@ -647,28 +648,22 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
   }, [clearFlow]);
 
   const handleNewWorkflow = useCallback(async () => {
-    if (
-      window.confirm(
-        "Create a new workflow? This will start a fresh canvas. Your current workflow is auto-saved.",
-      )
-    ) {
-      clearFlow();
-      initializeStandardNodes();
-      const newId = generateId();
-      const { name, sanitizedName } = await getUniqueNames("New Workflow");
+    clearFlow();
+    initializeStandardNodes();
+    const newId = generateId();
+    const { name, sanitizedName } = await getUniqueNames("New Workflow");
 
-      const newMeta: WorkflowMeta = {
-        id: newId,
-        name,
-        sanitizedName,
-        savedAt: new Date().toISOString(),
-        autosave: true,
-      };
+    const newMeta: WorkflowMeta = {
+      id: newId,
+      name,
+      sanitizedName,
+      savedAt: new Date().toISOString(),
+      autosave: true,
+    };
 
-      updateWorkflowMeta(newMeta, true);
-      showToast("New workflow created!", "success");
-      setOpenWorkflows([...openWorkflows, { id: newId, name }]);
-    }
+    updateWorkflowMeta(newMeta, true);
+    showToast("New workflow created!", "success");
+    setOpenWorkflows([...openWorkflows, { id: newId, name }]);
   }, [
     clearFlow,
     initializeStandardNodes,
