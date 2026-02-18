@@ -37,7 +37,7 @@ function LogExecutionDetails({ log }: { log: LogDetailProps['log'] }) {
 
 export function LogDetail({ log }: LogDetailProps) {
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col">
       <LogExecutionDetails log={log} />
     </div>
   );
