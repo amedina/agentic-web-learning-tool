@@ -8,7 +8,7 @@ import { useState } from 'react';
  * Internal dependencies.
  */
 import { EditToolDialog } from '.';
-import type { WebMCPTool } from '../types';
+import type { WebMCPTool } from '../../types';
 import { Button } from '../../../index';
 
 const meta: Meta<typeof EditToolDialog> = {
