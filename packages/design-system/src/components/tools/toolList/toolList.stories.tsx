@@ -7,10 +7,10 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
  * Internal dependencies.
  */
 import { ToolList } from '.';
-import type { WebMCPTool } from '../types';
+import type { WebMCPTool } from '../../webMCPTools/types';
 
 const meta: Meta<typeof ToolList> = {
-  title: 'Components/WebMCPTools/ToolList',
+  title: 'Components/Tools/ToolList',
   component: ToolList,
   parameters: {
     layout: 'fullscreen',
@@ -53,6 +53,8 @@ export const Default: Story = {
     builtInTools: [sampleBuiltInTool],
     onToggleTool: () => {},
     onEditTool: () => {},
+    onNewTool: () => {},
+    mcpbTools: [],
   },
 };
 
@@ -62,5 +64,7 @@ export const EmptyUserTools: Story = {
     builtInTools: [sampleBuiltInTool],
     onToggleTool: () => {},
     onEditTool: () => {},
+    onNewTool: () => {},
+    mcpbTools: [],
   },
 };

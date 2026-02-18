@@ -8,7 +8,7 @@ import { EditIcon } from 'lucide-react';
  */
 import { Button } from '../../button';
 import ToggleSwitch from '../../toggleSwitch';
-import type { WebMCPTool } from '../types';
+import type { WebMCPTool } from '../../webMCPTools/types';
 
 interface ToolCardProps {
   tool: WebMCPTool;

@@ -7,7 +7,7 @@ import { PlusIcon, CodeIcon } from 'lucide-react';
  * Internal dependencies.
  */
 import { Button } from '../../button';
-import type { WebMCPTool } from '../types';
+import type { WebMCPTool } from '../../webMCPTools/types';
 import { ToolCard } from '../toolCard';
 import OptionsPageTabSection from '../../optionsPageTab/optionsPageTabSection';
 
@@ -79,7 +79,6 @@ export function ToolList({
         )}
       </OptionsPageTabSection>
 
-      {/* Built-in Tools Section */}
       <OptionsPageTabSection title="Built-in Tools">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {builtInTools.map((tool) => (
@@ -92,7 +91,6 @@ export function ToolList({
         </div>
       </OptionsPageTabSection>
 
-      {/* Workflows Section */}
       {userWorkflowTools.length > 0 && (
         <OptionsPageTabSection title="Workflows">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -107,7 +105,6 @@ export function ToolList({
         </OptionsPageTabSection>
       )}
 
-      {/* Built-in Workflows */}
       {builtInWorkflowTools.length > 0 && (
         <OptionsPageTabSection title="Built-in Workflows">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
