@@ -1,7 +1,7 @@
 /**
  * External dependencies.
  */
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { vs, dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 /**
@@ -76,42 +76,50 @@ export function CodeEditor({
   };
 
   // 2. Toggle Logic: Updates the list and RECONSTRUCTS the file
-  const toggleBreakpoint = (lineIndex: number) => {
-    if (!enableBreakpoints) return;
-
-    // Calculate new breakpoint list
-    const isRemoving = breakpoints.includes(lineIndex);
-    const newBreakpoints = isRemoving
-      ? breakpoints.filter((b) => b !== lineIndex)
-      : [...breakpoints, lineIndex].sort((a, b) => a - b);
-    setBreakpoints(newBreakpoints);
-    const cleanLines = _code.split('\n');
-    const finalLines: string[] = [];
-
-    cleanLines.forEach((line, index) => {
-      if (newBreakpoints.includes(index)) {
-        finalLines.push('debugger;');
+  const toggleBreakpoint = useCallback(
+    (lineIndex: number) => {
+      if (!enableBreakpoints) {
+        return;
       }
-      finalLines.push(line);
-    });
-    onChange(finalLines.join('\n'));
-  };
+
+      // Calculate new breakpoint list
+      const isRemoving = breakpoints.includes(lineIndex);
+      const newBreakpoints = isRemoving
+        ? breakpoints.filter((b) => b !== lineIndex)
+        : [...breakpoints, lineIndex].sort((a, b) => a - b);
+      setBreakpoints(newBreakpoints);
+      const cleanLines = _code.split('\n');
+      const finalLines: string[] = [];
+
+      cleanLines.forEach((line, index) => {
+        if (newBreakpoints.includes(index)) {
+          finalLines.push('debugger;');
+        }
+        finalLines.push(line);
+      });
+      onChange(finalLines.join('\n'));
+    },
+    [breakpoints, _code, onChange, enableBreakpoints]
+  );
 
   // 3. Editor Changes: Handle typing in the editor
-  const handleEditorChange = (newVisualCode: string) => {
-    setCode(newVisualCode);
-    const cleanLines = newVisualCode.split('\n');
-    const finalLines: string[] = [];
+  const handleEditorChange = useCallback(
+    (newVisualCode: string) => {
+      setCode(newVisualCode);
+      const cleanLines = newVisualCode.split('\n');
+      const finalLines: string[] = [];
 
-    cleanLines.forEach((line, index) => {
-      if (breakpoints.includes(index)) {
-        finalLines.push('debugger;');
-      }
-      finalLines.push(line);
-    });
+      cleanLines.forEach((line, index) => {
+        if (breakpoints.includes(index)) {
+          finalLines.push('debugger;');
+        }
+        finalLines.push(line);
+      });
 
-    onChange(finalLines.join('\n'));
-  };
+      onChange(finalLines.join('\n'));
+    },
+    [breakpoints, onChange]
+  );
 
   const commonStyle = {
     fontFamily:

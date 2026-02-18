@@ -816,27 +816,6 @@ class McpHub {
       ? this.userToolScripts.get(toolName)
       : undefined;
 
-    let editedScript: WebMCPTool['editedScript'] = {
-      code: null,
-      tabId: [this.tabId],
-    };
-
-    try {
-      const storage = await chrome.storage.local.get('userWebMCPTools');
-      const userTools = (storage.userWebMCPTools || []) as WebMCPTool[];
-      const found = userTools.find((tool) => tool.name === toolName);
-
-      if (
-        found &&
-        found?.editedScript &&
-        found.editedScript.tabId.includes(this.tabId)
-      ) {
-        editedScript = found?.editedScript;
-      }
-    } catch (e) {
-      console.error('Failed to fetch script from storage:', e);
-    }
-
     if (!isMCPServerTool && !script) {
       try {
         const storage = await chrome.storage.local.get('userWebMCPTools');
@@ -845,7 +824,6 @@ class McpHub {
 
         if (found && found.code) {
           script = found.code;
-          editedScript = found?.editedScript;
           this.userToolScripts.set(toolName, script);
         }
       } catch (e) {
@@ -893,10 +871,6 @@ class McpHub {
         status: result.isError ? 'error' : 'success',
         result: result.content,
         error: result.isError ? 'Tool returned an error' : undefined,
-        editedScript: {
-          code: editedScript?.code,
-          tabId: this.tabId,
-        },
       });
 
       return result;
@@ -918,10 +892,6 @@ class McpHub {
         duration,
         status: 'error',
         error: errorMessage,
-        editedScript: {
-          code: editedScript?.code,
-          tabId: this.tabId,
-        },
       });
 
       throw error;

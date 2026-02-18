@@ -164,6 +164,7 @@ const Provider = ({ children }: PropsWithChildren) => {
       if (hadBreakpointAttached) {
         toast.info('Breakpoint removed from tool.', {
           duration: 2000,
+          dismissible: true,
         });
       }
 
