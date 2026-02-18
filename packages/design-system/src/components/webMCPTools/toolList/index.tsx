@@ -32,6 +32,13 @@ export function ToolList({
   onNewTool,
   newScriptButton,
 }: ToolListProps) {
+  const builtInWorkflowTools = workflowTools.filter((tool) =>
+    tool.id?.startsWith('demo-')
+  );
+  const userWorkflowTools = workflowTools.filter(
+    (tool) => !tool.id?.startsWith('demo-')
+  );
+
   return (
     <div className="flex flex-col gap-8">
       <OptionsPageTabSection title="User Tools">
@@ -86,30 +93,30 @@ export function ToolList({
       </OptionsPageTabSection>
 
       {/* Workflows Section */}
-      <OptionsPageTabSection title="Workflows">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {workflowTools
-            .filter((tool) => !tool.id?.startsWith('demo-'))
-            .map((tool) => (
+      {userWorkflowTools.length > 0 && (
+        <OptionsPageTabSection title="Workflows">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {userWorkflowTools.map((tool) => (
               <ToolCard
                 key={tool.id || tool.name}
                 tool={tool}
                 onToggle={(enabled) => onToggleTool(tool, enabled)}
               />
             ))}
-        </div>
-      </OptionsPageTabSection>
+          </div>
+        </OptionsPageTabSection>
+      )}
 
       {/* Built-in Workflows */}
-      <OptionsPageTabSection title="Built-in Workflows">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {workflowTools
-            .filter((tool) => tool.id?.startsWith('demo-'))
-            .map((tool) => (
+      {builtInWorkflowTools.length > 0 && (
+        <OptionsPageTabSection title="Built-in Workflows">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {builtInWorkflowTools.map((tool) => (
               <ToolCard key={tool.id || tool.name} tool={tool} />
             ))}
-        </div>
-      </OptionsPageTabSection>
+          </div>
+        </OptionsPageTabSection>
+      )}
 
       <OptionsPageTabSection title="MCP-B Tools">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

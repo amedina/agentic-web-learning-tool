@@ -3,6 +3,7 @@
  */
 import { useCallback, useState } from 'react';
 import { OptionsPageTab, type PromptCommand } from '@google-awlt/design-system';
+import { listWorkflows } from '@google-awlt/engine-extension';
 
 /**
  * Internal dependencies
@@ -59,6 +60,11 @@ export default function SettingsTab() {
       'builtInPromptCommands',
     ]);
 
+    const workflows = await listWorkflows();
+    const userWorkflows = workflows.filter(
+      (wf) => !wf.meta.id.startsWith('demo-')
+    );
+
     return {
       config: {
         apiKeys,
@@ -78,6 +84,7 @@ export default function SettingsTab() {
           },
           {} as Record<string, boolean>
         ),
+        workflows: userWorkflows,
       },
       version: EXPORT_JSON_VERSION,
       extensionVersion: json.version,

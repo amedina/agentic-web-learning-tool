@@ -12,8 +12,19 @@ import {
   type OnNodesChange,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { Play, Square, Loader, ChevronDown } from "lucide-react";
-import { useCallback, useState } from "react";
+import {
+  Play,
+  Square,
+  Loader,
+  ChevronDown,
+  History,
+  X,
+  Save,
+  CopyPlus,
+  Plus,
+} from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Tabs, TabsList, TabsTrigger } from "@google-awlt/design-system";
 
 /**
  * Internal dependencies
@@ -54,6 +65,10 @@ export interface FlowProps<
     onSave: () => void;
   };
   isBuiltIn?: boolean;
+  openWorkflows: { id: string; name: string }[];
+  activeWorkflowId: string;
+  onSwitchWorkflow: (id: string) => void;
+  onCloseWorkflow: (id: string) => void;
 }
 
 const Flow = <NodeType extends Node, EdgeType extends Edge>({
@@ -76,6 +91,10 @@ const Flow = <NodeType extends Node, EdgeType extends Edge>({
   isStopping,
   actions,
   isBuiltIn,
+  openWorkflows,
+  activeWorkflowId,
+  onSwitchWorkflow,
+  onCloseWorkflow,
 }: FlowProps<NodeType, EdgeType>) => {
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault();
@@ -91,9 +110,24 @@ const Flow = <NodeType extends Node, EdgeType extends Edge>({
   );
 
   const [isMinimapVisible, setIsMinimapVisible] = useState(true);
+  const tabsContainerRef = useRef<HTMLDivElement>(null);
+
   const onToggleMinimap = useCallback(() => {
     setIsMinimapVisible((isVisible) => !isVisible);
   }, []);
+
+  useEffect(() => {
+    if (activeWorkflowId && tabsContainerRef.current) {
+      const container = tabsContainerRef.current;
+      const activeTab = container.querySelector(
+        '[data-state="active"]',
+      ) as HTMLElement;
+
+      if (activeTab) {
+        activeTab.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  }, [activeWorkflowId]);
 
   return (
     <div className="h-full flex-1 flex flex-col rounded bg-gray-100 dark:bg-slate-950 relative min-h-[500px]">
@@ -107,8 +141,14 @@ const Flow = <NodeType extends Node, EdgeType extends Edge>({
             onImport={actions.onImport}
             onExport={actions.onExport}
             onClear={actions.onClear}
-            onLoadSaved={actions.onLoadSaved}
           />
+          <button
+            onClick={actions.onLoadSaved}
+            className="flex items-center justify-center p-2 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-foreground transition-all rounded-md"
+            title="Workflow Library (History)"
+          >
+            <History size={20} />
+          </button>
           <div className="w-px h-6 bg-slate-300 dark:bg-border mx-1"></div>
           <input
             className="bg-slate-100 dark:bg-zinc-950 px-3 py-1 rounded text-sm font-medium text-slate-600 dark:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white dark:focus:bg-zinc-900 transition-all border border-transparent dark:border-border disabled:opacity-80 disabled:cursor-not-allowed"
@@ -123,19 +163,20 @@ const Flow = <NodeType extends Node, EdgeType extends Edge>({
           {!autosaveEnabled && !isBuiltIn && (
             <button
               onClick={actions.onSave}
-              className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-md transition-colors shadow-sm uppercase tracking-wider"
+              className="flex items-center justify-center p-2 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-foreground transition-all rounded-md"
+              title="Save Workflow"
             >
-              Save
+              <Save size={20} />
             </button>
           )}
 
           {isBuiltIn && (
             <button
               onClick={actions.onSave}
-              className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-md transition-colors shadow-sm uppercase tracking-wider"
+              className="flex items-center justify-center p-2 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-foreground transition-all rounded-md"
               title="Save a copy to your workflows"
             >
-              Save Copy
+              <CopyPlus size={20} />
             </button>
           )}
 
@@ -207,6 +248,48 @@ const Flow = <NodeType extends Node, EdgeType extends Edge>({
           </div>
         </div>
       </div>
+
+      {/* Workflow Tabs */}
+      {openWorkflows.length > 0 && (
+        <div
+          ref={tabsContainerRef}
+          className="bg-gray-200 dark:bg-zinc-900 border-b border-slate-300 dark:border-border overflow-x-auto no-scrollbar"
+        >
+          <Tabs
+            value={activeWorkflowId}
+            onValueChange={(val) => onSwitchWorkflow(val)}
+          >
+            <TabsList className="h-9 bg-transparent p-0 gap-0 justify-start rounded-none border-b-0">
+              {openWorkflows.map((wf) => (
+                <TabsTrigger
+                  key={wf.id}
+                  value={wf.id}
+                  className="h-9 px-3 pr-8 relative group data-[state=active]:bg-gray-100 dark:data-[state=active]:bg-slate-950 data-[state=active]:shadow-none border-r border-l border-l-transparent border-slate-300 dark:border-border -ml-px first:ml-0 rounded-none text-xs font-semibold normal-case min-w-[100px] hover:bg-slate-300/50 dark:hover:bg-zinc-800/50 data-[state=active]:hover:bg-gray-100 dark:data-[state=active]:hover:bg-slate-950 transition-colors data-[state=active]:border-t-2 data-[state=active]:border-t-indigo-500 data-[state=active]:border-l-slate-300 dark:data-[state=active]:border-l-border data-[state=active]:top-[1px] data-[state=active]:z-10"
+                >
+                  <span className="max-w-[120px] truncate">{wf.name}</span>
+                  <span
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onCloseWorkflow(wf.id);
+                    }}
+                    className="absolute right-1.5 top-1/2 -translate-y-1/2 p-1 rounded-md hover:bg-slate-200 dark:hover:bg-zinc-700 opacity-0 group-hover:opacity-100 transition-opacity"
+                    title="Close workflow"
+                  >
+                    <X size={10} />
+                  </span>
+                </TabsTrigger>
+              ))}
+
+              <TabsTrigger
+                value="new"
+                className="h-9 px-2 relative group data-[state=active]:bg-gray-100 dark:data-[state=active]:bg-slate-950 data-[state=active]:shadow-none border-r border-l border-l-transparent border-slate-300 dark:border-border -ml-px first:ml-0 rounded-none text-xs font-semibold normal-case hover:bg-slate-300/50 dark:hover:bg-zinc-800/50 data-[state=active]:hover:bg-gray-100 dark:data-[state=active]:hover:bg-slate-950 transition-colors data-[state=active]:border-t-2 data-[state=active]:border-t-indigo-500 data-[state=active]:border-l-slate-300 dark:data-[state=active]:border-l-border data-[state=active]:top-[1px] data-[state=active]:z-10"
+              >
+                <Plus size={16} onClick={actions.onNew} />
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
+      )}
       <div className="w-full flex-1 min-h-[400px]">
         <button
           onClick={onToggleMinimap}
