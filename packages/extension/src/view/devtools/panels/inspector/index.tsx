@@ -33,43 +33,15 @@ export const Inspector = () => {
     }));
   const { theme } = useSettings(({ state }) => ({ theme: state.theme }));
 
-  const renderDetailPanel = useCallback(
-    (row: TableRow) => {
-      let data = row.originalData;
+  const renderDetailPanel = useCallback((row: TableRow) => {
+    let data = row.originalData;
 
-      if (data.originalData) {
-        data = data.originalData;
-      }
+    if (data.originalData) {
+      data = data.originalData;
+    }
 
-      const onScriptChange = async (newCode: string) => {
-        chrome.runtime.sendMessage({
-          method: 'updateScript',
-          jsonrpc: '2.0',
-          payload: {
-            newCode,
-            toolName: data.toolName,
-            tabId: chrome.devtools.inspectedWindow.tabId,
-          },
-        });
-      };
-      const _eventData = structuredClone(eventLoggerData);
-      const enableBreakpoints =
-        _eventData.findIndex(
-          (data: (typeof eventLoggerData)[number]) =>
-            data.id === row.originalData.id
-        ) === 0;
-
-      return (
-        <LogDetail
-          log={data as any}
-          onScriptChange={onScriptChange}
-          scriptToUse={data.editedScript?.code ?? data.script}
-          enableBreakpoints={enableBreakpoints}
-        />
-      );
-    },
-    [eventLoggerData]
-  );
+    return <LogDetail log={data as any} />;
+  }, []);
 
   const resetTable = useCallback(() => {
     const tabId = chrome.devtools?.inspectedWindow?.tabId;

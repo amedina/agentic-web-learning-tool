@@ -13,8 +13,8 @@ import {
   type TableData,
   type InfoType,
   type TableRow,
-  type UserStoredTool,
   getToolNameWithoutPrefix,
+  type WebMCPTool,
 } from '@google-awlt/design-system';
 import type { Tool } from '@modelcontextprotocol/sdk/types.js';
 import { noop } from '@google-awlt/common';
@@ -135,7 +135,7 @@ export const Tools = ({
   const getStoredUserTool = useCallback(async (tool: Tool) => {
     const storage = await chrome.storage.local.get('userWebMCPTools');
     const userStoredTools = (storage.userWebMCPTools ||
-      []) as Array<UserStoredTool>;
+      []) as Array<WebMCPTool>;
 
     const found = userStoredTools.find((t) => t.name === tool.name);
     return found || null;
@@ -149,7 +149,25 @@ export const Tools = ({
         data = data.originalData;
       }
 
-      return <ToolDetail tool={data as Tool} getUserTool={getStoredUserTool} />;
+      const onScriptChange = async (newCode: string) => {
+        chrome.runtime.sendMessage({
+          method: 'updateScript',
+          jsonrpc: '2.0',
+          payload: {
+            newCode,
+            toolName: data.name,
+            tabId: chrome.devtools.inspectedWindow.tabId,
+          },
+        });
+      };
+
+      return (
+        <ToolDetail
+          tool={data as Tool}
+          getUserTool={getStoredUserTool}
+          onScriptChange={onScriptChange}
+        />
+      );
     },
     [getStoredUserTool]
   );
