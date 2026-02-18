@@ -30,6 +30,7 @@ import { useEventLogs } from '../../providers';
 import useToolCategoryMapping from '../../hooks/useToolCategoryMapping';
 import { TOOL_CATEGORIES } from '../../constants';
 import { getToolCategory } from '../../../../utils';
+import { RefreshCcw } from 'lucide-react';
 
 interface AllToolsRowData extends TableData, Tool {
   originalData: Tool;
@@ -40,7 +41,7 @@ export const Tools = ({
 }: {
   setSelectedMenuItem: (view: string) => void;
 }) => {
-  const { tools: availableTools } = useMcpClient();
+  const { client, tools: availableTools } = useMcpClient();
   const toolCategoryMapping = useToolCategoryMapping(availableTools);
   const { theme } = useSettings(({ state }) => ({ theme: state.theme }));
   const { setLastRunToolName, setSelectedKey, selectedKey, setIsToolRunning } =
@@ -172,6 +173,18 @@ export const Tools = ({
     [getStoredUserTool]
   );
 
+  const reloadTools = useCallback(async () => {
+    await client.listTools();
+  }, [client]);
+
+  const extraInterfaceToTopBar = useCallback(() => {
+    return (
+      <button onClick={reloadTools} title="Reload tools">
+        <RefreshCcw width={15} height={15} color="#404040" />
+      </button>
+    );
+  }, [reloadTools]);
+
   return (
     <TableProvider
       data={allToolsData}
@@ -196,6 +209,7 @@ export const Tools = ({
         }}
       />
       <Table
+        extraInterfaceToTopBar={extraInterfaceToTopBar}
         selectedKey={selectedKey}
         isFiltersSidebarOpen={true}
         renderDetailPanel={renderDetailPanel}
