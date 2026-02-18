@@ -40,7 +40,7 @@ export const CodeEditorGutter = ({
         return (
           <div
             key={num}
-            onClick={() => toggleBreakpoint(num)}
+            onClick={() => (!enableBreakpoints ? null : toggleBreakpoint(num))}
             className={`relative hover:text-gray-800 ${
               enableBreakpoints ? 'cursor-pointer' : ''
             }`}
@@ -49,7 +49,7 @@ export const CodeEditorGutter = ({
               color: hasBreakpoint ? 'white' : 'inherit',
             }}
           >
-            {hasBreakpoint && enableBreakpoints && (
+            {hasBreakpoint && (
               <div
                 className="absolute left-0 top-0 w-full h-full"
                 style={{

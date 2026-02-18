@@ -70,6 +70,13 @@ export function CodeEditor({
     setBreakpoints(detectedBreakpoints);
   }, [code]);
 
+  useEffect(() => {
+    return () => {
+      setBreakpoints([]);
+      setCode('');
+    };
+  }, []);
+
   const handleScroll = (e: React.UIEvent<HTMLTextAreaElement>) => {
     if (backdropRef.current) {
       backdropRef.current.scrollTop = e.currentTarget.scrollTop;

@@ -22,6 +22,8 @@ export interface LogDetailProps {
     editedScript?: WebMCPTool['editedScript'];
   };
   onScriptChange?: (newCode: string) => Promise<void>;
+  scriptToUse: string;
+  enableBreakpoints?: boolean;
 }
 
 const TAB_TRIGGER_CLASS =
@@ -52,7 +54,8 @@ export function LogDetail({
   log,
   onScriptChange,
   scriptToUse,
-}: LogDetailProps & { scriptToUse: string }) {
+  enableBreakpoints,
+}: LogDetailProps) {
   const showTabs = log.type === 'WebMCP' || !!log.script;
   const [script, setNewScript] = useState(scriptToUse);
 
@@ -101,7 +104,7 @@ export function LogDetail({
             }}
             isDarkMode={false}
             styles={{ fontSize: '11px', lineHeight: '1.2', fontWeight: 300 }}
-            enableBreakpoints={true}
+            enableBreakpoints={enableBreakpoints}
           />
         ) : (
           <div className="flex items-center justify-center h-full text-xs italic p-4 text-center min-h-[200px]">
