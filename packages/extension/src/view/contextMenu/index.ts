@@ -65,7 +65,9 @@ export const updateWorkflowsContextMenu = async (url?: string) => {
         {
           id: `${WORKFLOW_ID_PREFIX}${wf.meta.id}`,
           parentId: WORKFLOW_MENU_ID,
-          title: wf.meta.name || 'Untitled Workflow',
+          title: wf.meta.sanitizedName
+            ? `${wf.meta.name} (${wf.meta.sanitizedName})`
+            : wf.meta.name || 'Untitled Workflow',
           contexts: ['page', 'selection'],
         },
         () => {

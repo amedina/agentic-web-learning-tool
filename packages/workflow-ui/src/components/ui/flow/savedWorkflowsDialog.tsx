@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { X, FolderOpen, Trash2, Clock } from "lucide-react";
 import {
   listWorkflows,
@@ -15,17 +15,31 @@ import { type WorkflowJSON } from "@google-awlt/engine-core";
  * Internal dependencies
  */
 import logger from "../../../logger";
+import type { OpenWorkflow } from "../../workflowCanvas";
 
 interface SavedWorkflowsDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onLoad: (id: string, workflow?: WorkflowJSON) => void;
+  onNew: () => void;
+  updateWorkflowMeta: (
+    updates: Partial<WorkflowMetadata>,
+    isNew?: boolean,
+  ) => void;
+  activeWorkflowId: string | null;
+  openWorkflows: OpenWorkflow[];
+  setOpenWorkflows: (workflows: OpenWorkflow[]) => void;
 }
 
 const SavedWorkflowsDialog: React.FC<SavedWorkflowsDialogProps> = ({
   isOpen,
   onClose,
   onLoad,
+  onNew,
+  updateWorkflowMeta,
+  activeWorkflowId,
+  openWorkflows,
+  setOpenWorkflows,
 }) => {
   const [activeTab, setActiveTab] = useState<"saved" | "demo">("saved");
   const [workflows, setWorkflows] = useState<WorkflowMetadata[]>([]);
@@ -49,17 +63,38 @@ const SavedWorkflowsDialog: React.FC<SavedWorkflowsDialogProps> = ({
     }
   }, [isOpen]);
 
-  const handleDelete = async (e: React.MouseEvent, id: string) => {
-    e.stopPropagation();
-    if (
-      window.confirm(
-        "Are you sure you want to delete this workflow? This cannot be undone.",
-      )
-    ) {
-      await deleteWorkflow(id);
-      await fetchWorkflows();
-    }
-  };
+  const handleDelete = useCallback(
+    async (e: React.MouseEvent, id: string) => {
+      e.stopPropagation();
+      if (
+        window.confirm(
+          "Are you sure you want to delete this workflow? This cannot be undone.",
+        )
+      ) {
+        await deleteWorkflow(id);
+        const filteredWorkflows = workflows.filter(
+          (workflow) => workflow.id !== id,
+        );
+
+        setOpenWorkflows(
+          openWorkflows.filter((workflow) => workflow.id !== id),
+        );
+
+        if (activeWorkflowId === id) {
+          if (!filteredWorkflows.length) {
+            onNew();
+            onClose();
+          } else {
+            updateWorkflowMeta(filteredWorkflows[0], true);
+            onLoad(filteredWorkflows[0].id);
+          }
+        }
+
+        await fetchWorkflows();
+      }
+    },
+    [openWorkflows, activeWorkflowId, onNew, updateWorkflowMeta, workflows],
+  );
 
   if (!isOpen) return null;
 
@@ -131,8 +166,13 @@ const SavedWorkflowsDialog: React.FC<SavedWorkflowsDialogProps> = ({
                       className="group relative flex items-center justify-between p-4 bg-gray-50 dark:bg-slate-950 hover:bg-white dark:hover:bg-slate-900 border border-gray-200 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-700/50 rounded-lg transition-all cursor-pointer hover:shadow-md"
                     >
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-gray-900 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 truncate transition-colors">
+                        <h3 className="font-semibold text-gray-900 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 truncate transition-colors flex items-center gap-2">
                           {workflow.name || "Untitled Workflow"}
+                          {workflow.sanitizedName && (
+                            <span className="text-[10px] bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-slate-500 dark:text-slate-400 font-mono">
+                              {workflow.sanitizedName}
+                            </span>
+                          )}
                         </h3>
                         <div className="flex items-center gap-4 mt-1 text-xs text-gray-500 dark:text-slate-400">
                           <span className="flex items-center gap-1">
@@ -175,6 +215,11 @@ const SavedWorkflowsDialog: React.FC<SavedWorkflowsDialogProps> = ({
                   <div className="flex-1 min-w-0">
                     <h3 className="font-semibold text-gray-900 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 truncate transition-colors">
                       {workflow.meta.name}
+                      {workflow.meta.sanitizedName && (
+                        <span className="text-[10px] bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-slate-500 dark:text-slate-400 font-mono">
+                          {workflow.meta.sanitizedName}
+                        </span>
+                      )}
                     </h3>
                     <p className="text-xs text-gray-500 dark:text-slate-400 mt-1 italic">
                       {workflow.meta.description}
