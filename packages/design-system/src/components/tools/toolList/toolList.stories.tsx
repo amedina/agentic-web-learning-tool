@@ -7,7 +7,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
  * Internal dependencies.
  */
 import { ToolList } from '.';
-import type { WebMCPTool } from '../../webMCPTools/types';
+import type { WebMCPTool } from '../../types';
 
 const meta: Meta<typeof ToolList> = {
   title: 'Components/Tools/ToolList',

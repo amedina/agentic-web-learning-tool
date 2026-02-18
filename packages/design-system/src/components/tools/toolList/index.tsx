@@ -7,7 +7,7 @@ import { PlusIcon, CodeIcon } from 'lucide-react';
  * Internal dependencies.
  */
 import { Button } from '../../button';
-import type { WebMCPTool } from '../../webMCPTools/types';
+import type { WebMCPTool } from '../../types';
 import { ToolCard } from '../toolCard';
 import OptionsPageTabSection from '../../optionsPageTab/optionsPageTabSection';
 
