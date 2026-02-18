@@ -28,36 +28,26 @@ export function CodeEditor({
   const backdropRef = useRef<HTMLDivElement>(null);
   const gutterRef = useRef<HTMLDivElement | null>(null);
   const [breakpoints, setBreakpoints] = useState<number[]>([]);
-
-  // _code represents the "Visual" code (without debugger statements)
   const [_code, setCode] = useState('');
 
   const SyntaxHighlighterAny = SyntaxHighlighterWhite as any;
 
   // 1. Parsing Effect: Separates 'debugger;' statements from the code logic
   useEffect(() => {
-    // Split the raw file content
     const rawLines = code.split('\n');
     const cleanLines: string[] = [];
     const detectedBreakpoints: number[] = [];
 
     rawLines.forEach((line) => {
       if (line.trim() === 'debugger;') {
-        // If we hit a debugger, mark the CURRENT line index of the CLEAN code
-        // as a breakpoint. This effectively attaches the debugger to the *next* // line of code that will be pushed.
         detectedBreakpoints.push(cleanLines.length);
       } else {
         cleanLines.push(line);
       }
     });
 
-    // Only update state if there is a mismatch to prevent infinite loops
-    // when onChange triggers this effect again.
     const newCleanCode = cleanLines.join('\n');
 
-    // We update the internal visual state only if the parsing results in different content
-    // This check is crucial because onChange updates 'code', which fires this effect.
-    // We want to ensure the visual cursor doesn't jump unnecessarily.
     setCode((prev) => {
       if (newCleanCode !== prev) {
         return newCleanCode;
@@ -65,8 +55,6 @@ export function CodeEditor({
       return prev;
     });
 
-    // We always synchronize breakpoints from the source
-    // (A deep comparison could be added here for optimization, but setting array is fine)
     setBreakpoints(detectedBreakpoints);
   }, [code]);
 
@@ -96,34 +84,22 @@ export function CodeEditor({
     const newBreakpoints = isRemoving
       ? breakpoints.filter((b) => b !== lineIndex)
       : [...breakpoints, lineIndex].sort((a, b) => a - b);
-
-    // Update Local State for immediate UI feedback
     setBreakpoints(newBreakpoints);
-
-    // Reconstruct the file content:
-    // We take the current "Clean" code and inject 'debugger;' statements
-    // based on the new breakpoint list.
     const cleanLines = _code.split('\n');
     const finalLines: string[] = [];
 
     cleanLines.forEach((line, index) => {
-      // If this index has a breakpoint, insert debugger BEFORE the line
       if (newBreakpoints.includes(index)) {
         finalLines.push('debugger;');
       }
       finalLines.push(line);
     });
-
-    // Notify parent with the valid JS code (containing debuggers)
     onChange(finalLines.join('\n'));
   };
 
   // 3. Editor Changes: Handle typing in the editor
   const handleEditorChange = (newVisualCode: string) => {
-    // Update local visual state immediately
     setCode(newVisualCode);
-
-    // When the user types, we need to reconstruct the file with EXISTING breakpoints.
     const cleanLines = newVisualCode.split('\n');
     const finalLines: string[] = [];
 
