@@ -17,11 +17,11 @@ import {
   Square,
   Loader,
   ChevronDown,
-  History,
   X,
   Save,
   CopyPlus,
   Plus,
+  GalleryHorizontalEnd,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Tabs, TabsList, TabsTrigger } from "@google-awlt/design-system";
@@ -145,9 +145,9 @@ const Flow = <NodeType extends Node, EdgeType extends Edge>({
           <button
             onClick={actions.onLoadSaved}
             className="flex items-center justify-center p-2 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-foreground transition-all rounded-md"
-            title="Workflow Library (History)"
+            title="Workflow Library"
           >
-            <History size={20} />
+            <GalleryHorizontalEnd size={20} />
           </button>
           <div className="w-px h-6 bg-slate-300 dark:bg-border mx-1"></div>
           <input
