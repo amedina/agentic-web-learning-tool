@@ -1,7 +1,7 @@
 /**
  * Internal dependencies.
  */
-import type { WebMCPTool } from '../types';
+import type { WebMCPTool } from '../../types';
 
 /**
  * Extracts metadata from the given code.

@@ -17,7 +17,7 @@ import {
  * Internal dependencies.
  */
 import { Button } from '../../button';
-import type { WebMCPTool } from '../types';
+import type { WebMCPTool } from '../../types';
 import { ExtractMetadata } from './extractMetadata';
 import { validateCode } from './validateCode';
 import { MetadataPanel } from './metadataPanel';
