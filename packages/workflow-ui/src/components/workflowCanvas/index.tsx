@@ -6,6 +6,8 @@ import { useReactFlow } from "@xyflow/react";
 import {
   getLastOpenedWorkflowId,
   WorkflowClient,
+  saveWorkflow,
+  loadWorkflow,
 } from "@google-awlt/engine-extension";
 import {
   type ExecutionContext,
@@ -14,8 +16,8 @@ import {
   NodeType,
   type WorkflowJSON,
   WorkflowJSONSchema,
+  type WorkflowMeta,
 } from "@google-awlt/engine-core";
-import { saveWorkflow, loadWorkflow } from "@google-awlt/engine-extension";
 
 /**
  * Internal dependencies
@@ -30,9 +32,16 @@ import {
 import { Flow, Toast, SavedWorkflowsDialog, ImportDialog } from "../ui";
 import { TOOL_CONFIGS } from "../tools/toolRegistry";
 import logger from "../../logger";
+import { getUniqueNames } from "../../utils/workflowUtils";
 
 const ID_PREFIX = "wf_";
 const STORAGE_KEY_SELECTED_TAB = "awl_wc_selected_tab_id";
+const STORAGE_KEY_OPEN_WORKFLOWS = "awl_wc_open_workflows";
+
+export interface OpenWorkflow {
+  id: string;
+  name: string;
+}
 
 const generateId = () => {
   const id = crypto.randomUUID();
@@ -63,6 +72,16 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
     } else {
       localStorage.removeItem(STORAGE_KEY_SELECTED_TAB);
     }
+  }, []);
+
+  const [openWorkflows, _setOpenWorkflows] = useState<OpenWorkflow[]>(() => {
+    const saved = localStorage.getItem(STORAGE_KEY_OPEN_WORKFLOWS);
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const setOpenWorkflows = useCallback((workflows: OpenWorkflow[]) => {
+    _setOpenWorkflows(workflows);
+    localStorage.setItem(STORAGE_KEY_OPEN_WORKFLOWS, JSON.stringify(workflows));
   }, []);
   const [showSavedWorkflows, setShowSavedWorkflows] = useState(false);
   const [isStopping, setIsStopping] = useState(false);
@@ -124,18 +143,26 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
         if (savedData) {
           loadWorkflowData(savedData);
         }
+      } else if (openWorkflows.length > 0) {
+        const firstTab = openWorkflows[0];
+        const savedData = await loadWorkflow(firstTab.id);
+        if (savedData) {
+          loadWorkflowData(savedData);
+        }
       } else {
         initializeStandardNodes();
-        updateWorkflowMeta(
-          {
-            id: `wf_${crypto.randomUUID()}`,
-            name: "New Workflow",
-            sanitizedName: "New_Workflow",
-            savedAt: new Date().toISOString(),
-            autosave: true,
-          },
-          true,
-        );
+
+        const { name, sanitizedName } = await getUniqueNames("New Workflow");
+        const newId = generateId();
+        const newMeta: WorkflowMeta = {
+          id: newId,
+          name,
+          sanitizedName,
+          savedAt: new Date().toISOString(),
+          autosave: true,
+        };
+        updateWorkflowMeta(newMeta, true);
+        setOpenWorkflows([{ id: newId, name: newMeta.name }]);
       }
     };
 
@@ -253,6 +280,8 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
           onConnect(edge);
         });
       }
+
+      setSelectedNode(null);
     },
     [clearFlow, addNode, addApiNode, onConnect, updateWorkflowMeta],
   );
@@ -373,21 +402,21 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
 
     try {
       let saveId = workflowMeta?.id;
-      let finalMeta = workflowMeta;
+      let finalMeta: WorkflowMeta = workflowMeta;
 
       if (isBuiltIn && workflowMeta) {
         saveId = generateId();
+        const baseName = workflowMeta.name.replace("Built-in: ", "");
+        const { name, sanitizedName } = await getUniqueNames(baseName);
+
         finalMeta = {
           ...workflowMeta,
           id: saveId,
-          name: workflowMeta.name
-            .replace("Built-in: ", "")
-            .replace("Demo: ", ""),
-          sanitizedName: workflowMeta.name.replace(/[^a-zA-Z0-9_]/g, "_"),
+          name,
+          sanitizedName,
           autosave: true,
           savedAt: new Date().toISOString(),
         };
-        updateWorkflowMeta(finalMeta, true);
       }
 
       const workflowData = serializeWorkflow(nodes, edges, nodesApiData);
@@ -414,6 +443,20 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
       }
 
       await saveWorkflow(saveId || workflowMeta?.id || "", workflowData);
+
+      // If it was a built-in, update the tab in openWorkflows
+      if (isBuiltIn && workflowMeta?.id && saveId) {
+        updateWorkflowMeta(finalMeta, true);
+
+        setOpenWorkflows([
+          ...openWorkflows,
+          {
+            id: saveId,
+            name: finalMeta.name,
+          },
+        ]);
+      }
+
       showToast(
         isBuiltIn
           ? "Built-in workflow copied to your list!"
@@ -467,7 +510,7 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
     workflowMeta?.name,
   ]);
 
-  const handleImportSubmit = useCallback(() => {
+  const handleImportSubmit = useCallback(async () => {
     try {
       const workflowData = JSON.parse(importJson);
 
@@ -488,13 +531,31 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
 
       clearFlow();
 
-      loadWorkflowData(workflowData);
+      const { name, sanitizedName } = await getUniqueNames(
+        workflowData.meta.name,
+      );
 
-      const newWorkflowData = {
+      const resolvedWorkflowData = {
         ...workflowData,
-        meta: { ...workflowData.meta, id: workflowData.meta.id },
+        meta: {
+          ...workflowData.meta,
+          name,
+          sanitizedName,
+          id: workflowData.meta.id,
+        },
       };
-      saveWorkflow(workflowData.meta.id, newWorkflowData);
+
+      loadWorkflowData(resolvedWorkflowData);
+      saveWorkflow(workflowData.meta.id, resolvedWorkflowData);
+
+      // Add to open workflows
+      const exists = openWorkflows.some((wf) => wf.id === workflowData.meta.id);
+      if (!exists) {
+        setOpenWorkflows([
+          ...openWorkflows,
+          { id: workflowData.meta.id, name },
+        ]);
+      }
 
       setShowImportDialog(false);
       setImportJson("");
@@ -588,29 +649,31 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
     }
   }, [clearFlow]);
 
-  const handleNewWorkflow = useCallback(() => {
-    if (
-      window.confirm(
-        "Create a new workflow? This will start a fresh canvas. Your current workflow is auto-saved.",
-      )
-    ) {
-      clearFlow();
-      initializeStandardNodes();
-      const newId = generateId();
+  const handleNewWorkflow = useCallback(async () => {
+    clearFlow();
+    initializeStandardNodes();
+    const newId = generateId();
+    const { name, sanitizedName } = await getUniqueNames("New Workflow");
 
-      updateWorkflowMeta(
-        {
-          id: newId,
-          name: "New Workflow",
-          sanitizedName: "New_Workflow",
-          savedAt: new Date().toISOString(),
-          autosave: true,
-        },
-        true,
-      );
-      showToast("New workflow created!", "success");
-    }
-  }, [clearFlow, initializeStandardNodes, showToast, updateWorkflowMeta]);
+    const newMeta: WorkflowMeta = {
+      id: newId,
+      name,
+      sanitizedName,
+      savedAt: new Date().toISOString(),
+      autosave: true,
+    };
+
+    updateWorkflowMeta(newMeta, true);
+    showToast("New workflow created!", "success");
+    setOpenWorkflows([...openWorkflows, { id: newId, name }]);
+  }, [
+    clearFlow,
+    initializeStandardNodes,
+    showToast,
+    updateWorkflowMeta,
+    openWorkflows,
+    setOpenWorkflows,
+  ]);
 
   const handleLoadSaved = useCallback(() => {
     setShowSavedWorkflows(true);
@@ -620,23 +683,95 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
     async (id: string, workflowData?: WorkflowJSON) => {
       let data = workflowData;
 
+      if (!data) {
+        const result = await loadWorkflow(id);
+        data = result || undefined;
+      }
+
       if (data) {
         loadWorkflowData(data);
         showToast("Workflow loaded successfully", "success");
-        return;
-      }
 
-      // Fallback to loading from storage
-      const savedData = await loadWorkflow(id);
-
-      if (savedData) {
-        loadWorkflowData(savedData);
-        showToast("Workflow loaded successfully", "success");
+        // UI Tabs Management
+        const exists = openWorkflows.some((wf) => wf.id === id);
+        if (!exists) {
+          setOpenWorkflows([...openWorkflows, { id, name: data.meta.name }]);
+        }
       } else {
         showToast("Failed to load workflow", "error");
       }
     },
-    [loadWorkflowData, showToast],
+    [loadWorkflowData, showToast, openWorkflows, setOpenWorkflows],
+  );
+
+  const handleWorkflowSwitch = useCallback(
+    async (id: string) => {
+      if (id === workflowMeta?.id) return;
+
+      const data = await loadWorkflow(id);
+      if (data) {
+        loadWorkflowData(data);
+      }
+    },
+    [workflowMeta?.id, loadWorkflowData],
+  );
+
+  const handleWorkflowClose = useCallback(
+    async (id: string) => {
+      if (openWorkflows.length === 1) {
+        if (
+          window.confirm(
+            "Closing the last tab will create a new workflow. Continue?",
+          )
+        ) {
+          handleNewWorkflow();
+        }
+
+        return;
+      }
+
+      const newOpenWorkflows = openWorkflows.filter((wf) => wf.id !== id);
+      setOpenWorkflows(newOpenWorkflows);
+
+      // If we closed the active workflow, switch to another one
+      if (id === workflowMeta?.id && newOpenWorkflows.length > 0) {
+        handleWorkflowSwitch(newOpenWorkflows[0].id);
+      }
+    },
+    [
+      openWorkflows,
+      setOpenWorkflows,
+      workflowMeta?.id,
+      handleWorkflowSwitch,
+      clearFlow,
+      initializeStandardNodes,
+      updateWorkflowMeta,
+      showToast,
+    ],
+  );
+
+  const onTitleChange = useCallback(
+    async (newName: string) => {
+      if (workflowMeta) {
+        const { name, sanitizedName } = await getUniqueNames(
+          newName,
+          workflowMeta.id,
+        );
+
+        updateWorkflowMeta({
+          name,
+          sanitizedName,
+        });
+
+        // Also update tab name
+        setOpenWorkflows(
+          openWorkflows.map((wf) =>
+            wf.id === workflowMeta.id ? { ...wf, name } : wf,
+          ),
+        );
+      }
+    },
+    [workflowMeta, updateWorkflowMeta, openWorkflows, setOpenWorkflows],
   );
 
   return (
@@ -655,6 +790,11 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
         isOpen={showSavedWorkflows}
         onClose={() => setShowSavedWorkflows(false)}
         onLoad={handleWorkflowLoad}
+        openWorkflows={openWorkflows}
+        setOpenWorkflows={setOpenWorkflows}
+        onNew={handleNewWorkflow}
+        updateWorkflowMeta={updateWorkflowMeta}
+        activeWorkflowId={workflowMeta?.id || ""}
       />
 
       {/* Toast Notification */}
@@ -665,7 +805,6 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
           onClose={() => setToast(null)}
         />
       )}
-
       <div className="flex-1 w-full h-full">
         <Flow
           nodes={nodes}
@@ -677,18 +816,17 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
           onEdgesDelete={onEdgesDelete}
           onConnect={onConnect}
           title={workflowMeta?.name || ""}
-          onTitleChange={(name) =>
-            updateWorkflowMeta({
-              name,
-              sanitizedName: name.replace(/[^a-zA-Z0-9_]/g, "_"),
-            })
-          }
+          onTitleChange={onTitleChange}
           selectedTabId={selectedTabId}
           setSelectedTabId={setSelectedTabId}
           tabs={tabs}
           theme={theme}
           isRunning={isRunning}
           isStopping={isStopping}
+          openWorkflows={openWorkflows}
+          activeWorkflowId={workflowMeta?.id || ""}
+          onSwitchWorkflow={handleWorkflowSwitch}
+          onCloseWorkflow={handleWorkflowClose}
           actions={{
             onImport: handleImport,
             onExport: handleExport,

@@ -35,8 +35,13 @@ const WorkflowCard = ({
 
       <div className="flex justify-between items-start mb-2">
         <div className="flex-1 min-w-0">
-          <h3 className="text-sm font-bold text-accent-foreground truncate transition-colors">
+          <h3 className="text-sm font-bold text-accent-foreground truncate transition-colors flex items-center gap-2">
             {workflow.meta.name || 'Untitled Workflow'}
+            {workflow.meta.sanitizedName && (
+              <span className="text-[10px] bg-(--surface-active) px-1.5 py-0.5 rounded text-amethyst-haze font-mono border border-(--border-color)">
+                {workflow.meta.sanitizedName}
+              </span>
+            )}
           </h3>
         </div>
       </div>

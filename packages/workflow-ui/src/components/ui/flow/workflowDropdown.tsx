@@ -2,21 +2,13 @@
  * External dependencies
  */
 import React, { useState, useRef, useEffect } from "react";
-import {
-  Plus,
-  Upload,
-  Download,
-  Trash2,
-  FolderOpen,
-  Ellipsis,
-} from "lucide-react";
+import { Plus, Upload, Download, Trash2, Ellipsis } from "lucide-react";
 
 interface WorkflowDropdownProps {
   onNew: () => void;
   onImport: () => void;
   onExport: () => void;
   onClear: () => void;
-  onLoadSaved: () => void;
 }
 
 const WorkflowDropdown: React.FC<WorkflowDropdownProps> = ({
@@ -24,7 +16,6 @@ const WorkflowDropdown: React.FC<WorkflowDropdownProps> = ({
   onImport,
   onExport,
   onClear,
-  onLoadSaved,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -77,17 +68,6 @@ const WorkflowDropdown: React.FC<WorkflowDropdownProps> = ({
               className="text-slate-400 dark:text-zinc-600 group-hover:text-indigo-500 transition-colors"
             />
             <span className="font-medium">New Workflow</span>
-          </button>
-
-          <button
-            onClick={() => handleAction(onLoadSaved)}
-            className="w-full flex items-center gap-3 px-4 py-2 text-sm text-slate-700 dark:text-zinc-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 hover:text-indigo-700 dark:hover:text-indigo-400 transition-colors group"
-          >
-            <FolderOpen
-              size={16}
-              className="text-slate-400 dark:text-zinc-600 group-hover:text-indigo-500 transition-colors"
-            />
-            <span className="font-medium">Load Saved</span>
           </button>
 
           <button

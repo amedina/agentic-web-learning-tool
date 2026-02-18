@@ -41,9 +41,10 @@ export const WorkflowConfig = () => {
     [workflowMeta?.allowedDomains, updateWorkflowMeta],
   );
 
-  const [otherWorkflowNames, setOtherWorkflowNames] = useState<
+  const [otherWorkflows, setOtherWorkflows] = useState<
     {
       name: string;
+      sanitizedName: string;
       id: string;
     }[]
   >([]);
@@ -54,10 +55,11 @@ export const WorkflowConfig = () => {
         .filter(({ meta }) => meta.id !== workflowMeta?.id)
         .map(({ meta }) => ({
           name: meta.name,
+          sanitizedName: meta.sanitizedName,
           id: meta.id,
         }));
 
-      setOtherWorkflowNames(others);
+      setOtherWorkflows(others);
     });
   }, [workflowMeta?.id]);
 
@@ -83,13 +85,14 @@ export const WorkflowConfig = () => {
         }
 
         if (
-          otherWorkflowNames?.some(
-            ({ name, id }) =>
-              name === workflowMeta?.name && id !== workflowMeta?.id,
+          otherWorkflows?.some(
+            ({ sanitizedName, id }) =>
+              sanitizedName === workflowMeta?.sanitizedName &&
+              id !== workflowMeta?.id,
           )
         ) {
           newErrors.push(
-            `The name "${workflowMeta?.name}" is already used by another workflow. Please change the name for unique identification.`,
+            `The name "${workflowMeta?.name}" is already used by another workflow.`,
           );
         }
 
@@ -113,31 +116,29 @@ export const WorkflowConfig = () => {
       workflowMeta?.description,
       workflowMeta?.allowedDomains,
       workflowMeta?.name,
+      workflowMeta?.sanitizedName,
       workflowMeta?.enabled,
-      otherWorkflowNames,
+      otherWorkflows,
     ],
   );
 
   return (
     <div className="p-4 space-y-6">
       <div className="bg-slate-100 dark:bg-zinc-800/50 rounded-lg p-3 border border-slate-200 dark:border-border">
-        <div className="text-xs text-slate-500 dark:text-zinc-500 mb-1 uppercase tracking-wide">
+        <p className="text-xs text-slate-500 dark:text-zinc-500 mb-1 uppercase tracking-wide">
           Workflow
-        </div>
-        <div className="text-sm font-medium text-slate-800 dark:text-zinc-200">
+        </p>
+        <p className="text-sm font-medium text-slate-800 dark:text-zinc-200">
           Global Settings
-        </div>
+        </p>
       </div>
 
       <div className="space-y-4">
-        <div>
-          <label
-            className="block text-sm font-medium text-slate-700 dark:text-zinc-300 mb-2"
-            htmlFor="wf-name"
-          >
-            Sanitized WebMCP Name
-          </label>
-          <p className="w-full p-3 border border-slate-300 dark:border-border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-white dark:bg-zinc-950 text-slate-900 dark:text-foreground">
+        <div className="bg-slate-100 dark:bg-zinc-800/50 rounded-lg p-3 border border-slate-200 dark:border-border">
+          <p className="text-xs text-slate-500 dark:text-zinc-500 mb-1 uppercase tracking-wide">
+            WebMCP Name
+          </p>
+          <p className="w-full text-sm text-slate-900 dark:text-foreground">
             {workflowMeta?.sanitizedName}
           </p>
         </div>
