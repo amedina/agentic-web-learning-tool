@@ -34,7 +34,9 @@ export function ToolDetail({
     (async () => {
       const userTool = await getUserTool(tool);
       setUserTool(userTool);
+
       let scriptToUse = '';
+
       if (userTool) {
         if (userTool?.editedScript?.code) {
           scriptToUse = userTool.editedScript.code;
@@ -42,6 +44,7 @@ export function ToolDetail({
           scriptToUse = userTool.code as string;
         }
       }
+
       setNewScript(scriptToUse);
     })();
   }, [tool, getUserTool]);
