@@ -10,7 +10,7 @@ import type { Tool } from '@modelcontextprotocol/sdk/types.js';
 import { SyntaxHighlighterJSON } from '../syntaxHighlighter';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../tabs';
 import { CodeEditor } from '../codeEditor';
-import type { WebMCPTool } from '../webMCPTools';
+import type { WebMCPTool } from '../types';
 
 interface ToolDetailProps {
   tool: Tool;
