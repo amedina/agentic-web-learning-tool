@@ -68,7 +68,9 @@ const SavedWorkflowsDialog: React.FC<SavedWorkflowsDialogProps> = ({
       e.stopPropagation();
       if (
         window.confirm(
-          "Are you sure you want to delete this workflow? This cannot be undone.",
+          activeWorkflowId === id
+            ? "You are currently using this workflow. Are you sure you want to delete it?"
+            : "Are you sure you want to delete this workflow? This cannot be undone.",
         )
       ) {
         await deleteWorkflow(id);
@@ -83,14 +85,22 @@ const SavedWorkflowsDialog: React.FC<SavedWorkflowsDialogProps> = ({
         if (activeWorkflowId === id) {
           if (!filteredWorkflows.length) {
             onNew();
-            onClose();
           } else {
-            updateWorkflowMeta(filteredWorkflows[0], true);
-            onLoad(filteredWorkflows[0].id);
+            const toOpen = openWorkflows[0].id;
+            const workflow = filteredWorkflows.find((wf) => wf.id == toOpen);
+
+            if (!workflow) {
+              onClose();
+            } else {
+              updateWorkflowMeta(workflow, true);
+              onLoad(workflow?.id);
+            }
           }
         }
 
         await fetchWorkflows();
+
+        onClose();
       }
     },
     [openWorkflows, activeWorkflowId, onNew, updateWorkflowMeta, workflows],
