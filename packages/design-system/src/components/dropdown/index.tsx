@@ -186,6 +186,8 @@ export default function DropDown({
                 style={{
                   maxWidth:
                     'var(--radix-dropdown-menu-content-available-width)',
+                  overflowY: 'auto',
+                  height: '100vh',
                 }}
                 arrowPadding={50}
                 className={menuContentStyles}
