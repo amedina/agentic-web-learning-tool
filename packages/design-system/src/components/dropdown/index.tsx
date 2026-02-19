@@ -226,8 +226,10 @@ export default function DropDown({
             className={itemStyles}
             onClick={() => handleSelect(item.id)}
           >
-            <div className="flex items-center gap-3">
-              <span>{item.label}</span>
+            <div className="flex items-center gap-3 w-full">
+              <span className="text-ellipsis overflow-hidden">
+                {item.label}
+              </span>
               {selectedValue === item.id && (
                 <div className="ml-auto w-1.5 h-1.5 rounded-full bg-stone-600" />
               )}

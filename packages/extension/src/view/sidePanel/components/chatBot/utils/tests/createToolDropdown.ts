@@ -41,12 +41,29 @@ describe('createToolDropdown', () => {
 
     expect(result).toHaveLength(1);
     expect(result[0]).toEqual({
-      group: 'API Check', // Mapped from ToolNameMap mock
-      key: 'API Check',
+      group: 'MCP-B',
+      hideLabel: true,
+      id: 'MCP-B',
+      label: 'MCP-B',
       items: [
         {
-          id: 'extension_tool_check_available_apis',
-          label: 'check_available_apis',
+          id: 'MCP-B',
+          label: 'MCP-B',
+          mainLabel: 'Tools Types',
+          submenu: [
+            {
+              id: 'API Check',
+              label: 'API Check',
+              mainLabel: 'Tools',
+              submenu: [
+                {
+                  hideLabel: false,
+                  id: 'extension_tool_check_available_apis',
+                  label: 'check_available_apis',
+                },
+              ],
+            },
+          ],
         },
       ],
     });
@@ -90,8 +107,8 @@ describe('createToolDropdown', () => {
     );
 
     expect(result).toHaveLength(2);
-    expect(result[0].key).toBe('google.com'); // Website tool first
-    expect(result[1].key).toBe('API Check'); // Extension tool second
+    expect(result[0].id).toBe('google.com'); // Website tool first
+    expect(result[1].items[0].submenu[0].id).toBe('API Check'); // Extension tool second
   });
 
   it('should handle complex name parsing for website tools (stripping _tab and replacing _ with .)', () => {
@@ -102,7 +119,7 @@ describe('createToolDropdown', () => {
     // 3. split '_tab': docs_google_com
     // 4. replace '_': docs.google.com
 
-    const tools = [{ name: 'wt_tab1234_docs_google_com', inputSchema: {} }];
+    const tools = [{ name: 'docs_google_com', inputSchema: {} }];
 
     const result = createToolDropdown(
       tools as any[],
@@ -127,6 +144,6 @@ describe('createToolDropdown', () => {
       1234
     );
 
-    expect(result[0].key).toBe('docs.google.com');
+    expect(result[0].id).toBe('docs.google.com');
   });
 });
