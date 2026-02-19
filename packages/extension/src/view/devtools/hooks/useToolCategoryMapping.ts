@@ -13,6 +13,7 @@ interface WorkflowComposerData {
   graph: {};
   meta: {
     name: string;
+    sanitizedName: string;
     isWebMCP?: boolean;
   };
 }
@@ -59,7 +60,7 @@ const useToolCategoryMapping = (tools: Tool[]) => {
         Object.keys(workflowWebMCPTools)
           .map((key) =>
             workflowWebMCPTools[key].meta.isWebMCP
-              ? workflowWebMCPTools[key].meta.name
+              ? workflowWebMCPTools[key].meta.sanitizedName
               : ''
           )
           .filter((toolName) => toolName !== '')
