@@ -36,7 +36,7 @@ export const PREDEFINED_WORKFLOWS: WorkflowJSON[] = [
           type: NodeType.DOM_INPUT,
           config: {
             title: 'Get Selected Text',
-            cssSelector: 'body',
+            cssSelector: 'p',
             extract: 'textContent',
             defaultValue: 'Selection not found',
           },
@@ -158,7 +158,7 @@ export const PREDEFINED_WORKFLOWS: WorkflowJSON[] = [
           type: NodeType.DOM_INPUT,
           config: {
             title: 'Get Content',
-            cssSelector: 'body',
+            cssSelector: 'p',
             extract: 'innerText',
             defaultValue: '',
           },
