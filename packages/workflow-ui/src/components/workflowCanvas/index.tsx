@@ -1,13 +1,15 @@
 /**
  * External dependencies
  */
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useReactFlow } from "@xyflow/react";
 import {
   getLastOpenedWorkflowId,
   WorkflowClient,
   saveWorkflow,
   loadWorkflow,
+  deleteWorkflow,
+  setLastOpenedWorkflowId,
 } from "@google-awlt/engine-extension";
 import {
   type ExecutionContext,
@@ -773,6 +775,54 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
     },
     [workflowMeta, updateWorkflowMeta, openWorkflows, setOpenWorkflows],
   );
+
+  const openWorkflowsRef = useRef(openWorkflows);
+  const workflowMetaRef = useRef(workflowMeta);
+  const nodesRef = useRef(nodes);
+
+  useEffect(() => {
+    openWorkflowsRef.current = openWorkflows;
+    workflowMetaRef.current = workflowMeta;
+    nodesRef.current = nodes;
+  }, [openWorkflows, workflowMeta, nodes]);
+
+  useEffect(() => {
+    return () => {
+      (async () => {
+        const activeWorkflowId = workflowMetaRef.current?.id;
+
+        if (!activeWorkflowId) return;
+
+        if (
+          nodesRef.current.length === 2 &&
+          nodesRef.current.every(
+            (node) =>
+              node.type === NodeType.START || node.type === NodeType.END,
+          ) &&
+          !workflowMetaRef.current.description &&
+          !workflowMetaRef.current.allowedDomains?.length &&
+          workflowMetaRef.current.name === "New Workflow"
+        ) {
+          await deleteWorkflow(activeWorkflowId);
+
+          localStorage.setItem(
+            STORAGE_KEY_OPEN_WORKFLOWS,
+            JSON.stringify(
+              openWorkflowsRef.current.filter(
+                (workflow) => workflow.id !== activeWorkflowId,
+              ),
+            ),
+          );
+
+          setLastOpenedWorkflowId(
+            openWorkflowsRef.current.length > 0
+              ? openWorkflowsRef.current[0].id
+              : "",
+          );
+        }
+      })();
+    };
+  }, []);
 
   return (
     <div className="h-full flex-1 flex flex-col rounded bg-gray-100 dark:bg-background relative">
