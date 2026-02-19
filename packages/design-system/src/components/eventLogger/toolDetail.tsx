@@ -17,6 +17,7 @@ interface ToolDetailProps {
   getUserTool: (tool: Tool) => Promise<WebMCPTool | null>;
   onScriptChange?: (newCode: string) => Promise<void>;
   enableBreakpoints?: boolean;
+  tabId: number;
 }
 
 const TAB_TRIGGER_CLASS =
@@ -26,19 +27,26 @@ export function ToolDetail({
   tool,
   getUserTool,
   onScriptChange,
+  tabId,
 }: ToolDetailProps) {
   const [userTool, setUserTool] = useState<WebMCPTool | null>(null);
   const [script, setNewScript] = useState('');
 
   useEffect(() => {
     (async () => {
+      if (!tool) {
+        return;
+      }
       const userTool = await getUserTool(tool);
       setUserTool(userTool);
 
       let scriptToUse = '';
 
       if (userTool) {
-        if (userTool?.editedScript?.code) {
+        if (
+          userTool?.editedScript?.code &&
+          userTool.editedScript.tabId.includes(tabId)
+        ) {
           scriptToUse = userTool.editedScript.code;
         } else {
           scriptToUse = userTool.code as string;
@@ -47,7 +55,7 @@ export function ToolDetail({
 
       setNewScript(scriptToUse);
     })();
-  }, [tool, getUserTool]);
+  }, [tool, getUserTool, tabId]);
 
   return (
     <Tabs defaultValue="execution" className="flex flex-col h-full">

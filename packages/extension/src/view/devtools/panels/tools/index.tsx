@@ -167,6 +167,7 @@ export const Tools = ({
           tool={data as Tool}
           getUserTool={getStoredUserTool}
           onScriptChange={onScriptChange}
+          tabId={chrome.devtools.inspectedWindow.tabId}
         />
       );
     },
@@ -194,7 +195,7 @@ export const Tools = ({
       tablePersistentSettingsKey="toolsTable"
       onRowContextMenu={noop}
       onRowClick={(row: TableData) => {
-        setSelectedKey(row?.name ?? null);
+        setSelectedKey(row?.name);
       }}
       getRowObjectKey={(row: any) => {
         const data = row.original || row;
