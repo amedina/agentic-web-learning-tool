@@ -10,6 +10,7 @@ import {
   loadWorkflow,
   deleteWorkflow,
   setLastOpenedWorkflowId,
+  listWorkflows,
 } from "@google-awlt/engine-extension";
 import {
   type ExecutionContext,
@@ -718,6 +719,79 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
     [workflowMeta?.id, loadWorkflowData],
   );
 
+  const openWorkflowsRef = useRef(openWorkflows);
+
+  useEffect(() => {
+    openWorkflowsRef.current = openWorkflows;
+  }, [openWorkflows]);
+
+  const removeEmptyWorkflow = useCallback(
+    async (activeWorkflowId: string, workflowJSON?: WorkflowJSON) => {
+      const workflow = workflowJSON || (await loadWorkflow(activeWorkflowId));
+      if (!workflow) return;
+
+      const meta = workflow?.meta;
+      const nodes = workflow?.graph.nodes;
+
+      if (
+        nodes.length === 2 &&
+        nodes.every(
+          (node) => node.type === NodeType.START || node.type === NodeType.END,
+        ) &&
+        !meta.description &&
+        !meta.allowedDomains?.length &&
+        meta.name === "New Workflow"
+      ) {
+        await deleteWorkflow(activeWorkflowId);
+
+        localStorage.setItem(
+          STORAGE_KEY_OPEN_WORKFLOWS,
+          JSON.stringify(
+            openWorkflowsRef.current.filter(
+              (workflow) => workflow.id !== activeWorkflowId,
+            ),
+          ),
+        );
+
+        setLastOpenedWorkflowId(
+          openWorkflowsRef.current.length > 0
+            ? openWorkflowsRef.current[0].id
+            : "",
+        );
+
+        return true;
+      }
+
+      return false;
+    },
+    [],
+  );
+
+  useEffect(() => {
+    return () => {
+      (async () => {
+        let workflows = await listWorkflows();
+        let removedWorkflows = [];
+
+        for (const wf of workflows) {
+          const success = await removeEmptyWorkflow(wf.meta.id);
+
+          if (success) removedWorkflows.push(wf.meta.id);
+        }
+
+        const _openWorkflows = openWorkflowsRef.current.filter(
+          (wf) => !removedWorkflows.includes(wf.id),
+        );
+
+        setOpenWorkflows(_openWorkflows);
+
+        setLastOpenedWorkflowId(
+          _openWorkflows.length > 0 ? _openWorkflows[0].id : "",
+        );
+      })();
+    };
+  }, []);
+
   const handleWorkflowClose = useCallback(
     async (id: string) => {
       if (openWorkflows.length === 1) {
@@ -726,11 +800,28 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
             "Closing the last tab will create a new workflow. Continue?",
           )
         ) {
-          handleNewWorkflow();
+          clearFlow();
+          initializeStandardNodes();
+          const newId = generateId();
+          const { name, sanitizedName } = await getUniqueNames("New Workflow");
+
+          const newMeta: WorkflowMeta = {
+            id: newId,
+            name,
+            sanitizedName,
+            savedAt: new Date().toISOString(),
+            autosave: true,
+          };
+
+          updateWorkflowMeta(newMeta, true);
+          setOpenWorkflows([{ id: newId, name: newMeta.name }]);
+          showToast("New workflow created!", "success");
         }
 
         return;
       }
+
+      removeEmptyWorkflow(id);
 
       const newOpenWorkflows = openWorkflows.filter((wf) => wf.id !== id);
       setOpenWorkflows(newOpenWorkflows);
@@ -743,6 +834,7 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
     [
       openWorkflows,
       setOpenWorkflows,
+      removeEmptyWorkflow,
       workflowMeta?.id,
       handleWorkflowSwitch,
       clearFlow,
@@ -775,54 +867,6 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
     },
     [workflowMeta, updateWorkflowMeta, openWorkflows, setOpenWorkflows],
   );
-
-  const openWorkflowsRef = useRef(openWorkflows);
-  const workflowMetaRef = useRef(workflowMeta);
-  const nodesRef = useRef(nodes);
-
-  useEffect(() => {
-    openWorkflowsRef.current = openWorkflows;
-    workflowMetaRef.current = workflowMeta;
-    nodesRef.current = nodes;
-  }, [openWorkflows, workflowMeta, nodes]);
-
-  useEffect(() => {
-    return () => {
-      (async () => {
-        const activeWorkflowId = workflowMetaRef.current?.id;
-
-        if (!activeWorkflowId) return;
-
-        if (
-          nodesRef.current.length === 2 &&
-          nodesRef.current.every(
-            (node) =>
-              node.type === NodeType.START || node.type === NodeType.END,
-          ) &&
-          !workflowMetaRef.current.description &&
-          !workflowMetaRef.current.allowedDomains?.length &&
-          workflowMetaRef.current.name === "New Workflow"
-        ) {
-          await deleteWorkflow(activeWorkflowId);
-
-          localStorage.setItem(
-            STORAGE_KEY_OPEN_WORKFLOWS,
-            JSON.stringify(
-              openWorkflowsRef.current.filter(
-                (workflow) => workflow.id !== activeWorkflowId,
-              ),
-            ),
-          );
-
-          setLastOpenedWorkflowId(
-            openWorkflowsRef.current.length > 0
-              ? openWorkflowsRef.current[0].id
-              : "",
-          );
-        }
-      })();
-    };
-  }, []);
 
   return (
     <div className="h-full flex-1 flex flex-col rounded bg-gray-100 dark:bg-background relative">
