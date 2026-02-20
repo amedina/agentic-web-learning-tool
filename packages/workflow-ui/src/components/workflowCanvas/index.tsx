@@ -380,7 +380,7 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
       const workflowData = serializeWorkflow(nodes, edges, nodesApiData);
 
       saveWorkflow(workflowMeta.id, workflowData);
-    }, 1000); // Debounce save by 1s
+    }, 100); // Debounce save by 100ms
 
     return () => clearTimeout(timeoutId);
   }, [
