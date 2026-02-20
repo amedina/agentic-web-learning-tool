@@ -9,7 +9,7 @@ export const PREDEFINED_WORKFLOWS: WorkflowJSON[] = [
       id: 'demo-translation',
       name: 'Built-in: Smart Translator',
       sanitizedName: 'built_in__smart_translator',
-      description: 'Automatically translates selected text into Spanish.',
+      description: 'Automatically translates paragraph text into Spanish.',
       savedAt: new Date().toISOString(),
       allowedDomains: ['<all_urls>'],
       isWebMCP: true,
@@ -39,6 +39,7 @@ export const PREDEFINED_WORKFLOWS: WorkflowJSON[] = [
             cssSelector: 'p',
             extract: 'textContent',
             defaultValue: 'Selection not found',
+            isMultiple: true,
           },
           label: 'domInput',
           ui: {
@@ -59,8 +60,8 @@ export const PREDEFINED_WORKFLOWS: WorkflowJSON[] = [
           label: 'translatorApi',
           ui: {
             position: {
-              x: 173,
-              y: 332,
+              x: 571,
+              y: 56,
             },
           },
         },
@@ -74,8 +75,8 @@ export const PREDEFINED_WORKFLOWS: WorkflowJSON[] = [
           label: 'alertNotification',
           ui: {
             position: {
-              x: 537,
-              y: 174,
+              x: 558,
+              y: 322,
             },
           },
         },
@@ -88,8 +89,23 @@ export const PREDEFINED_WORKFLOWS: WorkflowJSON[] = [
           label: 'end',
           ui: {
             position: {
-              x: 722,
-              y: 467,
+              x: 629,
+              y: 568,
+            },
+          },
+        },
+        {
+          id: 'loop',
+          type: NodeType.LOOP,
+          config: {
+            title: 'Loop',
+            description: 'Iterate over an array of items.',
+          },
+          label: 'Loop',
+          ui: {
+            position: {
+              x: 26,
+              y: 332,
             },
           },
         },
@@ -105,19 +121,26 @@ export const PREDEFINED_WORKFLOWS: WorkflowJSON[] = [
         {
           id: 'e2-3',
           source: 'dom-input',
-          target: 'translator',
+          target: 'loop',
           sourceHandle: null,
-          targetHandle: null,
+          targetHandle: 'in',
         },
         {
           id: 'e3-4',
-          source: 'translator',
-          target: 'alert',
-          sourceHandle: null,
+          source: 'loop',
+          target: 'translator',
+          sourceHandle: 'item',
           targetHandle: null,
         },
         {
           id: 'e4-5',
+          source: 'loop',
+          target: 'alert',
+          sourceHandle: 'done',
+          targetHandle: null,
+        },
+        {
+          id: 'e5-6',
           source: 'alert',
           target: 'end',
           sourceHandle: null,
@@ -161,6 +184,7 @@ export const PREDEFINED_WORKFLOWS: WorkflowJSON[] = [
             cssSelector: 'p',
             extract: 'innerText',
             defaultValue: '',
+            isMultiple: true,
           },
           label: 'domInput',
           ui: {
