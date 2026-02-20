@@ -27,8 +27,7 @@ interface SavedWorkflowsDialogProps {
     isNew?: boolean,
   ) => void;
   activeWorkflowId: string | null;
-  openWorkflows: OpenWorkflow[];
-  setOpenWorkflows: (workflows: OpenWorkflow[]) => void;
+  setOpenWorkflows: React.Dispatch<React.SetStateAction<OpenWorkflow[]>>;
 }
 
 const SavedWorkflowsDialog: React.FC<SavedWorkflowsDialogProps> = ({
@@ -38,7 +37,6 @@ const SavedWorkflowsDialog: React.FC<SavedWorkflowsDialogProps> = ({
   onNew,
   updateWorkflowMeta,
   activeWorkflowId,
-  openWorkflows,
   setOpenWorkflows,
 }) => {
   const [activeTab, setActiveTab] = useState<"saved" | "demo">("saved");
@@ -78,24 +76,34 @@ const SavedWorkflowsDialog: React.FC<SavedWorkflowsDialogProps> = ({
           (workflow) => workflow.id !== id,
         );
 
-        setOpenWorkflows(
-          openWorkflows.filter((workflow) => workflow.id !== id),
-        );
+        let createNewWorkflow = false;
 
-        if (activeWorkflowId === id) {
-          if (!filteredWorkflows.length) {
-            onNew();
-          } else {
-            const toOpen = openWorkflows[0].id;
-            const workflow = filteredWorkflows.find((wf) => wf.id == toOpen);
+        setOpenWorkflows((wfs) => {
+          const filteredOpenWorkflows = wfs.filter(
+            (workflow) => workflow.id !== id,
+          );
 
-            if (!workflow) {
-              onClose();
+          if (activeWorkflowId === id) {
+            if (!filteredOpenWorkflows.length) {
+              createNewWorkflow = true;
             } else {
-              updateWorkflowMeta(workflow, true);
-              onLoad(workflow?.id);
+              const toOpen = filteredOpenWorkflows[0].id;
+              const workflow = filteredWorkflows.find((wf) => wf.id == toOpen);
+
+              if (!workflow) {
+                onClose();
+              } else {
+                updateWorkflowMeta(workflow, true);
+                onLoad(workflow?.id);
+              }
             }
           }
+
+          return filteredOpenWorkflows;
+        });
+
+        if (createNewWorkflow) {
+          onNew();
         }
 
         await fetchWorkflows();
@@ -103,7 +111,7 @@ const SavedWorkflowsDialog: React.FC<SavedWorkflowsDialogProps> = ({
         onClose();
       }
     },
-    [openWorkflows, activeWorkflowId, onNew, updateWorkflowMeta, workflows],
+    [activeWorkflowId, onNew, updateWorkflowMeta, workflows],
   );
 
   if (!isOpen) return null;

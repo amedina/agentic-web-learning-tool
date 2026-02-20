@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useReactFlow } from "@xyflow/react";
 import {
   getLastOpenedWorkflowId,
@@ -77,15 +77,18 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
     }
   }, []);
 
-  const [openWorkflows, _setOpenWorkflows] = useState<OpenWorkflow[]>(() => {
+  const [openWorkflows, setOpenWorkflows] = useState<OpenWorkflow[]>(() => {
     const saved = localStorage.getItem(STORAGE_KEY_OPEN_WORKFLOWS);
     return saved ? JSON.parse(saved) : [];
   });
 
-  const setOpenWorkflows = useCallback((workflows: OpenWorkflow[]) => {
-    _setOpenWorkflows(workflows);
-    localStorage.setItem(STORAGE_KEY_OPEN_WORKFLOWS, JSON.stringify(workflows));
-  }, []);
+  useEffect(() => {
+    localStorage.setItem(
+      STORAGE_KEY_OPEN_WORKFLOWS,
+      JSON.stringify(openWorkflows),
+    );
+  }, [openWorkflows]);
+
   const [showSavedWorkflows, setShowSavedWorkflows] = useState(false);
   const [isStopping, setIsStopping] = useState(false);
   const [toast, setToast] = useState<{
@@ -451,8 +454,8 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
       if (isBuiltIn && workflowMeta?.id && saveId) {
         updateWorkflowMeta(finalMeta, true);
 
-        setOpenWorkflows([
-          ...openWorkflows,
+        setOpenWorkflows((wfs) => [
+          ...wfs,
           {
             id: saveId,
             name: finalMeta.name,
@@ -551,14 +554,12 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
       loadWorkflowData(resolvedWorkflowData);
       saveWorkflow(workflowData.meta.id, resolvedWorkflowData);
 
-      // Add to open workflows
-      const exists = openWorkflows.some((wf) => wf.id === workflowData.meta.id);
-      if (!exists) {
-        setOpenWorkflows([
-          ...openWorkflows,
-          { id: workflowData.meta.id, name },
-        ]);
-      }
+      setOpenWorkflows((wfs) => {
+        const exists = wfs.some((wf) => wf.id === workflowData.meta.id);
+        if (exists) return wfs;
+
+        return [...wfs, { id: workflowData.meta.id, name }];
+      });
 
       setShowImportDialog(false);
       setImportJson("");
@@ -668,15 +669,8 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
 
     updateWorkflowMeta(newMeta, true);
     showToast("New workflow created!", "success");
-    setOpenWorkflows([...openWorkflows, { id: newId, name }]);
-  }, [
-    clearFlow,
-    initializeStandardNodes,
-    showToast,
-    updateWorkflowMeta,
-    openWorkflows,
-    setOpenWorkflows,
-  ]);
+    setOpenWorkflows((wfs) => [...wfs, { id: newId, name }]);
+  }, [clearFlow, initializeStandardNodes, showToast, updateWorkflowMeta]);
 
   const handleLoadSaved = useCallback(() => {
     setShowSavedWorkflows(true);
@@ -695,16 +689,17 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
         loadWorkflowData(data);
         showToast("Workflow loaded successfully", "success");
 
-        // UI Tabs Management
-        const exists = openWorkflows.some((wf) => wf.id === id);
-        if (!exists) {
-          setOpenWorkflows([...openWorkflows, { id, name: data.meta.name }]);
-        }
+        setOpenWorkflows((wfs) => {
+          const exists = wfs.some((wf) => wf.id === id);
+          if (exists) return wfs;
+
+          return [...wfs, { id, name: data.meta.name }];
+        });
       } else {
         showToast("Failed to load workflow", "error");
       }
     },
-    [loadWorkflowData, showToast, openWorkflows, setOpenWorkflows],
+    [loadWorkflowData, showToast],
   );
 
   const handleWorkflowSwitch = useCallback(
@@ -718,12 +713,6 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
     },
     [workflowMeta?.id, loadWorkflowData],
   );
-
-  const openWorkflowsRef = useRef(openWorkflows);
-
-  useEffect(() => {
-    openWorkflowsRef.current = openWorkflows;
-  }, [openWorkflows]);
 
   const removeEmptyWorkflow = useCallback(
     async (activeWorkflowId: string, workflowJSON?: WorkflowJSON) => {
@@ -743,21 +732,6 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
         meta.name === "New Workflow"
       ) {
         await deleteWorkflow(activeWorkflowId);
-
-        localStorage.setItem(
-          STORAGE_KEY_OPEN_WORKFLOWS,
-          JSON.stringify(
-            openWorkflowsRef.current.filter(
-              (workflow) => workflow.id !== activeWorkflowId,
-            ),
-          ),
-        );
-
-        setLastOpenedWorkflowId(
-          openWorkflowsRef.current.length > 0
-            ? openWorkflowsRef.current[0].id
-            : "",
-        );
 
         return true;
       }
@@ -779,15 +753,22 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
           if (success) removedWorkflows.push(wf.meta.id);
         }
 
-        const _openWorkflows = openWorkflowsRef.current.filter(
-          (wf) => !removedWorkflows.includes(wf.id),
-        );
+        setOpenWorkflows((wfs) => {
+          const _openWorkflows = wfs.filter(
+            (wf) => !removedWorkflows.includes(wf.id),
+          );
 
-        setOpenWorkflows(_openWorkflows);
+          setLastOpenedWorkflowId(
+            _openWorkflows.length > 0 ? _openWorkflows[0].id : "",
+          );
 
-        setLastOpenedWorkflowId(
-          _openWorkflows.length > 0 ? _openWorkflows[0].id : "",
-        );
+          localStorage.setItem(
+            STORAGE_KEY_OPEN_WORKFLOWS,
+            JSON.stringify(_openWorkflows),
+          );
+
+          return _openWorkflows;
+        });
       })();
     };
   }, []);
@@ -823,17 +804,18 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
 
       removeEmptyWorkflow(id);
 
-      const newOpenWorkflows = openWorkflows.filter((wf) => wf.id !== id);
-      setOpenWorkflows(newOpenWorkflows);
+      setOpenWorkflows((wfs) => {
+        const newOpenWorkflows = wfs.filter((wf) => wf.id !== id);
 
-      // If we closed the active workflow, switch to another one
-      if (id === workflowMeta?.id && newOpenWorkflows.length > 0) {
-        handleWorkflowSwitch(newOpenWorkflows[0].id);
-      }
+        if (id === workflowMeta?.id && newOpenWorkflows.length > 0) {
+          handleWorkflowSwitch(newOpenWorkflows[0].id);
+        }
+
+        return newOpenWorkflows;
+      });
     },
     [
       openWorkflows,
-      setOpenWorkflows,
       removeEmptyWorkflow,
       workflowMeta?.id,
       handleWorkflowSwitch,
@@ -858,14 +840,12 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
         });
 
         // Also update tab name
-        setOpenWorkflows(
-          openWorkflows.map((wf) =>
-            wf.id === workflowMeta.id ? { ...wf, name } : wf,
-          ),
+        setOpenWorkflows((wfs) =>
+          wfs.map((wf) => (wf.id === workflowMeta.id ? { ...wf, name } : wf)),
         );
       }
     },
-    [workflowMeta, updateWorkflowMeta, openWorkflows, setOpenWorkflows],
+    [workflowMeta, updateWorkflowMeta],
   );
 
   return (
@@ -884,7 +864,6 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
         isOpen={showSavedWorkflows}
         onClose={() => setShowSavedWorkflows(false)}
         onLoad={handleWorkflowLoad}
-        openWorkflows={openWorkflows}
         setOpenWorkflows={setOpenWorkflows}
         onNew={handleNewWorkflow}
         updateWorkflowMeta={updateWorkflowMeta}
