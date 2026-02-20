@@ -1,6 +1,9 @@
 import { X } from "lucide-react";
+import { useEffect } from "react";
+import { createPortal } from "react-dom";
 
 interface ImportDialogProps {
+  isOpen: boolean;
   setShowImportDialog: (show: boolean) => void;
   importJson: string;
   setImportJson: (json: string) => void;
@@ -8,13 +11,39 @@ interface ImportDialogProps {
 }
 
 const ImportDialog = ({
+  isOpen,
   setShowImportDialog,
   importJson,
   setImportJson,
   handleImportSubmit,
 }: ImportDialogProps) => {
-  return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setShowImportDialog(false);
+      }
+    };
+
+    if (isOpen) {
+      window.addEventListener("keyup", handleEscape);
+    }
+
+    return () => {
+      window.removeEventListener("keyup", handleEscape);
+    };
+  }, [isOpen, setShowImportDialog]);
+
+  if (!isOpen) return null;
+
+  const content = (
+    <div
+      className="fixed inset-0 bg-black/60 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center z-50"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          setShowImportDialog(false);
+        }
+      }}
+    >
       <div className="bg-white dark:bg-zinc-900 rounded-lg p-6 w-full max-w-2xl mx-4 border border-slate-200 dark:border-border shadow-2xl">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-foreground">
@@ -59,6 +88,8 @@ const ImportDialog = ({
       </div>
     </div>
   );
+
+  return createPortal(content, document.getElementById("portal")!);
 };
 
 export default ImportDialog;

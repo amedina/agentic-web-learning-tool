@@ -851,14 +851,13 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
   return (
     <div className="h-full flex-1 flex flex-col rounded bg-gray-100 dark:bg-background relative">
       {/* Import Dialog */}
-      {showImportDialog && (
-        <ImportDialog
-          setShowImportDialog={setShowImportDialog}
-          importJson={importJson}
-          setImportJson={setImportJson}
-          handleImportSubmit={handleImportSubmit}
-        />
-      )}
+      <ImportDialog
+        isOpen={showImportDialog}
+        setShowImportDialog={setShowImportDialog}
+        importJson={importJson}
+        setImportJson={setImportJson}
+        handleImportSubmit={handleImportSubmit}
+      />
 
       <SavedWorkflowsDialog
         isOpen={showSavedWorkflows}

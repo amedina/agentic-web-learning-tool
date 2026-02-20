@@ -2,6 +2,7 @@
  * External dependencies
  */
 import React, { useCallback, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { X, FolderOpen, Trash2, Clock } from "lucide-react";
 import {
   listWorkflows,
@@ -114,10 +115,33 @@ const SavedWorkflowsDialog: React.FC<SavedWorkflowsDialogProps> = ({
     [activeWorkflowId, onNew, updateWorkflowMeta, workflows],
   );
 
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      window.addEventListener("keyup", handleEscape);
+    }
+
+    return () => {
+      window.removeEventListener("keyup", handleEscape);
+    };
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 bg-black/60 dark:bg-black/80 flex items-center justify-center z-50 backdrop-blur-sm">
+  const content = (
+    <div
+      className="fixed inset-0 bg-black/60 dark:bg-black/80 flex items-center justify-center z-50 backdrop-blur-sm"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+    >
       <div className="bg-white dark:bg-slate-900 rounded-xl shadow-2xl w-full max-w-2xl mx-4 flex flex-col max-h-[80vh] animate-in fade-in zoom-in duration-200 border border-slate-200 dark:border-slate-800">
         <div className="flex items-center justify-between p-6 border-b border-gray-100 dark:border-slate-800">
           <div>
@@ -251,6 +275,8 @@ const SavedWorkflowsDialog: React.FC<SavedWorkflowsDialogProps> = ({
       </div>
     </div>
   );
+
+  return createPortal(content, document.getElementById("portal")!);
 };
 
 export default SavedWorkflowsDialog;
