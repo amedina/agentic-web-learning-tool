@@ -71,7 +71,8 @@ export const PREDEFINED_WORKFLOWS: WorkflowJSON[] = [
           type: NodeType.ALERT_NOTIFICATION,
           config: {
             title: 'Translation Result',
-            useCustomMessage: false,
+            useCustomMessage: true,
+            message: 'Text translated to Spanish!',
           },
           label: 'alertNotification',
           ui: {
