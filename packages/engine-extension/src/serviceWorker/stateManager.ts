@@ -122,6 +122,12 @@ export class WorkflowStateManager {
     this.currentState.currentNodeId = nodeId;
     await this.saveState();
 
+    // Broadcast global status change to sync UI
+    this.broadcast({
+      type: 'WORKFLOW_STATUS_CHANGE',
+      state: this.currentState,
+    });
+
     const update: StatusUpdate = {
       type: 'NODE_STATUS',
       workflowId: this.currentState.workflowId ?? undefined,

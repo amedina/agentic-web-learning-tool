@@ -13,9 +13,7 @@ import {
   listWorkflows,
 } from "@google-awlt/engine-extension";
 import {
-  type ExecutionContext,
   type NodeConfig,
-  type NodeOutput,
   NodeType,
   type WorkflowJSON,
   WorkflowJSONSchema,
@@ -36,6 +34,7 @@ import { Flow, Toast, SavedWorkflowsDialog, ImportDialog } from "../ui";
 import { TOOL_CONFIGS } from "../tools/toolRegistry";
 import logger from "../../logger";
 import { getUniqueNames } from "../../utils/workflowUtils";
+import useWorkflowSync from "../../hooks/useWorkflowSync";
 
 const ID_PREFIX = "wf_";
 const STORAGE_KEY_SELECTED_TAB = "awl_wc_selected_tab_id";
@@ -403,6 +402,9 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
     [],
   );
 
+  // Sync canvas with global workflow status
+  useWorkflowSync(workflowMeta?.id || null, showToast);
+
   const handleSave = useCallback(async () => {
     const isBuiltIn = workflowMeta?.id.startsWith("demo-");
 
@@ -588,26 +590,11 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
 
     try {
       await client.runWorkflow(workflowData, selectedTabId, {
-        onNodeStart: (nodeId: string) => {
-          updateNodeStatus(nodeId, "running");
-        },
-        onNodeFinish: (nodeId: string, output: NodeOutput) => {
-          updateNodeStatus(
-            nodeId,
-            output.status === "success" ? "success" : "error",
-          );
-        },
-        onComplete: (context: ExecutionContext) => {
-          setIsRunning(false);
+        onComplete: () => {
           setIsStopping(false);
-          showToast("Workflow completed successfully!", "success");
-          logger(["debug"], ["Workflow context:", context]);
         },
-        onError: (error: string) => {
-          setIsRunning(false);
+        onError: () => {
           setIsStopping(false);
-          showToast(`Workflow failed: ${error}`, "error");
-          logger(["error"], ["Workflow error:", error]);
         },
       });
     } catch (error) {
@@ -627,36 +614,6 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
     showToast,
     updateNodeStatus,
   ]);
-  useEffect(() => {
-    const client = getWorkflowClient();
-
-    const unsubscribeStatus = client.subscribeToGlobalStatus((state) => {
-      if (state.workflowId === workflowMeta?.id) {
-        setIsRunning(state.status === "running");
-      }
-    });
-
-    const unsubscribeUpdates = client.subscribeToUpdates({
-      onNodeStart: (nodeId) => {
-        updateNodeStatus(nodeId, "running");
-      },
-      onNodeFinish: (nodeId, output) => {
-        updateNodeStatus(nodeId, output.status as any);
-      },
-      onComplete: () => {
-        setIsRunning(false);
-      },
-      onError: () => {
-        setIsRunning(false);
-      },
-    });
-
-    return () => {
-      unsubscribeStatus();
-      unsubscribeUpdates();
-    };
-  }, [workflowMeta?.id, updateNodeStatus]);
-
   const handleStop = useCallback(async () => {
     const client = getWorkflowClient();
 
