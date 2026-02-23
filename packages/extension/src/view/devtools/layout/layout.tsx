@@ -1,10 +1,11 @@
 /**
  * External dependencies.
  */
-import { SidebarProvider } from '@google-awlt/design-system';
+import { SidebarTrigger, useSidebar } from '@google-awlt/design-system';
 import type { JSONRPCMessage } from '@modelcontextprotocol/sdk/types.js';
 import { useEffect, useRef, useState } from 'react';
 import { useMcpClient } from '@mcp-b/mcp-react-hooks';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 /**
  * Internal dependencies.
  */
@@ -43,8 +44,10 @@ export const Layout = () => {
     setContextInvalidated
   );
 
+  const { isOpen } = useSidebar(({ state }) => ({ isOpen: state.open }));
+
   return (
-    <SidebarProvider placement="devtools" defaultSelectedMenuItem="tools">
+    <>
       <div ref={contextInvalidatedRef} className="flex w-full h-screen">
         <Sidebar />
         <Main />
@@ -60,6 +63,11 @@ export const Layout = () => {
           />
         </div>
       )}
-    </SidebarProvider>
+      <div className="fixed top-0 flex items-center w-[10px] left-0 z-20 md:hidden pl-1 shadow bg-sidebar rounded-md">
+        <SidebarTrigger className="bg-sidebar z-[30] w-fit h-fit shadow-[0_0_0_1px_hsl(var(--sidebar-border))] h-8 w-8">
+          {isOpen ? <ChevronLeft /> : <ChevronRight />}
+        </SidebarTrigger>
+      </div>
+    </>
   );
 };

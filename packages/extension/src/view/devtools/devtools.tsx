@@ -4,7 +4,7 @@
 import { McpClientProvider } from '@mcp-b/mcp-react-hooks';
 import { ExtensionClientTransport } from '@mcp-b/transports';
 import { Client } from '@modelcontextprotocol/sdk/client';
-
+import { SidebarProvider } from '@google-awlt/design-system';
 /**
  * Internal dependencies
  */
@@ -28,7 +28,9 @@ function DevTools() {
   return (
     <EventLogsProvider>
       <McpClientProvider client={client} transport={transport}>
-        <Layout />
+        <SidebarProvider placement="devtools" defaultSelectedMenuItem="tools">
+          <Layout />
+        </SidebarProvider>
       </McpClientProvider>
     </EventLogsProvider>
   );

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Sidebar as OptionsPageSidebar } from '@google-awlt/design-system';
+import { Sidebar as DevtoolsSidebar } from '@google-awlt/design-system';
 import { Hammer, Settings, Activity } from 'lucide-react';
 
 /**
@@ -33,7 +33,7 @@ const Sidebar = () => {
   ];
 
   return (
-    <OptionsPageSidebar
+    <DevtoolsSidebar
       items={items}
       footerItems={footerItems}
       collapsible="icon"
