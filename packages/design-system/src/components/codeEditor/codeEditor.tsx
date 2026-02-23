@@ -126,7 +126,6 @@ export function CodeEditor({
       '"Fira Code", "Cascadia Code", Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace',
     fontSize: '14px',
     lineHeight: '1.5',
-    padding: '1.5rem 1rem',
     ...styles,
   };
 
@@ -141,7 +140,7 @@ export function CodeEditor({
   const breakpointColor = '#1a73e8';
 
   return (
-    <div className="flex-1 relative flex">
+    <div className="flex-1 relative flex overflow-hidden h-full">
       <CodeEditorGutter
         gutterRef={gutterRef}
         lineNumbers={lineNumbers}
@@ -155,7 +154,7 @@ export function CodeEditor({
       />
 
       {/* Editor Area */}
-      <div className="relative flex-1">
+      <div className="relative flex-1 overflow-hidden h-full">
         <textarea
           className="absolute inset-0 w-full h-full bg-transparent text-transparent resize-none outline-none border-none focus:ring-0 whitespace-nowrap overflow-auto max-w-full"
           value={_code}
@@ -165,6 +164,7 @@ export function CodeEditor({
           // @ts-ignore - ts(2322)
           style={{
             ...commonStyle,
+            margin: '1rem 1rem',
             whiteSpace: 'pre',
             caretColor: caretColor,
             zIndex: 10,
@@ -184,9 +184,10 @@ export function CodeEditor({
                 <pre
                   {...props}
                   style={{
-                    margin: 0,
                     minHeight: '100%',
+                    margin: 0,
                     ...commonStyle,
+                    padding: '1rem 1rem',
                     backgroundColor: backgroundColor,
                   }}
                 />
