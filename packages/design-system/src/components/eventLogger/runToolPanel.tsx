@@ -207,7 +207,7 @@ export const RunToolPanel: React.FC<RunToolPanelProps> = ({
                   )
                 )
               ) : (
-                <div className="text-sm text-center mt-10 h-full w-full flex items-center justify-center py-10">
+                <div className="text-sm text-gray-500 text-center mt-10 h-full w-full flex items-center justify-center py-10">
                   This tool does not require any arguments.
                 </div>
               )}
