@@ -121,7 +121,10 @@ export function CodeEditor({
                 />
               ),
               Code: (props: any) => (
-                <code {...props} style={{ fontFamily: 'inherit' }} />
+                <code
+                  {...props}
+                  style={{ fontFamily: 'inherit', textShadow: 'none' }}
+                />
               ),
             }}
           />
