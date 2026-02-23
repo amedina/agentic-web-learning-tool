@@ -152,19 +152,21 @@ function Options() {
   }, []);
 
   useEffect(() => {
-    // If no item is selected, or the selected item is not in the list of available items (e.g. invalid URL param),
-    // default to the first available item.
-    const isValidSelection = flatItems.some(
-      (item) => item.id === selectedMenuItem
-    );
+    (async () => {
+      // If no item is selected, or the selected item is not in the list of available items (e.g. invalid URL param),
+      // default to the first available item.
+      const isValidSelection = flatItems.some(
+        (item) => item.id === selectedMenuItem
+      );
 
-    if (!selectedMenuItem || !isValidSelection) {
-      // Find the first item that has a component (is a leaf node or a clickable parent)
-      const defaultItem = flatItems.find((item) => item.component);
-      if (defaultItem) {
-        setSelectedMenuItem(defaultItem.id);
+      if (!selectedMenuItem || !isValidSelection) {
+        // Find the first item that has a component (is a leaf node or a clickable parent)
+        const defaultItem = flatItems.find((item) => item.component);
+        if (defaultItem) {
+          setSelectedMenuItem(defaultItem.id);
+        }
       }
-    }
+    })();
   }, [selectedMenuItem, flatItems, setSelectedMenuItem]);
 
   const { theme } = useSettings(({ state }) => ({ theme: state.theme }));

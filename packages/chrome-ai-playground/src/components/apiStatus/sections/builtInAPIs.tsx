@@ -3,7 +3,7 @@
  */
 import { useState, useEffect } from "react";
 import { Button, TooltipIconButton } from "@google-awlt/design-system";
-import { RefreshCw, Download, ExternalLink } from "lucide-react";
+import { RefreshCw, Download, ExternalLink, BookOpen } from "lucide-react";
 
 declare const chrome: any;
 
@@ -20,6 +20,7 @@ interface APIInfo {
   id: string;
   name: string;
   flags: string[];
+  docsUrl: string;
 }
 
 const APIS: APIInfo[] = [
@@ -30,28 +31,43 @@ const APIS: APIInfo[] = [
       "#optimization-guide-on-device-model",
       "#prompt-api-for-gemini-nano-multimodal-input",
     ],
+    docsUrl: "https://developer.chrome.com/docs/ai/prompt-api",
   },
   {
     id: "proofreader",
     name: "Proofreader API",
     flags: ["#proofreader-api-for-gemini-nano"],
+    docsUrl: "https://developer.chrome.com/docs/ai/proofreader-api",
   },
-  { id: "translator", name: "Translator API", flags: ["#translation-api"] },
+  {
+    id: "translator",
+    name: "Translator API",
+    flags: ["#translation-api"],
+    docsUrl: "https://developer.chrome.com/docs/ai/translator-api",
+  },
   {
     id: "languageDetector",
     name: "Language Detector API",
     flags: ["#language-detection-api"],
+    docsUrl: "https://developer.chrome.com/docs/ai/language-detection",
   },
   {
     id: "summarizer",
     name: "Summarizer API",
     flags: ["#summarization-api-for-gemini-nano"],
+    docsUrl: "https://developer.chrome.com/docs/ai/summarizer-api",
   },
-  { id: "writer", name: "Writer API", flags: ["#writer-api-for-gemini-nano"] },
+  {
+    id: "writer",
+    name: "Writer API",
+    flags: ["#writer-api-for-gemini-nano"],
+    docsUrl: "https://developer.chrome.com/docs/ai/writer-api",
+  },
   {
     id: "rewriter",
     name: "Rewriter API",
     flags: ["#rewriter-api-for-gemini-nano"],
+    docsUrl: "https://developer.chrome.com/docs/ai/rewriter-api",
   },
 ];
 
@@ -281,7 +297,20 @@ export default function BuiltInAPIs() {
         return (
           <StatusItem
             key={api.id}
-            label={api.name}
+            label={
+              <div className="flex items-center gap-2">
+                <span>{api.name}</span>
+                <a
+                  href={api.docsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-muted-foreground hover:text-primary transition-colors inline-flex items-center"
+                  title="View Documentation"
+                >
+                  <BookOpen className="w-4 h-4" />
+                </a>
+              </div>
+            }
             action={
               info.status === "error" ? (
                 <div className="flex flex-row gap-1 justify-end">

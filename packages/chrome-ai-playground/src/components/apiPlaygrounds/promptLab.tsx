@@ -12,6 +12,7 @@ import {
   AlertCircle,
   Settings2,
   RotateCcw,
+  Square,
 } from "lucide-react";
 import { Button, Collapsible, Input, toast } from "@google-awlt/design-system";
 
@@ -72,6 +73,7 @@ export default function PromptLab() {
   // Refs for tracking auto-scroll behavior
   const scrollRef = useRef<HTMLDivElement>(null);
   const shouldAutoScrollRef = useRef(true);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   // Track initial session creation to prevent double toast
   const initialSessionCreated = useRef(false);
@@ -179,7 +181,6 @@ export default function PromptLab() {
         }
 
         setError(null);
-        await createSessionInternal("spec");
       } else {
         // Fallback to Explainer API (window.ai.languageModel)
         const ai = (window as any).ai;
@@ -212,7 +213,6 @@ export default function PromptLab() {
         }
 
         setError(null);
-        await createSessionInternal("explainer");
       }
     } catch (err: any) {
       console.error("Capabilities check failed:", err);
@@ -345,6 +345,14 @@ export default function PromptLab() {
     toast.info("System Prompt Reset");
   };
 
+  const handleStop = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+      toast.info("Generation Stopped");
+    }
+  };
+
   const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
     if (!input.trim() || !session || isStreaming) return;
@@ -364,8 +372,13 @@ export default function PromptLab() {
     // Capture tokens before generation
     const startTokens = session.tokensSoFar || session.inputUsage || 0;
 
+    const abortController = new AbortController();
+    abortControllerRef.current = abortController;
+
     try {
-      const stream = await session.promptStreaming(input);
+      const stream = await session.promptStreaming(input, {
+        signal: abortController.signal,
+      });
 
       const assistantMsg: Message = {
         role: "assistant",
@@ -421,19 +434,23 @@ export default function PromptLab() {
       });
     } catch (err: any) {
       console.error("Prompt error:", err);
-      toast.error("Generation Error", {
-        description: err.message,
-      });
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content: `*Error: ${err.message}*`,
-          timestamp: Date.now(),
-        },
-      ]);
+      // If the error message indicates cancellation, don't show toast
+      if (err.name !== "AbortError") {
+        toast.error("Generation Error", {
+          description: err.message,
+        });
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            content: `*Error: ${err.message}*`,
+            timestamp: Date.now(),
+          },
+        ]);
+      }
     } finally {
       setIsStreaming(false);
+      abortControllerRef.current = null;
     }
   };
 
@@ -614,7 +631,23 @@ export default function PromptLab() {
             className="flex-1 overflow-y-auto p-4 space-y-4"
             onScroll={handleScroll}
           >
-            {messages.length === 0 && (
+            {isLoading && !session && (
+              <div className="h-full flex flex-col items-center justify-center text-muted-foreground">
+                <Loader2 className="w-8 h-8 animate-spin mb-4" />
+                <p className="text-sm font-medium">
+                  Initializing AI Session...
+                </p>
+              </div>
+            )}
+
+            {!isLoading && !session && (
+              <div className="h-full flex flex-col items-center justify-center text-muted-foreground opacity-50">
+                <TerminalIcon />
+                <p className="mt-2 text-sm">Create a new session to start.</p>
+              </div>
+            )}
+
+            {!isLoading && session && messages.length === 0 && (
               <div className="h-full flex flex-col items-center justify-center text-muted-foreground opacity-50">
                 <TerminalIcon />
                 <p className="mt-2 text-sm">
@@ -667,16 +700,29 @@ export default function PromptLab() {
               <Input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Send a message..."
+                placeholder={
+                  !session ? "Create a new session..." : "Send a message..."
+                }
                 disabled={!session || isStreaming}
                 className="flex-1"
               />
-              <Button
-                type="submit"
-                disabled={!input.trim() || !session || isStreaming}
-              >
-                <Send className="w-4 h-4" />
-              </Button>
+              {isStreaming ? (
+                <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={handleStop}
+                  title="Stop generation"
+                >
+                  <Square className="w-4 h-4 fill-current" />
+                </Button>
+              ) : (
+                <Button
+                  type="submit"
+                  disabled={!input.trim() || !session || isStreaming}
+                >
+                  <Send className="w-4 h-4" />
+                </Button>
+              )}
             </form>
           </div>
         </div>

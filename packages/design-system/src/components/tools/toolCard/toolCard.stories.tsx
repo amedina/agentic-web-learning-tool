@@ -7,10 +7,10 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
  * Internal dependencies.
  */
 import { ToolCard } from '.';
-import type { WebMCPTool } from '../types';
+import type { WebMCPTool } from '../../types';
 
 const meta: Meta<typeof ToolCard> = {
-  title: 'Components/WebMCPTools/ToolCard',
+  title: 'Components/Tools/ToolCard',
   component: ToolCard,
   parameters: {
     layout: 'centered',

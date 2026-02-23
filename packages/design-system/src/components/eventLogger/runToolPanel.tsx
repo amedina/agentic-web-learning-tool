@@ -9,6 +9,7 @@ import { X } from 'lucide-react';
  * Internal dependencies.
  */
 import { Button } from '../button';
+import { getToolNameWithoutPrefix } from '../../lib';
 
 export interface RunToolPanelTool {
   name: string;
@@ -24,6 +25,7 @@ export interface RunToolPanelTool {
 export interface RunToolPanelProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onCancel: () => void;
   tool: RunToolPanelTool | null;
   args: Record<string, string>;
   onArgsChange: (key: string, value: string) => void;
@@ -36,6 +38,7 @@ export interface RunToolPanelProps {
 export const RunToolPanel: React.FC<RunToolPanelProps> = ({
   open,
   onOpenChange,
+  onCancel,
   tool,
   args,
   onArgsChange,
@@ -123,7 +126,7 @@ export const RunToolPanel: React.FC<RunToolPanelProps> = ({
               className="text-xs text-gray-900 break-words block mt-2"
               title={tool.name}
             >
-              {tool.name}
+              {getToolNameWithoutPrefix(tool.name)}
             </span>
           )}
         </div>
@@ -219,14 +222,17 @@ export const RunToolPanel: React.FC<RunToolPanelProps> = ({
         </div>
 
         {/* Footer with Action Button */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t bg-white">
+        <div className="absolute bottom-0 left-0 right-0 p-4 border-t bg-white flex gap-2 w-full">
           <Button
             onClick={onRun}
             disabled={isRunning || !tool}
-            className="w-full"
+            className="flex-1"
             variant="run"
           >
             {isRunning ? 'Running...' : 'Run Tool'}
+          </Button>
+          <Button onClick={onCancel} className="flex-1" variant="secondary">
+            Cancel
           </Button>
         </div>
       </div>

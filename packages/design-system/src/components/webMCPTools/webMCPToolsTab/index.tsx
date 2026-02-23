@@ -8,8 +8,8 @@ import { useCallback, useState } from 'react';
  * Internal dependencies.
  */
 import { Button } from '../../button';
-import type { WebMCPTool } from '../types';
-import { ToolList } from '../toolList';
+import type { WebMCPTool } from '../../types';
+import { ToolList } from '../../tools';
 import { EditToolDialog } from '../editToolDialog';
 import OptionsPageTab from '../../optionsPageTab';
 

@@ -108,6 +108,16 @@ export const INITIAL_PROVIDERS = [
     id: 'gemini',
     name: 'Gemini',
     models: [
+      {
+        id: 'gemini-3-flash-preview',
+        label: 'gemini-3-flash-preview',
+        thinking: true,
+      },
+      {
+        id: 'gemini-3-pro-preview',
+        label: 'gemini-3-pro-preview',
+        thinking: true,
+      },
       { id: 'gemini-2.5-pro', label: 'gemini-2.5-pro', thinking: true },
       { id: 'gemini-2.5-flash', label: 'gemini-2.5-flash', thinking: true },
       {

@@ -1,7 +1,8 @@
 /**
  * External dependencies
  */
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { X, FolderOpen, Trash2, Clock } from "lucide-react";
 import {
   listWorkflows,
@@ -15,17 +16,29 @@ import { type WorkflowJSON } from "@google-awlt/engine-core";
  * Internal dependencies
  */
 import logger from "../../../logger";
+import type { OpenWorkflow } from "../../workflowCanvas";
 
 interface SavedWorkflowsDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onLoad: (id: string, workflow?: WorkflowJSON) => void;
+  onNew: () => void;
+  updateWorkflowMeta: (
+    updates: Partial<WorkflowMetadata>,
+    isNew?: boolean,
+  ) => void;
+  activeWorkflowId: string | null;
+  setOpenWorkflows: React.Dispatch<React.SetStateAction<OpenWorkflow[]>>;
 }
 
 const SavedWorkflowsDialog: React.FC<SavedWorkflowsDialogProps> = ({
   isOpen,
   onClose,
   onLoad,
+  onNew,
+  updateWorkflowMeta,
+  activeWorkflowId,
+  setOpenWorkflows,
 }) => {
   const [activeTab, setActiveTab] = useState<"saved" | "demo">("saved");
   const [workflows, setWorkflows] = useState<WorkflowMetadata[]>([]);
@@ -49,22 +62,86 @@ const SavedWorkflowsDialog: React.FC<SavedWorkflowsDialogProps> = ({
     }
   }, [isOpen]);
 
-  const handleDelete = async (e: React.MouseEvent, id: string) => {
-    e.stopPropagation();
-    if (
-      window.confirm(
-        "Are you sure you want to delete this workflow? This cannot be undone.",
-      )
-    ) {
-      await deleteWorkflow(id);
-      await fetchWorkflows();
+  const handleDelete = useCallback(
+    async (e: React.MouseEvent, id: string) => {
+      e.stopPropagation();
+      if (
+        window.confirm(
+          activeWorkflowId === id
+            ? "You are currently using this workflow. Are you sure you want to delete it?"
+            : "Are you sure you want to delete this workflow? This cannot be undone.",
+        )
+      ) {
+        await deleteWorkflow(id);
+        const filteredWorkflows = workflows.filter(
+          (workflow) => workflow.id !== id,
+        );
+
+        let createNewWorkflow = false;
+
+        setOpenWorkflows((wfs) => {
+          const filteredOpenWorkflows = wfs.filter(
+            (workflow) => workflow.id !== id,
+          );
+
+          if (activeWorkflowId === id) {
+            if (!filteredOpenWorkflows.length) {
+              createNewWorkflow = true;
+            } else {
+              const toOpen = filteredOpenWorkflows[0].id;
+              const workflow = filteredWorkflows.find((wf) => wf.id == toOpen);
+
+              if (!workflow) {
+                onClose();
+              } else {
+                updateWorkflowMeta(workflow, true);
+                onLoad(workflow?.id);
+              }
+            }
+          }
+
+          return filteredOpenWorkflows;
+        });
+
+        if (createNewWorkflow) {
+          onNew();
+        }
+
+        await fetchWorkflows();
+
+        onClose();
+      }
+    },
+    [activeWorkflowId, onNew, updateWorkflowMeta, workflows],
+  );
+
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      window.addEventListener("keyup", handleEscape);
     }
-  };
+
+    return () => {
+      window.removeEventListener("keyup", handleEscape);
+    };
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 bg-black/60 dark:bg-black/80 flex items-center justify-center z-50 backdrop-blur-sm">
+  const content = (
+    <div
+      className="fixed inset-0 bg-black/60 dark:bg-black/80 flex items-center justify-center z-50 backdrop-blur-sm"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+    >
       <div className="bg-white dark:bg-slate-900 rounded-xl shadow-2xl w-full max-w-2xl mx-4 flex flex-col max-h-[80vh] animate-in fade-in zoom-in duration-200 border border-slate-200 dark:border-slate-800">
         <div className="flex items-center justify-between p-6 border-b border-gray-100 dark:border-slate-800">
           <div>
@@ -198,6 +275,8 @@ const SavedWorkflowsDialog: React.FC<SavedWorkflowsDialogProps> = ({
       </div>
     </div>
   );
+
+  return createPortal(content, document.getElementById("portal")!);
 };
 
 export default SavedWorkflowsDialog;

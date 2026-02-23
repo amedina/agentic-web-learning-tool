@@ -20,6 +20,7 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 import { OAuthTokensSchema } from "@modelcontextprotocol/sdk/shared/auth.js";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import type { Transport } from "@modelcontextprotocol/sdk/shared/transport.js";
 /**
  * Internal dependencies
  */
@@ -51,8 +52,6 @@ import {
 } from "../../lib/types/customHeaders";
 import type { ElicitationResponse } from "../../components/ElicitationTab";
 import McpConnectionContext, { LOCALSTORAGEMOCK } from "./context";
-import type { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
-import type { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
 
 const CONFIG_LOCAL_STORAGE_KEY = "inspectorConfig_v1";
 
@@ -81,9 +80,10 @@ const McpConnectionProvider = ({
 }: {
   children: ReactNode;
   client: Client | null;
-  transport: StreamableHTTPClientTransport | SSEClientTransport | null;
+  transport: Transport | null;
 }) => {
   const [sseUrl, setSseUrl] = useState<string>(getInitialSseUrl);
+  const [pingResults, setPingResults] = useState<any[]>([]);
   const [transportType, setTransportType] = useState<"sse" | "streamable-http">(
     getInitialTransportType,
   );
@@ -193,6 +193,7 @@ const McpConnectionProvider = ({
     setTools([]);
     setResources([]);
     setPrompts([]);
+    setPingResults([]);
   }, []);
 
   const updateAuthState = useCallback((updates: Partial<AuthDebuggerState>) => {
@@ -615,6 +616,7 @@ const McpConnectionProvider = ({
         resources,
         tools,
         prompts,
+        pingResults,
       },
       actions: {
         setSseUrl,
@@ -647,6 +649,7 @@ const McpConnectionProvider = ({
         setPrompts,
         setTools,
         disconnectMcpServer,
+        setPingResults,
       },
     };
   }, [
@@ -692,6 +695,7 @@ const McpConnectionProvider = ({
     handleRejectSampling,
     handleResolveElicitation,
     disconnectMcpServer,
+    pingResults,
   ]);
 
   return (

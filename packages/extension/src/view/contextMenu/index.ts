@@ -6,13 +6,13 @@ import {
   loadWorkflow,
   handleRunWorkflow,
 } from '@google-awlt/engine-extension';
+import type { WorkflowJSON } from '@google-awlt/engine-core';
 
 /**
  * Internal dependencies
  */
 import { isDomainAllowed } from '../../serviceWorker/utils';
 import { logger } from '../../utils';
-import type { WorkflowJSON } from '@google-awlt/engine-core';
 
 const WORKFLOW_MENU_ID = 'run-workflow-parent';
 const WORKFLOW_ID_PREFIX = 'workflow-run-';

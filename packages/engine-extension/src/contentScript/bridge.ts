@@ -19,7 +19,10 @@ import type {
  * - Showing alerts
  * - Visual status updates
  */
-export function initContentScriptBridge(): void {
+export function initContentScriptBridge(tabId?: number): void {
+  // @ts-expect-error
+  window.awlTabId = tabId;
+
   /**
    * Handle incoming messages from the service worker.
    */
@@ -192,11 +195,10 @@ export function initContentScriptBridge(): void {
     sendResponse: (response: ContentScriptResponse) => void
   ) {
     try {
-      const currentTabIds = await chrome.tabs.query({});
-
-      if (currentTabIds.some((tab) => tab.id === tabId)) {
-        console.log('[Workflow] Content script is active');
+      // @ts-expect-error
+      if (window.awlTabId === tabId) {
         sendResponse({ success: true });
+        return;
       }
 
       sendResponse({ success: false });

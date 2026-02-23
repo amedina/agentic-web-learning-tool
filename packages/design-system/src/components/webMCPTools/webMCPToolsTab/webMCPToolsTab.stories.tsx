@@ -8,7 +8,7 @@ import { useState } from 'react';
  * Internal dependencies.
  */
 import { WebMCPToolsTab } from '.';
-import type { WebMCPTool } from '../types';
+import type { WebMCPTool } from '../../types';
 
 const meta: Meta<typeof WebMCPToolsTab> = {
   title: 'Components/WebMCPTools/WebMCPToolsTab',

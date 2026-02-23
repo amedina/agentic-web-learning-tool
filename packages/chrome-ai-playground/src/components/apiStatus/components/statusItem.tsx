@@ -5,7 +5,7 @@ import React from "react";
 import { cn } from "@google-awlt/design-system";
 
 interface StatusItemProps {
-  label: string;
+  label: React.ReactNode;
   children?: React.ReactNode;
   className?: string;
   action?: React.ReactNode;
@@ -24,7 +24,7 @@ export default function StatusItem({
         className,
       )}
     >
-      <span className="text-sm font-medium shrink-0 mr-4">{label}</span>
+      <div className="text-sm font-medium shrink-0 mr-4">{label}</div>
       <div className="flex items-center justify-end gap-4 flex-1 min-w-0">
         {action && <div className="shrink-0">{action}</div>}
         {children && (

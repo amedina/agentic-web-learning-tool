@@ -87,6 +87,7 @@ const ToolsConfigPanel = ({
       setActiveTab("node");
     } else {
       setNode(undefined);
+      setActiveTab("workflow");
     }
   }, [selectedNode, getNode]);
 
