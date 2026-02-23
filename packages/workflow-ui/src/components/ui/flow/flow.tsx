@@ -283,8 +283,9 @@ const Flow = <NodeType extends Node, EdgeType extends Edge>({
               <TabsTrigger
                 value="new"
                 className="h-9 px-2 relative group data-[state=active]:bg-gray-100 dark:data-[state=active]:bg-slate-950 data-[state=active]:shadow-none border-r border-l border-l-transparent border-slate-300 dark:border-border -ml-px first:ml-0 rounded-none text-xs font-semibold normal-case hover:bg-slate-300/50 dark:hover:bg-zinc-800/50 data-[state=active]:hover:bg-gray-100 dark:data-[state=active]:hover:bg-slate-950 transition-colors data-[state=active]:border-t-2 data-[state=active]:border-t-indigo-500 data-[state=active]:border-l-slate-300 dark:data-[state=active]:border-l-border data-[state=active]:top-[1px] data-[state=active]:z-10"
+                onClick={actions.onNew}
               >
-                <Plus size={16} onClick={actions.onNew} />
+                <Plus size={16} />
               </TabsTrigger>
             </TabsList>
           </Tabs>

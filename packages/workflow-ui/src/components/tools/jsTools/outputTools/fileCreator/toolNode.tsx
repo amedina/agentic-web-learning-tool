@@ -42,7 +42,7 @@ const ToolNode = () => {
 
   return (
     <ToolNodeContainer
-      title="File Creator"
+      title={config?.title || "File Creator"}
       Icon={FileDown}
       type="fileCreator"
       selected={selectedNode === nodeId}

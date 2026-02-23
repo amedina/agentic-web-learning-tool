@@ -2,6 +2,7 @@
  * External dependencies
  */
 import React, { useCallback, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { X, FolderOpen, Trash2, Clock } from "lucide-react";
 import {
   listWorkflows,
@@ -27,8 +28,7 @@ interface SavedWorkflowsDialogProps {
     isNew?: boolean,
   ) => void;
   activeWorkflowId: string | null;
-  openWorkflows: OpenWorkflow[];
-  setOpenWorkflows: (workflows: OpenWorkflow[]) => void;
+  setOpenWorkflows: React.Dispatch<React.SetStateAction<OpenWorkflow[]>>;
 }
 
 const SavedWorkflowsDialog: React.FC<SavedWorkflowsDialogProps> = ({
@@ -38,7 +38,6 @@ const SavedWorkflowsDialog: React.FC<SavedWorkflowsDialogProps> = ({
   onNew,
   updateWorkflowMeta,
   activeWorkflowId,
-  openWorkflows,
   setOpenWorkflows,
 }) => {
   const [activeTab, setActiveTab] = useState<"saved" | "demo">("saved");
@@ -68,7 +67,9 @@ const SavedWorkflowsDialog: React.FC<SavedWorkflowsDialogProps> = ({
       e.stopPropagation();
       if (
         window.confirm(
-          "Are you sure you want to delete this workflow? This cannot be undone.",
+          activeWorkflowId === id
+            ? "You are currently using this workflow. Are you sure you want to delete it?"
+            : "Are you sure you want to delete this workflow? This cannot be undone.",
         )
       ) {
         await deleteWorkflow(id);
@@ -76,30 +77,71 @@ const SavedWorkflowsDialog: React.FC<SavedWorkflowsDialogProps> = ({
           (workflow) => workflow.id !== id,
         );
 
-        setOpenWorkflows(
-          openWorkflows.filter((workflow) => workflow.id !== id),
-        );
+        let createNewWorkflow = false;
 
-        if (activeWorkflowId === id) {
-          if (!filteredWorkflows.length) {
-            onNew();
-            onClose();
-          } else {
-            updateWorkflowMeta(filteredWorkflows[0], true);
-            onLoad(filteredWorkflows[0].id);
+        setOpenWorkflows((wfs) => {
+          const filteredOpenWorkflows = wfs.filter(
+            (workflow) => workflow.id !== id,
+          );
+
+          if (activeWorkflowId === id) {
+            if (!filteredOpenWorkflows.length) {
+              createNewWorkflow = true;
+            } else {
+              const toOpen = filteredOpenWorkflows[0].id;
+              const workflow = filteredWorkflows.find((wf) => wf.id == toOpen);
+
+              if (!workflow) {
+                onClose();
+              } else {
+                updateWorkflowMeta(workflow, true);
+                onLoad(workflow?.id);
+              }
+            }
           }
+
+          return filteredOpenWorkflows;
+        });
+
+        if (createNewWorkflow) {
+          onNew();
         }
 
         await fetchWorkflows();
+
+        onClose();
       }
     },
-    [openWorkflows, activeWorkflowId, onNew, updateWorkflowMeta, workflows],
+    [activeWorkflowId, onNew, updateWorkflowMeta, workflows],
   );
+
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      window.addEventListener("keyup", handleEscape);
+    }
+
+    return () => {
+      window.removeEventListener("keyup", handleEscape);
+    };
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 bg-black/60 dark:bg-black/80 flex items-center justify-center z-50 backdrop-blur-sm">
+  const content = (
+    <div
+      className="fixed inset-0 bg-black/60 dark:bg-black/80 flex items-center justify-center z-50 backdrop-blur-sm"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+    >
       <div className="bg-white dark:bg-slate-900 rounded-xl shadow-2xl w-full max-w-2xl mx-4 flex flex-col max-h-[80vh] animate-in fade-in zoom-in duration-200 border border-slate-200 dark:border-slate-800">
         <div className="flex items-center justify-between p-6 border-b border-gray-100 dark:border-slate-800">
           <div>
@@ -233,6 +275,8 @@ const SavedWorkflowsDialog: React.FC<SavedWorkflowsDialogProps> = ({
       </div>
     </div>
   );
+
+  return createPortal(content, document.getElementById("portal")!);
 };
 
 export default SavedWorkflowsDialog;

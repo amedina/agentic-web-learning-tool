@@ -79,6 +79,7 @@ export async function handleRunWorkflow(
           target: { tabId: targetTabId },
           func: initContentScriptBridge,
           injectImmediately: true,
+          args: [targetTabId],
         });
       }
     }
