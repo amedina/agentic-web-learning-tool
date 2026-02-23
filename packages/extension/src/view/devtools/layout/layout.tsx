@@ -63,7 +63,7 @@ export const Layout = () => {
           />
         </div>
       )}
-      <div className="fixed top-0 flex items-center w-[10px] left-0 z-20 md:hidden pl-1 shadow bg-sidebar rounded-md">
+      <div className="fixed top-0 flex items-center w-[10px] h-full left-0 z-20 md:hidden pl-1 shadow bg-sidebar rounded-md">
         <SidebarTrigger className="bg-sidebar z-[30] w-fit h-fit shadow-[0_0_0_1px_hsl(var(--sidebar-border))] h-8 w-8">
           {isOpen ? <ChevronLeft /> : <ChevronRight />}
         </SidebarTrigger>
