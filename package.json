@@ -41,6 +41,7 @@
     "format:storybook-config": "pnpm --filter storybook-config format",
     "format:shared-config": "pnpm --filter shared-config format",
     "dev": "pnpm --filter extension dev",
+    "dev:extension": "pnpm --filter extension dev:extension",
     "check-types": "pnpm --filter extension check-types",
     "build:table": "pnpm --filter table build",
     "build:chrome-ai-playground": "pnpm --filter chrome-ai-playground build",
