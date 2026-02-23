@@ -35,9 +35,10 @@ export const PREDEFINED_WORKFLOWS: WorkflowJSON[] = [
           id: 'dom-input',
           type: NodeType.DOM_INPUT,
           config: {
-            title: 'Get Selected Text',
+            title: 'Get Text',
+            description: 'Get text from the DOM.',
             cssSelector: 'p',
-            extract: 'textContent',
+            extract: 'innerHTML',
             defaultValue: 'Selection not found',
             isMultiple: true,
           },
@@ -60,8 +61,8 @@ export const PREDEFINED_WORKFLOWS: WorkflowJSON[] = [
           label: 'translatorApi',
           ui: {
             position: {
-              x: 571,
-              y: 56,
+              x: 393,
+              y: 70,
             },
           },
         },
@@ -75,8 +76,8 @@ export const PREDEFINED_WORKFLOWS: WorkflowJSON[] = [
           label: 'alertNotification',
           ui: {
             position: {
-              x: 558,
-              y: 322,
+              x: 473,
+              y: 327,
             },
           },
         },
@@ -106,6 +107,24 @@ export const PREDEFINED_WORKFLOWS: WorkflowJSON[] = [
             position: {
               x: 26,
               y: 332,
+            },
+          },
+        },
+        {
+          id: 'domReplacement',
+          type: NodeType.DOM_REPLACEMENT,
+          config: {
+            title: 'Set Text',
+            description: 'Set text to the DOM.',
+            selector: 'p',
+            isMultiple: false,
+            mode: 'innerHTML',
+          },
+          label: 'Set Text',
+          ui: {
+            position: {
+              x: 743,
+              y: 79,
             },
           },
         },
@@ -143,6 +162,13 @@ export const PREDEFINED_WORKFLOWS: WorkflowJSON[] = [
           id: 'e5-6',
           source: 'alert',
           target: 'end',
+          sourceHandle: null,
+          targetHandle: null,
+        },
+        {
+          id: 'e4-6',
+          source: 'translator',
+          target: 'domReplacement',
           sourceHandle: null,
           targetHandle: null,
         },
