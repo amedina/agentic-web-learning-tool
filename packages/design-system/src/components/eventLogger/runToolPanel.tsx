@@ -105,14 +105,14 @@ export const RunToolPanel: React.FC<RunToolPanelProps> = ({
       {/* Side Panel - Slides in/out */}
       <div
         className={clsx(
-          'relative h-full w-80 bg-white shadow-xl transform transition-transform duration-300 ease-in-out border-l-1 border-gray-200',
+          'relative h-full w-80 bg-background shadow-xl transform transition-transform duration-300 ease-in-out border-l-1 border-gray-200',
           open ? 'translate-x-0' : 'translate-x-full'
         )}
       >
         {/* Header */}
-        <div className="px-4 py-3 border-b border-gray-200 bg-gray-50">
+        <div className="px-4 py-3 border-gray-200 bg-background">
           <div className="flex justify-between items-center ">
-            <h2 className="text-sm font-semibold text-color-gray">Run Tool</h2>
+            <h2 className="text-sm font-semibold text-foreground">Run Tool</h2>
             <button
               onClick={() => onOpenChange(false)}
               className="text-gray-500 hover:text-gray-700 focus:outline-none transition-colors"
@@ -123,7 +123,7 @@ export const RunToolPanel: React.FC<RunToolPanelProps> = ({
           </div>
           {tool && (
             <span
-              className="text-xs text-gray-900 break-words block mt-2"
+              className="text-xs text-amethyst-haze break-words block mt-2"
               title={tool.name}
             >
               {getToolNameWithoutPrefix(tool.name)}
@@ -222,7 +222,7 @@ export const RunToolPanel: React.FC<RunToolPanelProps> = ({
         </div>
 
         {/* Footer with Action Button */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t bg-white flex gap-2 w-full">
+        <div className="absolute bottom-0 left-0 right-0 p-4 border-t bg-background flex gap-2 w-full">
           <Button
             onClick={onRun}
             disabled={isRunning || !tool}
