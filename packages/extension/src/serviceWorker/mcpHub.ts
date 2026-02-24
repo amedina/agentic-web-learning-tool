@@ -987,8 +987,8 @@ class McpHub {
           console.log('WebMCP: Tool to register:', toolToRegister);
           // 4. Register
           if (mcp) {
-            if (mcp.toolUnregisterFunctions.get(toolWrapper.name)) {
-              const unregisterFunction = mcp.toolUnregisterFunctions.get(
+            if (mcp?.toolUnregisterFunctions?.get(toolWrapper.name)) {
+              const unregisterFunction = mcp?.toolUnregisterFunctions?.get(
                 toolWrapper.name
               );
               unregisterFunction?.();
