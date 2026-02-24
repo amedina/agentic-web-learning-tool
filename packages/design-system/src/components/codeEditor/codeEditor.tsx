@@ -129,13 +129,13 @@ export function CodeEditor({
     },
     [breakpoints, onChange]
   );
-
+  const { marginLeft = '', ...restStyles } = styles;
   const commonStyle = {
     fontFamily:
       '"Fira Code", "Cascadia Code", Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace',
     fontSize: '14px',
     lineHeight: '1.5',
-    ...styles,
+    ...restStyles,
   };
 
   const backgroundColor = 'var(--background)';
@@ -153,10 +153,10 @@ export function CodeEditor({
           // @ts-ignore - ts(2322)
           style={{
             ...commonStyle,
-            marginLeft: '2.25rem',
             whiteSpace: 'pre',
             caretColor: caretColor,
             zIndex: 10,
+            marginLeft,
           }}
         />
         <div
@@ -176,7 +176,7 @@ export function CodeEditor({
                 style={{
                   margin: 0,
                   minHeight: '100%',
-                  ...commonStyle,
+                  ...restStyles,
                   backgroundColor: backgroundColor,
                 }}
               />

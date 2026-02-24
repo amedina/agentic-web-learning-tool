@@ -239,7 +239,11 @@ export function EditToolDialog({
                 </div>
               )}
 
-              <CodeEditor code={code} onChange={handleCodeChange} />
+              <CodeEditor
+                styles={{ marginLeft: `calc(2.25rem - 11px)` }}
+                code={code}
+                onChange={handleCodeChange}
+              />
             </div>
 
             {/* Sidebar/Metadata Side */}

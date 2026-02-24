@@ -94,6 +94,12 @@ export function ToolDetail({
               setNewScript(value);
               onScriptChange?.(value);
             }}
+            styles={{
+              fontSize: '11px',
+              lineHeight: '1.2',
+              marginLeft: `calc(2.25rem - 11px)`,
+              fontWeight: 300,
+            }}
             enableBreakpoints={true}
           />
         ) : (
