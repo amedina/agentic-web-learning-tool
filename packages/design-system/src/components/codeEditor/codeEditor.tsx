@@ -132,9 +132,9 @@ export function CodeEditor({
   const activeStyle = isDarkMode ? coldarkDark : coldarkCold;
   const backgroundColor = isDarkMode ? '#282a36' : 'white';
   const caretColor = isDarkMode ? '#f8f8f2' : 'black';
-
+  console.log(isDarkMode);
   return (
-    <div className="flex-1 relative flex">
+    <div className="flex-1 relative flex h-full">
       {/* Editor Area */}
       <div className="relative flex-1 overflow-hidden h-full">
         <textarea
@@ -146,7 +146,7 @@ export function CodeEditor({
           // @ts-ignore - ts(2322)
           style={{
             ...commonStyle,
-            margin: '1rem 1rem',
+            margin: '0rem 1rem',
             whiteSpace: 'pre',
             caretColor: caretColor,
             zIndex: 10,
@@ -154,7 +154,7 @@ export function CodeEditor({
         />
         <div
           ref={backdropRef}
-          className="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-hidden"
+          className="absolute inset-0 w-full h-full pointer-events-auto z-0 overflow-hidden"
           style={{ backgroundColor: backgroundColor }}
         >
           <SyntaxHighlighterWrapper
@@ -165,6 +165,7 @@ export function CodeEditor({
             selectedLineNumbers={breakpoints}
             showLineNumbers={true}
             onLinenumberClick={toggleBreakpoint}
+            isDarkMode={isDarkMode}
             preTag={(props: any) => (
               <pre
                 {...props}

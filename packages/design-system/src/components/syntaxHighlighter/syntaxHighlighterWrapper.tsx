@@ -41,8 +41,8 @@ const SyntaxHighlighterWrapper = ({
       CodeTag={codeTag}
       PreTag={preTag}
       lineNumberStyle={(lineNumber: number) => {
-        const gutterBg = isDarkMode ? '#21222c' : 'white';
-        const gutterText = isDarkMode ? '#6272a4' : '#6e6e6e';
+        const gutterBg = !isDarkMode ? '#21222c' : 'white';
+        const gutterText = !isDarkMode ? '#6272a4' : '#6e6e6e';
         return {
           cursor: 'pointer',
           backgroundColor: selectedLineNumbers.includes(lineNumber)

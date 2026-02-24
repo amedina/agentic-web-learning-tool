@@ -85,7 +85,7 @@ export function ToolDetail({
       </TabsContent>
       <TabsContent
         value="script"
-        className="min-h-0 mt-0 p-0 border-0 bg-transparent"
+        className="min-h-0 mt-0 p-0 border-0 bg-transparent h-full"
       >
         {userTool ? (
           <CodeEditor
