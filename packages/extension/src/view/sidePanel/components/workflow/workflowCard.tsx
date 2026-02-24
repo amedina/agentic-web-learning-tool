@@ -3,27 +3,30 @@
  */
 import { Button, cn } from '@google-awlt/design-system';
 import type { WorkflowJSON } from '@google-awlt/engine-core';
-import { PlayIcon } from 'lucide-react';
+import { PlayIcon, Square, Loader2 } from 'lucide-react';
 
 interface WorkflowCardProps {
   workflow: WorkflowJSON;
   onRun: () => void;
+  onStop?: () => void;
   isRunning?: boolean;
+  isStopping?: boolean;
   isOtherRunning?: boolean;
 }
 
 const WorkflowCard = ({
   workflow,
   onRun,
+  onStop,
   isRunning,
+  isStopping,
   isOtherRunning,
 }: WorkflowCardProps) => {
   return (
     <div
       className={cn(
         'group relative flex flex-col p-4 bg-(--surface-color) rounded-xl border border-gray-200 shadow-sm transition-all duration-300',
-        isRunning &&
-          'opacity-70 scale-[0.98] border-blue-400 bg-blue-50/10 pointer-events-none',
+        isRunning && 'border-blue-400 bg-blue-50/10 shadow-md',
         isOtherRunning && 'opacity-40 pointer-events-none grayscale-[0.2]'
       )}
     >
@@ -71,19 +74,35 @@ const WorkflowCard = ({
         <Button
           onClick={(e) => {
             e.stopPropagation();
-            onRun();
+            if (isRunning) {
+              onStop?.();
+            } else {
+              onRun();
+            }
           }}
+          disabled={isStopping}
           variant="ghost"
           size="sm"
           className={cn(
-            'h-8 w-8 p-0 rounded-full shadow-sm bg-blue-600 hover:bg-blue-400 dark:hover:bg-blue-700 text-white border-none transition-all',
+            'h-8 w-8 p-0 rounded-full shadow-sm text-white border-none transition-all',
             'opacity-0 group-hover:opacity-100 scale-90 group-hover:scale-100 hover:text-white',
-            isRunning && 'opacity-100 scale-100 bg-blue-400 cursor-default'
+            isRunning
+              ? 'opacity-100 scale-100 bg-red-500 hover:bg-red-600'
+              : 'bg-blue-600 hover:bg-blue-400 dark:hover:bg-blue-700',
+            isStopping && 'cursor-wait bg-red-400'
           )}
-          title={isRunning ? 'Running...' : 'Run Workflow'}
+          title={
+            isStopping
+              ? 'Stopping...'
+              : isRunning
+                ? 'Stop Workflow'
+                : 'Run Workflow'
+          }
         >
-          {isRunning ? (
-            <div className="h-3 w-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+          {isStopping ? (
+            <Loader2 size={14} className="animate-spin" />
+          ) : isRunning ? (
+            <Square size={12} fill="white" className="animate-pulse" />
           ) : (
             <PlayIcon size={14} fill="white" className="ml-0.5" />
           )}

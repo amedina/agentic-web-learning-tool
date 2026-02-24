@@ -3,10 +3,7 @@
  */
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import { TerminalIcon } from 'lucide-react';
-import {
-  listWorkflows,
-  getWorkflowClient,
-} from '@google-awlt/engine-extension';
+import { listWorkflows } from '@google-awlt/engine-extension';
 import type { WorkflowJSON } from '@google-awlt/engine-core';
 
 /**
@@ -25,8 +22,13 @@ const WorkflowList = ({ activeTabId, activeTabUrl }: WorkflowListProps) => {
   const [workflows, setWorkflows] = useState<WorkflowJSON[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const { workflowId: globalRunningWorkflowId, status: globalStatus } =
-    useWorkflowSync();
+  const {
+    workflowId: globalRunningWorkflowId,
+    status: globalStatus,
+    runWorkflow,
+    stopWorkflow,
+    isStopping,
+  } = useWorkflowSync();
 
   const runningWorkflowId =
     globalStatus === 'running' ? globalRunningWorkflowId : null;
@@ -56,35 +58,9 @@ const WorkflowList = ({ activeTabId, activeTabUrl }: WorkflowListProps) => {
 
   const handleRun = useCallback(
     async (workflow: WorkflowJSON) => {
-      if (runningWorkflowId) return;
-      let unsubscribeUpdates: (() => void) | undefined = undefined;
-
-      try {
-        const client = getWorkflowClient();
-
-        unsubscribeUpdates = client.subscribeToUpdates({
-          onNodeStart: (nodeId) => {
-            console.log('Node started:', nodeId);
-          },
-          onNodeFinish: (nodeId, output) => {
-            console.log('Node finished:', nodeId, output);
-          },
-          onComplete: () => {
-            console.log('Workflow completed');
-          },
-          onError: () => {
-            console.log('Workflow error');
-          },
-        });
-
-        await client.runWorkflow(workflow, activeTabId);
-      } catch (error) {
-        console.error('Failed to run workflow:', error);
-      } finally {
-        unsubscribeUpdates?.();
-      }
+      await runWorkflow(workflow, activeTabId);
     },
-    [activeTabId, runningWorkflowId]
+    [activeTabId, runWorkflow]
   );
 
   if (loading) {
@@ -121,6 +97,8 @@ const WorkflowList = ({ activeTabId, activeTabUrl }: WorkflowListProps) => {
           key={wf.meta.id}
           workflow={wf}
           onRun={() => handleRun(wf)}
+          onStop={stopWorkflow}
+          isStopping={isStopping}
           isRunning={runningWorkflowId === wf.meta.id}
           isOtherRunning={
             !!runningWorkflowId && runningWorkflowId !== wf.meta.id

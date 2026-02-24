@@ -5,7 +5,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useReactFlow } from "@xyflow/react";
 import {
   getLastOpenedWorkflowId,
-  getWorkflowClient,
   saveWorkflow,
   loadWorkflow,
   deleteWorkflow,
@@ -89,7 +88,6 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
   }, [openWorkflows]);
 
   const [showSavedWorkflows, setShowSavedWorkflows] = useState(false);
-  const [isStopping, setIsStopping] = useState(false);
   const [toast, setToast] = useState<{
     message: string;
     type: "success" | "error";
@@ -106,9 +104,6 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
     onConnect,
     clearFlow,
     addNode,
-    updateNodeStatus,
-    isRunning,
-    setIsRunning,
   } = useFlow(({ state, actions }) => ({
     nodes: state.nodes,
     edges: state.edges,
@@ -120,9 +115,6 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
     onConnect: actions.onConnect,
     clearFlow: actions.clearFlow,
     addNode: actions.addNode,
-    updateNodeStatus: actions.updateNodeStatus,
-    isRunning: state.isRunning,
-    setIsRunning: actions.setIsRunning,
   }));
 
   const {
@@ -402,8 +394,13 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
     [],
   );
 
-  // Sync canvas with global workflow status
-  useWorkflowSync(workflowMeta?.id || null, showToast);
+  const {
+    isRunning: globalIsRunning,
+    workflowId: runningId,
+    isStopping,
+    runWorkflow,
+    stopWorkflow,
+  } = useWorkflowSync(workflowMeta?.id || null, showToast);
 
   const handleSave = useCallback(async () => {
     const isBuiltIn = workflowMeta?.id.startsWith("demo-");
@@ -573,60 +570,20 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
   }, [clearFlow, importJson, loadWorkflowData, showToast]);
 
   const handleRun = useCallback(async () => {
-    if (isRunning) return;
-    if (!selectedTabId) {
-      showToast("Please select a tab to run on", "error");
-      return;
-    }
-
-    setIsRunning(true);
-
-    // Reset statuses
-    nodes.forEach((node) => updateNodeStatus(node.id, undefined));
-
     const workflowData = serializeWorkflow(nodes, edges, nodesApiData);
-
-    const client = getWorkflowClient();
-
-    try {
-      await client.runWorkflow(workflowData, selectedTabId, {
-        onComplete: () => {
-          setIsStopping(false);
-        },
-        onError: () => {
-          setIsStopping(false);
-        },
-      });
-    } catch (error) {
-      setIsRunning(false);
-      setIsStopping(false);
-      const msg = error instanceof Error ? error.message : String(error);
-      showToast(`Failed to start workflow: ${msg}`, "error");
-    }
+    await runWorkflow(workflowData, selectedTabId);
   }, [
-    edges,
-    isRunning,
-    nodes,
-    nodesApiData,
-    selectedTabId,
     serializeWorkflow,
-    setIsRunning,
-    showToast,
-    updateNodeStatus,
+    nodes,
+    edges,
+    nodesApiData,
+    runWorkflow,
+    selectedTabId,
   ]);
-  const handleStop = useCallback(async () => {
-    const client = getWorkflowClient();
 
-    try {
-      setIsStopping(true);
-      await client.stopWorkflow();
-      showToast("Stopping workflow...", "success");
-    } catch (error) {
-      setIsStopping(false);
-      const msg = error instanceof Error ? error.message : String(error);
-      showToast(`Failed to stop workflow: ${msg}`, "error");
-    }
-  }, [showToast]);
+  const handleStop = useCallback(async () => {
+    await stopWorkflow();
+  }, [stopWorkflow]);
 
   const handleClear = useCallback(() => {
     if (
@@ -881,7 +838,8 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
           setSelectedTabId={setSelectedTabId}
           tabs={tabs}
           theme={theme}
-          isRunning={isRunning}
+          globalIsRunning={globalIsRunning}
+          runningWorkflowId={runningId}
           isStopping={isStopping}
           openWorkflows={openWorkflows}
           activeWorkflowId={workflowMeta?.id || ""}

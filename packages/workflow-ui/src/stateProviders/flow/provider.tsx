@@ -77,8 +77,6 @@ const FlowProvider = ({ children }: PropsWithChildren) => {
     clearApiData: actions.clearApiData,
   }));
 
-  const [isRunning, setIsRunning] = useState(false);
-
   const onNodesChange = useCallback(
     (changes: NodeChange<FlowNodeType>[]) =>
       setNodes((nodesSnapshot) => applyNodeChanges(changes, nodesSnapshot)),
@@ -173,7 +171,6 @@ const FlowProvider = ({ children }: PropsWithChildren) => {
           nodes,
           edges,
           nodeTypes,
-          isRunning,
         },
         actions: {
           onNodesChange,
@@ -184,7 +181,6 @@ const FlowProvider = ({ children }: PropsWithChildren) => {
           addNode,
           deleteNode,
           updateNodeStatus,
-          setIsRunning,
           clearFlow,
         },
       }}
