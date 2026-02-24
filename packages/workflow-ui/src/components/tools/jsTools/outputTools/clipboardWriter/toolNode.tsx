@@ -42,7 +42,7 @@ const ToolNode = () => {
 
   return (
     <ToolNodeContainer
-      title="Clipboard Writer"
+      title={config?.title || "Clipboard Writer"}
       Icon={ClipboardCopy}
       type="clipboardWriter"
       selected={selectedNode === nodeId}

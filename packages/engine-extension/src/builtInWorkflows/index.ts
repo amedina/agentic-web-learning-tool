@@ -9,7 +9,7 @@ export const PREDEFINED_WORKFLOWS: WorkflowJSON[] = [
       id: 'demo-translation',
       name: 'Built-in: Smart Translator',
       sanitizedName: 'built_in__smart_translator',
-      description: 'Automatically translates selected text into Spanish.',
+      description: 'Automatically translates paragraph text into Spanish.',
       savedAt: new Date().toISOString(),
       allowedDomains: ['<all_urls>'],
       isWebMCP: true,
@@ -35,10 +35,12 @@ export const PREDEFINED_WORKFLOWS: WorkflowJSON[] = [
           id: 'dom-input',
           type: NodeType.DOM_INPUT,
           config: {
-            title: 'Get Selected Text',
-            cssSelector: 'body',
-            extract: 'textContent',
+            title: 'Get Text',
+            description: 'Get text from the DOM.',
+            cssSelector: 'p',
+            extract: 'innerHTML',
             defaultValue: 'Selection not found',
+            isMultiple: true,
           },
           label: 'domInput',
           ui: {
@@ -59,8 +61,8 @@ export const PREDEFINED_WORKFLOWS: WorkflowJSON[] = [
           label: 'translatorApi',
           ui: {
             position: {
-              x: 173,
-              y: 332,
+              x: 393,
+              y: 70,
             },
           },
         },
@@ -69,13 +71,14 @@ export const PREDEFINED_WORKFLOWS: WorkflowJSON[] = [
           type: NodeType.ALERT_NOTIFICATION,
           config: {
             title: 'Translation Result',
-            useCustomMessage: false,
+            useCustomMessage: true,
+            message: 'Text translated to Spanish!',
           },
           label: 'alertNotification',
           ui: {
             position: {
-              x: 537,
-              y: 174,
+              x: 473,
+              y: 327,
             },
           },
         },
@@ -88,8 +91,41 @@ export const PREDEFINED_WORKFLOWS: WorkflowJSON[] = [
           label: 'end',
           ui: {
             position: {
-              x: 722,
-              y: 467,
+              x: 629,
+              y: 568,
+            },
+          },
+        },
+        {
+          id: 'loop',
+          type: NodeType.LOOP,
+          config: {
+            title: 'Loop',
+            description: 'Iterate over an array of items.',
+          },
+          label: 'Loop',
+          ui: {
+            position: {
+              x: 26,
+              y: 332,
+            },
+          },
+        },
+        {
+          id: 'domReplacement',
+          type: NodeType.DOM_REPLACEMENT,
+          config: {
+            title: 'Set Text',
+            description: 'Set text to the DOM.',
+            selector: 'p',
+            isMultiple: false,
+            mode: 'innerHTML',
+          },
+          label: 'Set Text',
+          ui: {
+            position: {
+              x: 743,
+              y: 79,
             },
           },
         },
@@ -105,21 +141,35 @@ export const PREDEFINED_WORKFLOWS: WorkflowJSON[] = [
         {
           id: 'e2-3',
           source: 'dom-input',
-          target: 'translator',
+          target: 'loop',
           sourceHandle: null,
-          targetHandle: null,
+          targetHandle: 'in',
         },
         {
           id: 'e3-4',
-          source: 'translator',
-          target: 'alert',
-          sourceHandle: null,
+          source: 'loop',
+          target: 'translator',
+          sourceHandle: 'item',
           targetHandle: null,
         },
         {
           id: 'e4-5',
+          source: 'loop',
+          target: 'alert',
+          sourceHandle: 'done',
+          targetHandle: null,
+        },
+        {
+          id: 'e5-6',
           source: 'alert',
           target: 'end',
+          sourceHandle: null,
+          targetHandle: null,
+        },
+        {
+          id: 'e4-6',
+          source: 'translator',
+          target: 'domReplacement',
           sourceHandle: null,
           targetHandle: null,
         },
@@ -158,9 +208,10 @@ export const PREDEFINED_WORKFLOWS: WorkflowJSON[] = [
           type: NodeType.DOM_INPUT,
           config: {
             title: 'Get Content',
-            cssSelector: 'body',
+            cssSelector: 'p',
             extract: 'innerText',
             defaultValue: '',
+            isMultiple: true,
           },
           label: 'domInput',
           ui: {

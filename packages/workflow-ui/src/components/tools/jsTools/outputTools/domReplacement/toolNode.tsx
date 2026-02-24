@@ -42,7 +42,7 @@ const ToolNode = () => {
 
   return (
     <ToolNodeContainer
-      title="DOM Replacement"
+      title={config?.title || "DOM Replacement"}
       Icon={Pencil}
       type="domReplacement"
       selected={selectedNode === nodeId}

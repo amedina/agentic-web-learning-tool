@@ -870,7 +870,7 @@ class McpHub {
         script,
         status: result.isError ? 'error' : 'success',
         result: result.content,
-        error: result.isError ? 'Tool returned an error' : undefined,
+        error: result.isError ? result.content : undefined,
       });
 
       return result;

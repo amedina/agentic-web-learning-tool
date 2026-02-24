@@ -42,7 +42,7 @@ const ToolNode = () => {
 
   return (
     <ToolNodeContainer
-      title="Tooltip"
+      title={config?.title || "Tooltip"}
       Icon={MessageSquare}
       type="tooltip"
       selected={selectedNode === nodeId}

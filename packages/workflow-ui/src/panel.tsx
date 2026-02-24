@@ -61,6 +61,7 @@ function Panel({ theme }: PanelProps) {
           <ToolsConfigPanel collapsed={rightCollapsed} onToggle={toggleRight} />
         </div>
       </div>
+      <div id="portal" />
     </div>
   );
 }

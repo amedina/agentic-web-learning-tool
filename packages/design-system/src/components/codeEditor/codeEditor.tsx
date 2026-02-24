@@ -2,13 +2,15 @@
  * External dependencies.
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { vs, dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import {
+  coldarkDark,
+  coldarkCold,
+} from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 /**
  * Internal dependencies.
  */
-import { SyntaxHighlighterWhite } from '../syntaxHighlighter';
-import { CodeEditorGutter } from './codeEditorGutter';
+import { SyntaxHighlighterWrapper } from '../syntaxHighlighter';
 
 interface CodeEditorProps {
   code: string;
@@ -29,8 +31,6 @@ export function CodeEditor({
   const gutterRef = useRef<HTMLDivElement | null>(null);
   const [breakpoints, setBreakpoints] = useState<number[]>([]);
   const [_code, setCode] = useState('');
-
-  const SyntaxHighlighterAny = SyntaxHighlighterWhite as any;
 
   // 1. Parsing Effect: Separates 'debugger;' statements from the code logic
   useEffect(() => {
@@ -129,30 +129,12 @@ export function CodeEditor({
     ...styles,
   };
 
-  const lines = _code.split('\n');
-  const lineNumbers = lines.map((_, index) => index + 1);
-
-  const activeStyle = isDarkMode ? dracula : vs;
+  const activeStyle = isDarkMode ? coldarkDark : coldarkCold;
   const backgroundColor = isDarkMode ? '#282a36' : 'white';
   const caretColor = isDarkMode ? '#f8f8f2' : 'black';
-  const gutterBg = isDarkMode ? '#21222c' : 'white';
-  const gutterText = isDarkMode ? '#6272a4' : '#6e6e6e';
-  const breakpointColor = '#1a73e8';
 
   return (
-    <div className="flex-1 relative flex overflow-hidden h-full">
-      <CodeEditorGutter
-        gutterRef={gutterRef}
-        lineNumbers={lineNumbers}
-        breakpoints={breakpoints}
-        toggleBreakpoint={toggleBreakpoint}
-        enableBreakpoints={enableBreakpoints}
-        commonStyle={commonStyle}
-        gutterBg={gutterBg}
-        gutterText={gutterText}
-        breakpointColor={breakpointColor}
-      />
-
+    <div className="flex-1 relative flex">
       {/* Editor Area */}
       <div className="relative flex-1 overflow-hidden h-full">
         <textarea
@@ -175,27 +157,31 @@ export function CodeEditor({
           className="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-hidden"
           style={{ backgroundColor: backgroundColor }}
         >
-          <SyntaxHighlighterAny
+          <SyntaxHighlighterWrapper
+            style={activeStyle}
             language="javascript"
             code={_code}
-            style={activeStyle}
-            components={{
-              Pre: (props: any) => (
-                <pre
-                  {...props}
-                  style={{
-                    minHeight: '100%',
-                    margin: 0,
-                    ...commonStyle,
-                    padding: '1rem 1rem',
-                    backgroundColor: backgroundColor,
-                  }}
-                />
-              ),
-              Code: (props: any) => (
-                <code {...props} style={{ fontFamily: 'inherit' }} />
-              ),
-            }}
+            background={backgroundColor}
+            selectedLineNumbers={breakpoints}
+            showLineNumbers={true}
+            onLinenumberClick={toggleBreakpoint}
+            preTag={(props: any) => (
+              <pre
+                {...props}
+                style={{
+                  margin: 0,
+                  minHeight: '100%',
+                  ...commonStyle,
+                  backgroundColor: backgroundColor,
+                }}
+              />
+            )}
+            codeTag={(props: any) => (
+              <code
+                {...props}
+                style={{ fontFamily: 'inherit', textShadow: 'none' }}
+              />
+            )}
           />
         </div>
       </div>

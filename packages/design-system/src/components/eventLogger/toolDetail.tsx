@@ -3,7 +3,6 @@
  */
 import { useEffect, useState } from 'react';
 import type { Tool } from '@modelcontextprotocol/sdk/types.js';
-
 /**
  * Internal dependencies.
  */
