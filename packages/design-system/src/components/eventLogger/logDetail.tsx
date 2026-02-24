@@ -17,7 +17,7 @@ export interface LogDetailProps {
 function LogExecutionDetails({ log }: { log: LogDetailProps['log'] }) {
   return (
     <>
-      <div className="p-2 border-b border-[#f1f3f4] overflow-auto min-h-0">
+      <div className="p-2 border-b overflow-auto min-h-0">
         <div className="text-[10px] font-bold text-[#5f6368] mb-1">
           ARGUMENTS
         </div>

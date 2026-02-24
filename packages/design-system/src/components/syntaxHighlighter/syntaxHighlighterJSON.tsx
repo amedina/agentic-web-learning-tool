@@ -8,14 +8,10 @@ export interface SyntaxHighlighterJSONProps {
 }
 
 const SyntaxHighlighterJSON = ({ json }: SyntaxHighlighterJSONProps) => {
-  const isDarkMode = document.documentElement.classList.contains('dark');
-  const backgroundColor = isDarkMode ? '#282a36' : 'white';
-
   return (
     <SyntaxHighlighterWrapper
       language="json"
       showLineNumbers={false}
-      background={backgroundColor}
       code={JSON.stringify(json, null, 2)}
       preTag={(props: any) => (
         <pre

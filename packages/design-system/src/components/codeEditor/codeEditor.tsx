@@ -13,7 +13,6 @@ import { toast } from '../toast';
 interface CodeEditorProps {
   code: string;
   onChange: (code: string) => void;
-  isDarkMode?: boolean;
   styles?: React.CSSProperties;
   enableBreakpoints?: boolean;
 }
@@ -21,7 +20,6 @@ interface CodeEditorProps {
 export function CodeEditor({
   code,
   onChange,
-  isDarkMode = false,
   styles = {},
   enableBreakpoints = false,
 }: CodeEditorProps) {
@@ -140,8 +138,8 @@ export function CodeEditor({
     ...styles,
   };
 
-  const backgroundColor = isDarkMode ? '#282a36' : 'white';
-  const caretColor = isDarkMode ? '#f8f8f2' : 'black';
+  const backgroundColor = 'var(--background)';
+  const caretColor = 'var(--foreground)';
   return (
     <div className="flex-1 relative flex h-full">
       {/* Editor Area */}
@@ -155,7 +153,7 @@ export function CodeEditor({
           // @ts-ignore - ts(2322)
           style={{
             ...commonStyle,
-            margin: '0rem 1rem',
+            marginLeft: '2.25rem',
             whiteSpace: 'pre',
             caretColor: caretColor,
             zIndex: 10,
@@ -169,7 +167,6 @@ export function CodeEditor({
           <SyntaxHighlighterWrapper
             language="javascript"
             code={_code}
-            background={backgroundColor}
             selectedLineNumbers={breakpoints}
             showLineNumbers={true}
             onLinenumberClick={toggleBreakpoint}

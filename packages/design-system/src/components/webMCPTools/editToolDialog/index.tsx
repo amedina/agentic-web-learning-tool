@@ -239,11 +239,7 @@ export function EditToolDialog({
                 </div>
               )}
 
-              <CodeEditor
-                code={code}
-                onChange={handleCodeChange}
-                isDarkMode={isDarkMode}
-              />
+              <CodeEditor code={code} onChange={handleCodeChange} />
             </div>
 
             {/* Sidebar/Metadata Side */}

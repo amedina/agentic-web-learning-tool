@@ -20,7 +20,7 @@ interface ToolDetailProps {
 }
 
 const TAB_TRIGGER_CLASS =
-  'text-[11px] px-2 py-1 data-[state=active]:bg-[#e8f0fe] data-[state=active]:text-[#1967d2] rounded-none border-b-2 border-transparent data-[state=active]:border-[#1967d2]';
+  'text-[11px] px-2 py-1 data-[state=active]:bg-muted data-[state=active]:text-sidebar-accent-foreground rounded-none border-b-2 border-transparent data-[state=active]:border-muted-stone';
 
 export function ToolDetail({
   tool,
@@ -58,7 +58,7 @@ export function ToolDetail({
 
   return (
     <Tabs defaultValue="execution" className="flex flex-col h-full">
-      <div className="px-2 pt-2 border-b border-[#f1f3f4]">
+      <div className="px-2 pt-2 border-b">
         <TabsList className="h-7 p-0 bg-transparent">
           <TabsTrigger value="execution" className={TAB_TRIGGER_CLASS}>
             DESCRIPTION
@@ -78,14 +78,14 @@ export function ToolDetail({
             {tool.description || 'No description provided.'}
           </div>
         </div>
-        <div className="flex-1 p-2 py-4 bg-white max-h-full overflow-auto border-b">
+        <div className="flex-1 p-2 py-4 bg-background max-h-full overflow-auto border-b">
           <div className="text-xs font-bold mb-1">INPUT SCHEMA</div>
           <SyntaxHighlighterJSON json={tool.inputSchema} />
         </div>
       </TabsContent>
       <TabsContent
         value="script"
-        className="min-h-0 mt-0 p-0 border-0 bg-transparent h-full"
+        className="min-h-0 mt-1 ml-1 p-0 border-0 bg-transparent h-full"
       >
         {userTool ? (
           <CodeEditor
@@ -93,12 +93,6 @@ export function ToolDetail({
             onChange={(value) => {
               setNewScript(value);
               onScriptChange?.(value);
-            }}
-            isDarkMode={false}
-            styles={{
-              fontSize: '11px',
-              lineHeight: '1.2',
-              fontWeight: 300,
             }}
             enableBreakpoints={true}
           />

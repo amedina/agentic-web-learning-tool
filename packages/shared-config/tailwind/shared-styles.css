@@ -82,6 +82,66 @@
   --border-subtle: var(--zinc-200);
   --strong-zinc: var(--zinc-50);
   --extreme-zinc: var(--zinc-50);
+
+  .token {
+    overflow-x: auto;
+    color: rgb(48 48 48 / 100%);
+  }
+  .token.keyword {
+    color: rgb(110 0 171 / 100%);
+  }
+  .token.string {
+    color: rgb(159 67 18 / 100%);
+  }
+  .token.number {
+    color: rgb(20 108 46 / 100%);
+  }
+  .token.literal {
+    color: rgb(20 108 46 / 100%);
+  }
+  .token.variable {
+    color: rgb(48 48 48 / 100%);
+  }
+  .token.variable.special {
+    color: rgb(15 82 35 / 100%);
+  }
+  .token.property {
+    color: rgb(92 67 0 / 100%);
+  }
+  .token.type {
+    color: rgb(8 66 160 / 100%);
+  }
+  .token.function {
+    color: rgb(8 66 160 / 100%);
+  }
+  .token.built_in {
+    color: rgb(11 87 208 / 100%);
+  }
+  .token.comment {
+    color: rgb(94 94 94 / 100%);
+  }
+  .token.meta {
+    color: rgb(117 117 117 / 100%);
+  }
+  .token.operator {
+    color: rgb(117 117 117 / 100%);
+    background-color: transparent;
+  }
+  .token.params {
+    color: rgb(15 82 35 / 100%);
+  }
+  .token.attr {
+    color: rgb(11 87 208 / 100%);
+  }
+  .token.tag {
+    color: rgb(8 66 160 / 100%);
+  }
+  .token.addition {
+    color: rgb(25 134 57 / 100%);
+  }
+  .token.deletion {
+    color: rgb(179 38 30 / 100%);
+  }
 }
 
 /*
@@ -219,6 +279,66 @@
   --subtle-zinc: var(--zinc-800);
   --strong-zinc: var(--zinc-900);
   --extreme-zinc: var(--zinc-950);
+
+  .token {
+    overflow-x: auto;
+    color: rgb(199 199 199 / 100%);
+  }
+  .token.keyword {
+    color: rgb(191 103 255 / 100%);
+  }
+  .token.string {
+    color: rgb(254 141 89 / 100%);
+  }
+  .token.number {
+    color: rgb(196 238 208 / 100%);
+  }
+  .token.literal {
+    color: rgb(196 238 208 / 100%);
+  }
+  .token.variable {
+    color: rgb(199 199 199 / 100%);
+  }
+  .token.variable.special {
+    color: rgb(109 213 140 / 100%);
+  }
+  .token.property {
+    color: rgb(250 204 21 / 100%);
+  }
+  .token.type {
+    color: rgb(124 172 248 / 100%);
+  }
+  .token.function {
+    color: rgb(124 172 248 / 100%);
+  }
+  .token.built_in {
+    color: rgb(168 199 250 / 100%);
+  }
+  .token.comment {
+    color: rgb(171 171 171 / 100%);
+  }
+  .token.meta {
+    color: rgb(143 143 143 / 100%);
+  }
+  .token.operator {
+    color: rgb(143 143 143 / 100%);
+    background-color: transparent;
+  }
+  .token.params {
+    color: rgb(109 213 140 / 100%);
+  }
+  .token.attr {
+    color: rgb(168 199 250 / 100%);
+  }
+  .token.tag {
+    color: rgb(124 172 248 / 100%);
+  }
+  .token.addition {
+    color: rgb(30 164 70 / 100%);
+  }
+  .token.deletion {
+    color: rgb(220 54 46 / 100%);
+  }
 }
 
 /* For global styles */
