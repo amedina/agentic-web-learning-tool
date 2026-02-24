@@ -424,8 +424,28 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
         };
       }
 
-      const workflowData = serializeWorkflow(nodes, edges, nodesApiData);
+      let workflowData = serializeWorkflow(nodes, edges, nodesApiData);
       if (isBuiltIn) {
+        const idMap: { [key: string]: string } = {};
+
+        workflowData.graph.nodes = workflowData.graph.nodes.map((node) => {
+          const newId = crypto.randomUUID();
+          idMap[node.id] = newId;
+          return {
+            ...node,
+            id: newId,
+          };
+        });
+
+        workflowData.graph.edges = workflowData.graph.edges.map((edge) => {
+          return {
+            ...edge,
+            id: crypto.randomUUID(),
+            source: idMap[edge.source] || edge.source,
+            target: idMap[edge.target] || edge.target,
+          };
+        });
+
         workflowData.meta = finalMeta || workflowData.meta;
       }
 
@@ -449,7 +469,6 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
 
       await saveWorkflow(saveId || workflowMeta?.id || "", workflowData);
 
-      // If it was a built-in, update the tab in openWorkflows
       if (isBuiltIn && workflowMeta?.id && saveId) {
         updateWorkflowMeta(finalMeta, true);
 
@@ -460,6 +479,8 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
             name: finalMeta.name,
           },
         ]);
+
+        loadWorkflowData(workflowData);
       }
 
       showToast(

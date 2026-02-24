@@ -42,12 +42,17 @@ const useWorkflowSync = (
 
   const [isStopping, setIsStopping] = useState(false);
   const lastIsRunningRef = useRef(false);
+  const currentWorkflowIdRef = useRef<string | null>(null);
+  const runningNodeStatusesRef = useRef<
+    Record<string, Record<string, "running" | "success" | "error" | undefined>>
+  >({});
 
   const updateState = useCallback(
     (state: GlobalWorkflowState) => {
       const isRunning = state.status === "running";
       const wasRunning = lastIsRunningRef.current;
       lastIsRunningRef.current = isRunning;
+      currentWorkflowIdRef.current = state.workflowId;
 
       setGlobalState({
         isRunning,
@@ -63,12 +68,29 @@ const useWorkflowSync = (
           );
         }
 
+        // Apply persisted statuses if we are revisitting a running workflow
+        if (isRunning && state.workflowId) {
+          const persistedStatuses =
+            runningNodeStatusesRef.current[state.workflowId];
+          if (persistedStatuses) {
+            Object.entries(persistedStatuses).forEach(([nodeId, status]) => {
+              updateNodeStatus(nodeId, status);
+            });
+          }
+        }
+
         if (isRunning && state.currentNodeId) {
           updateNodeStatus(state.currentNodeId, "running");
         }
       }
+
+      if (state.workflowId === null) {
+        nodes.forEach((node: FlowNodeType) =>
+          updateNodeStatus(node.id, undefined),
+        );
+      }
     },
-    [activeWorkflowId, nodes],
+    [activeWorkflowId, nodes, updateNodeStatus],
   );
 
   useEffect(() => {
@@ -82,13 +104,38 @@ const useWorkflowSync = (
     // Subscribe to node updates and completion
     const unsubscribeUpdates = client.subscribeToUpdates({
       onNodeStart: (nodeId) => {
-        updateNodeStatus(nodeId, "running");
+        const currentWorkflowId = currentWorkflowIdRef.current;
+        if (currentWorkflowId) {
+          if (!runningNodeStatusesRef.current[currentWorkflowId]) {
+            runningNodeStatusesRef.current[currentWorkflowId] = {};
+          }
+          runningNodeStatusesRef.current[currentWorkflowId][nodeId] = "running";
+        }
+
+        if (currentWorkflowId === activeWorkflowId) {
+          updateNodeStatus(nodeId, "running");
+        }
       },
       onNodeFinish: (nodeId, output) => {
-        updateNodeStatus(nodeId, output.status as any);
+        const currentWorkflowId = currentWorkflowIdRef.current;
+        const status = output.status as any;
+        if (currentWorkflowId) {
+          if (!runningNodeStatusesRef.current[currentWorkflowId]) {
+            runningNodeStatusesRef.current[currentWorkflowId] = {};
+          }
+          runningNodeStatusesRef.current[currentWorkflowId][nodeId] = status;
+        }
+
+        if (currentWorkflowId === activeWorkflowId) {
+          updateNodeStatus(nodeId, status);
+        }
       },
       onComplete: () => {
         setIsStopping(false);
+        const currentWorkflowId = currentWorkflowIdRef.current;
+        if (currentWorkflowId) {
+          delete runningNodeStatusesRef.current[currentWorkflowId];
+        }
 
         client.getGlobalStatus().then((state) => {
           updateState(state);
@@ -105,17 +152,14 @@ const useWorkflowSync = (
       },
       onError: (error) => {
         setIsStopping(false);
+        const currentWorkflowId = currentWorkflowIdRef.current;
+        if (currentWorkflowId) {
+          delete runningNodeStatusesRef.current[currentWorkflowId];
+        }
 
         client.getGlobalStatus().then((state) => {
           updateState(state);
-          if (state.workflowId === activeWorkflowId) {
-            showToast(`Workflow failed: ${error}`, "error");
-          } else {
-            showToast(
-              `Workflow "${state.workflowName}" failed: ${error}`,
-              "error",
-            );
-          }
+          showToast(`${error}`, "error");
         });
       },
     });
@@ -124,7 +168,7 @@ const useWorkflowSync = (
       unsubscribeStatus();
       unsubscribeUpdates();
     };
-  }, [activeWorkflowId, showToast, updateState]);
+  }, [activeWorkflowId, showToast, updateState, updateNodeStatus]);
 
   const runWorkflow = useCallback(
     async (workflowData: WorkflowJSON, selectedTabId: number | null) => {
