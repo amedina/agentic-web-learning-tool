@@ -42,7 +42,7 @@ const ToolNode = () => {
 
   return (
     <ToolNodeContainer
-      title="Text to Speech"
+      title={config?.title || "Text to Speech"}
       Icon={Speech}
       type="textToSpeech"
       selected={selectedNode === nodeId}

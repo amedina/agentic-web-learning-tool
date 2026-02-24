@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useReactFlow } from "@xyflow/react";
 import {
   getLastOpenedWorkflowId,
@@ -727,6 +727,11 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
     [],
   );
 
+  const openWorkflowsRef = useRef(openWorkflows);
+  useEffect(() => {
+    openWorkflowsRef.current = openWorkflows;
+  }, [openWorkflows]);
+
   useEffect(() => {
     return () => {
       (async () => {
@@ -739,22 +744,18 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
           if (success) removedWorkflows.push(wf.meta.id);
         }
 
-        setOpenWorkflows((wfs) => {
-          const _openWorkflows = wfs.filter(
-            (wf) => !removedWorkflows.includes(wf.id),
-          );
+        const newOpenWorkflows = openWorkflowsRef.current.filter(
+          (wf) => !removedWorkflows.includes(wf.id),
+        );
 
-          setLastOpenedWorkflowId(
-            _openWorkflows.length > 0 ? _openWorkflows[0].id : "",
-          );
+        setLastOpenedWorkflowId(
+          newOpenWorkflows.length > 0 ? newOpenWorkflows[0].id : "",
+        );
 
-          localStorage.setItem(
-            STORAGE_KEY_OPEN_WORKFLOWS,
-            JSON.stringify(_openWorkflows),
-          );
-
-          return _openWorkflows;
-        });
+        localStorage.setItem(
+          STORAGE_KEY_OPEN_WORKFLOWS,
+          JSON.stringify(newOpenWorkflows),
+        );
       })();
     };
   }, []);
@@ -790,15 +791,16 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
 
       removeEmptyWorkflow(id);
 
+      let newOpenWorkflows: OpenWorkflow[] = [];
       setOpenWorkflows((wfs) => {
-        const newOpenWorkflows = wfs.filter((wf) => wf.id !== id);
-
-        if (id === workflowMeta?.id && newOpenWorkflows.length > 0) {
-          handleWorkflowSwitch(newOpenWorkflows[0].id);
-        }
+        newOpenWorkflows = wfs.filter((wf) => wf.id !== id);
 
         return newOpenWorkflows;
       });
+
+      if (id === workflowMeta?.id && newOpenWorkflows.length > 0) {
+        handleWorkflowSwitch(newOpenWorkflows[0].id);
+      }
     },
     [
       openWorkflows,
