@@ -3,12 +3,12 @@
  */
 import { PrismAsyncLight as SyntaxHighlighter } from 'react-syntax-highlighter';
 import tsx from 'react-syntax-highlighter/dist/esm/languages/prism/tsx';
+import { googlecode } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 
 SyntaxHighlighter.registerLanguage('js', tsx);
 
 type SyntaxHighlighterWrapperProps = {
   showLineNumbers?: boolean;
-  style: any;
   code: string;
   language: string;
   background: string;
@@ -16,12 +16,10 @@ type SyntaxHighlighterWrapperProps = {
   codeTag?: React.ComponentType<any>;
   preTag?: React.ComponentType<any>;
   selectedLineNumbers?: number[];
-  isDarkMode?: boolean;
 };
 
 const SyntaxHighlighterWrapper = ({
   showLineNumbers = false,
-  style,
   code,
   language,
   background,
@@ -29,29 +27,31 @@ const SyntaxHighlighterWrapper = ({
   codeTag,
   preTag,
   selectedLineNumbers = [],
-  isDarkMode = false,
 }: SyntaxHighlighterWrapperProps) => {
   return (
     <SyntaxHighlighter
       language={language}
-      style={style}
+      style={googlecode}
       showLineNumbers={showLineNumbers}
       showInlineLineNumbers={showLineNumbers}
       wrapLines={true}
       CodeTag={codeTag}
       PreTag={preTag}
       lineNumberStyle={(lineNumber: number) => {
-        const gutterBg = !isDarkMode ? '#21222c' : 'white';
-        const gutterText = !isDarkMode ? '#6272a4' : '#6e6e6e';
-        return {
+        const cssProperties: React.CSSProperties = {
           cursor: 'pointer',
-          backgroundColor: selectedLineNumbers.includes(lineNumber)
-            ? gutterBg
-            : 'inherit',
-          color: selectedLineNumbers.includes(lineNumber)
-            ? gutterText
-            : 'inherit',
+          borderStyle: 'solid',
+          borderWidth: '1px 4px 1px 1px',
+          borderColor: 'transparent',
         };
+
+        if (selectedLineNumbers.includes(lineNumber)) {
+          cssProperties.WebkitBorderImage = `url("data:image/svg+xml,<svg height='11' width='26' xmlns='http://www.w3.org/2000/svg'><path d='M22.8.5l2.7 5-2.7 5H.5V.5z' fill='%235186EC' stroke='%231a73e8'/></svg>") 1 3 1 1 fill`;
+          cssProperties.borderStyle = 'solid';
+          cssProperties.borderWidth = '1px 4px 1px 1px';
+        }
+
+        return cssProperties;
       }}
       customStyle={{
         margin: 0,

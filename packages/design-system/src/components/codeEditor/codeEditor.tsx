@@ -2,15 +2,13 @@
  * External dependencies.
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
-import {
-  coldarkDark,
-  coldarkCold,
-} from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 /**
  * Internal dependencies.
  */
 import { SyntaxHighlighterWrapper } from '../syntaxHighlighter';
+import { validateCode } from '../webMCPTools/editToolDialog/validateCode';
+import { toast } from '../toast';
 
 interface CodeEditorProps {
   code: string;
@@ -39,7 +37,7 @@ export function CodeEditor({
     const detectedBreakpoints: number[] = [];
 
     rawLines.forEach((line) => {
-      if (line.trim() === 'debugger;') {
+      if (line.trim() === 'debugger;' || line.trim() === 'debugger') {
         detectedBreakpoints.push(cleanLines.length);
       } else {
         cleanLines.push(line);
@@ -87,7 +85,7 @@ export function CodeEditor({
       const newBreakpoints = isRemoving
         ? breakpoints.filter((b) => b !== lineIndex)
         : [...breakpoints, lineIndex].sort((a, b) => a - b);
-      setBreakpoints(newBreakpoints);
+
       const cleanLines = _code.split('\n');
       const finalLines: string[] = [];
 
@@ -97,7 +95,14 @@ export function CodeEditor({
         }
         finalLines.push(line);
       });
-      onChange(finalLines.join('\n'));
+
+      const result = validateCode(finalLines.join('\n'));
+      if (result.valid && !result?.error) {
+        setBreakpoints(newBreakpoints);
+        onChange(finalLines.join('\n'));
+      } else {
+        toast.error(result?.error);
+      }
     },
     [breakpoints, _code, onChange, enableBreakpoints]
   );
@@ -116,7 +121,13 @@ export function CodeEditor({
         finalLines.push(line);
       });
 
-      onChange(finalLines.join('\n'));
+      const result = validateCode(cleanLines.join('\n'));
+
+      if (result.valid && !result?.error) {
+        onChange(finalLines.join('\n'));
+      } else {
+        toast.error(result?.error);
+      }
     },
     [breakpoints, onChange]
   );
@@ -129,10 +140,8 @@ export function CodeEditor({
     ...styles,
   };
 
-  const activeStyle = isDarkMode ? coldarkDark : coldarkCold;
   const backgroundColor = isDarkMode ? '#282a36' : 'white';
   const caretColor = isDarkMode ? '#f8f8f2' : 'black';
-  console.log(isDarkMode);
   return (
     <div className="flex-1 relative flex h-full">
       {/* Editor Area */}
@@ -158,14 +167,12 @@ export function CodeEditor({
           style={{ backgroundColor: backgroundColor }}
         >
           <SyntaxHighlighterWrapper
-            style={activeStyle}
             language="javascript"
             code={_code}
             background={backgroundColor}
             selectedLineNumbers={breakpoints}
             showLineNumbers={true}
             onLinenumberClick={toggleBreakpoint}
-            isDarkMode={isDarkMode}
             preTag={(props: any) => (
               <pre
                 {...props}
