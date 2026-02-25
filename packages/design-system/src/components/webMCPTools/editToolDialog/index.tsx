@@ -218,7 +218,7 @@ export function EditToolDialog({
                 <div className="absolute top-14 left-4 right-4 z-30 mx-auto w-max max-w-[90%]">
                   <div className="bg-extreme-zinc text-white p-3 rounded-lg shadow-xl flex items-center gap-4 animate-in fade-in slide-in-from-top-2 border border-gray-700">
                     <AlertTriangleIcon className="text-yellow-400" size={16} />
-                    <span className="text-sm font-medium">
+                    <span className="text-sm font-medium text-amethyst-haze">
                       Overwriting code with template. Are you sure?
                     </span>
                     <div className="flex gap-2 ml-2">
@@ -240,9 +240,14 @@ export function EditToolDialog({
               )}
 
               <CodeEditor
-                styles={{ marginLeft: `calc(2.25rem - 11px)` }}
+                styles={{
+                  marginLeft: `2.25rem`,
+                  fontSize: '14px',
+                }}
                 code={code}
                 onChange={handleCodeChange}
+                textareaLineHeight="1.63"
+                editorLineHeight="1.5"
               />
             </div>
 

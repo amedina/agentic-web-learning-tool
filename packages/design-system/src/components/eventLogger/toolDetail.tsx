@@ -85,7 +85,7 @@ export function ToolDetail({
       </TabsContent>
       <TabsContent
         value="script"
-        className="min-h-0 mt-1 ml-1 p-0 border-0 bg-transparent h-full"
+        className="min-h-0 p-0 border-0 bg-transparent h-full"
       >
         {userTool ? (
           <CodeEditor
@@ -96,11 +96,12 @@ export function ToolDetail({
             }}
             styles={{
               fontSize: '11px',
-              lineHeight: '1.2',
               marginLeft: `calc(2.25rem - 11px)`,
               fontWeight: 300,
             }}
             enableBreakpoints={true}
+            textareaLineHeight="1.369"
+            editorLineHeight="1.2"
           />
         ) : (
           <div className="flex items-center justify-center h-full text-xs italic p-4 text-center min-h-[200px]">

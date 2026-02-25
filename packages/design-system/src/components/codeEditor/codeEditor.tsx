@@ -15,6 +15,8 @@ interface CodeEditorProps {
   onChange: (code: string) => void;
   styles?: React.CSSProperties;
   enableBreakpoints?: boolean;
+  textareaLineHeight?: string;
+  editorLineHeight?: string;
 }
 
 export function CodeEditor({
@@ -22,6 +24,8 @@ export function CodeEditor({
   onChange,
   styles = {},
   enableBreakpoints = false,
+  textareaLineHeight = '1.5',
+  editorLineHeight = '1.5',
 }: CodeEditorProps) {
   const backdropRef = useRef<HTMLDivElement>(null);
   const gutterRef = useRef<HTMLDivElement | null>(null);
@@ -99,7 +103,7 @@ export function CodeEditor({
         setBreakpoints(newBreakpoints);
         onChange(finalLines.join('\n'));
       } else {
-        toast.error(result?.error);
+        toast.error('Breakpoint can only be applied in the execute function.');
       }
     },
     [breakpoints, _code, onChange, enableBreakpoints]
@@ -119,13 +123,7 @@ export function CodeEditor({
         finalLines.push(line);
       });
 
-      const result = validateCode(cleanLines.join('\n'));
-
-      if (result.valid && !result?.error) {
-        onChange(finalLines.join('\n'));
-      } else {
-        toast.error(result?.error);
-      }
+      onChange(finalLines.join('\n'));
     },
     [breakpoints, onChange]
   );
@@ -134,14 +132,13 @@ export function CodeEditor({
     fontFamily:
       '"Fira Code", "Cascadia Code", Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace',
     fontSize: '14px',
-    lineHeight: '1.5',
     ...restStyles,
   };
 
   const backgroundColor = 'var(--background)';
   const caretColor = 'var(--foreground)';
   return (
-    <div className="flex-1 relative flex h-full">
+    <div className="flex-1 relative flex h-full mt-2 ml-2">
       {/* Editor Area */}
       <div className="relative flex-1 overflow-hidden h-full">
         <textarea
@@ -154,6 +151,7 @@ export function CodeEditor({
           style={{
             ...commonStyle,
             whiteSpace: 'pre',
+            lineHeight: textareaLineHeight,
             caretColor: caretColor,
             zIndex: 10,
             marginLeft,
@@ -170,12 +168,16 @@ export function CodeEditor({
             selectedLineNumbers={breakpoints}
             showLineNumbers={true}
             onLinenumberClick={toggleBreakpoint}
+            width={
+              textareaLineHeight === '1.369' ? 'calc(2.25rem - 1em)' : '2.25rem'
+            }
             preTag={(props: any) => (
               <pre
                 {...props}
                 style={{
                   margin: 0,
                   minHeight: '100%',
+                  lineHeight: editorLineHeight,
                   ...restStyles,
                   backgroundColor: backgroundColor,
                 }}
