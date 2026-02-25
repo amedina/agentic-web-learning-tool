@@ -27,7 +27,6 @@ export interface GlobalWorkflowState {
  * Manages state persistence and broadcasts updates to all listeners.
  */
 export class WorkflowStateManager {
-  private static STORAGE_KEY = 'awlt_active_workflow_state';
   private currentState: GlobalWorkflowState = {
     workflowId: null,
     workflowName: null,
@@ -36,41 +35,6 @@ export class WorkflowStateManager {
     tabId: null,
   };
   private timeoutId: ReturnType<typeof setTimeout> | null = null;
-
-  constructor() {
-    this.loadState();
-  }
-
-  /**
-   * Load initial state from storage.
-   */
-  private async loadState(): Promise<void> {
-    try {
-      const result = await chrome.storage.local.get(
-        WorkflowStateManager.STORAGE_KEY
-      );
-      if (result[WorkflowStateManager.STORAGE_KEY]) {
-        this.currentState = result[
-          WorkflowStateManager.STORAGE_KEY
-        ] as GlobalWorkflowState;
-      }
-    } catch (error) {
-      console.error('[Workflow] Failed to load state from storage:', error);
-    }
-  }
-
-  /**
-   * Save current state to storage.
-   */
-  private async saveState(): Promise<void> {
-    try {
-      await chrome.storage.local.set({
-        [WorkflowStateManager.STORAGE_KEY]: this.currentState,
-      });
-    } catch (error) {
-      console.error('[Workflow] Failed to save state to storage:', error);
-    }
-  }
 
   /**
    * Check if a workflow is currently running.
@@ -104,7 +68,6 @@ export class WorkflowStateManager {
       startTime: Date.now(),
       tabId: tabId ?? null,
     };
-    await this.saveState();
 
     this.broadcast({
       type: 'WORKFLOW_STATUS_CHANGE',
@@ -123,7 +86,6 @@ export class WorkflowStateManager {
     if (this.currentState.status !== 'running') return;
 
     this.currentState.currentNodeId = nodeId;
-    await this.saveState();
 
     // Broadcast global status change to sync UI
     this.broadcast({
@@ -149,7 +111,11 @@ export class WorkflowStateManager {
     context?: unknown
   ): Promise<void> {
     this.currentState.status = success ? 'completed' : 'failed';
-    await this.saveState();
+
+    this.broadcast({
+      type: 'WORKFLOW_STATUS_CHANGE',
+      state: this.currentState,
+    });
 
     if (success) {
       this.broadcast({
@@ -165,7 +131,9 @@ export class WorkflowStateManager {
       });
     }
 
-    this.timeoutId = setTimeout(this.reset, 5000);
+    this.timeoutId = setTimeout(() => {
+      this.reset();
+    }, 5000);
   }
 
   /**
@@ -179,7 +147,6 @@ export class WorkflowStateManager {
       currentNodeId: null,
       tabId: null,
     };
-    await this.saveState();
     this.broadcast({
       type: 'WORKFLOW_STATUS_CHANGE',
       state: this.currentState,

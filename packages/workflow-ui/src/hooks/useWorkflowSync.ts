@@ -96,8 +96,6 @@ const useWorkflowSync = (
   useEffect(() => {
     const client = getWorkflowClient();
 
-    client.getGlobalStatus().then(updateState);
-
     // Subscribe to global status changes
     const unsubscribeStatus = client.subscribeToGlobalStatus(updateState);
 
@@ -105,6 +103,7 @@ const useWorkflowSync = (
     const unsubscribeUpdates = client.subscribeToUpdates({
       onNodeStart: (nodeId) => {
         const currentWorkflowId = currentWorkflowIdRef.current;
+
         if (currentWorkflowId) {
           if (!runningNodeStatusesRef.current[currentWorkflowId]) {
             runningNodeStatusesRef.current[currentWorkflowId] = {};
@@ -118,6 +117,7 @@ const useWorkflowSync = (
       },
       onNodeFinish: (nodeId, output) => {
         const currentWorkflowId = currentWorkflowIdRef.current;
+
         const status = output.status as any;
         if (currentWorkflowId) {
           if (!runningNodeStatusesRef.current[currentWorkflowId]) {
@@ -133,6 +133,7 @@ const useWorkflowSync = (
       onComplete: () => {
         setIsStopping(false);
         const currentWorkflowId = currentWorkflowIdRef.current;
+
         if (currentWorkflowId) {
           delete runningNodeStatusesRef.current[currentWorkflowId];
         }
@@ -153,6 +154,7 @@ const useWorkflowSync = (
       onError: (error) => {
         setIsStopping(false);
         const currentWorkflowId = currentWorkflowIdRef.current;
+
         if (currentWorkflowId) {
           delete runningNodeStatusesRef.current[currentWorkflowId];
         }
@@ -173,6 +175,7 @@ const useWorkflowSync = (
   const runWorkflow = useCallback(
     async (workflowData: WorkflowJSON, selectedTabId: number | null) => {
       if (globalState.isRunning) return;
+
       if (!selectedTabId) {
         showToast("Please select a tab to run on", "error");
         return;
@@ -202,9 +205,11 @@ const useWorkflowSync = (
     try {
       setIsStopping(true);
       await client.stopWorkflow();
+
       showToast("Stopping workflow...", "success");
     } catch (error) {
       setIsStopping(false);
+
       const msg = error instanceof Error ? error.message : String(error);
       showToast(`Failed to stop workflow: ${msg}`, "error");
     }

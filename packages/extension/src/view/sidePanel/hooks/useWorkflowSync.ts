@@ -34,14 +34,6 @@ export function useWorkflowSync() {
   useEffect(() => {
     const client = getWorkflowClient();
 
-    // Load initial state
-    client
-      .getGlobalStatus()
-      .then(updateState)
-      .catch((error) => {
-        console.error('[Workflow] Failed to get initial global status:', error);
-      });
-
     // Subscribe to updates
     const unsubscribe = client.subscribeToGlobalStatus(updateState);
 
