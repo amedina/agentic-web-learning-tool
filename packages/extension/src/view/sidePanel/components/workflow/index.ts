@@ -1,3 +1,3 @@
 export { default as WorkflowCard } from './workflowCard';
 export { default as WorkflowList } from './workflowList';
-export { default as GlobalStatusPill } from './GlobalStatusPill';
+export { default as GlobalStatusPill } from './statusPill';
