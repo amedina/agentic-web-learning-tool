@@ -35,6 +35,7 @@ export class WorkflowStateManager {
     currentNodeId: null,
     tabId: null,
   };
+  private timeoutId: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
     this.loadState();
@@ -93,6 +94,8 @@ export class WorkflowStateManager {
     workflowName: string,
     tabId?: number
   ): Promise<void> {
+    if (this.timeoutId) clearTimeout(this.timeoutId);
+
     this.currentState = {
       workflowId,
       workflowName,
@@ -162,10 +165,7 @@ export class WorkflowStateManager {
       });
     }
 
-    // Reset to idle after a short delay or on next start
-    setTimeout(() => {
-      this.reset();
-    }, 5000);
+    this.timeoutId = setTimeout(this.reset, 5000);
   }
 
   /**
