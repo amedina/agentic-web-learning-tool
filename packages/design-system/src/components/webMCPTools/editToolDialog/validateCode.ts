@@ -19,6 +19,7 @@ export const validateCode = (
       acorn.parse(currentCode, {
         ecmaVersion: 'latest',
         sourceType: 'module',
+        allowReserved: true,
       });
     } catch (e: any) {
       let errorMsg = `Syntax Error: ${e.message}`;

@@ -13,8 +13,8 @@ import {
   type TableData,
   type InfoType,
   type TableRow,
-  type UserStoredTool,
   getToolNameWithoutPrefix,
+  type WebMCPTool,
 } from '@google-awlt/design-system';
 import type { Tool } from '@modelcontextprotocol/sdk/types.js';
 import { noop } from '@google-awlt/common';
@@ -30,6 +30,7 @@ import { useEventLogs } from '../../providers';
 import useToolCategoryMapping from '../../hooks/useToolCategoryMapping';
 import { TOOL_CATEGORIES } from '../../constants';
 import { getToolCategory } from '../../../../utils';
+import { RefreshCcw } from 'lucide-react';
 
 interface AllToolsRowData extends TableData, Tool {
   originalData: Tool;
@@ -40,7 +41,7 @@ export const Tools = ({
 }: {
   setSelectedMenuItem: (view: string) => void;
 }) => {
-  const { tools: availableTools } = useMcpClient();
+  const { client, tools: availableTools } = useMcpClient();
   const toolCategoryMapping = useToolCategoryMapping(availableTools);
   const { theme } = useSettings(({ state }) => ({ theme: state.theme }));
   const { setLastRunToolName, setSelectedKey, selectedKey, setIsToolRunning } =
@@ -50,6 +51,7 @@ export const Tools = ({
       selectedKey: state.selectedKey,
       setIsToolRunning: actions.setIsToolRunning,
     }));
+  const [selectedPanel, setSelectedPanel] = useState<string | null>(null);
 
   const onToolSuccess = (toolName: string) => {
     const isMcpbTool =
@@ -135,7 +137,7 @@ export const Tools = ({
   const getStoredUserTool = useCallback(async (tool: Tool) => {
     const storage = await chrome.storage.local.get('userWebMCPTools');
     const userStoredTools = (storage.userWebMCPTools ||
-      []) as Array<UserStoredTool>;
+      []) as Array<WebMCPTool>;
 
     const found = userStoredTools.find((t) => t.name === tool.name);
     return found || null;
@@ -149,10 +151,43 @@ export const Tools = ({
         data = data.originalData;
       }
 
-      return <ToolDetail tool={data as Tool} getUserTool={getStoredUserTool} />;
+      const onScriptChange = async (newCode: string) => {
+        chrome.runtime.sendMessage({
+          method: 'updateScript',
+          jsonrpc: '2.0',
+          payload: {
+            newCode,
+            toolName: data.name,
+            tabId: chrome.devtools.inspectedWindow.tabId,
+          },
+        });
+      };
+
+      return (
+        <ToolDetail
+          tool={data as Tool}
+          getUserTool={getStoredUserTool}
+          onScriptChange={onScriptChange}
+          tabId={chrome.devtools.inspectedWindow.tabId}
+          selectedPanel={selectedPanel}
+          setSelectedPanel={setSelectedPanel}
+        />
+      );
     },
-    [getStoredUserTool]
+    [getStoredUserTool, selectedPanel, setSelectedPanel]
   );
+
+  const reloadTools = useCallback(async () => {
+    await client.listTools();
+  }, [client]);
+
+  const extraInterfaceToTopBar = useCallback(() => {
+    return (
+      <button onClick={reloadTools} title="Reload tools">
+        <RefreshCcw width={15} height={15} color="#404040" />
+      </button>
+    );
+  }, [reloadTools]);
 
   return (
     <TableProvider
@@ -163,7 +198,9 @@ export const Tools = ({
       tablePersistentSettingsKey="toolsTable"
       onRowContextMenu={noop}
       onRowClick={(row: TableData) => {
-        setSelectedKey(row?.name ?? null);
+        if (row?.name) {
+          setSelectedKey(row?.name);
+        }
       }}
       getRowObjectKey={(row: any) => {
         const data = row.original || row;
@@ -174,10 +211,11 @@ export const Tools = ({
         position="top-center"
         theme={theme === 'auto' ? 'system' : theme}
         toastOptions={{
-          duration: 1000,
+          duration: 2000,
         }}
       />
       <Table
+        extraInterfaceToTopBar={extraInterfaceToTopBar}
         selectedKey={selectedKey}
         isFiltersSidebarOpen={true}
         renderDetailPanel={renderDetailPanel}

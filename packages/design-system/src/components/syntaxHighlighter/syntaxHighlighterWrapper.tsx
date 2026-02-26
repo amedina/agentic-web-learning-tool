@@ -2,35 +2,37 @@
  * External dependencies
  */
 import { PrismAsyncLight as SyntaxHighlighter } from 'react-syntax-highlighter';
-import tsx from 'react-syntax-highlighter/dist/esm/languages/prism/tsx';
-
-SyntaxHighlighter.registerLanguage('js', tsx);
+/**
+ * Internal dependencies
+ */
+import { darkTheme, lightTheme } from './googlecode';
 
 type SyntaxHighlighterWrapperProps = {
   showLineNumbers?: boolean;
-  style: any;
   code: string;
   language: string;
-  background: string;
   onLinenumberClick?: (lineNumber: number) => void;
   codeTag?: React.ComponentType<any>;
   preTag?: React.ComponentType<any>;
   selectedLineNumbers?: number[];
-  isDarkMode?: boolean;
+  width?: string;
 };
 
 const SyntaxHighlighterWrapper = ({
   showLineNumbers = false,
-  style,
   code,
   language,
-  background,
   onLinenumberClick,
   codeTag,
   preTag,
   selectedLineNumbers = [],
-  isDarkMode = false,
+  width = 'calc(2.25rem - 1em)',
 }: SyntaxHighlighterWrapperProps) => {
+  const style: { [key: string]: React.CSSProperties } =
+    document.documentElement.classList.contains('dark')
+      ? darkTheme
+      : lightTheme;
+
   return (
     <SyntaxHighlighter
       language={language}
@@ -38,26 +40,30 @@ const SyntaxHighlighterWrapper = ({
       showLineNumbers={showLineNumbers}
       showInlineLineNumbers={showLineNumbers}
       wrapLines={true}
+      useInlineStyles={false}
       CodeTag={codeTag}
       PreTag={preTag}
       lineNumberStyle={(lineNumber: number) => {
-        const gutterBg = isDarkMode ? '#21222c' : 'white';
-        const gutterText = isDarkMode ? '#6272a4' : '#6e6e6e';
-        return {
+        const cssProperties: React.CSSProperties = {
           cursor: 'pointer',
-          backgroundColor: selectedLineNumbers.includes(lineNumber)
-            ? gutterBg
-            : 'inherit',
-          color: selectedLineNumbers.includes(lineNumber)
-            ? gutterText
-            : 'inherit',
+          borderStyle: 'solid',
+          borderWidth: '1px 4px 1px 1px',
+          borderColor: 'transparent',
+          minWidth: width,
+          width,
         };
+
+        if (selectedLineNumbers.includes(lineNumber)) {
+          cssProperties.WebkitBorderImage = `url("data:image/svg+xml,<svg height='11' width='26' xmlns='http://www.w3.org/2000/svg'><path d='M22.8.5l2.7 5-2.7 5H.5V.5z' fill='%235186EC' stroke='%231a73e8'/></svg>") 1 3 1 1 fill`;
+          cssProperties.color = 'white';
+        }
+
+        return cssProperties;
       }}
       customStyle={{
         margin: 0,
         width: '100%',
-        background,
-        padding: '1.5rem 1rem',
+        background: 'var(--background)',
         fontFamily:
           '"Fira Code", "Cascadia Code", Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace',
         fontSize: '14px',
@@ -65,7 +71,7 @@ const SyntaxHighlighterWrapper = ({
       }}
       lineProps={(lineNumber: number) => {
         return {
-          style: { cursor: 'pointer' },
+          style: { cursor: 'pointer', color: 'var(--foreground)' },
           onClick() {
             onLinenumberClick?.(lineNumber);
           },

@@ -17,13 +17,13 @@ import EventLogsContext, { type EventLogsContextProps } from './context';
 import { MESSAGE_TYPES } from '../../../../utils';
 import type { ToolExecutionLog } from '../../types';
 
+const tabId = chrome.devtools?.inspectedWindow?.tabId;
+
 function EventLogsProvider({ children }: PropsWithChildren) {
   const [eventLoggerData, setEventLoggerData] = useState<TableData[]>([]);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [lastRunToolName, setLastRunToolName] = useState<string | null>(null);
   const [isToolRunning, setIsToolRunning] = useState<boolean>(false);
-
-  const tabId = chrome.devtools?.inspectedWindow?.tabId;
 
   useEffect(() => {
     if (tabId) {
@@ -33,13 +33,13 @@ function EventLogsProvider({ children }: PropsWithChildren) {
         }
       });
     }
-  }, [tabId]);
+  }, []);
 
   useEffect(() => {
     if (tabId && eventLoggerData.length > 0) {
       chrome.storage.session.set({ [`eventLog_${tabId}`]: eventLoggerData });
     }
-  }, [eventLoggerData, tabId]);
+  }, [eventLoggerData]);
 
   const handleMessage = useCallback(
     (message: any) => {
@@ -82,7 +82,7 @@ function EventLogsProvider({ children }: PropsWithChildren) {
         }
       }
     },
-    [isToolRunning, tabId, selectedKey]
+    [isToolRunning, selectedKey]
   );
 
   useEffect(() => {

@@ -235,6 +235,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
                     <Dropdown
                       options={groupedTools}
                       onSelect={(id) => console.log(id)}
+                      mainLabel="Tool Providers"
                       selectedValue=""
                     >
                       <Button variant="ghost" size="icon">
