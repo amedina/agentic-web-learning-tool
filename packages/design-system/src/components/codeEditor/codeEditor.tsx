@@ -7,8 +7,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
  * Internal dependencies.
  */
 import { SyntaxHighlighterWrapper } from '../syntaxHighlighter';
-import { validateCode } from '../webMCPTools/editToolDialog/validateCode';
 import { toast } from '../toast';
+import { insertDebugger } from '../../lib/isValidDebuggerPosition';
 
 interface CodeEditorProps {
   code: string;
@@ -98,12 +98,14 @@ export function CodeEditor({
         finalLines.push(line);
       });
 
-      const result = validateCode(finalLines.join('\n'));
-      if (result.valid && !result?.error) {
+      const result = insertDebugger(cleanLines.join('\n'), {
+        line: lineIndex,
+      });
+      if (result.success && result.code) {
         setBreakpoints(newBreakpoints);
         onChange(finalLines.join('\n'));
       } else {
-        toast.error('Breakpoint can only be applied in the execute function.');
+        toast.error(result.reason);
       }
     },
     [breakpoints, _code, onChange, enableBreakpoints]
