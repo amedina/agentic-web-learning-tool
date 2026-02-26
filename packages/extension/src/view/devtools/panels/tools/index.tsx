@@ -51,6 +51,7 @@ export const Tools = ({
       selectedKey: state.selectedKey,
       setIsToolRunning: actions.setIsToolRunning,
     }));
+  const [selectedPanel, setSelectedPanel] = useState<string | null>(null);
 
   const onToolSuccess = (toolName: string) => {
     const isMcpbTool =
@@ -168,17 +169,17 @@ export const Tools = ({
           getUserTool={getStoredUserTool}
           onScriptChange={onScriptChange}
           tabId={chrome.devtools.inspectedWindow.tabId}
+          selectedPanel={selectedPanel}
+          setSelectedPanel={setSelectedPanel}
         />
       );
     },
-    [getStoredUserTool]
+    [getStoredUserTool, selectedPanel, setSelectedPanel]
   );
 
   const reloadTools = useCallback(async () => {
     await client.listTools();
   }, [client]);
-
-  console.log(selectedKey);
 
   const extraInterfaceToTopBar = useCallback(() => {
     return (
@@ -210,7 +211,7 @@ export const Tools = ({
         position="top-center"
         theme={theme === 'auto' ? 'system' : theme}
         toastOptions={{
-          duration: 1000,
+          duration: 2000,
         }}
       />
       <Table

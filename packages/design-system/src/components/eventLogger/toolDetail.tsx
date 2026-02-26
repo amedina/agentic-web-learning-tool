@@ -1,7 +1,7 @@
 /**
  * External dependencies.
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type Dispatch, type SetStateAction } from 'react';
 import type { Tool } from '@modelcontextprotocol/sdk/types.js';
 /**
  * Internal dependencies.
@@ -17,6 +17,8 @@ interface ToolDetailProps {
   onScriptChange?: (newCode: string) => Promise<void>;
   enableBreakpoints?: boolean;
   tabId: number;
+  selectedPanel: string | null;
+  setSelectedPanel: Dispatch<SetStateAction<string | null>>;
 }
 
 const TAB_TRIGGER_CLASS =
@@ -27,6 +29,8 @@ export function ToolDetail({
   getUserTool,
   onScriptChange,
   tabId,
+  selectedPanel,
+  setSelectedPanel,
 }: ToolDetailProps) {
   const [userTool, setUserTool] = useState<WebMCPTool | null>(null);
   const [script, setNewScript] = useState('');
@@ -57,13 +61,24 @@ export function ToolDetail({
   }, [tool, getUserTool, tabId]);
 
   return (
-    <Tabs defaultValue="execution" className="flex flex-col h-full">
+    <Tabs
+      defaultValue={selectedPanel ?? 'execution'}
+      className="flex flex-col h-full"
+    >
       <div className="px-2 pt-2 border-b">
         <TabsList className="h-7 p-0 bg-transparent">
-          <TabsTrigger value="execution" className={TAB_TRIGGER_CLASS}>
+          <TabsTrigger
+            value="execution"
+            className={TAB_TRIGGER_CLASS}
+            onClick={() => setSelectedPanel('execution')}
+          >
             DESCRIPTION
           </TabsTrigger>
-          <TabsTrigger value="script" className={TAB_TRIGGER_CLASS}>
+          <TabsTrigger
+            value="script"
+            className={TAB_TRIGGER_CLASS}
+            onClick={() => setSelectedPanel('script')}
+          >
             Script
           </TabsTrigger>
         </TabsList>

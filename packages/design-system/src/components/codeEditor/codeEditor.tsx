@@ -112,7 +112,9 @@ export function CodeEditor({
         setBreakpoints(newBreakpoints);
         onChange(finalLines.join('\n'));
       } else {
-        toast.error(result.reason);
+        toast.error('Invalid breakpoint', {
+          description: result.reason,
+        });
       }
     },
     [breakpoints, _code, onChange, enableBreakpoints]
