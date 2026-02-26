@@ -197,7 +197,9 @@ export const Tools = ({
       tablePersistentSettingsKey="toolsTable"
       onRowContextMenu={noop}
       onRowClick={(row: TableData) => {
-        setSelectedKey(row?.name);
+        if (row?.name) {
+          setSelectedKey(row?.name);
+        }
       }}
       getRowObjectKey={(row: any) => {
         const data = row.original || row;
