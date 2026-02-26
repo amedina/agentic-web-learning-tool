@@ -987,12 +987,24 @@ class McpHub {
           console.log('WebMCP: Tool to register:', toolToRegister);
           // 4. Register
           if (mcp) {
-            if (mcp?.toolUnregisterFunctions?.get(toolWrapper.name)) {
+            if (mcp?.toolUnregisterFunctions) {
               const unregisterFunction = mcp?.toolUnregisterFunctions?.get(
-                toolWrapper.name
+                toolToRegister.name
               );
               unregisterFunction?.();
+            } else {
+              try {
+                //@ts-expect-error -- navigator.modelContext.unregisterTool is new spec
+                navigator.modelContext.unregisterTool(toolToRegister.name);
+              } catch (e) {
+                console.log(
+                  'WebMCP: Failed to unregister tool:',
+                  toolToRegister.name,
+                  e
+                );
+              }
             }
+
             await mcp.registerTool(toolToRegister);
             console.log(
               'WebMCP: User tool registered successfully:',
@@ -1113,11 +1125,22 @@ class McpHub {
           );
 
           if (mcp) {
-            if (mcp.toolUnregisterFunctions.get(toolToRegister.name)) {
-              const unregisterFunction = mcp.toolUnregisterFunctions.get(
+            if (mcp?.toolUnregisterFunctions) {
+              const unregisterFunction = mcp?.toolUnregisterFunctions?.get(
                 toolToRegister.name
               );
               unregisterFunction?.();
+            } else {
+              try {
+                //@ts-expect-error -- navigator.modelContext.unregisterTool is new spec
+                navigator.modelContext.unregisterTool(toolToRegister.name);
+              } catch (e) {
+                console.log(
+                  'WebMCP: Failed to unregister tool:',
+                  toolToRegister.name,
+                  e
+                );
+              }
             }
             await mcp.registerTool(toolToRegister);
 

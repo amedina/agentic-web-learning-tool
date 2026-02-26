@@ -101,7 +101,14 @@ export function CodeEditor({
       const result = insertDebugger(cleanLines.join('\n'), {
         line: lineIndex,
       });
-      if (result.success && !isRemoving) {
+
+      if (isRemoving) {
+        setBreakpoints(newBreakpoints);
+        onChange(finalLines.join('\n'));
+        return;
+      }
+
+      if (result.success) {
         setBreakpoints(newBreakpoints);
         onChange(finalLines.join('\n'));
       } else {

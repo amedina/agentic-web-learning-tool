@@ -178,6 +178,8 @@ export const Tools = ({
     await client.listTools();
   }, [client]);
 
+  console.log(selectedKey);
+
   const extraInterfaceToTopBar = useCallback(() => {
     return (
       <button onClick={reloadTools} title="Reload tools">
