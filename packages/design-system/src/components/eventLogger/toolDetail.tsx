@@ -11,6 +11,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../tabs';
 import { CodeEditor } from '../codeEditor';
 import type { WebMCPTool } from '../types';
 
+type InBuiltToolType = WebMCPTool & { stringCode: string };
+
 interface ToolDetailProps {
   tool: Tool;
   getUserTool: (tool: Tool) => Promise<WebMCPTool | null>;
@@ -19,6 +21,7 @@ interface ToolDetailProps {
   tabId: number;
   selectedPanel: string | null;
   setSelectedPanel: Dispatch<SetStateAction<string | null>>;
+  inBuiltTools: InBuiltToolType[];
 }
 
 const TAB_TRIGGER_CLASS =
@@ -31,6 +34,7 @@ export function ToolDetail({
   tabId,
   selectedPanel,
   setSelectedPanel,
+  inBuiltTools,
 }: ToolDetailProps) {
   const [userTool, setUserTool] = useState<WebMCPTool | null>(null);
   const [script, setNewScript] = useState('');
@@ -40,7 +44,17 @@ export function ToolDetail({
       if (!tool) {
         return;
       }
+
       const userTool = await getUserTool(tool);
+
+      if (!userTool) {
+        const inBuiltTool =
+          inBuiltTools.find((_tool) => _tool.name === tool.name) ?? null;
+
+        setUserTool(inBuiltTool);
+        setNewScript(inBuiltTool?.stringCode ?? '');
+        return;
+      }
       setUserTool(userTool);
 
       let scriptToUse = '';
@@ -114,7 +128,12 @@ export function ToolDetail({
               marginLeft: `calc(2.25rem - 11px)`,
               fontWeight: 300,
             }}
-            enableBreakpoints={true}
+            enableBreakpoints={
+              !inBuiltTools.find((_tool) => _tool.name === tool.name)
+            }
+            shouldDisableEditor={Boolean(
+              inBuiltTools.find((_tool) => _tool.name === tool.name)
+            )}
             textareaLineHeight="1.369"
             editorLineHeight="1.2"
           />

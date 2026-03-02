@@ -31,6 +31,11 @@ import useToolCategoryMapping from '../../hooks/useToolCategoryMapping';
 import { TOOL_CATEGORIES } from '../../constants';
 import { getToolCategory } from '../../../../utils';
 import { RefreshCcw } from 'lucide-react';
+import { builtInTools } from '../../../../contentScript/tools';
+import { stringifiedChangeBGColor } from '../../../../contentScript/tools/changeBgColor';
+import { stringifiedGetPageTitle } from '../../../../contentScript/tools/getPageTitle';
+
+type InBuiltToolType = WebMCPTool & { stringCode: string };
 
 interface AllToolsRowData extends TableData, Tool {
   originalData: Tool;
@@ -163,6 +168,14 @@ export const Tools = ({
         });
       };
 
+      const inBuiltTools = builtInTools.map((tool) => ({
+        ...tool,
+        stringCode:
+          tool.name === 'get_page_title'
+            ? stringifiedGetPageTitle
+            : stringifiedChangeBGColor,
+      })) as unknown as InBuiltToolType[];
+
       return (
         <ToolDetail
           tool={data as Tool}
@@ -171,6 +184,7 @@ export const Tools = ({
           tabId={chrome.devtools.inspectedWindow.tabId}
           selectedPanel={selectedPanel}
           setSelectedPanel={setSelectedPanel}
+          inBuiltTools={inBuiltTools}
         />
       );
     },
