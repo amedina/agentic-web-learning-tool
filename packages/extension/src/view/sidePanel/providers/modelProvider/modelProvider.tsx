@@ -9,7 +9,7 @@ import {
   useRef,
   useMemo,
 } from 'react';
-import { McpClientProvider } from '@mcp-b/mcp-react-hooks';
+import { McpClientProvider } from '@mcp-b/react-webmcp';
 import { ExtensionClientTransport } from '@mcp-b/transports';
 import { Client } from '@modelcontextprotocol/sdk/client';
 import { type MCPServerConfig } from '@google-awlt/common';

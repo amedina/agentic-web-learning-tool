@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { useState, useCallback } from 'react';
-import { useMcpClient } from '@mcp-b/mcp-react-hooks';
+import { useMcpClient } from '@mcp-b/react-webmcp';
 import type { Tool } from '@modelcontextprotocol/sdk/types.js';
 import { toast } from '@google-awlt/design-system';
 

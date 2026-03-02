@@ -139,13 +139,13 @@ importers:
         version: 16.3.0
       jest:
         specifier: ^29.7.0
-        version: 29.7.0(@types/node@24.10.7)(node-notifier@10.0.1)
+        version: 29.7.0(@types/node@24.3.1)(node-notifier@10.0.1)
       jest-environment-jsdom:
         specifier: ^30.1.2
         version: 30.1.2
       jest-extended:
         specifier: ^7.0.0
-        version: 7.0.0(jest@29.7.0(@types/node@24.10.7)(node-notifier@10.0.1))(typescript@5.9.2)
+        version: 7.0.0(jest@29.7.0(@types/node@24.3.1)(node-notifier@10.0.1))(typescript@5.9.2)
       node-fetch:
         specifier: ^3.3.2
         version: 3.3.2
@@ -275,10 +275,10 @@ importers:
         version: link:../shared-config
       '@modelcontextprotocol/sdk':
         specifier: ^1.25.0
-        version: 1.25.1(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+        version: 1.25.1(@cfworker/json-schema@4.1.1)(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
       '@storybook/react-vite':
         specifier: ^9.1.3
-        version: 9.1.5(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(rollup@4.50.1)(typescript@5.9.2)(vite@7.3.0(@types/node@24.3.1)(jiti@2.5.1)(lightningcss@1.30.1)(yaml@2.8.1))
+        version: 9.1.5(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(rollup@4.50.1)(typescript@5.9.2)(vite@7.3.0(@types/node@24.10.7)(jiti@2.5.1)(lightningcss@1.30.1)(yaml@2.8.1))
       '@tailwindcss/cli':
         specifier: ^4.1.5
         version: 4.1.13
@@ -323,13 +323,13 @@ importers:
         version: 3.0.0
       jest:
         specifier: ^29.7.0
-        version: 29.7.0(@types/node@24.3.1)(node-notifier@10.0.1)
+        version: 29.7.0(@types/node@24.10.7)(node-notifier@10.0.1)
       jest-environment-jsdom:
         specifier: ^30.1.2
         version: 30.1.2
       jest-extended:
         specifier: ^7.0.0
-        version: 7.0.0(jest@29.7.0(@types/node@24.3.1)(node-notifier@10.0.1))(typescript@5.9.2)
+        version: 7.0.0(jest@29.7.0(@types/node@24.10.7)(node-notifier@10.0.1))(typescript@5.9.2)
       node-fetch:
         specifier: ^3.3.2
         version: 3.3.2
@@ -515,16 +515,16 @@ importers:
         version: link:../workflow-ui
       '@mcp-b/extension-tools':
         specifier: ^0.2.3
-        version: 0.2.3(patch_hash=de61710e62afdb10e9b1aa256f697615f6f694df3f7c35e4aa0ea8ee2eb930fd)(hono@4.11.3)
-      '@mcp-b/mcp-react-hooks':
-        specifier: ^0.2.2
-        version: 0.2.2(@assistant-ui/react@0.11.51(patch_hash=67df03cd2ce1371da3a413dd7f088ed189627bed887039984e53e03592e6ae44)(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(immer@9.0.21)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(use-sync-external-store@1.6.0(react@19.1.1)))(hono@4.11.3)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+        version: 0.2.3(patch_hash=de61710e62afdb10e9b1aa256f697615f6f694df3f7c35e4aa0ea8ee2eb930fd)(@cfworker/json-schema@4.1.1)(hono@4.11.3)
+      '@mcp-b/react-webmcp':
+        specifier: ^2.0.9
+        version: 2.0.9(react@19.1.1)(zod-to-json-schema@3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
       '@mcp-b/transports':
         specifier: ^1.2.0
-        version: 1.2.0(patch_hash=9773364c7c75c141c62bbbee48a314c66a4f18c4b81170c0ec406dd66b5355dc)(@modelcontextprotocol/sdk@1.25.1(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))
+        version: 1.2.0(patch_hash=9773364c7c75c141c62bbbee48a314c66a4f18c4b81170c0ec406dd66b5355dc)(@modelcontextprotocol/sdk@1.25.1(@cfworker/json-schema@4.1.1)(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))
       '@modelcontextprotocol/sdk':
         specifier: ^1.25.0
-        version: 1.25.1(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+        version: 1.25.1(@cfworker/json-schema@4.1.1)(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
       '@radix-ui/react-icons':
         specifier: ^1.3.2
         version: 1.3.2(react@19.1.1)
@@ -708,7 +708,7 @@ importers:
         version: 9.1.5(@testing-library/dom@10.4.1)(prettier@3.6.2)(vite@7.3.0(@types/node@24.3.1)(jiti@2.5.1)(lightningcss@1.30.1)(yaml@2.8.1))
       ts-jest:
         specifier: ^29.4.1
-        version: 29.4.1(@babel/core@7.28.4)(@jest/transform@30.2.0)(@jest/types@30.2.0)(babel-jest@30.2.0(@babel/core@7.28.4))(jest-util@30.2.0)(jest@29.7.0(@types/node@24.3.1)(node-notifier@10.0.1))(typescript@5.8.3)
+        version: 29.4.1(@babel/core@7.28.4)(@jest/transform@30.2.0)(@jest/types@30.2.0)(babel-jest@30.2.0(@babel/core@7.28.4))(esbuild@0.25.9)(jest-util@30.2.0)(jest@29.7.0(@types/node@24.3.1)(node-notifier@10.0.1))(typescript@5.8.3)
       typescript:
         specifier: ~5.8.3
         version: 5.8.3
@@ -738,7 +738,7 @@ importers:
         version: link:../design-system
       '@modelcontextprotocol/sdk':
         specifier: ^1.25.0
-        version: 1.25.1(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+        version: 1.25.1(@cfworker/json-schema@4.1.1)(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
       '@radix-ui/react-checkbox':
         specifier: ^1.1.4
         version: 1.3.3(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
@@ -1966,6 +1966,9 @@ packages:
     resolution: {integrity: sha512-6zABk/ECA/QYSCQ1NGiVwwbQerUCZ+TQbp64Q3AgmfNvurHH0j8TtXa1qbShXA6qqkpAj4V5W8pP6mLe1mcMqA==}
     engines: {node: '>=18'}
 
+  '@cfworker/json-schema@4.1.1':
+    resolution: {integrity: sha512-gAmrUZSGtKc3AiBL71iNWxDsyUC5uMaKKGdvzYsBoTW/xi42JQHl7eKV2OYzCUqvc+D2RCcf7EXY2iCyFIk6og==}
+
   '@chromatic-com/storybook@4.1.1':
     resolution: {integrity: sha512-+Ib4cHtEjKl/Do+4LyU0U1FhLPbIU2Q/zgbOKHBCV+dTC4T3/vGzPqiGsgkdnZyTsK/zXg96LMPSPC4jjOiapg==}
     engines: {node: '>=20.0.0', yarn: '>=1.22.18'}
@@ -2594,14 +2597,20 @@ packages:
   '@mcp-b/extension-tools@0.2.3':
     resolution: {integrity: sha512-0uqFDvEPWsb+djc9VFRhuXGyNWFfbZ5TWjhZku81P8RopdhX27DB7bOZur0S1rkB5/lzKaxNYeKXwLY27VUoMQ==}
 
-  '@mcp-b/mcp-react-hooks@0.2.2':
-    resolution: {integrity: sha512-sOEV5Azyn7n/ZoK2Px6m79/xv1Lk4FOT2N4n7rnbnkA39DVvXqreUjnNefM8ITCG5hnuPzgK/bycLtyJtEZgpw==}
+  '@mcp-b/global@2.0.9':
+    resolution: {integrity: sha512-HPV5oELQYxDJHWhktaqy1lV0QGwwBq81zXcug7JeisRKwrj34mJugLh/5wkWPOfGnWUtWUD2Q5jhydCiDE6g5A==}
+    engines: {node: '>=18'}
+
+  '@mcp-b/react-webmcp@2.0.9':
+    resolution: {integrity: sha512-Y2sI4/WcaJZCeZBm0vX0LHKD5S+2/zKGogAEQnBs/4gO3lOmCY+0QCZrLw8bbGs/X7Nrov3rgcH/2EsKl59+mA==}
     peerDependencies:
-      '@assistant-ui/react': ^0.10.41
-      react: ^19.1.0
-      react-dom: ^19.1.0
+      react: ^17.0.0 || ^18.0.0 || ^19.0.0
+      zod: ^4.1.13
+      zod-to-json-schema: ^3.25.0
     peerDependenciesMeta:
-      '@assistant-ui/react':
+      zod:
+        optional: true
+      zod-to-json-schema:
         optional: true
 
   '@mcp-b/smart-dom-reader@1.0.2':
@@ -2612,15 +2621,32 @@ packages:
       '@modelcontextprotocol/sdk':
         optional: true
 
-  '@mcp-b/transports@1.0.3':
-    resolution: {integrity: sha512-zAGIvo7r2rqrZQtoTrH21PZZkh49AFy2FwOx4gPDqxgVb074PRPb4JtJwUgTa0g399v9zLbU8ep6f1r7c4MQfg==}
-    peerDependencies:
-      '@modelcontextprotocol/sdk': ^1.25.0
-
   '@mcp-b/transports@1.2.0':
     resolution: {integrity: sha512-YMKv7K3QFWu1xPxKCXGGUU2coSf6Z0OcbsckriA+SfeHdTO7gDUqDXPp88Y4jSvczKdfZuuL64gV9v8StP7RJQ==}
     peerDependencies:
       '@modelcontextprotocol/sdk': ^1.25.0
+
+  '@mcp-b/transports@2.0.9':
+    resolution: {integrity: sha512-Eb5w6a5DqmN0BJ5S4XDLyJmvtw4WU+W0LiWZCLv3Z4hyHkwi91A0YBSAd2/MWYTqeBpBm9TgLHGdlpaYZqTV5A==}
+
+  '@mcp-b/webmcp-polyfill@2.0.9':
+    resolution: {integrity: sha512-mKcIgpkCxgi4as6moU/lRbc9ANCsiHOjkIyln5ivJG4H2qa3U9Wv/euFq9B92Zbx5ZwuCvucdsmEsYsnpYHgpw==}
+    engines: {node: '>=18'}
+
+  '@mcp-b/webmcp-ts-sdk@2.0.9':
+    resolution: {integrity: sha512-ghXcGpEj2dN2a7M7ly8j/kJr3QJus1NZbxf0NDLrOQZL2gj0UsvY00aThAuj0BN2scGFmepK45EGqNFvNxW4fQ==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      zod: ^4.1.13
+      zod-to-json-schema: ^3.25.0
+    peerDependenciesMeta:
+      zod:
+        optional: true
+      zod-to-json-schema:
+        optional: true
+
+  '@mcp-b/webmcp-types@2.0.9':
+    resolution: {integrity: sha512-ktgOElR4ODzlo5JtX+YAWsWFYoErrmIUBJ1U10396HNEdHPPFPZZSPpOCWc4a8RoKxC8RqEWyUt5dPj+wBps8Q==}
 
   '@mdx-js/react@3.1.1':
     resolution: {integrity: sha512-f++rKLQgUVYDAtECQ6fn/is15GkEH9+nZPM3MS0RcxVqoTfawHvDlSCH7JbMhAM6uJ32v3eXLvLmLvjGu7PTQw==}
@@ -8746,6 +8772,8 @@ snapshots:
 
   '@bcoe/v8-coverage@1.0.2': {}
 
+  '@cfworker/json-schema@4.1.1': {}
+
   '@chromatic-com/storybook@4.1.1(storybook@9.1.5(@testing-library/dom@10.4.1)(prettier@3.6.2)(vite@7.3.0(@types/node@24.3.1)(jiti@2.5.1)(lightningcss@1.30.1)(yaml@2.8.1)))':
     dependencies:
       '@neoconfetti/react': 1.0.0
@@ -9381,15 +9409,6 @@ snapshots:
     optionalDependencies:
       typescript: 5.9.2
 
-  '@joshwooding/vite-plugin-react-docgen-typescript@0.6.1(typescript@5.9.2)(vite@7.3.0(@types/node@24.3.1)(jiti@2.5.1)(lightningcss@1.30.1)(yaml@2.8.1))':
-    dependencies:
-      glob: 10.5.0
-      magic-string: 0.30.18
-      react-docgen-typescript: 2.4.0(typescript@5.9.2)
-      vite: 7.3.0(@types/node@24.3.1)(jiti@2.5.1)(lightningcss@1.30.1)(yaml@2.8.1)
-    optionalDependencies:
-      typescript: 5.9.2
-
   '@jridgewell/gen-mapping@0.3.13':
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.5
@@ -9409,10 +9428,10 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@mcp-b/extension-tools@0.2.3(patch_hash=de61710e62afdb10e9b1aa256f697615f6f694df3f7c35e4aa0ea8ee2eb930fd)(hono@4.11.3)':
+  '@mcp-b/extension-tools@0.2.3(patch_hash=de61710e62afdb10e9b1aa256f697615f6f694df3f7c35e4aa0ea8ee2eb930fd)(@cfworker/json-schema@4.1.1)(hono@4.11.3)':
     dependencies:
-      '@mcp-b/smart-dom-reader': 1.0.2(@modelcontextprotocol/sdk@1.25.1(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))
-      '@modelcontextprotocol/sdk': 1.25.1(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+      '@mcp-b/smart-dom-reader': 1.0.2(@modelcontextprotocol/sdk@1.25.1(@cfworker/json-schema@4.1.1)(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))
+      '@modelcontextprotocol/sdk': 1.25.1(@cfworker/json-schema@4.1.1)(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
       zod: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
       zod-to-json-schema: 3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
     transitivePeerDependencies:
@@ -9420,33 +9439,59 @@ snapshots:
       - hono
       - supports-color
 
-  '@mcp-b/mcp-react-hooks@0.2.2(@assistant-ui/react@0.11.51(patch_hash=67df03cd2ce1371da3a413dd7f088ed189627bed887039984e53e03592e6ae44)(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(immer@9.0.21)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(use-sync-external-store@1.6.0(react@19.1.1)))(hono@4.11.3)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))':
+  '@mcp-b/global@2.0.9(zod-to-json-schema@3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))':
     dependencies:
-      '@mcp-b/transports': 1.0.3(@modelcontextprotocol/sdk@1.25.1(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))
-      '@modelcontextprotocol/sdk': 1.25.1(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
-      react: 19.1.1
-      react-dom: 19.1.1(react@19.1.1)
-    optionalDependencies:
-      '@assistant-ui/react': 0.11.51(patch_hash=67df03cd2ce1371da3a413dd7f088ed189627bed887039984e53e03592e6ae44)(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(immer@9.0.21)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(use-sync-external-store@1.6.0(react@19.1.1))
+      '@mcp-b/transports': 2.0.9(zod-to-json-schema@3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))
+      '@mcp-b/webmcp-polyfill': 2.0.9
+      '@mcp-b/webmcp-ts-sdk': 2.0.9(zod-to-json-schema@3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+      '@mcp-b/webmcp-types': 2.0.9
     transitivePeerDependencies:
-      - '@cfworker/json-schema'
-      - hono
-      - supports-color
       - zod
+      - zod-to-json-schema
 
-  '@mcp-b/smart-dom-reader@1.0.2(@modelcontextprotocol/sdk@1.25.1(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))':
+  '@mcp-b/react-webmcp@2.0.9(react@19.1.1)(zod-to-json-schema@3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))':
+    dependencies:
+      '@mcp-b/global': 2.0.9(zod-to-json-schema@3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+      '@mcp-b/transports': 2.0.9(zod-to-json-schema@3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))
+      '@mcp-b/webmcp-polyfill': 2.0.9
+      '@mcp-b/webmcp-ts-sdk': 2.0.9(zod-to-json-schema@3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+      '@mcp-b/webmcp-types': 2.0.9
+      react: 19.1.1
     optionalDependencies:
-      '@modelcontextprotocol/sdk': 1.25.1(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+      zod: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
+      zod-to-json-schema: 3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
 
-  '@mcp-b/transports@1.0.3(@modelcontextprotocol/sdk@1.25.1(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))':
+  '@mcp-b/smart-dom-reader@1.0.2(@modelcontextprotocol/sdk@1.25.1(@cfworker/json-schema@4.1.1)(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))':
+    optionalDependencies:
+      '@modelcontextprotocol/sdk': 1.25.1(@cfworker/json-schema@4.1.1)(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+
+  '@mcp-b/transports@1.2.0(patch_hash=9773364c7c75c141c62bbbee48a314c66a4f18c4b81170c0ec406dd66b5355dc)(@modelcontextprotocol/sdk@1.25.1(@cfworker/json-schema@4.1.1)(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))':
     dependencies:
-      '@modelcontextprotocol/sdk': 1.25.1(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+      '@modelcontextprotocol/sdk': 1.25.1(@cfworker/json-schema@4.1.1)(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
       zod: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
 
-  '@mcp-b/transports@1.2.0(patch_hash=9773364c7c75c141c62bbbee48a314c66a4f18c4b81170c0ec406dd66b5355dc)(@modelcontextprotocol/sdk@1.25.1(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))':
+  '@mcp-b/transports@2.0.9(zod-to-json-schema@3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))':
     dependencies:
-      '@modelcontextprotocol/sdk': 1.25.1(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+      '@mcp-b/webmcp-ts-sdk': 2.0.9(zod-to-json-schema@3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
       zod: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
+    transitivePeerDependencies:
+      - zod-to-json-schema
+
+  '@mcp-b/webmcp-polyfill@2.0.9':
+    dependencies:
+      '@cfworker/json-schema': 4.1.1
+      '@mcp-b/webmcp-types': 2.0.9
+      '@standard-schema/spec': 1.1.0
+
+  '@mcp-b/webmcp-ts-sdk@2.0.9(zod-to-json-schema@3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))':
+    dependencies:
+      '@mcp-b/webmcp-polyfill': 2.0.9
+      '@mcp-b/webmcp-types': 2.0.9
+    optionalDependencies:
+      zod: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
+      zod-to-json-schema: 3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+
+  '@mcp-b/webmcp-types@2.0.9': {}
 
   '@mdx-js/react@3.1.1(@types/react@19.1.12)(react@19.1.1)':
     dependencies:
@@ -9454,7 +9499,7 @@ snapshots:
       '@types/react': 19.1.12
       react: 19.1.1
 
-  '@modelcontextprotocol/sdk@1.25.1(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))':
+  '@modelcontextprotocol/sdk@1.25.1(@cfworker/json-schema@4.1.1)(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))':
     dependencies:
       '@hono/node-server': 1.19.7(hono@4.11.3)
       ajv: 8.17.1
@@ -9472,6 +9517,8 @@ snapshots:
       raw-body: 3.0.2
       zod: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
       zod-to-json-schema: 3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+    optionalDependencies:
+      '@cfworker/json-schema': 4.1.1
     transitivePeerDependencies:
       - hono
       - supports-color
@@ -10205,11 +10252,11 @@ snapshots:
       ts-dedent: 2.2.0
       vite: 7.3.0(@types/node@24.10.7)(jiti@2.5.1)(lightningcss@1.30.1)(yaml@2.8.1)
 
-  '@storybook/builder-vite@9.1.5(vite@7.3.0(@types/node@24.3.1)(jiti@2.5.1)(lightningcss@1.30.1)(yaml@2.8.1))':
+  '@storybook/builder-vite@9.1.5(vite@7.3.0(@types/node@24.10.7)(jiti@2.5.1)(lightningcss@1.30.1)(yaml@2.8.1))':
     dependencies:
       '@storybook/csf-plugin': 9.1.5
       ts-dedent: 2.2.0
-      vite: 7.3.0(@types/node@24.3.1)(jiti@2.5.1)(lightningcss@1.30.1)(yaml@2.8.1)
+      vite: 7.3.0(@types/node@24.10.7)(jiti@2.5.1)(lightningcss@1.30.1)(yaml@2.8.1)
 
   '@storybook/csf-plugin@9.1.5':
     dependencies:
@@ -10320,11 +10367,11 @@ snapshots:
       - supports-color
       - typescript
 
-  '@storybook/react-vite@9.1.5(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(rollup@4.50.1)(typescript@5.9.2)(vite@7.3.0(@types/node@24.3.1)(jiti@2.5.1)(lightningcss@1.30.1)(yaml@2.8.1))':
+  '@storybook/react-vite@9.1.5(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(rollup@4.50.1)(typescript@5.9.2)(vite@7.3.0(@types/node@24.10.7)(jiti@2.5.1)(lightningcss@1.30.1)(yaml@2.8.1))':
     dependencies:
-      '@joshwooding/vite-plugin-react-docgen-typescript': 0.6.1(typescript@5.9.2)(vite@7.3.0(@types/node@24.3.1)(jiti@2.5.1)(lightningcss@1.30.1)(yaml@2.8.1))
+      '@joshwooding/vite-plugin-react-docgen-typescript': 0.6.1(typescript@5.9.2)(vite@7.3.0(@types/node@24.10.7)(jiti@2.5.1)(lightningcss@1.30.1)(yaml@2.8.1))
       '@rollup/pluginutils': 5.3.0(rollup@4.50.1)
-      '@storybook/builder-vite': 9.1.5(vite@7.3.0(@types/node@24.3.1)(jiti@2.5.1)(lightningcss@1.30.1)(yaml@2.8.1))
+      '@storybook/builder-vite': 9.1.5(vite@7.3.0(@types/node@24.10.7)(jiti@2.5.1)(lightningcss@1.30.1)(yaml@2.8.1))
       '@storybook/react': 9.1.5(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(typescript@5.9.2)
       find-up: 7.0.0
       magic-string: 0.30.18
@@ -10333,7 +10380,7 @@ snapshots:
       react-dom: 19.1.1(react@19.1.1)
       resolve: 1.22.10
       tsconfig-paths: 4.2.0
-      vite: 7.3.0(@types/node@24.3.1)(jiti@2.5.1)(lightningcss@1.30.1)(yaml@2.8.1)
+      vite: 7.3.0(@types/node@24.10.7)(jiti@2.5.1)(lightningcss@1.30.1)(yaml@2.8.1)
     transitivePeerDependencies:
       - rollup
       - supports-color
@@ -15197,12 +15244,12 @@ snapshots:
 
   ts-dedent@2.2.0: {}
 
-  ts-jest@29.4.1(@babel/core@7.28.4)(@jest/transform@30.2.0)(@jest/types@30.2.0)(babel-jest@30.2.0(@babel/core@7.28.4))(jest-util@30.2.0)(jest@29.7.0(@types/node@24.10.7)(node-notifier@10.0.1))(typescript@5.8.3):
+  ts-jest@29.4.1(@babel/core@7.28.4)(@jest/transform@30.2.0)(@jest/types@30.2.0)(babel-jest@30.2.0(@babel/core@7.28.4))(esbuild@0.25.9)(jest-util@30.2.0)(jest@29.7.0(@types/node@24.3.1)(node-notifier@10.0.1))(typescript@5.8.3):
     dependencies:
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
       handlebars: 4.7.8
-      jest: 29.7.0(@types/node@24.10.7)(node-notifier@10.0.1)
+      jest: 29.7.0(@types/node@24.3.1)(node-notifier@10.0.1)
       json5: 2.2.3
       lodash.memoize: 4.1.2
       make-error: 1.3.6
@@ -15215,14 +15262,15 @@ snapshots:
       '@jest/transform': 30.2.0
       '@jest/types': 30.2.0
       babel-jest: 30.2.0(@babel/core@7.28.4)
+      esbuild: 0.25.9
       jest-util: 30.2.0
 
-  ts-jest@29.4.1(@babel/core@7.28.4)(@jest/transform@30.2.0)(@jest/types@30.2.0)(babel-jest@30.2.0(@babel/core@7.28.4))(jest-util@30.2.0)(jest@29.7.0(@types/node@24.3.1)(node-notifier@10.0.1))(typescript@5.8.3):
+  ts-jest@29.4.1(@babel/core@7.28.4)(@jest/transform@30.2.0)(@jest/types@30.2.0)(babel-jest@30.2.0(@babel/core@7.28.4))(jest-util@30.2.0)(jest@29.7.0(@types/node@24.10.7)(node-notifier@10.0.1))(typescript@5.8.3):
     dependencies:
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
       handlebars: 4.7.8
-      jest: 29.7.0(@types/node@24.3.1)(node-notifier@10.0.1)
+      jest: 29.7.0(@types/node@24.10.7)(node-notifier@10.0.1)
       json5: 2.2.3
       lodash.memoize: 4.1.2
       make-error: 1.3.6
