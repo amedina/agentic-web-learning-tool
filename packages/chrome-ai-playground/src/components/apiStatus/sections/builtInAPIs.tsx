@@ -158,6 +158,33 @@ export default function BuiltInAPIs() {
           const caps = await globalObj.capabilities();
           available = caps.available;
         }
+      } else if (api.id === "summarizer") {
+        if (globalObj.availability) {
+          available = await globalObj.availability({
+            outputLanguage: "en",
+          });
+        } else if (globalObj.capabilities) {
+          const caps = await globalObj.capabilities();
+          available = caps.available;
+        }
+      } else if (api.id === "writer") {
+        if (globalObj.availability) {
+          available = await globalObj.availability({
+            outputLanguage: "en",
+          });
+        } else if (globalObj.capabilities) {
+          const caps = await globalObj.capabilities();
+          available = caps.available;
+        }
+      } else if (api.id === "rewriter") {
+        if (globalObj.availability) {
+          available = await globalObj.availability({
+            outputLanguage: "en",
+          });
+        } else if (globalObj.capabilities) {
+          const caps = await globalObj.capabilities();
+          available = caps.available;
+        }
       } else {
         if (globalObj.availability) {
           available = await globalObj.availability();
@@ -230,16 +257,16 @@ export default function BuiltInAPIs() {
         } as any);
       } else if (apiId === "summarizer") {
         const factory = window.Summarizer || window.ai?.summarizer;
-        await factory?.create({ monitor } as any);
+        await factory?.create({ monitor, outputLanguage: "en" } as any);
       } else if (apiId === "languageDetector") {
         const factory = window.LanguageDetector || window.ai?.languageDetector;
         await factory?.create({ monitor } as any);
       } else if (apiId === "writer") {
         const factory = window.Writer || window.ai?.writer;
-        await factory?.create({ monitor } as any);
+        await factory?.create({ monitor, outputLanguage: "en" } as any);
       } else if (apiId === "rewriter") {
         const factory = window.Rewriter || window.ai?.rewriter;
-        await factory?.create({ monitor } as any);
+        await factory?.create({ monitor, outputLanguage: "en" } as any);
       } else if (apiId === "proofreader") {
         const factory = window.Proofreader || window.ai?.proofreader;
         await factory?.create({
