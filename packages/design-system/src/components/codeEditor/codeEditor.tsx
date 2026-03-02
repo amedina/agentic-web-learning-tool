@@ -17,7 +17,6 @@ interface CodeEditorProps {
   enableBreakpoints?: boolean;
   textareaLineHeight?: string;
   editorLineHeight?: string;
-  shouldDisableEditor?: boolean;
 }
 
 export function CodeEditor({
@@ -27,7 +26,6 @@ export function CodeEditor({
   enableBreakpoints = false,
   textareaLineHeight = '1.5',
   editorLineHeight = '1.5',
-  shouldDisableEditor = false,
 }: CodeEditorProps) {
   const backdropRef = useRef<HTMLDivElement>(null);
   const gutterRef = useRef<HTMLDivElement | null>(null);
@@ -159,7 +157,6 @@ export function CodeEditor({
           value={_code}
           onChange={(e) => handleEditorChange(e.target.value)}
           onScroll={handleScroll}
-          disabled={shouldDisableEditor}
           spellCheck={false}
           // @ts-ignore - ts(2322)
           style={{
