@@ -48,7 +48,7 @@ export const Inspector = () => {
     chrome.storage.session.set({ [`eventLog_${tabId}`]: [] });
     setSelectedKey(null);
     setEventLoggerData([]);
-  }, []);
+  }, [setEventLoggerData, setSelectedKey]);
 
   const extraInterfaceToTopBar = useCallback(() => {
     return (
@@ -56,7 +56,7 @@ export const Inspector = () => {
         <Ban width={15} height={15} color="#404040" />
       </button>
     );
-  }, []);
+  }, [resetTable]);
 
   return (
     <TableProvider

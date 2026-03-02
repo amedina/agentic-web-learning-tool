@@ -21,6 +21,7 @@ import {
   type MCPConfig,
   type MCPServerConfig,
 } from '@google-awlt/common';
+import type { WebMCPTool } from '@google-awlt/design-system';
 /**
  * Internal dependencies
  */
@@ -69,18 +70,18 @@ class McpHub {
     this.setupConnections();
     this.registerAllExtensionTools();
     this.tabId = tabId;
-    chrome.storage.local.onChanged.addListener((changes) => {
+    chrome.storage.local.onChanged.addListener(async (changes) => {
       if (changes?.chromeAPIBuiltInToolsState) {
         this.onLocalStoreChangedListener();
       }
       if (changes?.userWebMCPTools) {
         this.toolInjected = false;
-        this.injectToolsAndRegisterFunction(this.tabId);
+        await this.injectToolsAndRegisterFunction(this.tabId);
         this.toolInjected = true;
       }
       if (changes?.['workflow-composer']) {
         this.toolInjected = false;
-        this.injectWorkflowToolsAndRegisterFunction(this.tabId);
+        await this.injectWorkflowToolsAndRegisterFunction(this.tabId);
         this.toolInjected = true;
       }
     });
@@ -818,10 +819,7 @@ class McpHub {
     if (!isMCPServerTool && !script) {
       try {
         const storage = await chrome.storage.local.get('userWebMCPTools');
-        const userTools = (storage.userWebMCPTools || []) as Array<{
-          name: string;
-          code?: string;
-        }>;
+        const userTools = (storage.userWebMCPTools || []) as WebMCPTool[];
         const found = userTools.find((tool) => tool.name === toolName);
 
         if (found && found.code) {
@@ -931,18 +929,30 @@ class McpHub {
 
     // Filter out disabled user tools AND tools not allowed on this domain
     const enabledUserTools = Array.isArray(userWebMCPTools)
-      ? userWebMCPTools.filter((t: any) => {
+      ? (userWebMCPTools as WebMCPTool[]).filter((t: any) => {
           if (t.enabled === false) return false;
           return isDomainAllowed(tabUrl, t.allowedDomains);
         })
       : [];
+
+    enabledUserTools.forEach((tool) => {
+      const editedScript = (userWebMCPTools as WebMCPTool[]).find(
+        (_tool) => _tool.name === tool.name
+      )?.editedScript;
+
+      if (editedScript?.code && editedScript?.tabId.includes(this.tabId)) {
+        const _tool = this.registeredTools.get(tool.name);
+        _tool?.remove();
+        this.registeredTools.delete(tool.name);
+      }
+    });
 
     chrome.scripting
       .executeScript({
         target: { tabId: tabId },
         world: 'MAIN',
         func: registerDynamicToolFromScripting,
-        args: [enabledUserTools],
+        args: [enabledUserTools, this.tabId],
       })
       .then((result) => {
         logger(['debug'], ['WebMCP: tools registered', result]);
@@ -951,13 +961,15 @@ class McpHub {
         logger(['error'], ['WebMCP: Error injecting user tools', error]);
       });
 
-    async function registerDynamicToolFromScripting(tools: any) {
-      //@ts-expect-error -- window.navigator.modelContext is injected dynamically
+    async function registerDynamicToolFromScripting(tools: any, tabId: number) {
       const mcp = window.navigator.modelContext;
       for (const toolWrapper of tools) {
         try {
           // 1. Create a Blob from the code string
-          const blob = new Blob([toolWrapper.code], {
+          const codeToUse = toolWrapper?.editedScript?.tabId.includes(tabId)
+            ? toolWrapper.editedScript?.code
+            : toolWrapper.code;
+          const blob = new Blob([codeToUse], {
             type: 'text/javascript',
           });
           const url = URL.createObjectURL(blob);
@@ -974,6 +986,25 @@ class McpHub {
           console.log('WebMCP: Tool to register:', toolToRegister);
           // 4. Register
           if (mcp) {
+            //@ts-expect-error -- navigator.modelContext.toolUnregisterFunctions exists in the polyfilled version
+            if (mcp?.toolUnregisterFunctions) {
+              //@ts-expect-error -- navigator.modelContext.toolUnregisterFunctions exists in the polyfilled version
+              const unregisterFunction = mcp?.toolUnregisterFunctions?.get(
+                toolToRegister.name
+              );
+              unregisterFunction?.();
+            } else {
+              try {
+                navigator.modelContext.unregisterTool(toolToRegister.name);
+              } catch (e) {
+                console.log(
+                  'WebMCP: Failed to unregister tool:',
+                  toolToRegister.name,
+                  e
+                );
+              }
+            }
+
             await mcp.registerTool(toolToRegister);
             console.log(
               'WebMCP: User tool registered successfully:',
@@ -1047,7 +1078,6 @@ class McpHub {
     async function registerDynamicWorkflowToolFromScripting(
       transformedWorkflows: any
     ) {
-      //@ts-expect-error -- window.navigator.modelContext is injected dynamically
       const mcp = window.navigator.modelContext;
 
       for (const tool of transformedWorkflows) {
@@ -1094,6 +1124,24 @@ class McpHub {
           );
 
           if (mcp) {
+            //@ts-expect-error -- navigator.modelContext.toolUnregisterFunctions exists in the polyfilled version
+            if (mcp?.toolUnregisterFunctions) {
+              //@ts-expect-error -- navigator.modelContext.toolUnregisterFunctions exists in the polyfilled version
+              const unregisterFunction = mcp?.toolUnregisterFunctions?.get(
+                toolToRegister.name
+              );
+              unregisterFunction?.();
+            } else {
+              try {
+                navigator.modelContext.unregisterTool(toolToRegister.name);
+              } catch (e) {
+                console.log(
+                  'WebMCP: Failed to unregister tool:',
+                  toolToRegister.name,
+                  e
+                );
+              }
+            }
             await mcp.registerTool(toolToRegister);
 
             console.log(

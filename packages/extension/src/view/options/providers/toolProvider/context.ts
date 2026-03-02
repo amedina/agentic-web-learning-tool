@@ -19,7 +19,7 @@ export interface ToolProviderStoreContext {
     setUserTools: Dispatch<SetStateAction<WebMCPTool[]>>;
     setBuiltInTools: Dispatch<SetStateAction<WebMCPTool[]>>;
     saveBuiltInState: (tools: WebMCPTool[]) => void;
-    saveUserTools: (tools: WebMCPTool[]) => void;
+    saveUserTools: (tools: WebMCPTool[], updatedTool?: WebMCPTool) => void;
     saveExtensionToolsState: (toolName: string, value: boolean) => void;
   };
 }

@@ -8,7 +8,7 @@ import {
   useAssistantState,
   type AssistantRuntime,
 } from '@assistant-ui/react';
-import { useMcpClient } from '@mcp-b/mcp-react-hooks';
+import { useMcpClient } from '@mcp-b/react-webmcp';
 import { useCallback, useEffect, useMemo } from 'react';
 import type { JSONRPCMessage } from '@modelcontextprotocol/sdk/types.js';
 import {
@@ -235,6 +235,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
                     <Dropdown
                       options={groupedTools}
                       onSelect={(id) => console.log(id)}
+                      mainLabel="Tool Providers"
                       selectedValue=""
                     >
                       <Button variant="ghost" size="icon">

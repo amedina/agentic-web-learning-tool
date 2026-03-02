@@ -225,8 +225,14 @@ const mcpConnectionInitialiser = async (refreshTools = false) => {
       logger(['error'], ['Port disconnected due to url change']);
     }
 
-    transport.close();
-    connectionStarted = false;
+    transport
+      .close()
+      .then(() => {
+        connectionStarted = false;
+      })
+      .catch((error) => {
+        logger(['error'], [error]);
+      });
   });
 };
 insertAndRegisterScripts();

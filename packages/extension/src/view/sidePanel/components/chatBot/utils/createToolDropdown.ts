@@ -9,11 +9,27 @@ import type { Tool as McpTool } from '@modelcontextprotocol/sdk/types.js';
  */
 import { isUrl } from '../../../../../utils';
 import { getMcpbToolGroup } from '../../../../../utils';
+import { ToolNameMap } from '../../../../../contentScript/tools/mcpbTools';
 
-type SingleGroupTool = {
+type ToolDropdownItem = {
+  id: string;
+  label: string;
+  hideLabel: boolean;
   group: string;
-  key: string;
-  items: { id: string; label: string }[];
+  items: SingleItemType[];
+}[];
+
+type SubMenuItem = {
+  id: string;
+  label: string;
+  group?: string;
+};
+
+type SingleItemType = {
+  id: string;
+  label: string;
+  mainLabel: string;
+  submenu: SubMenuItem[];
 };
 
 type GroupedTool = {
@@ -37,7 +53,7 @@ const createToolDropdown = (
     return [];
   }
 
-  const toolGroups: SingleGroupTool[] = [];
+  const toolGroups: ToolDropdownItem = [];
   const toolToTypeMap = tools.reduce((acc, tool) => {
     if (getToolNameWithoutPrefix(tool.name) === 'dummyTool') {
       return acc;
@@ -48,12 +64,12 @@ const createToolDropdown = (
         : 'others';
     const mcpbGroup = getMcpbToolGroup(tool.name);
     if (mcpbGroup) {
-      if (acc[mcpbGroup]) {
-        acc[mcpbGroup].items.push(tool);
+      if (acc['mcp-b']) {
+        acc['mcp-b'].items.push(tool);
       } else {
-        acc[mcpbGroup] = {
-          group: mcpbGroup,
-          key: mcpbGroup,
+        acc['mcp-b'] = {
+          group: 'MCP-B',
+          key: 'mcp-b',
           isMCPTool: false,
           isWebSiteTool: false,
           isExtensionTool: true,
@@ -100,12 +116,21 @@ const createToolDropdown = (
   Object.keys(toolToTypeMap).forEach((key) => {
     if (toolToTypeMap[key].isWebSiteTool) {
       toolGroups.push({
+        id: toolToTypeMap[key].group,
+        label: toolToTypeMap[key].group,
         group: toolToTypeMap[key].group,
-        key: toolToTypeMap[key].key,
-        items: toolToTypeMap[key].items.map((tool) => ({
-          id: tool.name,
-          label: getToolNameWithoutPrefix(tool.name) ?? '',
-        })),
+        hideLabel: true,
+        items: [
+          {
+            id: toolToTypeMap[key].group,
+            label: toolToTypeMap[key].group,
+            mainLabel: 'Tools',
+            submenu: toolToTypeMap[key].items.map((tool) => ({
+              id: tool.name,
+              label: getToolNameWithoutPrefix(tool.name) ?? '',
+            })),
+          },
+        ],
       });
     }
   });
@@ -113,25 +138,72 @@ const createToolDropdown = (
   Object.keys(toolToTypeMap).forEach((key) => {
     if (toolToTypeMap[key].isMCPTool) {
       toolGroups.push({
+        id: toolToTypeMap[key].group,
+        label: toolToTypeMap[key].group,
         group: toolToTypeMap[key].group,
-        key: toolToTypeMap[key].key,
-        items: toolToTypeMap[key].items.map((tool) => ({
-          id: tool.name,
-          label: getToolNameWithoutPrefix(tool.name) ?? '',
-        })),
+        hideLabel: true,
+        items: [
+          {
+            id: toolToTypeMap[key].group,
+            label: toolToTypeMap[key].group,
+            mainLabel: 'Tools',
+            submenu: toolToTypeMap[key].items.map((tool) => ({
+              id: tool.name,
+              label: getToolNameWithoutPrefix(tool.name) ?? '',
+            })),
+          },
+        ],
       });
     }
   });
 
+  const mcpBTools = Object.entries(ToolNameMap).reduce(
+    (acc, [, currentValue]) => {
+      const filteredTools = toolToTypeMap['mcp-b']?.items
+        .filter(
+          (tool) =>
+            ToolNameMap[
+              getToolNameWithoutPrefix(tool.name) as keyof typeof ToolNameMap
+            ] === currentValue
+        )
+        .map((tool) => ({
+          id: tool.name,
+          label: getToolNameWithoutPrefix(tool.name) ?? '',
+          hideLabel: false,
+        }));
+
+      if (acc[currentValue]) {
+        return acc;
+      } else {
+        acc[currentValue] = {
+          id: currentValue,
+          label: currentValue,
+          mainLabel: 'Tools',
+          submenu: filteredTools,
+        };
+      }
+      return acc;
+    },
+    {} as { [key: string]: SingleItemType }
+  );
+
   Object.keys(toolToTypeMap).forEach((key) => {
     if (toolToTypeMap[key].isExtensionTool) {
       toolGroups.push({
+        id: toolToTypeMap[key].group,
+        label: toolToTypeMap[key].group,
         group: toolToTypeMap[key].group,
-        key: toolToTypeMap[key].key,
-        items: toolToTypeMap[key].items.map((tool) => ({
-          id: tool.name,
-          label: getToolNameWithoutPrefix(tool.name) ?? '',
-        })),
+        hideLabel: true,
+        items: [
+          {
+            id: toolToTypeMap[key].group,
+            label: toolToTypeMap[key].group,
+            mainLabel: 'Tools Types',
+            submenu: Object.values(mcpBTools).filter(
+              (tool) => tool.submenu.length > 0
+            ),
+          },
+        ],
       });
     }
   });

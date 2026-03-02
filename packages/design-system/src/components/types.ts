@@ -10,4 +10,8 @@ export interface WebMCPTool {
   isBuiltIn?: boolean;
   isExtension?: boolean;
   isWorkflow?: boolean;
+  editedScript?: {
+    code: string | null;
+    tabId: number[];
+  };
 }

@@ -4,7 +4,7 @@
 import { SidebarTrigger, useSidebar } from '@google-awlt/design-system';
 import type { JSONRPCMessage } from '@modelcontextprotocol/sdk/types.js';
 import { useEffect, useRef, useState } from 'react';
-import { useMcpClient } from '@mcp-b/mcp-react-hooks';
+import { useMcpClient } from '@mcp-b/react-webmcp';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 /**
  * Internal dependencies.
