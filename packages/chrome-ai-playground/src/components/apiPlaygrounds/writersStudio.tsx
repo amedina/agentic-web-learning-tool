@@ -43,6 +43,12 @@ import type {
   AIRewriter,
 } from "../../types/window";
 
+const SUPPORTED_LANGUAGES = [
+  { code: "en", label: "English" },
+  { code: "es", label: "Spanish" },
+  { code: "ja", label: "Japanese" },
+] as const;
+
 export default function WritersStudio() {
   // Mode State
   const [mode, setMode] = useState<"writer" | "rewriter">("writer");
@@ -59,6 +65,7 @@ export default function WritersStudio() {
   const [tone, setTone] = useState<string>("neutral");
   const [length, setLength] = useState<string>("short");
   const [format, setFormat] = useState<string>("markdown");
+  const [outputLanguage, setOutputLanguage] = useState<string>("en");
 
   const [sharedContext, setSharedContext] = useState("");
 
@@ -98,12 +105,16 @@ export default function WritersStudio() {
         // @ts-ignore
         if (typeof (window as any).Writer.availability === "function") {
           // @ts-ignore
-          writerStatus = await (window as any).Writer.availability();
+          writerStatus = await (window as any).Writer.availability({
+            outputLanguage,
+          });
         }
       } else if ((window as any).ai?.writer) {
         writerStatus = "readily";
         if (typeof (window as any).ai.writer.capabilities === "function") {
-          const caps = await (window as any).ai.writer.capabilities();
+          const caps = await (window as any).ai.writer.capabilities({
+            outputLanguage,
+          });
           writerStatus = caps.available;
         }
       }
@@ -115,12 +126,16 @@ export default function WritersStudio() {
         // @ts-ignore
         if (typeof (window as any).Rewriter.availability === "function") {
           // @ts-ignore
-          rewriterStatus = await (window as any).Rewriter.availability();
+          rewriterStatus = await (window as any).Rewriter.availability({
+            outputLanguage,
+          });
         }
       } else if ((window as any).ai?.rewriter) {
         rewriterStatus = "readily";
         if (typeof (window as any).ai.rewriter.capabilities === "function") {
-          const caps = await (window as any).ai.rewriter.capabilities();
+          const caps = await (window as any).ai.rewriter.capabilities({
+            outputLanguage,
+          });
           rewriterStatus = caps.available;
         }
       }
@@ -152,6 +167,7 @@ export default function WritersStudio() {
           length: length as AIWriterLength,
           format: format as AIWriterFormat,
           sharedContext: sharedContext.trim() || undefined,
+          outputLanguage,
         };
 
         let writer: AIWriter;
@@ -182,6 +198,7 @@ export default function WritersStudio() {
           length: length as AIRewriterLength,
           format: format as AIRewriterFormat,
           sharedContext: sharedContext.trim() || undefined,
+          outputLanguage,
         };
 
         let rewriter: AIRewriter;
@@ -351,6 +368,29 @@ export default function WritersStudio() {
                         <SelectItem value="plain-text">Plain Text</SelectItem>
                       </>
                     )}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Output Language</Label>
+                <Select
+                  value={outputLanguage}
+                  onValueChange={(v) => {
+                    setOutputLanguage(v);
+                    // Re-check capabilities for new language
+                    setTimeout(checkCapabilities, 0);
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select language" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SUPPORTED_LANGUAGES.map((lang) => (
+                      <SelectItem key={lang.code} value={lang.code}>
+                        {lang.label} ({lang.code})
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
