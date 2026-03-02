@@ -962,7 +962,6 @@ class McpHub {
       });
 
     async function registerDynamicToolFromScripting(tools: any, tabId: number) {
-      //@ts-expect-error -- window.navigator.modelContext is injected dynamically
       const mcp = window.navigator.modelContext;
       for (const toolWrapper of tools) {
         try {
@@ -987,14 +986,15 @@ class McpHub {
           console.log('WebMCP: Tool to register:', toolToRegister);
           // 4. Register
           if (mcp) {
+            //@ts-expect-error -- navigator.modelContext.toolUnregisterFunctions exists in the polyfilled version
             if (mcp?.toolUnregisterFunctions) {
+              //@ts-expect-error -- navigator.modelContext.toolUnregisterFunctions exists in the polyfilled version
               const unregisterFunction = mcp?.toolUnregisterFunctions?.get(
                 toolToRegister.name
               );
               unregisterFunction?.();
             } else {
               try {
-                //@ts-expect-error -- navigator.modelContext.unregisterTool is new spec
                 navigator.modelContext.unregisterTool(toolToRegister.name);
               } catch (e) {
                 console.log(
@@ -1078,7 +1078,6 @@ class McpHub {
     async function registerDynamicWorkflowToolFromScripting(
       transformedWorkflows: any
     ) {
-      //@ts-expect-error -- window.navigator.modelContext is injected dynamically
       const mcp = window.navigator.modelContext;
 
       for (const tool of transformedWorkflows) {
@@ -1125,14 +1124,15 @@ class McpHub {
           );
 
           if (mcp) {
+            //@ts-expect-error -- navigator.modelContext.toolUnregisterFunctions exists in the polyfilled version
             if (mcp?.toolUnregisterFunctions) {
+              //@ts-expect-error -- navigator.modelContext.toolUnregisterFunctions exists in the polyfilled version
               const unregisterFunction = mcp?.toolUnregisterFunctions?.get(
                 toolToRegister.name
               );
               unregisterFunction?.();
             } else {
               try {
-                //@ts-expect-error -- navigator.modelContext.unregisterTool is new spec
                 navigator.modelContext.unregisterTool(toolToRegister.name);
               } catch (e) {
                 console.log(

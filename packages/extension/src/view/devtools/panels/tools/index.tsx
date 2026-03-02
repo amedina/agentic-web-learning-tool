@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { useEffect, useState, useCallback, useMemo } from 'react';
-import { useMcpClient } from '@mcp-b/mcp-react-hooks';
+import { useMcpClient } from '@mcp-b/react-webmcp';
 import {
   Table,
   TableProvider,
