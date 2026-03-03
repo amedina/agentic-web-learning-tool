@@ -32,7 +32,7 @@ export async function rewriterApiExecutor(
     | undefined;
   const outputLanguage = config.outputLanguage as string | undefined;
 
-  const formattedInput = formatInputText(input);
+  let formattedInput = formatInputText(input);
 
   if (!formattedInput) {
     throw new Error('Rewriter API requires input text');
@@ -69,6 +69,31 @@ export async function rewriterApiExecutor(
 
     // @ts-ignore
     const rewriter = await Rewriter.create(options);
+
+    if (
+      (await rewriter.measureInputUsage(formattedInput)) > rewriter.inputQuota
+    ) {
+      let low = 0;
+      let high = formattedInput.length;
+      let optimalLength = 0;
+
+      while (low <= high) {
+        const mid = Math.floor((low + high) / 2);
+
+        if (
+          (await rewriter.measureInputUsage(formattedInput.slice(0, mid))) <=
+          rewriter.inputQuota
+        ) {
+          optimalLength = mid;
+          low = mid + 1;
+        } else {
+          high = mid - 1;
+        }
+      }
+
+      formattedInput = formattedInput.slice(0, optimalLength);
+    }
+
     const result = await rewriter.rewrite(formattedInput);
     rewriter.destroy?.();
 

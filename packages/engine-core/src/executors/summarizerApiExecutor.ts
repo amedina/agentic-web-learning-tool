@@ -29,7 +29,7 @@ export async function summarizerApiExecutor(
     | undefined;
   const outputLanguage = config.outputLanguage as string | undefined;
 
-  const formattedInput = formatInputText(input);
+  let formattedInput = formatInputText(input);
 
   if (!formattedInput) {
     throw new Error('Summarizer API requires input text');
@@ -67,6 +67,32 @@ export async function summarizerApiExecutor(
 
     // @ts-ignore
     summarizer = await Summarizer.create(options);
+
+    if (
+      (await summarizer.measureInputUsage(formattedInput)) >
+      summarizer.inputQuota
+    ) {
+      let low = 0;
+      let high = formattedInput.length;
+      let optimalLength = 0;
+
+      while (low <= high) {
+        const mid = Math.floor((low + high) / 2);
+
+        if (
+          (await summarizer.measureInputUsage(formattedInput.slice(0, mid))) <=
+          summarizer.inputQuota
+        ) {
+          optimalLength = mid;
+          low = mid + 1;
+        } else {
+          high = mid - 1;
+        }
+      }
+
+      formattedInput = formattedInput.slice(0, optimalLength);
+    }
+
     const summary = await summarizer.summarize(formattedInput);
 
     return summary;

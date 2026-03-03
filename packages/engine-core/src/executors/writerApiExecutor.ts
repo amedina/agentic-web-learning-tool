@@ -21,7 +21,7 @@ export async function writerApiExecutor(
     | undefined;
   const outputLanguage = config.outputLanguage as string | undefined;
 
-  const formattedInput = formatInputText(input);
+  let formattedInput = formatInputText(input);
 
   if (!formattedInput) {
     throw new Error('Writer API requires input/prompt text');
@@ -58,6 +58,29 @@ export async function writerApiExecutor(
 
     //@ts-ignore
     const writer = await Writer.create(options);
+
+    if ((await writer.measureInputUsage(formattedInput)) > writer.inputQuota) {
+      let low = 0;
+      let high = formattedInput.length;
+      let optimalLength = 0;
+
+      while (low <= high) {
+        const mid = Math.floor((low + high) / 2);
+
+        if (
+          (await writer.measureInputUsage(formattedInput.slice(0, mid))) <=
+          writer.inputQuota
+        ) {
+          optimalLength = mid;
+          low = mid + 1;
+        } else {
+          high = mid - 1;
+        }
+      }
+
+      formattedInput = formattedInput.slice(0, optimalLength);
+    }
+
     const result = await writer.write(formattedInput);
 
     return result;
