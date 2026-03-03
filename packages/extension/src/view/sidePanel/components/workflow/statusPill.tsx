@@ -13,7 +13,7 @@ const GlobalStatusPill = () => {
   const { workflowName, status, stopWorkflow } = useWorkflowSync();
   const [isExpanded, setIsExpanded] = useState(false);
 
-  if (status === 'idle') {
+  if (status !== 'running') {
     return null;
   }
 
