@@ -110,7 +110,7 @@ export const RunToolPanel: React.FC<RunToolPanelProps> = ({
         )}
       >
         {/* Header */}
-        <div className="px-4 py-3 border-gray-200 bg-background">
+        <div className="px-4 py-3 border-b bg-background">
           <div className="flex justify-between items-center ">
             <h2 className="text-sm font-semibold text-foreground">Run Tool</h2>
             <button
