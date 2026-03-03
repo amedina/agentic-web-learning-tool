@@ -27,6 +27,8 @@ export interface AILanguageModelCreateOptions {
   signal?: AbortSignal;
   monitor?: (monitor: any) => void;
   expectedOutputLanguage?: string;
+  expectedInputs?: { type: "text" | "image" | "audio"; languages: string[] }[];
+  expectedOutputs?: { type: "text"; languages: string[] }[];
 }
 
 export interface AILanguageModelPromptOptions {
