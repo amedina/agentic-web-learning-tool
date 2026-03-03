@@ -14,7 +14,18 @@ import {
   RotateCcw,
   Square,
 } from "lucide-react";
-import { Button, Collapsible, Input, toast } from "@google-awlt/design-system";
+import {
+  Button,
+  Collapsible,
+  Input,
+  toast,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  Label,
+} from "@google-awlt/design-system";
 
 /**
  * Internal dependencies
@@ -531,37 +542,45 @@ export default function PromptLab() {
             <Collapsible title="Language Settings" defaultOpen={true}>
               <div className="space-y-4 pt-2">
                 <div className="space-y-1">
-                  <label className="text-xs font-medium text-muted-foreground">
+                  <Label className="text-xs font-medium text-muted-foreground">
                     Expected Input Language
-                  </label>
-                  <select
+                  </Label>
+                  <Select
                     value={expectedInputLanguage}
-                    onChange={(e) => setExpectedInputLanguage(e.target.value)}
-                    className="w-full p-2 text-sm bg-background border rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50"
+                    onValueChange={(v) => setExpectedInputLanguage(v)}
                   >
-                    {SUPPORTED_LANGUAGES.map((lang) => (
-                      <option key={lang.code} value={lang.code}>
-                        {lang.label} ({lang.code})
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select input language" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {SUPPORTED_LANGUAGES.map((lang) => (
+                        <SelectItem key={lang.code} value={lang.code}>
+                          {lang.label} ({lang.code})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-medium text-muted-foreground">
+                  <Label className="text-xs font-medium text-muted-foreground">
                     Expected Output Language
-                  </label>
-                  <select
+                  </Label>
+                  <Select
                     value={expectedOutputLanguage}
-                    onChange={(e) => setExpectedOutputLanguage(e.target.value)}
-                    className="w-full p-2 text-sm bg-background border rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50"
+                    onValueChange={(v) => setExpectedOutputLanguage(v)}
                   >
-                    {SUPPORTED_LANGUAGES.map((lang) => (
-                      <option key={lang.code} value={lang.code}>
-                        {lang.label} ({lang.code})
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select output language" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {SUPPORTED_LANGUAGES.map((lang) => (
+                        <SelectItem key={lang.code} value={lang.code}>
+                          {lang.label} ({lang.code})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             </Collapsible>
