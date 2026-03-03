@@ -27,6 +27,8 @@ export interface AILanguageModelCreateOptions {
   signal?: AbortSignal;
   monitor?: (monitor: any) => void;
   expectedOutputLanguage?: string;
+  expectedInputs?: { type: "text" | "image" | "audio"; languages: string[] }[];
+  expectedOutputs?: { type: "text"; languages: string[] }[];
 }
 
 export interface AILanguageModelPromptOptions {
@@ -184,6 +186,7 @@ export interface AISummarizerCreateOptions {
   type?: AISummarizerType;
   format?: AISummarizerFormat;
   length?: AISummarizerLength;
+  outputLanguage?: string;
   signal?: AbortSignal;
   monitor?: (monitor: any) => void;
 }
@@ -202,8 +205,12 @@ export interface AISummarizerSession {
 
 export interface AISummarizerFactory {
   create(options?: AISummarizerCreateOptions): Promise<AISummarizerSession>;
-  availability?(): Promise<AIAvailability>;
-  capabilities?(): Promise<{ available: AIAvailability }>;
+  availability?(options?: {
+    outputLanguage?: string;
+  }): Promise<AIAvailability>;
+  capabilities?(options?: {
+    outputLanguage?: string;
+  }): Promise<{ available: AIAvailability }>;
 }
 
 // Proofreader API

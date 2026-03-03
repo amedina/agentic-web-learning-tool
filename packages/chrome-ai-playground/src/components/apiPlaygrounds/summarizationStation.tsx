@@ -35,6 +35,12 @@ import type {
   AIAvailability,
 } from "../../types/window";
 
+const SUPPORTED_LANGUAGES = [
+  { code: "en", label: "English" },
+  { code: "es", label: "Spanish" },
+  { code: "ja", label: "Japanese" },
+] as const;
+
 export default function SummarizationStation() {
   // Capability State
   const [availability, setAvailability] = useState<AIAvailability>("no");
@@ -44,6 +50,7 @@ export default function SummarizationStation() {
   const [type, setType] = useState<AISummarizerType>("key-points");
   const [format, setFormat] = useState<AISummarizerFormat>("markdown");
   const [length, setLength] = useState<AISummarizerLength>("medium");
+  const [outputLanguage, setOutputLanguage] = useState<string>("en");
 
   // Input/Output State
   const [input, setInput] = useState("");
@@ -64,16 +71,22 @@ export default function SummarizationStation() {
       if (window.Summarizer) {
         status = "readily";
         if (window.Summarizer.availability) {
-          status = await window.Summarizer.availability();
+          status = await window.Summarizer.availability({
+            outputLanguage,
+          });
         }
       } else if (window.ai?.summarizer) {
         status = "readily";
         // Check capabilities if available
         if (window.ai.summarizer.capabilities) {
-          const caps = await window.ai.summarizer.capabilities();
+          const caps = await window.ai.summarizer.capabilities({
+            outputLanguage,
+          });
           status = caps.available;
         } else if (window.ai.summarizer.availability) {
-          status = await window.ai.summarizer.availability();
+          status = await window.ai.summarizer.availability({
+            outputLanguage,
+          });
         }
       }
 
@@ -114,6 +127,7 @@ export default function SummarizationStation() {
         type,
         format,
         length,
+        outputLanguage,
         monitor(m: EventTarget) {
           m.addEventListener("downloadprogress", (e: any) => {
             console.log(`Downloaded ${e.loaded} of ${e.total} bytes.`);
@@ -253,12 +267,35 @@ export default function SummarizationStation() {
                   </SelectContent>
                 </Select>
               </div>
+
+              <div className="space-y-2">
+                <Label>Output Language</Label>
+                <Select
+                  value={outputLanguage}
+                  onValueChange={(v) => {
+                    setOutputLanguage(v);
+                    // Re-check capabilities for new language
+                    setTimeout(checkCapabilities, 0);
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select language" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SUPPORTED_LANGUAGES.map((lang) => (
+                      <SelectItem key={lang.code} value={lang.code}>
+                        {lang.label} ({lang.code})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Workspace Panel */}
-        <div className="md:col-span-2 flex flex-col gap-4">
+        <div className="md:col-span-1 flex flex-col gap-4">
           {/* Input Area */}
           <div className="flex-1 bg-card border rounded-xl p-4 flex flex-col gap-4 min-h-[200px]">
             <div className="flex justify-between items-center">

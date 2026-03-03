@@ -14,7 +14,18 @@ import {
   RotateCcw,
   Square,
 } from "lucide-react";
-import { Button, Collapsible, Input, toast } from "@google-awlt/design-system";
+import {
+  Button,
+  Collapsible,
+  Input,
+  toast,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  Label,
+} from "@google-awlt/design-system";
 
 /**
  * Internal dependencies
@@ -38,6 +49,12 @@ interface Message {
 
 const DEFAULT_SYSTEM_PROMPT = "You are a helpful and friendly assistant.";
 
+const SUPPORTED_LANGUAGES = [
+  { code: "en", label: "English" },
+  { code: "es", label: "Spanish" },
+  { code: "ja", label: "Japanese" },
+] as const;
+
 export default function PromptLab() {
   // Session State
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -54,6 +71,8 @@ export default function PromptLab() {
 
   const [temperature, setTemperature] = useState<number>(0.8);
   const [topK, setTopK] = useState<number>(3);
+  const [expectedInputLanguage, setExpectedInputLanguage] = useState<string>("en");
+  const [expectedOutputLanguage, setExpectedOutputLanguage] = useState<string>("en");
 
   // Interaction
   const [input, setInput] = useState<string>("");
@@ -162,7 +181,10 @@ export default function PromptLab() {
         console.log("Using Spec API (LanguageModel)");
         setApiType("spec");
         const LM = window.LanguageModel;
-        const availability = await LM.availability();
+        const availability = await LM.availability({
+          expectedInputs: [{ type: "text", languages: ["en"] }],
+          expectedOutputs: [{ type: "text", languages: ["en"] }],
+        });
 
         if (availability === "no") {
           throw new Error(
@@ -241,6 +263,12 @@ export default function PromptLab() {
       const options = {
         temperature,
         topK,
+        expectedInputs: [
+          { type: "text" as const, languages: [expectedInputLanguage] },
+        ],
+        expectedOutputs: [
+          { type: "text" as const, languages: [expectedOutputLanguage] },
+        ],
         initialPrompts: systemPrompt
           ? [{ role: "system" as const, content: systemPrompt }]
           : undefined,
@@ -510,6 +538,52 @@ export default function PromptLab() {
                 placeholder="Define system instructions / persona..."
               />
             </div>
+
+            <Collapsible title="Language Settings" defaultOpen={true}>
+              <div className="space-y-4 pt-2">
+                <div className="space-y-1">
+                  <Label className="text-xs font-medium text-muted-foreground">
+                    Expected Input Language
+                  </Label>
+                  <Select
+                    value={expectedInputLanguage}
+                    onValueChange={(v) => setExpectedInputLanguage(v)}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select input language" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {SUPPORTED_LANGUAGES.map((lang) => (
+                        <SelectItem key={lang.code} value={lang.code}>
+                          {lang.label} ({lang.code})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-1">
+                  <Label className="text-xs font-medium text-muted-foreground">
+                    Expected Output Language
+                  </Label>
+                  <Select
+                    value={expectedOutputLanguage}
+                    onValueChange={(v) => setExpectedOutputLanguage(v)}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select output language" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {SUPPORTED_LANGUAGES.map((lang) => (
+                        <SelectItem key={lang.code} value={lang.code}>
+                          {lang.label} ({lang.code})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </Collapsible>
 
             <Collapsible title="Parameters" defaultOpen={true}>
               <div className="space-y-4 pt-2">
