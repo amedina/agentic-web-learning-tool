@@ -33,7 +33,11 @@ export async function domInputExecutor(
   }
 
   try {
-    const result = await runtime.queryPage(selector, extract, isMultiple);
+    let result = await runtime.queryPage(selector, extract, isMultiple);
+
+    result = !isMultiple
+      ? result
+      : (result as Array<string>).filter((item) => item);
 
     return result || defaultValue || (isMultiple ? [] : '');
   } catch (error) {

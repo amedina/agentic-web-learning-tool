@@ -24,6 +24,7 @@ import {
   DataTransformerToolConfig,
   MathToolConfig,
   AlertNotificationToolConfig,
+  SelectionToolConfig,
 } from "../tools";
 import { WorkflowConfig } from "./workflowConfig";
 import { ToolsConfig } from "../ui";
@@ -39,6 +40,7 @@ const TOOLS = {
   [NodeType.SUMMARIZER_API]: SummarizerApiToolConfig,
   [NodeType.ALERT_NOTIFICATION]: AlertNotificationToolConfig,
   [NodeType.DOM_INPUT]: DomInputToolConfig,
+  [NodeType.SELECTION_TOOL]: SelectionToolConfig,
   [NodeType.CONDITION]: ConditionToolConfig,
   [NodeType.DATA_TRANSFORMER]: DataTransformerToolConfig,
   [NodeType.MATH]: MathToolConfig,

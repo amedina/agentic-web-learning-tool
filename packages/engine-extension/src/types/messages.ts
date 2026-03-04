@@ -87,6 +87,21 @@ export interface ShowTooltipMessage {
 }
 
 /**
+ * Request user to select text on the page.
+ */
+export interface GetSelectionMessage {
+  type: 'GET_SELECTION';
+}
+
+/**
+ * Replace the currently selected text.
+ */
+export interface ReplaceSelectionMessage {
+  type: 'REPLACE_SELECTION';
+  text: string;
+}
+
+/**
  * Content script is active.
  */
 export interface ContentScriptActiveMessage {
@@ -114,7 +129,10 @@ export type ContentScriptMessage =
   | DownloadFileMessage
   | SpeakTextMessage
   | ShowTooltipMessage
-  | UserActivationRequestMessage;
+  | GetSelectionMessage
+  | ReplaceSelectionMessage
+  | UserActivationRequestMessage
+  | MinimizeOverlayMessage;
 
 // Options Page / UI -> Service Worker Messages
 
@@ -132,7 +150,7 @@ export interface RunWorkflowMessage {
  */
 export interface CheckCapabilitiesMessage {
   type: 'CHECK_CAPABILITIES';
-  capabilities: string[] | Record<string, any>;
+  capabilities: string[] | Record<string, unknown>;
 }
 
 /**
@@ -151,7 +169,8 @@ export interface StopWorkflowMessage {
 export type ServiceWorkerMessage =
   | RunWorkflowMessage
   | CheckCapabilitiesMessage
-  | StopWorkflowMessage;
+  | StopWorkflowMessage
+  | GetGlobalStatusMessage;
 
 // Response Types
 
@@ -187,6 +206,7 @@ export interface CapabilitiesResponse {
  */
 export interface NodeStatusUpdate {
   type: 'NODE_STATUS';
+  workflowId?: string;
   nodeId: string;
   output: NodeOutput;
 }
@@ -196,6 +216,7 @@ export interface NodeStatusUpdate {
  */
 export interface WorkflowCompleteUpdate {
   type: 'WORKFLOW_COMPLETE';
+  workflowId?: string;
   context: ExecutionContext;
 }
 
@@ -204,6 +225,7 @@ export interface WorkflowCompleteUpdate {
  */
 export interface WorkflowErrorUpdate {
   type: 'WORKFLOW_ERROR';
+  workflowId?: string;
   error: string;
 }
 
@@ -213,4 +235,30 @@ export interface WorkflowErrorUpdate {
 export type StatusUpdate =
   | NodeStatusUpdate
   | WorkflowCompleteUpdate
-  | WorkflowErrorUpdate;
+  | WorkflowErrorUpdate
+  | WorkflowStatusChangeUpdate;
+
+/**
+ * Global status request.
+ */
+export interface GetGlobalStatusMessage {
+  type: 'GET_GLOBAL_STATUS';
+}
+
+import { type GlobalWorkflowState } from '../serviceWorker/stateManager';
+
+/**
+ * Workflow status change event (global).
+ */
+export interface WorkflowStatusChangeUpdate {
+  type: 'WORKFLOW_STATUS_CHANGE';
+  state: GlobalWorkflowState;
+}
+
+/**
+ * Signal to minimize in-page overlay.
+ */
+export interface MinimizeOverlayMessage {
+  type: 'MINIMIZE_OVERLAY';
+  minimized: boolean;
+}

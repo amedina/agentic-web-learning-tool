@@ -15,7 +15,7 @@ export interface RuntimeInterface {
    * @param capability - The capability identifier (e.g., 'promptApi', 'translatorApi')
    * @returns Promise resolving to true if capability is available
    */
-  checkCapability(capability: string, options?: any): Promise<boolean>;
+  checkCapability(capability: string, options?: unknown): Promise<boolean>;
 
   /**
    * Retrieve a value from the runtime's storage.
@@ -121,6 +121,18 @@ export interface RuntimeInterface {
    * @returns Promise resolving to true if the user is active.
    */
   isUserActive(): Promise<boolean>;
+
+  /**
+   * Wait for the user to select text on the web page.
+   * @returns Promise resolving to the selected text content
+   */
+  waitForSelection(): Promise<string>;
+
+  /**
+   * Replace the currently selected text on the web page.
+   * @param text - New text to insert at the selection
+   */
+  replaceSelection(text: string): Promise<void>;
 
   /**
    * Callback invoked when an error occurs during execution.

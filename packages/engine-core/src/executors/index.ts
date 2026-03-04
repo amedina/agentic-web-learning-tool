@@ -15,6 +15,7 @@ export { fileCreatorExecutor } from './fileCreatorExecutor';
 export { textToSpeechExecutor } from './textToSpeechExecutor';
 export { tooltipExecutor } from './tooltipExecutor';
 export { mathExecutor } from './mathExecutor';
+export { selectionToolExecutor } from './selectionToolExecutor';
 
 // Built-in AI API Executors
 export { promptApiExecutor } from './promptApiExecutor';
@@ -45,6 +46,7 @@ import { textToSpeechExecutor } from './textToSpeechExecutor';
 import { tooltipExecutor } from './tooltipExecutor';
 import { dataTransformerExecutor } from './dataTransformerExecutor';
 import { mathExecutor } from './mathExecutor';
+import { selectionToolExecutor } from './selectionToolExecutor';
 import { startExecutor } from './start';
 import { endExecutor } from './end';
 
@@ -68,6 +70,7 @@ export function registerBuiltinExecutors(): void {
   NodeRegistry.register(NodeType.FILE_CREATOR, fileCreatorExecutor);
   NodeRegistry.register(NodeType.TEXT_TO_SPEECH, textToSpeechExecutor);
   NodeRegistry.register(NodeType.TOOLTIP, tooltipExecutor);
+  NodeRegistry.register(NodeType.SELECTION_TOOL, selectionToolExecutor);
 
   // Built-in AI API Nodes
   NodeRegistry.register(NodeType.PROMPT_API, promptApiExecutor);

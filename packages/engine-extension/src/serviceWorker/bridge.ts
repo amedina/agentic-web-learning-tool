@@ -1,16 +1,21 @@
 /**
+ * External dependencies
+ */
+import { type WorkflowJSON } from '@google-awlt/engine-core';
+/**
  * Internal dependencies
  */
 import { initContentScriptBridge } from '../contentScript';
-import type {
-  ServiceWorkerMessage,
-  WorkflowResponse,
-  CapabilitiesResponse,
-  NodeStatusUpdate,
-  WorkflowCompleteUpdate,
-  WorkflowErrorUpdate,
+import {
+  type ServiceWorkerMessage,
+  type WorkflowResponse,
+  type CapabilitiesResponse,
 } from '../types/messages';
 import { getWorkflowRunner } from './runner';
+import {
+  getWorkflowStateManager,
+  type GlobalWorkflowState,
+} from './stateManager';
 
 /**
  * Service Worker Bridge
@@ -20,7 +25,12 @@ import { getWorkflowRunner } from './runner';
 function handleMessage(
   message: ServiceWorkerMessage,
   sender: chrome.runtime.MessageSender,
-  sendResponse: (response: WorkflowResponse | CapabilitiesResponse) => void
+  sendResponse: (
+    response:
+      | WorkflowResponse
+      | CapabilitiesResponse
+      | { success: boolean; state?: GlobalWorkflowState }
+  ) => void
 ): boolean {
   switch (message.type) {
     case 'RUN_WORKFLOW':
@@ -32,8 +42,11 @@ function handleMessage(
       return true;
 
     case 'STOP_WORKFLOW':
-      getWorkflowRunner().stop();
-      sendResponse({ success: true });
+      handleStopWorkflow(sendResponse);
+      return true;
+
+    case 'GET_GLOBAL_STATUS':
+      handleGetGlobalStatus(sendResponse);
       return true;
 
     default:
@@ -46,13 +59,23 @@ function handleMessage(
  * Handle workflow execution request.
  */
 export async function handleRunWorkflow(
-  workflow: any,
+  workflow: WorkflowJSON,
   tabId: number | undefined,
   sender: chrome.runtime.MessageSender,
   sendResponse: (response: WorkflowResponse) => void
 ) {
   const runner = getWorkflowRunner();
+  const stateManager = getWorkflowStateManager();
   const targetTabId = tabId ?? sender?.tab?.id;
+
+  if (stateManager.isBusy()) {
+    sendResponse({
+      success: false,
+      error:
+        'A workflow is already in progress. Please wait for it to finish or stop it first.',
+    });
+    return;
+  }
 
   try {
     if (targetTabId) {
@@ -74,7 +97,7 @@ export async function handleRunWorkflow(
         if (!response || !response?.success) {
           throw new Error('No Content Script!');
         }
-      } catch (error) {
+      } catch {
         await chrome.scripting.executeScript({
           target: { tabId: targetTabId },
           func: initContentScriptBridge,
@@ -84,39 +107,42 @@ export async function handleRunWorkflow(
       }
     }
 
+    // Initialize state
+    await stateManager.initWorkflow(
+      workflow.meta.id,
+      workflow.meta.name,
+      targetTabId
+    );
+
     const context = await runner.run(workflow, targetTabId, {
       onNodeStart: (nodeId) => {
-        broadcastStatusUpdate({
-          type: 'NODE_STATUS',
-          nodeId,
-          output: { status: 'running' },
-        });
+        stateManager.updateNodeStatus(nodeId, 'running');
       },
       onNodeFinish: (nodeId, output) => {
-        broadcastStatusUpdate({
-          type: 'NODE_STATUS',
-          nodeId,
-          output,
-        });
+        stateManager.updateNodeStatus(nodeId, output.status as any, output);
       },
       onError: (error) => {
-        broadcastStatusUpdate({
-          type: 'WORKFLOW_ERROR',
-          error: error.message,
-        });
+        stateManager.finishWorkflow(false, { error: error.message });
       },
     });
 
-    broadcastStatusUpdate({
-      type: 'WORKFLOW_COMPLETE',
-      context,
-    });
+    await stateManager.finishWorkflow(true, context);
 
     sendResponse({ success: true, context });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
+    stateManager.finishWorkflow(false, { error: message });
     sendResponse({ success: false, error: message });
   }
+}
+
+/**
+ * Handle stop workflow request.
+ */
+async function handleStopWorkflow(sendResponse: (response: any) => void) {
+  getWorkflowRunner().stop();
+  await getWorkflowStateManager().reset();
+  sendResponse({ success: true });
 }
 
 /**
@@ -138,14 +164,11 @@ async function handleCheckCapabilities(
 }
 
 /**
- * Broadcast status updates.
+ * Handle global status request.
  */
-function broadcastStatusUpdate(
-  update: NodeStatusUpdate | WorkflowCompleteUpdate | WorkflowErrorUpdate
-): void {
-  chrome.runtime.sendMessage(update).catch(() => {
-    // Ignore errors if no listeners
-  });
+function handleGetGlobalStatus(sendResponse: (response: any) => void) {
+  const state = getWorkflowStateManager().getState();
+  sendResponse({ success: true, state });
 }
 
 /**

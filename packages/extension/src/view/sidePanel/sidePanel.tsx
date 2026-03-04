@@ -13,7 +13,7 @@ import { SidebarProvider } from '@google-awlt/design-system';
 /**
  * Internal dependencies
  */
-import { ChatBotUI, WorkflowList } from './components';
+import { ChatBotUI, WorkflowList, GlobalStatusPill } from './components';
 import { CommandProvider, useModelProvider } from './providers';
 import CustomRuntimeProvider from './customRuntime/customRuntimeProvider';
 
@@ -91,6 +91,7 @@ const SidePanel = () => {
                 activeTabUrl={activeTab?.url}
               />
             </TabsContent>
+            <GlobalStatusPill />
           </Tabs>
         </SidebarProvider>
       </CommandProvider>

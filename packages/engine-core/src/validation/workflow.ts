@@ -227,7 +227,8 @@ export const AlertNotificationConfigSchema = z.object({
 export const DomReplacementConfigSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   description: z.string().optional(),
-  selector: z.string().min(1, 'Selector is required'),
+  selector: z.string().optional(),
+  replaceSelection: z.boolean().optional(),
   isMultiple: z.boolean().optional(),
   mode: z.enum(['textContent', 'innerText', 'innerHTML', 'value']).optional(),
 });
@@ -252,6 +253,11 @@ export const TooltipConfigSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   description: z.string().optional(),
   selector: z.string().min(1, 'Selector is required'),
+});
+
+export const SelectionToolConfigSchema = z.object({
+  title: z.string().min(1, 'Title is required'),
+  description: z.string().optional(),
 });
 
 export const StartEndConfigSchema = z.object({
@@ -394,6 +400,13 @@ export const NodeConfigSchema = z.discriminatedUnion('type', [
     type: z.literal(NodeType.TOOLTIP),
     ui: NodeUIConfigSchema.optional(),
     config: TooltipConfigSchema,
+    label: z.string(),
+  }),
+  z.object({
+    id: z.string(),
+    type: z.literal(NodeType.SELECTION_TOOL),
+    ui: NodeUIConfigSchema.optional(),
+    config: SelectionToolConfigSchema,
     label: z.string(),
   }),
   z.object({

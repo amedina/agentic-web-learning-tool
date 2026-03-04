@@ -708,7 +708,9 @@ export default function PromptLab() {
             {isLoading && !session && (
               <div className="h-full flex flex-col items-center justify-center text-muted-foreground">
                 <Loader2 className="w-8 h-8 animate-spin mb-4" />
-                <p className="text-sm font-medium">Initializing AI Session...</p>
+                <p className="text-sm font-medium">
+                  Initializing AI Session...
+                </p>
               </div>
             )}
 

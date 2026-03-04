@@ -26,6 +26,7 @@ import {
   TextToSpeechConfigSchema,
   TooltipConfigSchema,
   StartEndConfigSchema,
+  SelectionToolConfigSchema,
 } from '../validation/workflow';
 
 /**
@@ -66,6 +67,7 @@ export enum NodeType {
   FILE_CREATOR = 'fileCreator',
   TEXT_TO_SPEECH = 'textToSpeech',
   TOOLTIP = 'tooltip',
+  SELECTION_TOOL = 'selectionTool',
   START = 'start',
   END = 'end',
 }
@@ -111,6 +113,8 @@ export type FileCreatorConfig = z.infer<typeof FileCreatorConfigSchema>;
 export type TextToSpeechConfig = z.infer<typeof TextToSpeechConfigSchema>;
 
 export type TooltipConfig = z.infer<typeof TooltipConfigSchema>;
+
+export type SelectionToolConfig = z.infer<typeof SelectionToolConfigSchema>;
 
 export type StartEndConfig = z.infer<typeof StartEndConfigSchema>;
 

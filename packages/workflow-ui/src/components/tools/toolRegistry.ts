@@ -182,6 +182,13 @@ export const TOOL_CONFIGS: Record<
       selector: "",
     },
   },
+  [NodeType.SELECTION_TOOL]: {
+    label: "Selection Tool",
+    config: {
+      title: "Selection Tool",
+      description: "Interactive text selection from the web page.",
+    },
+  },
   [NodeType.START]: {
     label: "Start",
     config: {

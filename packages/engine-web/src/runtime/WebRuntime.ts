@@ -15,6 +15,7 @@ export interface ExecutionCallbacks {
 
 export class WebRuntime implements RuntimeInterface {
   private callbacks: ExecutionCallbacks = {};
+  private lastSelectionRange: Range | null = null;
 
   public setCallbacks(callbacks: ExecutionCallbacks): void {
     this.callbacks = callbacks;
@@ -97,6 +98,7 @@ export class WebRuntime implements RuntimeInterface {
         case "fileCreator":
         case "speechGenerator":
         case "toastNotification":
+        case "selectionInput":
           return true;
 
         default:
@@ -281,6 +283,139 @@ export class WebRuntime implements RuntimeInterface {
   async isUserActive(): Promise<boolean> {
     // @ts-ignore
     return !!navigator.userActivation?.isActive;
+  }
+
+  async waitForSelection(): Promise<string> {
+    const container = document.createElement("div");
+    container.id = "awl-selection-overlay";
+
+    Object.assign(container.style, {
+      position: "fixed",
+      bottom: "20px",
+      left: "50%",
+      transform: "translateX(-50%)",
+      background: "#fff",
+      padding: "16px 24px",
+      borderRadius: "12px",
+      boxShadow: "0 10px 25px rgba(0,0,0,0.1), 0 4px 10px rgba(0,0,0,0.05)",
+      zIndex: "2147483647",
+      display: "flex",
+      flexDirection: "column",
+      gap: "12px",
+      border: "1px solid #e2e8f0",
+      minWidth: "300px",
+      fontFamily: "Inter, system-ui, sans-serif",
+    });
+
+    const header = document.createElement("div");
+    Object.assign(header.style, {
+      display: "flex",
+      alignItems: "center",
+      gap: "8px",
+    });
+
+    const indicator = document.createElement("div");
+    Object.assign(indicator.style, {
+      width: "8px",
+      height: "8px",
+      borderRadius: "50%",
+      background: "#3b82f6",
+      boxShadow: "0 0 8px #3b82f6",
+    });
+
+    const title = document.createElement("span");
+    title.textContent = "Workflow Paused";
+    Object.assign(title.style, {
+      fontSize: "14px",
+      fontWeight: "700",
+      color: "#1e293b",
+    });
+
+    header.appendChild(indicator);
+    header.appendChild(title);
+
+    const message = document.createElement("p");
+    message.textContent = "Please select text on the page...";
+    Object.assign(message.style, {
+      margin: "0",
+      fontSize: "13px",
+      color: "#64748b",
+      lineHeight: "1.5",
+    });
+
+    const finishBtn = document.createElement("button");
+    finishBtn.textContent = "Finish Selection";
+    finishBtn.disabled = true;
+    Object.assign(finishBtn.style, {
+      padding: "8px 16px",
+      background: "#3b82f6",
+      color: "#fff",
+      border: "none",
+      borderRadius: "6px",
+      fontSize: "13px",
+      fontWeight: "600",
+      cursor: "pointer",
+      transition: "all 0.2s",
+      opacity: "0.5",
+    });
+
+    container.appendChild(header);
+    container.appendChild(message);
+    container.appendChild(finishBtn);
+    document.body.appendChild(container);
+
+    return new Promise((resolve) => {
+      const updateSelection = () => {
+        const selection = window.getSelection();
+        const text = selection?.toString().trim();
+        if (text && text.length > 0) {
+          message.textContent = `Text captured (${text.length} chars)`;
+          finishBtn.disabled = false;
+          finishBtn.style.opacity = "1";
+        } else {
+          message.textContent = "Please select text on the page...";
+          finishBtn.disabled = true;
+          finishBtn.style.opacity = "0.5";
+        }
+      };
+
+      document.addEventListener("selectionchange", updateSelection);
+
+      finishBtn.onclick = () => {
+        const selection = window.getSelection();
+        const text = selection?.toString().trim() || "";
+
+        if (selection && selection.rangeCount > 0) {
+          this.lastSelectionRange = selection.getRangeAt(0).cloneRange();
+        }
+
+        document.removeEventListener("selectionchange", updateSelection);
+        container.remove();
+        resolve(text);
+      };
+    });
+  }
+
+  async replaceSelection(text: string): Promise<void> {
+    const selection = window.getSelection();
+
+    // If current selection is empty/collapsed, try to restore from lastSelectionRange
+    if (
+      (!selection || selection.rangeCount === 0 || selection.isCollapsed) &&
+      this.lastSelectionRange
+    ) {
+      selection?.removeAllRanges();
+      selection?.addRange(this.lastSelectionRange);
+    }
+
+    // Perform replacement using range manipulation
+    const range = selection?.getRangeAt(0);
+    if (!range) {
+      throw new Error("No selection to replace");
+    }
+
+    range.deleteContents();
+    range.insertNode(document.createTextNode(text));
   }
 
   onNodeStart(nodeId: string): void {

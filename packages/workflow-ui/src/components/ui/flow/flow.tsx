@@ -48,7 +48,8 @@ export interface FlowProps<
   selectedTabId: number | null;
   setSelectedTabId: (tabId: number | null) => void;
   tabs: chrome.tabs.Tab[];
-  isRunning: boolean;
+  globalIsRunning?: boolean;
+  runningWorkflowId?: string | null;
   isStopping?: boolean;
   theme: "light" | "dark" | "system";
   autosaveEnabled?: boolean;
@@ -87,7 +88,8 @@ const Flow = <NodeType extends Node, EdgeType extends Edge>({
   autosaveEnabled,
   tabs,
   theme,
-  isRunning,
+  globalIsRunning = false,
+  runningWorkflowId = null,
   isStopping,
   actions,
   isBuiltIn,
@@ -184,26 +186,26 @@ const Flow = <NodeType extends Node, EdgeType extends Edge>({
 
           <div className="flex items-center bg-white dark:bg-zinc-800 rounded-md border border-slate-300 dark:border-border shadow-sm overflow-hidden">
             <button
-              onClick={isRunning ? actions.onStop : actions.onRun}
+              onClick={globalIsRunning ? actions.onStop : actions.onRun}
               disabled={isStopping}
               className={`flex items-center justify-center w-10 h-10 transition-all duration-200 ${
                 isStopping
                   ? "bg-red-400 dark:bg-red-900/50 cursor-wait text-white"
-                  : isRunning
+                  : globalIsRunning
                     ? "bg-red-500 hover:bg-red-600 dark:bg-rose-600 dark:hover:bg-rose-700 text-white"
                     : "bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white"
               }`}
               title={
                 isStopping
                   ? "Cancelling flow execution..."
-                  : isRunning
+                  : globalIsRunning
                     ? "Stop Workflow"
                     : "Run Workflow"
               }
             >
               {isStopping ? (
                 <Loader size={18} className="animate-spin" />
-              ) : isRunning ? (
+              ) : globalIsRunning ? (
                 <Square
                   size={16}
                   fill="currentColor"
@@ -266,7 +268,12 @@ const Flow = <NodeType extends Node, EdgeType extends Edge>({
                   value={wf.id}
                   className="h-9 px-3 pr-8 relative group data-[state=active]:bg-gray-100 dark:data-[state=active]:bg-slate-950 data-[state=active]:shadow-none border-r border-l border-l-transparent border-slate-300 dark:border-border -ml-px first:ml-0 rounded-none text-xs font-semibold normal-case min-w-[100px] hover:bg-slate-300/50 dark:hover:bg-zinc-800/50 data-[state=active]:hover:bg-gray-100 dark:data-[state=active]:hover:bg-slate-950 transition-colors data-[state=active]:border-t-2 data-[state=active]:border-t-indigo-500 data-[state=active]:border-l-slate-300 dark:data-[state=active]:border-l-border data-[state=active]:top-[1px] data-[state=active]:z-10"
                 >
-                  <span className="max-w-[120px] truncate">{wf.name}</span>
+                  <div className="flex items-center gap-1.5 max-w-[120px]">
+                    {globalIsRunning && runningWorkflowId === wf.id && (
+                      <span className="flex h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
+                    )}
+                    <span className="truncate">{wf.name}</span>
+                  </div>
                   <span
                     onClick={(e) => {
                       e.stopPropagation();

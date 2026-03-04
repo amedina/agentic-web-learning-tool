@@ -39,6 +39,7 @@ import {
   EndNode,
   DataTransformerToolNode,
   MathToolNode,
+  SelectionToolNode,
 } from "../../components";
 
 const FlowProvider = ({ children }: PropsWithChildren) => {
@@ -63,6 +64,7 @@ const FlowProvider = ({ children }: PropsWithChildren) => {
       [NodeType.DOM_REPLACEMENT]: DomReplacementNode,
       [NodeType.FILE_CREATOR]: FileCreatorNode,
       [NodeType.TOOLTIP]: TooltipNode,
+      [NodeType.SELECTION_TOOL]: SelectionToolNode,
       [NodeType.START]: StartNode,
       [NodeType.END]: EndNode,
       [NodeType.DATA_TRANSFORMER]: DataTransformerToolNode,
@@ -74,8 +76,6 @@ const FlowProvider = ({ children }: PropsWithChildren) => {
     removeNode: actions.removeNode,
     clearApiData: actions.clearApiData,
   }));
-
-  const [isRunning, setIsRunning] = useState(false);
 
   const onNodesChange = useCallback(
     (changes: NodeChange<FlowNodeType>[]) =>
@@ -171,7 +171,6 @@ const FlowProvider = ({ children }: PropsWithChildren) => {
           nodes,
           edges,
           nodeTypes,
-          isRunning,
         },
         actions: {
           onNodesChange,
@@ -182,7 +181,6 @@ const FlowProvider = ({ children }: PropsWithChildren) => {
           addNode,
           deleteNode,
           updateNodeStatus,
-          setIsRunning,
           clearFlow,
         },
       }}
