@@ -20,12 +20,25 @@ const onActionClickedCallback = async (tab: chrome.tabs.Tab) => {
         };
       }) => {
         if (result[sidebarKey]?.isOpen) {
-          chrome.runtime.sendMessage({
-            type: MESSAGE_TYPES.CLOSE_SIDEPANEL,
-            payload: {
-              tabId,
+          chrome.runtime.sendMessage(
+            {
+              type: MESSAGE_TYPES.CLOSE_SIDEPANEL,
+              payload: {
+                tabId,
+              },
             },
-          });
+            () => {
+              if (chrome.runtime.lastError) {
+                logger(
+                  ['error'],
+                  [
+                    'Failed to close side panel:',
+                    chrome.runtime.lastError.message,
+                  ]
+                );
+              }
+            }
+          );
           chrome.storage.session.set({
             [`sidebar_tab_${tabId}`]: {
               tabId,

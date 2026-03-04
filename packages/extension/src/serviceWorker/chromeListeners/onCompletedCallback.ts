@@ -16,7 +16,7 @@ const onCompletedCallback = async (
   }
 
   try {
-    await chrome.tabs.sendMessage(
+    chrome.tabs.sendMessage(
       details.tabId,
       {
         type: START_MCP_CONNECTION,
