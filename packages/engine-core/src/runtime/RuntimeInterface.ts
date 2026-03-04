@@ -129,6 +129,12 @@ export interface RuntimeInterface {
   waitForSelection(): Promise<string>;
 
   /**
+   * Replace the currently selected text on the web page.
+   * @param text - New text to insert at the selection
+   */
+  replaceSelection(text: string): Promise<void>;
+
+  /**
    * Callback invoked when an error occurs during execution.
    * @param error - The error that occurred
    */

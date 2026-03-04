@@ -88,6 +88,10 @@ export function initContentScriptBridge(tabId?: number): void {
         handleGetSelection(sendResponse);
         return true;
 
+      case 'REPLACE_SELECTION':
+        handleReplaceSelection(message.text, sendResponse);
+        return true;
+
       default:
         sendResponse({ success: false, error: 'Unknown message type' });
         return false;
@@ -587,9 +591,10 @@ export function initContentScriptBridge(tabId?: number): void {
     };
 
     const updateSelection = () => {
-      const selection = window.getSelection()?.toString().trim();
-      if (selection && selection.length > 0) {
-        message.textContent = `Text captured (${selection.length} chars)`;
+      const selection = window.getSelection();
+      const text = selection?.toString().trim();
+      if (text && text.length > 0) {
+        message.textContent = `Text captured (${text.length} chars)`;
         finishBtn.style.background = '#6366f1';
         finishBtn.style.cursor = 'pointer';
         finishBtn.style.opacity = '1';
@@ -604,10 +609,16 @@ export function initContentScriptBridge(tabId?: number): void {
     };
 
     finishBtn.onclick = () => {
-      const selection = window.getSelection()?.toString().trim();
-      if (selection) {
+      const selection = window.getSelection();
+      const text = selection?.toString().trim();
+      if (selection && text) {
+        // Save range for later replacement
+        if (selection.rangeCount > 0) {
+          // @ts-expect-error
+          window.lastSelectionRange = selection.getRangeAt(0).cloneRange();
+        }
         cleanup();
-        sendResponse({ success: true, data: selection });
+        sendResponse({ success: true, data: text });
       }
     };
 
@@ -624,5 +635,36 @@ export function initContentScriptBridge(tabId?: number): void {
 
     // Initial check
     updateSelection();
+  }
+
+  /**
+   * Handle text selection replacement request.
+   */
+  function handleReplaceSelection(
+    text: string,
+    sendResponse: (response: ContentScriptResponse) => void
+  ): void {
+    try {
+      const selection = window.getSelection();
+
+      if (
+        (!selection || selection.rangeCount === 0 || selection.isCollapsed) &&
+        // @ts-expect-error - saved range
+        window.lastSelectionRange
+      ) {
+        selection?.removeAllRanges();
+        // @ts-expect-error - saved range
+        selection?.addRange(window.lastSelectionRange);
+      }
+
+      const range = selection?.getRangeAt(0);
+      range?.deleteContents();
+      range?.insertNode(document.createTextNode(text));
+
+      sendResponse({ success: true });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      sendResponse({ success: false, error: message });
+    }
   }
 }

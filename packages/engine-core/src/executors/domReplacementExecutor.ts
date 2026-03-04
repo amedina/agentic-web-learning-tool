@@ -17,6 +17,7 @@ export async function domReplacementExecutor(
   const input = config.input;
   const selector = config.selector as string;
   const isMultiple = !!config.isMultiple;
+  const replaceSelection = !!config.replaceSelection;
 
   const mode = config.mode as
     | 'textContent'
@@ -25,11 +26,21 @@ export async function domReplacementExecutor(
     | 'value'
     | undefined;
 
-  if (!selector) {
-    throw new Error('DOM Replacement requires a CSS selector');
+  const formattedInput = formatInputText(input);
+
+  if (replaceSelection) {
+    if (!formattedInput) {
+      throw new Error('Selection replacement requires input text');
+    }
+    await runtime.replaceSelection(formattedInput);
+    return formattedInput;
   }
 
-  const formattedInput = formatInputText(input);
+  if (!selector) {
+    throw new Error(
+      'DOM Replacement requires a CSS selector or replaceSelection mode'
+    );
+  }
 
   if (!formattedInput) {
     throw new Error('DOM Replacement requires input text');

@@ -227,7 +227,8 @@ export const AlertNotificationConfigSchema = z.object({
 export const DomReplacementConfigSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   description: z.string().optional(),
-  selector: z.string().min(1, 'Selector is required'),
+  selector: z.string().optional(),
+  replaceSelection: z.boolean().optional(),
   isMultiple: z.boolean().optional(),
   mode: z.enum(['textContent', 'innerText', 'innerHTML', 'value']).optional(),
 });

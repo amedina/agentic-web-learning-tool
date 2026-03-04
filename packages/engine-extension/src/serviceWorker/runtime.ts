@@ -16,6 +16,7 @@ import type {
   ShowTooltipMessage,
   UserActivationRequestMessage,
   GetSelectionMessage,
+  ReplaceSelectionMessage,
 } from '../types/messages';
 
 /**
@@ -367,6 +368,24 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
     }
 
     return response.data as string;
+  }
+
+  async replaceSelection(text: string): Promise<void> {
+    const tabId = await this.getTargetTabId();
+    const message: ReplaceSelectionMessage = {
+      type: 'REPLACE_SELECTION',
+      text,
+    };
+
+    const response = await chrome.tabs.sendMessage(tabId, message);
+
+    if (chrome.runtime.lastError) {
+      throw new Error(chrome.runtime.lastError.message);
+    }
+
+    if (!response?.success) {
+      throw new Error(response?.error || 'Selection replacement failed');
+    }
   }
 
   async isUserActive(): Promise<boolean> {

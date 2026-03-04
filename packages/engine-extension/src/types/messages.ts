@@ -94,6 +94,14 @@ export interface GetSelectionMessage {
 }
 
 /**
+ * Replace the currently selected text.
+ */
+export interface ReplaceSelectionMessage {
+  type: 'REPLACE_SELECTION';
+  text: string;
+}
+
+/**
  * Content script is active.
  */
 export interface ContentScriptActiveMessage {
@@ -122,6 +130,7 @@ export type ContentScriptMessage =
   | SpeakTextMessage
   | ShowTooltipMessage
   | GetSelectionMessage
+  | ReplaceSelectionMessage
   | UserActivationRequestMessage
   | MinimizeOverlayMessage;
 

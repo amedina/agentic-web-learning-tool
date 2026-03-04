@@ -15,6 +15,7 @@ export interface ExecutionCallbacks {
 
 export class WebRuntime implements RuntimeInterface {
   private callbacks: ExecutionCallbacks = {};
+  private lastSelectionRange: Range | null = null;
 
   public setCallbacks(callbacks: ExecutionCallbacks): void {
     this.callbacks = callbacks;
@@ -365,9 +366,10 @@ export class WebRuntime implements RuntimeInterface {
 
     return new Promise((resolve) => {
       const updateSelection = () => {
-        const selection = window.getSelection()?.toString().trim();
-        if (selection && selection.length > 0) {
-          message.textContent = `Text captured (${selection.length} chars)`;
+        const selection = window.getSelection();
+        const text = selection?.toString().trim();
+        if (text && text.length > 0) {
+          message.textContent = `Text captured (${text.length} chars)`;
           finishBtn.disabled = false;
           finishBtn.style.opacity = "1";
         } else {
@@ -380,12 +382,40 @@ export class WebRuntime implements RuntimeInterface {
       document.addEventListener("selectionchange", updateSelection);
 
       finishBtn.onclick = () => {
-        const finalSelection = window.getSelection()?.toString().trim() || "";
+        const selection = window.getSelection();
+        const text = selection?.toString().trim() || "";
+
+        if (selection && selection.rangeCount > 0) {
+          this.lastSelectionRange = selection.getRangeAt(0).cloneRange();
+        }
+
         document.removeEventListener("selectionchange", updateSelection);
         container.remove();
-        resolve(finalSelection);
+        resolve(text);
       };
     });
+  }
+
+  async replaceSelection(text: string): Promise<void> {
+    const selection = window.getSelection();
+
+    // If current selection is empty/collapsed, try to restore from lastSelectionRange
+    if (
+      (!selection || selection.rangeCount === 0 || selection.isCollapsed) &&
+      this.lastSelectionRange
+    ) {
+      selection?.removeAllRanges();
+      selection?.addRange(this.lastSelectionRange);
+    }
+
+    // Perform replacement using range manipulation
+    const range = selection?.getRangeAt(0);
+    if (!range) {
+      throw new Error("No selection to replace");
+    }
+
+    range.deleteContents();
+    range.insertNode(document.createTextNode(text));
   }
 
   onNodeStart(nodeId: string): void {
