@@ -52,11 +52,9 @@ export class WorkflowClient {
     this.globalCallbacks.add(callback);
     this.startListening();
 
-    this.getGlobalStatus()
-      .then((state) => {
-        callback(state);
-      })
-      .catch(() => {});
+    this.getGlobalStatus().then((state) => {
+      callback(state);
+    });
 
     return () => {
       this.globalCallbacks.delete(callback);
@@ -70,13 +68,11 @@ export class WorkflowClient {
     this.executionListeners.add(callbacks);
     this.startListening();
 
-    this.getGlobalStatus()
-      .then((state) => {
-        if (state.status === 'running' && state.currentNodeId) {
-          callbacks.onNodeStart?.(state.currentNodeId);
-        }
-      })
-      .catch(() => {});
+    this.getGlobalStatus().then((state) => {
+      if (state.status === 'running' && state.currentNodeId) {
+        callbacks.onNodeStart?.(state.currentNodeId);
+      }
+    });
 
     return () => {
       this.executionListeners.delete(callbacks);
