@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import z from 'zod';
+import { ZodError } from 'zod';
 /**
  * Internal dependencies
  */
@@ -122,7 +122,7 @@ export class WorkflowEngine {
       return this.context;
     } catch (error) {
       const err =
-        error instanceof z.ZodError
+        error instanceof ZodError
           ? new Error('Workflow validation failed!')
           : error instanceof Error
             ? error

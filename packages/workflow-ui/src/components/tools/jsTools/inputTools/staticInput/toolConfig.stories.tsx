@@ -27,6 +27,7 @@ export const Default: Story = {
       description:
         "A static API key used for authenticating with external translation services.",
       inputValue: "sk-1234567890abcdef",
+      isMultiple: false,
     },
   },
 };
