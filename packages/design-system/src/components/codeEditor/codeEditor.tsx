@@ -150,6 +150,7 @@ export function CodeEditor({
 
   const backgroundColor = 'var(--background)';
   const caretColor = 'var(--foreground)';
+
   return (
     <div className="flex-1 relative flex h-full mt-2 ml-2">
       {/* Editor Area */}
@@ -168,7 +169,7 @@ export function CodeEditor({
             lineHeight: textareaLineHeight,
             caretColor: caretColor,
             zIndex: 10,
-            marginLeft,
+            marginLeft: !enableBreakpoints ? '0' : marginLeft,
           }}
         />
         <div
@@ -180,8 +181,10 @@ export function CodeEditor({
             language="javascript"
             code={_code}
             selectedLineNumbers={breakpoints}
-            showLineNumbers={true}
-            onLinenumberClick={toggleBreakpoint}
+            showLineNumbers={enableBreakpoints}
+            onLinenumberClick={
+              shouldDisableEditor ? toggleBreakpoint : undefined
+            }
             width={
               textareaLineHeight === '1.369' ? 'calc(2.25rem - 1em)' : '2.25rem'
             }

@@ -246,7 +246,6 @@ export function EditToolDialog({
                 }}
                 code={code}
                 onChange={handleCodeChange}
-                textareaLineHeight="1.63"
                 editorLineHeight="1.5"
               />
             </div>

@@ -900,10 +900,17 @@ class McpHub {
 
   private broadcastLog(logEntry: any) {
     try {
-      chrome.runtime.sendMessage({
-        type: MESSAGE_TYPES.TOOL_LOG,
-        payload: logEntry,
-      });
+      chrome.runtime.sendMessage(
+        {
+          type: MESSAGE_TYPES.TOOL_LOG,
+          payload: logEntry,
+        },
+        () => {
+          if (chrome.runtime.lastError) {
+            logger(['error'], ['Port disconnected due to url change']);
+          }
+        }
+      );
     } catch (e) {
       // Ignore errors if no receivers (e.g., DevTools closed)
     }
