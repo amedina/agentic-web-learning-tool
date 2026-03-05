@@ -1,5 +1,6 @@
 import { defineConfig } from "vite";
 import { resolve } from "path";
+import { compression } from "vite-plugin-compression2";
 
 export default defineConfig({
   build: {
@@ -11,4 +12,9 @@ export default defineConfig({
     },
     sourcemap: true,
   },
+  plugins: [
+    compression({
+      algorithms: ["gzip", "brotliCompress"],
+    }),
+  ],
 });

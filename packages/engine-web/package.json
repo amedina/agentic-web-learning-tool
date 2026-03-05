@@ -25,9 +25,10 @@
     "@types/jest": "^30.0.0",
     "@types/node": "^24.3.0",
     "jest-environment-jsdom": "^30.0.0",
+    "rimraf": "^5.0.10",
     "ts-jest": "^29.4.6",
     "typescript": "~5.9.2",
-    "rimraf": "^5.0.10",
-    "vite": "^7.1.11"
+    "vite": "^7.1.11",
+    "vite-plugin-compression2": "^2.5.0"
   }
 }

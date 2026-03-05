@@ -29,6 +29,7 @@ export const Default: Story = {
       cssSelector: "#corePrice_feature_div .a-offscreen",
       extract: "textContent",
       defaultValue: "0.00",
+      isMultiple: false,
     },
   },
 };
