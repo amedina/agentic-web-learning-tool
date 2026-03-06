@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useEffect, useImperativeHandle, useState } from "react";
+import { useEffect, useImperativeHandle, useRef, useState } from "react";
 import { Settings } from "lucide-react";
 import {
   PromptApiConfigSchema,
@@ -34,16 +34,25 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
     config.expectedOutputsLanguages || [],
   );
 
-  const [initialPrompts, setInitialPrompts] = useState<string>(
-    JSON.stringify(config.initialPrompts) || "[]",
+  const promptsContent = useRef<string>(
+    JSON.stringify(config.initialPrompts, null, 2) || "[]",
   );
+
+  const [isInvalidJson, setIsInvalidJson] = useState<boolean>(false);
+  const hasInitialized = useRef(false);
 
   useEffect(() => {
     setTopK(config.topK || 3);
     setTemperature(config.temperature || 0.7);
     setLanguageInput(config.expectedInputsLanguages || []);
     setLanguageOutput(config.expectedOutputsLanguages || []);
-    setInitialPrompts(JSON.stringify(config.initialPrompts) || "[]");
+
+    if (!hasInitialized.current) {
+      promptsContent.current =
+        JSON.stringify(config.initialPrompts, null, 2) || "[]";
+      hasInitialized.current = true;
+    }
+    setIsInvalidJson(false);
   }, [config]);
 
   useImperativeHandle(
@@ -56,14 +65,17 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
         const temperature = formData.get("temperature") as string;
         const languageInput = formData.getAll("languageInput") as string[];
         const languageOutput = formData.getAll("languageOutput") as string[];
-        const initialPrompts = formData.get("initialPrompts") as string;
-        let parsedInitialPrompts = [];
 
+        let parsedInitialPrompts = [];
         try {
-          parsedInitialPrompts = JSON.parse(initialPrompts);
+          parsedInitialPrompts = JSON.parse(promptsContent.current);
         } catch (error) {
-          logger(["error"], ["Invalid JSON for initialPrompts:", error]);
-          parsedInitialPrompts = [];
+          logger(
+            ["error"],
+            ["Invalid JSON for initialPrompts during save:", error],
+          );
+
+          return undefined;
         }
 
         const configResult = {
@@ -88,7 +100,7 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
         return validation.data;
       },
     }),
-    [],
+    [promptsContent],
   );
 
   return (
@@ -239,18 +251,31 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
               name="initialPrompts"
               placeholder='[{"role": "system", "content": "You are a helpful assistant."}, {"role": "user", "content": "Hello"}]'
               rows={6}
-              value={initialPrompts}
-              className="w-full p-3 border border-slate-300 dark:border-slate-700 rounded-md bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 resize-vertical transition-all"
+              defaultValue={promptsContent.current}
+              className={`w-full p-3 border rounded-md bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 resize-vertical transition-all ${
+                isInvalidJson
+                  ? "border-red-500 ring-1 ring-red-500"
+                  : "border-slate-300 dark:border-slate-700"
+              }`}
               onChange={(e) => {
+                const val = e.target.value;
+                promptsContent.current = val;
                 try {
-                  setInitialPrompts(e.target.value);
+                  JSON.parse(val);
+                  setIsInvalidJson(false);
                 } catch {
-                  // Invalid JSON, keep previous value
+                  setIsInvalidJson(true);
                 }
               }}
             />
-            <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">
-              Enter prompts as JSON array with role and content fields
+            {isInvalidJson && (
+              <p className="text-xs text-red-500 mt-1 font-medium italic">
+                Invalid JSON format. Please check your syntax.
+              </p>
+            )}
+            <p className="text-xs text-slate-500 dark:text-slate-500 mt-2">
+              Enter prompts as JSON array with role and content fields. Changes
+              are only saved when JSON is valid.
             </p>
           </div>
         </div>
