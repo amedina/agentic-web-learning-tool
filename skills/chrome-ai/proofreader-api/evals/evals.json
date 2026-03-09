@@ -1,0 +1,84 @@
+{
+  "skill_name": "Proofreader API",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Check if the Proofreader API is available before using it.",
+      "expected_output": "The agent identifies this as a Proofreader API skill task and produces code that calls `Proofreader.availability()` and handles all four return values: 'unavailable', 'downloadable', 'downloading', and 'available', with appropriate branching logic for each state.",
+      "files": [],
+      "expectations": [
+        "Calls `Proofreader.availability()` (not a property check like `'Proofreader' in window`)",
+        "Handles the 'unavailable' return value",
+        "Handles the 'downloadable' return value",
+        "Handles the 'downloading' return value",
+        "Handles the 'available' return value"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Proofread a user's essay and return the fully corrected text using the Proofreader API.",
+      "expected_output": "The agent identifies this as a Proofreader API skill task and produces code that calls `Proofreader.create()`, calls `proofreader.proofread()` with the essay text, reads `result.correction` to get the fully corrected string, and calls `proofreader.destroy()` when done.",
+      "files": [],
+      "expectations": [
+        "Calls `Proofreader.create()` to instantiate the proofreader",
+        "Calls `proofreader.proofread()` with the essay text",
+        "Reads `result.correction` to obtain the fully corrected string",
+        "Calls `proofreader.destroy()` to free resources after use"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Show the user each individual grammar or spelling error with its position in the original text so they can review changes one by one.",
+      "expected_output": "The agent identifies this as a Proofreader API skill task and produces code that calls `proofreader.proofread()`, then iterates over `result.corrections` (the array of individual correction objects), reading `startIndex` and `endIndex` from each to locate the error span in the original string.",
+      "files": [],
+      "expectations": [
+        "Calls `proofreader.proofread()` and stores the result",
+        "Iterates over `result.corrections` (the array, not just `result.correction`)",
+        "Reads `startIndex` and `endIndex` from each correction object to locate the error in the original text"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Build an interactive diff view that highlights errors in red in the original text and shows the corrected version side by side.",
+      "expected_output": "The agent identifies this as a Proofreader API skill task and produces code that calls `proofreader.proofread()`, uses `result.corrections` with `startIndex` and `endIndex` to slice the original string into unchanged and erroneous segments, wraps error spans in styled elements (e.g., `<span class='error'>`), and displays `result.correction` as the corrected version.",
+      "files": [],
+      "expectations": [
+        "Calls `proofreader.proofread()` on the input text",
+        "Iterates over `result.corrections` using `startIndex` and `endIndex` to slice the original string",
+        "Wraps error spans in DOM elements with distinct styling",
+        "Displays `result.correction` as the fully corrected version"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "I want to use the Proofreader API inside a cross-origin iframe. How do I enable it?",
+      "expected_output": "The agent identifies this as a Proofreader API skill task and provides an explanation that the Proofreader API requires the `allow=\"proofreader\"` Permissions Policy attribute on the `<iframe>` element to be accessible from within a cross-origin iframe, with a code example showing the attribute.",
+      "files": [],
+      "expectations": [
+        "Specifies the `allow=\"proofreader\"` attribute on the `<iframe>` element",
+        "Explains this is a Permissions Policy requirement for cross-origin iframes"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "How do I cancel an in-progress proofread operation if the user clicks a Stop button?",
+      "expected_output": "The agent identifies this as a Proofreader API skill task and produces code that creates an `AbortController`, passes `signal: controller.signal` to `Proofreader.create()` or `proofreader.proofread()`, and calls `controller.abort()` in the stop button's click handler.",
+      "files": [],
+      "expectations": [
+        "Creates an `AbortController` instance",
+        "Passes `signal: controller.signal` to `Proofreader.create()` or `proofreader.proofread()`",
+        "Calls `controller.abort()` in the stop button's event handler"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Proofread text that may be written in French or Spanish. How do I tell the Proofreader API what languages to expect?",
+      "expected_output": "The agent identifies this as a Proofreader API skill task and produces code that passes `expectedInputLanguages: ['fr', 'es']` (BCP 47 language tags) to `Proofreader.create()`, so the model is optimized for those input languages.",
+      "files": [],
+      "expectations": [
+        "Passes `expectedInputLanguages` to `Proofreader.create()`",
+        "Uses BCP 47 language tags (e.g., `'fr'`, `'es'`) in the array"
+      ]
+    }
+  ]
+}

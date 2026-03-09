@@ -1,0 +1,105 @@
+{
+  "skill_name": "Writer API",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Check if the Writer API is available before using it.",
+      "expected_output": "The agent identifies this as a Writer API skill task and produces code that calls `Writer.availability()` and handles all four return values: 'unavailable', 'downloadable', 'downloading', and 'available', with appropriate branching logic for each state.",
+      "files": [],
+      "expectations": [
+        "Calls `Writer.availability()` (not a property check like `'Writer' in window`)",
+        "Handles the 'unavailable' return value",
+        "Handles the 'downloadable' return value",
+        "Handles the 'downloading' return value",
+        "Handles the 'available' return value"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Use the Writer API to draft a formal email requesting a meeting, then clean up the writer when done.",
+      "expected_output": "The agent identifies this as a Writer API skill task and produces code that calls `Writer.create()` with `tone: 'formal'`, calls `writer.write()` with the task prompt, and calls `writer.destroy()` after the result is obtained.",
+      "files": [],
+      "expectations": [
+        "Calls `Writer.create()` with `tone: 'formal'`",
+        "Calls `writer.write()` with a descriptive task string",
+        "Calls `writer.destroy()` to free resources after use"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Stream a long blog post about renewable energy using the Writer API and display it word by word.",
+      "expected_output": "The agent identifies this as a Writer API skill task and produces code that calls `writer.writeStreaming()` (not `writer.write()`), iterates over the async stream with `for await...of`, and updates the DOM incrementally with each chunk.",
+      "files": [],
+      "expectations": [
+        "Calls `writer.writeStreaming()` instead of `writer.write()`",
+        "Uses `for await...of` to iterate over the stream",
+        "Updates the DOM incrementally inside the loop"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "I want to generate a casual, short social media caption for a product photo. Use the Writer API.",
+      "expected_output": "The agent identifies this as a Writer API skill task and produces code that calls `Writer.create()` with `tone: 'casual'` and `length: 'short'`, then calls `writer.write()` with the task description.",
+      "files": [],
+      "expectations": [
+        "Calls `Writer.create()` with `tone: 'casual'`",
+        "Calls `Writer.create()` with `length: 'short'`",
+        "Calls `writer.write()` with the caption task"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Use the Writer API to generate content in plain text format (not markdown) for a legacy system that can't render markdown.",
+      "expected_output": "The agent identifies this as a Writer API skill task and produces code that calls `Writer.create()` with `format: 'plain-text'` to suppress markdown output.",
+      "files": [],
+      "expectations": [
+        "Calls `Writer.create()` with `format: 'plain-text'`",
+        "Does NOT omit the `format` option or use `format: 'markdown'`"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "I need to generate product descriptions for 10 items using the Writer API. How do I do this efficiently without creating a new writer for each item?",
+      "expected_output": "The agent identifies this as a Writer API skill task and produces code that creates a single writer with `Writer.create()` once, then calls `writer.write()` in a loop or with `Promise.all()` for all items, and calls `writer.destroy()` only after all writes are complete.",
+      "files": [],
+      "expectations": [
+        "Creates a single writer instance with `Writer.create()` outside the loop",
+        "Calls `writer.write()` multiple times on the same writer instance",
+        "Calls `writer.destroy()` once after all writes are complete",
+        "Uses a loop or `Promise.all()` for batch processing"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Use the Writer API's `context` option to generate a reply to a specific customer support email thread.",
+      "expected_output": "The agent identifies this as a Writer API skill task and produces code that passes a `context` string to `writer.write()` (per-call context) containing the email thread, so the writer can tailor the reply to that specific conversation.",
+      "files": [],
+      "expectations": [
+        "Passes a `context` option to `writer.write()` containing the email thread content",
+        "Uses `context` at the call level (not only at `Writer.create()` level) for per-call customization"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "How do I cancel a long write operation if the user clicks a Stop button?",
+      "expected_output": "The agent identifies this as a Writer API skill task and produces code that creates an `AbortController`, passes `signal: controller.signal` to `Writer.create()` or `writer.write()` / `writer.writeStreaming()`, and calls `controller.abort()` in the stop button's click handler.",
+      "files": [],
+      "expectations": [
+        "Creates an `AbortController` instance",
+        "Passes `signal: controller.signal` to `Writer.create()` or the write call",
+        "Calls `controller.abort()` in the stop button's event handler"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "Add progressive enhancement to my page so the Writer API is only used when available, and falls back to a regular textarea otherwise.",
+      "expected_output": "The agent identifies this as a Writer API skill task and produces code that checks `Writer.availability()` first and only initializes the writer when the result is 'available' or 'downloadable', leaving the standard textarea functional as a fallback when the API is 'unavailable'.",
+      "files": [],
+      "expectations": [
+        "Calls `Writer.availability()` before attempting to use the API",
+        "Keeps the standard textarea functional as a fallback",
+        "Only calls `Writer.create()` when availability is not 'unavailable'"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "skill_name": "Rewriter API",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Check if the Rewriter API is available before using it.",
+      "expected_output": "The agent identifies this as a Rewriter API skill task and produces code that calls `Rewriter.availability()` and handles all four return values: 'unavailable', 'downloadable', 'downloading', and 'available', with appropriate branching logic for each state.",
+      "files": [],
+      "expectations": [
+        "Calls `Rewriter.availability()` (not a property check like `'Rewriter' in window`)",
+        "Handles the 'unavailable' return value",
+        "Handles the 'downloadable' return value",
+        "Handles the 'downloading' return value",
+        "Handles the 'available' return value"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Use the Rewriter API to make a casual email more formal, then clean up when done.",
+      "expected_output": "The agent identifies this as a Rewriter API skill task and produces code that calls `Rewriter.create()` with `tone: 'more-formal'`, then calls `rewriter.rewrite()` with the original email text, and calls `rewriter.destroy()` when done.",
+      "files": [],
+      "expectations": [
+        "Calls `Rewriter.create()` with `tone: 'more-formal'`",
+        "Calls `rewriter.rewrite()` with the original email text",
+        "Calls `rewriter.destroy()` to free resources after use"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Stream a rewritten version of a long document using the Rewriter API and display it progressively.",
+      "expected_output": "The agent identifies this as a Rewriter API skill task and produces code that calls `rewriter.rewriteStreaming()` (not `rewriter.rewrite()`), iterates over the async stream with `for await...of`, and updates the DOM incrementally with each chunk.",
+      "files": [],
+      "expectations": [
+        "Calls `rewriter.rewriteStreaming()` instead of `rewriter.rewrite()`",
+        "Uses `for await...of` to iterate over the stream",
+        "Updates the DOM incrementally inside the loop"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Use the Rewriter API to shorten a paragraph without changing its tone.",
+      "expected_output": "The agent identifies this as a Rewriter API skill task and produces code that calls `Rewriter.create()` with `length: 'shorter'` and `tone: 'as-is'`, then calls `rewriter.rewrite()` with the paragraph.",
+      "files": [],
+      "expectations": [
+        "Calls `Rewriter.create()` with `length: 'shorter'`",
+        "Calls `Rewriter.create()` with `tone: 'as-is'` to preserve the original tone",
+        "Calls `rewriter.rewrite()` with the paragraph text"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "I need to rewrite 20 user comments to be more professional using the Rewriter API. How do I do this efficiently?",
+      "expected_output": "The agent identifies this as a Rewriter API skill task and produces code that creates a single rewriter with `Rewriter.create()` using `sharedContext` describing the task, then calls `rewriter.rewrite()` for each comment (in a loop or with `Promise.all()`), and calls `rewriter.destroy()` once after all rewrites.",
+      "files": [],
+      "expectations": [
+        "Creates a single rewriter instance with `Rewriter.create()` outside the loop",
+        "Uses `sharedContext` to describe the rewriting task",
+        "Calls `rewriter.rewrite()` multiple times on the same instance",
+        "Calls `rewriter.destroy()` once after all rewrites are complete"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Use the Rewriter API's per-call `context` option to tailor a rewrite for a specific recipient.",
+      "expected_output": "The agent identifies this as a Rewriter API skill task and produces code that passes a `context` string to `rewriter.rewrite()` at the call level (e.g., 'This email is addressed to a university professor'), so the rewriter tailors the output to that specific recipient.",
+      "files": [],
+      "expectations": [
+        "Passes a `context` option to `rewriter.rewrite()` at the call level",
+        "Uses `context` for per-call customization (not only at `Rewriter.create()` level)"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "How do I cancel a rewrite operation if the user clicks a Stop button?",
+      "expected_output": "The agent identifies this as a Rewriter API skill task and produces code that creates an `AbortController`, passes `signal: controller.signal` to `Rewriter.create()` or `rewriter.rewrite()` / `rewriter.rewriteStreaming()`, and calls `controller.abort()` in the stop button's click handler.",
+      "files": [],
+      "expectations": [
+        "Creates an `AbortController` instance",
+        "Passes `signal: controller.signal` to `Rewriter.create()` or the rewrite call",
+        "Calls `controller.abort()` in the stop button's event handler"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "What tone values does the Rewriter API support, and how are they different from the Writer API's tone values?",
+      "expected_output": "The agent identifies this as a Rewriter API skill task and provides an explanation that the Rewriter API's `tone` values are `'as-is'`, `'more-formal'`, and `'more-casual'` (relative adjustments), whereas the Writer API uses `'formal'`, `'casual'`, and `'neutral'` (absolute tones). Includes code examples showing the difference.",
+      "files": [],
+      "expectations": [
+        "Lists the Rewriter API tone values: 'as-is', 'more-formal', 'more-casual'",
+        "Lists the Writer API tone values: 'formal', 'casual', 'neutral'",
+        "Explains that Rewriter tones are relative adjustments, Writer tones are absolute",
+        "Provides code examples for both APIs"
+      ]
+    }
+  ]
+}

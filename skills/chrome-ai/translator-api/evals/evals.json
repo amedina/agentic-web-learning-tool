@@ -1,0 +1,90 @@
+{
+  "skill_name": "Translator API",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Check if translation from English to French is available before attempting it.",
+      "expected_output": "The agent identifies this as a Translator API skill task and produces code that calls `Translator.availability({ sourceLanguage: 'en', targetLanguage: 'fr' })` and handles all four return values: 'unavailable', 'downloadable', 'downloading', and 'available'.",
+      "files": [],
+      "expectations": [
+        "Calls `Translator.availability()` with a `sourceLanguage` and `targetLanguage` option object",
+        "Handles the 'unavailable' return value",
+        "Handles the 'downloadable' return value",
+        "Handles the 'downloading' return value",
+        "Handles the 'available' return value"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Translate a user-submitted paragraph from English to Spanish using the Translator API.",
+      "expected_output": "The agent identifies this as a Translator API skill task and produces code that calls `Translator.create({ sourceLanguage: 'en', targetLanguage: 'es' })`, then calls `translator.translate()` with the paragraph text, and calls `translator.destroy()` when done.",
+      "files": [],
+      "expectations": [
+        "Calls `Translator.create()` with `sourceLanguage: 'en'`",
+        "Calls `Translator.create()` with `targetLanguage: 'es'`",
+        "Calls `translator.translate()` with the paragraph text",
+        "Calls `translator.destroy()` to free resources after use"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Stream a translation of a long document from German to English and display it progressively.",
+      "expected_output": "The agent identifies this as a Translator API skill task and produces code that calls `translator.translateStreaming()` (not `translator.translate()`), iterates over the async stream with `for await...of`, and updates the DOM incrementally with each chunk.",
+      "files": [],
+      "expectations": [
+        "Calls `translator.translateStreaming()` instead of `translator.translate()`",
+        "Uses `for await...of` to iterate over the stream",
+        "Updates the DOM incrementally inside the loop"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "A user pastes text of unknown language into my app. Detect the language first, then translate it to English.",
+      "expected_output": "The agent identifies this as a Translator API skill task and produces code that checks `'LanguageDetector' in self`, calls `LanguageDetector.create()`, calls `detector.detect()` on the text to get the source language, then calls `Translator.create()` with the detected `sourceLanguage` and `targetLanguage: 'en'`, and finally calls `translator.translate()`.",
+      "files": [],
+      "expectations": [
+        "Checks `'LanguageDetector' in self` before using the Language Detector API",
+        "Calls `LanguageDetector.create()` to create a detector instance",
+        "Calls `detector.detect()` on the input text",
+        "Uses the detected language (e.g., `results[0].detectedLanguage`) as `sourceLanguage` in `Translator.create()`",
+        "Calls `Translator.create()` with `targetLanguage: 'en'`",
+        "Calls `translator.translate()` with the original text"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "How do I cancel a translation if the user clicks a Stop button?",
+      "expected_output": "The agent identifies this as a Translator API skill task and produces code that creates an `AbortController`, passes `signal: controller.signal` to `Translator.create()` or `translator.translate()` / `translator.translateStreaming()`, and calls `controller.abort()` in the stop button's click handler.",
+      "files": [],
+      "expectations": [
+        "Creates an `AbortController` instance",
+        "Passes `signal: controller.signal` to `Translator.create()` or the translate call",
+        "Calls `controller.abort()` in the stop button's event handler"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Build a real-time chat translation feature that translates each incoming message from Japanese to English as it arrives.",
+      "expected_output": "The agent identifies this as a Translator API skill task and produces code that creates a single `Translator` instance with `sourceLanguage: 'ja'` and `targetLanguage: 'en'` once, then reuses it by calling `translator.translate()` for each incoming message, rather than creating a new translator per message.",
+      "files": [],
+      "expectations": [
+        "Creates a single `Translator` instance with `sourceLanguage: 'ja'` and `targetLanguage: 'en'`",
+        "Reuses the same translator instance for each incoming message",
+        "Calls `translator.translate()` per message on the shared instance"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "My app needs to translate text but also detect what language it is. Walk me through using both the Language Detector API and the Translator API together.",
+      "expected_output": "The agent identifies this as a Translator API skill task and produces a complete walkthrough that uses `LanguageDetector.create()` and `detector.detect()` to identify the source language, then passes the result to `Translator.create()` with the appropriate `sourceLanguage` and `targetLanguage`, and calls `translator.translate()`. Includes availability checks for both APIs.",
+      "files": [],
+      "expectations": [
+        "Checks availability or support for `LanguageDetector` (e.g., `'LanguageDetector' in self`)",
+        "Calls `LanguageDetector.create()` to instantiate the detector",
+        "Calls `detector.detect()` and reads `detectedLanguage` from the results",
+        "Passes the detected language as `sourceLanguage` to `Translator.create()`",
+        "Calls `translator.translate()` with the original text"
+      ]
+    }
+  ]
+}
