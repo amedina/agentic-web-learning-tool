@@ -51,3 +51,8 @@ export async function fetchGithubSecurityAdvisories(
   const url = `https://api.github.com/repos/${owner}/${repo}/security-advisories`;
   return fetchWithCache(url);
 }
+
+export async function fetchBundlephobiaData(packageName: string) {
+  const url = `https://bundlephobia.com/api/size?package=${encodeURIComponent(packageName)}&record=true`;
+  return fetchWithCache(url);
+}

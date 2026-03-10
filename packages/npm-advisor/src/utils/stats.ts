@@ -7,6 +7,7 @@ import {
   fetchGithubIssues,
   fetchGithubCommits,
   fetchGithubSecurityAdvisories,
+  fetchBundlephobiaData,
 } from "./api";
 
 export interface PackageStats {
@@ -26,6 +27,12 @@ export interface PackageStats {
     moderate: number;
     low: number;
     issues: Array<{ summary: string; severity: string; url: string }>;
+  } | null;
+  bundle: {
+    size: number;
+    gzip: number;
+    isTreeShakeable: boolean;
+    hasSideEffects: boolean | string[];
   } | null;
 }
 
@@ -58,13 +65,33 @@ export async function getPackageStats(
 ): Promise<PackageStats | null> {
   console.log(`[NPM Advisor] Fetching stats for ${packageName}...`);
 
-  const npmData = await fetchNpmPackage(packageName);
+  const [npmData, bundleData] = await Promise.all([
+    fetchNpmPackage(packageName),
+    fetchBundlephobiaData(packageName).catch((e) => {
+      console.warn(
+        `[NPM Advisor] Failed to fetch bundle data for ${packageName}`,
+        e,
+      );
+      return null;
+    }),
+  ]);
+
   if (!npmData) {
     console.warn(`[NPM Advisor] Could not find NPM data for ${packageName}`);
     return null;
   }
 
   const collaboratorsCount = npmData.maintainers?.length || null;
+
+  let bundle = null;
+  if (bundleData) {
+    bundle = {
+      size: bundleData.size,
+      gzip: bundleData.gzip,
+      isTreeShakeable: bundleData.hasJSModule,
+      hasSideEffects: bundleData.hasSideEffects,
+    };
+  }
 
   // Extract repo URL from latest version or repository field
   const latestVersion = npmData["dist-tags"]?.latest;
@@ -161,6 +188,7 @@ export async function getPackageStats(
     lastCommitDate,
     responsiveness,
     securityAdvisories,
+    bundle,
   };
 
   return stats;
