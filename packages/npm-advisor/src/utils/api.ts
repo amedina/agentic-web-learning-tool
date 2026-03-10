@@ -1,7 +1,3 @@
-/**
- * External dependencies.
- */
-
 // Simple in-memory cache
 const cache = new Map<string, any>();
 
@@ -29,18 +25,14 @@ export async function fetchNpmPackage(packageName: string) {
 }
 
 export async function fetchGithubRepo(owner: string, repo: string) {
-  const url = `https://api.github.com/repos/${owner}/${repo}`;
+  // Use ungh.cc to bypass strict Github API rate limits for basic repository health indicators
+  const url = `https://ungh.cc/repos/${owner}/${repo}`;
   return fetchWithCache(url);
 }
 
 export async function fetchGithubIssues(owner: string, repo: string) {
   // Fetching a sample of open and closed issues/PRs to gauge responsiveness
   const url = `https://api.github.com/repos/${owner}/${repo}/issues?state=all&per_page=100`;
-  return fetchWithCache(url);
-}
-
-export async function fetchGithubCommits(owner: string, repo: string) {
-  const url = `https://api.github.com/repos/${owner}/${repo}/commits?per_page=1`;
   return fetchWithCache(url);
 }
 

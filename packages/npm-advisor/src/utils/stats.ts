@@ -5,7 +5,6 @@ import {
   fetchNpmPackage,
   fetchGithubRepo,
   fetchGithubIssues,
-  fetchGithubCommits,
   fetchGithubSecurityAdvisories,
   fetchBundlephobiaData,
   getDependencyTree,
@@ -154,20 +153,27 @@ export async function getPackageStats(
     try {
       const { owner, repo } = githubInfo;
 
-      const [repoData, commitsData, issuesData, advisoriesData] =
-        await Promise.all([
-          fetchGithubRepo(owner, repo),
-          fetchGithubCommits(owner, repo),
-          fetchGithubIssues(owner, repo),
-          fetchGithubSecurityAdvisories(owner, repo),
-        ]);
+      const [repoData, issuesData, advisoriesData] = await Promise.all([
+        fetchGithubRepo(owner, repo).catch((e) => {
+          console.warn(`[NPM Advisor] GitHub Repo fetch failed:`, e.message);
+          return null;
+        }),
+        fetchGithubIssues(owner, repo).catch((e) => {
+          console.warn(`[NPM Advisor] GitHub Issues fetch failed:`, e.message);
+          return null;
+        }),
+        fetchGithubSecurityAdvisories(owner, repo).catch((e) => {
+          console.warn(
+            `[NPM Advisor] GitHub Advisories fetch failed:`,
+            e.message,
+          );
+          return null;
+        }),
+      ]);
 
-      if (repoData) {
-        stars = repoData.stargazers_count;
-      }
-
-      if (commitsData && commitsData.length > 0) {
-        lastCommitDate = commitsData[0].commit.author.date;
+      if (repoData && repoData.repo) {
+        stars = repoData.repo.stars;
+        lastCommitDate = repoData.repo.pushedAt || repoData.repo.updatedAt;
       }
 
       if (issuesData && Array.isArray(issuesData)) {
