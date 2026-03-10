@@ -5,14 +5,14 @@ import {
   ThreadListItemPrimitive,
   ThreadListPrimitive,
 } from '@assistant-ui/react';
-import { ArchiveIcon, PlusIcon } from 'lucide-react';
+import { ArchiveIcon, PlusIcon, Sidebar } from 'lucide-react';
 /**
  * Internal dependencies
  */
 import { TooltipIconButton } from '../tooltipIconButton';
 import { Button } from '../button';
 import Skeleton from '../skeleton';
-import { useSidebar } from '../sidebar';
+import { SidebarTrigger, useSidebar } from '../sidebar';
 
 type ThreadListProps = {
   isThreadLoading: boolean;
@@ -21,7 +21,10 @@ type ThreadListProps = {
 export const ThreadList = ({ isThreadLoading }: ThreadListProps) => {
   return (
     <ThreadListPrimitive.Root className="aui-root aui-thread-list-root flex flex-col gap-1">
-      <ThreadListNew />
+      <div className="w-full flex flex-row items-center gap-2">
+        <ThreadListNew />
+        <ThreadListClose />
+      </div>
       {isThreadLoading ? (
         <ThreadListSkeleton />
       ) : (
@@ -36,12 +39,20 @@ const ThreadListNew = () => {
     <ThreadListPrimitive.New asChild>
       <Button
         variant="outline"
-        className="aui-thread-list-new h-9 justify-start gap-2 rounded-lg px-3 text-sm hover:bg-muted data-active:bg-muted"
+        className="aui-thread-list-new flex-1 h-9 justify-start gap-2 rounded-lg px-3 text-sm hover:bg-muted data-active:bg-muted"
       >
         <PlusIcon className="size-4" />
         New Chat
       </Button>
     </ThreadListPrimitive.New>
+  );
+};
+
+const ThreadListClose = () => {
+  return (
+    <SidebarTrigger className="aui-thread-list-new h-9 justify-start gap-2 rounded-lg px-3 text-sm hover:bg-muted data-active:bg-muted">
+      <Sidebar className="size-4" />
+    </SidebarTrigger>
   );
 };
 

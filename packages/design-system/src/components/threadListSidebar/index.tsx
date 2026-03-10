@@ -3,9 +3,9 @@
  */
 import type { ComponentProps } from 'react';
 /**
- * External dependencies
+ * Internal dependencies
  */
-import { SidebarContent, SidebarMain, SidebarRail } from '../sidebar';
+import { SidebarContent, SidebarMain } from '../sidebar';
 import { ThreadList } from '../threadList';
 
 type ThreadListSidebarProps = ComponentProps<typeof SidebarMain> & {
@@ -17,11 +17,10 @@ export function ThreadListSidebar({
   ...props
 }: ThreadListSidebarProps) {
   return (
-    <SidebarMain collapsible="icon" {...props}>
+    <SidebarMain collapsible="offcanvas" {...props}>
       <SidebarContent className="aui-sidebar-content px-2 py-2">
         <ThreadList isThreadLoading={isThreadLoading} />
       </SidebarContent>
-      <SidebarRail />
     </SidebarMain>
   );
 }
