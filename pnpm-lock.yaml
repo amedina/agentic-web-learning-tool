@@ -711,7 +711,7 @@ importers:
         version: 9.1.5(@testing-library/dom@10.4.1)(prettier@3.6.2)(vite@7.3.0(@types/node@24.3.1)(jiti@2.5.1)(lightningcss@1.30.1)(yaml@2.8.1))
       ts-jest:
         specifier: ^29.4.1
-        version: 29.4.1(@babel/core@7.28.4)(@jest/transform@30.2.0)(@jest/types@30.2.0)(babel-jest@30.2.0(@babel/core@7.28.4))(esbuild@0.25.9)(jest-util@30.2.0)(jest@29.7.0(@types/node@24.3.1)(node-notifier@10.0.1))(typescript@5.8.3)
+        version: 29.4.1(@babel/core@7.28.4)(@jest/transform@30.2.0)(@jest/types@30.2.0)(babel-jest@30.2.0(@babel/core@7.28.4))(jest-util@30.2.0)(jest@29.7.0(@types/node@24.3.1)(node-notifier@10.0.1))(typescript@5.8.3)
       typescript:
         specifier: ~5.8.3
         version: 5.8.3
@@ -872,12 +872,24 @@ importers:
 
   packages/npm-advisor:
     dependencies:
+      '@tailwindcss/vite':
+        specifier: ^4.1.13
+        version: 4.1.13(vite@7.3.0(@types/node@24.10.7)(jiti@2.5.1)(lightningcss@1.30.1)(yaml@2.8.1))
+      lucide-react:
+        specifier: ^0.577.0
+        version: 0.577.0(react@19.1.1)
+      rc-tree:
+        specifier: ^5.13.1
+        version: 5.13.1(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       react:
         specifier: ^19.1.1
         version: 19.1.1
       react-dom:
         specifier: ^19.1.1
         version: 19.1.1(react@19.1.1)
+      tailwindcss:
+        specifier: ^4.1.13
+        version: 4.1.13
     devDependencies:
       '@google-awlt/shared-config':
         specifier: workspace:*
@@ -5225,7 +5237,7 @@ packages:
 
   glob@7.2.3:
     resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
-    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+    deprecated: Glob versions prior to v9 are no longer supported
 
   globals@14.0.0:
     resolution: {integrity: sha512-oahGvuMGQlPw/ivIYBjVSrWAfWLBeku5tpPE2fOPLi+WHffIWbuh2tCjhyQhTBPMf5E9jDEH4FOmTYgYwbKwtQ==}
@@ -6035,6 +6047,11 @@ packages:
     peerDependencies:
       react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
+  lucide-react@0.577.0:
+    resolution: {integrity: sha512-4LjoFv2eEPwYDPg/CUdBJQSDfPyzXCRrVW1X7jrx/trgxnxkHFjnVZINbzvzxjN70dxychOfg+FTYwBiS3pQ5A==}
+    peerDependencies:
+      react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
+
   lz-string@1.5.0:
     resolution: {integrity: sha512-h5bgJWpxJNswbU7qCrV0tIKQCaS3blPDrqKWx+QxzuzL1zGUzij9XCWLrSLsJPu5t+eWA/ycetzYAO5IOMcWAQ==}
     hasBin: true
@@ -6604,6 +6621,38 @@ packages:
     resolution: {integrity: sha512-K5zQjDllxWkf7Z5xJdV0/B0WTNqx6vxG70zJE4N0kBs4LovmEYWJzQGxC9bS9RAKu3bgM40lrd5zoLJ12MQ5BA==}
     engines: {node: '>= 0.10'}
 
+  rc-motion@2.9.5:
+    resolution: {integrity: sha512-w+XTUrfh7ArbYEd2582uDrEhmBHwK1ZENJiSJVb7uRxdE7qJSYjbO2eksRXmndqyKqKoYPc9ClpPh5242mV1vA==}
+    peerDependencies:
+      react: '>=16.9.0'
+      react-dom: '>=16.9.0'
+
+  rc-resize-observer@1.4.3:
+    resolution: {integrity: sha512-YZLjUbyIWox8E9i9C3Tm7ia+W7euPItNWSPX5sCcQTYbnwDb5uNpnLHQCG1f22oZWUhLw4Mv2tFmeWe68CDQRQ==}
+    peerDependencies:
+      react: '>=16.9.0'
+      react-dom: '>=16.9.0'
+
+  rc-tree@5.13.1:
+    resolution: {integrity: sha512-FNhIefhftobCdUJshO7M8uZTA9F4OPGVXqGfZkkD/5soDeOhwO06T/aKTrg0WD8gRg/pyfq+ql3aMymLHCTC4A==}
+    engines: {node: '>=10.x'}
+    peerDependencies:
+      react: '*'
+      react-dom: '*'
+
+  rc-util@5.44.4:
+    resolution: {integrity: sha512-resueRJzmHG9Q6rI/DfK6Kdv9/Lfls05vzMs1Sk3M2P+3cJa+MakaZyWY8IPfehVuhPJFKrIY1IK4GqbiaiY5w==}
+    peerDependencies:
+      react: '>=16.9.0'
+      react-dom: '>=16.9.0'
+
+  rc-virtual-list@3.19.2:
+    resolution: {integrity: sha512-Ys6NcjwGkuwkeaWBDqfI3xWuZ7rDiQXlH1o2zLfFzATfEgXcqpk8CkgMfbJD81McqjcJVez25a3kPxCR807evA==}
+    engines: {node: '>=8.x'}
+    peerDependencies:
+      react: '>=16.9.0'
+      react-dom: '>=16.9.0'
+
   re-resizable@6.11.2:
     resolution: {integrity: sha512-2xI2P3OHs5qw7K0Ud1aLILK6MQxW50TcO+DetD9eIV58j84TqYeHoZcL9H4GXFXXIh7afhH8mv5iUCXII7OW7A==}
     peerDependencies:
@@ -6769,6 +6818,9 @@ packages:
   require-from-string@2.0.2:
     resolution: {integrity: sha512-Xf0nWe6RseziFMu+Ap9biiUbmplq6S9/p+7w7YXP/JBHhrUDDUhwa+vANyubuqfZWTveU//DYVGsDG7RKL/vEw==}
     engines: {node: '>=0.10.0'}
+
+  resize-observer-polyfill@1.5.1:
+    resolution: {integrity: sha512-LwZrotdHOo12nQuZlHEmtuXdqGoOD0OhaxopaNFxWzInpEgaLWoVuAMbTzixuosCx2nEG58ngzW3vxdWoxIgdg==}
 
   resolve-cwd@3.0.0:
     resolution: {integrity: sha512-OrZaX2Mb+rJCpH/6CpSqt9xFVpN++x01XnN2ie9g6P5/3xelLAkXWVADpdz1IHD/KFfEXyE6V0U01OQ3UO2rEg==}
@@ -10650,6 +10702,13 @@ snapshots:
       postcss: 8.5.6
       tailwindcss: 4.1.13
 
+  '@tailwindcss/vite@4.1.13(vite@7.3.0(@types/node@24.10.7)(jiti@2.5.1)(lightningcss@1.30.1)(yaml@2.8.1))':
+    dependencies:
+      '@tailwindcss/node': 4.1.13
+      '@tailwindcss/oxide': 4.1.13
+      tailwindcss: 4.1.13
+      vite: 7.3.0(@types/node@24.10.7)(jiti@2.5.1)(lightningcss@1.30.1)(yaml@2.8.1)
+
   '@tailwindcss/vite@4.1.13(vite@7.3.0(@types/node@24.3.1)(jiti@2.5.1)(lightningcss@1.30.1)(yaml@2.8.1))':
     dependencies:
       '@tailwindcss/node': 4.1.13
@@ -13769,6 +13828,10 @@ snapshots:
     dependencies:
       react: 19.1.1
 
+  lucide-react@0.577.0(react@19.1.1):
+    dependencies:
+      react: 19.1.1
+
   lz-string@1.5.0: {}
 
   magic-string@0.30.18:
@@ -14508,6 +14571,49 @@ snapshots:
       iconv-lite: 0.7.1
       unpipe: 1.0.0
 
+  rc-motion@2.9.5(react-dom@19.1.1(react@19.1.1))(react@19.1.1):
+    dependencies:
+      '@babel/runtime': 7.28.4
+      classnames: 2.5.1
+      rc-util: 5.44.4(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      react: 19.1.1
+      react-dom: 19.1.1(react@19.1.1)
+
+  rc-resize-observer@1.4.3(react-dom@19.1.1(react@19.1.1))(react@19.1.1):
+    dependencies:
+      '@babel/runtime': 7.28.4
+      classnames: 2.5.1
+      rc-util: 5.44.4(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      react: 19.1.1
+      react-dom: 19.1.1(react@19.1.1)
+      resize-observer-polyfill: 1.5.1
+
+  rc-tree@5.13.1(react-dom@19.1.1(react@19.1.1))(react@19.1.1):
+    dependencies:
+      '@babel/runtime': 7.28.4
+      classnames: 2.5.1
+      rc-motion: 2.9.5(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      rc-util: 5.44.4(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      rc-virtual-list: 3.19.2(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      react: 19.1.1
+      react-dom: 19.1.1(react@19.1.1)
+
+  rc-util@5.44.4(react-dom@19.1.1(react@19.1.1))(react@19.1.1):
+    dependencies:
+      '@babel/runtime': 7.28.4
+      react: 19.1.1
+      react-dom: 19.1.1(react@19.1.1)
+      react-is: 18.3.1
+
+  rc-virtual-list@3.19.2(react-dom@19.1.1(react@19.1.1))(react@19.1.1):
+    dependencies:
+      '@babel/runtime': 7.28.4
+      classnames: 2.5.1
+      rc-resize-observer: 1.4.3(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      rc-util: 5.44.4(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      react: 19.1.1
+      react-dom: 19.1.1(react@19.1.1)
+
   re-resizable@6.11.2(react-dom@19.1.1(react@19.1.1))(react@19.1.1):
     dependencies:
       react: 19.1.1
@@ -14745,6 +14851,8 @@ snapshots:
   require-directory@2.1.1: {}
 
   require-from-string@2.0.2: {}
+
+  resize-observer-polyfill@1.5.1: {}
 
   resolve-cwd@3.0.0:
     dependencies:
@@ -15301,12 +15409,12 @@ snapshots:
 
   ts-dedent@2.2.0: {}
 
-  ts-jest@29.4.1(@babel/core@7.28.4)(@jest/transform@30.2.0)(@jest/types@30.2.0)(babel-jest@30.2.0(@babel/core@7.28.4))(esbuild@0.25.9)(jest-util@30.2.0)(jest@29.7.0(@types/node@24.3.1)(node-notifier@10.0.1))(typescript@5.8.3):
+  ts-jest@29.4.1(@babel/core@7.28.4)(@jest/transform@30.2.0)(@jest/types@30.2.0)(babel-jest@30.2.0(@babel/core@7.28.4))(jest-util@30.2.0)(jest@29.7.0(@types/node@24.10.7)(node-notifier@10.0.1))(typescript@5.8.3):
     dependencies:
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
       handlebars: 4.7.8
-      jest: 29.7.0(@types/node@24.3.1)(node-notifier@10.0.1)
+      jest: 29.7.0(@types/node@24.10.7)(node-notifier@10.0.1)
       json5: 2.2.3
       lodash.memoize: 4.1.2
       make-error: 1.3.6
@@ -15319,15 +15427,14 @@ snapshots:
       '@jest/transform': 30.2.0
       '@jest/types': 30.2.0
       babel-jest: 30.2.0(@babel/core@7.28.4)
-      esbuild: 0.25.9
       jest-util: 30.2.0
 
-  ts-jest@29.4.1(@babel/core@7.28.4)(@jest/transform@30.2.0)(@jest/types@30.2.0)(babel-jest@30.2.0(@babel/core@7.28.4))(jest-util@30.2.0)(jest@29.7.0(@types/node@24.10.7)(node-notifier@10.0.1))(typescript@5.8.3):
+  ts-jest@29.4.1(@babel/core@7.28.4)(@jest/transform@30.2.0)(@jest/types@30.2.0)(babel-jest@30.2.0(@babel/core@7.28.4))(jest-util@30.2.0)(jest@29.7.0(@types/node@24.3.1)(node-notifier@10.0.1))(typescript@5.8.3):
     dependencies:
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
       handlebars: 4.7.8
-      jest: 29.7.0(@types/node@24.10.7)(node-notifier@10.0.1)
+      jest: 29.7.0(@types/node@24.3.1)(node-notifier@10.0.1)
       json5: 2.2.3
       lodash.memoize: 4.1.2
       make-error: 1.3.6

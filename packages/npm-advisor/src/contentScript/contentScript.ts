@@ -1,7 +1,6 @@
 /**
  * Internal dependencies.
  */
-import { getPackageStats } from "../utils/stats";
 
 async function main() {
   const url = window.location.href;
@@ -45,10 +44,8 @@ async function main() {
 
   if (packageName) {
     console.log(`[NPM Advisor] Detected package name: ${packageName}`);
-    const stats = await getPackageStats(packageName);
     console.log(
-      "[NPM Advisor] 📊 Extracted Package Statistics:",
-      JSON.stringify(stats, null, 2),
+      "[NPM Advisor] 💡 Open the NPM Advisor extension popup to see a full statistical analysis of this package!",
     );
   } else {
     console.log("[NPM Advisor] No package name detected in the current URL.");

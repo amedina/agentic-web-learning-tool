@@ -10,8 +10,12 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@tailwindcss/vite": "^4.1.13",
+    "lucide-react": "^0.577.0",
+    "rc-tree": "^5.13.1",
     "react": "^19.1.1",
-    "react-dom": "^19.1.1"
+    "react-dom": "^19.1.1",
+    "tailwindcss": "^4.1.13"
   },
   "devDependencies": {
     "@google-awlt/shared-config": "workspace:*",

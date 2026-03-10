@@ -15,6 +15,7 @@
       ]
     }
   ],
+  "permissions": ["storage", "activeTab"],
   "host_permissions": [
     "*://registry.npmjs.org/*",
     "*://api.github.com/*",
