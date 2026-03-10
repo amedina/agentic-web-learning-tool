@@ -9,6 +9,7 @@ import {
   fetchGithubSecurityAdvisories,
   fetchBundlephobiaData,
   getDependencyTree,
+  fetchModuleReplacements,
 } from "./api";
 import type { DependencyTree } from "./api";
 
@@ -37,6 +38,11 @@ export interface PackageStats {
     hasSideEffects: boolean | string[];
   } | null;
   dependencyTree: DependencyTree | null;
+  recommendations: {
+    nativeReplacements?: any;
+    microUtilityReplacements?: any;
+    preferredReplacements?: any;
+  };
 }
 
 export function parseGithubUrl(
@@ -68,7 +74,14 @@ export async function getPackageStats(
 ): Promise<PackageStats | null> {
   console.log(`[NPM Advisor] Fetching stats for ${packageName}...`);
 
-  const [npmData, bundleData, dependencyTree] = await Promise.all([
+  const [
+    npmData,
+    bundleData,
+    dependencyTree,
+    nativeReplacementsRaw,
+    microUtilityReplacementsRaw,
+    preferredReplacementsRaw,
+  ] = await Promise.all([
     fetchNpmPackage(packageName),
     fetchBundlephobiaData(packageName).catch((e) => {
       console.warn(
@@ -84,6 +97,9 @@ export async function getPackageStats(
       );
       return null;
     }),
+    fetchModuleReplacements("native").catch(() => null),
+    fetchModuleReplacements("micro-utilities").catch(() => null),
+    fetchModuleReplacements("preferred").catch(() => null),
   ]);
 
   if (!npmData) {
@@ -188,6 +204,39 @@ export async function getPackageStats(
     );
   }
 
+  function extractRecommendations(raw: any, pkgName: string) {
+    if (!raw || !raw.mappings || !raw.mappings[pkgName]) return null;
+    const mapping = raw.mappings[pkgName];
+    const replacementIds = mapping.replacements || [];
+
+    const replacements = replacementIds
+      .map((id: string) => raw.replacements?.[id])
+      .filter(Boolean);
+
+    return replacements.length > 0 ? replacements : null;
+  }
+
+  const recommendations: PackageStats["recommendations"] = {};
+
+  const nativeMatches = extractRecommendations(
+    nativeReplacementsRaw,
+    packageName,
+  );
+  if (nativeMatches) recommendations.nativeReplacements = nativeMatches;
+
+  const microMatches = extractRecommendations(
+    microUtilityReplacementsRaw,
+    packageName,
+  );
+  if (microMatches) recommendations.microUtilityReplacements = microMatches;
+
+  const preferredMatches = extractRecommendations(
+    preferredReplacementsRaw,
+    packageName,
+  );
+  if (preferredMatches)
+    recommendations.preferredReplacements = preferredMatches;
+
   const stats: PackageStats = {
     packageName,
     githubUrl: githubInfo
@@ -200,6 +249,7 @@ export async function getPackageStats(
     securityAdvisories,
     bundle,
     dependencyTree,
+    recommendations,
   };
 
   return stats;

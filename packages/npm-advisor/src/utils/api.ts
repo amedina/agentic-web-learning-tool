@@ -131,3 +131,10 @@ export async function getDependencyTree(
 
   return tree;
 }
+
+export type ReplacementType = "micro-utilities" | "native" | "preferred";
+
+export async function fetchModuleReplacements(type: ReplacementType) {
+  const url = `https://raw.githubusercontent.com/es-tooling/module-replacements/main/manifests/${type}.json`;
+  return fetchWithCache(url);
+}
