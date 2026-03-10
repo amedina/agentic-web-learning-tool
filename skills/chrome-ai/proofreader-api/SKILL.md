@@ -29,6 +29,9 @@ const availability = await Proofreader.availability();
 // 3. Create proofreader (with optional download monitor and expected languages)
 const proofreader = await Proofreader.create({
   expectedInputLanguages: ['en'],
+  includeCorrectionTypes: true,
+  includeCorrectionExplanations: true,
+  correctionExplanationLanguage: 'en',
   monitor(m) {
     m.addEventListener('downloadprogress', (e) => {
       console.log(`Model download: ${Math.round(e.loaded * 100)}%`);
@@ -42,7 +45,7 @@ const result = await proofreader.proofread(
 );
 
 // 5. Use the result
-console.log(result.correction); // 'I saw him yesterday at the store, and he bought two loaves of bread.'
+console.log(result.correctedInput); // 'I saw him yesterday at the store, and he bought two loaves of bread.'
 // result.corrections is an array of objects detailing startIndex, endIndex, etc.
 
 // 6. Clean up
@@ -88,15 +91,20 @@ async function createProofreader(options = {}) {
 | Option | Values | Notes |
 |--------|--------|-------|
 | `expectedInputLanguages` | string[] (BCP 47) | An array of expected input languages. |
+| `includeCorrectionTypes` | `boolean` | When `true`, each correction includes a `types` array with labels like `"spelling"`, `"grammar"`, `"punctuation"`, etc. |
+| `includeCorrectionExplanations` | `boolean` | When `true`, each correction includes an `explanation` string describing the error. |
+| `correctionExplanationLanguage` | string (BCP 47) | Language for the correction explanations (e.g., `'en'`). **Always set this** to avoid "No output language was specified" console warnings. |
 | `signal` | `AbortSignal` | For cancellation of proofreader creation or inference. |
-
-> **Note:** Options `includeCorrectionTypes` and `includeCorrectionExplanation` from earlier explainers are **not supported**.
 
 ## Handling the ProofreadResult
 
 Calling `proofread()` returns a `ProofreadResult` object which has two important properties:
-- `correction`: The fully corrected string.
-- `corrections`: An array of individual correction objects. Each object provides information about the error in the original string (using `startIndex` and `endIndex`).
+- `correctedInput`: The fully corrected string.
+- `corrections`: An array of individual correction objects. Each object provides:
+  - `startIndex` and `endIndex`: The error's position in the original string.
+  - `correction`: The suggested replacement text.
+  - `types` (when `includeCorrectionTypes: true`): An array of error type labels — `"spelling"`, `"grammar"`, `"punctuation"`, `"capitalization"`, `"preposition"`, or `"missing-words"`.
+  - `explanation` (when `includeCorrectionExplanations: true`): A plain-language description of the error.
 
 Here is a common pattern for rendering the input text and highlighting the errors:
 

@@ -64,7 +64,7 @@ Always check availability before creating a session. The `LanguageModel.availabi
 
 | Value | Meaning |
 |---|---|
-| `"readily"` | Model is ready to use immediately |
+| `"available"` | Model is ready to use immediately |
 | `"downloading"` | Model is being downloaded — listen for progress |
 | `"downloadable"` | Model can be downloaded on demand |
 | `"unavailable"` | Device doesn't meet requirements |

@@ -43,6 +43,7 @@ export function useProofreader() {
 
         proofreaderRef.current = await self.Proofreader.create({
           expectedInputLanguages: ['en'],
+          correctionExplanationLanguage: 'en',
           monitor(m) {
             m.addEventListener('downloadprogress', (e) => {
               if (active) {
@@ -102,7 +103,7 @@ export function ProofreaderDemo() {
       {correction && (
         <div>
           <h3>Corrected Text:</h3>
-          <p>{correction.correction}</p>
+          <p>{correction.correctedInput}</p>
         </div>
       )}
     </div>
@@ -132,6 +133,8 @@ class ProofreadingManager {
     try {
       if (!this.proofreader) {
         this.proofreader = await Proofreader.create({
+          expectedInputLanguages: ['en'],
+          correctionExplanationLanguage: 'en',
           signal: this.controller.signal,
         });
       }
@@ -195,10 +198,13 @@ You should degrade gracefully if the Proofreader API is unsupported or fails to 
 
           try {
             if (!proofreader) {
-                proofreader = await Proofreader.create();
+                proofreader = await Proofreader.create({
+                  expectedInputLanguages: ['en'],
+                  correctionExplanationLanguage: 'en',
+                });
             }
             const result = await proofreader.proofread(input.value);
-            display.textContent = `Did you mean: "${result.correction}"?`;
+            display.textContent = `Did you mean: "${result.correctedInput}"?`;
           } catch (e) {
              display.textContent = 'Error checking grammar.';
           } finally {
@@ -221,7 +227,8 @@ async function initializeMultiLingualProofreader() {
   const supportedLanguages = ['en', 'es', 'fr'];
 
   const proofreader = await Proofreader.create({
-    expectedInputLanguages: supportedLanguages
+    expectedInputLanguages: supportedLanguages,
+    correctionExplanationLanguage: 'en',
   });
 
   return proofreader;

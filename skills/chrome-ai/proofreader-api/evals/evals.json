@@ -17,12 +17,12 @@
     {
       "id": 2,
       "prompt": "Proofread a user's essay and return the fully corrected text using the Proofreader API.",
-      "expected_output": "The agent identifies this as a Proofreader API skill task and produces code that calls `Proofreader.create()`, calls `proofreader.proofread()` with the essay text, reads `result.correction` to get the fully corrected string, and calls `proofreader.destroy()` when done.",
+      "expected_output": "The agent identifies this as a Proofreader API skill task and produces code that calls `Proofreader.create()`, calls `proofreader.proofread()` with the essay text, reads `result.correctedInput` to get the fully corrected string, and calls `proofreader.destroy()` when done.",
       "files": [],
       "expectations": [
         "Calls `Proofreader.create()` to instantiate the proofreader",
         "Calls `proofreader.proofread()` with the essay text",
-        "Reads `result.correction` to obtain the fully corrected string",
+        "Reads `result.correctedInput` to obtain the fully corrected string",
         "Calls `proofreader.destroy()` to free resources after use"
       ]
     },
@@ -40,13 +40,13 @@
     {
       "id": 4,
       "prompt": "Build an interactive diff view that highlights errors in red in the original text and shows the corrected version side by side.",
-      "expected_output": "The agent identifies this as a Proofreader API skill task and produces code that calls `proofreader.proofread()`, uses `result.corrections` with `startIndex` and `endIndex` to slice the original string into unchanged and erroneous segments, wraps error spans in styled elements (e.g., `<span class='error'>`), and displays `result.correction` as the corrected version.",
+      "expected_output": "The agent identifies this as a Proofreader API skill task and produces code that calls `proofreader.proofread()`, uses `result.corrections` with `startIndex` and `endIndex` to slice the original string into unchanged and erroneous segments, wraps error spans in styled elements (e.g., `<span class='error'>`), and displays `result.correctedInput` as the corrected version.",
       "files": [],
       "expectations": [
         "Calls `proofreader.proofread()` on the input text",
         "Iterates over `result.corrections` using `startIndex` and `endIndex` to slice the original string",
         "Wraps error spans in DOM elements with distinct styling",
-        "Displays `result.correction` as the fully corrected version"
+        "Displays `result.correctedInput` as the fully corrected version"
       ]
     },
     {
@@ -78,6 +78,19 @@
       "expectations": [
         "Passes `expectedInputLanguages` to `Proofreader.create()`",
         "Uses BCP 47 language tags (e.g., `'fr'`, `'es'`) in the array"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "Proofread user text and show each error's type (spelling, grammar, etc.) along with an explanation of why it's wrong.",
+      "expected_output": "The agent identifies this as a Proofreader API skill task and produces code that creates a proofreader with `includeCorrectionTypes: true`, `includeCorrectionExplanations: true`, and `correctionExplanationLanguage` set, then iterates over `result.corrections` reading the `types` array and `explanation` string from each correction.",
+      "files": [],
+      "expectations": [
+        "Passes `includeCorrectionTypes: true` to `Proofreader.create()`",
+        "Passes `includeCorrectionExplanations: true` to `Proofreader.create()`",
+        "Sets `correctionExplanationLanguage` to a BCP 47 language tag (e.g., `'en'`)",
+        "Reads the `types` array from each correction object",
+        "Reads the `explanation` string from each correction object"
       ]
     }
   ]

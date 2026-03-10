@@ -47,7 +47,7 @@ const availability = await Translator.availability({
   targetLanguage: 'fr',
 });
 
-if (availability === 'no') {
+if (availability === 'unavailable') {
   console.error("Translation between these languages is not available.");
   return;
 }
@@ -111,7 +111,7 @@ async function translateUnknownText(text, targetLanguage) {
 
   // Verify translator availability
   const availability = await Translator.availability({ sourceLanguage, targetLanguage });
-  if (availability === 'no') {
+  if (availability === 'unavailable') {
     throw new Error(`Translation from ${sourceLanguage} to ${targetLanguage} not supported.`);
   }
 

@@ -13,7 +13,7 @@ In your unit testing environment (e.g., Jest, Vitest), you should mock the `Tran
 ```javascript
 // Mocking the Translator API on the global object
 global.Translator = {
-  availability: vi.fn().mockResolvedValue('readily'),
+  availability: vi.fn().mockResolvedValue('available'),
   create: vi.fn().mockImplementation(async (options) => {
     // Optionally trigger the monitor download progress event
     if (options && options.monitor) {
@@ -46,7 +46,7 @@ global.Translator = {
 ```javascript
 // Mocking the Language Detector API on the global object
 global.LanguageDetector = {
-  availability: vi.fn().mockResolvedValue('readily'),
+  availability: vi.fn().mockResolvedValue('available'),
   create: vi.fn().mockImplementation(async (options) => {
     return {
       detect: vi.fn().mockResolvedValue([
@@ -61,7 +61,7 @@ global.LanguageDetector = {
 ## 2. Testing Error Handling & Fallbacks
 
 Ensure you write tests to cover the failure cases:
-- `availability()` returning `'no'` (unsupported languages).
+- `availability()` returning `'unavailable'` (unsupported languages).
 - `Translator.create()` failing due to a failed download.
 - `LanguageDetector.detect()` failing to identify a language confidently.
 
@@ -69,7 +69,7 @@ You can achieve this by changing the mock responses in your test cases:
 
 ```javascript
 test('handles unsupported translation', async () => {
-  global.Translator.availability.mockResolvedValueOnce('no');
+  global.Translator.availability.mockResolvedValueOnce('unavailable');
 
   await expect(translateUnknownText('hello', 'xyz'))
     .rejects.toThrow('Translation from en to xyz not supported.');
