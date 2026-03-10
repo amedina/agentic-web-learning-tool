@@ -8,7 +8,9 @@ import {
   fetchGithubCommits,
   fetchGithubSecurityAdvisories,
   fetchBundlephobiaData,
+  getDependencyTree,
 } from "./api";
+import type { DependencyTree } from "./api";
 
 export interface PackageStats {
   packageName: string;
@@ -34,6 +36,7 @@ export interface PackageStats {
     isTreeShakeable: boolean;
     hasSideEffects: boolean | string[];
   } | null;
+  dependencyTree: DependencyTree | null;
 }
 
 export function parseGithubUrl(
@@ -65,11 +68,18 @@ export async function getPackageStats(
 ): Promise<PackageStats | null> {
   console.log(`[NPM Advisor] Fetching stats for ${packageName}...`);
 
-  const [npmData, bundleData] = await Promise.all([
+  const [npmData, bundleData, dependencyTree] = await Promise.all([
     fetchNpmPackage(packageName),
     fetchBundlephobiaData(packageName).catch((e) => {
       console.warn(
         `[NPM Advisor] Failed to fetch bundle data for ${packageName}`,
+        e,
+      );
+      return null;
+    }),
+    getDependencyTree(packageName).catch((e) => {
+      console.warn(
+        `[NPM Advisor] Failed to fetch dependency tree for ${packageName}`,
         e,
       );
       return null;
@@ -189,6 +199,7 @@ export async function getPackageStats(
     responsiveness,
     securityAdvisories,
     bundle,
+    dependencyTree,
   };
 
   return stats;
