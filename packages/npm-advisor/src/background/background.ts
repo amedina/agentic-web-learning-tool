@@ -1,4 +1,5 @@
 import { getPackageStats, type PackageStats } from "../utils/stats";
+import { DEFAULT_TARGET_PROJECT_LICENSE } from "../utils/license";
 
 // Memory cache for promises or resolved stats
 const statsCache = new Map<
@@ -12,17 +13,25 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     // Only prefetch if not already in cache
     if (!statsCache.has(packageName)) {
       console.log(`[NPM Advisor] Prefetching stats for ${packageName}...`);
-      const promise = getPackageStats(packageName)
-        .then((stats) => {
-          // Cache the resolved result
-          statsCache.set(packageName, stats);
-          return stats;
-        })
-        .catch((err) => {
-          // Remove from cache on failure so we can try again later
-          statsCache.delete(packageName);
-          throw err;
+
+      const promise = new Promise<PackageStats | null>((resolve, reject) => {
+        chrome.storage.sync.get(["targetLicense"], (result) => {
+          const targetLicense =
+            typeof result.targetLicense === "string"
+              ? result.targetLicense
+              : DEFAULT_TARGET_PROJECT_LICENSE;
+          getPackageStats(packageName, targetLicense)
+            .then((stats) => {
+              statsCache.set(packageName, stats);
+              resolve(stats);
+            })
+            .catch((err) => {
+              statsCache.delete(packageName);
+              reject(err);
+            });
         });
+      });
+
       statsCache.set(packageName, promise);
     }
     // No response needed for prefetch
@@ -36,16 +45,27 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
       console.log(
         `[NPM Advisor] Cache miss for ${packageName}, fetching now...`,
       );
-      statsData = getPackageStats(packageName)
-        .then((stats) => {
-          statsCache.set(packageName, stats);
-          return stats;
-        })
-        .catch((err) => {
-          statsCache.delete(packageName);
-          throw err;
+
+      const promise = new Promise<PackageStats | null>((resolve, reject) => {
+        chrome.storage.sync.get(["targetLicense"], (result) => {
+          const targetLicense =
+            typeof result.targetLicense === "string"
+              ? result.targetLicense
+              : DEFAULT_TARGET_PROJECT_LICENSE;
+          getPackageStats(packageName, targetLicense)
+            .then((stats) => {
+              statsCache.set(packageName, stats);
+              resolve(stats);
+            })
+            .catch((err) => {
+              statsCache.delete(packageName);
+              reject(err);
+            });
         });
-      statsCache.set(packageName, statsData);
+      });
+
+      statsData = promise;
+      statsCache.set(packageName, promise);
     } else {
       console.log(`[NPM Advisor] Cache hit for ${packageName}`);
     }

@@ -77,6 +77,7 @@ export function parseGithubUrl(
 
 export async function getPackageStats(
   packageName: string,
+  targetLicense: string = "MIT",
 ): Promise<PackageStats | null> {
   console.log(`[NPM Advisor] Fetching stats for ${packageName}...`);
 
@@ -137,7 +138,10 @@ export async function getPackageStats(
 
   const licenseStr =
     typeof rawLicense === "string" ? rawLicense : rawLicense?.type || null;
-  const licenseCompatibility = checkLicenseCompatibility(licenseStr);
+  const licenseCompatibility = checkLicenseCompatibility(
+    licenseStr,
+    targetLicense,
+  );
 
   const githubInfo = repoUrlField ? parseGithubUrl(repoUrlField) : null;
 

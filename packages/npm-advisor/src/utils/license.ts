@@ -1,7 +1,9 @@
-import licenseMatrixData from "../assets/licence-comp-matrixseqexpl.json";
+import licenseMatrixDataRaw from "../assets/licence-comp-matrixseqexpl.json";
 
-// In the future, this should be fetched from the developer's extension settings.
-export const TARGET_PROJECT_LICENSE = "MIT";
+const licenseMatrixData = licenseMatrixDataRaw as any;
+
+// Default fallback license if none is set by the user
+export const DEFAULT_TARGET_PROJECT_LICENSE = "MIT";
 
 export interface LicenseCompatibilityResult {
   isCompatible: boolean;
@@ -14,30 +16,31 @@ export interface LicenseCompatibilityResult {
  */
 export function checkLicenseCompatibility(
   packageLicense: string,
+  targetProjectLicense: string = "MIT",
 ): LicenseCompatibilityResult | null {
   if (!packageLicense) return null;
 
   // We look for our target project license in the main array
   const targetLicenseEntry = licenseMatrixData.licenses.find(
-    (l: any) => l.name === TARGET_PROJECT_LICENSE,
+    (l: any) => l.name.toLowerCase() === targetProjectLicense.toLowerCase(),
   );
 
   if (!targetLicenseEntry) {
     console.warn(
-      `[NPM Advisor] TARGET_PROJECT_LICENSE "${TARGET_PROJECT_LICENSE}" not found in matrix.`,
+      `[NPM Advisor] Target Project License "${targetProjectLicense}" not found in matrix.`,
     );
     return null;
   }
 
   // Then look for the package's license in the compatibilities array
   const compatibilityMatch = targetLicenseEntry.compatibilities.find(
-    (c: any) => c.name === packageLicense,
+    (c: any) => c.name.toLowerCase() === packageLicense.toLowerCase(),
   );
 
   if (!compatibilityMatch) {
     return {
       isCompatible: false,
-      explanation: `Compatibility mapping for "${packageLicense}" against "${TARGET_PROJECT_LICENSE}" not found in matrix.`,
+      explanation: `Compatibility mapping for "${packageLicense}" against "${targetProjectLicense}" not found in matrix.`,
     };
   }
 

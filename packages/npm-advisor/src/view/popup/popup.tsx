@@ -9,6 +9,7 @@ import { BundleFootprint } from "./components/BundleFootprint";
 import { SecurityAdvisories } from "./components/SecurityAdvisories";
 import { Recommendations } from "./components/Recommendations";
 import { DependencyTree } from "./components/DependencyTree";
+import { GlobalHeader } from "./components/GlobalHeader";
 import "./popup.css";
 
 // ---------------------------------------------------------------------- //
@@ -141,25 +142,31 @@ export const Popup = () => {
   // ---------------------------------------------------------------------- //
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center p-8 w-[400px] h-[300px] bg-slate-50 text-slate-800">
-        <div className="animate-spin text-blue-500 mb-4">
-          <PackageSearch size={40} />
+      <div className="flex flex-col w-[500px] h-[600px] bg-slate-50 antialiased">
+        <GlobalHeader />
+        <div className="flex-1 flex flex-col items-center justify-center p-8 text-slate-800">
+          <div className="animate-spin text-blue-500 mb-4">
+            <PackageSearch size={40} />
+          </div>
+          <p className="font-medium">Analyzing Package Data...</p>
         </div>
-        <p className="font-medium">Analyzing Package Data...</p>
       </div>
     );
   }
 
   if (error || !stats) {
     return (
-      <div className="flex flex-col items-center justify-center p-6 w-[400px] bg-slate-50 text-slate-800 text-center">
-        <XCircle size={40} className="text-red-500 mb-4" />
-        <p className="font-semibold text-red-700">
-          {error || "No stats found"}
-        </p>
-        <p className="text-sm text-slate-500 mt-2">
-          Open a package page on npmjs.com or a package.json on GitHub.
-        </p>
+      <div className="flex flex-col w-[500px] h-[600px] bg-slate-50 antialiased">
+        <GlobalHeader />
+        <div className="flex-1 flex flex-col items-center justify-center p-6 text-slate-800 text-center">
+          <XCircle size={40} className="text-red-500 mb-4" />
+          <p className="font-semibold text-red-700">
+            {error || "No stats found"}
+          </p>
+          <p className="text-sm text-slate-500 mt-2">
+            Open a package page on npmjs.com or a package.json on GitHub.
+          </p>
+        </div>
       </div>
     );
   }
@@ -180,25 +187,28 @@ export const Popup = () => {
   } = stats;
 
   return (
-    <div className="flex flex-col w-[500px] max-h-[600px] overflow-y-auto bg-slate-50 text-slate-800 antialiased p-4 space-y-4">
-      <Header
-        packageName={packageName}
-        githubUrl={githubUrl}
-        stars={stars}
-        collaboratorsCount={collaboratorsCount}
-        lastCommitDate={lastCommitDate}
-        license={license}
-      />
+    <div className="flex flex-col w-[500px] h-[600px] bg-slate-50 antialiased">
+      <GlobalHeader />
+      <div className="flex-1 overflow-y-auto text-slate-800 p-4 space-y-4">
+        <Header
+          packageName={packageName}
+          githubUrl={githubUrl}
+          stars={stars}
+          collaboratorsCount={collaboratorsCount}
+          lastCommitDate={lastCommitDate}
+          license={license}
+        />
 
-      <div className="grid grid-cols-2 gap-4">
-        <LicenseCheck licenseCompatibility={licenseCompatibility} />
-        <Responsiveness responsiveness={responsiveness as any} />
+        <div className="grid grid-cols-2 gap-4">
+          <LicenseCheck licenseCompatibility={licenseCompatibility} />
+          <Responsiveness responsiveness={responsiveness as any} />
+        </div>
+
+        <BundleFootprint bundle={bundle} />
+        <SecurityAdvisories securityAdvisories={securityAdvisories} />
+        <Recommendations recommendations={recommendations} />
+        <DependencyTree dependencyTree={dependencyTree} />
       </div>
-
-      <BundleFootprint bundle={bundle} />
-      <SecurityAdvisories securityAdvisories={securityAdvisories} />
-      <Recommendations recommendations={recommendations} />
-      <DependencyTree dependencyTree={dependencyTree} />
     </div>
   );
 };
