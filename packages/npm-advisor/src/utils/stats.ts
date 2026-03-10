@@ -24,6 +24,8 @@ export interface PackageStats {
   responsiveness: {
     closedIssuesRatio: number | null;
     sampleSize: number;
+    openIssuesCount: number;
+    issuesUrl: string;
     description: string;
   } | null;
   securityAdvisories: {
@@ -170,6 +172,7 @@ export async function getPackageStats(
           const closedCount = issuesData.filter(
             (issue) => issue.state === "closed",
           ).length;
+          const openCount = totalSample - closedCount;
           const ratio = closedCount / totalSample;
           let desc = "Unknown";
           if (ratio > 0.8) desc = "Highly Responsive";
@@ -179,6 +182,8 @@ export async function getPackageStats(
           responsiveness = {
             closedIssuesRatio: ratio,
             sampleSize: totalSample,
+            openIssuesCount: openCount,
+            issuesUrl: `https://github.com/${owner}/${repo}/issues`,
             description: desc,
           };
         }
