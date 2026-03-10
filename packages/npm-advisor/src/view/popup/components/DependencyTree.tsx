@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ChevronRight, ChevronDown } from "lucide-react";
 import type { DependencyTree as DependencyTreeType } from "../../../utils/api";
 
@@ -37,13 +37,19 @@ const DepTreeNode = ({
     );
   };
 
+  useEffect(() => {
+    if (expanded && isTruncated && !loadingMore && !node._loaded) {
+      loadMore();
+    }
+  }, [expanded, isTruncated, loadingMore, node._loaded]);
+
   return (
     <div
-      style={{ paddingLeft: depth > 0 ? "12px" : "0" }}
+      style={{ paddingLeft: depth > 0 ? "16px" : "0" }}
       className={depth > 0 ? "border-l border-slate-100" : ""}
     >
       <div
-        className="flex items-center gap-1 py-0.5 px-1 cursor-pointer hover:bg-slate-50 rounded text-[11px] transition-colors"
+        className="flex items-center gap-1.5 py-1 px-1 cursor-pointer hover:bg-slate-50 rounded text-[13px] transition-colors"
         onClick={() => setExpanded((e) => !e)}
       >
         {hasChildren || isTruncated ? (
@@ -72,21 +78,12 @@ const DepTreeNode = ({
             childEntries.map(([depName, depNode]) => (
               <DepTreeNode key={depName} node={depNode} depth={depth + 1} />
             ))}
-          {isTruncated && (
+          {loadingMore && (
             <div
-              style={{ paddingLeft: "16px" }}
-              className="border-l border-slate-100 mt-0.5"
+              style={{ paddingLeft: "24px" }}
+              className="text-[11px] text-slate-400 font-medium py-1 italic"
             >
-              <button
-                onClick={(event) => {
-                  event.stopPropagation();
-                  loadMore();
-                }}
-                disabled={loadingMore}
-                className="text-[10px] text-blue-600 hover:text-blue-800 hover:underline py-0.5 px-1 cursor-pointer disabled:opacity-50 transition-colors bg-blue-50/50 rounded"
-              >
-                {loadingMore ? "Loading..." : "+ Load dependencies"}
-              </button>
+              Loading remaining dependencies...
             </div>
           )}
         </div>
@@ -106,7 +103,7 @@ export const DependencyTree: React.FC<DependencyTreeProps> = ({
 
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-4">
-      <h2 className="text-sm font-semibold flex items-center text-slate-800 mb-3 pb-2 border-b border-slate-100">
+      <h2 className="text-sm font-semibold flex items-center text-slate-800 mb-2 pb-1 border-b border-slate-100">
         Dependencies
       </h2>
       <div className="max-h-[300px] overflow-auto">
