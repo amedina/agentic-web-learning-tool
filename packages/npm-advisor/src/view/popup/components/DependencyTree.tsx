@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { ChevronRight, ChevronDown } from "lucide-react";
+import { ChevronRight, ChevronDown, Network } from "lucide-react";
 import type { DependencyTree as DependencyTreeType } from "../../../utils/api";
 
 type DepNode = DependencyTreeType & { _loaded?: boolean };
@@ -106,7 +106,7 @@ export const DependencyTree: React.FC<DependencyTreeProps> = ({
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-4">
       <h2 className="text-sm font-semibold flex items-center text-slate-800 mb-2 pb-1 border-b border-slate-100">
-        Dependencies
+        <Network size={16} className="mr-2 text-slate-600" /> Dependencies
       </h2>
       <div className="max-h-[300px] overflow-auto">
         <DepTreeNode node={dependencyTree} depth={0} />

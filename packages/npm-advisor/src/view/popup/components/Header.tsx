@@ -18,6 +18,14 @@ export const Header: React.FC<HeaderProps> = ({
   lastCommitDate,
   license,
 }) => {
+  const formatDate = (dateString: string) => {
+    const d = new Date(dateString);
+    const day = d.getDate();
+    const month = d.toLocaleString("en-US", { month: "short" });
+    const year = d.getFullYear();
+    return `${day} ${month}, ${year}`;
+  };
+
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-4">
       <div className="flex items-start justify-between">
@@ -52,33 +60,34 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       <div className="grid grid-cols-3 gap-2 mt-4 pt-4 border-t border-slate-100">
-        <div className="flex flex-col space-y-1">
+        <div className="flex flex-col items-center justify-self-start space-y-1">
           <div className="flex items-center text-xs text-slate-500 uppercase tracking-wider font-semibold">
-            <Star size={12} className="mr-1" /> Stars
+            <Star size={12} className="mr-1 shadow-sm" /> Stars
           </div>
-          <span className="font-medium text-slate-800">
+          <span className="font-medium text-slate-800 text-center">
             {stars !== null ? stars.toLocaleString() : "N/A"}
           </span>
         </div>
-        <div className="flex flex-col space-y-1">
-          <div className="flex items-center text-xs text-slate-500 uppercase tracking-wider font-semibold">
+        <div className="flex flex-col items-center justify-self-center space-y-1">
+          <div
+            className="flex items-center text-xs text-slate-500 uppercase tracking-wider font-semibold"
+            title="NPM Maintainers"
+          >
             <Users size={12} className="mr-1" /> Collabs
           </div>
-          <span className="font-medium text-slate-800">
+          <span className="font-medium text-slate-800 text-center">
             {collaboratorsCount ?? "N/A"}
           </span>
         </div>
-        <div className="flex flex-col space-y-1">
+        <div className="flex flex-col items-center justify-self-end space-y-1">
           <div className="flex items-center text-xs text-slate-500 uppercase tracking-wider font-semibold">
             <Clock size={12} className="mr-1" /> Updated
           </div>
           <span
-            className="font-medium text-slate-800 truncate"
+            className="font-medium text-slate-800 text-center truncate w-full"
             title={lastCommitDate || "N/A"}
           >
-            {lastCommitDate
-              ? new Date(lastCommitDate).toLocaleDateString()
-              : "N/A"}
+            {lastCommitDate ? formatDate(lastCommitDate) : "N/A"}
           </span>
         </div>
       </div>
