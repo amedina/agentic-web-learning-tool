@@ -16,10 +16,12 @@ const DepTreeNode = ({
   const [children, setChildren] = useState<Record<string, DepNode>>(
     node.dependencies ?? {},
   );
+  const [isLoaded, setIsLoaded] = useState(!!node._loaded);
 
   const childEntries = Object.entries(children);
   const hasChildren = childEntries.length > 0;
-  const isTruncated = node._truncated && !node._loaded;
+  // It is truncated if the API returned `_truncated: true` and we haven't successfully loaded more yet.
+  const isTruncated = node._truncated && !isLoaded;
   const versionStr = node.resolvedVersion || node.requestedVersion || "latest";
 
   const loadMore = () => {
@@ -28,9 +30,9 @@ const DepTreeNode = ({
       { type: "FETCH_DEP_TREE", packageName: node.name, version: versionStr },
       (response) => {
         setLoadingMore(false);
+        setIsLoaded(true);
         if (response?.success && response.data) {
           const loaded = response.data as DepNode;
-          loaded._loaded = true;
           setChildren(loaded.dependencies ?? {});
         }
       },
@@ -38,10 +40,10 @@ const DepTreeNode = ({
   };
 
   useEffect(() => {
-    if (expanded && isTruncated && !loadingMore && !node._loaded) {
+    if (expanded && isTruncated && !loadingMore && !isLoaded) {
       loadMore();
     }
-  }, [expanded, isTruncated, loadingMore, node._loaded]);
+  }, [expanded, isTruncated, loadingMore, isLoaded]);
 
   return (
     <div
