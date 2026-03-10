@@ -176,11 +176,14 @@ export async function getPackageStats(
         lastCommitDate = repoData.repo.pushedAt || repoData.repo.updatedAt;
       }
 
-      if (issuesData && Array.isArray(issuesData)) {
-        const totalSample = issuesData.length;
+      const issuesList =
+        issuesData?.items || (Array.isArray(issuesData) ? issuesData : null);
+
+      if (issuesList && Array.isArray(issuesList)) {
+        const totalSample = issuesList.length;
         if (totalSample > 0) {
-          const closedCount = issuesData.filter(
-            (issue) => issue.state === "closed",
+          const closedCount = issuesList.filter(
+            (issue: any) => issue.state === "closed",
           ).length;
           const openCount = totalSample - closedCount;
           const ratio = closedCount / totalSample;

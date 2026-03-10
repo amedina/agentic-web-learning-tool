@@ -32,7 +32,9 @@ export async function fetchGithubRepo(owner: string, repo: string) {
 
 export async function fetchGithubIssues(owner: string, repo: string) {
   // Fetching a sample of open and closed issues/PRs to gauge responsiveness
-  const url = `https://api.github.com/repos/${owner}/${repo}/issues?state=all&per_page=100`;
+  // Using Search API has a 10req/min (600/hr) unauthenticated rate limit, dodging the basic 60/hr Core API limit.
+  const query = `repo:${owner}/${repo} is:issue`;
+  const url = `https://api.github.com/search/issues?q=${encodeURIComponent(query)}&per_page=100`;
   return fetchWithCache(url);
 }
 
