@@ -6,18 +6,26 @@ import {
   fetchGithubRepo,
   fetchGithubIssues,
   fetchGithubCommits,
+  fetchGithubSecurityAdvisories,
 } from "./api";
 
 export interface PackageStats {
   packageName: string;
   githubUrl: string | null;
   stars: number | null;
-  maintainersCount: number | null;
+  collaboratorsCount: number | null;
   lastCommitDate: string | null;
   responsiveness: {
     closedIssuesRatio: number | null;
     sampleSize: number;
     description: string;
+  } | null;
+  securityAdvisories: {
+    critical: number;
+    high: number;
+    moderate: number;
+    low: number;
+    issues: Array<{ summary: string; severity: string; url: string }>;
   } | null;
 }
 
@@ -56,7 +64,7 @@ export async function getPackageStats(
     return null;
   }
 
-  const maintainersCount = npmData.maintainers?.length || null;
+  const collaboratorsCount = npmData.maintainers?.length || null;
 
   // Extract repo URL from latest version or repository field
   const latestVersion = npmData["dist-tags"]?.latest;
@@ -69,16 +77,19 @@ export async function getPackageStats(
   let stars = null;
   let lastCommitDate = null;
   let responsiveness = null;
+  let securityAdvisories = null;
 
   if (githubInfo) {
     try {
       const { owner, repo } = githubInfo;
 
-      const [repoData, commitsData, issuesData] = await Promise.all([
-        fetchGithubRepo(owner, repo),
-        fetchGithubCommits(owner, repo),
-        fetchGithubIssues(owner, repo),
-      ]);
+      const [repoData, commitsData, issuesData, advisoriesData] =
+        await Promise.all([
+          fetchGithubRepo(owner, repo),
+          fetchGithubCommits(owner, repo),
+          fetchGithubIssues(owner, repo),
+          fetchGithubSecurityAdvisories(owner, repo),
+        ]);
 
       if (repoData) {
         stars = repoData.stargazers_count;
@@ -107,6 +118,27 @@ export async function getPackageStats(
           };
         }
       }
+
+      if (advisoriesData && Array.isArray(advisoriesData)) {
+        const issues = advisoriesData.map((adv: any) => ({
+          summary: adv.summary || "N/A",
+          severity: adv.severity || "unknown",
+          url: adv.html_url || "",
+        }));
+
+        securityAdvisories = {
+          critical: issues.filter(
+            (i) => i.severity.toLowerCase() === "critical",
+          ).length,
+          high: issues.filter((i) => i.severity.toLowerCase() === "high")
+            .length,
+          moderate: issues.filter(
+            (i) => i.severity.toLowerCase() === "moderate",
+          ).length,
+          low: issues.filter((i) => i.severity.toLowerCase() === "low").length,
+          issues,
+        };
+      }
     } catch (e) {
       console.error(
         `[NPM Advisor] Failed to fetch some Github data for ${githubInfo.owner}/${githubInfo.repo}`,
@@ -125,9 +157,10 @@ export async function getPackageStats(
       ? `https://github.com/${githubInfo.owner}/${githubInfo.repo}`
       : null,
     stars,
-    maintainersCount,
+    collaboratorsCount,
     lastCommitDate,
     responsiveness,
+    securityAdvisories,
   };
 
   return stats;

@@ -43,3 +43,11 @@ export async function fetchGithubCommits(owner: string, repo: string) {
   const url = `https://api.github.com/repos/${owner}/${repo}/commits?per_page=1`;
   return fetchWithCache(url);
 }
+
+export async function fetchGithubSecurityAdvisories(
+  owner: string,
+  repo: string,
+) {
+  const url = `https://api.github.com/repos/${owner}/${repo}/security-advisories`;
+  return fetchWithCache(url);
+}
