@@ -5,5 +5,15 @@
   "manifest_version": 3,
   "action": {
     "default_popup": "popup/popup.html"
-  }
+  },
+  "content_scripts": [
+    {
+      "js": ["contentScript/contentScript.js"],
+      "matches": [
+        "*://www.npmjs.com/package/*",
+        "*://github.com/*/*/blob/*/package.json"
+      ]
+    }
+  ],
+  "host_permissions": ["*://registry.npmjs.org/*", "*://api.github.com/*"]
 }
