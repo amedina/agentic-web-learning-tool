@@ -1,13 +1,9 @@
 ---
-name: Summarizer API
+name: summarizer-api
 description: >
   Guide for writing code that uses Chrome's built-in Summarizer API (on-device AI for generating summaries with Gemini Nano).
   Use this skill whenever the user wants to distill lengthy articles, chat conversations, or complex documents into concise and insightful summaries in the browser without a backend. It should trigger when asked to create a summary, suggest titles or headings, generate a teaser for an article, write a TL;DR, or extract key points using on-device AI.
   Trigger this skill for any mention of: Summarizer API, Summarizer.create, summarizer.summarize, summarizeStreaming, on-device summarization, browser summarization AI, chrome built-in summarizer, tldr generation, key points extraction, or teaser generation with Gemini Nano.
-tags:
-  - chrome
-  - ai
-  - summarizer-api
 ---
 
 # Summarizer API
@@ -23,17 +19,25 @@ if (!('Summarizer' in self)) {
   return;
 }
 
-// 2. Check availability
-const availability = await Summarizer.availability();
-// 'available' | 'downloadable' | 'downloading' | 'unavailable'
-
-// 3. Create summarizer (with optional download monitor and options)
-// Wait for user activation before calling create() if download is required
-const summarizer = await Summarizer.create({
+// 2. Define options — reuse for both availability() and create()
+// ⚠️ Always set outputLanguage — omitting it triggers a browser warning and may
+//    degrade output quality. Use a BCP 47 tag matching the desired output locale.
+const options = {
   type: 'key-points',      // 'key-points' (default) | 'tldr' | 'teaser' | 'headline'
   format: 'markdown',      // 'markdown' (default) | 'plain-text'
   length: 'short',         // 'short' (default) | 'medium' | 'long'
+  outputLanguage: 'en',    // REQUIRED — BCP 47 tag, e.g. 'en', 'es', 'ja'
   sharedContext: 'Optional background context shared across all summarize() calls.',
+};
+
+// 3. Check availability for this specific configuration
+const availability = await Summarizer.availability(options);
+// 'available' | 'downloadable' | 'downloading' | 'unavailable'
+
+// 4. Create summarizer (with optional download monitor)
+// Wait for user activation before calling create() if download is required
+const summarizer = await Summarizer.create({
+  ...options,
   monitor(m) {
     m.addEventListener('downloadprogress', (e) => {
       console.log(`Model download: ${Math.round(e.loaded * 100)}%`);
@@ -102,7 +106,7 @@ The `create()` function takes an optional `options` object. Once set, parameters
 | `sharedContext` | string | — | Background context for all summaries in this session. |
 | `expectedInputLanguages` | string[] (BCP 47) | — | Languages the input text will be in. |
 | `expectedContextLanguages`| string[] (BCP 47) | — | Languages the context will be in. |
-| `outputLanguage`| string (BCP 47) | — | Language for generated output. |
+| `outputLanguage`| string (BCP 47) | — | **Required.** Language for generated output (e.g. `'en'`, `'es'`, `'ja'`). Omitting this triggers a browser warning and may reduce output quality. |
 | `signal` | `AbortSignal` | — | For cancellation of creation. |
 
 ### Summary Types and Lengths
@@ -121,7 +125,7 @@ The meaning of length varies by type (lengths represent the maximum possible val
 Use when you need the complete summary before displaying it.
 
 ```js
-const summarizer = await Summarizer.create({ type: 'tldr', length: 'medium' });
+const summarizer = await Summarizer.create({ type: 'tldr', length: 'medium', outputLanguage: 'en' });
 
 const summary = await summarizer.summarize(
   document.querySelector('article').innerHTML,
@@ -137,16 +141,20 @@ summarizer.destroy();
 Use for real-time output — better perceived performance for longer content.
 
 ```js
-const summarizer = await Summarizer.create({ type: 'key-points', length: 'long' });
+const summarizer = await Summarizer.create({ type: 'key-points', length: 'long', outputLanguage: 'en' });
 
 const stream = summarizer.summarizeStreaming(
   document.querySelector('article').innerHTML,
   { context: 'This article is intended for junior developers.' }
 );
 
+// ⚠️ summarizeStreaming yields DELTAS (incremental text), not full text.
+// Always accumulate chunks and guard against empty final chunk.
 const outputEl = document.getElementById('output');
+let result = '';
 for await (const chunk of stream) {
-  outputEl.textContent = chunk; // Or append, depending on chunking behavior
+  result += chunk;
+  if (result.trim()) outputEl.textContent = result;
 }
 
 summarizer.destroy();
