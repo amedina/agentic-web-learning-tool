@@ -12,6 +12,8 @@ import {
   fetchModuleReplacements,
 } from "./api";
 import type { DependencyTree } from "./api";
+import { checkLicenseCompatibility } from "./license";
+import type { LicenseCompatibilityResult } from "./license";
 
 export interface PackageStats {
   packageName: string;
@@ -38,6 +40,8 @@ export interface PackageStats {
     hasSideEffects: boolean | string[];
   } | null;
   dependencyTree: DependencyTree | null;
+  license: string | null;
+  licenseCompatibility: LicenseCompatibilityResult | null;
   recommendations: {
     nativeReplacements?: any;
     microUtilityReplacements?: any;
@@ -124,6 +128,14 @@ export async function getPackageStats(
   const repoUrlField = latestVersion
     ? npmData.versions[latestVersion]?.repository?.url
     : npmData.repository?.url;
+
+  const rawLicense = latestVersion
+    ? npmData.versions[latestVersion]?.license
+    : npmData.license;
+
+  const licenseStr =
+    typeof rawLicense === "string" ? rawLicense : rawLicense?.type || null;
+  const licenseCompatibility = checkLicenseCompatibility(licenseStr);
 
   const githubInfo = repoUrlField ? parseGithubUrl(repoUrlField) : null;
 
@@ -249,6 +261,8 @@ export async function getPackageStats(
     securityAdvisories,
     bundle,
     dependencyTree,
+    license: licenseStr,
+    licenseCompatibility,
     recommendations,
   };
 
