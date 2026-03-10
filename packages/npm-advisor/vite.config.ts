@@ -16,7 +16,10 @@ export default defineConfig({
     react(),
     tailwindcss(),
     viteStaticCopy({
-      targets: [{ src: resolve(__dirname, "src/manifest.json"), dest: "" }],
+      targets: [
+        { src: resolve(__dirname, "src/manifest.json"), dest: "" },
+        { src: resolve(__dirname, "src/assets/icon.png"), dest: "assets" },
+      ],
     }),
   ],
   base: "",
@@ -31,6 +34,7 @@ export default defineConfig({
       input: {
         popup: resolve(__dirname, "src/view/popup/popup.html"),
         contentScript: resolve(__dirname, "src/contentScript/contentScript.ts"),
+        background: resolve(__dirname, "src/background/background.ts"),
       },
       output: {
         entryFileNames: "[name]/[name].js",

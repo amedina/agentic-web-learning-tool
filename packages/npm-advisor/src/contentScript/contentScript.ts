@@ -44,6 +44,9 @@ async function main() {
 
   if (packageName) {
     console.log(`[NPM Advisor] Detected package name: ${packageName}`);
+    // Send background PREFETCH message
+    chrome.runtime.sendMessage({ type: "PREFETCH", packageName });
+
     console.log(
       "[NPM Advisor] 💡 Open the NPM Advisor extension popup to see a full statistical analysis of this package!",
     );
@@ -52,4 +55,7 @@ async function main() {
   }
 }
 
-main().catch(console.error);
+// Ensure the page has fully loaded before executing our stats parser
+window.addEventListener("load", () => {
+  main().catch(console.error);
+});

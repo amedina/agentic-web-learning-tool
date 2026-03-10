@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import Tree from "rc-tree";
 import type { DataNode } from "rc-tree/lib/interface";
-import { getPackageStats, type PackageStats } from "../../utils/stats";
+import { type PackageStats } from "../../utils/stats";
 import type { DependencyTree } from "../../utils/api";
 import "./popup.css";
 
@@ -136,15 +136,34 @@ export const Popup = () => {
           );
         }
 
-        const data = await getPackageStats(packageName);
-        if (!data) {
-          throw new Error("Failed to load statistics for this package.");
-        }
-
-        setStats(data);
+        // Ask background script for the cached stats payload
+        chrome.runtime.sendMessage(
+          { type: "GET_STATS", packageName },
+          (response) => {
+            if (chrome.runtime.lastError) {
+              setLoading(false);
+              return setError(
+                chrome.runtime.lastError.message ||
+                  "Failed to communicate with background script.",
+              );
+            }
+            if (response && response.success) {
+              if (response.data) {
+                setStats(response.data);
+              } else {
+                setError("Failed to load statistics for this package.");
+              }
+            } else {
+              setError(
+                response?.error ||
+                  "Failed to load statistics for this package.",
+              );
+            }
+            setLoading(false);
+          },
+        );
       } catch (err: any) {
         setError(err.message || "An unknown error occurred.");
-      } finally {
         setLoading(false);
       }
     };
