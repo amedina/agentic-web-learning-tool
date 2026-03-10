@@ -1,0 +1,28 @@
+{
+  "name": "@google-awlt/npm-advisor",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "cross-env NODE_ENV=development vite build --watch --config vite.config.ts",
+    "build": "cross-env NODE_ENV=production vite build --config vite.config.ts",
+    "check-types": "tsc -b -noEmit",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  },
+  "devDependencies": {
+    "@google-awlt/shared-config": "workspace:*",
+    "@types/chrome": "^0.1.27",
+    "@types/node": "^24.3.0",
+    "@types/react": "^19.1.10",
+    "@types/react-dom": "^19.1.7",
+    "@vitejs/plugin-react": "^5.0.0",
+    "cross-env": "^10.1.0",
+    "typescript": "~5.8.3",
+    "vite": "^7.1.11",
+    "vite-plugin-static-copy": "^3.1.4"
+  }
+}
