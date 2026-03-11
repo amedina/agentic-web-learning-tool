@@ -11,7 +11,8 @@
         "Handles the 'unavailable' return value",
         "Handles the 'downloadable' return value",
         "Handles the 'downloading' return value",
-        "Handles the 'available' return value"
+        "Handles the 'available' return value",
+        "Passes strongly recommended language constraints like `correctionExplanationLanguage` to `Proofreader.availability()`"
       ]
     },
     {
@@ -21,6 +22,7 @@
       "files": [],
       "expectations": [
         "Calls `Proofreader.create()` to instantiate the proofreader",
+        "Passes language constraints to `Proofreader.create()` (e.g. `correctionExplanationLanguage`)",
         "Calls `proofreader.proofread()` with the essay text",
         "Reads `result.correctedInput` to obtain the fully corrected string",
         "Calls `proofreader.destroy()` to free resources after use"

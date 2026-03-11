@@ -36,7 +36,9 @@ Key capabilities:
 
 ```js
 // 1. Check availability
-const available = await LanguageModel.availability();
+const available = await LanguageModel.availability({
+  expectedOutputs: [{ type: 'text', languages: ['en'] }]
+});
 if (available === 'unavailable') return;
 
 // 2. Create a session (triggers model download if needed)
@@ -410,7 +412,9 @@ async function initAI() {
     return null;
   }
 
-  const availability = await LanguageModel.availability();
+  const availability = await LanguageModel.availability({
+    expectedOutputs: [{ type: 'text', languages: ['en'] }]
+  });
   if (availability === 'unavailable') {
     showFallback('Device does not meet hardware requirements.');
     return null;

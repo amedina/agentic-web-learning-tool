@@ -23,8 +23,8 @@ if (!('Writer' in self)) {
   return;
 }
 
-// 2. Check availability
-const availability = await Writer.availability();
+// 2. Check availability — pass the same options you'll use in create()
+const availability = await Writer.availability({ outputLanguage: 'en' });
 // 'available' | 'downloadable' | 'downloading' | 'unavailable'
 
 // 3. Create writer (with optional download monitor)
@@ -32,6 +32,7 @@ const writer = await Writer.create({
   tone: 'neutral',       // 'formal' | 'neutral' (default) | 'casual'
   format: 'markdown',    // 'markdown' (default) | 'plain-text'
   length: 'medium',      // 'short' (default) | 'medium' | 'long'
+  outputLanguage: 'en',  // Required — omitting causes a Chrome console warning
   sharedContext: 'Optional context shared across all write() calls.',
   monitor(m) {
     m.addEventListener('downloadprogress', e => {
@@ -55,7 +56,8 @@ Always check availability before creating a writer. Handle all four states:
 async function createWriter(options = {}) {
   if (!('Writer' in self)) return null;
 
-  const availability = await Writer.availability();
+  // Pass the same options to availability() to check support upfront
+  const availability = await Writer.availability(options);
 
   if (availability === 'unavailable') {
     // Hardware requirements not met — don't proceed
@@ -91,7 +93,7 @@ async function createWriter(options = {}) {
 | `sharedContext` | string | — | Background context for all writes in this session |
 | `expectedInputLanguages` | string[] (BCP 47) | — | Languages the prompts will be in |
 | `expectedContextLanguages` | string[] (BCP 47) | — | Languages the context will be in |
-| `outputLanguage` | string (BCP 47) | — | Language for generated output |
+| `outputLanguage` | string (BCP 47) | **Required** | Language for generated output. Omitting causes a Chrome console warning. Always pass to both `availability()` and `create()`. |
 | `signal` | `AbortSignal` | — | For cancellation |
 
 ## Writing modes
@@ -101,7 +103,7 @@ async function createWriter(options = {}) {
 Use when you need the complete output before displaying it:
 
 ```js
-const writer = await Writer.create({ tone: 'formal', format: 'plain-text' });
+const writer = await Writer.create({ tone: 'formal', format: 'plain-text', outputLanguage: 'en' });
 
 const result = await writer.write(
   'An inquiry to my bank about enabling wire transfers.',
@@ -117,7 +119,7 @@ writer.destroy();
 Use for real-time output — better perceived performance for longer content:
 
 ```js
-const writer = await Writer.create({ tone: 'casual', format: 'markdown', length: 'long' });
+const writer = await Writer.create({ tone: 'casual', format: 'markdown', length: 'long', outputLanguage: 'en' });
 
 const stream = writer.writeStreaming(
   'Write a blog post about the benefits of on-device AI.',
@@ -140,6 +142,7 @@ Reuse a single writer for batch generation — more efficient than creating a ne
 const writer = await Writer.create({
   tone: 'formal',
   format: 'plain-text',
+  outputLanguage: 'en',
   sharedContext: 'These are product reviews for an e-commerce platform. Keep them concise and helpful.',
 });
 
@@ -237,6 +240,7 @@ async function draftEmail(subject, userContext) {
     tone: 'formal',
     format: 'plain-text',
     length: 'medium',
+    outputLanguage: 'en',
     sharedContext: 'Professional business email drafts.',
   });
 
@@ -250,7 +254,7 @@ async function draftEmail(subject, userContext) {
 
 ```js
 async function generateBlogPost(topic, outputEl) {
-  const availability = await Writer.availability();
+  const availability = await Writer.availability({ outputLanguage: 'en' });
   if (availability === 'unavailable') {
     outputEl.textContent = 'Writer API not available on this device.';
     return;
@@ -260,6 +264,7 @@ async function generateBlogPost(topic, outputEl) {
     tone: 'casual',
     format: 'markdown',
     length: 'long',
+    outputLanguage: 'en',
   });
 
   outputEl.textContent = '';
@@ -280,6 +285,7 @@ async function improveSupportRequest(userInput) {
     tone: 'neutral',
     format: 'plain-text',
     length: 'short',
+    outputLanguage: 'en',
     sharedContext: 'Help users write clear, actionable support requests.',
   });
 

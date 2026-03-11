@@ -11,7 +11,8 @@
         "Handles the 'unavailable' return value",
         "Handles the 'downloadable' return value",
         "Handles the 'downloading' return value",
-        "Handles the 'available' return value"
+        "Handles the 'available' return value",
+        "Passes `{ outputLanguage: 'en' }` or similar to `Summarizer.availability()`"
       ]
     },
     {
@@ -21,6 +22,7 @@
       "files": [],
       "expectations": [
         "Calls `Summarizer.create()` with `type: 'tldr'`",
+        "Passes `outputLanguage` to `Summarizer.create()`",
         "Calls `summarizer.summarize()` with the article text",
         "Calls `summarizer.destroy()` to free resources after use"
       ]

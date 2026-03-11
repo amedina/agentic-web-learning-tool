@@ -21,7 +21,7 @@ async function setupRewritingAssistant(containerEl) {
     return;
   }
 
-  const availability = await Rewriter.availability();
+  const availability = await Rewriter.availability({ outputLanguage: 'en' });
   if (availability === 'unavailable') {
     // Hardware requirements not met
     containerEl.querySelector('.ai-rewrite-btn').hidden = true;
@@ -30,7 +30,7 @@ async function setupRewritingAssistant(containerEl) {
 
   // API is available — wire up the feature
   containerEl.querySelector('.ai-rewrite-btn').addEventListener('click', async () => {
-    const rewriter = await Rewriter.create({ tone: 'more-casual', format: 'as-is' });
+    const rewriter = await Rewriter.create({ tone: 'more-casual', format: 'as-is', outputLanguage: 'en' });
     // ... use rewriter
     rewriter.destroy();
   });
@@ -61,7 +61,7 @@ function useRewriter(options = {}) {
         return;
       }
 
-      const availability = await Rewriter.availability();
+      const availability = await Rewriter.availability(options);
       if (availability === 'unavailable') {
         setError('Rewriter API unavailable: hardware requirements not met.');
         return;
@@ -114,6 +114,7 @@ function RewritingAssistant({ originalText }) {
     tone: 'more-formal',
     format: 'markdown',
     length: 'longer',
+    outputLanguage: 'en',
   });
   const [output, setOutput] = useState('');
   const [isRewriting, setIsRewriting] = useState(false);
@@ -167,7 +168,7 @@ async function safeRewrite(text, options = {}) {
     throw new Error('Rewriter API not supported');
   }
 
-  const availability = await Rewriter.availability();
+  const availability = await Rewriter.availability(options);
   if (availability === 'unavailable') {
     throw new Error('Rewriter API unavailable on this device');
   }
@@ -205,8 +206,11 @@ async function rewriteInLanguage(text, outputLanguage) {
   } catch (err) {
     if (err.name === 'NotSupportedError') {
       console.warn(`Language '${outputLanguage}' not supported, falling back to default`);
-      // Fall back to default language
-      const rewriter = await Rewriter.create();
+      // Fall back to default language check
+      const fallbackOptions = { outputLanguage: 'en' };
+      const availability = await Rewriter.availability(fallbackOptions);
+      if (availability === 'unavailable') throw new Error('Fallback language unavailable');
+      const rewriter = await Rewriter.create(fallbackOptions);
       const result = await rewriter.rewrite(text);
       rewriter.destroy();
       return result;
@@ -224,7 +228,7 @@ async function rewriteInLanguage(text, outputLanguage) {
 
 ```js
 async function createRewriterWithUI(options, progressEl) {
-  const availability = await Rewriter.availability();
+  const availability = await Rewriter.availability(options);
 
   if (availability === 'available') {
     progressEl.hidden = true;
@@ -281,7 +285,7 @@ rewriteBtn.addEventListener('click', async () => {
 
   try {
     const rewriter = await createRewriterWithUI(
-      { tone: 'more-formal', format: 'as-is', signal: controller.signal },
+      { tone: 'more-formal', format: 'as-is', outputLanguage: 'en', signal: controller.signal },
       progressEl
     );
 
@@ -326,7 +330,7 @@ class RewriterService {
 
     if (!('Rewriter' in self)) throw new Error('Rewriter API not supported');
 
-    const availability = await Rewriter.availability();
+    const availability = await Rewriter.availability(this.#options);
     if (availability === 'unavailable') throw new Error('Rewriter API unavailable');
 
     this.#rewriter = await Rewriter.create(this.#options);
@@ -352,7 +356,7 @@ class RewriterService {
 }
 
 // Usage
-const rewriterService = new RewriterService({ tone: 'more-formal', format: 'as-is' });
+const rewriterService = new RewriterService({ tone: 'more-formal', format: 'as-is', outputLanguage: 'en' });
 
 // Reuse across multiple calls
 const rewrite1 = await rewriterService.rewrite('Send me the doc.');

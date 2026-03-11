@@ -11,7 +11,8 @@
         "Handles the 'unavailable' return value",
         "Handles the 'downloadable' return value",
         "Handles the 'downloading' return value",
-        "Handles the 'available' return value"
+        "Handles the 'available' return value",
+        "Passes `{ outputLanguage: 'en' }` or similar to `Writer.availability()`"
       ]
     },
     {
@@ -21,6 +22,7 @@
       "files": [],
       "expectations": [
         "Calls `Writer.create()` with `tone: 'formal'`",
+        "Passes `outputLanguage` to `Writer.create()`",
         "Calls `writer.write()` with a descriptive task string",
         "Calls `writer.destroy()` to free resources after use"
       ]

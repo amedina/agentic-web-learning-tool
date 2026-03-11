@@ -11,7 +11,8 @@
         "Handles the 'unavailable' return value",
         "Handles the 'downloadable' return value",
         "Handles the 'downloading' return value",
-        "Handles the 'available' return value"
+        "Handles the 'available' return value",
+        "Passes `{ outputLanguage: 'en' }` or similar to `Rewriter.availability()`"
       ]
     },
     {
@@ -21,6 +22,7 @@
       "files": [],
       "expectations": [
         "Calls `Rewriter.create()` with `tone: 'more-formal'`",
+        "Passes `outputLanguage` to `Rewriter.create()`",
         "Calls `rewriter.rewrite()` with the original email text",
         "Calls `rewriter.destroy()` to free resources after use"
       ]

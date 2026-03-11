@@ -11,7 +11,8 @@
         "Handles the 'unavailable' return value",
         "Handles the 'downloadable' return value",
         "Handles the 'downloading' return value",
-        "Handles the 'available' return value"
+        "Handles the 'available' return value",
+        "Passes `expectedOutputs` options array with `languages` to `LanguageModel.availability()` to prevent Chrome warnings"
       ]
     },
     {
@@ -69,7 +70,8 @@
         "Passes an array (not a plain string) to `session.prompt()`",
         "Includes an object with `type: 'image'` in the array",
         "Uses `value` property to hold the image data (ImageBitmap, Blob, or similar)",
-        "Includes a text part in the same array for the question"
+        "Includes a text part in the same array for the question",
+        "Passes `expectedInputs` and `expectedOutputs` with proper `languages` arrays to `LanguageModel.create()`"
       ]
     },
     {

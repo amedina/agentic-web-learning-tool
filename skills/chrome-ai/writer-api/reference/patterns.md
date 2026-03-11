@@ -21,7 +21,7 @@ async function setupWritingAssistant(containerEl) {
     return;
   }
 
-  const availability = await Writer.availability();
+  const availability = await Writer.availability({ outputLanguage: 'en' });
   if (availability === 'unavailable') {
     // Hardware requirements not met
     containerEl.querySelector('.ai-assist-btn').hidden = true;
@@ -30,7 +30,7 @@ async function setupWritingAssistant(containerEl) {
 
   // API is available — wire up the feature
   containerEl.querySelector('.ai-assist-btn').addEventListener('click', async () => {
-    const writer = await Writer.create({ tone: 'neutral', format: 'plain-text' });
+    const writer = await Writer.create({ tone: 'neutral', format: 'plain-text', outputLanguage: 'en' });
     // ... use writer
     writer.destroy();
   });
@@ -61,7 +61,7 @@ function useWriter(options = {}) {
         return;
       }
 
-      const availability = await Writer.availability();
+      const availability = await Writer.availability(options);
       if (availability === 'unavailable') {
         setError('Writer API unavailable: hardware requirements not met.');
         return;
@@ -114,6 +114,7 @@ function WritingAssistant({ topic }) {
     tone: 'casual',
     format: 'markdown',
     length: 'long',
+    outputLanguage: 'en',
   });
   const [output, setOutput] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -166,7 +167,7 @@ async function safeWrite(prompt, options = {}) {
     throw new Error('Writer API not supported');
   }
 
-  const availability = await Writer.availability();
+  const availability = await Writer.availability(options);
   if (availability === 'unavailable') {
     throw new Error('Writer API unavailable on this device');
   }
@@ -204,8 +205,11 @@ async function writeInLanguage(prompt, outputLanguage) {
   } catch (err) {
     if (err.name === 'NotSupportedError') {
       console.warn(`Language '${outputLanguage}' not supported, falling back to default`);
-      // Fall back to default language
-      const writer = await Writer.create();
+      // Fall back to default language check
+      const fallbackOptions = { outputLanguage: 'en' };
+      const availability = await Writer.availability(fallbackOptions);
+      if (availability === 'unavailable') throw new Error('Fallback language unavailable');
+      const writer = await Writer.create(fallbackOptions);
       const result = await writer.write(prompt);
       writer.destroy();
       return result;
@@ -223,7 +227,7 @@ async function writeInLanguage(prompt, outputLanguage) {
 
 ```js
 async function createWriterWithUI(options, progressEl) {
-  const availability = await Writer.availability();
+  const availability = await Writer.availability(options);
 
   if (availability === 'available') {
     progressEl.hidden = true;
@@ -280,7 +284,7 @@ draftBtn.addEventListener('click', async () => {
 
   try {
     const writer = await createWriterWithUI(
-      { tone: 'neutral', format: 'plain-text', signal: controller.signal },
+      { tone: 'neutral', format: 'plain-text', outputLanguage: 'en', signal: controller.signal },
       progressEl
     );
 
@@ -325,7 +329,7 @@ class WriterService {
 
     if (!('Writer' in self)) throw new Error('Writer API not supported');
 
-    const availability = await Writer.availability();
+    const availability = await Writer.availability(this.#options);
     if (availability === 'unavailable') throw new Error('Writer API unavailable');
 
     this.#writer = await Writer.create(this.#options);
@@ -351,7 +355,7 @@ class WriterService {
 }
 
 // Usage
-const writerService = new WriterService({ tone: 'formal', format: 'plain-text' });
+const writerService = new WriterService({ tone: 'formal', format: 'plain-text', outputLanguage: 'en' });
 
 // Reuse across multiple calls
 const draft1 = await writerService.write('Draft a meeting request email');

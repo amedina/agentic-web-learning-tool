@@ -110,7 +110,7 @@ async function attachSummarizer(buttonEl, contentEl, resultEl) {
     buttonEl.disabled = true;
     resultEl.textContent = 'Preparing...';
 
-    const availability = await Summarizer.availability();
+    const availability = await Summarizer.availability({ outputLanguage: 'en' });
     if (availability === 'unavailable') {
       resultEl.textContent = 'Summarization not available on this device.';
       return;
@@ -120,6 +120,7 @@ async function attachSummarizer(buttonEl, contentEl, resultEl) {
       const summarizer = await Summarizer.create({
         type: 'key-points',
         length: 'medium',
+        outputLanguage: 'en',
         monitor(m) {
           m.addEventListener('downloadprogress', (e) => {
             const pct = Math.round(e.loaded * 100);

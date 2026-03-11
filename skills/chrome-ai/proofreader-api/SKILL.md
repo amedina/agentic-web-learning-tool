@@ -22,8 +22,11 @@ if (!('Proofreader' in self)) {
   return;
 }
 
-// 2. Check availability
-const availability = await Proofreader.availability();
+// 2. Check availability — pass the required options you'll use in create()
+const availability = await Proofreader.availability({ 
+  expectedInputLanguages: ['en'], 
+  correctionExplanationLanguage: 'en' 
+});
 // 'available' | 'downloadable' | 'downloading' | 'unavailable'
 
 // 3. Create proofreader (with optional download monitor and expected languages)
@@ -60,7 +63,11 @@ Always check availability before creating a proofreader. Handle all four states:
 async function createProofreader(options = {}) {
   if (!('Proofreader' in self)) return null;
 
-  const availability = await Proofreader.availability();
+  // Pass required language constraints to availability()
+  const availability = await Proofreader.availability({
+    expectedInputLanguages: options.expectedInputLanguages || ['en'],
+    correctionExplanationLanguage: options.correctionExplanationLanguage || 'en',
+  });
 
   if (availability === 'unavailable') {
     // Hardware requirements not met — don't proceed
@@ -90,10 +97,10 @@ async function createProofreader(options = {}) {
 
 | Option | Values | Notes |
 |--------|--------|-------|
-| `expectedInputLanguages` | string[] (BCP 47) | An array of expected input languages. |
+| `expectedInputLanguages` | string[] (BCP 47) | **Required in practice.** An array of expected input languages. |
 | `includeCorrectionTypes` | `boolean` | When `true`, each correction includes a `types` array with labels like `"spelling"`, `"grammar"`, `"punctuation"`, etc. |
 | `includeCorrectionExplanations` | `boolean` | When `true`, each correction includes an `explanation` string describing the error. |
-| `correctionExplanationLanguage` | string (BCP 47) | Language for the correction explanations (e.g., `'en'`). **Always set this** to avoid "No output language was specified" console warnings. |
+| `correctionExplanationLanguage` | string (BCP 47) | **Required.** Language for the correction explanations (e.g., `'en'`). Always set this to avoid "No output language was specified" console warnings. Pass to both `availability()` and `create()`. |
 | `signal` | `AbortSignal` | For cancellation of proofreader creation or inference. |
 
 ## Handling the ProofreadResult

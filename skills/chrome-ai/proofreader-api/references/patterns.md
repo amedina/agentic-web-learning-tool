@@ -32,7 +32,10 @@ export function useProofreader() {
       }
 
       try {
-        const availability = await self.Proofreader.availability();
+        const availability = await self.Proofreader.availability({
+          expectedInputLanguages: ['en'],
+          correctionExplanationLanguage: 'en',
+        });
 
         if (availability === 'unavailable') {
           setStatus('unavailable');
@@ -187,7 +190,10 @@ You should degrade gracefully if the Proofreader API is unsupported or fails to 
 
     // Feature detect and unhide the button
     if ('Proofreader' in self) {
-      const availability = await Proofreader.availability();
+      const availability = await Proofreader.availability({
+        expectedInputLanguages: ['en'],
+        correctionExplanationLanguage: 'en',
+      });
       if (availability !== 'unavailable') {
         proofreadBtn.hidden = false;
 

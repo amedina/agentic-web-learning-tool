@@ -23,8 +23,8 @@ if (!('Rewriter' in self)) {
   return;
 }
 
-// 2. Check availability
-const availability = await Rewriter.availability();
+// 2. Check availability — pass the same options you'll use in create()
+const availability = await Rewriter.availability({ outputLanguage: 'en' });
 // 'available' | 'downloadable' | 'downloading' | 'unavailable'
 
 // 3. Create rewriter (with optional download monitor)
@@ -32,6 +32,7 @@ const rewriter = await Rewriter.create({
   tone: 'as-is',         // 'as-is' (default) | 'more-formal' | 'more-casual'
   format: 'as-is',       // 'as-is' (default) | 'markdown' | 'plain-text'
   length: 'as-is',       // 'as-is' (default) | 'shorter' | 'longer'
+  outputLanguage: 'en',  // Required — omitting causes a Chrome console warning
   sharedContext: 'Optional background info shared across all rewrite() calls.',
   monitor(m) {
     m.addEventListener('downloadprogress', e => {
@@ -58,7 +59,8 @@ Always check availability before creating a rewriter. Handle all four states:
 async function createRewriter(options = {}) {
   if (!('Rewriter' in self)) return null;
 
-  const availability = await Rewriter.availability();
+  // Pass the same options to availability() to check support upfront
+  const availability = await Rewriter.availability(options);
 
   if (availability === 'unavailable') {
     // Hardware requirements not met — don't proceed
@@ -94,7 +96,7 @@ async function createRewriter(options = {}) {
 | `sharedContext` | string | — | Background context for all rewrites in this session |
 | `expectedInputLanguages` | string[] (BCP 47) | — | Languages the input text will be in |
 | `expectedContextLanguages` | string[] (BCP 47) | — | Languages the context will be in |
-| `outputLanguage` | string (BCP 47) | — | Language for generated output |
+| `outputLanguage` | string (BCP 47) | **Required** | Language for generated output. Omitting causes a Chrome console warning. Always pass to both `availability()` and `create()`. |
 | `signal` | `AbortSignal` | — | For cancellation |
 
 ## Rewriting modes
@@ -104,7 +106,7 @@ async function createRewriter(options = {}) {
 Use when you need the complete output before displaying it:
 
 ```js
-const rewriter = await Rewriter.create({ tone: 'more-formal', length: 'longer' });
+const rewriter = await Rewriter.create({ tone: 'more-formal', length: 'longer', outputLanguage: 'en' });
 
 const result = await rewriter.rewrite(
   'The product broke after a week.',
@@ -120,7 +122,7 @@ rewriter.destroy();
 Use for real-time output — better perceived performance for longer content:
 
 ```js
-const rewriter = await Rewriter.create({ tone: 'more-casual', length: 'shorter' });
+const rewriter = await Rewriter.create({ tone: 'more-casual', length: 'shorter', outputLanguage: 'en' });
 
 const stream = rewriter.rewriteStreaming(
   'I am writing to express my profound dissatisfaction with the services rendered.',
@@ -142,6 +144,7 @@ Reuse a single rewriter for batch editing — more efficient than creating a new
 ```js
 const rewriter = await Rewriter.create({
   tone: 'more-casual',
+  outputLanguage: 'en',
   sharedContext: 'These are comments on an internal company message board. Keep it light.',
 });
 
