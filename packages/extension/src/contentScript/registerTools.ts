@@ -64,13 +64,13 @@ import { builtInTools } from './tools/index';
                 // If result is null and we have a target frame, wait for the frame to reload.
                 if (result === null && targetFrame) {
                   console.log(
-                    `[WebMCP] Waiting for form target ${targetFrame} to load`
+                    `WebMCP: Waiting for form target ${targetFrame} to load`
                   );
 
                   await loadPromise;
 
                   console.debug(
-                    '[WebMCP] Get cross document script tool result'
+                    'WebMCP: Get cross document script tool result'
                   );
 
                   // @ts-ignore
