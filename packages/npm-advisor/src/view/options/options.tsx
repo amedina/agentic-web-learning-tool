@@ -319,6 +319,19 @@ const Options = () => {
                   <tbody className="divide-y divide-slate-200">
                     <tr>
                       <td className="px-6 py-4 font-medium text-slate-700 bg-slate-50 border-r border-slate-200">
+                        Advisor Score
+                      </td>
+                      {comparisonBucket.map((pkg, idx) => (
+                        <td
+                          key={idx}
+                          className="px-6 py-4 font-bold text-[#c94137] border-r border-slate-200 text-lg"
+                        >
+                          {pkg.score !== undefined ? pkg.score : "N/A"}
+                        </td>
+                      ))}
+                    </tr>
+                    <tr>
+                      <td className="px-6 py-4 font-medium text-slate-700 bg-slate-50 border-r border-slate-200">
                         GitHub Stars
                       </td>
                       {comparisonBucket.map((pkg, idx) => (

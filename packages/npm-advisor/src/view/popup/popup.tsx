@@ -147,8 +147,8 @@ export const Popup = () => {
       <div className="flex flex-col w-[500px] h-[600px] bg-slate-50 antialiased">
         <GlobalHeader />
         <div className="flex-1 flex flex-col items-center justify-center p-8 text-slate-800">
-          <div className="animate-spin text-blue-500 mb-4">
-            <PackageSearch size={40} />
+          <div className="animate-spin text-[#c94137] mb-4">
+            <PackageSearch size={48} />
           </div>
           <p className="font-medium">Analyzing Package Data...</p>
         </div>
@@ -247,6 +247,7 @@ export const Popup = () => {
               license={license}
               onAddToCompare={handleAddToCompare}
               isAddedToCompare={isAddedToCompare}
+              score={stats.score}
             />
 
             <div className="grid grid-cols-2 gap-4">

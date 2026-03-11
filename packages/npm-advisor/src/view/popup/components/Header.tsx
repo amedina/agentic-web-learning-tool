@@ -1,5 +1,5 @@
 import React from "react";
-import { Github, Star, Users, Clock } from "lucide-react";
+import { Github, Star, Users, Clock, Activity, Info } from "lucide-react";
 
 interface HeaderProps {
   packageName: string;
@@ -10,6 +10,7 @@ interface HeaderProps {
   license: string | null;
   onAddToCompare: () => void;
   isAddedToCompare: boolean;
+  score: number | null;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -21,6 +22,7 @@ export const Header: React.FC<HeaderProps> = ({
   license,
   onAddToCompare,
   isAddedToCompare,
+  score,
 }) => {
   const formatDate = (dateString: string) => {
     const d = new Date(dateString);
@@ -50,14 +52,14 @@ export const Header: React.FC<HeaderProps> = ({
                     ),
                   });
                 }}
-                className={`px-2 py-1 text-xs font-semibold rounded-md border transition-colors bg-green-50 text-green-700 border-green-200 hover:bg-green-100 flex items-center space-x-1`}
+                className={`px-2 py-1 text-xs font-semibold rounded-md border transition-colors bg-green-50 text-green-700 border-green-200 hover:bg-green-100 flex items-center space-x-1 cursor-pointer`}
               >
                 <span>View Comparison</span>
               </button>
             ) : (
               <button
                 onClick={onAddToCompare}
-                className={`px-2 py-1 text-xs font-semibold rounded-md border transition-colors bg-white text-blue-600 border-blue-200 hover:bg-blue-50`}
+                className={`px-2 py-1 text-xs font-semibold rounded-md border transition-colors bg-white text-blue-600 border-blue-200 hover:bg-blue-50 cursor-pointer`}
               >
                 + Compare
               </button>
@@ -68,7 +70,7 @@ export const Header: React.FC<HeaderProps> = ({
               href={githubUrl}
               target="_blank"
               rel="noreferrer"
-              className="text-sm text-blue-600 hover:text-blue-800 flex items-center mt-1 transition-colors"
+              className="text-sm text-blue-600 hover:text-blue-800 flex items-center mt-1 transition-colors cursor-pointer"
               title={githubUrl}
             >
               <Github size={14} className="mr-1" /> View Source
@@ -86,32 +88,48 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-2 mt-4 pt-4 border-t border-slate-100">
-        <div className="flex flex-col items-center justify-self-start space-y-1">
-          <div className="flex items-center text-xs text-slate-500 uppercase tracking-wider font-semibold">
+      <div className="flex items-start justify-between mt-4 pt-4 border-t border-slate-100">
+        <div className="flex flex-col items-center space-y-1">
+          <div className="flex items-center text-xs text-slate-500 uppercase tracking-wider font-semibold whitespace-nowrap">
+            <Activity size={12} className="mr-1 shadow-sm" /> Score
+            <div className="group relative flex items-center ml-1 cursor-help">
+              <Info size={12} className="text-slate-400" />
+              <div className="hidden group-hover:block absolute z-50 w-48 p-2 bg-slate-800 text-white text-xs rounded-md bottom-full left-1/2 -translate-x-1/2 mb-2 shadow-lg text-center font-normal normal-case tracking-normal whitespace-normal">
+                Calculated based on Bundle Size, Dependencies, and Modern
+                Replacements.
+                <div className="absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent border-t-slate-800"></div>
+              </div>
+            </div>
+          </div>
+          <span className="font-bold text-[#c94137] text-lg leading-none text-center">
+            {score !== null ? score : "N/A"}
+          </span>
+        </div>
+        <div className="flex flex-col items-center space-y-1">
+          <div className="flex items-center text-xs text-slate-500 uppercase tracking-wider font-semibold whitespace-nowrap">
             <Star size={12} className="mr-1 shadow-sm" /> Stars
           </div>
-          <span className="font-medium text-slate-800 text-center">
+          <span className="font-medium text-slate-800">
             {stars !== null ? stars.toLocaleString() : "N/A"}
           </span>
         </div>
-        <div className="flex flex-col items-center justify-self-center space-y-1">
+        <div className="flex flex-col items-center space-y-1">
           <div
-            className="flex items-center text-xs text-slate-500 uppercase tracking-wider font-semibold"
+            className="flex items-center text-xs text-slate-500 uppercase tracking-wider font-semibold whitespace-nowrap"
             title="NPM Maintainers"
           >
             <Users size={12} className="mr-1" /> Collabs
           </div>
-          <span className="font-medium text-slate-800 text-center">
+          <span className="font-medium text-slate-800">
             {collaboratorsCount ?? "N/A"}
           </span>
         </div>
-        <div className="flex flex-col items-center justify-self-end space-y-1">
-          <div className="flex items-center text-xs text-slate-500 uppercase tracking-wider font-semibold">
+        <div className="flex flex-col items-center space-y-1">
+          <div className="flex items-center text-xs text-slate-500 uppercase tracking-wider font-semibold whitespace-nowrap">
             <Clock size={12} className="mr-1" /> Last Commit
           </div>
           <span
-            className="font-medium text-slate-800 text-center truncate w-full"
+            className="font-medium text-slate-800 text-center whitespace-nowrap"
             title={lastCommitDate || "N/A"}
           >
             {lastCommitDate ? formatDate(lastCommitDate) : "N/A"}

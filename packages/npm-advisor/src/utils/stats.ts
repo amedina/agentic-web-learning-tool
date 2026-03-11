@@ -48,6 +48,7 @@ export interface PackageStats {
     microUtilityReplacements?: any;
     preferredReplacements?: any;
   };
+  score: number;
 }
 
 export function parseGithubUrl(
@@ -267,6 +268,30 @@ export async function getPackageStats(
   if (preferredMatches)
     recommendations.preferredReplacements = preferredMatches;
 
+  let score = 0;
+
+  // Reward small bundle size (e.g., under 50kb gzip gets points)
+  const gzip = bundle?.gzip || Infinity;
+  if (gzip < 50000) score += 10;
+  if (gzip < 10000) score += 20;
+
+  // Reward low dependency count
+  const deps = dependencyTree
+    ? Object.keys(dependencyTree.dependencies || {}).length
+    : 0;
+  if (deps === 0) score += 30;
+  else if (deps < 5) score += 15;
+
+  // Reward native/e18e replacements availability
+  const recs = recommendations;
+  if (
+    recs &&
+    (recs.nativeReplacements?.length > 0 ||
+      recs.preferredReplacements?.length > 0)
+  ) {
+    score += 25; // Being recommended is highly weighted
+  }
+
   const stats: PackageStats = {
     packageName,
     githubUrl: githubInfo
@@ -282,6 +307,7 @@ export async function getPackageStats(
     license: licenseStr,
     licenseCompatibility,
     recommendations,
+    score,
   };
 
   return stats;

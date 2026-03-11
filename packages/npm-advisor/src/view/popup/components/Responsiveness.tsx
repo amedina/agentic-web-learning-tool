@@ -1,5 +1,5 @@
 import React from "react";
-import { Users } from "lucide-react";
+import { Users, Info } from "lucide-react";
 
 interface ResponsivenessProps {
   responsiveness: {
@@ -18,6 +18,13 @@ export const Responsiveness: React.FC<ResponsivenessProps> = ({
       <div>
         <h2 className="text-sm font-semibold flex items-center text-slate-800 mb-2">
           <Users size={16} className="mr-2 text-slate-600" /> Responsiveness
+          <div className="group relative flex items-center ml-1.5 cursor-help">
+            <Info size={14} className="text-slate-400" />
+            <div className="hidden group-hover:block absolute z-50 w-48 p-2 bg-slate-800 text-white text-xs rounded-md bottom-full left-1/2 -translate-x-1/2 mb-2 shadow-lg text-center font-normal normal-case tracking-normal whitespace-normal">
+              Measures how quickly maintainers close open issues and PRs.
+              <div className="absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent border-t-slate-800"></div>
+            </div>
+          </div>
         </h2>
         {responsiveness ? (
           <>
