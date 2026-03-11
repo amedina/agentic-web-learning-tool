@@ -10,6 +10,30 @@ import {
 } from "lucide-react";
 import "./options.css";
 
+const calculateScore = (pkg: any) => {
+  if (pkg.score !== undefined && pkg.score !== null) return pkg.score;
+  let score = 0;
+  const gzip = pkg.bundle?.gzip || Infinity;
+  if (gzip < 50000) score += 10;
+  if (gzip < 10000) score += 20;
+
+  const deps = pkg.dependencyTree
+    ? Object.keys(pkg.dependencyTree.dependencies || {}).length
+    : 0;
+  if (deps === 0) score += 30;
+  else if (deps < 5) score += 15;
+
+  const recs = pkg.recommendations;
+  if (
+    recs &&
+    (recs.nativeReplacements?.length > 0 ||
+      recs.preferredReplacements?.length > 0)
+  ) {
+    score += 25;
+  }
+  return score;
+};
+
 const Options = () => {
   const [activeTab, setActiveTab] = useState<"settings" | "comparison">(
     window.location.hash === "#comparison" ? "comparison" : "settings",
@@ -86,28 +110,7 @@ const Options = () => {
     let winner = null;
 
     comparisonBucket.forEach((pkg) => {
-      let score = 0;
-
-      // Reward small bundle size (e.g., under 50kb gzip gets points)
-      const gzip = pkg.bundle?.gzip || Infinity;
-      if (gzip < 50000) score += 10;
-      if (gzip < 10000) score += 20;
-
-      // Reward low dependency count
-      const deps = pkg.dependencyTree?.length || 0;
-      if (deps === 0) score += 30;
-      else if (deps < 5) score += 15;
-
-      // Reward native replacements availability
-      const recs = pkg.recommendations;
-      if (
-        recs &&
-        (recs.nativeReplacements?.length > 0 ||
-          recs.preferredReplacements?.length > 0)
-      ) {
-        score += 25; // Being recommended is highly weighted
-      }
-
+      const score = calculateScore(pkg);
       if (score > bestScore) {
         bestScore = score;
         winner = pkg.packageName;
@@ -126,9 +129,13 @@ const Options = () => {
         <div>
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-3">
-              <SettingsIcon className="w-8 h-8 text-blue-600" />
+              <img
+                src={chrome.runtime.getURL("assets/icon.png")}
+                className="w-8 h-8"
+                alt="NPM Advisor Logo"
+              />
               <h2 className="text-3xl font-bold tracking-tight text-slate-900">
-                NPM Advisor Options
+                NPM Advisor
               </h2>
             </div>
 
@@ -326,7 +333,7 @@ const Options = () => {
                           key={idx}
                           className="px-6 py-4 font-bold text-[#c94137] border-r border-slate-200 text-lg"
                         >
-                          {pkg.score !== undefined ? pkg.score : "N/A"}
+                          {calculateScore(pkg)}
                         </td>
                       ))}
                     </tr>
@@ -382,7 +389,7 @@ const Options = () => {
                     </tr>
                     <tr>
                       <td className="px-6 py-4 font-medium text-slate-700 bg-slate-50 border-r border-slate-200">
-                        Bundle Size (Min/GZ)
+                        Minified Size
                       </td>
                       {comparisonBucket.map((pkg, idx) => (
                         <td
@@ -392,7 +399,18 @@ const Options = () => {
                           {pkg.bundle?.size
                             ? `${(pkg.bundle.size / 1024).toFixed(1)} kB`
                             : "N/A"}
-                          {" / "}
+                        </td>
+                      ))}
+                    </tr>
+                    <tr>
+                      <td className="px-6 py-4 font-medium text-slate-700 bg-slate-50 border-r border-slate-200">
+                        GZipped Size
+                      </td>
+                      {comparisonBucket.map((pkg, idx) => (
+                        <td
+                          key={idx}
+                          className="px-6 py-4 text-slate-500 border-r border-slate-200"
+                        >
                           {pkg.bundle?.gzip ? (
                             <span className="font-semibold text-slate-700">{`${(pkg.bundle.gzip / 1024).toFixed(1)} kB`}</span>
                           ) : (
