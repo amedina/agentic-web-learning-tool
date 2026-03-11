@@ -52,8 +52,15 @@ export const Popup = () => {
   const [error, setError] = useState<string | null>(null);
   const [stats, setStats] = useState<PackageStats | null>(null);
   const [activeTab, setActiveTab] = useState<"insights" | "ask_ai">("insights");
+  const [comparisonBucket, setComparisonBucket] = useState<any[]>([]);
 
   useEffect(() => {
+    chrome.storage.local.get(["comparisonBucket"], (res) => {
+      if (res.comparisonBucket) {
+        setComparisonBucket(res.comparisonBucket as any[]);
+      }
+    });
+
     const fetchCurrentTabStats = async () => {
       try {
         setLoading(true);
@@ -181,6 +188,16 @@ export const Popup = () => {
     dependencyTree,
   } = stats;
 
+  const handleAddToCompare = () => {
+    const newBucket = [...comparisonBucket, stats];
+    setComparisonBucket(newBucket);
+    chrome.storage.local.set({ comparisonBucket: newBucket });
+  };
+
+  const isAddedToCompare = comparisonBucket.some(
+    (item) => item.packageName === packageName,
+  );
+
   return (
     <div className="flex flex-col w-[500px] h-[600px] bg-slate-50 antialiased">
       <GlobalHeader />
@@ -228,6 +245,8 @@ export const Popup = () => {
               collaboratorsCount={collaboratorsCount}
               lastCommitDate={lastCommitDate}
               license={license}
+              onAddToCompare={handleAddToCompare}
+              isAddedToCompare={isAddedToCompare}
             />
 
             <div className="grid grid-cols-2 gap-4">

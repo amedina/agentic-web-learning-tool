@@ -8,6 +8,8 @@ interface HeaderProps {
   collaboratorsCount: number | null;
   lastCommitDate: string | null;
   license: string | null;
+  onAddToCompare: () => void;
+  isAddedToCompare: boolean;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -17,6 +19,8 @@ export const Header: React.FC<HeaderProps> = ({
   collaboratorsCount,
   lastCommitDate,
   license,
+  onAddToCompare,
+  isAddedToCompare,
 }) => {
   const formatDate = (dateString: string) => {
     const d = new Date(dateString);
@@ -30,12 +34,25 @@ export const Header: React.FC<HeaderProps> = ({
     <div className="bg-white rounded-xl border border-slate-200 p-4">
       <div className="flex items-start justify-between">
         <div>
-          <h1
-            className="text-xl font-bold text-slate-900 truncate max-w-[300px]"
-            title={packageName}
-          >
-            {packageName}
-          </h1>
+          <div className="flex items-center space-x-2">
+            <h1
+              className="text-xl font-bold text-slate-900 truncate max-w-[200px]"
+              title={packageName}
+            >
+              {packageName}
+            </h1>
+            <button
+              onClick={onAddToCompare}
+              disabled={isAddedToCompare}
+              className={`px-2 py-1 text-xs font-semibold rounded-md border transition-colors ${
+                isAddedToCompare
+                  ? "bg-slate-100 text-slate-500 border-slate-200 cursor-not-allowed"
+                  : "bg-white text-blue-600 border-blue-200 hover:bg-blue-50"
+              }`}
+            >
+              {isAddedToCompare ? "Added" : "+ Compare"}
+            </button>
+          </div>
           {githubUrl ? (
             <a
               href={githubUrl}
