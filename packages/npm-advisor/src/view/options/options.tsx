@@ -332,6 +332,43 @@ const Options = () => {
                     </tr>
                     <tr>
                       <td className="px-6 py-4 font-medium text-slate-700 bg-slate-50 border-r border-slate-200">
+                        Collaborators
+                      </td>
+                      {comparisonBucket.map((pkg, idx) => (
+                        <td
+                          key={idx}
+                          className="px-6 py-4 text-slate-500 border-r border-slate-200"
+                        >
+                          {pkg.collaboratorsCount !== null
+                            ? pkg.collaboratorsCount
+                            : "N/A"}
+                        </td>
+                      ))}
+                    </tr>
+                    <tr>
+                      <td className="px-6 py-4 font-medium text-slate-700 bg-slate-50 border-r border-slate-200">
+                        Last Commit
+                      </td>
+                      {comparisonBucket.map((pkg, idx) => (
+                        <td
+                          key={idx}
+                          className="px-6 py-4 text-slate-500 border-r border-slate-200"
+                        >
+                          {pkg.lastCommitDate
+                            ? new Date(pkg.lastCommitDate).toLocaleDateString(
+                                "en-GB",
+                                {
+                                  day: "numeric",
+                                  month: "short",
+                                  year: "numeric",
+                                },
+                              )
+                            : "N/A"}
+                        </td>
+                      ))}
+                    </tr>
+                    <tr>
+                      <td className="px-6 py-4 font-medium text-slate-700 bg-slate-50 border-r border-slate-200">
                         Bundle Size (Min/GZ)
                       </td>
                       {comparisonBucket.map((pkg, idx) => (
@@ -345,6 +382,49 @@ const Options = () => {
                           {" / "}
                           {pkg.bundle?.gzip ? (
                             <span className="font-semibold text-slate-700">{`${(pkg.bundle.gzip / 1024).toFixed(1)} kB`}</span>
+                          ) : (
+                            "N/A"
+                          )}
+                        </td>
+                      ))}
+                    </tr>
+                    <tr>
+                      <td className="px-6 py-4 font-medium text-slate-700 bg-slate-50 border-r border-slate-200">
+                        Tree Shakeable
+                      </td>
+                      {comparisonBucket.map((pkg, idx) => (
+                        <td
+                          key={idx}
+                          className="px-6 py-4 text-slate-500 border-r border-slate-200"
+                        >
+                          {pkg.bundle?.isTreeShakeable ? (
+                            <span className="text-green-600 font-medium">
+                              Yes
+                            </span>
+                          ) : pkg.bundle?.isTreeShakeable === false ? (
+                            <span className="text-red-500">No</span>
+                          ) : (
+                            "N/A"
+                          )}
+                        </td>
+                      ))}
+                    </tr>
+                    <tr>
+                      <td className="px-6 py-4 font-medium text-slate-700 bg-slate-50 border-r border-slate-200">
+                        Side Effects
+                      </td>
+                      {comparisonBucket.map((pkg, idx) => (
+                        <td
+                          key={idx}
+                          className="px-6 py-4 text-slate-500 border-r border-slate-200"
+                        >
+                          {pkg.bundle?.hasSideEffects === false ? (
+                            <span className="text-green-600 font-medium">
+                              No
+                            </span>
+                          ) : pkg.bundle?.hasSideEffects === true ||
+                            Array.isArray(pkg.bundle?.hasSideEffects) ? (
+                            <span className="text-yellow-600">Yes</span>
                           ) : (
                             "N/A"
                           )}
@@ -400,6 +480,54 @@ const Options = () => {
                           </div>
                         </td>
                       ))}
+                    </tr>
+                    <tr>
+                      <td className="px-6 py-4 font-medium text-slate-700 bg-slate-50 border-r border-slate-200">
+                        Security Advisories
+                      </td>
+                      {comparisonBucket.map((pkg, idx) => {
+                        const adv = pkg.securityAdvisories;
+                        return (
+                          <td
+                            key={idx}
+                            className="px-6 py-4 text-slate-500 border-r border-slate-200"
+                          >
+                            {!adv ? (
+                              "Unknown"
+                            ) : adv.critical === 0 &&
+                              adv.high === 0 &&
+                              adv.moderate === 0 &&
+                              adv.low === 0 ? (
+                              <span className="text-green-600 font-medium">
+                                None
+                              </span>
+                            ) : (
+                              <div className="flex flex-col space-y-1 text-xs">
+                                {adv.critical > 0 && (
+                                  <span className="text-red-600 font-bold">
+                                    {adv.critical} Critical
+                                  </span>
+                                )}
+                                {adv.high > 0 && (
+                                  <span className="text-red-500 font-semibold">
+                                    {adv.high} High
+                                  </span>
+                                )}
+                                {adv.moderate > 0 && (
+                                  <span className="text-yellow-600">
+                                    {adv.moderate} Moderate
+                                  </span>
+                                )}
+                                {adv.low > 0 && (
+                                  <span className="text-slate-500">
+                                    {adv.low} Low
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                          </td>
+                        );
+                      })}
                     </tr>
                     <tr>
                       <td className="px-6 py-4 font-medium text-slate-700 bg-slate-50 border-r border-slate-200">
