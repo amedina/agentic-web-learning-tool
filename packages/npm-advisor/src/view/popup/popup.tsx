@@ -46,17 +46,11 @@ class ErrorBoundary extends React.Component<
   }
 }
 
-// ---------------------------------------------------------------------- //
-//                            Helper Utilities                            //
-// ---------------------------------------------------------------------- //
-
-// ---------------------------------------------------------------------- //
-//                             Main Component                             //
-// ---------------------------------------------------------------------- //
 export const Popup = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [stats, setStats] = useState<PackageStats | null>(null);
+  const [activeTab, setActiveTab] = useState<"insights" | "ask_ai">("insights");
 
   useEffect(() => {
     const fetchCurrentTabStats = async () => {
@@ -189,25 +183,70 @@ export const Popup = () => {
   return (
     <div className="flex flex-col w-[500px] h-[600px] bg-slate-50 antialiased">
       <GlobalHeader />
-      <div className="flex-1 overflow-y-auto text-slate-800 p-4 space-y-4">
-        <Header
-          packageName={packageName}
-          githubUrl={githubUrl}
-          stars={stars}
-          collaboratorsCount={collaboratorsCount}
-          lastCommitDate={lastCommitDate}
-          license={license}
+
+      {/* Tabs Navigation */}
+      <div className="flex items-center w-full bg-white border-b border-slate-200 relative">
+        <button
+          onClick={() => setActiveTab("insights")}
+          className={`flex-1 py-3 text-sm font-medium transition-colors ${
+            activeTab === "insights"
+              ? "text-slate-900"
+              : "text-slate-500 hover:text-slate-700"
+          }`}
+        >
+          Insights
+        </button>
+        <button
+          onClick={() => setActiveTab("ask_ai")}
+          className={`flex-1 py-3 text-sm font-medium transition-colors ${
+            activeTab === "ask_ai"
+              ? "text-slate-900"
+              : "text-slate-500 hover:text-slate-700"
+          }`}
+        >
+          Ask AI
+        </button>
+
+        {/* Animated Indicator */}
+        <div
+          className="absolute bottom-0 h-[2px] bg-[#c94137] transition-all duration-300 ease-in-out"
+          style={{
+            width: "50%",
+            left: activeTab === "insights" ? "0%" : "50%",
+          }}
         />
+      </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <LicenseCheck licenseCompatibility={licenseCompatibility} />
-          <Responsiveness responsiveness={responsiveness as any} />
-        </div>
+      <div className="flex-1 overflow-y-auto w-full relative">
+        {activeTab === "insights" ? (
+          <div className="text-slate-800 p-4 space-y-4">
+            <Header
+              packageName={packageName}
+              githubUrl={githubUrl}
+              stars={stars}
+              collaboratorsCount={collaboratorsCount}
+              lastCommitDate={lastCommitDate}
+              license={license}
+            />
 
-        <BundleFootprint bundle={bundle} />
-        <SecurityAdvisories securityAdvisories={securityAdvisories} />
-        <Recommendations recommendations={recommendations} />
-        <DependencyTree dependencyTree={dependencyTree} />
+            <div className="grid grid-cols-2 gap-4">
+              <LicenseCheck licenseCompatibility={licenseCompatibility} />
+              <Responsiveness responsiveness={responsiveness as any} />
+            </div>
+
+            <BundleFootprint bundle={bundle} />
+            <SecurityAdvisories securityAdvisories={securityAdvisories} />
+            <Recommendations recommendations={recommendations} />
+            <DependencyTree dependencyTree={dependencyTree} />
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center p-8 text-slate-800 h-full animate-in fade-in duration-300">
+            <h2 className="text-xl font-semibold mb-2">Ask AI</h2>
+            <p className="text-slate-500 text-center text-sm">
+              Your AI assistant for {packageName} is coming soon!
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

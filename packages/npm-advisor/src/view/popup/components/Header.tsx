@@ -81,7 +81,7 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
         <div className="flex flex-col items-center justify-self-end space-y-1">
           <div className="flex items-center text-xs text-slate-500 uppercase tracking-wider font-semibold">
-            <Clock size={12} className="mr-1" /> Updated
+            <Clock size={12} className="mr-1" /> Last Commit
           </div>
           <span
             className="font-medium text-slate-800 text-center truncate w-full"
