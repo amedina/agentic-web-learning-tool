@@ -12,7 +12,7 @@ import "./options.css";
 
 const Options = () => {
   const [activeTab, setActiveTab] = useState<"settings" | "comparison">(
-    "settings",
+    window.location.hash === "#comparison" ? "comparison" : "settings",
   );
   const [comparisonBucket, setComparisonBucket] = useState<any[]>([]);
 
@@ -33,6 +33,14 @@ const Options = () => {
         if (result.openAIApiKey) setOpenAIApiKey(result.openAIApiKey as string);
       },
     );
+
+    // Listen for hash changes if user clicks view comparison again
+    const onHashChange = () => {
+      if (window.location.hash === "#comparison") {
+        setActiveTab("comparison");
+      }
+    };
+    window.addEventListener("hashchange", onHashChange);
 
     // Load comparison bucket
     chrome.storage.local.get(["comparisonBucket"], (res) => {
@@ -90,14 +98,14 @@ const Options = () => {
       if (deps === 0) score += 30;
       else if (deps < 5) score += 15;
 
-      // Reward native/e18e replacements availability
+      // Reward native replacements availability
       const recs = pkg.recommendations;
       if (
         recs &&
         (recs.nativeReplacements?.length > 0 ||
           recs.preferredReplacements?.length > 0)
       ) {
-        score += 25; // Being recommended by e18e is highly weighted
+        score += 25; // Being recommended is highly weighted
       }
 
       if (score > bestScore) {
@@ -300,7 +308,7 @@ const Options = () => {
                             {winnerName === pkg.packageName && (
                               <span className="flex items-center bg-green-100 text-green-700 border border-green-200 text-[10px] uppercase font-bold px-2 py-0.5 rounded-full absolute top-2 right-2">
                                 <Award className="w-3 h-3 mr-1" />
-                                e18e Winner
+                                Winner
                               </span>
                             )}
                           </div>
@@ -352,7 +360,10 @@ const Options = () => {
                           key={idx}
                           className="px-6 py-4 text-slate-500 border-r border-slate-200"
                         >
-                          {pkg.dependencyTree?.length || 0}
+                          {
+                            Object.keys(pkg.dependencyTree?.dependencies || {})
+                              .length
+                          }
                         </td>
                       ))}
                     </tr>
@@ -365,23 +376,25 @@ const Options = () => {
                           key={idx}
                           className="px-6 py-4 text-slate-500 border-r border-slate-200"
                         >
-                          {pkg.responsiveness?.healthRating ? (
-                            <div className="flex items-center">
+                          {pkg.responsiveness?.description ? (
+                            <div className="flex items-center mb-1">
                               <span
                                 className={`inline-block w-2 h-2 rounded-full mr-2 ${
-                                  pkg.responsiveness.healthRating === "Poor"
+                                  pkg.responsiveness.description ===
+                                  "Needs Attention"
                                     ? "bg-red-500"
-                                    : pkg.responsiveness.healthRating === "Fair"
+                                    : pkg.responsiveness.description ===
+                                        "Moderately Responsive"
                                       ? "bg-yellow-500"
                                       : "bg-green-500"
                                 }`}
                               ></span>
-                              {pkg.responsiveness.healthRating}
+                              {pkg.responsiveness.description}
                             </div>
                           ) : (
-                            "Unknown"
+                            <div className="mb-1 text-slate-400">Unknown</div>
                           )}
-                          <div className="text-xs text-slate-400 mt-1">
+                          <div className="text-xs text-slate-400">
                             Open Issues:{" "}
                             {pkg.responsiveness?.openIssuesCount || 0}
                           </div>
@@ -418,7 +431,7 @@ const Options = () => {
               <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-xl">
                 <h4 className="flex items-center text-green-800 font-semibold mb-1">
                   <Award className="w-5 h-5 mr-2" />
-                  e18e Champion: {winnerName}
+                  Winner: {winnerName}
                 </h4>
                 <p className="text-sm text-green-700">
                   Based on bundle sizes, dependency counts, and modern native

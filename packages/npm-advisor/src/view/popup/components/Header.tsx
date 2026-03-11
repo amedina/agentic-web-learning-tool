@@ -41,17 +41,27 @@ export const Header: React.FC<HeaderProps> = ({
             >
               {packageName}
             </h1>
-            <button
-              onClick={onAddToCompare}
-              disabled={isAddedToCompare}
-              className={`px-2 py-1 text-xs font-semibold rounded-md border transition-colors ${
-                isAddedToCompare
-                  ? "bg-slate-100 text-slate-500 border-slate-200 cursor-not-allowed"
-                  : "bg-white text-blue-600 border-blue-200 hover:bg-blue-50"
-              }`}
-            >
-              {isAddedToCompare ? "Added" : "+ Compare"}
-            </button>
+            {isAddedToCompare ? (
+              <button
+                onClick={() => {
+                  chrome.tabs.create({
+                    url: chrome.runtime.getURL(
+                      "options/options.html#comparison",
+                    ),
+                  });
+                }}
+                className={`px-2 py-1 text-xs font-semibold rounded-md border transition-colors bg-green-50 text-green-700 border-green-200 hover:bg-green-100 flex items-center space-x-1`}
+              >
+                <span>View Comparison</span>
+              </button>
+            ) : (
+              <button
+                onClick={onAddToCompare}
+                className={`px-2 py-1 text-xs font-semibold rounded-md border transition-colors bg-white text-blue-600 border-blue-200 hover:bg-blue-50`}
+              >
+                + Compare
+              </button>
+            )}
           </div>
           {githubUrl ? (
             <a
