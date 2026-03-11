@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useChat } from "@ai-sdk/react";
 import {
   AssistantRuntimeProvider,
@@ -6,18 +6,73 @@ import {
   ComposerPrimitive,
 } from "@assistant-ui/react";
 import { useChatRuntime } from "@assistant-ui/react-ai-sdk";
-import { SendHorizontal } from "lucide-react";
+import { SendHorizontal, AlertCircle } from "lucide-react";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { createOpenAI } from "@ai-sdk/openai";
+import { streamText } from "ai";
 
 interface AskAIProps {
   packageName: string;
 }
 
 export const AskAI: React.FC<AskAIProps> = ({ packageName }) => {
+  const [apiKeys, setApiKeys] = useState<{ gemini?: string; openai?: string }>(
+    {},
+  );
+
+  useEffect(() => {
+    chrome.storage.sync.get(["geminiApiKey", "openAIApiKey"], (res) => {
+      setApiKeys({
+        gemini: res.geminiApiKey || "",
+        openai: res.openAIApiKey || "",
+      });
+    });
+  }, []);
+
   const chat = useChat({
-    api: "/api/chat", // Dummy endpoint
+    // @ts-expect-error The api prop exists but TS strict modes across versions conflict
+    api: "/api/chat", // Not actually hit due to custom fetch interceptor below
+    fetch: async (input: RequestInfo | URL, init?: RequestInit) => {
+      try {
+        const body = JSON.parse(init?.body as string);
+        const messages = body.messages;
+
+        let model;
+        if (apiKeys.gemini) {
+          const google = createGoogleGenerativeAI({ apiKey: apiKeys.gemini });
+          model = google("gemini-2.5-flash");
+        } else if (apiKeys.openai) {
+          const openai = createOpenAI({ apiKey: apiKeys.openai });
+          model = openai("gpt-4o-mini");
+        } else {
+          return new Response(
+            "Error: No API key configured. Please add your Gemini or OpenAI key in the extension settings.",
+            { status: 401 },
+          );
+        }
+
+        const result = streamText({
+          model,
+          system: `You are an expert NPM package advisor assistant. The user is currently viewing information about the NPM package: "${packageName}". Provide concise, helpful code snippets and advice.`,
+          messages,
+        });
+
+        // @ts-expect-error v3 SDK exposes toDataStreamResponse but AI namespace throws on type inference here
+        return result.toDataStreamResponse();
+      } catch (err: any) {
+        return new Response(err.message, { status: 500 });
+      }
+    },
+    onError: (err) => console.error("Chat Error:", err),
   });
 
+  // @ts-expect-error Type mismatch between latest `ai` useChat output and useChatRuntime expectations
   const runtime = useChatRuntime(chat);
+
+  const openOptions = () => {
+    if (chrome.runtime.openOptionsPage) chrome.runtime.openOptionsPage();
+    else window.open(chrome.runtime.getURL("options/options.html"));
+  };
 
   const suggestions = [
     {
@@ -70,11 +125,11 @@ export const AskAI: React.FC<AskAIProps> = ({ packageName }) => {
 
             <ThreadPrimitive.Messages
               components={{
-                UserMessage: ({ message }) => {
+                UserMessage: ({ message }: any) => {
                   const txt =
-                    message.content[0]?.type === "text"
+                    message?.content?.[0]?.type === "text"
                       ? message.content[0].text
-                      : "";
+                      : message?.content || "";
                   return (
                     <div className="flex w-full mb-4 justify-end">
                       <div className="bg-[#c94137] text-white px-4 py-2 rounded-2xl max-w-[85%] text-[13px] shadow-sm whitespace-pre-wrap break-words">
@@ -83,14 +138,23 @@ export const AskAI: React.FC<AskAIProps> = ({ packageName }) => {
                     </div>
                   );
                 },
-                AssistantMessage: ({ message }) => {
+                AssistantMessage: ({ message }: any) => {
                   const txt =
-                    message.content[0]?.type === "text"
+                    message?.content?.[0]?.type === "text"
                       ? message.content[0].text
-                      : "";
+                      : message?.content || "";
+                  const isError =
+                    typeof txt === "string" &&
+                    (txt.includes("Error:") || txt.includes("No API key"));
                   return (
                     <div className="flex w-full mb-4 justify-start">
-                      <div className="bg-white border border-slate-200 text-slate-800 px-4 py-2 rounded-2xl max-w-[85%] text-[13px] shadow-sm whitespace-pre-wrap break-words leading-relaxed">
+                      <div
+                        className={`border px-4 py-2 rounded-2xl max-w-[85%] text-[13px] shadow-sm whitespace-pre-wrap break-words leading-relaxed ${
+                          isError
+                            ? "bg-red-50 border-red-200 text-red-800"
+                            : "bg-white border-slate-200 text-slate-800"
+                        }`}
+                      >
                         {txt}
                       </div>
                     </div>
@@ -101,10 +165,25 @@ export const AskAI: React.FC<AskAIProps> = ({ packageName }) => {
           </ThreadPrimitive.Viewport>
 
           <div className="p-3 bg-white border-t border-slate-200">
+            {!apiKeys.gemini && !apiKeys.openai ? (
+              <div className="flex items-center justify-between p-3 bg-yellow-50 text-yellow-800 rounded-lg text-xs border border-yellow-200 mb-2">
+                <div className="flex items-center space-x-2">
+                  <AlertCircle size={16} />
+                  <span>Missing API Key</span>
+                </div>
+                <button
+                  onClick={openOptions}
+                  className="px-2 py-1 bg-yellow-100 hover:bg-yellow-200 rounded font-medium transition-colors"
+                >
+                  Configure
+                </button>
+              </div>
+            ) : null}
             <ComposerPrimitive.Root className="flex items-end gap-2 bg-slate-100 rounded-xl px-3 py-1.5 border border-slate-200 focus-within:ring-2 focus-within:ring-[#c94137]/20 focus-within:border-[#c94137] transition-all">
               <ComposerPrimitive.Input
                 placeholder="Message AI..."
                 className="flex-1 max-h-32 min-h-[36px] resize-none bg-transparent outline-none text-[13px] py-2 placeholder:text-slate-400 text-slate-800"
+                disabled={!apiKeys.gemini && !apiKeys.openai}
               />
               <ComposerPrimitive.Send className="h-9 w-9 mb-1 flex items-center justify-center rounded-lg bg-[#c94137] hover:bg-[#b03028] text-white transition-colors cursor-pointer shrink-0 disabled:opacity-50">
                 <SendHorizontal size={16} />
