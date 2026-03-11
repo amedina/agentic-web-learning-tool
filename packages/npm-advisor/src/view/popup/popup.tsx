@@ -10,6 +10,7 @@ import { SecurityAdvisories } from "./components/SecurityAdvisories";
 import { Recommendations } from "./components/Recommendations";
 import { DependencyTree } from "./components/DependencyTree";
 import { GlobalHeader } from "./components/GlobalHeader";
+import { AskAI } from "./components/AskAI";
 import "./popup.css";
 
 // ---------------------------------------------------------------------- //
@@ -240,11 +241,8 @@ export const Popup = () => {
             <DependencyTree dependencyTree={dependencyTree} />
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center p-8 text-slate-800 h-full animate-in fade-in duration-300">
-            <h2 className="text-xl font-semibold mb-2">Ask AI</h2>
-            <p className="text-slate-500 text-center text-sm">
-              Your AI assistant for {packageName} is coming soon!
-            </p>
+          <div className="flex flex-col items-center justify-center p-4 text-slate-800 h-full w-full animate-in fade-in duration-300">
+            <AskAI packageName={packageName} />
           </div>
         )}
       </div>
