@@ -11,14 +11,16 @@ export const GlobalHeader = () => {
   };
 
   return (
-    <div className="flex items-center justify-between w-full p-4 bg-[#c94137] text-white">
+    <div className="flex items-center justify-between w-full px-4 pt-[10px] pb-[10px] bg-[#c94137] text-white">
       <div className="flex items-center space-x-3">
         <img
           src="/assets/icon.png"
           alt="NPM Advisor Logo"
           className="w-8 h-8 rounded shrink-0 object-contain shadow-sm bg-white p-1"
         />
-        <h1 className="text-xl font-bold tracking-tight">NPM Advisor</h1>
+        <h1 className="text-[17px] font-semibold tracking-tight">
+          NPM Advisor
+        </h1>
       </div>
 
       <div className="flex items-center space-x-4">
@@ -35,14 +37,14 @@ export const GlobalHeader = () => {
           className="text-white hover:text-slate-200 transition-colors cursor-pointer"
           title="Settings"
         >
-          <Settings size={20} />
+          <Settings size={16} />
         </button>
 
         <button
           className="text-white hover:text-slate-200 transition-colors cursor-pointer"
           title="Toggle Theme"
         >
-          <Moon size={20} />
+          <Moon size={16} />
         </button>
       </div>
     </div>
