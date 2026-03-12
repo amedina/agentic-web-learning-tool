@@ -93,7 +93,7 @@ async function chat(userMessage) {
   let fullReply = '';
 
   for await (const chunk of stream) {
-    fullReply = chunk;
+    fullReply += chunk;
     renderChunk(chunk); // Update UI progressively
   }
 

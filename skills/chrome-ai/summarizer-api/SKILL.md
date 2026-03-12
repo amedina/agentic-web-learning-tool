@@ -148,11 +148,14 @@ const stream = summarizer.summarizeStreaming(
 
 const outputEl = document.getElementById('output');
 for await (const chunk of stream) {
-  outputEl.textContent = chunk; // Or append, depending on chunking behavior
+  outputEl.textContent += chunk;
 }
 
 summarizer.destroy();
 ```
+
+> ⚠️ **IMPORTANT: Incremental Streaming** ⚠️<br>
+> The `summarizeStreaming()` API yields **incremental** chunks of text. Each chunk contains only the **new** tokens, not the entire response so far. You must **append** them (`+= chunk`) to build the complete output.
 
 ## Advanced Patterns & Configurations
 

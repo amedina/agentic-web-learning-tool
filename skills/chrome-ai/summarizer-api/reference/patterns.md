@@ -57,7 +57,7 @@ try {
   });
 
   for await (const chunk of stream) {
-    outputEl.textContent = chunk; // Update UI continuously
+    outputEl.textContent += chunk;
   }
 } catch (err) {
   if (err.name === 'AbortError') {
@@ -131,9 +131,10 @@ async function attachSummarizer(buttonEl, contentEl, resultEl) {
 
       resultEl.textContent = 'Summarizing...';
       const stream = summarizer.summarizeStreaming(contentEl.textContent);
+      resultEl.textContent = ''; // clear previous text
 
       for await (const chunk of stream) {
-        resultEl.textContent = chunk;
+        resultEl.textContent += chunk; // Note: += for incremental chunks!
       }
 
       summarizer.destroy();

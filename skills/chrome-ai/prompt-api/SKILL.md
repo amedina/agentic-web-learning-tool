@@ -177,12 +177,9 @@ Use `promptStreaming()` to display output progressively. Returns a `ReadableStre
 ```js
 const stream = session.promptStreaming('Write a detailed essay about climate change.');
 for await (const chunk of stream) {
-  outputElement.textContent = chunk; // Each chunk is the full text so far
+  outputElement.textContent += chunk; // Each chunk contains new tokens
 }
 ```
-
-> ⚠️ **WARNING: Cumulative streaming chunks** ⚠️<br>
-> Unlike some other APIs where you append chunks (`textContent += chunk`), the `promptStreaming()` API yields **cumulative** chunks. Each `chunk` contains the entire response up to that point, not just the new tokens. You must **overwrite** the text content on each iteration (`textContent = chunk`).
 
 ### Stop a prompt mid-generation
 
@@ -437,7 +434,7 @@ async function streamToElement(session, prompt, element) {
   element.textContent = '';
   const stream = session.promptStreaming(prompt);
   for await (const chunk of stream) {
-    element.textContent = chunk;
+    element.textContent += chunk;
   }
 }
 ```
