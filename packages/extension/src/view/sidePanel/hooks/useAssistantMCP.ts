@@ -104,7 +104,8 @@ export function useAssistantMCP(
                 );
 
                 return formatToolResult(
-                  toolResult.content as CallToolResult['content']
+                  (toolResult?.structuredContent as CallToolResult['content']) ??
+                    (toolResult.content as CallToolResult['content'])
                 );
               } catch (error) {
                 logger(
