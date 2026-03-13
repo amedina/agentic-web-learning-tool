@@ -79,6 +79,8 @@
       "files": [],
       "expectations": [
         "Passes `expectedInputLanguages` to `Proofreader.create()`",
+        "Passes `correctionExplanationLanguage` to `Proofreader.create()`",
+        "Passes language constraints to `Proofreader.availability()`",
         "Uses BCP 47 language tags (e.g., `'fr'`, `'es'`) in the array"
       ]
     },

@@ -59,11 +59,13 @@ proofreader.destroy();
 
 Always check availability before creating a proofreader. Handle all four states:
 
+> **IMPORTANT:** Always pass `expectedInputLanguages` and `correctionExplanationLanguage` to `Proofreader.availability()`. Although the API accepts an empty options object, omitting language options causes Chrome to log a console warning. Always include these in every `availability()` call.
+
 ```js
 async function createProofreader(options = {}) {
   if (!('Proofreader' in self)) return null;
 
-  // Pass required language constraints to availability()
+  // IMPORTANT: language options must be passed — omitting them causes a Chrome console warning
   const availability = await Proofreader.availability({
     expectedInputLanguages: options.expectedInputLanguages || ['en'],
     correctionExplanationLanguage: options.correctionExplanationLanguage || 'en',
