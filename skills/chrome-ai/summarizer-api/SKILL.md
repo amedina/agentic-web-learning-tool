@@ -56,11 +56,13 @@ summarizer.destroy();
 
 Always check availability before creating a summarizer. The model may need to be downloaded first.
 
+> **IMPORTANT:** Always pass `outputLanguage` to `Summarizer.availability()`. Although the API accepts an empty options object, omitting language options causes Chrome to log a console warning. Always include at minimum `{ outputLanguage }` in every `availability()` call.
+
 ```js
 async function createSummarizer(options = {}) {
   if (!('Summarizer' in self)) return null;
 
-  // Pass the same options to availability() to check support upfront
+  // IMPORTANT: options must include outputLanguage — omitting it causes a Chrome console warning
   const availability = await Summarizer.availability(options);
 
   if (availability === 'unavailable') {
@@ -123,7 +125,7 @@ The meaning of length varies by type (lengths represent the maximum possible val
 Use when you need the complete summary before displaying it.
 
 ```js
-const summarizer = await Summarizer.create({ type: 'tldr', length: 'medium' });
+const summarizer = await Summarizer.create({ type: 'tldr', length: 'medium', outputLanguage: 'en' });
 
 const summary = await summarizer.summarize(
   document.querySelector('article').innerHTML,
@@ -139,7 +141,7 @@ summarizer.destroy();
 Use for real-time output — better perceived performance for longer content.
 
 ```js
-const summarizer = await Summarizer.create({ type: 'key-points', length: 'long' });
+const summarizer = await Summarizer.create({ type: 'key-points', length: 'long', outputLanguage: 'en' });
 
 const stream = summarizer.summarizeStreaming(
   document.querySelector('article').innerHTML,

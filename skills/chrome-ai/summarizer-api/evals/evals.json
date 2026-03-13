@@ -34,6 +34,7 @@
       "files": [],
       "expectations": [
         "Calls `Summarizer.create()` with `type: 'key-points'`",
+        "Passes `outputLanguage` to `Summarizer.create()`",
         "Calls `summarizer.summarize()` with the paper text",
         "Optionally uses `format: 'markdown'` for bullet-list output"
       ]
@@ -46,6 +47,7 @@
       "expectations": [
         "Calls `Summarizer.create()` with `type: 'teaser'`",
         "Calls `Summarizer.create()` with `length: 'short'`",
+        "Passes `outputLanguage` to `Summarizer.create()`",
         "Calls `summarizer.summarize()` with the blog post content"
       ]
     },
@@ -55,6 +57,7 @@
       "expected_output": "The agent identifies this as a Summarizer API skill task and produces code that calls `summarizer.summarizeStreaming()` (not `summarizer.summarize()`), iterates over the async stream with `for await...of`, and updates the DOM incrementally with each chunk.",
       "files": [],
       "expectations": [
+        "Passes `outputLanguage` to `Summarizer.create()`",
         "Calls `summarizer.summarizeStreaming()` instead of `summarizer.summarize()`",
         "Uses `for await...of` to iterate over the stream",
         "Updates the DOM incrementally inside the loop"
@@ -67,6 +70,7 @@
       "files": [],
       "expectations": [
         "Creates a single summarizer instance with `Summarizer.create()` outside the loop",
+        "Passes `outputLanguage` to `Summarizer.create()`",
         "Uses `sharedContext` to describe the domain or task",
         "Calls `summarizer.summarize()` multiple times on the same instance",
         "Calls `summarizer.destroy()` once after all summaries are complete"
@@ -79,6 +83,7 @@
       "files": [],
       "expectations": [
         "Calls `Summarizer.create()` with `type: 'headline'`",
+        "Passes `outputLanguage` to `Summarizer.create()`",
         "Calls `summarizer.summarize()` with the article text",
         "Expects a single-sentence output from the model"
       ]
@@ -90,6 +95,7 @@
       "files": [],
       "expectations": [
         "Calls `Summarizer.create()` with `format: 'plain-text'`",
+        "Passes `outputLanguage` to `Summarizer.create()`",
         "Does NOT omit the `format` option or use `format: 'markdown'`"
       ]
     },
@@ -100,6 +106,7 @@
       "files": [],
       "expectations": [
         "Creates an `AbortController` instance",
+        "Passes `outputLanguage` to `Summarizer.create()`",
         "Passes `signal: controller.signal` to `Summarizer.create()` or the summarize call",
         "Calls `controller.abort()` in a page navigation or visibility event handler"
       ]

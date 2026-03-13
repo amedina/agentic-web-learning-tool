@@ -27,6 +27,7 @@ Reuse a single summarizer object for batch processing multiple items — this is
 const summarizer = await Summarizer.create({
   type: 'tldr',
   length: 'short',
+  outputLanguage: 'en',
   sharedContext: 'Provide short summaries for user reviews of a technical product.',
 });
 
@@ -49,7 +50,7 @@ const controller = new AbortController();
 // Wire up a stop button
 document.getElementById('stop-btn').onclick = () => controller.abort();
 
-const summarizer = await Summarizer.create({ signal: controller.signal });
+const summarizer = await Summarizer.create({ outputLanguage: 'en', signal: controller.signal });
 
 try {
   const stream = summarizer.summarizeStreaming(longText, {
