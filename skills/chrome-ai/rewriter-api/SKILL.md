@@ -55,11 +55,13 @@ rewriter.destroy();
 
 Always check availability before creating a rewriter. Handle all four states:
 
+> **IMPORTANT:** Always pass `outputLanguage` to `Rewriter.availability()`. Although the API accepts an empty options object, omitting language options causes Chrome to log a console warning. Always include at minimum `{ outputLanguage }` in every `availability()` call.
+
 ```js
 async function createRewriter(options = {}) {
   if (!('Rewriter' in self)) return null;
 
-  // Pass the same options to availability() to check support upfront
+  // IMPORTANT: options must include outputLanguage — omitting it causes a Chrome console warning
   const availability = await Rewriter.availability(options);
 
   if (availability === 'unavailable') {
@@ -188,7 +190,7 @@ const controller = new AbortController();
 // Wire up a stop button
 document.getElementById('stop-btn').onclick = () => controller.abort();
 
-const rewriter = await Rewriter.create({ signal: controller.signal });
+const rewriter = await Rewriter.create({ outputLanguage: 'en', signal: controller.signal });
 
 try {
   const stream = rewriter.rewriteStreaming(originalText, { signal: controller.signal });

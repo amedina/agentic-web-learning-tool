@@ -168,6 +168,7 @@ async function safeRewrite(text, options = {}) {
     throw new Error('Rewriter API not supported');
   }
 
+  // options must include outputLanguage — omitting it causes a Chrome console warning
   const availability = await Rewriter.availability(options);
   if (availability === 'unavailable') {
     throw new Error('Rewriter API unavailable on this device');

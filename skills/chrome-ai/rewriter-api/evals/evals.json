@@ -33,6 +33,7 @@
       "expected_output": "The agent identifies this as a Rewriter API skill task and produces code that calls `rewriter.rewriteStreaming()` (not `rewriter.rewrite()`), iterates over the async stream with `for await...of`, and updates the DOM incrementally with each chunk.",
       "files": [],
       "expectations": [
+        "Passes `outputLanguage` to `Rewriter.create()`",
         "Calls `rewriter.rewriteStreaming()` instead of `rewriter.rewrite()`",
         "Uses `for await...of` to iterate over the stream",
         "Updates the DOM incrementally inside the loop"
@@ -46,6 +47,7 @@
       "expectations": [
         "Calls `Rewriter.create()` with `length: 'shorter'`",
         "Calls `Rewriter.create()` with `tone: 'as-is'` to preserve the original tone",
+        "Passes `outputLanguage` to `Rewriter.create()`",
         "Calls `rewriter.rewrite()` with the paragraph text"
       ]
     },
@@ -56,6 +58,7 @@
       "files": [],
       "expectations": [
         "Creates a single rewriter instance with `Rewriter.create()` outside the loop",
+        "Passes `outputLanguage` to `Rewriter.create()`",
         "Uses `sharedContext` to describe the rewriting task",
         "Calls `rewriter.rewrite()` multiple times on the same instance",
         "Calls `rewriter.destroy()` once after all rewrites are complete"
@@ -67,6 +70,7 @@
       "expected_output": "The agent identifies this as a Rewriter API skill task and produces code that passes a `context` string to `rewriter.rewrite()` at the call level (e.g., 'This email is addressed to a university professor'), so the rewriter tailors the output to that specific recipient.",
       "files": [],
       "expectations": [
+        "Passes `outputLanguage` to `Rewriter.create()`",
         "Passes a `context` option to `rewriter.rewrite()` at the call level",
         "Uses `context` for per-call customization (not only at `Rewriter.create()` level)"
       ]
@@ -78,6 +82,7 @@
       "files": [],
       "expectations": [
         "Creates an `AbortController` instance",
+        "Passes `outputLanguage` to `Rewriter.create()`",
         "Passes `signal: controller.signal` to `Rewriter.create()` or the rewrite call",
         "Calls `controller.abort()` in the stop button's event handler"
       ]
