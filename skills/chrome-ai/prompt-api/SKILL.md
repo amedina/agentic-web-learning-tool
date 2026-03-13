@@ -71,9 +71,11 @@ Always check availability before creating a session. The `LanguageModel.availabi
 | `"downloadable"` | Model can be downloaded on demand |
 | `"unavailable"` | Device doesn't meet requirements |
 
+> **IMPORTANT:** Always pass `expectedOutputs` with explicit `languages` to `LanguageModel.availability()`. Although the API accepts an empty options object, omitting language options causes Chrome to log a console warning. Always include at minimum `{ expectedOutputs: [{ type: 'text', languages: ['en'] }] }` in every `availability()` call.
+
 ```js
 const availability = await LanguageModel.availability({
-  // Optionally pass the same options you'll use in create()
+  // IMPORTANT: expectedOutputs with languages must be passed — omitting it causes a Chrome console warning
   expectedInputs: [{ type: 'text', languages: ['en'] }],
   expectedOutputs: [{ type: 'text', languages: ['en'] }],
 });
