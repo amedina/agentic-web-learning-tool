@@ -1,12 +1,12 @@
 diff --git a/dist/compile/index.js b/dist/compile/index.js
-index 9e42a55880d77f51c4b21c92bee27a88b98cac4d..15fe9c20b0059f100fbe903231311d2535d1b8c2 100644
+index 9e42a55880d77f51c4b21c92bee27a88b98cac4d..e6c6b546d719672f8f2ff492ae27d21cba63e19c 100644
 --- a/dist/compile/index.js
 +++ b/dist/compile/index.js
 @@ -86,6 +86,10 @@ function compileSchema(sch) {
          if (this.opts.code.process)
              sourceCode = this.opts.code.process(sourceCode, sch);
          // console.log("\n\n\n *** \n", sourceCode)
-+        if(!chrome.runtime){
++        if(chrome.runtime){
 +        sch.validate = () => true;
 +        return sch;
 +        }
@@ -23,14 +23,14 @@ index 9e42a55880d77f51c4b21c92bee27a88b98cac4d..15fe9c20b0059f100fbe903231311d25
      catch (e) {
          delete sch.validate;
 diff --git a/dist/compile/jtd/parse.js b/dist/compile/jtd/parse.js
-index 8fc94fd0eae5349e3513ce79e3f2ba1a3ffbdc6a..e9beb58c8b3c0e2c5ffa6a81d7a81692fc54eb58 100644
+index 8fc94fd0eae5349e3513ce79e3f2ba1a3ffbdc6a..2b70c6ae5aad98fe3ec5c5b22bff2d52eb8e95a1 100644
 --- a/dist/compile/jtd/parse.js
 +++ b/dist/compile/jtd/parse.js
 @@ -47,6 +47,10 @@ function compileParser(sch, definitions) {
          gen.optimize(this.opts.code.optimize);
          const parseFuncCode = gen.toString();
          sourceCode = `${gen.scopeRefs(names_1.default.scope)}return ${parseFuncCode}`;
-+        if(!chrome.runtime){
++        if(chrome.runtime){
 +            sch.parse = () => true;
 +            return sch;
 +        }
@@ -38,14 +38,14 @@ index 8fc94fd0eae5349e3513ce79e3f2ba1a3ffbdc6a..e9beb58c8b3c0e2c5ffa6a81d7a81692
          const parse = makeParse(this.scope.get());
          this.scope.value(parseName, { ref: parse });
 diff --git a/dist/compile/jtd/serialize.js b/dist/compile/jtd/serialize.js
-index 341c50078a07361c50496a94a113d08f198160b5..2673cd14d5d8f8a4d4c52c414fa5b4fff0eb79fd 100644
+index 341c50078a07361c50496a94a113d08f198160b5..7cba034927c6c2b65db4f7af6c02c70de830efe0 100644
 --- a/dist/compile/jtd/serialize.js
 +++ b/dist/compile/jtd/serialize.js
 @@ -47,10 +47,14 @@ function compileSerializer(sch, definitions) {
          gen.optimize(this.opts.code.optimize);
          const serializeFuncCode = gen.toString();
          sourceCode = `${gen.scopeRefs(names_1.default.scope)}return ${serializeFuncCode}`;
-+        if(!chrome.runtime){
++        if(chrome.runtime){
 +            sch.serialize = () => true;
 +            return sch;
 +        }
