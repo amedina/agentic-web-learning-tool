@@ -24,7 +24,7 @@ patchedDependencies:
     hash: 5d3d42f1543e296a635e6824fc37fadf30543e660031f422395447b49ca65ad7
     path: patches/@mcp-b__transports@1.2.0.patch
   ajv:
-    hash: e4fb8515b4d47ef05a96fd881dc144a5918c3699a779d17d27f5f2bcf30e4cd9
+    hash: 6c32f2772d757a4fc7a17bd53e0a2537ffec0f9db55f4890d166faf8c35c4535
     path: patches/ajv.patch
   assistant-stream@0.2.46:
     hash: 46a7cfa2f818f8cbd85e6a5a2dbabd025717a8972464c3d8a538756a169ec3ff
@@ -781,7 +781,7 @@ importers:
         version: 1.2.8(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       ajv:
         specifier: ^8.12.0
-        version: 8.17.1(patch_hash=e4fb8515b4d47ef05a96fd881dc144a5918c3699a779d17d27f5f2bcf30e4cd9)
+        version: 8.17.1(patch_hash=6c32f2772d757a4fc7a17bd53e0a2537ffec0f9db55f4890d166faf8c35c4535)
       class-variance-authority:
         specifier: ^0.7.0
         version: 0.7.1
@@ -9013,7 +9013,7 @@ snapshots:
 
   '@eslint/eslintrc@3.3.1':
     dependencies:
-      ajv: 8.17.1(patch_hash=e4fb8515b4d47ef05a96fd881dc144a5918c3699a779d17d27f5f2bcf30e4cd9)
+      ajv: 8.17.1(patch_hash=6c32f2772d757a4fc7a17bd53e0a2537ffec0f9db55f4890d166faf8c35c4535)
       debug: 4.4.1
       espree: 10.4.0
       globals: 14.0.0
@@ -9507,8 +9507,8 @@ snapshots:
   '@modelcontextprotocol/sdk@1.25.1(@cfworker/json-schema@4.1.1)(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))':
     dependencies:
       '@hono/node-server': 1.19.7(hono@4.11.3)
-      ajv: 8.17.1(patch_hash=e4fb8515b4d47ef05a96fd881dc144a5918c3699a779d17d27f5f2bcf30e4cd9)
-      ajv-formats: 3.0.1(ajv@8.17.1(patch_hash=e4fb8515b4d47ef05a96fd881dc144a5918c3699a779d17d27f5f2bcf30e4cd9))
+      ajv: 8.17.1(patch_hash=6c32f2772d757a4fc7a17bd53e0a2537ffec0f9db55f4890d166faf8c35c4535)
+      ajv-formats: 3.0.1(ajv@8.17.1(patch_hash=6c32f2772d757a4fc7a17bd53e0a2537ffec0f9db55f4890d166faf8c35c4535))
       content-type: 1.0.5
       cors: 2.8.5
       cross-spawn: 7.0.6
@@ -11164,11 +11164,11 @@ snapshots:
       '@opentelemetry/api': 1.9.0
       zod: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
 
-  ajv-formats@3.0.1(ajv@8.17.1(patch_hash=e4fb8515b4d47ef05a96fd881dc144a5918c3699a779d17d27f5f2bcf30e4cd9)):
+  ajv-formats@3.0.1(ajv@8.17.1(patch_hash=6c32f2772d757a4fc7a17bd53e0a2537ffec0f9db55f4890d166faf8c35c4535)):
     optionalDependencies:
-      ajv: 8.17.1(patch_hash=e4fb8515b4d47ef05a96fd881dc144a5918c3699a779d17d27f5f2bcf30e4cd9)
+      ajv: 8.17.1(patch_hash=6c32f2772d757a4fc7a17bd53e0a2537ffec0f9db55f4890d166faf8c35c4535)
 
-  ajv@8.17.1(patch_hash=e4fb8515b4d47ef05a96fd881dc144a5918c3699a779d17d27f5f2bcf30e4cd9):
+  ajv@8.17.1(patch_hash=6c32f2772d757a4fc7a17bd53e0a2537ffec0f9db55f4890d166faf8c35c4535):
     dependencies:
       fast-deep-equal: 3.1.3
       fast-uri: 3.1.0
@@ -12176,7 +12176,7 @@ snapshots:
       '@humanwhocodes/retry': 0.4.3
       '@types/estree': 1.0.8
       '@types/json-schema': 7.0.15
-      ajv: 8.17.1(patch_hash=e4fb8515b4d47ef05a96fd881dc144a5918c3699a779d17d27f5f2bcf30e4cd9)
+      ajv: 8.17.1(patch_hash=6c32f2772d757a4fc7a17bd53e0a2537ffec0f9db55f4890d166faf8c35c4535)
       chalk: 4.1.2
       cross-spawn: 7.0.6
       debug: 4.4.1
@@ -12217,7 +12217,7 @@ snapshots:
       '@humanwhocodes/module-importer': 1.0.1
       '@humanwhocodes/retry': 0.4.3
       '@types/estree': 1.0.8
-      ajv: 8.17.1(patch_hash=e4fb8515b4d47ef05a96fd881dc144a5918c3699a779d17d27f5f2bcf30e4cd9)
+      ajv: 8.17.1(patch_hash=6c32f2772d757a4fc7a17bd53e0a2537ffec0f9db55f4890d166faf8c35c4535)
       chalk: 4.1.2
       cross-spawn: 7.0.6
       debug: 4.4.3
