@@ -52,11 +52,13 @@ writer.destroy();
 
 Always check availability before creating a writer. Handle all four states:
 
+> **IMPORTANT:** Always pass `outputLanguage` to `Writer.availability()`. Although the API accepts an empty options object, omitting language options causes Chrome to log a console warning. Always include at minimum `{ outputLanguage }` in every `availability()` call.
+
 ```js
 async function createWriter(options = {}) {
   if (!('Writer' in self)) return null;
 
-  // Pass the same options to availability() to check support upfront
+  // IMPORTANT: options must include outputLanguage — omitting it causes a Chrome console warning
   const availability = await Writer.availability(options);
 
   if (availability === 'unavailable') {
@@ -184,7 +186,7 @@ const controller = new AbortController();
 // Wire up a stop button
 document.getElementById('stop-btn').onclick = () => controller.abort();
 
-const writer = await Writer.create({ signal: controller.signal });
+const writer = await Writer.create({ outputLanguage: 'en', signal: controller.signal });
 
 try {
   const stream = writer.writeStreaming(prompt, { signal: controller.signal });

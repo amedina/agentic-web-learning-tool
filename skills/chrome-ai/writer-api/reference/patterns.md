@@ -167,6 +167,7 @@ async function safeWrite(prompt, options = {}) {
     throw new Error('Writer API not supported');
   }
 
+  // options must include outputLanguage — omitting it causes a Chrome console warning
   const availability = await Writer.availability(options);
   if (availability === 'unavailable') {
     throw new Error('Writer API unavailable on this device');

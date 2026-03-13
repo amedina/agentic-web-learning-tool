@@ -33,6 +33,7 @@
       "expected_output": "The agent identifies this as a Writer API skill task and produces code that calls `writer.writeStreaming()` (not `writer.write()`), iterates over the async stream with `for await...of`, and updates the DOM incrementally with each chunk.",
       "files": [],
       "expectations": [
+        "Passes `outputLanguage` to `Writer.create()`",
         "Calls `writer.writeStreaming()` instead of `writer.write()`",
         "Uses `for await...of` to iterate over the stream",
         "Updates the DOM incrementally inside the loop"
@@ -46,6 +47,7 @@
       "expectations": [
         "Calls `Writer.create()` with `tone: 'casual'`",
         "Calls `Writer.create()` with `length: 'short'`",
+        "Passes `outputLanguage` to `Writer.create()`",
         "Calls `writer.write()` with the caption task"
       ]
     },
@@ -56,6 +58,7 @@
       "files": [],
       "expectations": [
         "Calls `Writer.create()` with `format: 'plain-text'`",
+        "Passes `outputLanguage` to `Writer.create()`",
         "Does NOT omit the `format` option or use `format: 'markdown'`"
       ]
     },
@@ -66,6 +69,7 @@
       "files": [],
       "expectations": [
         "Creates a single writer instance with `Writer.create()` outside the loop",
+        "Passes `outputLanguage` to `Writer.create()`",
         "Calls `writer.write()` multiple times on the same writer instance",
         "Calls `writer.destroy()` once after all writes are complete",
         "Uses a loop or `Promise.all()` for batch processing"
@@ -77,6 +81,7 @@
       "expected_output": "The agent identifies this as a Writer API skill task and produces code that passes a `context` string to `writer.write()` (per-call context) containing the email thread, so the writer can tailor the reply to that specific conversation.",
       "files": [],
       "expectations": [
+        "Passes `outputLanguage` to `Writer.create()`",
         "Passes a `context` option to `writer.write()` containing the email thread content",
         "Uses `context` at the call level (not only at `Writer.create()` level) for per-call customization"
       ]
@@ -88,6 +93,7 @@
       "files": [],
       "expectations": [
         "Creates an `AbortController` instance",
+        "Passes `outputLanguage` to `Writer.create()`",
         "Passes `signal: controller.signal` to `Writer.create()` or the write call",
         "Calls `controller.abort()` in the stop button's event handler"
       ]
@@ -98,6 +104,7 @@
       "expected_output": "The agent identifies this as a Writer API skill task and produces code that checks `Writer.availability()` first and only initializes the writer when the result is 'available' or 'downloadable', leaving the standard textarea functional as a fallback when the API is 'unavailable'.",
       "files": [],
       "expectations": [
+        "Passes `{ outputLanguage: 'en' }` or similar to `Writer.availability()`",
         "Calls `Writer.availability()` before attempting to use the API",
         "Keeps the standard textarea functional as a fallback",
         "Only calls `Writer.create()` when availability is not 'unavailable'"
