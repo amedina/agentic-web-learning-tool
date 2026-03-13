@@ -21,7 +21,7 @@ patchedDependencies:
     hash: de61710e62afdb10e9b1aa256f697615f6f694df3f7c35e4aa0ea8ee2eb930fd
     path: patches/@mcp-b__extension-tools@0.2.3.patch
   '@mcp-b/transports@1.2.0':
-    hash: 9773364c7c75c141c62bbbee48a314c66a4f18c4b81170c0ec406dd66b5355dc
+    hash: 5d3d42f1543e296a635e6824fc37fadf30543e660031f422395447b49ca65ad7
     path: patches/@mcp-b__transports@1.2.0.patch
   ajv:
     hash: e4fb8515b4d47ef05a96fd881dc144a5918c3699a779d17d27f5f2bcf30e4cd9
@@ -528,7 +528,7 @@ importers:
         version: 2.0.9(react@19.1.1)(zod-to-json-schema@3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
       '@mcp-b/transports':
         specifier: ^1.2.0
-        version: 1.2.0(patch_hash=9773364c7c75c141c62bbbee48a314c66a4f18c4b81170c0ec406dd66b5355dc)(@modelcontextprotocol/sdk@1.25.1(@cfworker/json-schema@4.1.1)(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))
+        version: 1.2.0(patch_hash=5d3d42f1543e296a635e6824fc37fadf30543e660031f422395447b49ca65ad7)(@modelcontextprotocol/sdk@1.25.1(@cfworker/json-schema@4.1.1)(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))
       '@modelcontextprotocol/sdk':
         specifier: ^1.25.0
         version: 1.25.1(@cfworker/json-schema@4.1.1)(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
@@ -9470,7 +9470,7 @@ snapshots:
     optionalDependencies:
       '@modelcontextprotocol/sdk': 1.25.1(@cfworker/json-schema@4.1.1)(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
 
-  '@mcp-b/transports@1.2.0(patch_hash=9773364c7c75c141c62bbbee48a314c66a4f18c4b81170c0ec406dd66b5355dc)(@modelcontextprotocol/sdk@1.25.1(@cfworker/json-schema@4.1.1)(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))':
+  '@mcp-b/transports@1.2.0(patch_hash=5d3d42f1543e296a635e6824fc37fadf30543e660031f422395447b49ca65ad7)(@modelcontextprotocol/sdk@1.25.1(@cfworker/json-schema@4.1.1)(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))':
     dependencies:
       '@modelcontextprotocol/sdk': 1.25.1(@cfworker/json-schema@4.1.1)(hono@4.11.3)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
       zod: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
