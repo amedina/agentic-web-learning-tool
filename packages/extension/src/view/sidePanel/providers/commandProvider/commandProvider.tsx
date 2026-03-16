@@ -82,12 +82,12 @@ const Provider = ({ children }: PropsWithChildren) => {
         | React.MouseEvent<HTMLButtonElement>
     ) => {
       if (event.type === 'click') {
-        event.preventDefault();
         const currentValue = api.composer().getState().text;
         const finalText = extractMatchAndReturnMessage(currentValue);
         if (!finalText) {
           return;
         }
+        event.preventDefault();
         api.composer().setText(finalText);
         setTimeout(() => {
           api.composer().send();

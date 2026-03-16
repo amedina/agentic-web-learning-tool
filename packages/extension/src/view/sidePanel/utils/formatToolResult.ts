@@ -1,7 +1,10 @@
 /**
  * External Dependencies
  */
-import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
+import {
+  CallToolResultSchema,
+  type CallToolResult,
+} from '@modelcontextprotocol/sdk/types.js';
 /**
  * Internal Dependencies
  */
@@ -11,9 +14,16 @@ import logger from '../../../utils/logger';
  * Processes the raw MCP result content into a format compatible with Assistant UI.
  * Handles single images, multiple images, and mixed content.
  */
-function formatToolResult(content: CallToolResult['content']) {
+function formatToolResult(
+  content: CallToolResult['content'] | CallToolResult['structuredContent']
+) {
+  if (CallToolResultSchema.safeParse(content).success) {
+    return content;
+  }
+
+  const nonStructuredContent = content as CallToolResult['content'];
   // 1. Handle Images
-  const images = content.filter((part) => part.type === 'image');
+  const images = nonStructuredContent.filter((part) => part.type === 'image');
   if (images.length > 0) {
     const imageParts = images.map((imagePart, index) => {
       // Log for debugging purposes
@@ -37,12 +47,15 @@ function formatToolResult(content: CallToolResult['content']) {
   }
 
   // 2. Handle Simple Text (common case)
-  if (content.length === 1 && content[0].type === 'text') {
-    return content[0].text;
+  if (
+    nonStructuredContent.length === 1 &&
+    nonStructuredContent[0].type === 'text'
+  ) {
+    return nonStructuredContent[0].text;
   }
 
   // 3. Handle Mixed/Generic Content
-  const processedContent = content.map((part) =>
+  const processedContent = nonStructuredContent.map((part) =>
     part.type === 'text' ? { type: 'text', text: part.text } : part
   );
 

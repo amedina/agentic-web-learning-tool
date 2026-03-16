@@ -317,7 +317,7 @@ index c6e0e7dfa8e976c21c986450d89aa71e9db0e35e..2924986166aece663fa704ea2d9bd539
 +              timestamp: Date.now(),
 +            });
 +          } catch (e) {
-+            (console.error(`[ExtensionServerTransport] Keep-alive failed:`, e),
++            (console.log(`[ExtensionServerTransport] Keep-alive failed:`, e),
 +              this._stopKeepAlive());
 +          }
 +        }, this._options.keepAliveInterval));
