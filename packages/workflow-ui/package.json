@@ -30,7 +30,7 @@
     "clsx": "^2.1.1",
     "immer": "^9.0.21",
     "loglevel": "^1.9.2",
-    "lucide-react": "^0.379.0",
+    "lucide-react": "^0.577.0",
     "react": "^19.0.0",
     "use-context-selector": "^2.0.0",
     "react-dom": "^19.0.0",

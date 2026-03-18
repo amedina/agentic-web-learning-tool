@@ -65,7 +65,7 @@
     "tailwind-merge": "^3.3.1"
   },
   "peerDependencies": {
-    "lucide-react": "^0.379.0",
+    "lucide-react": "^0.577.0",
     "react": "^19"
   },
   "devDependencies": {

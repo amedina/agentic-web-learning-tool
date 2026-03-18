@@ -59,7 +59,7 @@
     "immer": "^9.0.21",
     "json-schema": "^0.4.0",
     "loglevel": "^1.9.2",
-    "lucide-react": "^0.542.0",
+    "lucide-react": "^0.577.0",
     "ollama-ai-provider-v2": "^1.5.5",
     "p-queue": "^7.4.1",
     "react": "^19.1.1",
