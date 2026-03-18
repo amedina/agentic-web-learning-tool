@@ -98,6 +98,6 @@
     "prettier": "^3.6.2",
     "rimraf": "^5.0.10",
     "tailwindcss": "^4.1.5",
-    "typescript": "5.9.2"
+    "typescript": "~5.9.2"
   }
 }

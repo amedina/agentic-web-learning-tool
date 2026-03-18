@@ -63,6 +63,6 @@
     "globals": "^16.3.0",
     "prettier": "^3.6.2",
     "rimraf": "^5.0.10",
-    "typescript": "^5.5.3"
+    "typescript": "~5.9.2"
   }
 }
