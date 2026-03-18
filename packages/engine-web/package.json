@@ -22,9 +22,9 @@
     "@google-awlt/engine-core": "workspace:*"
   },
   "devDependencies": {
-    "@types/jest": "^30.0.0",
+    "@types/jest": "^29.7.0",
     "@types/node": "^24.3.0",
-    "jest-environment-jsdom": "^30.0.0",
+    "jest-environment-jsdom": "^29.7.0",
     "rimraf": "^5.0.10",
     "ts-jest": "^29.4.6",
     "typescript": "~5.9.2",
