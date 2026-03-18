@@ -21,8 +21,8 @@
       "@mcp-b/extension-tools@0.2.3": "patches/@mcp-b__extension-tools@0.2.3.patch",
       "@assistant-ui/react": "patches/@assistant-ui__react.patch",
       "assistant-stream@0.2.46": "patches/assistant-stream@0.2.46.patch",
-      "@mcp-b/transports@1.2.0": "patches/@mcp-b__transports@1.2.0.patch",
-      "ajv": "patches/ajv.patch"
+      "ajv": "patches/ajv.patch",
+      "@mcp-b/transports": "patches/@mcp-b__transports.patch"
     }
   },
   "scripts": {
