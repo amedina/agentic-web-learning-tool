@@ -3,7 +3,7 @@ module.exports = {
   testEnvironment: "jest-fixed-jsdom",
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1",
-    "\\.css$": "<rootDir>/src/__mocks__/styleMock.js",
+    "\\.css$": "<rootDir>/src/__mocks__/styleMock.cjs",
   },
   transform: {
     "^.+\\.tsx?$": [
