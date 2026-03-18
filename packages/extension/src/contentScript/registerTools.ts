@@ -30,7 +30,10 @@ import { builtInTools } from './tools/index';
 
       if (mcpTestingTools) {
         for (const tool of mcpTestingTools) {
-          if (!mcp?.toolRegistrationTimestamps?.has(tool.name)) {
+          if (
+            mcp?.toolRegistrationTimestamps &&
+            !mcp?.toolRegistrationTimestamps?.has(tool.name)
+          ) {
             tool.execute = async (args: any) => {
               console.log('WebMCP: Executing tool', tool.name, args);
 

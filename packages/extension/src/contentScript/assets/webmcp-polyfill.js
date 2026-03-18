@@ -16800,7 +16800,7 @@ ${e}`
         ((this.bridge = e),
           (this.nativeContext = t),
           (this.nativeTesting = n),
-          this.nativeTesting.registerToolsChangedCallback(() => {
+          (this.nativeTesting.ontoolchange = () => {
             (console.log(
               `[Native Adapter] Tool change detected from native API`
             ),
@@ -17082,7 +17082,7 @@ ${e}`
           inputSchema: JSON.stringify(e.inputSchema),
         }));
       }
-      registerToolsChangedCallback(e) {
+      ontoolchange(e) {
         (this.toolsChangedCallbacks.add(e),
           console.log(
             `[Model Context Testing] Tools changed callback registered`
