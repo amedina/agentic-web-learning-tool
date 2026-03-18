@@ -15,7 +15,7 @@
   },
   "devDependencies": {
     "@google-awlt/shared-config": "workspace:*",
-    "@types/jest": "^29.7.0",
+    "@types/jest": "^29.5.14",
     "@types/node": "^24.3.0",
     "eslint": "^9.33.0",
     "eslint-plugin-react-hooks": "^5.2.0",
