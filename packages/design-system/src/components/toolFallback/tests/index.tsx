@@ -27,7 +27,7 @@ describe('ClaudeToolCard Component', () => {
     );
 
     expect(screen.queryByText('google_search')).toBeInTheDocument();
-    expect(screen.queryByText('Executed')).toBeInTheDocument();
+    expect(screen.queryByTestId('Executed')).toBeInTheDocument();
   });
 
   it('starts collapsed when status is "success" or "error"', () => {
@@ -63,18 +63,17 @@ describe('ClaudeToolCard Component', () => {
       />
     );
 
-    const header = screen.getByText('toggle_test').closest('div')
-      ?.parentElement?.parentElement;
+    const header = screen.getByTestId('chevron-down')?.parentElement;
 
     // 1. Click to expand
     fireEvent.click(header!);
-    expect(screen.getByText(`"${mockArgs.query}"`)).toBeInTheDocument();
+    expect(screen.getByText(mockArgs.query)).toBeInTheDocument();
 
     // 2. Click to collapse
     fireEvent.click(header!);
     // Wait for transition or check immediate removal (depends on implementation)
     // Note: If using CSS transitions, checking presence might need waitFor,
     // but standard React conditional rendering removes it from DOM immediately.
-    expect(screen.queryByText(`"${mockArgs.query}"`)).not.toBeInTheDocument();
+    expect(screen.queryByText(mockArgs.query)).not.toBeInTheDocument();
   });
 });
