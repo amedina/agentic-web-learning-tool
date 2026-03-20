@@ -188,11 +188,13 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
       isMultiple,
     };
 
-    const response = await chrome.tabs.sendMessage(tabId, message);
-
-    if (chrome.runtime.lastError) {
-      throw new Error(chrome.runtime.lastError.message);
+    let response;
+    try {
+      response = await chrome.tabs.sendMessage(tabId, message);
+    } catch (error: any) {
+      throw new Error(error.message);
     }
+
     if (!response?.success) {
       throw new Error(response?.error ?? 'DOM query failed');
     }
@@ -211,11 +213,13 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
       message,
     };
 
-    const response = await chrome.tabs.sendMessage(tabId, msg);
-
-    if (chrome.runtime.lastError) {
-      throw new Error(chrome.runtime.lastError.message);
+    let response;
+    try {
+      response = await chrome.tabs.sendMessage(tabId, msg);
+    } catch (error: any) {
+      throw new Error(error.message);
     }
+
     if (!response?.success) {
       throw new Error(response?.error ?? 'Alert failed');
     }
@@ -242,11 +246,13 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
       index,
     };
 
-    const response = await chrome.tabs.sendMessage(tabId, message);
-
-    if (chrome.runtime.lastError) {
-      throw new Error(chrome.runtime.lastError.message);
+    let response;
+    try {
+      response = await chrome.tabs.sendMessage(tabId, message);
+    } catch (error: any) {
+      throw new Error(error.message);
     }
+
     if (!response?.success) {
       throw new Error(response?.error ?? 'Replace DOM failed');
     }
@@ -263,11 +269,13 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
       text,
     };
 
-    const response = await chrome.tabs.sendMessage(tabId, message);
-
-    if (chrome.runtime.lastError) {
-      throw new Error(chrome.runtime.lastError.message);
+    let response;
+    try {
+      response = await chrome.tabs.sendMessage(tabId, message);
+    } catch (error: any) {
+      throw new Error(error.message);
     }
+
     if (!response?.success) {
       throw new Error(response?.error ?? 'Copy to clipboard failed');
     }
@@ -285,11 +293,13 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
       content,
     };
 
-    const response = await chrome.tabs.sendMessage(tabId, message);
-
-    if (chrome.runtime.lastError) {
-      throw new Error(chrome.runtime.lastError.message);
+    let response;
+    try {
+      response = await chrome.tabs.sendMessage(tabId, message);
+    } catch (error: any) {
+      throw new Error(error.message);
     }
+
     if (!response?.success) {
       throw new Error(response?.error ?? 'Download file failed');
     }
@@ -306,11 +316,13 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
       text,
     };
 
-    const response = await chrome.tabs.sendMessage(tabId, message);
-
-    if (chrome.runtime.lastError) {
-      throw new Error(chrome.runtime.lastError.message);
+    let response;
+    try {
+      response = await chrome.tabs.sendMessage(tabId, message);
+    } catch (error: any) {
+      throw new Error(error.message);
     }
+
     if (!response?.success) {
       throw new Error(response?.error ?? 'Speak text failed');
     }
@@ -327,11 +339,13 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
       content,
     };
 
-    const response = await chrome.tabs.sendMessage(tabId, message);
-
-    if (chrome.runtime.lastError) {
-      throw new Error(chrome.runtime.lastError.message);
+    let response;
+    try {
+      response = await chrome.tabs.sendMessage(tabId, message);
+    } catch (error: any) {
+      throw new Error(error.message);
     }
+
     if (!response?.success) {
       throw new Error(response?.error ?? 'Show tooltip failed');
     }
@@ -342,10 +356,14 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
     const message: UserActivationRequestMessage = {
       type: 'USER_ACTIVATION_REQUEST',
     };
-    const response = await chrome.tabs.sendMessage(tabId, message);
-    if (chrome.runtime.lastError) {
-      throw new Error(chrome.runtime.lastError.message);
+
+    let response;
+    try {
+      response = await chrome.tabs.sendMessage(tabId, message);
+    } catch (error: any) {
+      throw new Error(error.message);
     }
+
     if (!response?.success) {
       throw new Error(response?.error || 'User activation failed');
     }
@@ -357,10 +375,11 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
       type: 'GET_SELECTION',
     };
 
-    const response = await chrome.tabs.sendMessage(tabId, message);
-
-    if (chrome.runtime.lastError) {
-      throw new Error(chrome.runtime.lastError.message);
+    let response;
+    try {
+      response = await chrome.tabs.sendMessage(tabId, message);
+    } catch (error: any) {
+      throw new Error(error.message);
     }
 
     if (!response?.success) {
@@ -377,10 +396,11 @@ export class ServiceWorkerRuntime implements RuntimeInterface {
       text,
     };
 
-    const response = await chrome.tabs.sendMessage(tabId, message);
-
-    if (chrome.runtime.lastError) {
-      throw new Error(chrome.runtime.lastError.message);
+    let response;
+    try {
+      response = await chrome.tabs.sendMessage(tabId, message);
+    } catch (error: any) {
+      throw new Error(error.message);
     }
 
     if (!response?.success) {
