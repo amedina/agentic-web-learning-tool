@@ -1,3 +1,6 @@
+/**
+ * External dependencies.
+ */
 import React from "react";
 import { Zap, HardDrive, Leaf, Info, Box } from "lucide-react";
 

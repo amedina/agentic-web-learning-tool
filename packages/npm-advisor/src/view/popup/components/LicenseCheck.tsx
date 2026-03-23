@@ -1,6 +1,13 @@
+/**
+ * External dependencies.
+ */
 import React from "react";
 import { ShieldAlert, CheckCircle, XCircle } from "lucide-react";
-import type { LicenseCompatibilityResult } from "../../../utils/license";
+
+/**
+ * Internal dependencies.
+ */
+import type { LicenseCompatibilityResult } from "../../../utils";
 
 interface LicenseCheckProps {
   licenseCompatibility: LicenseCompatibilityResult | null;

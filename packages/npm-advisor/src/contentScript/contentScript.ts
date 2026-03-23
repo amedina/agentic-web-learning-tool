@@ -1,7 +1,3 @@
-/**
- * Internal dependencies.
- */
-
 async function main() {
   const url = window.location.href;
   let packageName: string | null = null;

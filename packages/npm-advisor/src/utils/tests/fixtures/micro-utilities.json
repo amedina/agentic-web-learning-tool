@@ -1,0 +1,18 @@
+{
+  "mappings": {
+    "lodash.isstring": {
+      "type": "module",
+      "moduleName": "lodash.isstring",
+      "replacements": ["snippet::is-string"],
+      "url": { "type": "e18e", "id": "is-string" }
+    }
+  },
+  "replacements": {
+    "snippet::is-string": {
+      "id": "snippet::is-string",
+      "type": "simple",
+      "description": "You can use typeof val === \"string\" to check if a value is a string.",
+      "example": "const isString = (val) => typeof val === \"string\""
+    }
+  }
+}
