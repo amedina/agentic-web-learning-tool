@@ -1,51 +1,26 @@
+/**
+ * External dependencies.
+ */
 import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { PackageSearch, XCircle } from "lucide-react";
+
+/**
+ * Internal dependencies.
+ */
 import { type PackageStats } from "../../utils";
-import { Header } from "./components/Header";
-import { LicenseCheck } from "./components/LicenseCheck";
-import { Responsiveness } from "./components/Responsiveness";
-import { BundleFootprint } from "./components/BundleFootprint";
-import { SecurityAdvisories } from "./components/SecurityAdvisories";
-import { Recommendations } from "./components/Recommendations";
-import { DependencyTree } from "./components/DependencyTree";
-import { GlobalHeader } from "./components/GlobalHeader";
-import { AskAI } from "./components/AskAI";
+import { Header } from "./components/header";
+import { LicenseCheck } from "./components/licenseCheck";
+import { Responsiveness } from "./components/responsiveness";
+import { BundleFootprint } from "./components/bundleFootprint";
+import { SecurityAdvisories } from "./components/securityAdvisories";
+import { Recommendations } from "./components/recommendations";
+import { DependencyTree } from "./components/dependencyTree";
+import { GlobalHeader } from "./components/globalHeader";
+import { AskAI } from "./components/askAI";
 import "./popup.css";
 
-// ---------------------------------------------------------------------- //
-//                            Error Boundary                              //
-// ---------------------------------------------------------------------- //
-class ErrorBoundary extends React.Component<
-  { children: React.ReactNode },
-  { hasError: boolean; error: Error | null }
-> {
-  constructor(props: { children: React.ReactNode }) {
-    super(props);
-    this.state = { hasError: false, error: null };
-  }
-
-  static getDerivedStateFromError(error: Error) {
-    return { hasError: true, error };
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div className="flex flex-col items-center justify-center p-6 w-[400px] h-[300px] bg-red-50 text-red-800 text-center overflow-auto antialiased">
-          <XCircle size={40} className="text-red-500 mb-4" />
-          <p className="font-semibold text-red-700 mb-2">Popup UI Crashed</p>
-          <pre className="text-[10px] text-left w-full bg-red-100 p-2 rounded overflow-x-auto">
-            {this.state.error?.message}
-            {"\n"}
-            {this.state.error?.stack}
-          </pre>
-        </div>
-      );
-    }
-    return this.props.children;
-  }
-}
+import { ErrorBoundary } from "./components/errorBoundary";
 
 export const Popup = () => {
   const [loading, setLoading] = useState(true);

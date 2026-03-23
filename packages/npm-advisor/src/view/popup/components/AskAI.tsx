@@ -11,6 +11,12 @@ import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { createOpenAI } from "@ai-sdk/openai";
 import { streamText } from "ai";
 
+/**
+ * Internal dependencies.
+ */
+import { UserMessage } from "./userMessage";
+import { AssistantMessage } from "./assistantMessage";
+
 interface AskAIProps {
   packageName: string;
 }
@@ -125,41 +131,8 @@ export const AskAI: React.FC<AskAIProps> = ({ packageName }) => {
 
             <ThreadPrimitive.Messages
               components={{
-                UserMessage: ({ message }: any) => {
-                  const txt =
-                    message?.content?.[0]?.type === "text"
-                      ? message.content[0].text
-                      : message?.content || "";
-                  return (
-                    <div className="flex w-full mb-4 justify-end">
-                      <div className="bg-[#c94137] text-white px-4 py-2 rounded-2xl max-w-[85%] text-[13px] shadow-sm whitespace-pre-wrap break-words">
-                        {txt}
-                      </div>
-                    </div>
-                  );
-                },
-                AssistantMessage: ({ message }: any) => {
-                  const txt =
-                    message?.content?.[0]?.type === "text"
-                      ? message.content[0].text
-                      : message?.content || "";
-                  const isError =
-                    typeof txt === "string" &&
-                    (txt.includes("Error:") || txt.includes("No API key"));
-                  return (
-                    <div className="flex w-full mb-4 justify-start">
-                      <div
-                        className={`border px-4 py-2 rounded-2xl max-w-[85%] text-[13px] shadow-sm whitespace-pre-wrap break-words leading-relaxed ${
-                          isError
-                            ? "bg-red-50 border-red-200 text-red-800"
-                            : "bg-white border-slate-200 text-slate-800"
-                        }`}
-                      >
-                        {txt}
-                      </div>
-                    </div>
-                  );
-                },
+                UserMessage,
+                AssistantMessage,
               }}
             />
           </ThreadPrimitive.Viewport>

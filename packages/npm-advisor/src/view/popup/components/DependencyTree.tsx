@@ -1,5 +1,12 @@
+/**
+ * External dependencies.
+ */
 import React, { useState, useEffect } from "react";
 import { ChevronRight, ChevronDown, Network } from "lucide-react";
+
+/**
+ * Internal dependencies.
+ */
 import type { DependencyTree as DependencyTreeType } from "../../../utils";
 
 type DepNode = DependencyTreeType & { _loaded?: boolean };

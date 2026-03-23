@@ -1,3 +1,6 @@
+/**
+ * External dependencies.
+ */
 import React from "react";
 import { Github, Star, Users, Clock, Activity, Info } from "lucide-react";
 
