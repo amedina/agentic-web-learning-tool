@@ -1,15 +1,19 @@
-import React, { useEffect, useState } from "react";
-import { useChat } from "@ai-sdk/react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   AssistantRuntimeProvider,
   ThreadPrimitive,
   ComposerPrimitive,
+  MessagePrimitive,
+  useAssistantApi,
 } from "@assistant-ui/react";
 import { useChatRuntime } from "@assistant-ui/react-ai-sdk";
 import { SendHorizontal, AlertCircle } from "lucide-react";
-import { createGoogleGenerativeAI } from "@ai-sdk/google";
-import { createOpenAI } from "@ai-sdk/openai";
-import { streamText } from "ai";
+/**
+ * Internal dependencies
+ */
+
+import { transportGenerator } from "../runtime";
+import MarkdownText from "./markdownText";
 
 interface AskAIProps {
   packageName: string;
@@ -23,51 +27,27 @@ export const AskAI: React.FC<AskAIProps> = ({ packageName }) => {
   useEffect(() => {
     chrome.storage.sync.get(["geminiApiKey", "openAIApiKey"], (res) => {
       setApiKeys({
-        gemini: res.geminiApiKey || "",
-        openai: res.openAIApiKey || "",
+        gemini: (res.geminiApiKey as string) || "",
+        openai: (res.openAIApiKey as string) || "",
       });
     });
   }, []);
 
-  const chat = useChat({
-    // @ts-expect-error The api prop exists but TS strict modes across versions conflict
-    api: "/api/chat", // Not actually hit due to custom fetch interceptor below
-    fetch: async (input: RequestInfo | URL, init?: RequestInit) => {
-      try {
-        const body = JSON.parse(init?.body as string);
-        const messages = body.messages;
+  const transport = useMemo(
+    () =>
+      apiKeys.gemini
+        ? transportGenerator("gemini", "gemini-pro-latest", {
+            apiKey: apiKeys.gemini,
+          })
+        : transportGenerator("open-ai", "gpt-4o", { apiKey: apiKeys.openai }),
+    [apiKeys],
+  );
 
-        let model;
-        if (apiKeys.gemini) {
-          const google = createGoogleGenerativeAI({ apiKey: apiKeys.gemini });
-          model = google("gemini-2.5-flash");
-        } else if (apiKeys.openai) {
-          const openai = createOpenAI({ apiKey: apiKeys.openai });
-          model = openai("gpt-4o-mini");
-        } else {
-          return new Response(
-            "Error: No API key configured. Please add your Gemini or OpenAI key in the extension settings.",
-            { status: 401 },
-          );
-        }
-
-        const result = streamText({
-          model,
-          system: `You are an expert NPM package advisor assistant. The user is currently viewing information about the NPM package: "${packageName}". Provide concise, helpful code snippets and advice.`,
-          messages,
-        });
-
-        // @ts-expect-error v3 SDK exposes toDataStreamResponse but AI namespace throws on type inference here
-        return result.toDataStreamResponse();
-      } catch (err: any) {
-        return new Response(err.message, { status: 500 });
-      }
-    },
-    onError: (err) => console.error("Chat Error:", err),
+  const runtime = useChatRuntime({
+    transport,
   });
 
-  // @ts-expect-error Type mismatch between latest `ai` useChat output and useChatRuntime expectations
-  const runtime = useChatRuntime(chat);
+  transport.setRuntime(runtime);
 
   const openOptions = () => {
     if (chrome.runtime.openOptionsPage) chrome.runtime.openOptionsPage();
@@ -125,39 +105,30 @@ export const AskAI: React.FC<AskAIProps> = ({ packageName }) => {
 
             <ThreadPrimitive.Messages
               components={{
-                UserMessage: ({ message }: any) => {
-                  const txt =
-                    message?.content?.[0]?.type === "text"
-                      ? message.content[0].text
-                      : message?.content || "";
+                UserMessage: () => {
                   return (
-                    <div className="flex w-full mb-4 justify-end">
-                      <div className="bg-[#c94137] text-white px-4 py-2 rounded-2xl max-w-[85%] text-[13px] shadow-sm whitespace-pre-wrap break-words">
-                        {txt}
+                    <MessagePrimitive.Root>
+                      <div className="flex w-full mb-4 justify-end">
+                        <div className="bg-[#c94137] text-white px-4 py-2 rounded-2xl max-w-[85%] text-[13px] shadow-sm whitespace-pre-wrap break-words">
+                          <MessagePrimitive.Parts />
+                        </div>
                       </div>
-                    </div>
+                    </MessagePrimitive.Root>
                   );
                 },
-                AssistantMessage: ({ message }: any) => {
-                  const txt =
-                    message?.content?.[0]?.type === "text"
-                      ? message.content[0].text
-                      : message?.content || "";
-                  const isError =
-                    typeof txt === "string" &&
-                    (txt.includes("Error:") || txt.includes("No API key"));
+                AssistantMessage: () => {
                   return (
-                    <div className="flex w-full mb-4 justify-start">
-                      <div
-                        className={`border px-4 py-2 rounded-2xl max-w-[85%] text-[13px] shadow-sm whitespace-pre-wrap break-words leading-relaxed ${
-                          isError
-                            ? "bg-red-50 border-red-200 text-red-800"
-                            : "bg-white border-slate-200 text-slate-800"
-                        }`}
-                      >
-                        {txt}
+                    <MessagePrimitive.Root>
+                      <div className="flex w-full mb-4 justify-start">
+                        <div className="border px-4 py-2 rounded-2xl max-w-[85%] text-[13px] shadow-sm whitespace-pre-wrap break-words leading-relaxed bg-white border-slate-200 text-slate-800">
+                          <MessagePrimitive.Parts
+                            components={{
+                              Text: MarkdownText,
+                            }}
+                          />
+                        </div>
                       </div>
-                    </div>
+                    </MessagePrimitive.Root>
                   );
                 },
               }}
