@@ -1,5 +1,5 @@
-import { getPackageStats, type PackageStats } from "../utils/stats";
-import { DEFAULT_TARGET_PROJECT_LICENSE } from "../utils/license";
+import { getPackageStats, type PackageStats } from "../utils";
+import { DEFAULT_TARGET_PROJECT_LICENSE } from "../utils";
 
 // Memory cache for promises or resolved stats
 const statsCache = new Map<

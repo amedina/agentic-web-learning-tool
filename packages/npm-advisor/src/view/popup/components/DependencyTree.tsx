@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { ChevronRight, ChevronDown, Network } from "lucide-react";
-import type { DependencyTree as DependencyTreeType } from "../../../utils/api";
+import type { DependencyTree as DependencyTreeType } from "../../../utils";
 
 type DepNode = DependencyTreeType & { _loaded?: boolean };
 

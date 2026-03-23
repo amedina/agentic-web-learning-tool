@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { PackageSearch, XCircle } from "lucide-react";
-import { type PackageStats } from "../../utils/stats";
+import { type PackageStats } from "../../utils";
 import { Header } from "./components/Header";
 import { LicenseCheck } from "./components/LicenseCheck";
 import { Responsiveness } from "./components/Responsiveness";
