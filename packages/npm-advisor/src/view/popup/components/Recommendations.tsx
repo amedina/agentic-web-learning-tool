@@ -1,3 +1,6 @@
+/**
+ * External dependencies.
+ */
 import React from "react";
 import { Info } from "lucide-react";
 
@@ -58,13 +61,13 @@ export const Recommendations: React.FC<RecommendationsProps> = ({
                           target="_blank"
                           rel="noreferrer"
                           className="text-[13px] leading-snug text-blue-600 hover:text-blue-800 hover:underline transition-colors block"
-                          title={`View ${r.description}`}
+                          title={`View ${r.description || r.replacementModule || r.id}`}
                         >
-                          {r.description}
+                          {r.description || r.replacementModule || r.id}
                         </a>
                       ) : (
                         <p className="text-[13px] mb-1 leading-snug">
-                          {r.description}
+                          {r.description || r.replacementModule || r.id}
                         </p>
                       )}
                       {r.example && (
@@ -95,13 +98,13 @@ export const Recommendations: React.FC<RecommendationsProps> = ({
                           target="_blank"
                           rel="noreferrer"
                           className="text-[13px] leading-snug text-blue-600 hover:text-blue-800 hover:underline transition-colors block"
-                          title={`View ${r.description}`}
+                          title={`View ${r.description || r.replacementModule || r.id}`}
                         >
-                          {r.description}
+                          {r.description || r.replacementModule || r.id}
                         </a>
                       ) : (
                         <p className="text-[13px] mb-1 leading-snug">
-                          {r.description}
+                          {r.description || r.replacementModule || r.id}
                         </p>
                       )}
                       {r.example && (
@@ -132,13 +135,13 @@ export const Recommendations: React.FC<RecommendationsProps> = ({
                           target="_blank"
                           rel="noreferrer"
                           className="text-[13px] leading-snug text-blue-600 hover:text-blue-800 hover:underline transition-colors"
-                          title={`View ${r.replacementModule || r.description} on NPM`}
+                          title={`View ${r.replacementModule || r.description || r.id} on NPM`}
                         >
-                          {r.description}
+                          {r.description || r.replacementModule || r.id}
                         </a>
                       ) : (
                         <p className="text-[13px] leading-snug">
-                          {r.description}
+                          {r.description || r.replacementModule || r.id}
                         </p>
                       )}
                     </div>

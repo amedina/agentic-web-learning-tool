@@ -68,4 +68,74 @@ describe("getPackageStats", () => {
     // Since deps === 0, score gets +30
     expect(result?.score).toBe(30);
   });
+
+  it("should extract alternative recommendations correctly from module-replacements using dummy fixtures", async () => {
+    vi.mocked(fetchNpmPackage).mockResolvedValueOnce({
+      maintainers: [{ name: "test-user" }],
+      license: "MIT",
+    });
+    vi.mocked(fetchBundlephobiaData).mockResolvedValueOnce(null);
+    vi.mocked(getDependencyTree).mockResolvedValueOnce({
+      name: "axios",
+      requestedVersion: "latest",
+      dependencies: {},
+    });
+
+    // Mock the implementations with our fixtures
+    vi.mocked(fetchModuleReplacements).mockImplementation(async (type) => {
+      if (type === "preferred") {
+        return await import("./fixtures/preferred.json");
+      }
+      if (type === "micro-utilities") {
+        return await import("./fixtures/micro-utilities.json");
+      }
+      if (type === "native") {
+        return await import("./fixtures/native.json");
+      }
+      return null;
+    });
+
+    // Test axios which only exists in preferred
+    const axiosStats = await getPackageStats("axios");
+    expect(axiosStats).toBeDefined();
+    expect(axiosStats?.recommendations.preferredReplacements).toBeDefined();
+    // axios should have 3 recommendations from preferred.json: fetch, ofetch, ky
+    expect(axiosStats?.recommendations.preferredReplacements?.length).toBe(3);
+    expect(axiosStats?.recommendations.preferredReplacements?.[0].id).toBe(
+      "fetch",
+    );
+    expect(axiosStats?.recommendations.preferredReplacements?.[1].id).toBe(
+      "ofetch",
+    );
+
+    // Test node-fetch which exists in native
+    vi.mocked(fetchNpmPackage).mockResolvedValueOnce({
+      maintainers: [{ name: "test" }],
+      license: "MIT",
+    });
+    vi.mocked(fetchBundlephobiaData).mockResolvedValueOnce(null);
+    vi.mocked(getDependencyTree).mockResolvedValueOnce(null as any);
+    const nodeFetchStats = await getPackageStats("node-fetch");
+    expect(nodeFetchStats?.recommendations.nativeReplacements).toBeDefined();
+    expect(nodeFetchStats?.recommendations.nativeReplacements?.[0].id).toBe(
+      "fetch",
+    );
+
+    // Test lodash.isstring which exists in micro-utilities
+    vi.mocked(fetchNpmPackage).mockResolvedValueOnce({
+      maintainers: [{ name: "test" }],
+      license: "MIT",
+    });
+    vi.mocked(fetchBundlephobiaData).mockResolvedValueOnce(null);
+    vi.mocked(getDependencyTree).mockResolvedValueOnce(null as any);
+    const lodashStats = await getPackageStats("lodash.isstring");
+    expect(lodashStats?.recommendations.microUtilityReplacements).toBeDefined();
+    expect(lodashStats?.recommendations.microUtilityReplacements?.[0].id).toBe(
+      "snippet::is-string",
+    );
+    // Ensure description defaults logic is present in the mocked data
+    expect(
+      lodashStats?.recommendations.microUtilityReplacements?.[0].description,
+    ).toContain("typeof val ===");
+  });
 });
