@@ -39,8 +39,6 @@ export function initContentScriptBridge(tabId?: number): void {
       }
     };
 
-    console.log('message', message);
-
     switch (message.type) {
       case 'QUERY_DOM':
         handleQueryDOM(
