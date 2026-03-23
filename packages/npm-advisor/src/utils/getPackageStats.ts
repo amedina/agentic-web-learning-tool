@@ -92,6 +92,12 @@ export async function getPackageStats(
     fetchModuleReplacements("preferred").catch(() => null),
   ]);
 
+  console.log({
+    nativeReplacementsRaw,
+    microUtilityReplacementsRaw,
+    preferredReplacementsRaw,
+  });
+
   if (!npmData) {
     console.warn(`[NPM Advisor] Could not find NPM data for ${packageName}`);
     return null;
