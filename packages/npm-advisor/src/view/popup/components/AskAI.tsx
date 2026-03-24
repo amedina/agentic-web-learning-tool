@@ -3,9 +3,11 @@ import {
   AssistantRuntimeProvider,
   ThreadPrimitive,
   ComposerPrimitive,
+  useAssistantApi,
 } from "@assistant-ui/react";
 import { useChatRuntime } from "@assistant-ui/react-ai-sdk";
 import { SendHorizontal, AlertCircle } from "lucide-react";
+import type { UIMessage } from "ai";
 /**
  * Internal dependencies
  */
@@ -19,13 +21,17 @@ import { getSystemPrompt } from "../../../utils";
 interface AskAIProps {
   packageName: string;
   stats: PackageStats;
+  messages: UIMessage[];
 }
 
-export const AskAI: React.FC<AskAIProps> = ({ packageName, stats }) => {
+export const AskAI: React.FC<AskAIProps> = ({
+  packageName,
+  stats,
+  messages,
+}) => {
   const [apiKeys, setApiKeys] = useState<{ gemini?: string; openai?: string }>(
     {},
   );
-
   useEffect(() => {
     chrome.storage.sync.get(["geminiApiKey", "openAIApiKey"], (res) => {
       setApiKeys({
@@ -56,6 +62,7 @@ export const AskAI: React.FC<AskAIProps> = ({ packageName, stats }) => {
   }, [apiKeys, stats]);
 
   const runtime = useChatRuntime({
+    messages,
     transport,
   });
 

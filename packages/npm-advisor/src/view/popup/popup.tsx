@@ -4,22 +4,22 @@
 import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { PackageSearch, XCircle } from "lucide-react";
+import type { UIMessage } from "ai";
 
 /**
  * Internal dependencies.
  */
 import { type PackageStats } from "../../utils";
-import { Header } from "./components/header";
-import { LicenseCheck } from "./components/licenseCheck";
-import { Responsiveness } from "./components/responsiveness";
-import { BundleFootprint } from "./components/bundleFootprint";
-import { SecurityAdvisories } from "./components/securityAdvisories";
-import { Recommendations } from "./components/recommendations";
-import { DependencyTree } from "./components/dependencyTree";
-import { GlobalHeader } from "./components/globalHeader";
-import { AskAI } from "./components/askAI";
+import { Header } from "./components/Header";
+import { LicenseCheck } from "./components/LicenseCheck";
+import { Responsiveness } from "./components/Responsiveness";
+import { BundleFootprint } from "./components/BundleFootprint";
+import { SecurityAdvisories } from "./components/SecurityAdvisories";
+import { Recommendations } from "./components/Recommendations";
+import { DependencyTree } from "./components/DependencyTree";
+import { GlobalHeader } from "./components/GlobalHeader";
+import { AskAI } from "./components/AskAI";
 import "./popup.css";
-
 import { ErrorBoundary } from "./components/errorBoundary";
 
 export const Popup = () => {
@@ -28,6 +28,7 @@ export const Popup = () => {
   const [stats, setStats] = useState<PackageStats | null>(null);
   const [activeTab, setActiveTab] = useState<"insights" | "ask_ai">("insights");
   const [comparisonBucket, setComparisonBucket] = useState<any[]>([]);
+  const [messages, setMessages] = useState<UIMessage[]>([]);
 
   useEffect(() => {
     chrome.storage.local.get(["comparisonBucket"], (res) => {
@@ -35,6 +36,17 @@ export const Popup = () => {
         setComparisonBucket(res.comparisonBucket as any[]);
       }
     });
+    chrome.storage.local.get(
+      ["messages"],
+      async (res: { messages: Record<string, UIMessage[]> }) => {
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+          const currentTab = tabs[0];
+          if (currentTab?.id) {
+            setMessages(res.messages[currentTab?.id] || []);
+          }
+        });
+      },
+    );
 
     const fetchCurrentTabStats = async () => {
       try {
@@ -237,7 +249,11 @@ export const Popup = () => {
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center p-4 text-slate-800 h-full w-full animate-in fade-in duration-300">
-            <AskAI packageName={packageName} stats={stats} />
+            <AskAI
+              packageName={packageName}
+              stats={stats}
+              messages={messages}
+            />
           </div>
         )}
       </div>

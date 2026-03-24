@@ -143,7 +143,7 @@ export class CloudHostedTransport implements ChatTransport<UIMessage> {
         type: "function",
       };
     });
-
+    console.log(convertToModelMessages(messages), "messages in transport");
     return createUIMessageStream({
       execute: async ({ writer }) => {
         try {
