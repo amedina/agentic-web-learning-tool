@@ -3,21 +3,15 @@ import {
   AssistantRuntimeProvider,
   ThreadPrimitive,
   ComposerPrimitive,
-  MessagePrimitive,
 } from "@assistant-ui/react";
 import { useChatRuntime } from "@assistant-ui/react-ai-sdk";
-import { MarkdownText } from "@google-awlt/design-system";
 import { SendHorizontal, AlertCircle } from "lucide-react";
 /**
  * Internal dependencies
  */
 
 import { transportGenerator } from "../runtime";
-import type { PackageStats } from "../../../utils/stats";
-
-/**
- * Internal dependencies.
- */
+import type { PackageStats } from "../../../utils/getPackageStats";
 import { UserMessage } from "./userMessage";
 import { AssistantMessage } from "./assistantMessage";
 
