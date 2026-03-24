@@ -35,25 +35,25 @@ export const AskAI: React.FC<AskAIProps> = ({ packageName, stats }) => {
     });
   }, []);
 
-  const transport = useMemo(
-    () =>
-      apiKeys.gemini
-        ? transportGenerator(
-            "gemini",
-            "gemini-pro-latest",
-            {
-              apiKey: apiKeys.gemini,
-            },
-            getSystemPrompt(JSON.stringify(stats, null, 2)),
-          )
-        : transportGenerator(
-            "open-ai",
-            "gpt-4o",
-            { apiKey: apiKeys.openai },
-            getSystemPrompt(JSON.stringify(stats, null, 2)),
-          ),
-    [apiKeys, stats],
-  );
+  const transport = useMemo(() => {
+    if (apiKeys.gemini) {
+      return transportGenerator(
+        "gemini",
+        "gemini-pro-latest",
+        {
+          apiKey: apiKeys.gemini,
+        },
+        getSystemPrompt(JSON.stringify(stats, null, 2)),
+      );
+    }
+
+    return transportGenerator(
+      "open-ai",
+      "gpt-4o",
+      { apiKey: apiKeys.openai },
+      getSystemPrompt(JSON.stringify(stats, null, 2)),
+    );
+  }, [apiKeys, stats]);
 
   const runtime = useChatRuntime({
     transport,
@@ -62,8 +62,10 @@ export const AskAI: React.FC<AskAIProps> = ({ packageName, stats }) => {
   transport.setRuntime(runtime);
 
   const openOptions = () => {
-    if (chrome.runtime.openOptionsPage) chrome.runtime.openOptionsPage();
-    else window.open(chrome.runtime.getURL("options/options.html"));
+    if (chrome.runtime.openOptionsPage) {
+      chrome.runtime.openOptionsPage();
+    }
+    window.open(chrome.runtime.getURL("options/options.html"));
   };
 
   const suggestions = [
