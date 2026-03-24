@@ -262,7 +262,7 @@ export const Popup = () => {
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center p-4 text-slate-800 h-full w-full animate-in fade-in duration-300">
-            <AskAI packageName={packageName} />
+            <AskAI packageName={packageName} stats={stats} />
           </div>
         )}
       </div>

@@ -10,12 +10,12 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@google-awlt/design-system": "workspace:*",
     "@ai-sdk/google": "^2.0.45",
     "@ai-sdk/openai": "^2.0.77",
     "@ai-sdk/provider": "^2.0.0",
     "@assistant-ui/react": "0.11.51",
-    "@assistant-ui/react-ai-sdk": "^1.1.19",
-    "@assistant-ui/react-markdown": "0.11.8",
+    "@assistant-ui/react-ai-sdk": "1.1.19",
     "@tailwindcss/vite": "^4.1.13",
     "ai": "^5.0.104",
     "lucide-react": "^0.577.0",
