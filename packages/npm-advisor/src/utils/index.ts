@@ -11,4 +11,3 @@ export * from "./parseGithubUrl";
 export * from "./getPackageStats";
 
 export * from "./calculateScore";
-export * from "./getSystemPrompt";

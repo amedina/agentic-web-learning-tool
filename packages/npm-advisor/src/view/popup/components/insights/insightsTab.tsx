@@ -6,7 +6,7 @@ import React from "react";
 /**
  * Internal dependencies.
  */
-import { type PackageStats } from "../../../utils";
+import { type PackageStats } from "../../../../utils";
 import {
   Header,
   LicenseCheck,
@@ -15,7 +15,7 @@ import {
   SecurityAdvisories,
   Recommendations,
   DependencyTree,
-} from "../widgets";
+} from "../../widgets";
 
 interface InsightsTabProps {
   stats: PackageStats;

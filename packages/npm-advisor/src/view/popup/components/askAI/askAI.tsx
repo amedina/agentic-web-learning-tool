@@ -6,20 +6,19 @@ import {
   AssistantRuntimeProvider,
   ThreadPrimitive,
   ComposerPrimitive,
-  useAssistantApi,
 } from "@assistant-ui/react";
 import { useChatRuntime } from "@assistant-ui/react-ai-sdk";
 import { SendHorizontal, AlertCircle } from "lucide-react";
 import type { UIMessage } from "ai";
+
 /**
  * Internal dependencies
  */
-
-import { transportGenerator } from "../runtime";
-import type { PackageStats } from "../../../utils/getPackageStats";
+import { transportGenerator } from "../../runtime";
+import type { PackageStats } from "../../../../utils/getPackageStats";
 import { UserMessage } from "./userMessage";
 import { AssistantMessage } from "./assistantMessage";
-import { getSystemPrompt } from "../../../utils";
+import { getSystemPrompt } from "./getSystemPrompt";
 
 interface AskAIProps {
   packageName: string;
