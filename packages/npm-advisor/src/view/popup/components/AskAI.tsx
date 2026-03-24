@@ -1,3 +1,6 @@
+/**
+ * External dependencies.
+ */
 import React, { useEffect, useState } from "react";
 import { useChat } from "@ai-sdk/react";
 import {
@@ -29,8 +32,8 @@ export const AskAI: React.FC<AskAIProps> = ({ packageName }) => {
   useEffect(() => {
     chrome.storage.sync.get(["geminiApiKey", "openAIApiKey"], (res) => {
       setApiKeys({
-        gemini: res.geminiApiKey || "",
-        openai: res.openAIApiKey || "",
+        gemini: (res.geminiApiKey as string) || "",
+        openai: (res.openAIApiKey as string) || "",
       });
     });
   }, []);
@@ -38,7 +41,7 @@ export const AskAI: React.FC<AskAIProps> = ({ packageName }) => {
   const chat = useChat({
     // @ts-expect-error The api prop exists but TS strict modes across versions conflict
     api: "/api/chat", // Not actually hit due to custom fetch interceptor below
-    fetch: async (input: RequestInfo | URL, init?: RequestInit) => {
+    fetch: async (_input: RequestInfo | URL, init?: RequestInit) => {
       try {
         const body = JSON.parse(init?.body as string);
         const messages = body.messages;

@@ -4,7 +4,7 @@
 import React from "react";
 import { Info } from "lucide-react";
 
-interface RecommendationsProps {
+export interface RecommendationsProps {
   recommendations: {
     nativeReplacements?: any;
     microUtilityReplacements?: any[];
@@ -12,7 +12,7 @@ interface RecommendationsProps {
   };
 }
 
-import { getRecommendationUrl } from "../../../utils/getRecommendationUrl";
+import { getRecommendationUrl } from "./utils/getRecommendationUrl";
 
 export const Recommendations: React.FC<RecommendationsProps> = ({
   recommendations,
