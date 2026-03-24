@@ -1,8 +1,9 @@
 /**
  * External dependencies.
  */
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { createRoot } from "react-dom/client";
+import type { UIMessage } from "ai";
 
 /**
  * Internal dependencies.
@@ -23,6 +24,21 @@ export const Popup = () => {
   const [activeTab, setActiveTab] = useState<"insights" | "ask_ai">("insights");
   const { stats, loading, error, isAddedToCompare, handleAddToCompare } =
     usePackageStats();
+  const [messages, setMessages] = useState<UIMessage[]>([]);
+
+  useEffect(() => {
+    chrome.storage.local.get(
+      ["messages"],
+      async (res: { messages?: Record<string, UIMessage[]> }) => {
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+          const currentTab = tabs[0];
+          if (currentTab?.id && res.messages) {
+            setMessages(res.messages[currentTab.id] || []);
+          }
+        });
+      },
+    );
+  }, []);
 
   if (loading) return <LoadingState />;
   if (error || !stats) return <ErrorState error={error} />;
@@ -73,7 +89,11 @@ export const Popup = () => {
           />
         ) : (
           <div className="flex flex-col items-center justify-center p-4 text-slate-800 h-full w-full animate-in fade-in duration-300">
-            <AskAI packageName={stats.packageName} stats={stats} />
+            <AskAI
+              packageName={stats.packageName}
+              stats={stats}
+              messages={messages}
+            />
           </div>
         )}
       </div>
