@@ -25,17 +25,34 @@ import {
 function handleMessage(
   message: ServiceWorkerMessage,
   sender: chrome.runtime.MessageSender,
-  sendResponse: (
+  sendResponseCb: (
     response:
       | WorkflowResponse
       | CapabilitiesResponse
       | { success: boolean; state?: GlobalWorkflowState }
   ) => void
-): boolean {
+) {
+  const sendResponse = (
+    response:
+      | WorkflowResponse
+      | CapabilitiesResponse
+      | { success: boolean; state?: GlobalWorkflowState }
+  ) => {
+    try {
+      sendResponseCb(response);
+    } catch (error) {
+      console.error('[Workflow] Failed to send response:', error);
+    }
+  };
+
   switch (message.type) {
     case 'RUN_WORKFLOW':
-      handleRunWorkflow(message.workflow, message.tabId, sender, sendResponse);
-      return true;
+      return handleRunWorkflow(
+        message.workflow,
+        message.tabId,
+        sender,
+        sendResponse
+      );
 
     case 'CHECK_CAPABILITIES':
       handleCheckCapabilities(message.capabilities, sendResponse);
@@ -47,18 +64,18 @@ function handleMessage(
 
     case 'GET_GLOBAL_STATUS':
       handleGetGlobalStatus(sendResponse);
-      return true;
+      break;
 
     default:
       sendResponse({ success: false, error: 'Unknown message type' });
-      return false;
+      break;
   }
 }
 
 /**
  * Handle workflow execution request.
  */
-export async function handleRunWorkflow(
+export function handleRunWorkflow(
   workflow: WorkflowJSON,
   tabId: number | undefined,
   sender: chrome.runtime.MessageSender,
@@ -77,90 +94,95 @@ export async function handleRunWorkflow(
     return;
   }
 
-  try {
-    if (targetTabId) {
-      console.log(
-        `[Workflow] Injecting content script into tab ${targetTabId}`
-      );
+  const prepareContentScript = async () => {
+    if (!targetTabId) return Promise.resolve();
 
-      // Try-catch to handle cases where content script is not active
-      try {
-        const response = await chrome.tabs.sendMessage(targetTabId, {
-          type: 'CONTENT_SCRIPT_ACTIVE',
-          targetTabId,
-        });
+    console.log(`[Workflow] Injecting content script into tab ${targetTabId}`);
 
-        if (chrome.runtime.lastError) {
-          throw new Error('No Content Script!');
-        }
+    // Try-catch to handle cases where content script is not active
+    try {
+      const response = await chrome.tabs.sendMessage(targetTabId, {
+        type: 'CONTENT_SCRIPT_ACTIVE',
+        targetTabId,
+      });
 
-        if (!response || !response?.success) {
-          throw new Error('No Content Script!');
-        }
-      } catch {
-        await chrome.scripting.executeScript({
-          target: { tabId: targetTabId },
-          func: initContentScriptBridge,
-          injectImmediately: true,
-          args: [targetTabId],
-        });
+      if (!response || !response?.success) {
+        throw new Error('No Content Script!');
       }
+    } catch {
+      return chrome.scripting.executeScript({
+        target: { tabId: targetTabId! },
+        func: initContentScriptBridge,
+        injectImmediately: true,
+        args: [targetTabId],
+      });
     }
+  };
 
-    // Initialize state
-    await stateManager.initWorkflow(
-      workflow.meta.id,
-      workflow.meta.name,
-      targetTabId
-    );
-
-    const context = await runner.run(workflow, targetTabId, {
-      onNodeStart: (nodeId) => {
-        stateManager.updateNodeStatus(nodeId, 'running');
-      },
-      onNodeFinish: (nodeId, output) => {
-        stateManager.updateNodeStatus(nodeId, output.status as any, output);
-      },
-      onError: (error) => {
-        stateManager.finishWorkflow(false, { error: error.message });
-      },
+  prepareContentScript()
+    .then((res) =>
+      stateManager.initWorkflow(
+        workflow.meta.id,
+        workflow.meta.name,
+        targetTabId
+      )
+    )
+    .then(() =>
+      runner.run(workflow, targetTabId, {
+        onNodeStart: (nodeId) => {
+          stateManager.updateNodeStatus(nodeId, 'running');
+        },
+        onNodeFinish: (nodeId, output) => {
+          stateManager.updateNodeStatus(nodeId, output.status as any, output);
+        },
+        onError: (error) => {
+          stateManager.finishWorkflow(false, { error: error.message });
+        },
+      })
+    )
+    .then((context) => {
+      stateManager.finishWorkflow(true, context);
+      return context;
+    })
+    .then((context) => {
+      sendResponse({ success: true, context });
+      console.log('[Workflow] Workflow completed successfully');
+    })
+    .catch((error) => {
+      const message = error instanceof Error ? error.message : String(error);
+      stateManager.finishWorkflow(false, { error: message });
+      sendResponse({ success: false, error: message });
     });
 
-    await stateManager.finishWorkflow(true, context);
-
-    sendResponse({ success: true, context });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    stateManager.finishWorkflow(false, { error: message });
-    sendResponse({ success: false, error: message });
-  }
+  return true;
 }
 
 /**
  * Handle stop workflow request.
  */
-async function handleStopWorkflow(sendResponse: (response: any) => void) {
+function handleStopWorkflow(sendResponse: (response: any) => void) {
   getWorkflowRunner().stop();
-  await getWorkflowStateManager().reset();
-  sendResponse({ success: true });
+  getWorkflowStateManager()
+    .reset()
+    .then(() => sendResponse({ success: true }));
 }
 
 /**
  * Handle capability check request.
  */
-async function handleCheckCapabilities(
+function handleCheckCapabilities(
   capabilities: string[] | Record<string, any>,
   sendResponse: (response: CapabilitiesResponse) => void
 ) {
   const runner = getWorkflowRunner();
 
-  try {
-    const results = await runner.checkCapabilities(capabilities);
-    sendResponse({ success: true, results });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    sendResponse({ success: false, error: message });
-  }
+  runner
+    .checkCapabilities(capabilities)
+    .then((results) => sendResponse({ success: true, results }))
+    .catch((error) => {
+      const message = error instanceof Error ? error.message : String(error);
+      sendResponse({ success: false, error: message });
+    });
 }
 
 /**

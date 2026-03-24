@@ -57,7 +57,11 @@ function SettingsProvider({
   }, []);
 
   const handleMessage = useCallback(
-    (message: any) => {
+    (
+      message: any,
+      _sender: chrome.runtime.MessageSender,
+      sendResponse: (response?: any) => void
+    ) => {
       if (
         message.type === MESSAGE_TYPES.CLOSE_SIDEPANEL &&
         view === 'sidepanel' &&
@@ -72,6 +76,12 @@ function SettingsProvider({
           },
         });
         window.close();
+      }
+
+      try {
+        sendResponse();
+      } catch (error) {
+        console.error('Failed to send response:', error);
       }
     },
     [currentTab, view]

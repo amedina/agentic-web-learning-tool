@@ -7,6 +7,7 @@ import type { NodeOutput } from '@google-awlt/engine-core';
  * Internal dependencies
  */
 import { type StatusUpdate } from '../types/messages';
+import logger from '../utils/logger';
 
 /**
  * Global execution state for workflows.
@@ -157,8 +158,13 @@ export class WorkflowStateManager {
    * Broadcast state changes to all listeners (sidepanel, options page, etc.)
    */
   private broadcast(message: StatusUpdate): void {
-    chrome.runtime.sendMessage(message).catch(() => {
-      // Ignore errors if no listeners are active
+    chrome.runtime.sendMessage(message, () => {
+      if (chrome.runtime.lastError) {
+        logger(
+          ['error'],
+          ['Failed to broadcast message:', chrome.runtime.lastError.message]
+        );
+      }
     });
   }
 }

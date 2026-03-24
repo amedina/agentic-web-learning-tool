@@ -42,7 +42,11 @@ function EventLogsProvider({ children }: PropsWithChildren) {
   }, [eventLoggerData]);
 
   const handleMessage = useCallback(
-    (message: any) => {
+    (
+      message: any,
+      _sender: chrome.runtime.MessageSender,
+      sendResponse: (response?: any) => void
+    ) => {
       if (message.type === MESSAGE_TYPES.TOOL_LOG) {
         const newLog = message.payload as ToolExecutionLog;
 
@@ -80,6 +84,12 @@ function EventLogsProvider({ children }: PropsWithChildren) {
         if (isToolRunning && newLog.id !== selectedKey) {
           setSelectedKey(newLog.id);
         }
+      }
+
+      try {
+        sendResponse();
+      } catch (error) {
+        console.error('Failed to send response:', error);
       }
     },
     [isToolRunning, selectedKey]
