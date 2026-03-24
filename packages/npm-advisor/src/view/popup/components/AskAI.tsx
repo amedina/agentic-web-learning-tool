@@ -15,6 +15,12 @@ import { SendHorizontal, AlertCircle } from "lucide-react";
 import { transportGenerator } from "../runtime";
 import type { PackageStats } from "../../../utils/stats";
 
+/**
+ * Internal dependencies.
+ */
+import { UserMessage } from "./userMessage";
+import { AssistantMessage } from "./assistantMessage";
+
 interface AskAIProps {
   packageName: string;
   stats: PackageStats;
@@ -152,32 +158,8 @@ export const AskAI: React.FC<AskAIProps> = ({ packageName, stats }) => {
 
             <ThreadPrimitive.Messages
               components={{
-                UserMessage: () => {
-                  return (
-                    <MessagePrimitive.Root>
-                      <div className="flex w-full mb-4 justify-end">
-                        <div className="bg-[#c94137] text-white px-4 py-2 rounded-2xl max-w-[85%] text-[13px] shadow-sm break-words">
-                          <MessagePrimitive.Parts />
-                        </div>
-                      </div>
-                    </MessagePrimitive.Root>
-                  );
-                },
-                AssistantMessage: () => {
-                  return (
-                    <MessagePrimitive.Root>
-                      <div className="flex w-full mb-4 justify-start">
-                        <div className="border px-4 py-2 rounded-2xl max-w-[85%] text-[13px] shadow-sm break-words leading-relaxed bg-white border-slate-200 text-slate-800">
-                          <MessagePrimitive.Parts
-                            components={{
-                              Text: MarkdownText,
-                            }}
-                          />
-                        </div>
-                      </div>
-                    </MessagePrimitive.Root>
-                  );
-                },
+                UserMessage,
+                AssistantMessage,
               }}
             />
           </ThreadPrimitive.Viewport>

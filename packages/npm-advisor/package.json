@@ -7,7 +7,8 @@
     "dev": "cross-env NODE_ENV=development vite build --watch --config vite.config.ts",
     "build": "cross-env NODE_ENV=production vite build --config vite.config.ts",
     "check-types": "tsc -b -noEmit",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test": "vitest run --root . --silent"
   },
   "dependencies": {
     "@google-awlt/design-system": "workspace:*",
@@ -38,6 +39,7 @@
     "typescript": "~5.8.3",
     "vite": "^7.1.11",
     "vite-plugin-static-copy": "^3.1.4",
-    "vite-plugin-svgr": "^4.5.0"
+    "vite-plugin-svgr": "^4.5.0",
+    "vitest": "^3.2.4"
   }
 }

@@ -1,3 +1,6 @@
+/**
+ * External dependencies.
+ */
 import React from "react";
 import { Info } from "lucide-react";
 
@@ -9,26 +12,7 @@ interface RecommendationsProps {
   };
 }
 
-function getRecommendationUrl(r: any): string | null {
-  if (r.replacementModule) {
-    return `https://www.npmjs.com/package/${r.replacementModule}`;
-  }
-  if (r.url) {
-    switch (r.url.type) {
-      case "mdn":
-        return `https://developer.mozilla.org/en-US/docs/${r.url.id}`;
-      case "github":
-        return `https://github.com/${r.url.id}`;
-      case "npm":
-        return `https://www.npmjs.com/package/${r.url.id}`;
-      case "e18e":
-        return `https://e18e.dev`;
-      default:
-        return null;
-    }
-  }
-  return null;
-}
+import { getRecommendationUrl } from "../../../utils/getRecommendationUrl";
 
 export const Recommendations: React.FC<RecommendationsProps> = ({
   recommendations,
@@ -58,13 +42,13 @@ export const Recommendations: React.FC<RecommendationsProps> = ({
                           target="_blank"
                           rel="noreferrer"
                           className="text-[13px] leading-snug text-blue-600 hover:text-blue-800 hover:underline transition-colors block"
-                          title={`View ${r.description}`}
+                          title={`View ${r.description || r.replacementModule || r.id}`}
                         >
-                          {r.description}
+                          {r.description || r.replacementModule || r.id}
                         </a>
                       ) : (
                         <p className="text-[13px] mb-1 leading-snug">
-                          {r.description}
+                          {r.description || r.replacementModule || r.id}
                         </p>
                       )}
                       {r.example && (
@@ -95,13 +79,13 @@ export const Recommendations: React.FC<RecommendationsProps> = ({
                           target="_blank"
                           rel="noreferrer"
                           className="text-[13px] leading-snug text-blue-600 hover:text-blue-800 hover:underline transition-colors block"
-                          title={`View ${r.description}`}
+                          title={`View ${r.description || r.replacementModule || r.id}`}
                         >
-                          {r.description}
+                          {r.description || r.replacementModule || r.id}
                         </a>
                       ) : (
                         <p className="text-[13px] mb-1 leading-snug">
-                          {r.description}
+                          {r.description || r.replacementModule || r.id}
                         </p>
                       )}
                       {r.example && (
@@ -132,13 +116,13 @@ export const Recommendations: React.FC<RecommendationsProps> = ({
                           target="_blank"
                           rel="noreferrer"
                           className="text-[13px] leading-snug text-blue-600 hover:text-blue-800 hover:underline transition-colors"
-                          title={`View ${r.replacementModule || r.description} on NPM`}
+                          title={`View ${r.replacementModule || r.description || r.id} on NPM`}
                         >
-                          {r.description}
+                          {r.description || r.replacementModule || r.id}
                         </a>
                       ) : (
                         <p className="text-[13px] leading-snug">
-                          {r.description}
+                          {r.description || r.replacementModule || r.id}
                         </p>
                       )}
                     </div>

@@ -57,6 +57,7 @@
     "storybook": "pnpm --filter storybook-config storybook",
     "test:extension": "pnpm --filter extension test",
     "test:design-system": "pnpm --filter design-system test",
+    "test:npm-advisor": "pnpm --filter npm-advisor test",
     "test:engine": "pnpm --filter engine-core test",
     "test:engine-extension": "pnpm --filter engine-extension test",
     "test:e2e": "pnpm --filter extension test:e2e",

@@ -1,55 +1,7 @@
-// Simple in-memory cache
-const cache = new Map<string, any>();
-
-async function fetchWithCache(url: string, options?: RequestInit) {
-  if (cache.has(url)) {
-    return cache.get(url);
-  }
-
-  const response = await fetch(url, options);
-  if (!response.ok) {
-    if (response.status === 404) {
-      return null;
-    }
-    throw new Error(`Failed to fetch ${url}: ${response.statusText}`);
-  }
-
-  const data = await response.json();
-  cache.set(url, data);
-  return data;
-}
-
-export async function fetchNpmPackage(packageName: string) {
-  const url = `https://registry.npmjs.org/${encodeURIComponent(packageName)}`;
-  return fetchWithCache(url);
-}
-
-export async function fetchGithubRepo(owner: string, repo: string) {
-  // Use ungh.cc to bypass strict Github API rate limits for basic repository health indicators
-  const url = `https://ungh.cc/repos/${owner}/${repo}`;
-  return fetchWithCache(url);
-}
-
-export async function fetchGithubIssues(owner: string, repo: string) {
-  // Fetching a sample of open and closed issues/PRs to gauge responsiveness
-  // Using Search API has a 10req/min (600/hr) unauthenticated rate limit, dodging the basic 60/hr Core API limit.
-  const query = `repo:${owner}/${repo} is:issue`;
-  const url = `https://api.github.com/search/issues?q=${encodeURIComponent(query)}&per_page=100`;
-  return fetchWithCache(url);
-}
-
-export async function fetchGithubSecurityAdvisories(
-  owner: string,
-  repo: string,
-) {
-  const url = `https://api.github.com/repos/${owner}/${repo}/security-advisories`;
-  return fetchWithCache(url);
-}
-
-export async function fetchBundlephobiaData(packageName: string) {
-  const url = `https://bundlephobia.com/api/size?package=${encodeURIComponent(packageName)}&record=true`;
-  return fetchWithCache(url);
-}
+/**
+ * Internal dependencies.
+ */
+import { fetchWithCache } from "./fetchWithCache";
 
 export interface DependencyTree {
   name: string;
@@ -124,11 +76,4 @@ export async function getDependencyTree(
   }
 
   return tree;
-}
-
-export type ReplacementType = "micro-utilities" | "native" | "preferred";
-
-export async function fetchModuleReplacements(type: ReplacementType) {
-  const url = `https://raw.githubusercontent.com/es-tooling/module-replacements/main/manifests/${type}.json`;
-  return fetchWithCache(url);
 }

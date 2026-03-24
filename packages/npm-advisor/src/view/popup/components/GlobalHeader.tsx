@@ -1,3 +1,6 @@
+/**
+ * External dependencies.
+ */
 import React from "react";
 import { Settings, Moon } from "lucide-react";
 

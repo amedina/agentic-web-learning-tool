@@ -1,8 +1,12 @@
+/**
+ * Internal dependencies.
+ */
 import licenseMatrixDataRaw from "../assets/licence-comp-matrixseqexpl.json";
 
 const licenseMatrixData = licenseMatrixDataRaw as any;
 
 // Default fallback license if none is set by the user
+
 export const DEFAULT_TARGET_PROJECT_LICENSE = "MIT";
 
 export interface LicenseCompatibilityResult {
