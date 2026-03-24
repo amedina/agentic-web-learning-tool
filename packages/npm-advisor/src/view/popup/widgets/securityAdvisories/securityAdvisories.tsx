@@ -4,7 +4,7 @@
 import React from "react";
 import { ShieldAlert } from "lucide-react";
 
-interface SecurityAdvisoriesProps {
+export interface SecurityAdvisoriesProps {
   securityAdvisories: {
     issues: Array<{ summary: string; severity: string; url: string }>;
   } | null;

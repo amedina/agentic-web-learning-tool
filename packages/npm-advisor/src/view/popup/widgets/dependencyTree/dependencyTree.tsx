@@ -7,7 +7,7 @@ import { ChevronRight, ChevronDown, Network } from "lucide-react";
 /**
  * Internal dependencies.
  */
-import type { DependencyTree as DependencyTreeType } from "../../../utils";
+import type { DependencyTree as DependencyTreeType } from "../../../../utils";
 
 type DepNode = DependencyTreeType & { _loaded?: boolean };
 
@@ -101,7 +101,7 @@ const DepTreeNode = ({
   );
 };
 
-interface DependencyTreeProps {
+export interface DependencyTreeProps {
   dependencyTree: DependencyTreeType | null;
 }
 

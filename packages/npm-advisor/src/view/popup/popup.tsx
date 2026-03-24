@@ -1,177 +1,31 @@
 /**
  * External dependencies.
  */
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { createRoot } from "react-dom/client";
-import { PackageSearch, XCircle } from "lucide-react";
 
 /**
  * Internal dependencies.
  */
-import { type PackageStats } from "../../utils";
-import { Header } from "./components/header";
-import { LicenseCheck } from "./components/licenseCheck";
-import { Responsiveness } from "./components/responsiveness";
-import { BundleFootprint } from "./components/bundleFootprint";
-import { SecurityAdvisories } from "./components/securityAdvisories";
-import { Recommendations } from "./components/recommendations";
-import { DependencyTree } from "./components/dependencyTree";
-import { GlobalHeader } from "./components/globalHeader";
-import { AskAI } from "./components/askAI";
+import {
+  GlobalHeader,
+  AskAI,
+  ErrorBoundary,
+  LoadingState,
+  ErrorState,
+  InsightsTab,
+} from "./components";
+import { usePackageStats } from "./hooks/usePackageStats";
+
 import "./popup.css";
 
-import { ErrorBoundary } from "./components/errorBoundary";
-
 export const Popup = () => {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [stats, setStats] = useState<PackageStats | null>(null);
   const [activeTab, setActiveTab] = useState<"insights" | "ask_ai">("insights");
-  const [comparisonBucket, setComparisonBucket] = useState<any[]>([]);
+  const { stats, loading, error, isAddedToCompare, handleAddToCompare } =
+    usePackageStats();
 
-  useEffect(() => {
-    chrome.storage.local.get(["comparisonBucket"], (res) => {
-      if (res.comparisonBucket) {
-        setComparisonBucket(res.comparisonBucket as any[]);
-      }
-    });
-
-    const fetchCurrentTabStats = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        // 1. Query chrome active tab
-        const [tab] = await chrome.tabs.query({
-          active: true,
-          currentWindow: true,
-        });
-        const url = tab?.url;
-
-        if (!url) {
-          throw new Error("Could not determine current tab URL.");
-        }
-
-        let packageName: string | null = null;
-        if (url.includes("npmjs.com/package/")) {
-          const match = url.match(/npmjs\.com\/package\/([^/?#]+)/);
-          if (match && match[1]) {
-            packageName = decodeURIComponent(match[1]);
-          }
-        } else if (
-          url.includes("github.com") &&
-          url.endsWith("package.json") &&
-          url.includes("/blob/")
-        ) {
-          const rawUrl = url.replace("/blob/", "/raw/");
-          const response = await fetch(rawUrl);
-          if (response.ok) {
-            const pkg = await response.json();
-            if (pkg && pkg.name) {
-              packageName = pkg.name;
-            }
-          }
-        }
-
-        if (!packageName) {
-          throw new Error(
-            "Navigate to an NPM package or a GitHub package.json page to view stats.",
-          );
-        }
-
-        // Ask background script for the cached stats payload
-        chrome.runtime.sendMessage(
-          { type: "GET_STATS", packageName },
-          (response) => {
-            if (chrome.runtime.lastError) {
-              setLoading(false);
-              return setError(
-                chrome.runtime.lastError.message ||
-                  "Failed to communicate with background script.",
-              );
-            }
-            if (response && response.success) {
-              if (response.data) {
-                setStats(response.data);
-              } else {
-                setError("Failed to load statistics for this package.");
-              }
-            } else {
-              setError(
-                response?.error ||
-                  "Failed to load statistics for this package.",
-              );
-            }
-            setLoading(false);
-          },
-        );
-      } catch (err: any) {
-        setError(err.message || "An unknown error occurred.");
-        setLoading(false);
-      }
-    };
-
-    fetchCurrentTabStats();
-  }, []);
-
-  // ---------------------------------------------------------------------- //
-  //                                UI Render                                //
-  // ---------------------------------------------------------------------- //
-  if (loading) {
-    return (
-      <div className="flex flex-col w-[500px] h-[600px] bg-slate-50 antialiased">
-        <GlobalHeader />
-        <div className="flex-1 flex flex-col items-center justify-center p-8 text-slate-800">
-          <div className="animate-spin text-[#c94137] mb-4">
-            <PackageSearch size={48} />
-          </div>
-          <p className="font-medium">Analyzing Package Data...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error || !stats) {
-    return (
-      <div className="flex flex-col w-[500px] h-[600px] bg-slate-50 antialiased">
-        <GlobalHeader />
-        <div className="flex-1 flex flex-col items-center justify-center p-6 text-slate-800 text-center">
-          <XCircle size={40} className="text-red-500 mb-4" />
-          <p className="font-semibold text-red-700">
-            {error || "No stats found"}
-          </p>
-          <p className="text-sm text-slate-500 mt-2">
-            Open a package page on npmjs.com or a package.json on GitHub.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  const {
-    packageName,
-    githubUrl,
-    stars,
-    collaboratorsCount,
-    lastCommitDate,
-    responsiveness,
-    securityAdvisories,
-    bundle,
-    license,
-    licenseCompatibility,
-    recommendations,
-    dependencyTree,
-  } = stats;
-
-  const handleAddToCompare = () => {
-    const newBucket = [...comparisonBucket, stats];
-    setComparisonBucket(newBucket);
-    chrome.storage.local.set({ comparisonBucket: newBucket });
-  };
-
-  const isAddedToCompare = comparisonBucket.some(
-    (item) => item.packageName === packageName,
-  );
+  if (loading) return <LoadingState />;
+  if (error || !stats) return <ErrorState error={error} />;
 
   return (
     <div className="flex flex-col w-[500px] h-[600px] bg-slate-50 antialiased">
@@ -212,32 +66,14 @@ export const Popup = () => {
 
       <div className="flex-1 overflow-y-auto w-full relative">
         {activeTab === "insights" ? (
-          <div className="text-slate-800 p-4 space-y-4">
-            <Header
-              packageName={packageName}
-              githubUrl={githubUrl}
-              stars={stars}
-              collaboratorsCount={collaboratorsCount}
-              lastCommitDate={lastCommitDate}
-              license={license}
-              onAddToCompare={handleAddToCompare}
-              isAddedToCompare={isAddedToCompare}
-              score={stats.score}
-            />
-
-            <div className="grid grid-cols-2 gap-4">
-              <LicenseCheck licenseCompatibility={licenseCompatibility} />
-              <Responsiveness responsiveness={responsiveness as any} />
-            </div>
-
-            <BundleFootprint bundle={bundle} />
-            <SecurityAdvisories securityAdvisories={securityAdvisories} />
-            <Recommendations recommendations={recommendations} />
-            <DependencyTree dependencyTree={dependencyTree} />
-          </div>
+          <InsightsTab
+            stats={stats}
+            onAddToCompare={handleAddToCompare}
+            isAddedToCompare={isAddedToCompare}
+          />
         ) : (
           <div className="flex flex-col items-center justify-center p-4 text-slate-800 h-full w-full animate-in fade-in duration-300">
-            <AskAI packageName={packageName} />
+            <AskAI packageName={stats.packageName} />
           </div>
         )}
       </div>
@@ -245,12 +81,11 @@ export const Popup = () => {
   );
 };
 
-// ---------------------------------------------------------------------- //
-//                            Bootstrapping                               //
-// ---------------------------------------------------------------------- //
 const container = document.getElementById("root");
+
 if (container) {
   const root = createRoot(container);
+
   root.render(
     <React.StrictMode>
       <ErrorBoundary>

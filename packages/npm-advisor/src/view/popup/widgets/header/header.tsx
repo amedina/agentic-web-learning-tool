@@ -4,7 +4,7 @@
 import React from "react";
 import { Github, Star, Users, Clock, Activity, Info } from "lucide-react";
 
-interface HeaderProps {
+export interface HeaderProps {
   packageName: string;
   githubUrl: string | null;
   stars: number | null;
