@@ -10,6 +10,7 @@ import { SyntaxHighlighterJSON } from '../syntaxHighlighter';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../tabs';
 import { CodeEditor } from '../codeEditor';
 import type { WebMCPTool } from '../types';
+import { getToolNameWithoutPrefix } from '../../lib';
 
 type InBuiltToolType = WebMCPTool & { stringCode: string };
 
@@ -106,8 +107,8 @@ export function ToolDetail({
           <div className="text-xs font-bold mb-1">DESCRIPTION</div>
           <div className="select-text text-xs">
             {tool.description?.replaceAll(
-              `extension_tool_${tool.name}`,
-              tool.name
+              `extension_tool_${getToolNameWithoutPrefix(tool.name)}`,
+              getToolNameWithoutPrefix(tool.name)
             ) || 'No description provided.'}
           </div>
           {tool.name?.includes(`extension_tool_`) &&
