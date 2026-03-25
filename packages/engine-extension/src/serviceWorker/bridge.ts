@@ -110,12 +110,15 @@ export function handleRunWorkflow(
         throw new Error('No Content Script!');
       }
     } catch {
-      return chrome.scripting.executeScript({
-        target: { tabId: targetTabId! },
-        func: initContentScriptBridge,
-        injectImmediately: true,
-        args: [targetTabId],
-      });
+      const tab = await chrome.tabs.get(targetTabId);
+      if (!tab.url?.startsWith('chrome')) {
+        await chrome.scripting.executeScript({
+          target: { tabId: targetTabId },
+          func: initContentScriptBridge,
+          injectImmediately: true,
+          args: [targetTabId],
+        });
+      }
     }
   };
 
