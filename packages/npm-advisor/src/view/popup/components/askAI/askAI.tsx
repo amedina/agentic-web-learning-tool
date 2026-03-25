@@ -1,8 +1,7 @@
 /**
  * External dependencies.
  */
-import React, { useEffect, useState } from "react";
-import { useChat } from "@ai-sdk/react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   AssistantRuntimeProvider,
   ThreadPrimitive,
@@ -10,25 +9,31 @@ import {
 } from "@assistant-ui/react";
 import { useChatRuntime } from "@assistant-ui/react-ai-sdk";
 import { SendHorizontal, AlertCircle } from "lucide-react";
-import { createGoogleGenerativeAI } from "@ai-sdk/google";
-import { createOpenAI } from "@ai-sdk/openai";
-import { streamText } from "ai";
+import type { UIMessage } from "ai";
 
 /**
- * Internal dependencies.
+ * Internal dependencies
  */
+import { transportGenerator } from "../../runtime";
+import type { PackageStats } from "../../../../utils/getPackageStats";
 import { UserMessage } from "./userMessage";
 import { AssistantMessage } from "./assistantMessage";
+import { getSystemPrompt } from "./getSystemPrompt";
 
 interface AskAIProps {
   packageName: string;
+  stats: PackageStats;
+  messages: UIMessage[];
 }
 
-export const AskAI: React.FC<AskAIProps> = ({ packageName }) => {
+export const AskAI: React.FC<AskAIProps> = ({
+  packageName,
+  stats,
+  messages,
+}) => {
   const [apiKeys, setApiKeys] = useState<{ gemini?: string; openai?: string }>(
     {},
   );
-
   useEffect(() => {
     chrome.storage.sync.get(["geminiApiKey", "openAIApiKey"], (res) => {
       setApiKeys({
@@ -38,49 +43,38 @@ export const AskAI: React.FC<AskAIProps> = ({ packageName }) => {
     });
   }, []);
 
-  const chat = useChat({
-    // @ts-expect-error The api prop exists but TS strict modes across versions conflict
-    api: "/api/chat", // Not actually hit due to custom fetch interceptor below
-    fetch: async (_input: RequestInfo | URL, init?: RequestInit) => {
-      try {
-        const body = JSON.parse(init?.body as string);
-        const messages = body.messages;
+  const transport = useMemo(() => {
+    if (apiKeys.gemini) {
+      return transportGenerator(
+        "gemini",
+        "gemini-pro-latest",
+        {
+          apiKey: apiKeys.gemini,
+        },
+        getSystemPrompt(JSON.stringify(stats, null, 2)),
+      );
+    }
 
-        let model;
-        if (apiKeys.gemini) {
-          const google = createGoogleGenerativeAI({ apiKey: apiKeys.gemini });
-          model = google("gemini-2.5-flash");
-        } else if (apiKeys.openai) {
-          const openai = createOpenAI({ apiKey: apiKeys.openai });
-          model = openai("gpt-4o-mini");
-        } else {
-          return new Response(
-            "Error: No API key configured. Please add your Gemini or OpenAI key in the extension settings.",
-            { status: 401 },
-          );
-        }
+    return transportGenerator(
+      "open-ai",
+      "gpt-4o",
+      { apiKey: apiKeys.openai },
+      getSystemPrompt(JSON.stringify(stats, null, 2)),
+    );
+  }, [apiKeys, stats]);
 
-        const result = streamText({
-          model,
-          system: `You are an expert NPM package advisor assistant. The user is currently viewing information about the NPM package: "${packageName}". Provide concise, helpful code snippets and advice.`,
-          messages,
-        });
-
-        // @ts-expect-error v3 SDK exposes toDataStreamResponse but AI namespace throws on type inference here
-        return result.toDataStreamResponse();
-      } catch (err: any) {
-        return new Response(err.message, { status: 500 });
-      }
-    },
-    onError: (err) => console.error("Chat Error:", err),
+  const runtime = useChatRuntime({
+    messages,
+    transport,
   });
 
-  // @ts-expect-error Type mismatch between latest `ai` useChat output and useChatRuntime expectations
-  const runtime = useChatRuntime(chat);
+  transport.setRuntime(runtime);
 
   const openOptions = () => {
-    if (chrome.runtime.openOptionsPage) chrome.runtime.openOptionsPage();
-    else window.open(chrome.runtime.getURL("options/options.html"));
+    if (chrome.runtime.openOptionsPage) {
+      chrome.runtime.openOptionsPage();
+    }
+    window.open(chrome.runtime.getURL("options/options.html"));
   };
 
   const suggestions = [

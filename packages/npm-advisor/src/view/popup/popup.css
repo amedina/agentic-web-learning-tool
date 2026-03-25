@@ -1,4 +1,6 @@
-@import "tailwindcss";
+@import "@google-awlt/shared-config/tailwind";
+
+@source "../../../../design-system";
 
 body {
   margin: 0;
