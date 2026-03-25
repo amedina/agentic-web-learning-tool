@@ -15,12 +15,13 @@ import { START_MCP_CONNECTION } from '../../constants';
 const createAndAssignHub = async (
   mcpHubInstances: Map<number, McpHub>,
   port: chrome.runtime.Port,
-  serverInstances: Map<number, McpServer>,
-  tabId: number
+  serverInstances: Map<string, McpServer>,
+  tabId: number,
+  prefix: 'sidepanel' | 'devtools' | 'options'
 ) => {
   try {
     const restartServer = async () => {
-      const sharedServer = serverInstances.get(tabId);
+      const sharedServer = serverInstances.get(`${tabId}${prefix}`);
       const transport = new ExtensionServerTransport(port, {
         keepAlive: true,
       });
@@ -29,7 +30,21 @@ const createAndAssignHub = async (
       if (!mcpHub || !sharedServer) {
         return;
       }
-      port.onDisconnect.addListener(async () => await restartServer());
+
+      port.onDisconnect.addListener(async () => {
+        chrome.runtime.sendMessage(
+          { type: 'still_there' },
+          async (response) => {
+            if (response?.status === 'yes' && response?.type === prefix) {
+              logger(['info'], ['Tab is still active, restarting server...']);
+              await restartServer();
+            } else {
+              logger(['info'], ['Tab is closed, not restarting server.']);
+            }
+          }
+        );
+      });
+
       await sharedServer.connect(transport);
       try {
         try {
@@ -56,10 +71,17 @@ const createAndAssignHub = async (
       }
 
       if (mcpHub?.registeredTools.size > 0) {
-        sharedServer?.server?.transport?.send({
-          jsonrpc: '2.0',
-          method: 'get/Tools',
-        });
+        sharedServer?.server?.transport
+          ?.send({
+            jsonrpc: '2.0',
+            method: 'get/Tools',
+          })
+          .catch((error) => {
+            logger(
+              ['error'],
+              ['Error requesting tools after reconnecting:', error]
+            );
+          });
       }
       return;
     };
@@ -110,7 +132,7 @@ const createAndAssignHub = async (
     sharedServer.connect(transport);
 
     mcpHubInstances.set(tabId, mcpHub);
-    serverInstances.set(tabId, sharedServer);
+    serverInstances.set(`${tabId}${prefix}`, sharedServer);
 
     mcpHub.setupConnections();
     try {
@@ -133,10 +155,17 @@ const createAndAssignHub = async (
     }
 
     if (mcpHub.registeredTools.size > 0) {
-      sharedServer.server?.transport?.send({
-        jsonrpc: '2.0',
-        method: 'get/Tools',
-      });
+      sharedServer.server?.transport
+        ?.send({
+          jsonrpc: '2.0',
+          method: 'get/Tools',
+        })
+        .catch((error) => {
+          logger(
+            ['error'],
+            ['Error requesting tools after reconnecting:', error]
+          );
+        });
     }
   } catch (error) {
     logger(['error'], ['McpError: RequestTimedOut', error]);
