@@ -460,7 +460,7 @@ class McpHub {
     }
     this.port = port;
     const domain = this.extractDomainFromUrl(url);
-
+    this.toolInjected = false;
     // Listener for messages coming FROM the tab
     this.port.onMessage.addListener(async (message: ContentScriptMessage) => {
       try {
