@@ -38,6 +38,34 @@ export const Popup = () => {
         });
       },
     );
+    chrome.storage.local.onChanged.addListener(() => {
+      chrome.storage.local.get(
+        ["messages"],
+        async (res: { messages?: Record<string, UIMessage[]> }) => {
+          chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            const currentTab = tabs[0];
+            if (currentTab?.id && res.messages) {
+              setMessages(res.messages[currentTab.id] || []);
+            }
+          });
+        },
+      );
+    });
+    return () => {
+      chrome.storage.local.onChanged.removeListener(() => {
+        chrome.storage.local.get(
+          ["messages"],
+          async (res: { messages?: Record<string, UIMessage[]> }) => {
+            chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+              const currentTab = tabs[0];
+              if (currentTab?.id && res.messages) {
+                setMessages(res.messages[currentTab.id] || []);
+              }
+            });
+          },
+        );
+      });
+    };
   }, []);
 
   if (loading) return <LoadingState />;
