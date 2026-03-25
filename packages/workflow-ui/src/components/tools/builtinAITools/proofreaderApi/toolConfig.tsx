@@ -20,12 +20,12 @@ interface ToolConfigProps {
 }
 
 const ToolConfig = ({ ref, config }: ToolConfigProps) => {
-  const [inputLanguages, setInputLanguages] = useState<string[]>(
-    config.expectedInputLanguages || [],
+  const [inputLanguage, setInputLanguage] = useState<string>(
+    config.expectedInputLanguage || "",
   );
 
   useEffect(() => {
-    setInputLanguages(config.expectedInputLanguages || []);
+    setInputLanguage(config.expectedInputLanguage || "");
   }, [config]);
 
   useImperativeHandle(
@@ -33,11 +33,11 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
     () => ({
       getConfig: (formData: FormData) => {
         const title = formData.get("title") as string;
-        const inputLanguages = formData.getAll("inputLanguages") as string[];
+        const inputLanguages = formData.get("inputLanguage") as string;
 
         const configResult = {
           title,
-          expectedInputLanguages: inputLanguages,
+          expectedInputLanguage: inputLanguages,
         };
 
         const validation = ProofreaderApiConfigSchema.safeParse(configResult);
@@ -67,24 +67,16 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
           <div>
             <label
               className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
-              htmlFor="inputLanguages"
+              htmlFor="inputLanguage"
             >
               Input Languages
             </label>
             <select
-              multiple
-              name="inputLanguages"
-              id="inputLanguages"
-              value={inputLanguages}
+              name="inputLanguage"
+              id="inputLanguage"
+              value={inputLanguage}
               className="w-full p-2 border border-slate-300 dark:border-slate-700 rounded-md bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
-              onChange={(e) =>
-                setInputLanguages(
-                  Array.from(
-                    e.target.selectedOptions,
-                    (option) => option.value,
-                  ),
-                )
-              }
+              onChange={(e) => setInputLanguage(e.target.value)}
             >
               <option value="en" className="dark:bg-slate-900">
                 English
