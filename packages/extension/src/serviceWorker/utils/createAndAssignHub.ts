@@ -32,6 +32,11 @@ const createAndAssignHub = async (
       port.onDisconnect.addListener(async () => await restartServer());
       await sharedServer.connect(transport);
       try {
+        try {
+          await sharedServer.connect(transport);
+        } catch (error) {
+          logger(['error'], ['Error reconnecting transport:', error]);
+        }
         chrome.tabs.sendMessage(
           tabId,
           { type: START_MCP_CONNECTION },

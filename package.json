@@ -12,16 +12,16 @@
       "glob@^10": "^10.5.0",
       "js-yaml@^3": "^3.14.2",
       "js-yaml@^4": "^4.1.1",
-      "@modelcontextprotocol/sdk": "^1.25.2",
+      "@modelcontextprotocol/sdk": "1.25.2",
       "@types/react-dom": "19.1.9",
-      "zod": "^4.1.13"
+      "zod": "4.3.5"
     },
     "patchedDependencies": {
       "zod@4.3.5": "patches/zod@4.3.5.patch",
       "@mcp-b/extension-tools@0.2.3": "patches/@mcp-b__extension-tools@0.2.3.patch",
       "@assistant-ui/react": "patches/@assistant-ui__react.patch",
       "assistant-stream@0.2.46": "patches/assistant-stream@0.2.46.patch",
-      "ajv": "patches/ajv.patch",
+      "ajv@^8.0.0": "patches/ajv.patch",
       "@mcp-b/transports": "patches/@mcp-b__transports.patch"
     }
   },

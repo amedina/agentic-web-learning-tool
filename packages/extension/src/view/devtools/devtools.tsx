@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { McpClientProvider } from '@mcp-b/react-webmcp';
 import { ExtensionClientTransport } from '@mcp-b/transports';
 import { Client } from '@modelcontextprotocol/sdk/client';
 import { SidebarProvider } from '@google-awlt/design-system';
@@ -27,11 +26,9 @@ export const client = new Client({
 function DevTools() {
   return (
     <EventLogsProvider>
-      <McpClientProvider client={client} transport={transport}>
-        <SidebarProvider placement="devtools" defaultSelectedMenuItem="tools">
-          <Layout />
-        </SidebarProvider>
-      </McpClientProvider>
+      <SidebarProvider placement="devtools" defaultSelectedMenuItem="tools">
+        <Layout />
+      </SidebarProvider>
     </EventLogsProvider>
   );
 }

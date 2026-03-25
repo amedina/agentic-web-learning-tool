@@ -8,9 +8,9 @@ overrides:
   glob@^10: ^10.5.0
   js-yaml@^3: ^3.14.2
   js-yaml@^4: ^4.1.1
-  '@modelcontextprotocol/sdk': ^1.25.2
+  '@modelcontextprotocol/sdk': 1.25.2
   '@types/react-dom': 19.1.9
-  zod: ^4.1.13
+  zod: 4.3.5
 
 patchedDependencies:
   '@assistant-ui/react':
@@ -22,8 +22,8 @@ patchedDependencies:
   '@mcp-b/transports':
     hash: 1e542450173d411801977da133d190d864abd4cbf9ccefb2df2af0a1281c6801
     path: patches/@mcp-b__transports.patch
-  ajv:
-    hash: 51df5a2355743a6195a7d7f3936311225f3828dc54f97b87028b8427bb05665e
+  ajv@^8.0.0:
+    hash: 615d96c700b5d3134e6c2458f8420bbf7a4044e6c07c4e51e3a44885be08edbe
     path: patches/ajv.patch
   assistant-stream@0.2.46:
     hash: 46a7cfa2f818f8cbd85e6a5a2dbabd025717a8972464c3d8a538756a169ec3ff
@@ -277,8 +277,8 @@ importers:
         specifier: workspace:*
         version: link:../shared-config
       '@modelcontextprotocol/sdk':
-        specifier: ^1.25.2
-        version: 1.27.1(@cfworker/json-schema@4.1.1)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+        specifier: 1.25.2
+        version: 1.25.2(@cfworker/json-schema@4.1.1)(hono@4.12.8)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
       '@storybook/react-vite':
         specifier: ^9.1.3
         version: 9.1.5(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(rollup@4.50.1)(typescript@5.9.3)(vite@7.3.0(@types/node@24.10.7)(jiti@2.5.1)(lightningcss@1.30.1)(yaml@2.8.1))
@@ -352,7 +352,7 @@ importers:
   packages/engine-core:
     dependencies:
       zod:
-        specifier: ^4.1.13
+        specifier: 4.3.5
         version: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
     devDependencies:
       '@google-awlt/shared-config':
@@ -521,16 +521,19 @@ importers:
         version: link:../workflow-ui
       '@mcp-b/extension-tools':
         specifier: ^0.2.3
-        version: 0.2.3(patch_hash=de61710e62afdb10e9b1aa256f697615f6f694df3f7c35e4aa0ea8ee2eb930fd)(@cfworker/json-schema@4.1.1)
+        version: 0.2.3(patch_hash=de61710e62afdb10e9b1aa256f697615f6f694df3f7c35e4aa0ea8ee2eb930fd)(@cfworker/json-schema@4.1.1)(hono@4.12.8)
       '@mcp-b/react-webmcp':
         specifier: ^2.0.9
-        version: 2.0.9(react@19.1.1)(zod-to-json-schema@3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+        version: 2.2.0(react@19.1.1)(zod-to-json-schema@3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
       '@mcp-b/transports':
-        specifier: ^2.0.9
-        version: 2.0.9(patch_hash=1e542450173d411801977da133d190d864abd4cbf9ccefb2df2af0a1281c6801)(zod-to-json-schema@3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))
+        specifier: 1.2.0
+        version: 1.2.0(patch_hash=1e542450173d411801977da133d190d864abd4cbf9ccefb2df2af0a1281c6801)(@modelcontextprotocol/sdk@1.25.2(@cfworker/json-schema@4.1.1)(hono@4.12.8)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))
+      '@mcp-b/webmcp-ts-sdk':
+        specifier: ^2.2.0
+        version: 2.2.0(zod-to-json-schema@3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
       '@modelcontextprotocol/sdk':
-        specifier: ^1.25.2
-        version: 1.27.1(@cfworker/json-schema@4.1.1)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+        specifier: 1.25.2
+        version: 1.25.2(@cfworker/json-schema@4.1.1)(hono@4.12.8)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
       '@radix-ui/react-icons':
         specifier: ^1.3.2
         version: 1.3.2(react@19.1.1)
@@ -580,7 +583,7 @@ importers:
         specifier: ^19.1.1
         version: 19.1.1(react@19.1.1)
       zod:
-        specifier: ^4.1.13
+        specifier: 4.3.5
         version: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
       zod-from-json-schema:
         specifier: ^0.5.2
@@ -743,11 +746,11 @@ importers:
         specifier: workspace:*
         version: link:../design-system
       '@modelcontextprotocol/sdk':
-        specifier: ^1.25.2
-        version: 1.27.1(@cfworker/json-schema@4.1.1)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+        specifier: 1.25.2
+        version: 1.25.2(@cfworker/json-schema@4.1.1)(hono@4.12.8)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
       ajv:
-        specifier: ^6.12.6
-        version: 6.14.0(patch_hash=51df5a2355743a6195a7d7f3936311225f3828dc54f97b87028b8427bb05665e)
+        specifier: 6.12.6
+        version: 6.12.6
       class-variance-authority:
         specifier: ^0.7.0
         version: 0.7.1
@@ -782,7 +785,7 @@ importers:
         specifier: ^0.14.1
         version: 0.14.1(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       zod:
-        specifier: ^4.1.13
+        specifier: 4.3.5
         version: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
     devDependencies:
       '@babel/plugin-transform-react-jsx':
@@ -1116,7 +1119,7 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0(react@19.1.1)(scheduler@0.26.0)
       zod:
-        specifier: ^4.1.13
+        specifier: 4.3.5
         version: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
     devDependencies:
       '@google-awlt/shared-config':
@@ -1156,31 +1159,31 @@ packages:
     resolution: {integrity: sha512-DREpYqW2pylgaj69gZ+K8u92bo9DaMgFdictYnY+IwYeY3bawQ4zI7l/o1VkDsBDljAx8iYz5lPURwVZNu+Xpg==}
     engines: {node: '>=18'}
     peerDependencies:
-      zod: ^4.1.13
+      zod: 4.3.5
 
   '@ai-sdk/gateway@2.0.24':
     resolution: {integrity: sha512-mflk80YF8hj8vrF9e1IHhovGKC1ubX+sY88pesSk3pUiXfH5VPO8dgzNnxjwsqsCZrnkHcztxS5cSl4TzSiEuA==}
     engines: {node: '>=18'}
     peerDependencies:
-      zod: ^4.1.13
+      zod: 4.3.5
 
   '@ai-sdk/google@2.0.52':
     resolution: {integrity: sha512-2XUnGi3f7TV4ujoAhA+Fg3idUoG/+Y2xjCRg70a1/m0DH1KSQqYaCboJ1C19y6ZHGdf5KNT20eJdswP6TvrY2g==}
     engines: {node: '>=18'}
     peerDependencies:
-      zod: ^4.1.13
+      zod: 4.3.5
 
   '@ai-sdk/openai@2.0.89':
     resolution: {integrity: sha512-4+qWkBCbL9HPKbgrUO/F2uXZ8GqrYxHa8SWEYIzxEJ9zvWw3ISr3t1/27O1i8MGSym+PzEyHBT48EV4LAwWaEw==}
     engines: {node: '>=18'}
     peerDependencies:
-      zod: ^4.1.13
+      zod: 4.3.5
 
   '@ai-sdk/provider-utils@3.0.20':
     resolution: {integrity: sha512-iXHVe0apM2zUEzauqJwqmpC37A5rihrStAih5Ks+JE32iTe4LZ58y17UGBjpQQTCRw9YxMeo2UFLxLpBluyvLQ==}
     engines: {node: '>=18'}
     peerDependencies:
-      zod: ^4.1.13
+      zod: 4.3.5
 
   '@ai-sdk/provider@2.0.1':
     resolution: {integrity: sha512-KCUwswvsC5VsW2PWFqF8eJgSCu5Ysj7m1TxiHTVA6g7k360bk0RNQENT8KTMAYEs+8fWPD3Uu4dEmzGHc+jGng==}
@@ -1191,7 +1194,7 @@ packages:
     engines: {node: '>=18'}
     peerDependencies:
       react: ^18 || ~19.0.1 || ~19.1.2 || ^19.2.1
-      zod: ^4.1.13
+      zod: 4.3.5
     peerDependenciesMeta:
       zod:
         optional: true
@@ -2524,15 +2527,15 @@ packages:
   '@mcp-b/extension-tools@0.2.3':
     resolution: {integrity: sha512-0uqFDvEPWsb+djc9VFRhuXGyNWFfbZ5TWjhZku81P8RopdhX27DB7bOZur0S1rkB5/lzKaxNYeKXwLY27VUoMQ==}
 
-  '@mcp-b/global@2.0.9':
-    resolution: {integrity: sha512-HPV5oELQYxDJHWhktaqy1lV0QGwwBq81zXcug7JeisRKwrj34mJugLh/5wkWPOfGnWUtWUD2Q5jhydCiDE6g5A==}
+  '@mcp-b/global@2.2.0':
+    resolution: {integrity: sha512-3+FNuVXPGyhzYsVPL5UItMkTF+GD6E3iHEmuJY0yydjjpWtlqrUw7b7PLhyuymKcc1+jTMunyrr3Zps0uPEfiw==}
     engines: {node: '>=18'}
 
-  '@mcp-b/react-webmcp@2.0.9':
-    resolution: {integrity: sha512-Y2sI4/WcaJZCeZBm0vX0LHKD5S+2/zKGogAEQnBs/4gO3lOmCY+0QCZrLw8bbGs/X7Nrov3rgcH/2EsKl59+mA==}
+  '@mcp-b/react-webmcp@2.2.0':
+    resolution: {integrity: sha512-D2k/ZMGWfEd2pt4yBp2CgdAahBXRwcafFikSO6aSa2gc1CiPEL0A2aGMm0qEGF3REC5lY0yvybWWZJcqfdiPSg==}
     peerDependencies:
       react: ^17.0.0 || ^18.0.0 || ^19.0.0
-      zod: ^4.1.13
+      zod: 4.3.5
       zod-to-json-schema: ^3.25.0
     peerDependenciesMeta:
       zod:
@@ -2543,23 +2546,28 @@ packages:
   '@mcp-b/smart-dom-reader@1.0.2':
     resolution: {integrity: sha512-mXTn1SSvHWUcyWSYTS1bowLM7idDCbePpsWbfqCxytnFmfEsgS5Z44K4egiwqRRTA/gLLqDAKXjYcxvXSbo0/A==}
     peerDependencies:
-      '@modelcontextprotocol/sdk': ^1.25.2
+      '@modelcontextprotocol/sdk': 1.25.2
     peerDependenciesMeta:
       '@modelcontextprotocol/sdk':
         optional: true
 
-  '@mcp-b/transports@2.0.9':
-    resolution: {integrity: sha512-Eb5w6a5DqmN0BJ5S4XDLyJmvtw4WU+W0LiWZCLv3Z4hyHkwi91A0YBSAd2/MWYTqeBpBm9TgLHGdlpaYZqTV5A==}
+  '@mcp-b/transports@1.2.0':
+    resolution: {integrity: sha512-YMKv7K3QFWu1xPxKCXGGUU2coSf6Z0OcbsckriA+SfeHdTO7gDUqDXPp88Y4jSvczKdfZuuL64gV9v8StP7RJQ==}
+    peerDependencies:
+      '@modelcontextprotocol/sdk': 1.25.2
 
-  '@mcp-b/webmcp-polyfill@2.0.9':
-    resolution: {integrity: sha512-mKcIgpkCxgi4as6moU/lRbc9ANCsiHOjkIyln5ivJG4H2qa3U9Wv/euFq9B92Zbx5ZwuCvucdsmEsYsnpYHgpw==}
+  '@mcp-b/transports@2.2.0':
+    resolution: {integrity: sha512-zSqYekrmou72z67GF5jXaDnQdhT84Hlmi4meshm0zMn71GlaYmHhXfb3UsgW3xQ7Y5CexQ4U9L9IrdG6/+MTfA==}
+
+  '@mcp-b/webmcp-polyfill@2.2.0':
+    resolution: {integrity: sha512-as49JP4MHXVMMVNzD8938EsiU2tEzWNk7Un6c6C/xK5rstkIrQZQsVLbH7NFtmgMb6bbryzSqg9JWSFIxkU27Q==}
     engines: {node: '>=18'}
 
-  '@mcp-b/webmcp-ts-sdk@2.0.9':
-    resolution: {integrity: sha512-ghXcGpEj2dN2a7M7ly8j/kJr3QJus1NZbxf0NDLrOQZL2gj0UsvY00aThAuj0BN2scGFmepK45EGqNFvNxW4fQ==}
+  '@mcp-b/webmcp-ts-sdk@2.2.0':
+    resolution: {integrity: sha512-IzjwqrpbbASbAJxpr5k5m1ryiELGdnohDXzpLuB7UK2VI1rsAwQ04j59uRkMvaqZ4iwvxHTzKk+AajRB57OcPw==}
     engines: {node: '>=18'}
     peerDependencies:
-      zod: ^4.1.13
+      zod: 4.3.5
       zod-to-json-schema: ^3.25.0
     peerDependenciesMeta:
       zod:
@@ -2567,8 +2575,8 @@ packages:
       zod-to-json-schema:
         optional: true
 
-  '@mcp-b/webmcp-types@2.0.9':
-    resolution: {integrity: sha512-ktgOElR4ODzlo5JtX+YAWsWFYoErrmIUBJ1U10396HNEdHPPFPZZSPpOCWc4a8RoKxC8RqEWyUt5dPj+wBps8Q==}
+  '@mcp-b/webmcp-types@2.2.0':
+    resolution: {integrity: sha512-1/UYAwQKBkqRgK18GkbGR4m6Cn9vz6Qy6pTL5LIIinUOhR5dMLaNl/blH/tJT+nJleMmgDoFZWGAmmr+fAz2PQ==}
 
   '@mdx-js/react@3.1.1':
     resolution: {integrity: sha512-f++rKLQgUVYDAtECQ6fn/is15GkEH9+nZPM3MS0RcxVqoTfawHvDlSCH7JbMhAM6uJ32v3eXLvLmLvjGu7PTQw==}
@@ -2576,12 +2584,12 @@ packages:
       '@types/react': '>=16'
       react: '>=16'
 
-  '@modelcontextprotocol/sdk@1.27.1':
-    resolution: {integrity: sha512-sr6GbP+4edBwFndLbM60gf07z0FQ79gaExpnsjMGePXqFcSSb7t6iscpjk9DhFhwd+mTEQrzNafGP8/iGGFYaA==}
+  '@modelcontextprotocol/sdk@1.25.2':
+    resolution: {integrity: sha512-LZFeo4F9M5qOhC/Uc1aQSrBHxMrvxett+9KLHt7OhcExtoiRN9DKgbZffMP/nxjutWDQpfMDfP3nkHI4X9ijww==}
     engines: {node: '>=18'}
     peerDependencies:
       '@cfworker/json-schema': ^4.1.1
-      zod: ^4.1.13
+      zod: 4.3.5
     peerDependenciesMeta:
       '@cfworker/json-schema':
         optional: true
@@ -3997,7 +4005,7 @@ packages:
     resolution: {integrity: sha512-uE6HNkdSwxbeHGKP/YbvapwD8fMOpj87wyfT9Z00pbzOh2fpnw5acak/4kzU00SX2vtI9K0uuy+9Tf9ytw5RwA==}
     engines: {node: '>=18'}
     peerDependencies:
-      zod: ^4.1.13
+      zod: 4.3.5
 
   ajv-formats@3.0.1:
     resolution: {integrity: sha512-8iUql50EUR+uUcdRQ3HDqa6EVyo3docL8g5WJ3FNcWmu62IbkGUue/pEyLBW8VGKKucTPgqeks4fIU1DA4yowQ==}
@@ -4007,11 +4015,11 @@ packages:
       ajv:
         optional: true
 
-  ajv@6.14.0:
-    resolution: {integrity: sha512-IWrosm/yrn43eiKqkfkHis7QioDleaXQHdDVPKg0FSwwd/DuvyX79TZnFOnYpB7dcsFAMmtFztZuXPDvSePkFw==}
+  ajv@6.12.6:
+    resolution: {integrity: sha512-j3fVLgvTo527anyYyJOGTYJbG+vnnQYvE0m5mmkc1TK+nxAppkCLMIL0aZ4dblVCNoGShhm+kzE4ZUykBoMg4g==}
 
-  ajv@8.17.1:
-    resolution: {integrity: sha512-B/gBuNg5SiMTrPkC+A2+cW0RszwxYmn6VYxB/inlBStS5nx6xHIt/ehKRhIMhqusl7a8LjQoZnjCs5vhwxOQ1g==}
+  ajv@8.18.0:
+    resolution: {integrity: sha512-PlXPeEWMXMZ7sPYOHqmDyCJzcfNrUr3fGNKtezX14ykXOEIvyK81d+qydx89KY5O71FKMPaQ2vBfBFI5NHR63A==}
 
   ansi-escapes@4.3.2:
     resolution: {integrity: sha512-gKXj5ALrKWQLsYG9jlTRmR/xKluxHV+Z9QEwNIgCfM1/uwPMCuzVVnh5mwTd+OuBZcwSIMbqssNWRm1lE51QaQ==}
@@ -4941,8 +4949,8 @@ packages:
     resolution: {integrity: sha512-2Zks0hf1VLFYI1kbh0I5jP3KHHyCHpkfyHBzsSXRFgl/Bg9mWYfMW8oD+PdMPlEwy5HNsR9JutYy6pMeOh61nw==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
 
-  express-rate-limit@8.3.1:
-    resolution: {integrity: sha512-D1dKN+cmyPWuvB+G2SREQDzPY1agpBIcTa9sJxOPMCNeH3gwzhqJRDWCXW3gg0y//+LQ/8j52JbMROWyrKdMdw==}
+  express-rate-limit@7.5.1:
+    resolution: {integrity: sha512-7iN8iPMDzOMHPUYllBEsQdWVB6fPDMPqwjBaFrgr4Jgr/+okjvzAy+UHlYYL/Vs0OsOrMkwS6PJDkFlJwoxUnw==}
     engines: {node: '>= 16'}
     peerDependencies:
       express: '>= 4.11'
@@ -5316,10 +5324,6 @@ packages:
   internal-slot@1.1.0:
     resolution: {integrity: sha512-4gd7VpWNQNB4UKKCFFVcp1AVv+FMOgs9NKzjHKusc8jTMhd5eL1NqQqOpE0KzMds804/yHlglp3uxgluOqAPLw==}
     engines: {node: '>= 0.4'}
-
-  ip-address@10.1.0:
-    resolution: {integrity: sha512-XXADHxXmvT9+CRxhXg56LJovE+bmWnEWB78LB83VZTprKTmaC5QfruXocxzTZ2Kl0DNwKuBdlIhjL8LeY8Sf8Q==}
-    engines: {node: '>= 12'}
 
   ipaddr.js@1.9.1:
     resolution: {integrity: sha512-0KI/607xoxSToH7GjN1FfSbLoU0+btTicjsQSWQlh/hZykN8KpmMf7uYwPW3R+akZ6R/w18ZlXSHBYXiYUPO3g==}
@@ -6256,7 +6260,7 @@ packages:
     resolution: {integrity: sha512-1YwTFdPjhPNHny/DrOHO+s8oVGGIE5Jib61/KnnjPRNWQhVVimrJJdaAX3e6nNRRDXrY5zbb9cfm2+yVvgsrqw==}
     engines: {node: '>=18'}
     peerDependencies:
-      zod: ^4.1.13
+      zod: 4.3.5
 
   on-finished@2.4.1:
     resolution: {integrity: sha512-oVlzkg3ENAhCk2zdv7IJwd/QUD4z2RxRwpkcGY8psCVcCYZNq4wYnVWALHM+brtuJjePWiYF/ClmuDr8Ch5+kg==}
@@ -7719,7 +7723,7 @@ packages:
   zod-to-json-schema@3.25.1:
     resolution: {integrity: sha512-pM/SU9d3YAggzi6MtR4h7ruuQlqKtad8e9S0fmxcMi+ueAK5Korys/aWcV9LIIHTVbj01NdzxcnXSN+O74ZIVA==}
     peerDependencies:
-      zod: ^4.1.13
+      zod: 4.3.5
 
   zod@4.3.5:
     resolution: {integrity: sha512-k7Nwx6vuWx1IJ9Bjuf4Zt1PEllcwe7cls3VNzm4CQ1/hgtFUK2bRNG3rvnpPUhFjmqJKAKtjV576KnUkHocg/g==}
@@ -8992,7 +8996,7 @@ snapshots:
 
   '@eslint/eslintrc@3.3.1':
     dependencies:
-      ajv: 6.14.0(patch_hash=51df5a2355743a6195a7d7f3936311225f3828dc54f97b87028b8427bb05665e)
+      ajv: 6.12.6
       debug: 4.4.1
       espree: 10.4.0
       globals: 14.0.0
@@ -9335,64 +9339,70 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@mcp-b/extension-tools@0.2.3(patch_hash=de61710e62afdb10e9b1aa256f697615f6f694df3f7c35e4aa0ea8ee2eb930fd)(@cfworker/json-schema@4.1.1)':
+  '@mcp-b/extension-tools@0.2.3(patch_hash=de61710e62afdb10e9b1aa256f697615f6f694df3f7c35e4aa0ea8ee2eb930fd)(@cfworker/json-schema@4.1.1)(hono@4.12.8)':
     dependencies:
-      '@mcp-b/smart-dom-reader': 1.0.2(@modelcontextprotocol/sdk@1.27.1(@cfworker/json-schema@4.1.1)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))
-      '@modelcontextprotocol/sdk': 1.27.1(@cfworker/json-schema@4.1.1)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+      '@mcp-b/smart-dom-reader': 1.0.2(@modelcontextprotocol/sdk@1.25.2(@cfworker/json-schema@4.1.1)(hono@4.12.8)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))
+      '@modelcontextprotocol/sdk': 1.25.2(@cfworker/json-schema@4.1.1)(hono@4.12.8)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
       zod: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
       zod-to-json-schema: 3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
     transitivePeerDependencies:
       - '@cfworker/json-schema'
+      - hono
       - supports-color
 
-  '@mcp-b/global@2.0.9(zod-to-json-schema@3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))':
+  '@mcp-b/global@2.2.0(zod-to-json-schema@3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))':
     dependencies:
-      '@mcp-b/transports': 2.0.9(patch_hash=1e542450173d411801977da133d190d864abd4cbf9ccefb2df2af0a1281c6801)(zod-to-json-schema@3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))
-      '@mcp-b/webmcp-polyfill': 2.0.9
-      '@mcp-b/webmcp-ts-sdk': 2.0.9(zod-to-json-schema@3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
-      '@mcp-b/webmcp-types': 2.0.9
+      '@mcp-b/transports': 2.2.0(patch_hash=1e542450173d411801977da133d190d864abd4cbf9ccefb2df2af0a1281c6801)(zod-to-json-schema@3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))
+      '@mcp-b/webmcp-polyfill': 2.2.0
+      '@mcp-b/webmcp-ts-sdk': 2.2.0(zod-to-json-schema@3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+      '@mcp-b/webmcp-types': 2.2.0
     transitivePeerDependencies:
       - zod
       - zod-to-json-schema
 
-  '@mcp-b/react-webmcp@2.0.9(react@19.1.1)(zod-to-json-schema@3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))':
+  '@mcp-b/react-webmcp@2.2.0(react@19.1.1)(zod-to-json-schema@3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))':
     dependencies:
-      '@mcp-b/global': 2.0.9(zod-to-json-schema@3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
-      '@mcp-b/transports': 2.0.9(patch_hash=1e542450173d411801977da133d190d864abd4cbf9ccefb2df2af0a1281c6801)(zod-to-json-schema@3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))
-      '@mcp-b/webmcp-polyfill': 2.0.9
-      '@mcp-b/webmcp-ts-sdk': 2.0.9(zod-to-json-schema@3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
-      '@mcp-b/webmcp-types': 2.0.9
+      '@mcp-b/global': 2.2.0(zod-to-json-schema@3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+      '@mcp-b/transports': 2.2.0(patch_hash=1e542450173d411801977da133d190d864abd4cbf9ccefb2df2af0a1281c6801)(zod-to-json-schema@3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))
+      '@mcp-b/webmcp-polyfill': 2.2.0
+      '@mcp-b/webmcp-ts-sdk': 2.2.0(zod-to-json-schema@3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+      '@mcp-b/webmcp-types': 2.2.0
       react: 19.1.1
     optionalDependencies:
       zod: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
       zod-to-json-schema: 3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
 
-  '@mcp-b/smart-dom-reader@1.0.2(@modelcontextprotocol/sdk@1.27.1(@cfworker/json-schema@4.1.1)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))':
+  '@mcp-b/smart-dom-reader@1.0.2(@modelcontextprotocol/sdk@1.25.2(@cfworker/json-schema@4.1.1)(hono@4.12.8)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))':
     optionalDependencies:
-      '@modelcontextprotocol/sdk': 1.27.1(@cfworker/json-schema@4.1.1)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+      '@modelcontextprotocol/sdk': 1.25.2(@cfworker/json-schema@4.1.1)(hono@4.12.8)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
 
-  '@mcp-b/transports@2.0.9(patch_hash=1e542450173d411801977da133d190d864abd4cbf9ccefb2df2af0a1281c6801)(zod-to-json-schema@3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))':
+  '@mcp-b/transports@1.2.0(patch_hash=1e542450173d411801977da133d190d864abd4cbf9ccefb2df2af0a1281c6801)(@modelcontextprotocol/sdk@1.25.2(@cfworker/json-schema@4.1.1)(hono@4.12.8)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))':
     dependencies:
-      '@mcp-b/webmcp-ts-sdk': 2.0.9(zod-to-json-schema@3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+      '@modelcontextprotocol/sdk': 1.25.2(@cfworker/json-schema@4.1.1)(hono@4.12.8)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+      zod: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
+
+  '@mcp-b/transports@2.2.0(patch_hash=1e542450173d411801977da133d190d864abd4cbf9ccefb2df2af0a1281c6801)(zod-to-json-schema@3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))':
+    dependencies:
+      '@mcp-b/webmcp-ts-sdk': 2.2.0(zod-to-json-schema@3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
       zod: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
     transitivePeerDependencies:
       - zod-to-json-schema
 
-  '@mcp-b/webmcp-polyfill@2.0.9':
+  '@mcp-b/webmcp-polyfill@2.2.0':
     dependencies:
       '@cfworker/json-schema': 4.1.1
-      '@mcp-b/webmcp-types': 2.0.9
+      '@mcp-b/webmcp-types': 2.2.0
       '@standard-schema/spec': 1.1.0
 
-  '@mcp-b/webmcp-ts-sdk@2.0.9(zod-to-json-schema@3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))':
+  '@mcp-b/webmcp-ts-sdk@2.2.0(zod-to-json-schema@3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))':
     dependencies:
-      '@mcp-b/webmcp-polyfill': 2.0.9
-      '@mcp-b/webmcp-types': 2.0.9
+      '@mcp-b/webmcp-polyfill': 2.2.0
+      '@mcp-b/webmcp-types': 2.2.0
     optionalDependencies:
       zod: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
       zod-to-json-schema: 3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
 
-  '@mcp-b/webmcp-types@2.0.9': {}
+  '@mcp-b/webmcp-types@2.2.0': {}
 
   '@mdx-js/react@3.1.1(@types/react@19.1.12)(react@19.1.1)':
     dependencies:
@@ -9400,19 +9410,18 @@ snapshots:
       '@types/react': 19.1.12
       react: 19.1.1
 
-  '@modelcontextprotocol/sdk@1.27.1(@cfworker/json-schema@4.1.1)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))':
+  '@modelcontextprotocol/sdk@1.25.2(@cfworker/json-schema@4.1.1)(hono@4.12.8)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))':
     dependencies:
       '@hono/node-server': 1.19.11(hono@4.12.8)
-      ajv: 8.17.1(patch_hash=51df5a2355743a6195a7d7f3936311225f3828dc54f97b87028b8427bb05665e)
-      ajv-formats: 3.0.1(ajv@8.17.1(patch_hash=51df5a2355743a6195a7d7f3936311225f3828dc54f97b87028b8427bb05665e))
+      ajv: 8.18.0(patch_hash=615d96c700b5d3134e6c2458f8420bbf7a4044e6c07c4e51e3a44885be08edbe)
+      ajv-formats: 3.0.1(ajv@8.18.0(patch_hash=615d96c700b5d3134e6c2458f8420bbf7a4044e6c07c4e51e3a44885be08edbe))
       content-type: 1.0.5
       cors: 2.8.5
       cross-spawn: 7.0.6
       eventsource: 3.0.7
       eventsource-parser: 3.0.6
       express: 5.2.1
-      express-rate-limit: 8.3.1(express@5.2.1)
-      hono: 4.12.8
+      express-rate-limit: 7.5.1(express@5.2.1)
       jose: 6.1.3
       json-schema-typed: 8.0.2
       pkce-challenge: 5.0.1
@@ -9422,6 +9431,7 @@ snapshots:
     optionalDependencies:
       '@cfworker/json-schema': 4.1.1
     transitivePeerDependencies:
+      - hono
       - supports-color
 
   '@neoconfetti/react@1.0.0': {}
@@ -11148,18 +11158,18 @@ snapshots:
       '@opentelemetry/api': 1.9.0
       zod: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
 
-  ajv-formats@3.0.1(ajv@8.17.1(patch_hash=51df5a2355743a6195a7d7f3936311225f3828dc54f97b87028b8427bb05665e)):
+  ajv-formats@3.0.1(ajv@8.18.0(patch_hash=615d96c700b5d3134e6c2458f8420bbf7a4044e6c07c4e51e3a44885be08edbe)):
     optionalDependencies:
-      ajv: 8.17.1(patch_hash=51df5a2355743a6195a7d7f3936311225f3828dc54f97b87028b8427bb05665e)
+      ajv: 8.18.0(patch_hash=615d96c700b5d3134e6c2458f8420bbf7a4044e6c07c4e51e3a44885be08edbe)
 
-  ajv@6.14.0(patch_hash=51df5a2355743a6195a7d7f3936311225f3828dc54f97b87028b8427bb05665e):
+  ajv@6.12.6:
     dependencies:
       fast-deep-equal: 3.1.3
       fast-json-stable-stringify: 2.1.0
       json-schema-traverse: 0.4.1
       uri-js: 4.4.1
 
-  ajv@8.17.1(patch_hash=51df5a2355743a6195a7d7f3936311225f3828dc54f97b87028b8427bb05665e):
+  ajv@8.18.0(patch_hash=615d96c700b5d3134e6c2458f8420bbf7a4044e6c07c4e51e3a44885be08edbe):
     dependencies:
       fast-deep-equal: 3.1.3
       fast-uri: 3.1.0
@@ -12226,7 +12236,7 @@ snapshots:
       '@humanwhocodes/retry': 0.4.3
       '@types/estree': 1.0.8
       '@types/json-schema': 7.0.15
-      ajv: 6.14.0(patch_hash=51df5a2355743a6195a7d7f3936311225f3828dc54f97b87028b8427bb05665e)
+      ajv: 6.12.6
       chalk: 4.1.2
       cross-spawn: 7.0.6
       debug: 4.4.1
@@ -12267,7 +12277,7 @@ snapshots:
       '@humanwhocodes/module-importer': 1.0.1
       '@humanwhocodes/retry': 0.4.3
       '@types/estree': 1.0.8
-      ajv: 6.14.0(patch_hash=51df5a2355743a6195a7d7f3936311225f3828dc54f97b87028b8427bb05665e)
+      ajv: 6.12.6
       chalk: 4.1.2
       cross-spawn: 7.0.6
       debug: 4.4.3
@@ -12356,10 +12366,9 @@ snapshots:
       jest-message-util: 29.7.0
       jest-util: 29.7.0
 
-  express-rate-limit@8.3.1(express@5.2.1):
+  express-rate-limit@7.5.1(express@5.2.1):
     dependencies:
       express: 5.2.1
-      ip-address: 10.1.0
 
   express@5.2.1:
     dependencies:
@@ -12792,8 +12801,6 @@ snapshots:
       es-errors: 1.3.0
       hasown: 2.0.2
       side-channel: 1.1.0
-
-  ip-address@10.1.0: {}
 
   ipaddr.js@1.9.1: {}
 

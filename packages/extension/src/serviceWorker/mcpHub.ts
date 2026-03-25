@@ -85,20 +85,6 @@ class McpHub {
         this.toolInjected = true;
       }
     });
-
-    chrome.webNavigation.onCompleted.addListener(async (details) => {
-      if (details.frameId !== 0 || details.tabId !== this.tabId) {
-        return;
-      }
-
-      if (details.url.startsWith('chrome://')) {
-        return;
-      }
-
-      this.toolInjected = false;
-      await this.injectToolsAndRegisterFunction(details.tabId);
-      await this.injectWorkflowToolsAndRegisterFunction(details.tabId);
-    });
   }
 
   async fetchLocalStorageAndRegisterTools() {
@@ -487,6 +473,13 @@ class McpHub {
                 false,
                 false
               );
+            }
+            if (
+              this.registeredTools.get('get_page_title') &&
+              this.registeredTools.get('change_bg_color')
+            ) {
+              await this.injectToolsAndRegisterFunction(this.tabId);
+              await this.injectWorkflowToolsAndRegisterFunction(this.tabId);
             }
             break;
           case MESSAGE_TYPES.UPDATE:
@@ -1002,7 +995,7 @@ class McpHub {
               unregisterFunction?.();
             } else {
               try {
-                navigator.modelContext.unregisterTool(toolToRegister.name);
+                navigator.modelContext?.unregisterTool(toolToRegister.name);
               } catch (e) {
                 console.log(
                   'WebMCP: Failed to unregister tool:',
@@ -1140,7 +1133,7 @@ class McpHub {
               unregisterFunction?.();
             } else {
               try {
-                navigator.modelContext.unregisterTool(toolToRegister.name);
+                navigator.modelContext?.unregisterTool(toolToRegister.name);
               } catch (e) {
                 console.log(
                   'WebMCP: Failed to unregister tool:',
