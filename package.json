@@ -21,10 +21,10 @@
       "zod@4.3.5": "patches/zod@4.3.5.patch",
       "@mcp-b/extension-tools@0.2.3": "patches/@mcp-b__extension-tools@0.2.3.patch",
       "@assistant-ui/react": "patches/@assistant-ui__react.patch",
-      "assistant-stream@0.2.46": "patches/assistant-stream@0.2.46.patch",
+      "assistant-stream": "patches/assistant-stream@0.2.46.patch",
       "ajv@^8.0.0": "patches/ajv.patch",
-      "@mcp-b/transports^@2.0.0": "patches/@mcp-b__transports.patch",
-      "@mcp-b/react-webmcp^@2.0.0": "patches/@mcp-b__react-webmcp.patch"
+      "@mcp-b/transports@^2.0.0": "patches/@mcp-b__transports.patch",
+      "@mcp-b/react-webmcp@^2.0.0": "patches/@mcp-b__react-webmcp.patch"
     }
   },
   "scripts": {
