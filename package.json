@@ -13,6 +13,7 @@
       "js-yaml@^3": "^3.14.2",
       "js-yaml@^4": "^4.1.1",
       "@modelcontextprotocol/sdk": "1.25.2",
+      "@mcp-b/transports": "2.2.0",
       "@types/react-dom": "19.1.9",
       "zod": "4.3.5"
     },
@@ -22,7 +23,8 @@
       "@assistant-ui/react": "patches/@assistant-ui__react.patch",
       "assistant-stream@0.2.46": "patches/assistant-stream@0.2.46.patch",
       "ajv@^8.0.0": "patches/ajv.patch",
-      "@mcp-b/transports": "patches/@mcp-b__transports.patch"
+      "@mcp-b/transports^@2.0.0": "patches/@mcp-b__transports.patch",
+      "@mcp-b/react-webmcp^@2.0.0": "patches/@mcp-b__react-webmcp.patch"
     }
   },
   "scripts": {

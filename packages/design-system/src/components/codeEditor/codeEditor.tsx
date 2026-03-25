@@ -183,7 +183,7 @@ export function CodeEditor({
             selectedLineNumbers={breakpoints}
             showLineNumbers={enableBreakpoints}
             onLinenumberClick={
-              shouldDisableEditor ? toggleBreakpoint : undefined
+              !shouldDisableEditor ? toggleBreakpoint : undefined
             }
             width={
               textareaLineHeight === '1.369' ? 'calc(2.25rem - 1em)' : '2.25rem'

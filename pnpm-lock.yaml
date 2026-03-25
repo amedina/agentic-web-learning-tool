@@ -9,6 +9,7 @@ overrides:
   js-yaml@^3: ^3.14.2
   js-yaml@^4: ^4.1.1
   '@modelcontextprotocol/sdk': 1.25.2
+  '@mcp-b/transports': 2.2.0
   '@types/react-dom': 19.1.9
   zod: 4.3.5
 
@@ -20,7 +21,7 @@ patchedDependencies:
     hash: de61710e62afdb10e9b1aa256f697615f6f694df3f7c35e4aa0ea8ee2eb930fd
     path: patches/@mcp-b__extension-tools@0.2.3.patch
   '@mcp-b/transports':
-    hash: 1e542450173d411801977da133d190d864abd4cbf9ccefb2df2af0a1281c6801
+    hash: 895810792e73f58dcd5b7e0e036da109be52e2edf6cdd54263351893072d447f
     path: patches/@mcp-b__transports.patch
   ajv@^8.0.0:
     hash: 615d96c700b5d3134e6c2458f8420bbf7a4044e6c07c4e51e3a44885be08edbe
@@ -526,8 +527,8 @@ importers:
         specifier: ^2.0.9
         version: 2.2.0(react@19.1.1)(zod-to-json-schema@3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
       '@mcp-b/transports':
-        specifier: 1.2.0
-        version: 1.2.0(patch_hash=1e542450173d411801977da133d190d864abd4cbf9ccefb2df2af0a1281c6801)(@modelcontextprotocol/sdk@1.25.2(@cfworker/json-schema@4.1.1)(hono@4.12.8)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))
+        specifier: 2.2.0
+        version: 2.2.0(patch_hash=895810792e73f58dcd5b7e0e036da109be52e2edf6cdd54263351893072d447f)(zod-to-json-schema@3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))
       '@mcp-b/webmcp-ts-sdk':
         specifier: ^2.2.0
         version: 2.2.0(zod-to-json-schema@3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
@@ -2550,11 +2551,6 @@ packages:
     peerDependenciesMeta:
       '@modelcontextprotocol/sdk':
         optional: true
-
-  '@mcp-b/transports@1.2.0':
-    resolution: {integrity: sha512-YMKv7K3QFWu1xPxKCXGGUU2coSf6Z0OcbsckriA+SfeHdTO7gDUqDXPp88Y4jSvczKdfZuuL64gV9v8StP7RJQ==}
-    peerDependencies:
-      '@modelcontextprotocol/sdk': 1.25.2
 
   '@mcp-b/transports@2.2.0':
     resolution: {integrity: sha512-zSqYekrmou72z67GF5jXaDnQdhT84Hlmi4meshm0zMn71GlaYmHhXfb3UsgW3xQ7Y5CexQ4U9L9IrdG6/+MTfA==}
@@ -9352,7 +9348,7 @@ snapshots:
 
   '@mcp-b/global@2.2.0(zod-to-json-schema@3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))':
     dependencies:
-      '@mcp-b/transports': 2.2.0(patch_hash=1e542450173d411801977da133d190d864abd4cbf9ccefb2df2af0a1281c6801)(zod-to-json-schema@3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))
+      '@mcp-b/transports': 2.2.0(patch_hash=895810792e73f58dcd5b7e0e036da109be52e2edf6cdd54263351893072d447f)(zod-to-json-schema@3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))
       '@mcp-b/webmcp-polyfill': 2.2.0
       '@mcp-b/webmcp-ts-sdk': 2.2.0(zod-to-json-schema@3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
       '@mcp-b/webmcp-types': 2.2.0
@@ -9363,7 +9359,7 @@ snapshots:
   '@mcp-b/react-webmcp@2.2.0(react@19.1.1)(zod-to-json-schema@3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))':
     dependencies:
       '@mcp-b/global': 2.2.0(zod-to-json-schema@3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
-      '@mcp-b/transports': 2.2.0(patch_hash=1e542450173d411801977da133d190d864abd4cbf9ccefb2df2af0a1281c6801)(zod-to-json-schema@3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))
+      '@mcp-b/transports': 2.2.0(patch_hash=895810792e73f58dcd5b7e0e036da109be52e2edf6cdd54263351893072d447f)(zod-to-json-schema@3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))
       '@mcp-b/webmcp-polyfill': 2.2.0
       '@mcp-b/webmcp-ts-sdk': 2.2.0(zod-to-json-schema@3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
       '@mcp-b/webmcp-types': 2.2.0
@@ -9376,12 +9372,7 @@ snapshots:
     optionalDependencies:
       '@modelcontextprotocol/sdk': 1.25.2(@cfworker/json-schema@4.1.1)(hono@4.12.8)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
 
-  '@mcp-b/transports@1.2.0(patch_hash=1e542450173d411801977da133d190d864abd4cbf9ccefb2df2af0a1281c6801)(@modelcontextprotocol/sdk@1.25.2(@cfworker/json-schema@4.1.1)(hono@4.12.8)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))':
-    dependencies:
-      '@modelcontextprotocol/sdk': 1.25.2(@cfworker/json-schema@4.1.1)(hono@4.12.8)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
-      zod: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
-
-  '@mcp-b/transports@2.2.0(patch_hash=1e542450173d411801977da133d190d864abd4cbf9ccefb2df2af0a1281c6801)(zod-to-json-schema@3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))':
+  '@mcp-b/transports@2.2.0(patch_hash=895810792e73f58dcd5b7e0e036da109be52e2edf6cdd54263351893072d447f)(zod-to-json-schema@3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))':
     dependencies:
       '@mcp-b/webmcp-ts-sdk': 2.2.0(zod-to-json-schema@3.25.1(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
       zod: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)

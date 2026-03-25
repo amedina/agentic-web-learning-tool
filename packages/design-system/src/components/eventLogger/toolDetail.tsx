@@ -73,7 +73,7 @@ export function ToolDetail({
 
       setNewScript(scriptToUse);
     })();
-  }, [tool, getUserTool, tabId]);
+  }, [tool, getUserTool, tabId, inBuiltTools]);
 
   return (
     <Tabs
