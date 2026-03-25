@@ -87,15 +87,17 @@ export class WorkflowClient {
       type: 'GET_GLOBAL_STATUS',
     };
 
-    const response = (await chrome.runtime.sendMessage(message)) as {
-      success: boolean;
-      state: GlobalWorkflowState;
-      error?: string;
-    };
-
-    if (chrome.runtime.lastError) {
-      throw new Error(chrome.runtime.lastError.message);
+    let response;
+    try {
+      response = (await chrome.runtime.sendMessage(message)) as {
+        success: boolean;
+        state: GlobalWorkflowState;
+        error?: string;
+      };
+    } catch (error: any) {
+      throw new Error(error.message);
     }
+
     if (!response?.success) {
       throw new Error(response?.error ?? 'Failed to get global status');
     }
@@ -172,11 +174,13 @@ export class WorkflowClient {
       capabilities,
     };
 
-    const response = await chrome.runtime.sendMessage(message);
-
-    if (chrome.runtime.lastError) {
-      throw new Error(chrome.runtime.lastError.message);
+    let response;
+    try {
+      response = await chrome.runtime.sendMessage(message);
+    } catch (error: any) {
+      throw new Error(error.message);
     }
+
     if (!response?.success) {
       throw new Error(response?.error ?? 'Capability check failed');
     }
@@ -192,7 +196,16 @@ export class WorkflowClient {
       type: 'STOP_WORKFLOW',
     };
 
-    await chrome.runtime.sendMessage(message);
+    let response;
+    try {
+      response = await chrome.runtime.sendMessage(message);
+    } catch (error: any) {
+      throw new Error(error.message);
+    }
+
+    if (!response?.success) {
+      throw new Error(response?.error ?? 'Failed to stop workflow');
+    }
   }
 
   /**
@@ -202,35 +215,43 @@ export class WorkflowClient {
     if (this.listening) return;
     this.listening = true;
 
-    chrome.runtime.onMessage.addListener((message: StatusUpdate) => {
-      switch (message.type) {
-        case 'NODE_STATUS':
-          if (message.output.status === 'running') {
+    chrome.runtime.onMessage.addListener(
+      (message: StatusUpdate, _sender, sendResponse) => {
+        switch (message.type) {
+          case 'NODE_STATUS':
+            if (message.output.status === 'running') {
+              this.executionListeners.forEach((l) =>
+                l.onNodeStart?.(message.nodeId)
+              );
+            } else {
+              this.executionListeners.forEach((l) =>
+                l.onNodeFinish?.(message.nodeId, message.output)
+              );
+            }
+            break;
+
+          case 'WORKFLOW_COMPLETE':
             this.executionListeners.forEach((l) =>
-              l.onNodeStart?.(message.nodeId)
+              l.onComplete?.(message.context)
             );
-          } else {
-            this.executionListeners.forEach((l) =>
-              l.onNodeFinish?.(message.nodeId, message.output)
-            );
-          }
-          break;
+            break;
 
-        case 'WORKFLOW_COMPLETE':
-          this.executionListeners.forEach((l) =>
-            l.onComplete?.(message.context)
-          );
-          break;
+          case 'WORKFLOW_ERROR':
+            this.executionListeners.forEach((l) => l.onError?.(message?.error));
+            break;
 
-        case 'WORKFLOW_ERROR':
-          this.executionListeners.forEach((l) => l.onError?.(message?.error));
-          break;
+          case 'WORKFLOW_STATUS_CHANGE':
+            this.globalCallbacks.forEach((cb) => cb(message.state));
+            break;
+        }
 
-        case 'WORKFLOW_STATUS_CHANGE':
-          this.globalCallbacks.forEach((cb) => cb(message.state));
-          break;
+        try {
+          sendResponse();
+        } catch (error) {
+          console.error('Error sending response:', error);
+        }
       }
-    });
+    );
   }
 }
 

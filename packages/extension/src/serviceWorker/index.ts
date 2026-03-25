@@ -116,7 +116,15 @@ chrome.runtime.onConnect.addListener(async (port) => {
   }
 });
 
-chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((message, _sender, sendResponseCb) => {
+  const sendResponse = (response?: any) => {
+    try {
+      sendResponseCb(response);
+    } catch (error) {
+      logger(['error'], ['Failed to send response:', error]);
+    }
+  };
+
   if (message.type === 'PING') {
     sendResponse({ status: 'ok' });
   }
@@ -156,6 +164,8 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         userWebMCPTools: reformedWebMcpTools,
       });
     });
+
+    sendResponse();
   }
 });
 
