@@ -25,6 +25,19 @@ const createAndAssignHub = async (
       const transport = new ExtensionServerTransport(port, {
         keepAlive: true,
       });
+      //@todo - this is a temporary fix to handle the case when transport.send is called after port is disconnected but before onDisconnect listener is called.
+      // This can happen during url changes. We should ideally handle this case in the transport itself.
+      const sendRef = transport.send.bind(transport);
+      transport.send = async (...args) => {
+        try {
+          await sendRef(...args);
+        } catch (error) {
+          logger(
+            ['error'],
+            ['Error sending message through transport:', error]
+          );
+        }
+      };
       const mcpHub = mcpHubInstances.get(tabId);
 
       if (!mcpHub || !sharedServer) {
@@ -107,6 +120,14 @@ const createAndAssignHub = async (
     const transport = new ExtensionServerTransport(port, {
       keepAlive: true,
     });
+    const sendRef = transport.send.bind(transport);
+    transport.send = async (...args) => {
+      try {
+        await sendRef(...args);
+      } catch (error) {
+        logger(['error'], ['Error sending message through transport:', error]);
+      }
+    };
     port.onDisconnect.addListener(async () => await restartServer());
     try {
       //Why this is being done look here https://github.com/modelcontextprotocol/typescript-sdk/issues/893
