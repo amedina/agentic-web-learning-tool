@@ -23,27 +23,28 @@ function formatToolResult(
 
   const nonStructuredContent = content as CallToolResult['content'];
   // 1. Handle Images
+  // Convert image parts to text descriptions to avoid AI SDK trying to
+  // download data: URIs when the conversation history is passed back to the
+  // model via convertToModelMessages (causes AI_DownloadError).
   const images = nonStructuredContent.filter((part) => part.type === 'image');
   if (images.length > 0) {
-    const imageParts = images.map((imagePart, index) => {
-      // Log for debugging purposes
+    const imageDescriptions = images.map((imagePart, index) => {
       logger(
-        ['error'],
+        ['debug'],
         [
           `[ToolResult] Image ${index + 1}/${images.length}: ${imagePart.mimeType}, ${imagePart.data.length} bytes`,
         ]
       );
 
-      return {
-        type: 'image',
-        data: imagePart.data,
-        mimeType: imagePart.mimeType,
-      };
+      return `[Image: ${imagePart.mimeType}, ${imagePart.data.length} bytes]`;
     });
 
-    // If we only have one image, return it directly object (common UI pattern)
-    // Otherwise return the array of images
-    return images.length === 1 ? imageParts[0] : imageParts;
+    // Return text descriptions of images along with any text content
+    const textParts = nonStructuredContent
+      .filter((part) => part.type === 'text')
+      .map((part) => part.text);
+
+    return [...textParts, ...imageDescriptions].join('\n');
   }
 
   // 2. Handle Simple Text (common case)

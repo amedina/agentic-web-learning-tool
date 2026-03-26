@@ -1,12 +1,30 @@
 /**
  * External dependencies
  */
-import { MessagePrimitive, ActionBarPrimitive } from '@assistant-ui/react';
+import {
+  MessagePrimitive,
+  ActionBarPrimitive,
+  AttachmentPrimitive,
+} from '@assistant-ui/react';
 import { Pencil1Icon } from '@radix-ui/react-icons';
 /**
  * Internal dependencies
  */
 import ActionButton from './actionButton';
+
+const UserImagePart = ({ image }: { image: string }) => (
+  <img
+    src={image}
+    alt="User attachment"
+    className="max-w-full max-h-60 rounded-lg"
+  />
+);
+
+const UserMessageAttachment = () => (
+  <AttachmentPrimitive.Root className="inline-block">
+    <AttachmentPrimitive.unstable_Thumb className="w-16 h-16 rounded-md overflow-hidden" />
+  </AttachmentPrimitive.Root>
+);
 
 const UserMessage = () => {
   return (
@@ -25,7 +43,12 @@ const UserMessage = () => {
           </ActionBarPrimitive.Edit>
         </ActionBarPrimitive.Root>
         <div className="max-w-[85%] bg-volcanic-sand text-primary px-5 py-3.5 rounded-[20px] rounded-tr-sm text-[15px] leading-relaxed shadow-sm">
-          <MessagePrimitive.Parts />
+          <MessagePrimitive.Attachments
+            components={{ Image: UserMessageAttachment }}
+          />
+          <MessagePrimitive.Parts
+            components={{ Image: UserImagePart }}
+          />
         </div>
       </div>
     </MessagePrimitive.Root>

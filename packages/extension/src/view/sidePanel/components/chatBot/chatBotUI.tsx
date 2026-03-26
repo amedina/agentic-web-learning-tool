@@ -2,6 +2,7 @@
  * External dependencies
  */
 import {
+  AttachmentPrimitive,
   ComposerPrimitive,
   ThreadPrimitive,
   useAssistantApi,
@@ -20,6 +21,7 @@ import {
   ChevronDown,
   PlusCircle,
   Menu,
+  X,
 } from 'lucide-react';
 import {
   Button,
@@ -44,6 +46,17 @@ import { useCommandProvider } from '../../providers/commandProvider';
 import { createModelDropdown, createToolDropdown } from './utils';
 import { useSettings } from '../../../stateProviders';
 import { openOptionsPage } from '../../../../utils';
+
+const ComposerImageAttachment = () => {
+  return (
+    <AttachmentPrimitive.Root className="relative inline-block m-2">
+      <AttachmentPrimitive.unstable_Thumb className="w-16 h-16 rounded-md overflow-hidden border border-zinc-200" />
+      <AttachmentPrimitive.Remove className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-zinc-700 text-white flex items-center justify-center hover:bg-zinc-900 transition-colors cursor-pointer">
+        <X size={12} />
+      </AttachmentPrimitive.Remove>
+    </AttachmentPrimitive.Root>
+  );
+};
 
 type ChatBotUIProps = {
   runtime: AssistantRuntime | null;
@@ -219,9 +232,15 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
             </div>
             <div className="max-w-3xl mx-auto w-full">
               <ComposerPrimitive.Root className="relative flex flex-col gap-2 rounded-md border border-zinc-200 bg-background shadow-xl shadow-subtle-zinc/20 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all overflow-hidden">
+                <ComposerPrimitive.Attachments
+                  components={{
+                    Image: ComposerImageAttachment,
+                  }}
+                />
                 <ComposerPrimitive.Input
                   placeholder="Ask anything..."
                   onKeyDown={handleMessageChange}
+                  addAttachmentOnPaste
                   submitOnEnter={
                     lockedThreads.includes(threadId) ? false : true
                   }
@@ -229,9 +248,11 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
                 />
                 <div className="flex items-center justify-between gap-2 px-3 mb-1">
                   <div className="flex items-center">
-                    <Button variant="ghost" disabled title="Attach" size="icon">
-                      <Paperclip size={18} />
-                    </Button>
+                    <ComposerPrimitive.AddAttachment asChild>
+                      <Button variant="ghost" title="Attach image" size="icon">
+                        <Paperclip size={18} />
+                      </Button>
+                    </ComposerPrimitive.AddAttachment>
                     <Dropdown
                       options={groupedTools}
                       onSelect={(id) => console.log(id)}

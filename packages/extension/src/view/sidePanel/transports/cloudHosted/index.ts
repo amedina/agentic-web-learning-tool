@@ -37,6 +37,7 @@ import z from 'zod';
  */
 import { jsonSchemaToZod, logger } from '../../../../utils';
 import replaceSlashCommands from '../replaceSlashCommands';
+import { convertDataUrlToUint8Array } from '../dataUrlHelper';
 
 type JsonSchemaObject = Record<string, unknown>;
 type SchemaInput = JsonSchemaObject | (() => JsonSchemaObject);
@@ -169,9 +170,11 @@ export class CloudHostedTransport implements ChatTransport<
     return createUIMessageStream({
       execute: async ({ writer }) => {
         try {
+          const modelMessages = convertToModelMessages(messages);
+          convertDataUrlToUint8Array(modelMessages);
           const result = streamText({
             model: this.model as unknown as LanguageModelV2,
-            messages: convertToModelMessages(messages),
+            messages: modelMessages,
             tools: this.formattedTools,
             providerOptions: this.providerOptions,
             abortSignal,

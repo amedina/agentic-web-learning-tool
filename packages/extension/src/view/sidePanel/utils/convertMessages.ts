@@ -32,17 +32,27 @@ export function convertMessages(
       }
 
       case 'user': {
-        const content = message.content.map((part) => {
-          if (part.type === 'text') {
-            return {
-              type: 'text' as const,
-              value: part.text || '',
-            };
-          }
-          throw new Error(
-            `Unsupported content type in user message: ${part.type ?? 'unknown'}`
+        const content = message.content
+          .map((part) => {
+            if (part.type === 'text') {
+              return {
+                type: 'text' as const,
+                value: part.text || '',
+              };
+            }
+            if (part.type === 'image' || part.type === 'file') {
+              // Image/file parts are handled by cloud-hosted providers via
+              // the AI SDK's convertToModelMessages. For Gemini Nano (on-device),
+              // we skip them since it doesn't support multimodal input.
+              return null;
+            }
+            throw new Error(
+              `Unsupported content type in user message: ${part.type ?? 'unknown'}`
+            );
+          })
+          .filter(
+            (part): part is { type: 'text'; value: string } => part !== null
           );
-        });
 
         formattedMessages.push({
           role: 'user',

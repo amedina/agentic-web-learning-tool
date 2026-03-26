@@ -23,6 +23,7 @@ import { SYSTEM_PROMPT_START } from '../../utils';
 import logger from '../../../../utils/logger';
 import replaceSlashCommands from '../replaceSlashCommands';
 import { jsonSchemaToZod } from '../../../../utils';
+import { convertDataUrlToUint8Array } from '../dataUrlHelper';
 
 type SendMessagesParams = {
   /** The type of message submission - either new message or regeneration */
@@ -140,9 +141,11 @@ export class GeminiNanoChatTransport implements ChatTransport<
     return createUIMessageStream({
       execute: async ({ writer }) => {
         try {
+          const modelMessages = convertToModelMessages(messages);
+          convertDataUrlToUint8Array(modelMessages);
           const result = streamText({
             model: this.model as unknown as LanguageModelV2,
-            messages: convertToModelMessages(messages),
+            messages: modelMessages,
             tools: Object.fromEntries(this.formattedTools),
             abortSignal,
             providerOptions: {
