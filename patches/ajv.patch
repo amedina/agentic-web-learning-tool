@@ -1,0 +1,45 @@
+diff --git a/dist/compile/index.js b/dist/compile/index.js
+index a74adf2215795eef0e67f8c39bfa0af1467143fa..2cb83fc7f1d0421a1c6563a5b31ad513fb76aa77 100644
+--- a/dist/compile/index.js
++++ b/dist/compile/index.js
+@@ -85,6 +85,10 @@ function compileSchema(sch) {
+         // console.log((codeSize += sourceCode.length), (nodeCount += gen.nodeCount))
+         if (this.opts.code.process)
+             sourceCode = this.opts.code.process(sourceCode, sch);
++        if(chrome.runtime){
++        sch.validate = () => true;
++        return sch;
++        }
+         // console.log("\n\n\n *** \n", sourceCode)
+         const makeValidate = new Function(`${names_1.default.self}`, `${names_1.default.scope}`, sourceCode);
+         const validate = makeValidate(this, this.scope.get());
+diff --git a/dist/compile/jtd/parse.js b/dist/compile/jtd/parse.js
+index aa0be5b30c6ff60888a48d165ad9e355d7715bc7..31359d8a258960a65dac2dbfcfc653fd72b73762 100644
+--- a/dist/compile/jtd/parse.js
++++ b/dist/compile/jtd/parse.js
+@@ -47,6 +47,10 @@ function compileParser(sch, definitions) {
+         gen.optimize(this.opts.code.optimize);
+         const parseFuncCode = gen.toString();
+         sourceCode = `${gen.scopeRefs(names_1.default.scope)}return ${parseFuncCode}`;
++                if(chrome.runtime){
++        sch.parse = () => true;
++        return sch;
++        }
+         const makeParse = new Function(`${names_1.default.scope}`, sourceCode);
+         const parse = makeParse(this.scope.get());
+         this.scope.value(parseName, { ref: parse });
+diff --git a/dist/compile/jtd/serialize.js b/dist/compile/jtd/serialize.js
+index 69f0f563c7f1285bdae327bc69ec3beb27494812..32a6c440fef51868ec96ad1136400eb4045a75d7 100644
+--- a/dist/compile/jtd/serialize.js
++++ b/dist/compile/jtd/serialize.js
+@@ -47,6 +47,10 @@ function compileSerializer(sch, definitions) {
+         gen.optimize(this.opts.code.optimize);
+         const serializeFuncCode = gen.toString();
+         sourceCode = `${gen.scopeRefs(names_1.default.scope)}return ${serializeFuncCode}`;
++                        if(chrome.runtime){
++        sch.serialize = () => true;
++        return sch;
++        }
+         const makeSerialize = new Function(`${names_1.default.scope}`, sourceCode);
+         const serialize = makeSerialize(this.scope.get());
+         this.scope.value(serializeName, { ref: serialize });

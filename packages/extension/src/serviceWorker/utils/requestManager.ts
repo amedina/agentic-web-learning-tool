@@ -1,0 +1,44 @@
+/**
+ * Internal dependencies
+ */
+import type { PendingRequest, RequestResponse } from '../types';
+
+/**
+ * Manages async request/response communication with content scripts
+ */
+class RequestManager {
+  private pending = new Map<string, PendingRequest>();
+
+  create<T = unknown>(tabId: number, message: object): Promise<T> {
+    const requestId = `${Date.now()}-${Math.random()}`;
+    return new Promise<T>((resolve, reject) => {
+      this.pending.set(requestId, {
+        resolve: resolve as (value: unknown) => void,
+        reject,
+      });
+      chrome.tabs.sendMessage(tabId, { ...message, requestId });
+
+      // 30-second timeout
+      setTimeout(() => {
+        if (this.pending.has(requestId)) {
+          this.pending.delete(requestId);
+          reject(new Error(`Request timed out`));
+        }
+      }, 125000);
+    });
+  }
+
+  resolve<T = unknown>(requestId: string, data: RequestResponse<T>) {
+    const callbacks = this.pending.get(requestId);
+    if (callbacks) {
+      if (data.success) {
+        callbacks.resolve(data.payload);
+      } else {
+        callbacks.reject(new Error(String(data.payload)));
+      }
+      this.pending.delete(requestId);
+    }
+  }
+}
+
+export default RequestManager;

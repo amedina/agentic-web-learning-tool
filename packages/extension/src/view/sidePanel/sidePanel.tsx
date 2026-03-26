@@ -1,43 +1,120 @@
-import { useState } from 'react';
-import reactLogo from '../../assets/react.svg';
-import viteLogo from '../../assets/vite.svg';
-import { Button } from '@google-awlt/design-system';
+/**
+ * External dependencies
+ */
+import { type AssistantRuntime } from '@assistant-ui/react';
+import { useEffect, useRef, useState } from 'react';
+import {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+} from '@google-awlt/design-system';
+import { SidebarProvider } from '@google-awlt/design-system';
+/**
+ * Internal dependencies
+ */
+import { ChatBotUI, WorkflowList, GlobalStatusPill } from './components';
+import { CommandProvider, useModelProvider } from './providers';
+import CustomRuntimeProvider from './customRuntime/customRuntimeProvider';
 
-function SidePanel() {
-	const [count, setCount] = useState(0);
+const SidePanel = () => {
+  const { transport } = useModelProvider(({ state }) => ({
+    transport: state.transport,
+  }));
 
-	return (
-		<main className="max-w-7xl m-auto min-h-screen flex flex-col items-center justify-center gap-5">
-			<div className="flex gap-5">
-				<Button variant="link" size="icon">
-					<a href="https://vite.dev" target="_blank">
-						<img src={viteLogo} className="logo" alt="Vite logo" />
-					</a>
-				</Button>
-				<Button variant="link" size="icon">
-					<a href="https://react.dev" target="_blank">
-						<img
-							src={reactLogo}
-							className="logo react"
-							alt="React logo"
-						/>
-					</a>
-				</Button>
-			</div>
-			<h1 className="text-2xl">Vite + React</h1>
-			<div className="flex flex-col items-center justify-center">
-				<button onClick={() => setCount((count) => count + 1)}>
-					count is {count}
-				</button>
-				<p className="text-2xl">
-					Edit <code>src/App.tsx</code> and save to test HMR
-				</p>
-			</div>
-			<p className="read-the-docs">
-				Click on the Vite and React logos to learn more
-			</p>
-		</main>
-	);
-}
+  const [activeTab, setActiveTab] = useState<chrome.tabs.Tab | null>(null);
+
+  useEffect(() => {
+    if (typeof chrome !== 'undefined' && chrome.tabs) {
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (tabs.length > 0) {
+          setActiveTab(tabs[0]);
+        }
+      });
+
+      const handleTabCreatedOrUpdated = () => {
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+          if (tabs.length > 0) {
+            setActiveTab(tabs[0]);
+          }
+        });
+      };
+
+      chrome.tabs.onActivated.addListener(handleTabCreatedOrUpdated);
+      chrome.tabs.onUpdated.addListener(handleTabCreatedOrUpdated);
+
+      return () => {
+        chrome.tabs.onActivated.removeListener(handleTabCreatedOrUpdated);
+        chrome.tabs.onUpdated.removeListener(handleTabCreatedOrUpdated);
+      };
+    }
+  }, []);
+
+  const runtimeRef = useRef<AssistantRuntime | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      if (!runtimeRef.current) {
+        return;
+      }
+      runtimeRef.current.thread.reset();
+      transport?.setRuntime(runtimeRef.current);
+    })();
+  }, [transport]);
+
+  useEffect(() => {
+    chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
+      if (message.type === 'still_there') {
+        sendResponse({ status: 'yes', type: 'sidepanel' });
+      }
+    });
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (tabs) {
+          chrome.storage.session.remove(`sidebar_tab_${tabs[0].id}`);
+        }
+      });
+    };
+  }, []);
+
+  return (
+    <CustomRuntimeProvider transport={transport} runtimeRef={runtimeRef}>
+      <CommandProvider>
+        <SidebarProvider defaultOpen={false}>
+          <Tabs
+            defaultValue="chat"
+            className="flex flex-col h-screen w-full bg-background"
+          >
+            <div className="px-4 py-2 border-b">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="chat">Chat</TabsTrigger>
+                <TabsTrigger value="workflows">Workflows</TabsTrigger>
+              </TabsList>
+            </div>
+            <TabsContent
+              value="chat"
+              className="flex-1 overflow-hidden p-0 border-none mt-0"
+            >
+              <ChatBotUI runtime={runtimeRef.current} />
+            </TabsContent>
+            <TabsContent
+              value="workflows"
+              className="flex-1 overflow-hidden p-4 border-none mt-0"
+            >
+              <WorkflowList
+                activeTabId={activeTab?.id}
+                activeTabUrl={activeTab?.url}
+              />
+            </TabsContent>
+            <GlobalStatusPill />
+          </Tabs>
+        </SidebarProvider>
+      </CommandProvider>
+    </CustomRuntimeProvider>
+  );
+};
 
 export default SidePanel;

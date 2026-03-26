@@ -1,0 +1,48 @@
+/**
+ * External dependencies
+ */
+import { EXTENSION_TOOL_PREFIX } from '@google-awlt/common';
+
+/**
+ * Extracts the user-facing tool name from a fully qualified internal tool identifier.
+ *
+ * This utility strips specific prefixes (e.g. `extension_tool_`) and
+ * removes internal routing information such as domain names and tab identifiers
+ * (e.g., `_tab123_`) to return a clean, human-readable name for the UI.
+ *
+ * @param {string} toolName - The full, prefixed tool name (e.g., "website_tool_example.com_tab1_get_weather").
+ * @returns {string | undefined} The extracted tool name if the pattern matches (e.g., "get_weather"),
+ * the original `toolName` if no known prefix is found, or `undefined` if the specific tab pattern is missing after the prefix.
+ *
+ * @example
+ * // Returns "get_weather"
+ * getToolNameWithoutPrefix("website_tool_example.com_tab123_get_weather");
+ *
+ * @example
+ * // Returns "search_files"
+ * getToolNameWithoutPrefix("extension_tool_local_tab999_search_files");
+ *
+ * @example
+ * // Returns "unknown_tool" (no prefix match)
+ * getToolNameWithoutPrefix("unknown_tool");
+ */
+function getToolNameWithoutPrefix(toolName: string) {
+  let toolNameWithoutHardCodePrefix = '';
+
+  if (toolName.startsWith(EXTENSION_TOOL_PREFIX)) {
+    toolNameWithoutHardCodePrefix = toolName.substring(
+      EXTENSION_TOOL_PREFIX.length
+    );
+    return toolNameWithoutHardCodePrefix;
+  }
+
+  if (toolName.includes('_mcp')) {
+    const match = toolName.match(/^(.*?)_mcp_/);
+    const unPrefixedToolName = match ? match[1] : toolName;
+    return unPrefixedToolName;
+  }
+
+  return toolName;
+}
+
+export default getToolNameWithoutPrefix;

@@ -5,7 +5,7 @@
 import defaultConfig from '@google-awlt/shared-config/prettier';
 
 const config = {
-	...defaultConfig,
+  ...defaultConfig,
 };
 
 export default config;

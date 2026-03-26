@@ -1,0 +1,282 @@
+/**
+ * External dependencies
+ */
+import React, { useCallback, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
+import { X, FolderOpen, Trash2, Clock } from "lucide-react";
+import {
+  listWorkflows,
+  deleteWorkflow,
+  type WorkflowMetadata,
+  PREDEFINED_WORKFLOWS,
+} from "@google-awlt/engine-extension";
+import { type WorkflowJSON } from "@google-awlt/engine-core";
+
+/**
+ * Internal dependencies
+ */
+import logger from "../../../logger";
+import type { OpenWorkflow } from "../../workflowCanvas";
+
+interface SavedWorkflowsDialogProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onLoad: (id: string, workflow?: WorkflowJSON) => void;
+  onNew: () => void;
+  updateWorkflowMeta: (
+    updates: Partial<WorkflowMetadata>,
+    isNew?: boolean,
+  ) => void;
+  activeWorkflowId: string | null;
+  setOpenWorkflows: React.Dispatch<React.SetStateAction<OpenWorkflow[]>>;
+}
+
+const SavedWorkflowsDialog: React.FC<SavedWorkflowsDialogProps> = ({
+  isOpen,
+  onClose,
+  onLoad,
+  onNew,
+  updateWorkflowMeta,
+  activeWorkflowId,
+  setOpenWorkflows,
+}) => {
+  const [activeTab, setActiveTab] = useState<"saved" | "demo">("saved");
+  const [workflows, setWorkflows] = useState<WorkflowMetadata[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchWorkflows = async () => {
+    setIsLoading(true);
+    try {
+      const list = await listWorkflows();
+      setWorkflows(list.map(({ meta }) => meta));
+    } catch (error) {
+      logger(["error"], ["Failed to list workflows:", error]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchWorkflows();
+    }
+  }, [isOpen]);
+
+  const handleDelete = useCallback(
+    async (e: React.MouseEvent, id: string) => {
+      e.stopPropagation();
+      if (
+        window.confirm(
+          activeWorkflowId === id
+            ? "You are currently using this workflow. Are you sure you want to delete it?"
+            : "Are you sure you want to delete this workflow? This cannot be undone.",
+        )
+      ) {
+        await deleteWorkflow(id);
+        const filteredWorkflows = workflows.filter(
+          (workflow) => workflow.id !== id,
+        );
+
+        let createNewWorkflow = false;
+
+        setOpenWorkflows((wfs) => {
+          const filteredOpenWorkflows = wfs.filter(
+            (workflow) => workflow.id !== id,
+          );
+
+          if (activeWorkflowId === id) {
+            if (!filteredOpenWorkflows.length) {
+              createNewWorkflow = true;
+            } else {
+              const toOpen = filteredOpenWorkflows[0].id;
+              const workflow = filteredWorkflows.find((wf) => wf.id == toOpen);
+
+              if (!workflow) {
+                onClose();
+              } else {
+                updateWorkflowMeta(workflow, true);
+                onLoad(workflow?.id);
+              }
+            }
+          }
+
+          return filteredOpenWorkflows;
+        });
+
+        if (createNewWorkflow) {
+          onNew();
+        }
+
+        await fetchWorkflows();
+
+        onClose();
+      }
+    },
+    [activeWorkflowId, onNew, updateWorkflowMeta, workflows],
+  );
+
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      window.addEventListener("keyup", handleEscape);
+    }
+
+    return () => {
+      window.removeEventListener("keyup", handleEscape);
+    };
+  }, [isOpen, onClose]);
+
+  if (!isOpen) return null;
+
+  const content = (
+    <div
+      className="fixed inset-0 bg-black/60 dark:bg-black/80 flex items-center justify-center z-50 backdrop-blur-sm"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+    >
+      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-2xl w-full max-w-2xl mx-4 flex flex-col max-h-[80vh] animate-in fade-in zoom-in duration-200 border border-slate-200 dark:border-slate-800">
+        <div className="flex items-center justify-between p-6 border-b border-gray-100 dark:border-slate-800">
+          <div>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-slate-100 flex items-center gap-2">
+              <FolderOpen className="text-indigo-600 dark:text-indigo-400" />
+              Workflows
+            </h2>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2 text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+          >
+            <X size={24} />
+          </button>
+        </div>
+
+        <div className="flex border-b border-gray-100 dark:border-slate-800">
+          <button
+            onClick={() => setActiveTab("saved")}
+            className={`flex-1 py-3 text-sm font-medium transition-colors ${
+              activeTab === "saved"
+                ? "text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 dark:border-indigo-400"
+                : "text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200"
+            }`}
+          >
+            Your Saved Workflows
+          </button>
+          <button
+            onClick={() => setActiveTab("demo")}
+            className={`flex-1 py-3 text-sm font-medium transition-colors ${
+              activeTab === "demo"
+                ? "text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 dark:border-indigo-400"
+                : "text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200"
+            }`}
+          >
+            Built-in Workflows
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-6 min-h-[350px]">
+          {activeTab === "saved" ? (
+            isLoading ? (
+              <div className="flex flex-col items-center justify-center h-full text-gray-400 dark:text-slate-500">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 dark:border-indigo-400 mb-4"></div>
+                <p>Loading workflows...</p>
+              </div>
+            ) : workflows.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full text-gray-400 dark:text-slate-600 border-2 border-dashed border-gray-200 dark:border-slate-800 rounded-lg py-12">
+                <FolderOpen size={48} className="mb-4 opacity-50" />
+                <p className="font-medium">No saved workflows found</p>
+                <p className="text-sm">Create a new workflow to get started</p>
+              </div>
+            ) : (
+              <div className="grid gap-3">
+                {workflows
+                  .filter((workflow) => !workflow.id.startsWith("demo-"))
+                  .map((workflow) => (
+                    <div
+                      key={workflow.id}
+                      onClick={() => {
+                        onLoad(workflow.id);
+                        onClose();
+                      }}
+                      className="group relative flex items-center justify-between p-4 bg-gray-50 dark:bg-slate-950 hover:bg-white dark:hover:bg-slate-900 border border-gray-200 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-700/50 rounded-lg transition-all cursor-pointer hover:shadow-md"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-gray-900 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 truncate transition-colors flex items-center gap-2">
+                          {workflow.name || "Untitled Workflow"}
+                          {workflow.sanitizedName && (
+                            <span className="text-[10px] bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-slate-500 dark:text-slate-400 font-mono">
+                              {workflow.sanitizedName}
+                            </span>
+                          )}
+                        </h3>
+                        <div className="flex items-center gap-4 mt-1 text-xs text-gray-500 dark:text-slate-400">
+                          <span className="flex items-center gap-1">
+                            <Clock size={12} />
+                            {new Date(
+                              workflow.savedAt,
+                            ).toLocaleDateString()}{" "}
+                            {new Date(workflow.savedAt).toLocaleTimeString()}
+                          </span>
+                          {workflow.description && (
+                            <span className="truncate max-w-[200px] italic">
+                              {workflow.description}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={(e) => handleDelete(e, workflow.id)}
+                        className="p-2 text-gray-400 dark:text-slate-600 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-md transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+                        title="Delete workflow"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  ))}
+              </div>
+            )
+          ) : (
+            <div className="grid gap-3">
+              {PREDEFINED_WORKFLOWS.map((workflow) => (
+                <div
+                  key={workflow.meta.id}
+                  onClick={() => {
+                    onLoad(workflow.meta.id, workflow);
+                    onClose();
+                  }}
+                  className="group relative flex items-center justify-between p-4 bg-gray-50 dark:bg-slate-950 hover:bg-white dark:hover:bg-slate-900 border border-gray-200 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-700/50 rounded-lg transition-all cursor-pointer hover:shadow-md"
+                >
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-gray-900 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 truncate transition-colors">
+                      {workflow.meta.name}
+                      {workflow.meta.sanitizedName && (
+                        <span className="text-[10px] bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-slate-500 dark:text-slate-400 font-mono">
+                          {workflow.meta.sanitizedName}
+                        </span>
+                      )}
+                    </h3>
+                    <p className="text-xs text-gray-500 dark:text-slate-400 mt-1 italic">
+                      {workflow.meta.description}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
+  return createPortal(content, document.getElementById("portal")!);
+};
+
+export default SavedWorkflowsDialog;

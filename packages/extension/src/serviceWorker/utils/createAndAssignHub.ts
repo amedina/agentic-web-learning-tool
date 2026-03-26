@@ -1,0 +1,196 @@
+/**
+ * External dependencies
+ */
+import { ExtensionServerTransport } from '@mcp-b/transports';
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
+/**
+ * Internal dependencies
+ */
+import { logger } from '../../utils';
+import McpHub from '../mcpHub';
+import handleToolEnableDisableOnLocalStorageChange from './handleToolEnableDisableOnLocalStorageChange';
+import { START_MCP_CONNECTION } from '../../constants';
+
+const createAndAssignHub = async (
+  mcpHubInstances: Map<number, McpHub>,
+  port: chrome.runtime.Port,
+  serverInstances: Map<string, McpServer>,
+  tabId: number,
+  prefix: 'sidepanel' | 'devtools' | 'options'
+) => {
+  try {
+    const restartServer = async () => {
+      const sharedServer = serverInstances.get(`${tabId}${prefix}`);
+      const transport = new ExtensionServerTransport(port, {
+        keepAlive: true,
+      });
+      //@todo - this is a temporary fix to handle the case when transport.send is called after port is disconnected but before onDisconnect listener is called.
+      // This can happen during url changes. We should ideally handle this case in the transport itself.
+      const sendRef = transport.send.bind(transport);
+      transport.send = async (...args) => {
+        try {
+          await sendRef(...args);
+        } catch (error) {
+          logger(
+            ['error'],
+            ['Error sending message through transport:', error]
+          );
+        }
+      };
+      const mcpHub = mcpHubInstances.get(tabId);
+
+      if (!mcpHub || !sharedServer) {
+        return;
+      }
+
+      port.onDisconnect.addListener(async () => {
+        chrome.runtime.sendMessage(
+          { type: 'still_there' },
+          async (response) => {
+            if (response?.status === 'yes' && response?.type === prefix) {
+              logger(['info'], ['Tab is still active, restarting server...']);
+              await restartServer();
+            } else {
+              logger(['info'], ['Tab is closed, not restarting server.']);
+            }
+          }
+        );
+      });
+
+      await sharedServer.connect(transport);
+      try {
+        try {
+          await sharedServer.connect(transport);
+        } catch (error) {
+          logger(['error'], ['Error reconnecting transport:', error]);
+        }
+        chrome.tabs.sendMessage(
+          tabId,
+          { type: START_MCP_CONNECTION },
+          async () => {
+            if (chrome.runtime.lastError) {
+              logger(['error'], ['Port disconnected due to url change']);
+            }
+            await mcpHub.injectToolsAndRegisterFunction(tabId);
+            await mcpHub.injectWorkflowToolsAndRegisterFunction(tabId);
+          }
+        );
+      } catch (error) {
+        logger(
+          ['error'],
+          ['Failed to send START_MCP_CONNECTION message:', error]
+        );
+      }
+
+      if (mcpHub?.registeredTools.size > 0) {
+        sharedServer?.server?.transport
+          ?.send({
+            jsonrpc: '2.0',
+            method: 'get/Tools',
+          })
+          .catch((error) => {
+            logger(
+              ['error'],
+              ['Error requesting tools after reconnecting:', error]
+            );
+          });
+      }
+      return;
+    };
+
+    if (mcpHubInstances.has(tabId)) {
+      await restartServer();
+      return;
+    }
+
+    const sharedServer = new McpServer(
+      { name: 'Extension-Hub', version: '1.0.0' },
+      { capabilities: { tools: { listChanged: true } } }
+    );
+
+    const mcpHub = new McpHub(sharedServer, tabId);
+
+    chrome.storage.local.onChanged.addListener(
+      async (changes: { [key: string]: chrome.storage.StorageChange }) => {
+        await handleToolEnableDisableOnLocalStorageChange(changes, mcpHub);
+      }
+    );
+
+    const transport = new ExtensionServerTransport(port, {
+      keepAlive: true,
+    });
+    const sendRef = transport.send.bind(transport);
+    transport.send = async (...args) => {
+      try {
+        await sendRef(...args);
+      } catch (error) {
+        logger(['error'], ['Error sending message through transport:', error]);
+      }
+    };
+    port.onDisconnect.addListener(async () => await restartServer());
+    try {
+      //Why this is being done look here https://github.com/modelcontextprotocol/typescript-sdk/issues/893
+      sharedServer.registerTool(
+        'dummyTool',
+        {},
+        () =>
+          ({
+            content: [
+              {
+                type: 'text',
+                text: `Failed to execute tool: Tab connection lost or closed.`,
+              },
+            ],
+            isError: true,
+          }) as CallToolResult
+      );
+    } catch (_error) {
+      //supress error
+      logger(['warn', 'error'], ['Error registering tool:', _error]);
+    }
+
+    sharedServer.connect(transport);
+
+    mcpHubInstances.set(tabId, mcpHub);
+    serverInstances.set(`${tabId}${prefix}`, sharedServer);
+
+    mcpHub.setupConnections();
+    try {
+      chrome.tabs.sendMessage(
+        tabId,
+        { type: START_MCP_CONNECTION },
+        async () => {
+          if (chrome.runtime.lastError) {
+            logger(['error'], ['Port disconnected due to url change']);
+          }
+          await mcpHub.injectToolsAndRegisterFunction(tabId);
+          await mcpHub.injectWorkflowToolsAndRegisterFunction(tabId);
+        }
+      );
+    } catch (error) {
+      logger(
+        ['error'],
+        ['Failed to send START_MCP_CONNECTION message:', error]
+      );
+    }
+
+    if (mcpHub.registeredTools.size > 0) {
+      sharedServer.server?.transport
+        ?.send({
+          jsonrpc: '2.0',
+          method: 'get/Tools',
+        })
+        .catch((error) => {
+          logger(
+            ['error'],
+            ['Error requesting tools after reconnecting:', error]
+          );
+        });
+    }
+  } catch (error) {
+    logger(['error'], ['McpError: RequestTimedOut', error]);
+  }
+};
+
+export default createAndAssignHub;

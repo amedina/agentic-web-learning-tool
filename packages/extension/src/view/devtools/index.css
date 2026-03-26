@@ -1,3 +1,5 @@
 @import "@google-awlt/shared-config/tailwind";
+@import "@google-awlt/table/styles.css";
 
-@source "../../../packages/design-system";
+@source "../../../../design-system";
+@source "../../../../table";

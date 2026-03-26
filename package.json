@@ -1,7 +1,7 @@
 {
   "name": "google-awlt",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "packageManager": "pnpm@10.15.1",
   "engines": {
@@ -12,25 +12,77 @@
       "glob@^10": "^10.5.0",
       "js-yaml@^3": "^3.14.2",
       "js-yaml@^4": "^4.1.1",
-      "@modelcontextprotocol/sdk": "^1.24.0"
+      "@modelcontextprotocol/sdk": "1.25.2",
+      "@mcp-b/transports": "2.2.0",
+      "@types/react-dom": "19.1.9",
+      "zod": "4.3.5"
+    },
+    "patchedDependencies": {
+      "zod@4.3.5": "patches/zod@4.3.5.patch",
+      "@mcp-b/extension-tools@0.2.3": "patches/@mcp-b__extension-tools@0.2.3.patch",
+      "@assistant-ui/react": "patches/@assistant-ui__react.patch",
+      "assistant-stream": "patches/assistant-stream@0.2.46.patch",
+      "ajv@^8.0.0": "patches/ajv.patch",
+      "@mcp-b/transports@^2.0.0": "patches/@mcp-b__transports.patch",
+      "@mcp-b/react-webmcp@^2.0.0": "patches/@mcp-b__react-webmcp.patch"
     }
   },
   "scripts": {
     "preinstall": "npx only-allow pnpm",
-    "lint": "pnpm --filter extension lint",
-    "format": "pnpm --filter extension format",
+    "lint": "pnpm lint:common && pnpm lint:mcp-inspector && pnpm lint:design-system && pnpm lint:extension && pnpm lint:storybook-config && pnpm lint:shared-config",
+    "lint:mcp-inspector": "pnpm --filter mcp-inspector lint",
+    "lint:common": "pnpm --filter common lint",
+    "lint:design-system": "pnpm --filter design-system lint",
+    "lint:extension": "pnpm --filter extension lint",
+    "lint:storybook-config": "pnpm --filter storybook-config lint",
+    "lint:shared-config": "pnpm --filter shared-config lint",
+    "format": "pnpm format:common && pnpm format:mcp-inspector && pnpm format:design-system && pnpm format:extension && pnpm format:storybook-config && pnpm format:shared-config",
+    "format:mcp-inspector": "pnpm --filter mcp-inspector format",
+    "format:common": "pnpm --filter common format",
+    "format:design-system": "pnpm --filter design-system format",
+    "format:extension": "pnpm --filter extension format",
+    "format:storybook-config": "pnpm --filter storybook-config format",
+    "format:shared-config": "pnpm --filter shared-config format",
     "dev": "pnpm --filter extension dev",
+    "dev:extension": "pnpm --filter extension dev:extension",
+    "dev:npm-advisor": "pnpm --filter npm-advisor dev",
     "check-types": "pnpm --filter extension check-types",
-    "build": "pnpm --filter extension build",
+    "build:table": "pnpm --filter table build",
+    "build:chrome-ai-playground": "pnpm --filter chrome-ai-playground build",
+    "build:mcp-inspector": "pnpm --filter mcp-inspector build",
+    "build:extension": "pnpm --filter extension build",
+    "build:npm-advisor": "pnpm --filter npm-advisor build",
+    "build:design-system": "pnpm --filter design-system build",
+    "build:common": "pnpm --filter common build",
+    "build": "pnpm run build:common && pnpm run build:table && pnpm run build:chrome-ai-playground && pnpm run build:mcp-inspector && pnpm run build:design-system && pnpm run build:extension && pnpm run build:npm-advisor",
     "serve": "pnpm --filter extension preview",
     "preview-storybook": "pnpm --filter storybook-config preview-storybook",
     "storybook": "pnpm --filter storybook-config storybook",
     "test:extension": "pnpm --filter extension test",
     "test:design-system": "pnpm --filter design-system test",
+    "test:npm-advisor": "pnpm --filter npm-advisor test",
+    "test:engine": "pnpm --filter engine-core test",
+    "test:engine-extension": "pnpm --filter engine-extension test",
     "test:e2e": "pnpm --filter extension test:e2e",
-    "test:e2e-ui": "pnpm --filter extension test:e2e-ui"
+    "test:e2e-ui": "pnpm --filter extension test:e2e-ui",
+    "prepare": "husky"
   },
   "workspaces": [
     "packages/*"
-  ]
+  ],
+  "devDependencies": {
+    "eslint": "^9.39.2",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
+    "prettier": "^3.7.4"
+  },
+  "lint-staged": {
+    "*.(cjs|js|ts|tsx)": [
+      "eslint -c packages/shared-config/eslint/index.js  --fix",
+      "prettier --write"
+    ],
+    "*.(json|xml|xml.dist|yml)": [
+      "prettier --write"
+    ]
+  }
 }

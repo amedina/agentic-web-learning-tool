@@ -1,0 +1,287 @@
+/**
+ * External dependencies
+ */
+import { useEffect, useImperativeHandle, useRef, useState } from "react";
+import { Settings } from "lucide-react";
+import {
+  PromptApiConfigSchema,
+  type PromptApiConfig,
+} from "@google-awlt/engine-core";
+
+/**
+ * Internal dependencies
+ */
+import logger from "../../../../logger";
+interface ToolConfigProps {
+  ref: React.Ref<{
+    getConfig: (formData: FormData) => PromptApiConfig | undefined;
+  }>;
+  config: PromptApiConfig;
+}
+
+const ToolConfig = ({ ref, config }: ToolConfigProps) => {
+  const [topK, setTopK] = useState<number>(config.topK || 3);
+
+  const [temperature, setTemperature] = useState<number>(
+    config.temperature || 1,
+  );
+
+  const [languageInput, setLanguageInput] = useState<string[]>(
+    config.expectedInputsLanguages || [],
+  );
+
+  const [languageOutput, setLanguageOutput] = useState<string[]>(
+    config.expectedOutputsLanguages || [],
+  );
+
+  const promptsContent = useRef<string>(
+    JSON.stringify(config.initialPrompts, null, 2) || "[]",
+  );
+
+  const [isInvalidJson, setIsInvalidJson] = useState<boolean>(false);
+  const hasInitialized = useRef(false);
+
+  useEffect(() => {
+    setTopK(config.topK || 3);
+    setTemperature(config.temperature || 0.7);
+    setLanguageInput(config.expectedInputsLanguages || []);
+    setLanguageOutput(config.expectedOutputsLanguages || []);
+
+    if (!hasInitialized.current) {
+      promptsContent.current =
+        JSON.stringify(config.initialPrompts, null, 2) || "[]";
+      hasInitialized.current = true;
+    }
+    setIsInvalidJson(false);
+  }, [config]);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      getConfig: (formData: FormData) => {
+        const title = formData.get("title") as string;
+        const context = formData.get("context") as string;
+        const topK = formData.get("topK") as string;
+        const temperature = formData.get("temperature") as string;
+        const languageInput = formData.getAll("languageInput") as string[];
+        const languageOutput = formData.getAll("languageOutput") as string[];
+
+        let parsedInitialPrompts = [];
+        try {
+          parsedInitialPrompts = JSON.parse(promptsContent.current);
+        } catch (error) {
+          logger(
+            ["error"],
+            ["Invalid JSON for initialPrompts during save:", error],
+          );
+
+          return undefined;
+        }
+
+        const configResult = {
+          title,
+          context,
+          topK: Number(topK),
+          temperature: Number(temperature),
+          expectedInputsLanguages: languageInput,
+          expectedOutputsLanguages: languageOutput,
+          initialPrompts: parsedInitialPrompts,
+        };
+
+        const validation = PromptApiConfigSchema.safeParse(configResult);
+        if (!validation.success) {
+          logger(
+            ["error"],
+            ["Configuration validation failed:", validation.error],
+          );
+          return undefined;
+        }
+
+        return validation.data;
+      },
+    }),
+    [promptsContent],
+  );
+
+  return (
+    <div className="space-y-6">
+      <div className="bg-slate-100 dark:bg-slate-900/50 rounded-lg p-4 border border-transparent dark:border-slate-800">
+        <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">
+          <Settings
+            size={16}
+            className="text-indigo-600 dark:text-indigo-400"
+          />
+          Prompt API Configuration
+        </h3>
+
+        <div className="space-y-4">
+          <div>
+            <label
+              className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+              htmlFor="topK"
+            >
+              Top K:{" "}
+              <span className="text-slate-500 dark:text-slate-500 font-normal">
+                {topK}
+              </span>
+            </label>
+            <input
+              type="range"
+              min="1"
+              max="128"
+              value={topK}
+              name="topK"
+              className="w-full h-2 bg-gray-200 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+              onChange={(e) => setTopK(Number(e.target.value))}
+            />
+            <div className="flex justify-between text-xs text-slate-500 dark:text-slate-500 mt-1">
+              <span>1</span>
+              <span>128</span>
+            </div>
+          </div>
+
+          <div>
+            <label
+              className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+              htmlFor="temperature"
+            >
+              Temperature:{" "}
+              <span className="text-slate-500 dark:text-slate-500 font-normal">
+                {temperature}
+              </span>
+            </label>
+            <input
+              type="range"
+              min="0"
+              max="2"
+              step="0.1"
+              value={temperature}
+              name="temperature"
+              className="w-full h-2 bg-gray-200 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+              onChange={(e) => setTemperature(Number(e.target.value))}
+            />
+            <div className="flex justify-between text-xs text-slate-500 dark:text-slate-500 mt-1">
+              <span>0</span>
+              <span>2</span>
+            </div>
+          </div>
+
+          <div>
+            <label
+              className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+              htmlFor="languageInput"
+            >
+              Input Languages (Text Only)
+            </label>
+            <select
+              multiple
+              name="languageInput"
+              id="languageInput"
+              value={languageInput}
+              className="w-full p-2 border border-slate-300 dark:border-slate-700 rounded-md bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+              onChange={(e) =>
+                setLanguageInput(
+                  Array.from(
+                    e.target.selectedOptions,
+                    (option) => option.value,
+                  ),
+                )
+              }
+            >
+              <option value="en" className="dark:bg-slate-900">
+                English
+              </option>
+              <option value="es" className="dark:bg-slate-900">
+                Spanish
+              </option>
+              <option value="ja" className="dark:bg-slate-900">
+                Japanese
+              </option>
+            </select>
+            <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">
+              Hold Ctrl/Cmd to select multiple
+            </p>
+          </div>
+
+          <div>
+            <label
+              className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+              htmlFor="languageOutput"
+            >
+              Output Languages (Text Only)
+            </label>
+            <select
+              multiple
+              name="languageOutput"
+              id="languageOutput"
+              value={languageOutput}
+              className="w-full p-2 border border-slate-300 dark:border-slate-700 rounded-md bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+              onChange={(e) =>
+                setLanguageOutput(
+                  Array.from(
+                    e.target.selectedOptions,
+                    (option) => option.value,
+                  ),
+                )
+              }
+            >
+              <option value="en" className="dark:bg-slate-900">
+                English
+              </option>
+              <option value="es" className="dark:bg-slate-900">
+                Spanish
+              </option>
+              <option value="ja" className="dark:bg-slate-900">
+                Japanese
+              </option>
+            </select>
+            <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">
+              Hold Ctrl/Cmd to select multiple
+            </p>
+          </div>
+
+          <div>
+            <label
+              className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+              htmlFor="initialPrompts"
+            >
+              Initial Prompts (JSON Array)
+            </label>
+            <textarea
+              name="initialPrompts"
+              placeholder='[{"role": "system", "content": "You are a helpful assistant."}, {"role": "user", "content": "Hello"}]'
+              rows={6}
+              defaultValue={promptsContent.current}
+              className={`w-full p-3 border rounded-md bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 resize-vertical transition-all ${
+                isInvalidJson
+                  ? "border-red-500 ring-1 ring-red-500"
+                  : "border-slate-300 dark:border-slate-700"
+              }`}
+              onChange={(e) => {
+                const val = e.target.value;
+                promptsContent.current = val;
+                try {
+                  JSON.parse(val);
+                  setIsInvalidJson(false);
+                } catch {
+                  setIsInvalidJson(true);
+                }
+              }}
+            />
+            {isInvalidJson && (
+              <p className="text-xs text-red-500 mt-1 font-medium italic">
+                Invalid JSON format. Please check your syntax.
+              </p>
+            )}
+            <p className="text-xs text-slate-500 dark:text-slate-500 mt-2">
+              Enter prompts as JSON array with role and content fields. Changes
+              are only saved when JSON is valid.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ToolConfig;

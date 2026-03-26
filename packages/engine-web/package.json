@@ -1,0 +1,34 @@
+{
+  "name": "@google-awlt/engine-web",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./src/index.ts",
+      "types": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "prebuild": "rimraf dist dist-types",
+    "dev": "tsc --watch",
+    "test": "jest",
+    "build:web": "vite build"
+  },
+  "dependencies": {
+    "@google-awlt/engine-core": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "@types/node": "^24.3.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "rimraf": "^5.0.10",
+    "ts-jest": "^29.4.6",
+    "typescript": "~5.9.2",
+    "vite": "^7.1.11",
+    "vite-plugin-compression2": "^2.5.0"
+  }
+}

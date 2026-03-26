@@ -1,7 +1,7 @@
 {
   "name": "Agentic Web Learning Tool",
   "description": "Tooling for understanding Agentic Web",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "manifest_version": 3,
   "icons": {
     "16": "icons/icon-16.png",
@@ -14,38 +14,39 @@
     "storage",
     "tabs",
     "webNavigation",
-    "webRequest",
-    "cookies",
-    "debugger",
-    "management",
-    "contentSettings",
     "scripting",
-    "sidePanel"
+    "activeTab",
+    "sidePanel",
+    "tabGroups",
+    "history",
+    "userScripts",
+    "contextMenus",
+    "unlimitedStorage"
   ],
   "host_permissions": ["*://*/*"],
   "devtools_page": "devtools/devtools.html",
   "options_page": "options/options.html",
-  "side_panel": {
-    "default_path": "sidePanel/sidePanel.html"
+  "action": {
+    "default_title": "Click to open panel"
   },
   "background": {
     "service_worker": "serviceWorker/serviceWorker.js",
     "type": "module"
   },
-  "content_scripts": [],
-  "action": {
-    "default_popup": "popup/popup.html",
-    "default_icon": "icons/icon-48.png"
-  },
+  "content_scripts": [
+    {
+      "js": ["contentScript/contentScript.js"],
+      "matches": ["*://*/*"]
+    }
+  ],
   "web_accessible_resources": [
     {
       "resources": [
-        "assets/data/*.json",
-        "data/*json",
-        "report/index.html",
-        "prebid-interface.js"
+        "contentScript/webmcp-polyfill.js",
+        "contentScript/registerTools.js",
+        "contentScript/registerWorkflowTools.js"
       ],
-      "matches": ["*://*/*"]
+      "matches": ["<all_urls>"]
     }
   ]
 }

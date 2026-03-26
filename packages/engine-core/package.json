@@ -1,0 +1,32 @@
+{
+  "name": "@google-awlt/engine-core",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "prebuild": "rimraf dist dist-types",
+    "dev": "tsc --watch",
+    "prettier": "prettier . --write",
+    "lint": "eslint .",
+    "test": "jest"
+  },
+  "devDependencies": {
+    "@google-awlt/shared-config": "workspace:*",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^24.3.0",
+    "eslint": "^9.33.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "globals": "^16.3.0",
+    "jest-environment-node": "^29.7.0",
+    "prettier": "^3.0.0",
+    "rimraf": "^5.0.10",
+    "ts-jest": "^29.4.6",
+    "typescript": "~5.9.2"
+  },
+  "dependencies": {
+    "zod": "^4.3.5"
+  }
+}
