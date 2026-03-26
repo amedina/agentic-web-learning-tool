@@ -1,6 +1,6 @@
 {
   "name": "@google-awlt/design-system",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "sideEffects": [
@@ -35,8 +35,8 @@
   },
   "dependencies": {
     "@assistant-ui/react": "0.11.51",
-    "@assistant-ui/react-markdown": "^0.11.8",
-    "@assistant-ui/react-syntax-highlighter": "^0.11.4",
+    "@assistant-ui/react-markdown": "0.11.8",
+    "@assistant-ui/react-syntax-highlighter": "0.11.4",
     "@babel/parser": "^7.29.0",
     "@babel/traverse": "^7.29.0",
     "@google-awlt/common": "workspace:*",

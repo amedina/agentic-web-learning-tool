@@ -172,11 +172,11 @@ importers:
         specifier: 0.11.51
         version: 0.11.51(patch_hash=67df03cd2ce1371da3a413dd7f088ed189627bed887039984e53e03592e6ae44)(@types/react-dom@19.1.9(@types/react@19.2.14))(@types/react@19.2.14)(immer@9.0.21)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4))
       '@assistant-ui/react-markdown':
-        specifier: ^0.11.8
-        version: 0.11.10(@assistant-ui/react@0.11.51(patch_hash=67df03cd2ce1371da3a413dd7f088ed189627bed887039984e53e03592e6ae44)(@types/react-dom@19.1.9(@types/react@19.2.14))(@types/react@19.2.14)(immer@9.0.21)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4)))(@types/react-dom@19.1.9(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+        specifier: 0.11.8
+        version: 0.11.8(@assistant-ui/react@0.11.51(patch_hash=67df03cd2ce1371da3a413dd7f088ed189627bed887039984e53e03592e6ae44)(@types/react-dom@19.1.9(@types/react@19.2.14))(@types/react@19.2.14)(immer@9.0.21)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4)))(@types/react-dom@19.1.9(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@assistant-ui/react-syntax-highlighter':
-        specifier: ^0.11.4
-        version: 0.11.10(@assistant-ui/react-markdown@0.11.10(@assistant-ui/react@0.11.51(patch_hash=67df03cd2ce1371da3a413dd7f088ed189627bed887039984e53e03592e6ae44)(@types/react-dom@19.1.9(@types/react@19.2.14))(@types/react@19.2.14)(immer@9.0.21)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4)))(@types/react-dom@19.1.9(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(@assistant-ui/react@0.11.51(patch_hash=67df03cd2ce1371da3a413dd7f088ed189627bed887039984e53e03592e6ae44)(@types/react-dom@19.1.9(@types/react@19.2.14))(@types/react@19.2.14)(immer@9.0.21)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4)))(@types/react-syntax-highlighter@15.5.13)(@types/react@19.2.14)(react-syntax-highlighter@16.1.1(react@19.2.4))(react@19.2.4)
+        specifier: 0.11.4
+        version: 0.11.4(@assistant-ui/react-markdown@0.11.8(@assistant-ui/react@0.11.51(patch_hash=67df03cd2ce1371da3a413dd7f088ed189627bed887039984e53e03592e6ae44)(@types/react-dom@19.1.9(@types/react@19.2.14))(@types/react@19.2.14)(immer@9.0.21)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4)))(@types/react-dom@19.1.9(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(@assistant-ui/react@0.11.51(patch_hash=67df03cd2ce1371da3a413dd7f088ed189627bed887039984e53e03592e6ae44)(@types/react-dom@19.1.9(@types/react@19.2.14))(@types/react@19.2.14)(immer@9.0.21)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4)))(@types/react-syntax-highlighter@15.5.13)(@types/react@19.2.14)(react-syntax-highlighter@16.1.1(react@19.2.4))(react@19.2.4)
       '@babel/parser':
         specifier: ^7.29.0
         version: 7.29.2
@@ -524,7 +524,7 @@ importers:
         specifier: workspace:*
         version: link:../workflow-ui
       '@mcp-b/extension-tools':
-        specifier: ^0.2.3
+        specifier: 0.2.3
         version: 0.2.3(patch_hash=de61710e62afdb10e9b1aa256f697615f6f694df3f7c35e4aa0ea8ee2eb930fd)(@cfworker/json-schema@4.1.1)(hono@4.12.9)
       '@mcp-b/react-webmcp':
         specifier: ^2.0.9
@@ -548,8 +548,8 @@ importers:
         specifier: ^12.9.3
         version: 12.10.1(@types/react@19.2.14)(immer@9.0.21)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       ai:
-        specifier: 5.0.104
-        version: 5.0.104(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+        specifier: ^5.0.104
+        version: 5.0.160(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
       assistant-stream:
         specifier: 0.2.46
         version: 0.2.46(patch_hash=46a7cfa2f818f8cbd85e6a5a2dbabd025717a8972464c3d8a538756a169ec3ff)
@@ -846,6 +846,94 @@ importers:
       typescript:
         specifier: ~5.9.2
         version: 5.9.3
+
+  packages/npm-advisor:
+    dependencies:
+      '@ai-sdk/google':
+        specifier: ^2.0.45
+        version: 2.0.63(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+      '@ai-sdk/openai':
+        specifier: ^2.0.77
+        version: 2.0.101(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+      '@ai-sdk/provider':
+        specifier: ^2.0.0
+        version: 2.0.1
+      '@assistant-ui/react':
+        specifier: 0.11.51
+        version: 0.11.51(patch_hash=67df03cd2ce1371da3a413dd7f088ed189627bed887039984e53e03592e6ae44)(@types/react-dom@19.1.9(@types/react@19.2.14))(@types/react@19.2.14)(immer@9.0.21)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4))
+      '@assistant-ui/react-ai-sdk':
+        specifier: 1.1.19
+        version: 1.1.19(@assistant-ui/react@0.11.51(patch_hash=67df03cd2ce1371da3a413dd7f088ed189627bed887039984e53e03592e6ae44)(@types/react-dom@19.1.9(@types/react@19.2.14))(@types/react@19.2.14)(immer@9.0.21)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4)))(@types/react@19.2.14)(assistant-cloud@0.1.22)(immer@9.0.21)(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4))
+      '@google-awlt/design-system':
+        specifier: workspace:*
+        version: link:../design-system
+      '@tailwindcss/vite':
+        specifier: ^4.1.13
+        version: 4.2.2(vite@7.3.1(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(yaml@2.8.3))
+      ai:
+        specifier: ^5.0.104
+        version: 5.0.160(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
+      lucide-react:
+        specifier: ^0.577.0
+        version: 0.577.0(react@19.2.4)
+      rc-tree:
+        specifier: ^5.13.1
+        version: 5.13.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      react:
+        specifier: ^19.1.1
+        version: 19.2.4
+      react-dom:
+        specifier: ^19.1.1
+        version: 19.2.4(react@19.2.4)
+      tailwind-merge:
+        specifier: ^3.3.1
+        version: 3.5.0
+      tailwindcss:
+        specifier: ^4.1.13
+        version: 4.2.2
+      zod:
+        specifier: 4.3.5
+        version: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
+    devDependencies:
+      '@google-awlt/shared-config':
+        specifier: workspace:*
+        version: link:../shared-config
+      '@types/chrome':
+        specifier: ^0.1.27
+        version: 0.1.38
+      '@types/node':
+        specifier: ^24.3.0
+        version: 24.12.0
+      '@types/react':
+        specifier: ^19.1.10
+        version: 19.2.14
+      '@types/react-dom':
+        specifier: 19.1.9
+        version: 19.1.9(@types/react@19.2.14)
+      '@vitejs/plugin-react':
+        specifier: ^5.0.0
+        version: 5.2.0(vite@7.3.1(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(yaml@2.8.3))
+      cross-env:
+        specifier: ^10.1.0
+        version: 10.1.0
+      typescript:
+        specifier: ~5.8.3
+        version: 5.8.3
+      vite:
+        specifier: ^7.1.11
+        version: 7.3.1(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(yaml@2.8.3)
+      vite-plugin-static-copy:
+        specifier: ^3.1.4
+        version: 3.4.0(vite@7.3.1(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(yaml@2.8.3))
+      vite-plugin-svgr:
+        specifier: ^4.5.0
+        version: 4.5.0(rollup@4.60.0)(typescript@5.8.3)(vite@7.3.1(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(yaml@2.8.3))
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/debug@4.1.13)(@types/node@24.12.0)(@vitest/browser@3.2.4)(jiti@2.6.1)(jsdom@20.0.3)(lightningcss@1.32.0)(yaml@2.8.3)
 
   packages/shared-config:
     dependencies:
@@ -1165,12 +1253,6 @@ packages:
     peerDependencies:
       zod: 4.3.5
 
-  '@ai-sdk/gateway@2.0.17':
-    resolution: {integrity: sha512-oVAG6q72KsjKlrYdLhWjRO7rcqAR8CjokAbYuyVZoCO4Uh2PH/VzZoxZav71w2ipwlXhHCNaInGYWNs889MMDA==}
-    engines: {node: '>=18'}
-    peerDependencies:
-      zod: 4.3.5
-
   '@ai-sdk/gateway@2.0.64':
     resolution: {integrity: sha512-j46B1PqvX6XG6R6xHR2YN/2rlnixvvDekFGDnLXkJhEn6BErGRqzt1jFE8UN6ZPVPp4X9a/RkAale7xERWgydQ==}
     engines: {node: '>=18'}
@@ -1189,21 +1271,11 @@ packages:
     peerDependencies:
       zod: 4.3.5
 
-  '@ai-sdk/provider-utils@3.0.18':
-    resolution: {integrity: sha512-ypv1xXMsgGcNKUP+hglKqtdDuMg68nWHucPPAhIENrbFAI+xCHiqPVN8Zllxyv1TNZwGWUghPxJXU+Mqps0YRQ==}
-    engines: {node: '>=18'}
-    peerDependencies:
-      zod: 4.3.5
-
   '@ai-sdk/provider-utils@3.0.22':
     resolution: {integrity: sha512-fFT1KfUUKktfAFm5mClJhS1oux9tP2qgzmEZVl5UdwltQ1LO/s8hd7znVrgKzivwv1s1FIPza0s9OpJaNB/vHw==}
     engines: {node: '>=18'}
     peerDependencies:
       zod: 4.3.5
-
-  '@ai-sdk/provider@2.0.0':
-    resolution: {integrity: sha512-6o7Y2SeO9vFKB8lArHXehNuusnpddKPk7xqL7T2/b+OvXMRIXUO1rR4wcv1hAFUAT9avGZshty3Wlua/XA7TvA==}
-    engines: {node: '>=18'}
 
   '@ai-sdk/provider@2.0.1':
     resolution: {integrity: sha512-KCUwswvsC5VsW2PWFqF8eJgSCu5Ysj7m1TxiHTVA6g7k360bk0RNQENT8KTMAYEs+8fWPD3Uu4dEmzGHc+jGng==}
@@ -1240,25 +1312,25 @@ packages:
       assistant-cloud:
         optional: true
 
-  '@assistant-ui/react-markdown@0.11.10':
-    resolution: {integrity: sha512-7JFd9/s/ZzOtUAHfrxvij4Ti+4V42FVyjF9veWRUsGKKcw7bBZvBxyb2cBMr93sUf0R1eQHsIV39hZjil8J7lw==}
+  '@assistant-ui/react-markdown@0.11.8':
+    resolution: {integrity: sha512-Us7yD9xUGozmmmDuWn+lCp4bylA2sINWyGE6RXr0onmAlwXcOUaw1ZgofKscJXkw6DmC0jrLj7Bdsw8O4IUJhw==}
     peerDependencies:
-      '@assistant-ui/react': ^0.11.58
+      '@assistant-ui/react': ^0.11.50
       '@types/react': '*'
-      react: ^18 || ^19
+      react: ^18 || ^19 || ^19.0.0-rc
     peerDependenciesMeta:
       '@types/react':
         optional: true
 
-  '@assistant-ui/react-syntax-highlighter@0.11.10':
-    resolution: {integrity: sha512-yUOL3vS5SV4mJNEjCThbHHC29Ura5vYIrdGw3QaQ5l9d9BQ4x5LTxg2SrZ/6b+wJiZ0eJZn/ZQ3LU5tlZZcICA==}
+  '@assistant-ui/react-syntax-highlighter@0.11.4':
+    resolution: {integrity: sha512-Fs1CPWAHLeXmyvGHenP1mOlxkxfwdteGz2P8tC0ybg85kMjh87SpCx71nOl0mRQQTwtRBhyzUe9TowEzAZwxPw==}
     peerDependencies:
-      '@assistant-ui/react': ^0.11.58
-      '@assistant-ui/react-markdown': ^0.11.10
+      '@assistant-ui/react': ^0.11.36
+      '@assistant-ui/react-markdown': ^0.11.4
       '@types/react': '*'
       '@types/react-syntax-highlighter': '*'
-      react: ^18 || ^19
-      react-syntax-highlighter: ^16.0.0
+      react: ^18 || ^19 || ^19.0.0-rc
+      react-syntax-highlighter: ^15.5.0
     peerDependenciesMeta:
       '@types/react':
         optional: true
@@ -3796,10 +3868,6 @@ packages:
   '@ungap/structured-clone@1.3.0':
     resolution: {integrity: sha512-WmoN8qaIAo7WTYWbAZuG8PYEhn5fkz7dZrqTBZ7dtt//lL2Gwms1IcnQ5yHqjDfX8Ft5j4YzDM23f87zBfDe9g==}
 
-  '@vercel/oidc@3.0.5':
-    resolution: {integrity: sha512-fnYhv671l+eTTp48gB4zEsTW/YtRgRPnkI2nT7x6qw5rkI1Lq2hTmQIpHPgyThI0znLK+vX2n9XxKdXZ7BUbbw==}
-    engines: {node: '>= 20'}
-
   '@vercel/oidc@3.1.0':
     resolution: {integrity: sha512-Fw28YZpRnA3cAHHDlkt7xQHiJ0fcL+NRcIqsocZQUSmbzeIKRpwttJjik5ZGanXP+vlA4SbTg+AbA3bP363l+w==}
     engines: {node: '>= 20'}
@@ -3924,12 +3992,6 @@ packages:
   agent-base@6.0.2:
     resolution: {integrity: sha512-RZNwNclF7+MS/8bDg70amg32dyeZGZxiDuQmZxKLAlQjr3jGyLx+4Kkk58UO7D2QdgFIQCovuSuZESne6RG6XQ==}
     engines: {node: '>= 6.0.0'}
-
-  ai@5.0.104:
-    resolution: {integrity: sha512-MZOkL9++nY5PfkpWKBR3Rv+Oygxpb9S16ctv8h91GvrSif7UnNEdPMVZe3bUyMd2djxf0AtBk/csBixP0WwWZQ==}
-    engines: {node: '>=18'}
-    peerDependencies:
-      zod: 4.3.5
 
   ai@5.0.160:
     resolution: {integrity: sha512-gO7E3pDylxaLGZWWFf6n3DbRXtkAcg0QYySFQA6yB9fxG1PA+PSIXA7eLipyAIryfcFBjOS1BO4okRGT1rn1lA==}
@@ -6332,6 +6394,38 @@ packages:
     resolution: {integrity: sha512-K5zQjDllxWkf7Z5xJdV0/B0WTNqx6vxG70zJE4N0kBs4LovmEYWJzQGxC9bS9RAKu3bgM40lrd5zoLJ12MQ5BA==}
     engines: {node: '>= 0.10'}
 
+  rc-motion@2.9.5:
+    resolution: {integrity: sha512-w+XTUrfh7ArbYEd2582uDrEhmBHwK1ZENJiSJVb7uRxdE7qJSYjbO2eksRXmndqyKqKoYPc9ClpPh5242mV1vA==}
+    peerDependencies:
+      react: '>=16.9.0'
+      react-dom: '>=16.9.0'
+
+  rc-resize-observer@1.4.3:
+    resolution: {integrity: sha512-YZLjUbyIWox8E9i9C3Tm7ia+W7euPItNWSPX5sCcQTYbnwDb5uNpnLHQCG1f22oZWUhLw4Mv2tFmeWe68CDQRQ==}
+    peerDependencies:
+      react: '>=16.9.0'
+      react-dom: '>=16.9.0'
+
+  rc-tree@5.13.1:
+    resolution: {integrity: sha512-FNhIefhftobCdUJshO7M8uZTA9F4OPGVXqGfZkkD/5soDeOhwO06T/aKTrg0WD8gRg/pyfq+ql3aMymLHCTC4A==}
+    engines: {node: '>=10.x'}
+    peerDependencies:
+      react: '*'
+      react-dom: '*'
+
+  rc-util@5.44.4:
+    resolution: {integrity: sha512-resueRJzmHG9Q6rI/DfK6Kdv9/Lfls05vzMs1Sk3M2P+3cJa+MakaZyWY8IPfehVuhPJFKrIY1IK4GqbiaiY5w==}
+    peerDependencies:
+      react: '>=16.9.0'
+      react-dom: '>=16.9.0'
+
+  rc-virtual-list@3.19.2:
+    resolution: {integrity: sha512-Ys6NcjwGkuwkeaWBDqfI3xWuZ7rDiQXlH1o2zLfFzATfEgXcqpk8CkgMfbJD81McqjcJVez25a3kPxCR807evA==}
+    engines: {node: '>=8.x'}
+    peerDependencies:
+      react: '>=16.9.0'
+      react-dom: '>=16.9.0'
+
   re-resizable@6.11.2:
     resolution: {integrity: sha512-2xI2P3OHs5qw7K0Ud1aLILK6MQxW50TcO+DetD9eIV58j84TqYeHoZcL9H4GXFXXIh7afhH8mv5iUCXII7OW7A==}
     peerDependencies:
@@ -6496,6 +6590,9 @@ packages:
 
   requires-port@1.0.0:
     resolution: {integrity: sha512-KigOCHcocU3XODJxsu8i/j8T9tzT4adHiecwORRQ0ZZFcp7ahwXuRU1m+yuO90C5ZUyGeGfocHDI14M3L3yDAQ==}
+
+  resize-observer-polyfill@1.5.1:
+    resolution: {integrity: sha512-LwZrotdHOo12nQuZlHEmtuXdqGoOD0OhaxopaNFxWzInpEgaLWoVuAMbTzixuosCx2nEG58ngzW3vxdWoxIgdg==}
 
   resolve-cwd@3.0.0:
     resolution: {integrity: sha512-OrZaX2Mb+rJCpH/6CpSqt9xFVpN++x01XnN2ie9g6P5/3xelLAkXWVADpdz1IHD/KFfEXyE6V0U01OQ3UO2rEg==}
@@ -7472,13 +7569,6 @@ snapshots:
       '@ai-sdk/provider-utils': 3.0.22(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
       zod: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
 
-  '@ai-sdk/gateway@2.0.17(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))':
-    dependencies:
-      '@ai-sdk/provider': 2.0.0
-      '@ai-sdk/provider-utils': 3.0.18(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
-      '@vercel/oidc': 3.0.5
-      zod: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
-
   '@ai-sdk/gateway@2.0.64(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))':
     dependencies:
       '@ai-sdk/provider': 2.0.1
@@ -7498,23 +7588,12 @@ snapshots:
       '@ai-sdk/provider-utils': 3.0.22(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
       zod: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
 
-  '@ai-sdk/provider-utils@3.0.18(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))':
-    dependencies:
-      '@ai-sdk/provider': 2.0.0
-      '@standard-schema/spec': 1.1.0
-      eventsource-parser: 3.0.6
-      zod: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
-
   '@ai-sdk/provider-utils@3.0.22(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))':
     dependencies:
       '@ai-sdk/provider': 2.0.1
       '@standard-schema/spec': 1.1.0
       eventsource-parser: 3.0.6
       zod: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
-
-  '@ai-sdk/provider@2.0.0':
-    dependencies:
-      json-schema: 0.4.0
 
   '@ai-sdk/provider@2.0.1':
     dependencies:
@@ -7556,11 +7635,12 @@ snapshots:
       - immer
       - use-sync-external-store
 
-  '@assistant-ui/react-markdown@0.11.10(@assistant-ui/react@0.11.51(patch_hash=67df03cd2ce1371da3a413dd7f088ed189627bed887039984e53e03592e6ae44)(@types/react-dom@19.1.9(@types/react@19.2.14))(@types/react@19.2.14)(immer@9.0.21)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4)))(@types/react-dom@19.1.9(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
+  '@assistant-ui/react-markdown@0.11.8(@assistant-ui/react@0.11.51(patch_hash=67df03cd2ce1371da3a413dd7f088ed189627bed887039984e53e03592e6ae44)(@types/react-dom@19.1.9(@types/react@19.2.14))(@types/react@19.2.14)(immer@9.0.21)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4)))(@types/react-dom@19.1.9(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
     dependencies:
       '@assistant-ui/react': 0.11.51(patch_hash=67df03cd2ce1371da3a413dd7f088ed189627bed887039984e53e03592e6ae44)(@types/react-dom@19.1.9(@types/react@19.2.14))(@types/react@19.2.14)(immer@9.0.21)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4))
       '@radix-ui/react-primitive': 2.1.4(@types/react-dom@19.1.9(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@radix-ui/react-use-callback-ref': 1.1.1(@types/react@19.2.14)(react@19.2.4)
+      '@types/hast': 3.0.4
       classnames: 2.5.1
       react: 19.2.4
       react-markdown: 10.1.0(@types/react@19.2.14)(react@19.2.4)
@@ -7571,10 +7651,10 @@ snapshots:
       - react-dom
       - supports-color
 
-  '@assistant-ui/react-syntax-highlighter@0.11.10(@assistant-ui/react-markdown@0.11.10(@assistant-ui/react@0.11.51(patch_hash=67df03cd2ce1371da3a413dd7f088ed189627bed887039984e53e03592e6ae44)(@types/react-dom@19.1.9(@types/react@19.2.14))(@types/react@19.2.14)(immer@9.0.21)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4)))(@types/react-dom@19.1.9(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(@assistant-ui/react@0.11.51(patch_hash=67df03cd2ce1371da3a413dd7f088ed189627bed887039984e53e03592e6ae44)(@types/react-dom@19.1.9(@types/react@19.2.14))(@types/react@19.2.14)(immer@9.0.21)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4)))(@types/react-syntax-highlighter@15.5.13)(@types/react@19.2.14)(react-syntax-highlighter@16.1.1(react@19.2.4))(react@19.2.4)':
+  '@assistant-ui/react-syntax-highlighter@0.11.4(@assistant-ui/react-markdown@0.11.8(@assistant-ui/react@0.11.51(patch_hash=67df03cd2ce1371da3a413dd7f088ed189627bed887039984e53e03592e6ae44)(@types/react-dom@19.1.9(@types/react@19.2.14))(@types/react@19.2.14)(immer@9.0.21)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4)))(@types/react-dom@19.1.9(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(@assistant-ui/react@0.11.51(patch_hash=67df03cd2ce1371da3a413dd7f088ed189627bed887039984e53e03592e6ae44)(@types/react-dom@19.1.9(@types/react@19.2.14))(@types/react@19.2.14)(immer@9.0.21)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4)))(@types/react-syntax-highlighter@15.5.13)(@types/react@19.2.14)(react-syntax-highlighter@16.1.1(react@19.2.4))(react@19.2.4)':
     dependencies:
       '@assistant-ui/react': 0.11.51(patch_hash=67df03cd2ce1371da3a413dd7f088ed189627bed887039984e53e03592e6ae44)(@types/react-dom@19.1.9(@types/react@19.2.14))(@types/react@19.2.14)(immer@9.0.21)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4))
-      '@assistant-ui/react-markdown': 0.11.10(@assistant-ui/react@0.11.51(patch_hash=67df03cd2ce1371da3a413dd7f088ed189627bed887039984e53e03592e6ae44)(@types/react-dom@19.1.9(@types/react@19.2.14))(@types/react@19.2.14)(immer@9.0.21)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4)))(@types/react-dom@19.1.9(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      '@assistant-ui/react-markdown': 0.11.8(@assistant-ui/react@0.11.51(patch_hash=67df03cd2ce1371da3a413dd7f088ed189627bed887039984e53e03592e6ae44)(@types/react-dom@19.1.9(@types/react@19.2.14))(@types/react@19.2.14)(immer@9.0.21)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4)))(@types/react-dom@19.1.9(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       react: 19.2.4
       react-syntax-highlighter: 16.1.1(react@19.2.4)
     optionalDependencies:
@@ -10388,8 +10468,6 @@ snapshots:
 
   '@ungap/structured-clone@1.3.0': {}
 
-  '@vercel/oidc@3.0.5': {}
-
   '@vercel/oidc@3.1.0': {}
 
   '@vitejs/plugin-react@5.2.0(vite@7.3.1(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(yaml@2.8.3))':
@@ -10572,14 +10650,6 @@ snapshots:
       debug: 4.4.3
     transitivePeerDependencies:
       - supports-color
-
-  ai@5.0.104(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)):
-    dependencies:
-      '@ai-sdk/gateway': 2.0.17(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
-      '@ai-sdk/provider': 2.0.0
-      '@ai-sdk/provider-utils': 3.0.18(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
-      '@opentelemetry/api': 1.9.0
-      zod: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
 
   ai@5.0.160(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)):
     dependencies:
@@ -13610,6 +13680,49 @@ snapshots:
       iconv-lite: 0.7.2
       unpipe: 1.0.0
 
+  rc-motion@2.9.5(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
+    dependencies:
+      '@babel/runtime': 7.29.2
+      classnames: 2.5.1
+      rc-util: 5.44.4(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      react: 19.2.4
+      react-dom: 19.2.4(react@19.2.4)
+
+  rc-resize-observer@1.4.3(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
+    dependencies:
+      '@babel/runtime': 7.29.2
+      classnames: 2.5.1
+      rc-util: 5.44.4(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      react: 19.2.4
+      react-dom: 19.2.4(react@19.2.4)
+      resize-observer-polyfill: 1.5.1
+
+  rc-tree@5.13.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
+    dependencies:
+      '@babel/runtime': 7.29.2
+      classnames: 2.5.1
+      rc-motion: 2.9.5(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      rc-util: 5.44.4(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      rc-virtual-list: 3.19.2(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      react: 19.2.4
+      react-dom: 19.2.4(react@19.2.4)
+
+  rc-util@5.44.4(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
+    dependencies:
+      '@babel/runtime': 7.29.2
+      react: 19.2.4
+      react-dom: 19.2.4(react@19.2.4)
+      react-is: 18.3.1
+
+  rc-virtual-list@3.19.2(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
+    dependencies:
+      '@babel/runtime': 7.29.2
+      classnames: 2.5.1
+      rc-resize-observer: 1.4.3(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      rc-util: 5.44.4(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      react: 19.2.4
+      react-dom: 19.2.4(react@19.2.4)
+
   re-resizable@6.11.2(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
     dependencies:
       react: 19.2.4
@@ -13834,6 +13947,8 @@ snapshots:
   require-from-string@2.0.2: {}
 
   requires-port@1.0.0: {}
+
+  resize-observer-polyfill@1.5.1: {}
 
   resolve-cwd@3.0.0:
     dependencies:
