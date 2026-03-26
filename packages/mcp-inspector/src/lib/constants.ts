@@ -6,7 +6,7 @@ import type { InspectorConfig } from "./configurationTypes";
 // Client identity for MCP connections
 export const CLIENT_IDENTITY = (() => {
   const name = "mcp-inspector";
-  const version = "0.0.0";
+  const version = "1.0.0";
   return { name, version };
 })();
 
