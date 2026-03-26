@@ -26,12 +26,7 @@ import type { WebMCPTool } from '@google-awlt/design-system';
  * Internal dependencies
  */
 import { RequestManager, sanitizeToolName, isDomainAllowed } from './utils';
-import {
-  MESSAGE_TYPES,
-  CONNECTION_NAMES,
-  logger,
-  jsonSchemaToZod,
-} from '../utils';
+import { MESSAGE_TYPES, logger, jsonSchemaToZod } from '../utils';
 import type { ContentScriptMessage } from './types';
 import { mcpbTools, type keys } from '../contentScript/tools/mcpbTools';
 import { StatelessHTTPClientTransport } from '../view/options/providers/mcpProvider/StatelessHTTPClientTransport';
@@ -52,7 +47,6 @@ class McpHub {
     }
   >();
 
-  private port: chrome.runtime.Port | null = null;
   private requestManager = new RequestManager();
   private apiTools: any[] = [];
   private userToolScripts = new Map<string, string>();
@@ -85,7 +79,6 @@ class McpHub {
         this.toolInjected = true;
       }
     });
-
     chrome.webNavigation.onCompleted.addListener(async (details) => {
       if (details.frameId !== 0 || details.tabId !== this.tabId) {
         return;
@@ -149,10 +142,17 @@ class McpHub {
     await this.fetchLocalStorageAndRegisterTools();
 
     this.registerApiCheckTool();
-    this.server.server?.transport?.send({
-      jsonrpc: '2.0',
-      method: 'get/Tools',
-    });
+    this.server.server?.transport
+      ?.send({
+        jsonrpc: '2.0',
+        method: 'get/Tools',
+      })
+      .catch((error) => {
+        logger(
+          ['error'],
+          ['Error requesting tools after reconnecting:', error]
+        );
+      });
   }
 
   async registerAllExtensionTools() {
@@ -241,10 +241,17 @@ class McpHub {
       }
     );
     this.clientList.delete(serverName);
-    this.server.server?.transport?.send({
-      jsonrpc: '2.0',
-      method: 'get/Tools',
-    });
+    this.server.server?.transport
+      ?.send({
+        jsonrpc: '2.0',
+        method: 'get/Tools',
+      })
+      .catch((error) => {
+        logger(
+          ['error'],
+          ['Error requesting tools after reconnecting:', error]
+        );
+      });
   }
 
   async addNewServer(serverConfig: MCPServerConfig, serverName: string) {
@@ -392,10 +399,17 @@ class McpHub {
         }
       }
     );
-    this.server.server?.transport?.send({
-      jsonrpc: '2.0',
-      method: 'get/Tools',
-    });
+    this.server.server?.transport
+      ?.send({
+        jsonrpc: '2.0',
+        method: 'get/Tools',
+      })
+      .catch((error) => {
+        logger(
+          ['error'],
+          ['Error requesting tools after reconnecting:', error]
+        );
+      });
   }
 
   async enableMCPServerTools(serverId: string) {
@@ -406,10 +420,17 @@ class McpHub {
         }
       }
     );
-    this.server.server?.transport?.send({
-      jsonrpc: '2.0',
-      method: 'get/Tools',
-    });
+    this.server.server?.transport
+      ?.send({
+        jsonrpc: '2.0',
+        method: 'get/Tools',
+      })
+      .catch((error) => {
+        logger(
+          ['error'],
+          ['Error requesting tools after reconnecting:', error]
+        );
+      });
   }
 
   /**
@@ -431,9 +452,9 @@ class McpHub {
   }
 
   setupConnections() {
-    chrome.runtime.onConnect.addListener((port) => {
-      if (port.name === CONNECTION_NAMES.CONTENT_SCRIPT) {
-        this.handleContentScriptConnection(port);
+    chrome.runtime.onMessage.addListener((message, sender) => {
+      if (sender && sender?.tab?.id === this.tabId) {
+        this.handleContentScriptConnection(message, sender);
       }
     });
     //Gather the MCP server configs from the chrome localStorage
@@ -460,9 +481,12 @@ class McpHub {
   /**
    * Manages the lifecycle of a connection to a specific browser tab's content script.
    */
-  private handleContentScriptConnection(port: chrome.runtime.Port) {
-    const tabId = port.sender?.tab?.id;
-    const url = port.sender?.tab?.url || '';
+  private async handleContentScriptConnection(
+    message: ContentScriptMessage,
+    sender: chrome.runtime.MessageSender
+  ) {
+    const tabId = sender.tab?.id;
+    const url = sender.tab?.url || '';
 
     if (!tabId) {
       logger(['warn'], ['Connection attempted from port without tab ID']);
@@ -472,53 +496,44 @@ class McpHub {
     if (tabId !== this.tabId) {
       return;
     }
-    this.port = port;
+
     const domain = this.extractDomainFromUrl(url);
-
+    this.toolInjected = false;
     // Listener for messages coming FROM the tab
-    this.port.onMessage.addListener(async (message: ContentScriptMessage) => {
-      try {
-        switch (message.type) {
-          case MESSAGE_TYPES.REGISTER:
-            if (message.tools) {
-              await this.registerOrUpdateTools(
-                domain,
-                message.tools,
-                false,
-                false
-              );
-            }
-            break;
-          case MESSAGE_TYPES.UPDATE:
-            if (message.tools) {
-              await this.registerOrUpdateTools(
-                domain,
-                message.tools,
-                false,
-                false
-              );
-            }
-            break;
-          case MESSAGE_TYPES.RESULT:
-            if (message.requestId) {
-              this.requestManager.resolve(message.requestId, message.data);
-            }
-            break;
-          default:
-            console.log(`Unknown message type from tab ${tabId}:`, message);
-        }
-      } catch (err) {
-        logger(['error'], [`Error handling message from tab ${tabId}:`, err]);
-      }
-    });
+    try {
+      switch (message.type) {
+        case MESSAGE_TYPES.REGISTER:
+          if (message.tools) {
+            await this.registerOrUpdateTools(
+              domain,
+              message.tools,
+              false,
+              false
+            );
+          }
 
-    // Cleanup on disconnect
-    this.port.onDisconnect.addListener(() => {
-      if (chrome.runtime.lastError) {
-        logger(['error'], ['Port disconnected due to url change']);
+          break;
+        case MESSAGE_TYPES.UPDATE:
+          if (message.tools) {
+            await this.registerOrUpdateTools(
+              domain,
+              message.tools,
+              false,
+              false
+            );
+          }
+          break;
+        case MESSAGE_TYPES.RESULT:
+          if (message.requestId) {
+            this.requestManager.resolve(message.requestId, message.data);
+          }
+          break;
+        default:
+          console.log(`Unknown message type from tab ${tabId}:`, message);
       }
-      this.unregisterTab();
-    });
+    } catch (err) {
+      logger(['error'], [`Error handling message from tab ${tabId}:`, err]);
+    }
   }
 
   private registerMCPServerTools(serverName: string, tools: Tool[]) {
@@ -546,10 +561,17 @@ class McpHub {
         this.registeredTools.set(prefixedToolName, mcpTool);
       }
 
-      this.server.server?.transport?.send({
-        jsonrpc: '2.0',
-        method: 'get/Tools',
-      });
+      this.server.server?.transport
+        ?.send({
+          jsonrpc: '2.0',
+          method: 'get/Tools',
+        })
+        .catch((error) => {
+          logger(
+            ['error'],
+            ['Error requesting tools after reconnecting:', error]
+          );
+        });
     }
   }
 
@@ -602,7 +624,9 @@ class McpHub {
 
     const userToolsMap = new Map(userTools.map((t) => [t.name, t]));
 
-    const currentUrl = this.port?.sender?.tab?.url || '';
+    const currentUrl = this.tabId
+      ? ((await chrome.tabs.get(this.tabId))?.url ?? '')
+      : '';
     const disabledToolNames = new Set<string>();
 
     for (const [name, enabled] of Object.entries(builtInState)) {
@@ -676,10 +700,17 @@ class McpHub {
           config,
           async (args: any) => this.executeTool(domain, tool.name, args, false)
         );
-        this.server.server?.transport?.send({
-          jsonrpc: '2.0',
-          method: 'get/Tools',
-        });
+        this.server.server?.transport
+          ?.send({
+            jsonrpc: '2.0',
+            method: 'get/Tools',
+          })
+          .catch((error) => {
+            logger(
+              ['error'],
+              ['Error requesting tools after reconnecting:', error]
+            );
+          });
         this.registeredTools.set(uniqueToolName, mcpTool);
       }
     }
@@ -703,20 +734,6 @@ class McpHub {
         this.registeredTools.get(toolName)?.remove();
         this.registeredTools.delete(toolName);
       }
-    }
-  }
-
-  private unregisterTab() {
-    this.unregisterTools();
-  }
-
-  private unregisterTools() {
-    for (const [toolName] of this.registeredTools.entries()) {
-      if (toolName.startsWith('extension_tool') || toolName.includes(`_mcp_`)) {
-        return;
-      }
-      this.registeredTools.get(toolName)?.remove();
-      this.registeredTools.delete(toolName);
     }
   }
 
@@ -769,7 +786,7 @@ class McpHub {
     args: unknown
   ): Promise<CallToolResult> {
     try {
-      if (!this.port) {
+      if (!this.tabId) {
         return {
           content: [
             {
@@ -782,7 +799,7 @@ class McpHub {
       }
 
       // Forward request to content script using RequestManager
-      const response = await this.requestManager.create(this.port, {
+      const response = await this.requestManager.create(this.tabId, {
         type: MESSAGE_TYPES.EXECUTE,
         toolName,
         args,
@@ -1002,7 +1019,7 @@ class McpHub {
               unregisterFunction?.();
             } else {
               try {
-                navigator.modelContext.unregisterTool(toolToRegister.name);
+                navigator.modelContext?.unregisterTool(toolToRegister.name);
               } catch (e) {
                 console.log(
                   'WebMCP: Failed to unregister tool:',
@@ -1140,7 +1157,7 @@ class McpHub {
               unregisterFunction?.();
             } else {
               try {
-                navigator.modelContext.unregisterTool(toolToRegister.name);
+                navigator.modelContext?.unregisterTool(toolToRegister.name);
               } catch (e) {
                 console.log(
                   'WebMCP: Failed to unregister tool:',

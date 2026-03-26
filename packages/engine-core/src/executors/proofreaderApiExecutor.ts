@@ -15,8 +15,8 @@ export async function proofreaderApiExecutor(
   context: ExecutionContext
 ): Promise<string> {
   const input = config.input;
-  const expectedInputLanguages = config.expectedInputLanguages as
-    | string[]
+  const expectedInputLanguage = config.expectedInputLanguage as
+    | string
     | undefined;
 
   const formattedInput = formatInputText(input);
@@ -28,7 +28,9 @@ export async function proofreaderApiExecutor(
   try {
     // @ts-ignore
     const proofreader = await Proofreader.create({
-      expectedInputLanguages,
+      expectedInputLanguages: expectedInputLanguage
+        ? [expectedInputLanguage]
+        : undefined,
       signal: context.signal,
     });
 

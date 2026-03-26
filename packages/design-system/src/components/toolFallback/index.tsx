@@ -80,7 +80,10 @@ export const ToolFallback: ToolCallMessagePartComponent = ({
   }, [argsText]);
 
   return (
-    <div className="aui-tool-fallback-root mb-4 flex w-full flex-col gap-3 rounded-lg border py-3">
+    <div
+      className="aui-tool-fallback-root mb-4 flex w-full flex-col gap-3 rounded-lg border py-3"
+      data-testid={currentStatus?.text}
+    >
       <div className="aui-tool-fallback-header flex items-center gap-2 px-4">
         <div className="flex flex-grow items-center gap-2">
           {currentStatus?.icon}
@@ -94,7 +97,11 @@ export const ToolFallback: ToolCallMessagePartComponent = ({
           )}
         </div>
         <Button variant="ghost" size="icon" onClick={() => setIsOpen(!isOpen)}>
-          {isOpen ? <ChevronUpIcon /> : <ChevronDownIcon />}
+          {isOpen ? (
+            <ChevronUpIcon data-testid="chevron-up" />
+          ) : (
+            <ChevronDownIcon data-testid="chevron-down" />
+          )}
         </Button>
       </div>
       {isOpen && (

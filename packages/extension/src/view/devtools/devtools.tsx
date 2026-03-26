@@ -1,10 +1,10 @@
 /**
  * External dependencies
  */
-import { McpClientProvider } from '@mcp-b/react-webmcp';
 import { ExtensionClientTransport } from '@mcp-b/transports';
 import { Client } from '@modelcontextprotocol/sdk/client';
 import { SidebarProvider } from '@google-awlt/design-system';
+import { useEffect } from 'react';
 /**
  * Internal dependencies
  */
@@ -25,13 +25,18 @@ export const client = new Client({
 });
 
 function DevTools() {
+  useEffect(() => {
+    chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
+      if (message.type === 'still_there') {
+        sendResponse({ status: 'yes', type: 'devtools' });
+      }
+    });
+  }, []);
   return (
     <EventLogsProvider>
-      <McpClientProvider client={client} transport={transport}>
-        <SidebarProvider placement="devtools" defaultSelectedMenuItem="tools">
-          <Layout />
-        </SidebarProvider>
-      </McpClientProvider>
+      <SidebarProvider placement="devtools" defaultSelectedMenuItem="tools">
+        <Layout />
+      </SidebarProvider>
     </EventLogsProvider>
   );
 }

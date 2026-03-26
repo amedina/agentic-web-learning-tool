@@ -45,6 +45,10 @@ export const updateWorkflowsContextMenu = async (url?: string) => {
       return;
     }
 
+    if (url.startsWith('chrome://')) {
+      return;
+    }
+
     // Create parent menu
     chrome.contextMenus.create(
       {

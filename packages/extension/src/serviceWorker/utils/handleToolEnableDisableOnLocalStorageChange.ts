@@ -7,6 +7,7 @@ import type { WebMCPTool } from '@google-awlt/design-system';
  */
 import onLocalStorageChangedCallback from '../chromeListeners/onLocalStorageChangedCallback';
 import type McpHub from '../mcpHub';
+import { logger } from '../../utils';
 
 const handleToolEnableDisableOnLocalStorageChange = async (
   changes: {
@@ -84,10 +85,14 @@ const handleToolEnableDisableOnLocalStorageChange = async (
     });
   }
 
-  mcpHub.server.server?.transport?.send({
-    jsonrpc: '2.0',
-    method: 'get/Tools',
-  });
+  mcpHub.server.server?.transport
+    ?.send({
+      jsonrpc: '2.0',
+      method: 'get/Tools',
+    })
+    .catch((error) => {
+      logger(['error'], ['Error requesting tools after reconnecting:', error]);
+    });
 };
 
 export default handleToolEnableDisableOnLocalStorageChange;

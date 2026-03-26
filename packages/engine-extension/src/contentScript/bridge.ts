@@ -29,8 +29,16 @@ export function initContentScriptBridge(tabId?: number): void {
   function handleMessage(
     message: ContentScriptMessage,
     _sender: chrome.runtime.MessageSender,
-    sendResponse: (response: ContentScriptResponse) => void
-  ): boolean {
+    sendResponseCb: (response: ContentScriptResponse) => void
+  ) {
+    const sendResponse = (response: ContentScriptResponse) => {
+      try {
+        sendResponseCb(response);
+      } catch (error) {
+        console.error('[Workflow] Failed to send response:', error);
+      }
+    };
+
     switch (message.type) {
       case 'QUERY_DOM':
         handleQueryDOM(
@@ -39,19 +47,19 @@ export function initContentScriptBridge(tabId?: number): void {
           message.isMultiple,
           sendResponse
         );
-        return true;
+        break;
 
       case 'SHOW_ALERT':
         handleShowAlert(message.message, sendResponse);
-        return true;
+        break;
 
       case 'UPDATE_NODE_STATUS':
         handleUpdateNodeStatus(message.nodeId, message.status, sendResponse);
-        return true;
+        break;
 
       case 'CONTENT_SCRIPT_ACTIVE':
         handleContentScriptActive(message.targetTabId, sendResponse);
-        return true;
+        break;
 
       case 'REPLACE_DOM':
         handleReplaceDOM(
@@ -62,23 +70,23 @@ export function initContentScriptBridge(tabId?: number): void {
           message.mode,
           message.index
         );
-        return true;
+        break;
 
       case 'COPY_TO_CLIPBOARD':
         handleCopyToClipboard(message.text, sendResponse);
-        return true;
+        break;
 
       case 'DOWNLOAD_FILE':
         handleDownloadFile(message.filename, message.content, sendResponse);
-        return true;
+        break;
 
       case 'SPEAK_TEXT':
         handleSpeakText(message.text, sendResponse);
-        return true;
+        break;
 
       case 'SHOW_TOOLTIP':
         handleShowTooltip(message.selector, message.content, sendResponse);
-        return true;
+        break;
 
       case 'USER_ACTIVATION_REQUEST':
         handleUserActivationRequest(sendResponse);
@@ -86,15 +94,15 @@ export function initContentScriptBridge(tabId?: number): void {
 
       case 'GET_SELECTION':
         handleGetSelection(sendResponse);
-        return true;
+        break;
 
       case 'REPLACE_SELECTION':
         handleReplaceSelection(message.text, sendResponse);
-        return true;
+        break;
 
       default:
         sendResponse({ success: false, error: 'Unknown message type' });
-        return false;
+        break;
     }
   }
 
@@ -194,7 +202,7 @@ export function initContentScriptBridge(tabId?: number): void {
     }
   }
 
-  async function handleContentScriptActive(
+  function handleContentScriptActive(
     tabId: number,
     sendResponse: (response: ContentScriptResponse) => void
   ) {
@@ -279,10 +287,10 @@ export function initContentScriptBridge(tabId?: number): void {
   /**
    * Copy text to clipboard.
    */
-  async function handleCopyToClipboard(
+  function handleCopyToClipboard(
     text: string,
     sendResponse: (response: ContentScriptResponse) => void
-  ): Promise<void> {
+  ): void {
     try {
       const textarea = document.createElement('textarea');
       textarea.textContent = text;
@@ -508,17 +516,18 @@ export function initContentScriptBridge(tabId?: number): void {
   /**
    * Handle user activation request.
    */
-  async function handleUserActivationRequest(
+  function handleUserActivationRequest(
     sendResponse: (response: ContentScriptResponse) => void
-  ): Promise<void> {
-    try {
-      await userActivationManager.requestActivation();
-
-      sendResponse({ success: true });
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      sendResponse({ success: false, error: message });
-    }
+  ): void {
+    userActivationManager
+      .requestActivation()
+      .then(() => {
+        sendResponse({ success: true });
+      })
+      .catch((error) => {
+        const message = error instanceof Error ? error.message : String(error);
+        sendResponse({ success: false, error: message });
+      });
   }
 
   /**

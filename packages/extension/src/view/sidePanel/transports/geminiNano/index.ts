@@ -7,8 +7,10 @@ import {
   streamText,
   type ChatRequestOptions,
   type ChatTransport,
+  type UIDataTypes,
   type UIMessage,
   type UIMessageChunk,
+  type UITools,
 } from 'ai';
 import { type LanguageModelV2 } from '@ai-sdk/provider';
 import type { AssistantRuntime } from '@assistant-ui/react';
@@ -42,7 +44,9 @@ type SendMessagesParams = {
  * This transport does not make any network requests. It calls
  * the browser's built-in LanguageModel API directly.
  */
-export class GeminiNanoChatTransport implements ChatTransport<UIMessage> {
+export class GeminiNanoChatTransport implements ChatTransport<
+  UIMessage<unknown, UIDataTypes, UITools>
+> {
   private model: LanguageModelV2 | null = null;
   private isInitializing: boolean = false;
   private runtime: AssistantRuntime | null = null;
@@ -106,7 +110,7 @@ export class GeminiNanoChatTransport implements ChatTransport<UIMessage> {
    */
   async sendMessages(
     params: SendMessagesParams
-  ): Promise<ReadableStream<UIMessageChunk>> {
+  ): Promise<ReadableStream<UIMessageChunk<unknown, UIDataTypes>>> {
     //@ts-expect-error -- the command is being set from the chatbot
     const _command = window.command;
 

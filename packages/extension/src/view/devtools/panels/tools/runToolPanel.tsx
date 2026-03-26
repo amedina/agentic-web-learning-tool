@@ -103,7 +103,7 @@ const RunToolPanel = ({
         afterRunTool(tool);
       }, 1000);
     }
-  }, [setValidationError, actions, onClose, afterRunTool, onRun, args, tool]);
+  }, [tool, actions, onRun, args, properties, onClose, afterRunTool]);
 
   const handleArgsChange = useCallback(
     (key: string, value: string) => {
@@ -131,7 +131,7 @@ const RunToolPanel = ({
       clearTimeout(timeoutRef.current);
       timeoutRef.current = null;
     }
-  }, [onClose]);
+  }, [actions, onClose]);
 
   return (
     <RunToolPanelView

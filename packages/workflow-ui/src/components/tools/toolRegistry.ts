@@ -51,7 +51,7 @@ export const TOOL_CONFIGS: Record<
       title: "Proofreader",
       context:
         "A helpful assistant that proofreads content for grammar and spelling errors.",
-      expectedInputLanguages: ["en", "es", "ja"],
+      expectedInputLanguage: "en",
       outputLanguage: "en",
     },
   },

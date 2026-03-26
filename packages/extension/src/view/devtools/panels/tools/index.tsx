@@ -29,7 +29,7 @@ import { useToolExecution } from '../../hooks/useToolExecution';
 import { useEventLogs } from '../../providers';
 import useToolCategoryMapping from '../../hooks/useToolCategoryMapping';
 import { TOOL_CATEGORIES } from '../../constants';
-import { getToolCategory } from '../../../../utils';
+import { getToolCategory, logger } from '../../../../utils';
 import { builtInTools } from '../../../../contentScript/tools';
 import { stringifiedChangeBGColor } from '../../../../contentScript/tools/changeBgColor';
 import { stringifiedGetPageTitle } from '../../../../contentScript/tools/getPageTitle';
@@ -156,15 +156,28 @@ export const Tools = ({
       }
 
       const onScriptChange = async (newCode: string) => {
-        chrome.runtime.sendMessage({
-          method: 'updateScript',
-          jsonrpc: '2.0',
-          payload: {
-            newCode,
-            toolName: data.name,
-            tabId: chrome.devtools.inspectedWindow.tabId,
+        chrome.runtime.sendMessage(
+          {
+            method: 'updateScript',
+            jsonrpc: '2.0',
+            payload: {
+              newCode,
+              toolName: data.name,
+              tabId: chrome.devtools.inspectedWindow.tabId,
+            },
           },
-        });
+          () => {
+            if (chrome.runtime.lastError) {
+              logger(
+                ['error'],
+                [
+                  'Failed to close side panel:',
+                  chrome.runtime.lastError.message,
+                ]
+              );
+            }
+          }
+        );
       };
 
       const inBuiltTools = builtInTools.map((tool) => ({

@@ -38,7 +38,7 @@ if (!globalThis.PromiseQueue) {
 const mcpHubSidepanelInstances = new Map<number, McpHub>();
 const mcpHubDevtoolInstances = new Map<number, McpHub>();
 const mcpHubOptionsInstances = new Map<number, McpHub>();
-const serverInstances = new Map<number, McpServer>();
+const serverInstances = new Map<string, McpServer>();
 
 chrome.sidePanel
   .setPanelBehavior({ openPanelOnActionClick: false })
@@ -58,7 +58,8 @@ chrome.tabs.onRemoved.addListener((tabId) => {
   mcpHubDevtoolInstances.delete(tabId);
   mcpHubOptionsInstances.delete(tabId);
   mcpHubSidepanelInstances.delete(tabId);
-  serverInstances.delete(tabId);
+  serverInstances.delete(`${tabId}devtools`);
+  serverInstances.delete(`${tabId}sidepanel`);
 });
 
 //sidepanel instance
@@ -93,7 +94,8 @@ chrome.runtime.onConnect.addListener(async (port) => {
       mcpHubSidepanelInstances,
       port,
       serverInstances,
-      tabId
+      tabId,
+      'sidepanel'
     );
   }
 
@@ -111,12 +113,21 @@ chrome.runtime.onConnect.addListener(async (port) => {
       mcpHubDevtoolInstances,
       port,
       serverInstances,
-      tabId
+      tabId,
+      'devtools'
     );
   }
 });
 
-chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((message, _sender, sendResponseCb) => {
+  const sendResponse = (response?: any) => {
+    try {
+      sendResponseCb(response);
+    } catch (error) {
+      logger(['error'], ['Failed to send response:', error]);
+    }
+  };
+
   if (message.type === 'PING') {
     sendResponse({ status: 'ok' });
   }
@@ -156,6 +167,8 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         userWebMCPTools: reformedWebMcpTools,
       });
     });
+
+    sendResponse();
   }
 });
 

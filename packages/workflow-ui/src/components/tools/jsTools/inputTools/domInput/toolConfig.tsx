@@ -109,7 +109,7 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
               className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
               htmlFor="cssSelector"
             >
-              CSS Selector
+              CSS Selector(s)
             </label>
             <input
               type="text"
@@ -121,8 +121,7 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
               placeholder="e.g., .content, #main, body"
             />
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-              CSS selector to target the DOM element
-              {isMultiple && "s"}
+              CSS selector(s) to target the DOM element(s)
             </p>
           </div>
 
@@ -148,8 +147,7 @@ const ToolConfig = ({ ref, config }: ToolConfigProps) => {
               <option value="href">Link URL</option>
             </select>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-              What to extract from the selected element
-              {isMultiple && "s"}
+              What to extract from the selected element(s)
             </p>
           </div>
 

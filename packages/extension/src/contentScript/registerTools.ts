@@ -26,86 +26,79 @@ import { builtInTools } from './tools/index';
         }
       }
 
+      const mcpTestingTools = mcpTesting?.listTools?.();
+
+      if (mcpTestingTools) {
+        for (const tool of mcpTestingTools) {
+          if (
+            mcp?.toolRegistrationTimestamps &&
+            !mcp?.toolRegistrationTimestamps?.has(tool.name)
+          ) {
+            tool.execute = async (args: any) => {
+              console.log('WebMCP: Executing tool', tool.name, args);
+
+              let targetFrame: HTMLIFrameElement | null = null;
+              let loadPromise: Promise<void> | null = null;
+
+              const formTarget = document.querySelector(
+                `form[toolname="${tool.name}"]`
+                // @ts-ignore
+              )?.target;
+
+              if (formTarget) {
+                targetFrame = document.querySelector(`[name=${formTarget}]`);
+                loadPromise = new Promise((resolve) => {
+                  targetFrame?.addEventListener('load', () => resolve(), {
+                    once: true,
+                  });
+                });
+              }
+
+              // Execute the experimental tool
+              // @ts-ignore
+              const promise = navigator.modelContextTesting.executeTool(
+                tool.name,
+                args
+              );
+
+              try {
+                let result = await promise;
+
+                // If result is null and we have a target frame, wait for the frame to reload.
+                if (result === null && targetFrame) {
+                  console.log(
+                    `WebMCP: Waiting for form target ${targetFrame} to load`
+                  );
+
+                  await loadPromise;
+
+                  console.debug(
+                    'WebMCP: Get cross document script tool result'
+                  );
+
+                  // @ts-ignore
+                  result =
+                    // @ts-ignore
+                    await targetFrame?.contentWindow?.navigator.modelContextTesting.getCrossDocumentScriptToolResult();
+                }
+
+                return result;
+              } catch (error) {
+                console.error('WebMCP: Error executing tool', tool.name, error);
+                // @ts-ignore
+                return JSON.stringify(error.message);
+              }
+            };
+
+            mcp.registerTool(tool);
+          }
+        }
+      }
+
       console.log('WebMCP: Tools registered.');
     } catch (e) {
       console.error('WebMCP: Registration failed', e);
     }
-
-    // Message Listener
-    window.addEventListener('message', async (event) => {
-      if (event.source !== window) return;
-      if (!event.data || event.data.type !== 'EXECUTE_WEBMCP_TOOL') return;
-
-      const { id, toolName, args } = event.data;
-      console.log(`WebMCP: Request received for ${toolName}`, args);
-
-      // Executor Selection
-      const executor =
-        mcpTesting && typeof mcpTesting.executeTool === 'function'
-          ? mcpTesting
-          : mcp;
-
-      console.log(
-        `WebMCP: Using executor ${executor === mcpTesting ? 'TestingAPI' : 'ProviderAPI'}`
-      );
-
-      try {
-        // Ensure args is string if needed (polyfil quirk)
-        const argsString =
-          typeof args === 'string' ? args : JSON.stringify(args);
-
-        // EXECUTE
-        const rawResult = await executor.executeTool(toolName, argsString);
-        console.log('WebMCP: Raw result:', rawResult);
-
-        // NORMALIZE
-        let normalizedResult;
-
-        if (
-          rawResult &&
-          typeof rawResult === 'object' &&
-          ('content' in rawResult || 'isError' in rawResult)
-        ) {
-          // It's a valid MCP envelope
-          normalizedResult = rawResult;
-          console.log('WebMCP: Result is valid envelope');
-        } else if (typeof rawResult === 'string') {
-          // It's a plain string
-          normalizedResult = {
-            content: [{ type: 'text', text: rawResult }],
-          };
-          console.log('WebMCP: Result is string, wrapped.');
-        } else {
-          // Fallback
-          const stringified = JSON.stringify(rawResult, null, 2);
-          normalizedResult = {
-            content: [{ type: 'text', text: stringified }],
-          };
-          console.log('WebMCP: Result is unknown, stringified:', stringified);
-        }
-
-        console.log('WebMCP: Sending response:', normalizedResult);
-
-        window.postMessage(
-          {
-            type: 'WEBMCP_TOOL_RESULT',
-            id,
-            result: normalizedResult,
-          },
-          '*'
-        );
-      } catch (err: any) {
-        console.error('WebMCP: Execution error', err);
-        window.postMessage(
-          {
-            type: 'WEBMCP_TOOL_RESULT',
-            id,
-            error: err.message,
-          },
-          '*'
-        );
-      }
-    });
   }
 
   if ((window.navigator as any).modelContext) {
