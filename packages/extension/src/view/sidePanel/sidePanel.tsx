@@ -62,6 +62,24 @@ const SidePanel = () => {
     })();
   }, [transport]);
 
+  useEffect(() => {
+    chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
+      if (message.type === 'still_there') {
+        sendResponse({ status: 'yes', type: 'sidepanel' });
+      }
+    });
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (tabs) {
+          chrome.storage.session.remove(`sidebar_tab_${tabs[0].id}`);
+        }
+      });
+    };
+  }, []);
+
   return (
     <CustomRuntimeProvider transport={transport} runtimeRef={runtimeRef}>
       <CommandProvider>

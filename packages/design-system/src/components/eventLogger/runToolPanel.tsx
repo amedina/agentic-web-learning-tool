@@ -72,7 +72,7 @@ export const RunToolPanel: React.FC<RunToolPanelProps> = ({
         onArgsChange(key, defaultValue);
       }
     });
-  }, [tool, activeTabId]);
+  }, [tool, activeTabId, properties, args, onArgsChange]);
 
   const getInputValue = useCallback(
     (args: any, key: string) => {
@@ -132,7 +132,7 @@ export const RunToolPanel: React.FC<RunToolPanelProps> = ({
         </div>
 
         {/* Content Area */}
-        <div className="p-4 overflow-y-auto h-[calc(100%-110px)]">
+        <div className="p-4 overflow-y-auto h-[calc(100%-110px)] pb-10">
           {!tool ? (
             <div className="text-gray-500 text-sm text-center mt-10">
               No tool selected
@@ -141,70 +141,73 @@ export const RunToolPanel: React.FC<RunToolPanelProps> = ({
             <div className="space-y-6">
               {properties && Object.entries(properties).length > 0 ? (
                 Object.entries(properties).map(
-                  ([key, schema]: [string, any]) => (
-                    <div key={key} className="space-y-1">
-                      <label className="block text-xs font-medium text-gray-700">
-                        {key}
-                        {requiredFields.includes(key) && (
-                          <span className="text-red-500 ml-0.5">*</span>
+                  ([key, schema]: [string, any]) => {
+                    console.log(args[key], 'args[key]');
+                    return (
+                      <div key={key} className="space-y-1">
+                        <label className="block text-xs font-medium text-gray-700">
+                          {key}
+                          {requiredFields.includes(key) && (
+                            <span className="text-red-500 ml-0.5">*</span>
+                          )}
+                        </label>
+                        {schema.enum ? (
+                          <select
+                            className="block w-full rounded-sm border-gray-300 border p-2 text-sm focus:border-blue-500 focus:ring-blue-500"
+                            value={(args[key] ?? '') || ''}
+                            onChange={(e) => onArgsChange(key, e.target.value)}
+                          >
+                            <option value="">Select...</option>
+                            {schema.enum.map((option: string) => (
+                              <option key={option} value={option}>
+                                {option}
+                              </option>
+                            ))}
+                          </select>
+                        ) : schema.type === 'boolean' ? (
+                          <select
+                            className="block w-full rounded-sm border-gray-300 border p-2 text-sm focus:border-blue-500 focus:ring-blue-500"
+                            value={(args[key] ?? '') || ''}
+                            onChange={(e) => onArgsChange(key, e.target.value)}
+                          >
+                            <option value="">Select...</option>
+                            <option value="true">True</option>
+                            <option value="false">False</option>
+                          </select>
+                        ) : schema.type === 'object' ||
+                          schema.type === 'array' ? (
+                          <textarea
+                            className="block w-full rounded-sm border-gray-300 border p-2 text-sm focus:border-blue-500 focus:ring-blue-500 font-mono"
+                            rows={3}
+                            value={args[key] || ''}
+                            onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
+                              onArgsChange(key, e.target.value)
+                            }
+                            placeholder={
+                              schema.type === 'object'
+                                ? '{"key": "value"}'
+                                : '[1, 2]'
+                            }
+                          />
+                        ) : (
+                          <input
+                            type={schema.type === 'number' ? 'number' : 'text'}
+                            className="block w-full rounded-sm border-gray-300 border p-2 text-sm focus:border-blue-500 focus:ring-blue-500"
+                            value={getInputValue(args, key)}
+                            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                              onArgsChange(key, e.target.value)
+                            }
+                            placeholder={schema.description}
+                          />
                         )}
-                      </label>
-                      {schema.enum ? (
-                        <select
-                          className="block w-full rounded-sm border-gray-300 border p-2 text-sm focus:border-blue-500 focus:ring-blue-500"
-                          value={args[key] || ''}
-                          onChange={(e) => onArgsChange(key, e.target.value)}
-                        >
-                          <option value="">Select...</option>
-                          {schema.enum.map((option: string) => (
-                            <option key={option} value={option}>
-                              {option}
-                            </option>
-                          ))}
-                        </select>
-                      ) : schema.type === 'boolean' ? (
-                        <select
-                          className="block w-full rounded-sm border-gray-300 border p-2 text-sm focus:border-blue-500 focus:ring-blue-500"
-                          value={args[key] || ''}
-                          onChange={(e) => onArgsChange(key, e.target.value)}
-                        >
-                          <option value="">Select...</option>
-                          <option value="true">True</option>
-                          <option value="false">False</option>
-                        </select>
-                      ) : schema.type === 'object' ||
-                        schema.type === 'array' ? (
-                        <textarea
-                          className="block w-full rounded-sm border-gray-300 border p-2 text-sm focus:border-blue-500 focus:ring-blue-500 font-mono"
-                          rows={3}
-                          value={args[key] || ''}
-                          onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
-                            onArgsChange(key, e.target.value)
-                          }
-                          placeholder={
-                            schema.type === 'object'
-                              ? '{"key": "value"}'
-                              : '[1, 2]'
-                          }
-                        />
-                      ) : (
-                        <input
-                          type={schema.type === 'number' ? 'number' : 'text'}
-                          className="block w-full rounded-sm border-gray-300 border p-2 text-sm focus:border-blue-500 focus:ring-blue-500"
-                          value={getInputValue(args, key)}
-                          onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                            onArgsChange(key, e.target.value)
-                          }
-                          placeholder={schema.description}
-                        />
-                      )}
-                      {schema.description && (
-                        <p className="text-[10px] text-gray-500">
-                          {schema.description}
-                        </p>
-                      )}
-                    </div>
-                  )
+                        {schema.description && (
+                          <p className="text-[10px] text-gray-500">
+                            {schema.description}
+                          </p>
+                        )}
+                      </div>
+                    );
+                  }
                 )
               ) : (
                 <div className="text-sm text-gray-500 text-center mt-10 h-full w-full flex items-center justify-center py-10">

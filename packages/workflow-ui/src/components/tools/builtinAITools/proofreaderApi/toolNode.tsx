@@ -43,7 +43,7 @@ const ToolNode = () => {
     return {
       type: node?.type,
       title: _config.title,
-      expectedInputLanguages: _config.expectedInputLanguages,
+      expectedInputLanguage: _config.expectedInputLanguage,
     };
   }, [getNode, nodeId]);
 
@@ -73,8 +73,7 @@ const ToolNode = () => {
               Expects
             </p>
             <p className="text-xs text-slate-700 dark:text-zinc-200 italic font-medium">
-              {config?.expectedInputLanguages?.join(", ").toUpperCase() ||
-                "AUTO"}
+              {config?.expectedInputLanguage}
             </p>
           </div>
         </div>

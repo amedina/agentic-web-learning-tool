@@ -103,7 +103,7 @@ export const RewriterApiConfigSchema = z.object({
 export const ProofreaderApiConfigSchema = z.object({
   title: z.string().check(z.minLength(1, 'Title is required')),
   description: z.optional(z.string()),
-  expectedInputLanguages: z.array(z.enum(['en', 'ja', 'es'])),
+  expectedInputLanguage: z.enum(['en', 'ja', 'es']),
 });
 
 export const TranslatorApiConfigSchema = z.object({

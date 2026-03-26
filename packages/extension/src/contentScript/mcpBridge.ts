@@ -11,12 +11,7 @@ import {
 /**
  * Internal dependencies
  */
-import {
-  CONNECTION_NAMES,
-  MESSAGE_TYPES,
-  setLogLevelFromSyncSettings,
-  logger,
-} from '../utils';
+import { MESSAGE_TYPES, setLogLevelFromSyncSettings, logger } from '../utils';
 import { START_MCP_CONNECTION } from '../constants';
 // Inject it in the content script before everything to get loglevel settings.
 // Using promise catch instead of IIFE to prevent content script from breaking due to top level await.
@@ -86,10 +81,6 @@ const mcpConnectionInitialiser = (refreshTools = false) => {
     version: '1.0.0',
   });
 
-  const backgroundPort = chrome.runtime.connect({
-    name: CONNECTION_NAMES.CONTENT_SCRIPT,
-  });
-
   const setupTransportAndConnectClient = () => {
     if (client.transport) {
       return;
@@ -117,7 +108,7 @@ const mcpConnectionInitialiser = (refreshTools = false) => {
             .listTools()
             .then((pageTools) => {
               //Send initial list of tools to service worker
-              backgroundPort.postMessage({
+              chrome.runtime.sendMessage({
                 type: 'register-tools',
                 tools: pageTools.tools,
               });
@@ -131,35 +122,6 @@ const mcpConnectionInitialiser = (refreshTools = false) => {
         });
       }
     }, 1000);
-
-    // Listen for messages from service worker.
-    backgroundPort.onMessage.addListener((message) => {
-      if (message.type === 'execute-tool') {
-        client
-          .callTool({
-            name: message.toolName,
-            arguments: message.args || {},
-          })
-          .then((result) => {
-            backgroundPort.postMessage({
-              type: 'tool-result',
-              requestId: message.requestId,
-              data: { success: true, payload: result },
-            });
-          })
-          .catch((error) => {
-            backgroundPort.postMessage({
-              type: 'tool-result',
-              requestId: message.requestId,
-              data: { success: false, error: error.message },
-            });
-          });
-      }
-
-      if (message.type === 'request-tools-refresh') {
-        sendToolUpdate(MESSAGE_TYPES.REFRESH_REQUEST);
-      }
-    });
   };
 
   async function setupToolChangeListener() {
@@ -191,11 +153,6 @@ const mcpConnectionInitialiser = (refreshTools = false) => {
    * @param updateType - The event type identifier (e.g., "tools-updated")
    */
   async function sendToolUpdate(updateType: string) {
-    if (!backgroundPort) {
-      logger(['warn'], ['[MCP Proxy] No background port to send tool update']);
-      return Promise.resolve();
-    }
-
     return client
       .listTools()
       .then(({ tools }) => {
@@ -209,12 +166,12 @@ const mcpConnectionInitialiser = (refreshTools = false) => {
           tools: tools,
           url: window.location.href,
         };
-        backgroundPort.postMessage({
+        chrome.runtime.sendMessage({
           type: 'register-tools',
           tools: tools,
         });
 
-        backgroundPort.postMessage(message);
+        chrome.runtime.sendMessage(message);
       })
       .catch((error) => {
         logger(['error'], ['[MCP Proxy] Failed to send tool update:', error]);
@@ -225,28 +182,39 @@ const mcpConnectionInitialiser = (refreshTools = false) => {
     if (!chrome.runtime?.id) {
       return;
     }
-
-    backgroundPort.disconnect();
     connectionStarted = false;
   };
 
-  backgroundPort.onDisconnect.addListener(() => {
-    if (!chrome.runtime?.id) {
-      return;
+  chrome.runtime.onMessage.addListener((message) => {
+    if (message.type === 'execute-tool') {
+      client
+        .callTool({
+          name: message.toolName,
+          arguments: message.args || {},
+        })
+        .then((result) => {
+          chrome.runtime.sendMessage({
+            type: 'tool-result',
+            requestId: message.requestId,
+            data: { success: true, payload: result },
+          });
+        })
+        .catch((error) => {
+          chrome.runtime.sendMessage({
+            type: 'tool-result',
+            requestId: message.requestId,
+            data: { success: false, error: error.message },
+          });
+        });
     }
 
-    if (chrome.runtime.lastError) {
-      logger(['error'], ['Port disconnected due to url change']);
+    if (message.type === 'request-tools-refresh') {
+      sendToolUpdate(MESSAGE_TYPES.REFRESH_REQUEST);
     }
 
-    transport
-      .close()
-      .then(() => {
-        connectionStarted = false;
-      })
-      .catch((error) => {
-        logger(['error'], [error]);
-      });
+    // Not returning true to keep the message channel open.
+    // As the response is taking too long and causing the extension to remain idle for a task(eg. workflow execution).
+    // So we might see an error (Unchecked runtime.lastError: The page keeping the extension port is moved into back/forward cache, so the message channel is closed.) in the chrome://extensions page.
   });
 
   setupTransportAndConnectClient();

@@ -10,6 +10,7 @@ import { SyntaxHighlighterJSON } from '../syntaxHighlighter';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../tabs';
 import { CodeEditor } from '../codeEditor';
 import type { WebMCPTool } from '../types';
+import { getToolNameWithoutPrefix } from '../../lib';
 
 type InBuiltToolType = WebMCPTool & { stringCode: string };
 
@@ -73,7 +74,7 @@ export function ToolDetail({
 
       setNewScript(scriptToUse);
     })();
-  }, [tool, getUserTool, tabId]);
+  }, [tool, getUserTool, tabId, inBuiltTools]);
 
   return (
     <Tabs
@@ -105,8 +106,23 @@ export function ToolDetail({
         <div className="p-2 py-4 border-b">
           <div className="text-xs font-bold mb-1">DESCRIPTION</div>
           <div className="select-text text-xs">
-            {tool.description || 'No description provided.'}
+            {tool.description?.replaceAll(
+              `extension_tool_${getToolNameWithoutPrefix(tool.name)}`,
+              getToolNameWithoutPrefix(tool.name)
+            ) || 'No description provided.'}
           </div>
+          {tool.name?.includes(`extension_tool_`) &&
+            tool.name?.includes(`_operations`) && (
+              <>
+                <div className="text-xxxs font-bold mt-2 mb-1">Note</div>
+                <div className="select-text text-xxxs">
+                  {tool.name?.includes(`extension_tool_`) &&
+                  tool.name?.includes(`_operations`)
+                    ? `Please run the ${tool.name.split('_')[2]}_parameter_description tool first`
+                    : null}
+                </div>
+              </>
+            )}
         </div>
         <div className="flex-1 p-2 py-4 bg-background max-h-full overflow-auto border-b">
           <div className="text-xs font-bold mb-1">INPUT SCHEMA</div>

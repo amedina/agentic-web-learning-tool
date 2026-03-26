@@ -9,14 +9,14 @@ import type { PendingRequest, RequestResponse } from '../types';
 class RequestManager {
   private pending = new Map<string, PendingRequest>();
 
-  create<T = unknown>(port: chrome.runtime.Port, message: object): Promise<T> {
+  create<T = unknown>(tabId: number, message: object): Promise<T> {
     const requestId = `${Date.now()}-${Math.random()}`;
     return new Promise<T>((resolve, reject) => {
       this.pending.set(requestId, {
         resolve: resolve as (value: unknown) => void,
         reject,
       });
-      port.postMessage({ ...message, requestId });
+      chrome.tabs.sendMessage(tabId, { ...message, requestId });
 
       // 30-second timeout
       setTimeout(() => {

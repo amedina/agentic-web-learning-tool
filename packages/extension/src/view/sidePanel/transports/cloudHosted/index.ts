@@ -7,8 +7,10 @@ import {
   streamText,
   type ChatRequestOptions,
   type ChatTransport,
+  type UIDataTypes,
   type UIMessage,
   type UIMessageChunk,
+  type UITools,
 } from 'ai';
 import {
   type LanguageModelV2,
@@ -63,7 +65,9 @@ export type ProviderSettings =
   | OpenAIProviderSettings
   | AnthropicProviderSettings
   | GoogleGenerativeAIProviderSettings;
-export class CloudHostedTransport implements ChatTransport<UIMessage> {
+export class CloudHostedTransport implements ChatTransport<
+  UIMessage<unknown, UIDataTypes, UITools>
+> {
   private model: LanguageModelV2 | null = null;
   private isInitializing: boolean = false;
   private runtime: AssistantRuntime | null = null;
@@ -135,7 +139,7 @@ export class CloudHostedTransport implements ChatTransport<UIMessage> {
    */
   async sendMessages(
     params: SendMessagesParams
-  ): Promise<ReadableStream<UIMessageChunk>> {
+  ): Promise<ReadableStream<UIMessageChunk<unknown, UIDataTypes>>> {
     const { messages, abortSignal } = params;
     if (!this.runtime) {
       return new ReadableStream();
