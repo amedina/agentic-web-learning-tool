@@ -76,13 +76,15 @@ function SettingsProvider({
           },
         });
         window.close();
+
+        try {
+          sendResponse();
+        } catch (error) {
+          console.error('Failed to send response:', error);
+        }
       }
 
-      try {
-        sendResponse();
-      } catch (error) {
-        console.error('Failed to send response:', error);
-      }
+      return false;
     },
     [currentTab, view]
   );

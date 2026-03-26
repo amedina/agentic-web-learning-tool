@@ -101,8 +101,7 @@ export function initContentScriptBridge(tabId?: number): void {
         break;
 
       default:
-        sendResponse({ success: false, error: 'Unknown message type' });
-        break;
+        return false;
     }
   }
 

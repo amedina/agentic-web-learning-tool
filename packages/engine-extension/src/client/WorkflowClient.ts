@@ -243,6 +243,9 @@ export class WorkflowClient {
           case 'WORKFLOW_STATUS_CHANGE':
             this.globalCallbacks.forEach((cb) => cb(message.state));
             break;
+
+          default:
+            return false;
         }
 
         try {

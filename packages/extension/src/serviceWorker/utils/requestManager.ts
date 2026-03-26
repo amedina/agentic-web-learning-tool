@@ -24,7 +24,7 @@ class RequestManager {
           this.pending.delete(requestId);
           reject(new Error(`Request timed out`));
         }
-      }, 30000);
+      }, 125000);
     });
   }
 

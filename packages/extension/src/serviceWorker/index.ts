@@ -170,6 +170,8 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponseCb) => {
 
     sendResponse();
   }
+
+  return false;
 });
 
 // Context Menu Listeners
