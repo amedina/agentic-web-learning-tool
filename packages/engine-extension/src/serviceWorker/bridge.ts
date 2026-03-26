@@ -67,8 +67,7 @@ function handleMessage(
       break;
 
     default:
-      sendResponse({ success: false, error: 'Unknown message type' });
-      break;
+      return false;
   }
 }
 

@@ -84,13 +84,15 @@ function EventLogsProvider({ children }: PropsWithChildren) {
         if (isToolRunning && newLog.id !== selectedKey) {
           setSelectedKey(newLog.id);
         }
+
+        try {
+          sendResponse();
+        } catch (error) {
+          console.error('Failed to send response:', error);
+        }
       }
 
-      try {
-        sendResponse();
-      } catch (error) {
-        console.error('Failed to send response:', error);
-      }
+      return false;
     },
     [isToolRunning, selectedKey]
   );
