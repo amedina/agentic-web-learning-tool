@@ -26,7 +26,7 @@ export const Default: Story = {
       title: "Proofreader API",
       description:
         "Checks for grammar, spelling, and tone consistency in professional emails.",
-      expectedInputLanguages: ["en", "es"],
+      expectedInputLanguage: "en",
     },
   },
 };

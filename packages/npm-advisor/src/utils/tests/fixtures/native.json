@@ -1,0 +1,16 @@
+{
+  "mappings": {
+    "node-fetch": {
+      "type": "module",
+      "moduleName": "node-fetch",
+      "replacements": ["fetch"],
+      "url": { "type": "e18e", "id": "fetch" }
+    }
+  },
+  "replacements": {
+    "fetch": {
+      "id": "fetch",
+      "type": "native"
+    }
+  }
+}
