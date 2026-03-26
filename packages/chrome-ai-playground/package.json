@@ -1,6 +1,6 @@
 {
   "name": "@google-awlt/chrome-ai-playground",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Chrome AI Playground for build-in AI and API status",
   "type": "module",
   "main": "dist/index.js",
