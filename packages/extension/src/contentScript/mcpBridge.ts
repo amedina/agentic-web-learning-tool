@@ -4,6 +4,7 @@
 import { TabClientTransport } from '@mcp-b/transports';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import {
+  CallToolResultSchema,
   ToolListChangedNotificationSchema,
   type Tool,
 } from '@modelcontextprotocol/sdk/types.js';
@@ -74,6 +75,7 @@ const mcpConnectionInitialiser = (refreshTools = false) => {
   // TabClientTransport uses window.postMessage under the hood. The TabServerTransport is implemented from the MCP-B polyfill
   const transport = new TabClientTransport({
     targetOrigin: window.location.origin,
+    requestTimeout: 120000,
   });
 
   const client = new Client({
@@ -188,10 +190,14 @@ const mcpConnectionInitialiser = (refreshTools = false) => {
   chrome.runtime.onMessage.addListener((message) => {
     if (message.type === 'execute-tool') {
       client
-        .callTool({
-          name: message.toolName,
-          arguments: message.args || {},
-        })
+        .callTool(
+          {
+            name: message.toolName,
+            arguments: message.args || {},
+          },
+          CallToolResultSchema,
+          { timeout: 120000 }
+        )
         .then((result) => {
           chrome.runtime.sendMessage({
             type: 'tool-result',
