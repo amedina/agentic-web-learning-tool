@@ -217,12 +217,6 @@ const mcpConnectionInitialiser = (refreshTools = false) => {
     if (message.type === 'request-tools-refresh') {
       sendToolUpdate(MESSAGE_TYPES.REFRESH_REQUEST);
     }
-
-    // Not returning true to keep the message channel open.
-    // As the response is taking too long and causing the extension to remain idle for a task(eg. workflow execution).
-    // So we might see an error (Unchecked runtime.lastError: The page keeping the extension port is moved into back/forward cache, so the message channel is closed.) in the chrome://extensions page.
-
-    return false;
   });
 
   setupTransportAndConnectClient();
@@ -255,10 +249,4 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       }
     });
   }
-
-  // Not returning true to keep the message channel open.
-  // As the response is taking too long and causing the extension to remain idle for a task(eg. workflow execution).
-  // So we might see an error (Unchecked runtime.lastError: The page keeping the extension port is moved into back/forward cache, so the message channel is closed.) in the chrome://extensions page.
-
-  return false;
 });
