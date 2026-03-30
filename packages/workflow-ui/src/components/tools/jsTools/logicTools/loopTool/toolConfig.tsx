@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useImperativeHandle } from "react";
+import { useImperativeHandle, useState } from "react";
 import { Settings } from "lucide-react";
 import { LoopConfigSchema, type LoopConfig } from "@google-awlt/engine-core";
 
@@ -16,17 +16,21 @@ interface ToolConfigProps {
   config: LoopConfig;
 }
 
-const ToolConfig = ({ ref }: ToolConfigProps) => {
+const ToolConfig = ({ ref, config }: ToolConfigProps) => {
+  const [maxIterations, setMaxIterations] = useState<number>(
+    config.maxIterations || 1,
+  );
+
   useImperativeHandle(
     ref,
     () => ({
       getConfig: (formData: FormData) => {
         const title = formData.get("title") as string;
-        const description = formData.get("description") as string;
+        const maxIterations = +formData.get("maxIterations")!;
 
         const configResult = {
           title,
-          description,
+          maxIterations,
         };
 
         const validation = LoopConfigSchema.safeParse(configResult);
@@ -58,6 +62,25 @@ const ToolConfig = ({ ref }: ToolConfigProps) => {
             for each element in the input list. The &quot;DONE&quot; handle
             fires once the loop is completed.
           </p>
+
+          <div>
+            <label
+              className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+              htmlFor="maxIterations"
+            >
+              Max Iterations
+            </label>
+            <input
+              type="number"
+              name="maxIterations"
+              id="maxIterations"
+              value={maxIterations}
+              onChange={(e) => setMaxIterations(Number(e.target.value))}
+              min={1}
+              max={1000}
+              className="w-full p-2 border border-slate-300 dark:border-slate-700 rounded-md bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+            />
+          </div>
         </div>
       </div>
     </div>

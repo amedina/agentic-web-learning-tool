@@ -188,6 +188,23 @@ const useWorkflowSync = (
 
       const client = getWorkflowClient();
 
+      const onRemovedListener = (tabId: number) => {
+        if (tabId === selectedTabId) {
+          stopWorkflow();
+        }
+      };
+      chrome.tabs.onRemoved.addListener(onRemovedListener);
+
+      const onUpdatedListener = (
+        tabId: number,
+        changeInfo: chrome.tabs.OnUpdatedInfo,
+      ) => {
+        if (tabId === selectedTabId && changeInfo.status === "complete") {
+          stopWorkflow();
+        }
+      };
+      chrome.tabs.onUpdated.addListener(onUpdatedListener);
+
       try {
         await client.runWorkflow(workflowData, selectedTabId);
       } catch (error) {
@@ -195,6 +212,9 @@ const useWorkflowSync = (
         const msg = error instanceof Error ? error.message : String(error);
         showToast(`Failed to start workflow: ${msg}`, "error");
       }
+
+      chrome.tabs.onUpdated.removeListener(onUpdatedListener);
+      chrome.tabs.onRemoved.removeListener(onRemovedListener);
     },
     [globalState.isRunning, nodes, showToast],
   );
