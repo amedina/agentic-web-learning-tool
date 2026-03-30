@@ -44,7 +44,7 @@ export const InsightsTab: React.FC<InsightsTabProps> = ({
   } = stats;
 
   return (
-    <div className="text-slate-800 p-4 space-y-4">
+    <div className="text-slate-800 dark:text-slate-200 p-4 space-y-4">
       <Header
         packageName={packageName}
         githubUrl={githubUrl}
