@@ -124,6 +124,7 @@ export const TOOL_CONFIGS: Record<
     config: {
       title: "Loop",
       description: "Iterate over an array of items.",
+      maxIterations: 1000,
     },
   },
   [NodeType.DATA_TRANSFORMER]: {
