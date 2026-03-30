@@ -21,7 +21,6 @@ async function configureTabPanel(tabId: number): Promise<void> {
     await chrome.storage.session.set({
       [`sidebar_tab_${tabId}`]: {
         tabId,
-        isOpen: false,
         timestamp: Date.now(),
       },
     });
