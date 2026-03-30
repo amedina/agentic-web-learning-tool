@@ -17,7 +17,7 @@ export const GlobalHeader = () => {
     <div className="flex items-center justify-between w-full px-4 pt-[10px] pb-[10px] bg-[#c94137] text-white">
       <div className="flex items-center space-x-3">
         <img
-          src="/assets/icon.png"
+          src="/icons/icon.png"
           alt="NPM Advisor Logo"
           className="w-8 h-8 rounded shrink-0 object-contain shadow-sm bg-white p-1"
         />
