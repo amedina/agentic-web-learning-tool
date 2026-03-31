@@ -37,7 +37,8 @@ export default function DataManagementSection({
 
   useEffect(() => {
     if (errors.length > 0) {
-      setTimeout(() => setErrors([]), 2500);
+      const t = setTimeout(() => setErrors([]), 2500);
+      return () => clearTimeout(t);
     }
   }, [errors]);
 
@@ -50,16 +51,21 @@ export default function DataManagementSection({
     const minutes = String(now.getMinutes()).padStart(2, "0");
     const filename = `npm-advisor-backup-${date}-${hours}-${minutes}.json`;
 
-    const syncData = await chrome.storage.sync.get([
-      "apiKeys",
-      "npmAdvisorSettings",
+    const [syncData, localData] = await Promise.all([
+      chrome.storage.sync.get(["apiKeys", "targetLicense"]),
+      chrome.storage.local.get(["npmAdvisorThemeMode", "npmAdvisorDarkMode"]),
     ]);
 
     setTimeout(() => {
       const payload = {
         version: "1.0",
         timestamp: Date.now(),
-        config: syncData,
+        config: {
+          apiKeys: syncData.apiKeys ?? {},
+          targetLicense: syncData.targetLicense ?? "MIT",
+          npmAdvisorThemeMode: localData.npmAdvisorThemeMode ?? "auto",
+          npmAdvisorDarkMode: localData.npmAdvisorDarkMode ?? false,
+        },
       };
       const dataStr =
         "data:text/json;charset=utf-8," +
@@ -74,6 +80,8 @@ export default function DataManagementSection({
 
   const handleImport = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
+    // Reset the input so the same file can be re-imported if needed
+    event.target.value = "";
     if (!file) return;
 
     setIsImporting(true);
@@ -94,13 +102,29 @@ export default function DataManagementSection({
           throw new Error("Invalid backup file format.");
         }
 
-        if (parsed.config.apiKeys) {
-          await chrome.storage.sync.set({ apiKeys: parsed.config.apiKeys });
-        }
-        if (parsed.config.npmAdvisorSettings) {
-          await chrome.storage.sync.set({
-            npmAdvisorSettings: parsed.config.npmAdvisorSettings,
-          });
+        const {
+          apiKeys,
+          targetLicense,
+          npmAdvisorThemeMode,
+          npmAdvisorDarkMode,
+        } = parsed.config;
+
+        await Promise.all([
+          chrome.storage.sync.set({
+            ...(apiKeys !== undefined && { apiKeys }),
+            ...(targetLicense !== undefined && { targetLicense }),
+          }),
+          chrome.storage.local.set({
+            ...(npmAdvisorThemeMode !== undefined && { npmAdvisorThemeMode }),
+            ...(npmAdvisorDarkMode !== undefined && { npmAdvisorDarkMode }),
+          }),
+        ]);
+
+        // Apply theme immediately
+        if (npmAdvisorDarkMode) {
+          document.documentElement.classList.add("dark");
+        } else {
+          document.documentElement.classList.remove("dark");
         }
 
         toast.success("Settings imported successfully. Reloading...");
@@ -113,7 +137,10 @@ export default function DataManagementSection({
       setIsImporting(false);
     };
 
-    reader.onerror = () => toast.error("Error reading file.");
+    reader.onerror = () => {
+      toast.error("Error reading file.");
+      setIsImporting(false);
+    };
     reader.readAsText(file);
   }, []);
 

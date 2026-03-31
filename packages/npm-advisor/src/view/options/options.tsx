@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { StrictMode, useEffect, useState, useMemo } from "react";
+import { StrictMode, useEffect, useMemo } from "react";
 import { createRoot } from "react-dom/client";
 import {
   Sidebar,
@@ -19,8 +19,7 @@ import { CpuIcon, Settings2, BarChart2 } from "lucide-react";
 import "./options.css";
 import ModelsTab from "./components/models";
 import SettingsTab from "./components/settings";
-import { ComparisonTab } from "./components/comparisonTab";
-import { calculateScore } from "../../utils/calculateScore";
+import ComparisonPage from "./components/comparison";
 import { ModelProvider } from "./providers";
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -30,59 +29,6 @@ type ExtendedMenuItem = MenuItem & {
   items?: ExtendedMenuItem[];
 };
 
-// ── Comparison wrapper (manages its own state) ────────────────────────────────
-
-function ComparisonTabWrapper() {
-  const [comparisonBucket, setComparisonBucket] = useState<any[]>([]);
-
-  useEffect(() => {
-    chrome.storage.local.get(["comparisonBucket"], (res) => {
-      if (res.comparisonBucket) {
-        setComparisonBucket(res.comparisonBucket as any[]);
-      }
-    });
-
-    const handleStorageChange = (
-      changes: { [key: string]: chrome.storage.StorageChange },
-      area: string,
-    ) => {
-      if (area === "local" && changes.comparisonBucket) {
-        setComparisonBucket((changes.comparisonBucket.newValue as any[]) || []);
-      }
-    };
-    chrome.storage.onChanged.addListener(handleStorageChange);
-    return () => chrome.storage.onChanged.removeListener(handleStorageChange);
-  }, []);
-
-  const handleClearComparison = () => {
-    chrome.storage.local.set({ comparisonBucket: [] }, () =>
-      setComparisonBucket([]),
-    );
-  };
-
-  const winnerName = useMemo(() => {
-    if (comparisonBucket.length === 0) return null;
-    let bestScore = -Infinity;
-    let winner = null;
-    comparisonBucket.forEach((pkg) => {
-      const score = calculateScore(pkg);
-      if (score > bestScore) {
-        bestScore = score;
-        winner = pkg.packageName;
-      }
-    });
-    return winner;
-  }, [comparisonBucket]);
-
-  return (
-    <ComparisonTab
-      comparisonBucket={comparisonBucket}
-      handleClearComparison={handleClearComparison}
-      winnerName={winnerName}
-    />
-  );
-}
-
 // ── Sidebar header ────────────────────────────────────────────────────────────
 
 function NpmAdvisorHeader() {
@@ -90,9 +36,13 @@ function NpmAdvisorHeader() {
     sidebarState: state.sidebarState,
   }));
 
+  const expanded = sidebarState === "expanded";
+
   return (
-    <div className="flex items-center gap-2">
-      <div className={`ml-2 ${sidebarState === "expanded" ? "" : "hidden"}`}>
+    <div className="flex items-center gap-2 overflow-hidden">
+      <div
+        className={`ml-2 shrink-0 transition-all duration-200 ${expanded ? "opacity-100 w-6" : "opacity-0 w-0"}`}
+      >
         <img
           src={chrome.runtime.getURL("icons/icon-128.png")}
           className="h-6 w-6"
@@ -100,12 +50,24 @@ function NpmAdvisorHeader() {
         />
       </div>
       <span
-        className={`font-bold text-lg ${sidebarState === "expanded" ? "" : "hidden"}`}
+        className={`font-bold text-lg whitespace-nowrap overflow-hidden transition-all duration-200 ${expanded ? "opacity-100 max-w-xs" : "opacity-0 max-w-0"}`}
       >
         NPM Advisor
       </span>
     </div>
   );
+}
+
+// ── Apply theme on load ───────────────────────────────────────────────────────
+
+function applyTheme() {
+  chrome.storage.local.get(["npmAdvisorDarkMode"], (res) => {
+    if (res.npmAdvisorDarkMode) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  });
 }
 
 // ── Menu items ────────────────────────────────────────────────────────────────
@@ -122,7 +84,7 @@ const Items: ExtendedMenuItem[] = [
     title: "Compare",
     id: "comparison",
     icon: () => <BarChart2 />,
-    component: <ComparisonTabWrapper />,
+    component: <ComparisonPage />,
     isDisabled: false,
   },
 ];
@@ -166,7 +128,7 @@ function Options() {
     }
   }, [selectedMenuItem, flatItems, setSelectedMenuItem]);
 
-  // Handle hash-based navigation (e.g., from popup "View Comparison" link)
+  // Hash-based navigation (e.g., popup "View Comparison" link)
   useEffect(() => {
     if (window.location.hash === "#comparison") {
       setSelectedMenuItem("comparison");
@@ -179,6 +141,24 @@ function Options() {
     window.addEventListener("hashchange", onHashChange);
     return () => window.removeEventListener("hashchange", onHashChange);
   }, [setSelectedMenuItem]);
+
+  // Keep theme in sync with popup toggle
+  useEffect(() => {
+    const handleStorageChange = (
+      changes: { [key: string]: chrome.storage.StorageChange },
+      area: string,
+    ) => {
+      if (area === "local" && changes.npmAdvisorDarkMode !== undefined) {
+        if (changes.npmAdvisorDarkMode.newValue) {
+          document.documentElement.classList.add("dark");
+        } else {
+          document.documentElement.classList.remove("dark");
+        }
+      }
+    };
+    chrome.storage.onChanged.addListener(handleStorageChange);
+    return () => chrome.storage.onChanged.removeListener(handleStorageChange);
+  }, []);
 
   return (
     <>
@@ -201,6 +181,7 @@ function Options() {
 
 const container = document.getElementById("root");
 if (container) {
+  applyTheme();
   createRoot(container).render(
     <StrictMode>
       <div className="w-screen h-screen">
