@@ -42,20 +42,6 @@ export function useWorkflowSync() {
     };
   }, [updateState]);
 
-  const runWorkflow = useCallback(
-    async (workflow: WorkflowJSON, activeTabId?: number) => {
-      if (state.status === 'running') return;
-
-      try {
-        const client = getWorkflowClient();
-        await client.runWorkflow(workflow, activeTabId);
-      } catch (error) {
-        console.error('[Workflow] Failed to run workflow:', error);
-      }
-    },
-    [state.status]
-  );
-
   const stopWorkflow = useCallback(async () => {
     try {
       setIsStopping(true);
@@ -65,6 +51,40 @@ export function useWorkflowSync() {
       console.error('[Workflow] Failed to stop workflow:', error);
     }
   }, []);
+
+  const runWorkflow = useCallback(
+    async (workflow: WorkflowJSON, activeTabId?: number) => {
+      if (state.status === 'running') return;
+
+      const onRemovedListener = (tabId: number) => {
+        if (tabId === activeTabId) {
+          stopWorkflow();
+        }
+      };
+      chrome.tabs.onRemoved.addListener(onRemovedListener);
+
+      const onUpdatedListener = (
+        tabId: number,
+        changeInfo: chrome.tabs.OnUpdatedInfo
+      ) => {
+        if (tabId === activeTabId && changeInfo.status === 'complete') {
+          stopWorkflow();
+        }
+      };
+      chrome.tabs.onUpdated.addListener(onUpdatedListener);
+
+      try {
+        const client = getWorkflowClient();
+        await client.runWorkflow(workflow, activeTabId);
+      } catch (error) {
+        console.error('[Workflow] Failed to run workflow:', error);
+      }
+
+      chrome.tabs.onRemoved.removeListener(onRemovedListener);
+      chrome.tabs.onUpdated.removeListener(onUpdatedListener);
+    },
+    [state.status, stopWorkflow]
+  );
 
   return {
     ...state,

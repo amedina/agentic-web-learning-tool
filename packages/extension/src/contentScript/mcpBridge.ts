@@ -13,7 +13,7 @@ import {
  * Internal dependencies
  */
 import { MESSAGE_TYPES, setLogLevelFromSyncSettings, logger } from '../utils';
-import { START_MCP_CONNECTION } from '../constants';
+
 // Inject it in the content script before everything to get loglevel settings.
 // Using promise catch instead of IIFE to prevent content script from breaking due to top level await.
 setLogLevelFromSyncSettings().catch((e) =>
@@ -189,6 +189,11 @@ const mcpConnectionInitialiser = (refreshTools = false) => {
 
   chrome.runtime.onMessage.addListener((message) => {
     if (message.type === 'execute-tool') {
+      console.log(
+        'Received execute-tool message:',
+        message,
+        window.location.href
+      );
       client
         .callTool(
           {
@@ -217,12 +222,6 @@ const mcpConnectionInitialiser = (refreshTools = false) => {
     if (message.type === 'request-tools-refresh') {
       sendToolUpdate(MESSAGE_TYPES.REFRESH_REQUEST);
     }
-
-    // Not returning true to keep the message channel open.
-    // As the response is taking too long and causing the extension to remain idle for a task(eg. workflow execution).
-    // So we might see an error (Unchecked runtime.lastError: The page keeping the extension port is moved into back/forward cache, so the message channel is closed.) in the chrome://extensions page.
-
-    return false;
   });
 
   setupTransportAndConnectClient();
@@ -233,32 +232,5 @@ const mcpConnectionInitialiser = (refreshTools = false) => {
   return Promise.resolve();
 };
 
-chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-  if (message.type === START_MCP_CONNECTION) {
-    connectionStarted = false;
-    mcpConnectionInitialiser().then(() => {
-      try {
-        sendResponse();
-      } catch (error) {
-        logger(['error'], ['Failed to send response:', error]);
-      }
-    });
-  }
-
-  if (message.type === MESSAGE_TYPES.REFRESH_REQUEST) {
-    connectionStarted = false;
-    mcpConnectionInitialiser(true).then(() => {
-      try {
-        sendResponse();
-      } catch (error) {
-        logger(['error'], ['Failed to send response:', error]);
-      }
-    });
-  }
-
-  // Not returning true to keep the message channel open.
-  // As the response is taking too long and causing the extension to remain idle for a task(eg. workflow execution).
-  // So we might see an error (Unchecked runtime.lastError: The page keeping the extension port is moved into back/forward cache, so the message channel is closed.) in the chrome://extensions page.
-
-  return false;
-});
+connectionStarted = false;
+mcpConnectionInitialiser();

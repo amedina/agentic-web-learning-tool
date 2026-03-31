@@ -94,7 +94,7 @@ export function initContentScriptBridge(tabId?: number): void {
 
       case 'GET_SELECTION':
         handleGetSelection(sendResponse);
-        break;
+        return true;
 
       case 'REPLACE_SELECTION':
         handleReplaceSelection(message.text, sendResponse);
@@ -591,11 +591,17 @@ export function initContentScriptBridge(tabId?: number): void {
     });
     finishBtn.disabled = true;
 
+    const timeout = setTimeout(() => {
+      cleanup();
+      sendResponse({ success: false, error: 'Selection timeout' });
+    }, 30000);
+
     const cleanup = () => {
       document.removeEventListener('selectionchange', updateSelection);
       container.style.opacity = '0';
       container.style.transform = 'translateX(-50%) translateY(20px)';
       setTimeout(() => container.remove(), 300);
+      clearTimeout(timeout);
     };
 
     const updateSelection = () => {

@@ -51,7 +51,7 @@ export async function domReplacementExecutor(
     formattedInput,
     isMultiple,
     mode,
-    context.loop?.index
+    context.loop?.at(-1)?.index
   );
 
   return formattedInput;

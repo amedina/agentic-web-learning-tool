@@ -102,6 +102,7 @@ export const PREDEFINED_WORKFLOWS: WorkflowJSON[] = [
           config: {
             title: 'Loop',
             description: 'Iterate over an array of items.',
+            maxIterations: 1000,
           },
           label: 'Loop',
           ui: {
