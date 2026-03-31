@@ -3,11 +3,242 @@
  */
 import React from "react";
 import { BarChart2, Trash2, Award } from "lucide-react";
+import { algoliasearch } from "algoliasearch";
+import {
+  InstantSearch,
+  SearchBox,
+  useHits,
+  useSearchBox,
+} from "react-instantsearch";
+import { X, Loader2, Check } from "lucide-react";
 
 /**
  * Internal dependencies.
  */
+import { NPM_SEARCH_CONFIG } from "../../../constants";
 import { calculateScore } from "../../../utils/calculateScore";
+
+const searchClient = algoliasearch(
+  NPM_SEARCH_CONFIG.appId,
+  NPM_SEARCH_CONFIG.apiKey,
+);
+
+interface HitProps {
+  hit: any;
+  isSelected: boolean;
+  onToggle: (hit: any) => void;
+}
+
+const Hit = ({ hit, isSelected, onToggle }: HitProps) => {
+  return (
+    <div
+      onClick={() => onToggle(hit)}
+      className={`p-3 border-b border-slate-100 hover:bg-blue-50 cursor-pointer transition-colors flex justify-between items-center ${
+        isSelected ? "bg-blue-50" : ""
+      }`}
+    >
+      <div className="flex-1 min-w-0">
+        <div className="font-semibold text-slate-800 truncate">{hit.name}</div>
+        <div className="text-xs text-slate-500 leading-relaxed truncate">
+          {hit.description}
+        </div>
+      </div>
+      <div
+        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+          isSelected
+            ? "bg-blue-500 border-blue-500"
+            : "border-slate-200 bg-white"
+        }`}
+      >
+        {isSelected && <div className="w-2 h-2 bg-white rounded-full"></div>}
+      </div>
+    </div>
+  );
+};
+
+const ResultsList = ({
+  onToggle,
+  selectedPackages,
+}: {
+  onToggle: (hit: any) => void;
+  selectedPackages: any[];
+}) => {
+  const { hits } = useHits();
+
+  return (
+    <div className="absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-xl z-50 max-h-60 overflow-y-auto">
+      {hits.map((hit) => (
+        <Hit
+          key={hit.objectID}
+          hit={hit}
+          isSelected={selectedPackages.some((p) => p.name === hit.name)}
+          onToggle={onToggle}
+        />
+      ))}
+    </div>
+  );
+};
+
+const SearchWrapper = () => {
+  const { query, refine } = useSearchBox();
+  const [selectedPackages, setSelectedPackages] = React.useState<any[]>([]);
+  const [isAnalyzing, setIsAnalyzing] = React.useState(false);
+  const [progress, setProgress] = React.useState({ current: 0, total: 0 });
+  const searchContainerRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(event.target as Node)
+      ) {
+        refine("");
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [refine]);
+
+  const togglePackage = (hit: any) => {
+    setSelectedPackages((prev) => {
+      const exists = prev.find((p) => p.name === hit.name);
+      if (exists) {
+        return prev.filter((p) => p.name !== hit.name);
+      }
+      return [...prev, { name: hit.name, description: hit.description }];
+    });
+  };
+
+  const removeSelected = (name: string) => {
+    setSelectedPackages((prev) => prev.filter((p) => p.name !== name));
+  };
+
+  const handleBatchCompare = async () => {
+    if (selectedPackages.length === 0 || isAnalyzing) return;
+
+    setIsAnalyzing(true);
+    setProgress({ current: 0, total: selectedPackages.length });
+    refine(""); // Clear search to hide overlay immediately
+
+    try {
+      const res = await new Promise<any>((resolve) => {
+        chrome.storage.local.get(["comparisonBucket"], resolve);
+      });
+      let currentBucket = res.comparisonBucket || [];
+
+      for (let i = 0; i < selectedPackages.length; i++) {
+        const pkg = selectedPackages[i];
+        setProgress({ current: i + 1, total: selectedPackages.length });
+
+        // Skip if already in bucket
+        if (currentBucket.some((p: any) => p.packageName === pkg.name)) {
+          continue;
+        }
+
+        const response = await new Promise<any>((resolve) => {
+          chrome.runtime.sendMessage(
+            { type: "GET_STATS", packageName: pkg.name },
+            resolve,
+          );
+        });
+
+        if (response && response.success) {
+          currentBucket = [...currentBucket, response.data];
+          await new Promise<void>((resolve) => {
+            chrome.storage.local.set(
+              { comparisonBucket: currentBucket },
+              resolve,
+            );
+          });
+        }
+      }
+
+      setSelectedPackages([]);
+    } catch (err) {
+      console.error("[NPM Advisor] Batch compare failed:", err);
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  return (
+    <div ref={searchContainerRef} className="space-y-4">
+      <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-sm relative">
+        <h4 className="text-sm font-semibold text-slate-700 mb-3 uppercase tracking-wider">
+          Search Packages
+        </h4>
+        <div className="relative">
+          <SearchBox
+            placeholder="Search npm packages to compare..."
+            className="mb-0"
+            classNames={{
+              input:
+                "w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all pr-24",
+              submit: "hidden",
+              reset: "hidden",
+            }}
+          />
+          {selectedPackages.length >= 2 && !isAnalyzing && (
+            <button
+              onClick={handleBatchCompare}
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-blue-600 text-white px-3 py-1.5 rounded-md text-xs font-bold hover:bg-blue-700 transition-all shadow-sm flex items-center animate-in fade-in zoom-in duration-300"
+            >
+              <Check className="w-3 h-3 mr-1" />
+              Compare
+            </button>
+          )}
+          {query.trim() && (
+            <ResultsList
+              onToggle={togglePackage}
+              selectedPackages={selectedPackages}
+            />
+          )}
+        </div>
+
+        {/* Selected Packages Tags */}
+        {selectedPackages.length > 0 && (
+          <div className="mt-4 pt-4 border-t border-slate-100">
+            <div className="flex flex-wrap gap-2 mb-4">
+              {selectedPackages.map((pkg) => (
+                <div
+                  key={pkg.name}
+                  className="flex items-center bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm font-medium border border-blue-100 animate-in fade-in zoom-in duration-200"
+                >
+                  <span className="max-w-40 truncate">{pkg.name}</span>
+                  <button
+                    onClick={() => removeSelected(pkg.name)}
+                    className="ml-2 hover:text-blue-900 transition-colors"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            <button
+              onClick={handleBatchCompare}
+              disabled={isAnalyzing}
+              className={`w-full py-2.5 rounded-lg font-semibold flex items-center justify-center transition-all ${
+                isAnalyzing
+                  ? "bg-slate-100 text-slate-400 cursor-not-allowed"
+                  : "bg-blue-600 text-white hover:bg-blue-700 shadow-md hover:shadow-lg active:transform active:scale-[0.98]"
+              }`}
+            >
+              {isAnalyzing ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Analyzing {progress.current}/{progress.total}...
+                </>
+              ) : (
+                <>Compare {selectedPackages.length} Packages</>
+              )}
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 
 interface ComparisonTabProps {
   comparisonBucket: any[];
@@ -25,7 +256,14 @@ export const ComparisonTab: React.FC<ComparisonTabProps> = ({
 }) => {
   return (
     <div className="mt-8">
-      <div className="flex items-center justify-between mb-4">
+      <InstantSearch
+        searchClient={searchClient}
+        indexName={NPM_SEARCH_CONFIG.indexName}
+      >
+        <SearchWrapper />
+      </InstantSearch>
+
+      <div className="flex items-center justify-between my-4">
         <h3 className="text-lg font-semibold text-slate-800">
           Package Comparison
         </h3>

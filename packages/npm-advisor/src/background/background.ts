@@ -1,5 +1,6 @@
 import { getPackageStats, type PackageStats } from "../utils";
 import { DEFAULT_TARGET_PROJECT_LICENSE } from "../utils";
+import { NPM_SEARCH_CONFIG } from "../constants";
 
 // Memory cache for promises or resolved stats
 const statsCache = new Map<
@@ -80,6 +81,32 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     }
 
     // Return true to indicate we will send a response asynchronously
+    return true;
+  } else if (request.type === "SEARCH_NPM" && request.query) {
+    const { appId, apiKey, indexName } = NPM_SEARCH_CONFIG;
+    const url = `https://${appId.toLowerCase()}-dsn.algolia.net/1/indexes/${indexName}/query`;
+
+    fetch(url, {
+      method: "POST",
+      headers: {
+        "X-Algolia-Application-Id": appId,
+        "X-Algolia-API-Key": apiKey,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        query: request.query,
+        hitsPerPage: 10,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        sendResponse({ success: true, hits: data.hits || [] });
+      })
+      .catch((err) => {
+        console.error("[NPM Advisor] Search failed:", err);
+        sendResponse({ success: false, error: err.message });
+      });
+
     return true;
   }
 });
