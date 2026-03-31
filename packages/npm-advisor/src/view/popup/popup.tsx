@@ -23,8 +23,16 @@ import "./popup.css";
 
 export const Popup = () => {
   const [activeTab, setActiveTab] = useState<"insights" | "ask_ai">("insights");
-  const { stats, loading, error, isAddedToCompare, handleAddToCompare } =
-    usePackageStats();
+  const {
+    stats,
+    loading,
+    error,
+    isAddedToCompare,
+    handleAddToCompare,
+    handleAddRecommendationToCompare,
+    comparisonBucketNames,
+    addingRecommendations,
+  } = usePackageStats();
   const [messages, setMessages] = useState<UIMessage[]>([]);
 
   useEffect(() => {
@@ -116,6 +124,9 @@ export const Popup = () => {
               stats={stats}
               onAddToCompare={handleAddToCompare}
               isAddedToCompare={isAddedToCompare}
+              onAddRecommendationToCompare={handleAddRecommendationToCompare}
+              comparisonBucketNames={comparisonBucketNames}
+              addingRecommendations={addingRecommendations}
             />
           ) : (
             <div className="flex flex-col items-center justify-center p-4 text-slate-800 dark:text-slate-200 h-full w-full animate-in fade-in duration-300">

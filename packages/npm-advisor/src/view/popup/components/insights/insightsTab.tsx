@@ -21,12 +21,18 @@ interface InsightsTabProps {
   stats: PackageStats;
   onAddToCompare: () => void;
   isAddedToCompare: boolean;
+  onAddRecommendationToCompare: (packageName: string) => void;
+  comparisonBucketNames: Set<string>;
+  addingRecommendations: Set<string>;
 }
 
 export const InsightsTab: React.FC<InsightsTabProps> = ({
   stats,
   onAddToCompare,
   isAddedToCompare,
+  onAddRecommendationToCompare,
+  comparisonBucketNames,
+  addingRecommendations,
 }) => {
   const {
     packageName,
@@ -64,7 +70,12 @@ export const InsightsTab: React.FC<InsightsTabProps> = ({
 
       <BundleFootprint bundle={bundle} />
       <SecurityAdvisories securityAdvisories={securityAdvisories} />
-      <Recommendations recommendations={recommendations} />
+      <Recommendations
+        recommendations={recommendations}
+        onAddToCompare={onAddRecommendationToCompare}
+        comparisonBucketNames={comparisonBucketNames}
+        addingRecommendations={addingRecommendations}
+      />
       <DependencyTree dependencyTree={dependencyTree} />
     </div>
   );
