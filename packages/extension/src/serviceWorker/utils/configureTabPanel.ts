@@ -10,7 +10,7 @@ import { logger } from '../../utils';
 async function configureTabPanel(tabId: number): Promise<void> {
   const path = `sidePanel/sidePanel.html#tab=${tabId}`;
   try {
-    await chrome.sidePanel.setOptions({
+    chrome.sidePanel.setOptions({
       tabId,
       path,
       enabled: true,
@@ -18,7 +18,7 @@ async function configureTabPanel(tabId: number): Promise<void> {
     logger(['debug'], [`Side panel configured for tab ${tabId}`]);
 
     // Store sidebar binding in session storage for persistence
-    await chrome.storage.session.set({
+    chrome.storage.session.set({
       [`sidebar_tab_${tabId}`]: {
         tabId,
         timestamp: Date.now(),

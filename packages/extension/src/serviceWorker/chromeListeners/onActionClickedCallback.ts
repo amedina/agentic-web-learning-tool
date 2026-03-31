@@ -4,7 +4,10 @@
 import { logger } from '../../utils';
 import { configureTabPanel } from '../utils';
 
-const onActionClickedCallback = async (tab: chrome.tabs.Tab) => {
+const onActionClickedCallback = async (
+  tab: chrome.tabs.Tab,
+  openedTabs: Set<number>
+) => {
   if (!tab?.id) {
     return;
   }
@@ -12,17 +15,12 @@ const onActionClickedCallback = async (tab: chrome.tabs.Tab) => {
   const tabId = tab.id;
   const sidebarKey = `sidebar_tab_${tabId}`;
 
-  const contexts = await chrome.runtime.getContexts({
-    contextTypes: ['SIDE_PANEL'],
-  });
-
-  const isSidePanelOpen = contexts.some((context) =>
-    context.documentUrl?.endsWith(tabId.toString())
-  );
+  const isSidePanelOpen = openedTabs.has(tabId);
 
   if (isSidePanelOpen) {
-    await chrome.sidePanel.close({ tabId });
-    await chrome.storage.session.set({
+    chrome.sidePanel.close({ tabId });
+    openedTabs.delete(tabId);
+    chrome.storage.session.set({
       [sidebarKey]: {
         tabId,
         timestamp: Date.now(),
@@ -33,16 +31,17 @@ const onActionClickedCallback = async (tab: chrome.tabs.Tab) => {
 
   try {
     // Try to open immediately - panel might already be configured
-    await chrome.sidePanel.open({ tabId });
+    chrome.sidePanel.open({ tabId });
+    openedTabs.add(tabId);
     logger(['debug'], ['Panel opened immediately for tab:', tabId]);
 
     try {
-      await configureTabPanel(tabId);
+      configureTabPanel(tabId);
     } catch {
       // ignore
     }
 
-    await chrome.storage.session.set({
+    chrome.storage.session.set({
       [sidebarKey]: {
         tabId,
         timestamp: Date.now(),
@@ -62,7 +61,7 @@ const onActionClickedCallback = async (tab: chrome.tabs.Tab) => {
 
   try {
     // Configure the panel and try again
-    await configureTabPanel(tabId);
+    configureTabPanel(tabId);
   } catch (error) {
     logger(['error'], ['Failed to configure panel:', error]);
     return;
@@ -70,8 +69,9 @@ const onActionClickedCallback = async (tab: chrome.tabs.Tab) => {
 
   try {
     // Try opening again after configuration
-    await chrome.sidePanel.open({ tabId });
-    await chrome.storage.session.set({
+    chrome.sidePanel.open({ tabId });
+    openedTabs.add(tabId);
+    chrome.storage.session.set({
       [sidebarKey]: {
         tabId,
         timestamp: Date.now(),
