@@ -29,6 +29,27 @@ type ExtendedMenuItem = MenuItem & {
   items?: ExtendedMenuItem[];
 };
 
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+const VALID_PAGES = ["models", "comparison", "settings"];
+
+/** Read initial page from URL hash, fall back to "models". */
+function getInitialPage(): string {
+  const hash = window.location.hash.replace("#", "");
+  return VALID_PAGES.includes(hash) ? hash : "models";
+}
+
+/** Apply dark mode class based on stored preference. */
+function applyTheme() {
+  chrome.storage.local.get(["npmAdvisorDarkMode"], (res) => {
+    if (res.npmAdvisorDarkMode) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  });
+}
+
 // ── Sidebar header ────────────────────────────────────────────────────────────
 
 function NpmAdvisorHeader() {
@@ -56,18 +77,6 @@ function NpmAdvisorHeader() {
       </span>
     </div>
   );
-}
-
-// ── Apply theme on load ───────────────────────────────────────────────────────
-
-function applyTheme() {
-  chrome.storage.local.get(["npmAdvisorDarkMode"], (res) => {
-    if (res.npmAdvisorDarkMode) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  });
 }
 
 // ── Menu items ────────────────────────────────────────────────────────────────
@@ -118,6 +127,7 @@ function Options() {
     return [...flatten(Items), ...flatten(FooterItems)];
   }, []);
 
+  // Validate selection on mount / when flatItems change
   useEffect(() => {
     const isValidSelection = flatItems.some(
       (item) => item.id === selectedMenuItem,
@@ -128,21 +138,14 @@ function Options() {
     }
   }, [selectedMenuItem, flatItems, setSelectedMenuItem]);
 
-  // Hash-based navigation (e.g., popup "View Comparison" link)
+  // Persist active page in URL hash so refresh restores it
   useEffect(() => {
-    if (window.location.hash === "#comparison") {
-      setSelectedMenuItem("comparison");
+    if (selectedMenuItem) {
+      window.location.hash = selectedMenuItem;
     }
-    const onHashChange = () => {
-      if (window.location.hash === "#comparison") {
-        setSelectedMenuItem("comparison");
-      }
-    };
-    window.addEventListener("hashchange", onHashChange);
-    return () => window.removeEventListener("hashchange", onHashChange);
-  }, [setSelectedMenuItem]);
+  }, [selectedMenuItem]);
 
-  // Keep theme in sync with popup toggle
+  // Keep dark-mode class in sync when the popup toggles theme
   useEffect(() => {
     const handleStorageChange = (
       changes: { [key: string]: chrome.storage.StorageChange },
@@ -186,7 +189,7 @@ if (container) {
     <StrictMode>
       <div className="w-screen h-screen">
         <ModelProvider>
-          <SidebarProvider defaultSelectedMenuItem="models">
+          <SidebarProvider defaultSelectedMenuItem={getInitialPage()}>
             <Options />
           </SidebarProvider>
         </ModelProvider>
