@@ -17,13 +17,17 @@ export const LicenseCheck: React.FC<LicenseCheckProps> = ({
   licenseCompatibility,
 }) => {
   return (
-    <div className="bg-white rounded-xl border border-slate-200 p-4">
-      <h2 className="text-sm font-semibold flex items-center text-slate-800 mb-2">
-        <ShieldAlert size={16} className="mr-2 text-slate-600" /> License Check
+    <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
+      <h2 className="text-sm font-semibold flex items-center text-slate-800 dark:text-slate-200 mb-2">
+        <ShieldAlert
+          size={16}
+          className="mr-2 text-slate-600 dark:text-slate-400"
+        />{" "}
+        License Check
       </h2>
       {licenseCompatibility ? (
         <div
-          className={`p-2 rounded-lg flex items-start space-x-2 ${licenseCompatibility.isCompatible ? "bg-emerald-50 text-emerald-800" : "bg-red-50 text-red-800"}`}
+          className={`p-2 rounded-lg flex items-start space-x-2 ${licenseCompatibility.isCompatible ? "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-300" : "bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-300"}`}
         >
           {licenseCompatibility.isCompatible ? (
             <CheckCircle size={16} className="mt-0.5 shrink-0" />
@@ -45,7 +49,9 @@ export const LicenseCheck: React.FC<LicenseCheckProps> = ({
           </div>
         </div>
       ) : (
-        <p className="text-sm text-slate-500">Unknown compatibility status</p>
+        <p className="text-sm text-slate-500 dark:text-slate-400">
+          Unknown compatibility status
+        </p>
       )}
     </div>
   );

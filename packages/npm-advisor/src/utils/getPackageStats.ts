@@ -166,30 +166,32 @@ export async function getPackageStats(
         lastCommitDate = repoData.repo.pushedAt || repoData.repo.updatedAt;
       }
 
-      const issuesList =
-        issuesData?.items || (Array.isArray(issuesData) ? issuesData : null);
+      const issuesList = issuesData?.items ?? null;
 
-      if (issuesList && Array.isArray(issuesList)) {
+      if (issuesList && Array.isArray(issuesList) && issuesList.length > 0) {
         const totalSample = issuesList.length;
-        if (totalSample > 0) {
-          const closedCount = issuesList.filter(
-            (issue: any) => issue.state === "closed",
-          ).length;
-          const openCount = totalSample - closedCount;
-          const ratio = closedCount / totalSample;
-          let desc = "Unknown";
-          if (ratio > 0.8) desc = "Highly Responsive";
-          else if (ratio > 0.5) desc = "Moderately Responsive";
-          else desc = "Needs Attention";
+        const closedCount = issuesList.filter(
+          (issue: any) => issue.state === "closed",
+        ).length;
+        const ratio = closedCount / totalSample;
+        let desc = "Unknown";
+        if (ratio > 0.8) desc = "Highly Responsive";
+        else if (ratio > 0.5) desc = "Moderately Responsive";
+        else desc = "Needs Attention";
 
-          responsiveness = {
-            closedIssuesRatio: ratio,
-            sampleSize: totalSample,
-            openIssuesCount: openCount,
-            issuesUrl: `https://github.com/${owner}/${repo}/issues`,
-            description: desc,
-          };
-        }
+        // Use the true total open count from the dedicated `is:open` query;
+        // fall back to the sample count if unavailable.
+        const openIssuesCount =
+          issuesData.openTotalCount ??
+          issuesList.filter((issue: any) => issue.state === "open").length;
+
+        responsiveness = {
+          closedIssuesRatio: ratio,
+          sampleSize: totalSample,
+          openIssuesCount,
+          issuesUrl: `https://github.com/${owner}/${repo}/issues`,
+          description: desc,
+        };
       }
 
       if (advisoriesData && Array.isArray(advisoriesData)) {
