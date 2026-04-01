@@ -142,7 +142,7 @@ const Options = () => {
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center space-x-3">
                 <img
-                  src={chrome.runtime.getURL("assets/icon.png")}
+                  src={chrome.runtime.getURL("icons/icon.png")}
                   className="w-8 h-8"
                   alt="NPM Advisor Logo"
                 />
