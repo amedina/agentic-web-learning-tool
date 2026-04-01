@@ -12,16 +12,16 @@ import buildProviderOptions from "./buildProviderOptions";
 function transportGenerator(
   provider = "gemini",
   model = "gemini-pro-latest",
+  thinkingMode = false,
   config: ProviderSettings,
   systemPrompt = "",
 ) {
   let modelInstance = null;
-  console.log("Generating transport for provider:", provider, "model:", model);
   switch (provider) {
     case "open-ai":
       modelInstance = new CloudHostedTransport(
         model,
-        buildProviderOptions(provider) ?? {},
+        buildProviderOptions(thinkingMode, provider) ?? {},
         systemPrompt,
       );
       modelInstance.initializeSession(createOpenAI, config);
@@ -29,7 +29,7 @@ function transportGenerator(
     case "gemini":
       modelInstance = new CloudHostedTransport(
         model,
-        buildProviderOptions(provider) ?? {},
+        buildProviderOptions(thinkingMode, provider) ?? {},
         systemPrompt,
       );
       modelInstance.initializeSession(createGoogleGenerativeAI, config);
@@ -37,7 +37,7 @@ function transportGenerator(
     default:
       modelInstance = new CloudHostedTransport(
         model,
-        buildProviderOptions(provider) ?? {},
+        buildProviderOptions(thinkingMode, provider) ?? {},
         systemPrompt,
       );
       modelInstance.initializeSession(createGoogleGenerativeAI, config);

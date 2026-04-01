@@ -4,10 +4,25 @@
 import type { SharedV2ProviderOptions } from "@ai-sdk/provider";
 
 function buildProviderOptions(
+  thinkingMode: boolean,
   modelProvider: string,
 ): SharedV2ProviderOptions | undefined {
+  if (!thinkingMode) {
+    return undefined;
+  }
   // Provider-specific reasoning configurations
   switch (modelProvider) {
+    case "anthropic":
+      // Claude 4 models support thinking with budgetTokens
+      return {
+        anthropic: {
+          thinking: {
+            type: "enabled",
+            budgetTokens: 12000,
+          },
+        },
+      };
+
     case "open-ai": {
       // GPT-5 models support reasoningEffort and reasoningSummary
       const openaiConfig: {

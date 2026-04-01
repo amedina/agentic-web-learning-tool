@@ -197,8 +197,9 @@ function Options() {
       return transportGenerator(
         "gemini",
         "gemini-pro-latest",
+        apiKeys.gemini?.thinkingMode,
         {
-          apiKey: apiKeys.gemini,
+          apiKey: apiKeys.gemini?.apiKey,
         },
         getSystemPrompt(JSON.stringify(comparisonBucket, null, 2)),
       );
@@ -207,7 +208,8 @@ function Options() {
     return transportGenerator(
       "open-ai",
       "gpt-4o",
-      { apiKey: apiKeys?.openai },
+      apiKeys?.["open-ai"]?.thinkingMode,
+      { apiKey: apiKeys?.["open-ai"]?.apiKey },
       getSystemPrompt(JSON.stringify(comparisonBucket, null, 2)),
     );
   }, [apiKeys, comparisonBucket]);
