@@ -1,0 +1,53 @@
+/**
+ * External dependencies
+ */
+import { Monitor, Moon, Sun } from "lucide-react";
+import { Button, cn, OptionsPageTabSection } from "@google-awlt/design-system";
+
+type ThemeMode = "light" | "dark" | "auto";
+
+type ThemeToggleSectionProps = {
+  theme: ThemeMode;
+  onThemeChange: (theme: ThemeMode) => void;
+};
+
+export default function ThemeToggleSection({
+  theme,
+  onThemeChange,
+}: ThemeToggleSectionProps) {
+  return (
+    <OptionsPageTabSection title="Interface">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h3 className="text-sm font-medium text-text-primary">
+            Theme Preference
+          </h3>
+        </div>
+        <div className="flex p-1 bg-extreme-zinc rounded-lg">
+          {[
+            { id: "light" as ThemeMode, icon: Sun, label: "Light" },
+            { id: "dark" as ThemeMode, icon: Moon, label: "Dark" },
+            { id: "auto" as ThemeMode, icon: Monitor, label: "Auto" },
+          ].map((mode) => {
+            const isActive = theme === mode.id;
+            const Icon = mode.icon;
+            return (
+              <Button
+                key={mode.id}
+                variant="ghost"
+                onClick={() => onThemeChange(mode.id)}
+                className={cn(
+                  "relative flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ease-out",
+                  isActive ? "bg-surface text-primary ring-1" : "",
+                )}
+              >
+                <Icon size={14} />
+                {mode.label}
+              </Button>
+            );
+          })}
+        </div>
+      </div>
+    </OptionsPageTabSection>
+  );
+}

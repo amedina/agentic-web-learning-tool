@@ -211,9 +211,14 @@ const WorkflowCanvas = ({ theme }: WorkflowCanvasProps) => {
   const refetchTabs = useCallback(() => {
     if (typeof chrome !== "undefined" && chrome.tabs?.query) {
       chrome.tabs.query({}, (result) => {
-        setTabs(result);
+        const filteredTabs = result.filter(
+          (t) => !t.url?.startsWith("chrome://"),
+        );
+        setTabs(filteredTabs);
 
-        const currentTabExists = result.some((t) => t.id === selectedTabId);
+        const currentTabExists = filteredTabs.some(
+          (t) => t.id === selectedTabId,
+        );
 
         if (!currentTabExists || !selectedTabId) {
           const optionsTab = result.find((t) =>

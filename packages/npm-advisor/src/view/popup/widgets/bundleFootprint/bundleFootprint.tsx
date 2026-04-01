@@ -26,36 +26,40 @@ export const BundleFootprint: React.FC<BundleFootprintProps> = ({ bundle }) => {
   if (!bundle) return null;
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 p-4">
-      <h2 className="text-sm font-semibold flex items-center text-slate-800 mb-3">
-        <Zap size={16} className="mr-2 text-slate-600" /> Bundle footprint
+    <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
+      <h2 className="text-sm font-semibold flex items-center text-slate-800 dark:text-slate-200 mb-3">
+        <Zap size={16} className="mr-2 text-slate-600 dark:text-slate-400" />{" "}
+        Bundle footprint
       </h2>
       <div className="flex gap-4">
-        <div className="flex-1 bg-slate-50 rounded-lg p-3 border border-slate-100 flex flex-col items-center justify-center">
-          <HardDrive size={20} className="text-slate-400 mb-1" />
-          <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">
+        <div className="flex-1 bg-slate-50 dark:bg-slate-700 rounded-lg p-3 border border-slate-100 dark:border-slate-600 flex flex-col items-center justify-center">
+          <HardDrive
+            size={20}
+            className="text-slate-400 dark:text-slate-500 mb-1"
+          />
+          <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 tracking-wider">
             Minified
           </span>
-          <span className="text-lg font-semibold text-slate-800">
+          <span className="text-lg font-semibold text-slate-800 dark:text-slate-200">
             {formatBytes(bundle.size)}
           </span>
         </div>
-        <div className="flex-1 bg-slate-50 rounded-lg p-3 border border-slate-100 flex flex-col items-center justify-center">
+        <div className="flex-1 bg-slate-50 dark:bg-slate-700 rounded-lg p-3 border border-slate-100 dark:border-slate-600 flex flex-col items-center justify-center">
           <Zap size={20} className="text-amber-400 mb-1" />
-          <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">
+          <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 tracking-wider">
             GZipped
           </span>
-          <span className="text-lg font-semibold text-slate-800">
+          <span className="text-lg font-semibold text-slate-800 dark:text-slate-200">
             {formatBytes(bundle.gzip)}
           </span>
         </div>
       </div>
       <div className="mt-4 flex flex-col space-y-2 text-sm max-w-full">
         <div className="flex items-center justify-between overflow-visible">
-          <span className="flex items-center text-slate-600">
+          <span className="flex items-center text-slate-600 dark:text-slate-400">
             <Leaf size={14} className="mr-2 text-emerald-500" /> Tree-shakeable
             <div className="group relative flex items-center ml-1.5 cursor-help">
-              <Info size={14} className="text-slate-400" />
+              <Info size={14} className="text-slate-400 dark:text-slate-500" />
               <div className="hidden group-hover:block absolute z-50 w-48 p-2 bg-slate-800 text-white text-xs rounded-md bottom-full left-1/2 -translate-x-1/2 mb-2 shadow-lg text-center font-normal normal-case tracking-normal whitespace-normal">
                 Indicates if dead code can be removed by bundlers like Webpack
                 or Rollup.
@@ -63,15 +67,15 @@ export const BundleFootprint: React.FC<BundleFootprintProps> = ({ bundle }) => {
               </div>
             </div>
           </span>
-          <span className="font-medium">
+          <span className="font-medium dark:text-slate-300">
             {bundle.isTreeShakeable ? "Yes" : "No"}
           </span>
         </div>
         <div className="flex items-center justify-between overflow-visible">
-          <span className="flex items-center text-slate-600">
+          <span className="flex items-center text-slate-600 dark:text-slate-400">
             <Box size={14} className="mr-2 text-blue-500" /> Side Effects
             <div className="group relative flex items-center ml-1.5 cursor-help">
-              <Info size={14} className="text-slate-400" />
+              <Info size={14} className="text-slate-400 dark:text-slate-500" />
               <div className="hidden group-hover:block absolute z-50 w-48 p-2 bg-slate-800 text-white text-xs rounded-md bottom-full left-1/2 -translate-x-1/2 mb-2 shadow-lg text-center font-normal normal-case tracking-normal whitespace-normal">
                 False means the package has no side effects and is heavily
                 tree-shakeable.
@@ -80,7 +84,7 @@ export const BundleFootprint: React.FC<BundleFootprintProps> = ({ bundle }) => {
             </div>
           </span>
           <span
-            className="font-medium text-right max-w-[150px] truncate"
+            className="font-medium dark:text-slate-300 text-right max-w-[150px] truncate"
             title={String(bundle.hasSideEffects)}
           >
             {Array.isArray(bundle.hasSideEffects)

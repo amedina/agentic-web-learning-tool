@@ -9,10 +9,14 @@ import onActionClickedCallback from './onActionClickedCallback';
 import onCompletedCallback from './onCompletedCallback';
 import tabOnClosedCallback from './tabOnClosedCallback';
 
+const openedTabs = new Set<number>();
+
 chrome.storage.sync.onChanged.addListener(syncStorageChangeCallback);
 chrome.runtime.onInstalled.addListener(onInstalledCallback);
 chrome.tabs.onActivated.addListener(tabOnActivatedCallback);
 chrome.tabs.onCreated.addListener(tabOnCreatedCallback);
-chrome.action.onClicked.addListener(onActionClickedCallback);
+chrome.action.onClicked.addListener((event) =>
+  onActionClickedCallback(event, openedTabs)
+);
 chrome.webNavigation.onCompleted.addListener(onCompletedCallback);
 chrome.tabs.onRemoved.addListener(tabOnClosedCallback);

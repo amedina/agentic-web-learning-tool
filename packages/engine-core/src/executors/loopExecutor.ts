@@ -14,6 +14,8 @@ export const loopExecutor: NodeExecutor = async (
   executeBranch
 ) => {
   const input = (config as any).input;
+  const maxIterations = (config as any).maxIterations;
+  const length = Math.min(input.length, maxIterations);
 
   if (!executeBranch) {
     throw new Error('executeBranch is required for Loop executor');
@@ -28,15 +30,15 @@ export const loopExecutor: NodeExecutor = async (
 
   const results: unknown[] = [];
 
-  for (let i = 0; i < input.length; i++) {
+  for (let i = 0; i < length; i++) {
     const item = input[i];
 
     // Set loop context for downstream nodes
     if (context) {
-      context.loop = {
+      context.loop?.push({
         index: i,
-        total: input.length,
-      };
+        total: length,
+      });
     }
 
     const itemResult = await executeBranch('item', item);
@@ -45,7 +47,7 @@ export const loopExecutor: NodeExecutor = async (
 
   // Cleanup loop context
   if (context) {
-    delete context.loop;
+    context.loop?.splice(-1, 1);
   }
 
   return results;

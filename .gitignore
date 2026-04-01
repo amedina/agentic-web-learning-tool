@@ -32,3 +32,7 @@ coverage/
 playwright-report/
 trace/
 test-results/
+
+.claude
+awl-builds/
+

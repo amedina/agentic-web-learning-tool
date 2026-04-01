@@ -36,12 +36,12 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 p-4">
+    <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
       <div className="flex items-start justify-between">
         <div>
           <div className="flex items-center space-x-2">
             <h1
-              className="text-xl font-bold text-slate-900 truncate max-w-[200px]"
+              className="text-xl font-bold text-slate-900 dark:text-slate-100 truncate max-w-[200px]"
               title={packageName}
             >
               {packageName}
@@ -55,14 +55,14 @@ export const Header: React.FC<HeaderProps> = ({
                     ),
                   });
                 }}
-                className={`px-2 py-1 text-xs font-semibold rounded-md border transition-colors bg-green-50 text-green-700 border-green-200 hover:bg-green-100 flex items-center space-x-1 cursor-pointer`}
+                className={`px-2 py-1 text-xs font-semibold rounded-md border transition-colors bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800 hover:bg-green-100 dark:hover:bg-green-900/40 flex items-center space-x-1 cursor-pointer`}
               >
                 <span>View Comparison</span>
               </button>
             ) : (
               <button
                 onClick={onAddToCompare}
-                className={`px-2 py-1 text-xs font-semibold rounded-md border transition-colors bg-white text-blue-600 border-blue-200 hover:bg-blue-50 cursor-pointer`}
+                className={`px-2 py-1 text-xs font-semibold rounded-md border transition-colors bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer`}
               >
                 + Compare
               </button>
@@ -73,30 +73,32 @@ export const Header: React.FC<HeaderProps> = ({
               href={githubUrl}
               target="_blank"
               rel="noreferrer"
-              className="text-sm text-blue-600 hover:text-blue-800 flex items-center mt-1 transition-colors cursor-pointer"
+              className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 flex items-center mt-1 transition-colors cursor-pointer"
               title={githubUrl}
             >
               <Github size={14} className="mr-1" /> View Source
             </a>
           ) : (
-            <p className="text-sm text-slate-400 mt-1">No repository linked</p>
+            <p className="text-sm text-slate-400 dark:text-slate-500 mt-1">
+              No repository linked
+            </p>
           )}
         </div>
         <div className="text-right">
           {license && (
-            <span className="inline-flex items-center px-2 py-1 rounded text-xs font-mono bg-slate-100 text-slate-700 border border-slate-200">
+            <span className="inline-flex items-center px-2 py-1 rounded text-xs font-mono bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-600">
               {license}
             </span>
           )}
         </div>
       </div>
 
-      <div className="flex items-start justify-between mt-4 pt-4 border-t border-slate-100">
+      <div className="flex items-start justify-between mt-4 pt-4 border-t border-slate-100 dark:border-slate-700">
         <div className="flex flex-col items-center space-y-1">
-          <div className="flex items-center text-xs text-slate-500 uppercase tracking-wider font-semibold whitespace-nowrap">
+          <div className="flex items-center text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold whitespace-nowrap">
             <Activity size={12} className="mr-1 shadow-sm" /> Score
             <div className="group relative flex items-center ml-1 cursor-help">
-              <Info size={12} className="text-slate-400" />
+              <Info size={12} className="text-slate-400 dark:text-slate-500" />
               <div className="hidden group-hover:block absolute z-50 w-48 p-2 bg-slate-800 text-white text-xs rounded-md bottom-full left-1/2 -translate-x-1/2 mb-2 shadow-lg text-center font-normal normal-case tracking-normal whitespace-normal">
                 Calculated based on Bundle Size, Dependencies, and Modern
                 Replacements.
@@ -109,30 +111,30 @@ export const Header: React.FC<HeaderProps> = ({
           </span>
         </div>
         <div className="flex flex-col items-center space-y-1">
-          <div className="flex items-center text-xs text-slate-500 uppercase tracking-wider font-semibold whitespace-nowrap">
+          <div className="flex items-center text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold whitespace-nowrap">
             <Star size={12} className="mr-1 shadow-sm" /> Stars
           </div>
-          <span className="font-medium text-slate-800">
+          <span className="font-medium text-slate-800 dark:text-slate-200">
             {stars !== null ? stars.toLocaleString() : "N/A"}
           </span>
         </div>
         <div className="flex flex-col items-center space-y-1">
           <div
-            className="flex items-center text-xs text-slate-500 uppercase tracking-wider font-semibold whitespace-nowrap"
+            className="flex items-center text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold whitespace-nowrap"
             title="NPM Maintainers"
           >
             <Users size={12} className="mr-1" /> Collabs
           </div>
-          <span className="font-medium text-slate-800">
+          <span className="font-medium text-slate-800 dark:text-slate-200">
             {collaboratorsCount ?? "N/A"}
           </span>
         </div>
         <div className="flex flex-col items-center space-y-1">
-          <div className="flex items-center text-xs text-slate-500 uppercase tracking-wider font-semibold whitespace-nowrap">
+          <div className="flex items-center text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold whitespace-nowrap">
             <Clock size={12} className="mr-1" /> Last Commit
           </div>
           <span
-            className="font-medium text-slate-800 text-center whitespace-nowrap"
+            className="font-medium text-slate-800 dark:text-slate-200 text-center whitespace-nowrap"
             title={lastCommitDate || "N/A"}
           >
             {lastCommitDate ? formatDate(lastCommitDate) : "N/A"}

@@ -192,6 +192,7 @@ export const MathConfigSchema = z.object({
 export const LoopConfigSchema = z.object({
   title: z.string().check(z.minLength(1, 'Title is required')),
   description: z.optional(z.string()),
+  maxIterations: z.number().check(z.minimum(1)),
 });
 
 export const DataTransformerConfigSchema = z.object({

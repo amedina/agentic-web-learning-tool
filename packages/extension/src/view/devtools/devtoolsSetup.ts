@@ -1,5 +1,5 @@
 chrome.devtools.panels.create(
-  'WebMCP',
+  'AWL',
   'icons/icon.svg',
   'devtools/index.html#' + chrome.devtools.inspectedWindow.tabId
 );
