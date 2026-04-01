@@ -1,7 +1,7 @@
 /**
  * External dependencies.
  */
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 /**
  * Internal dependencies.
@@ -13,6 +13,9 @@ export const usePackageStats = () => {
   const [error, setError] = useState<string | null>(null);
   const [stats, setStats] = useState<PackageStats | null>(null);
   const [comparisonBucket, setComparisonBucket] = useState<any[]>([]);
+  const [addingRecommendations, setAddingRecommendations] = useState<
+    Set<string>
+  >(new Set());
 
   useEffect(() => {
     chrome.storage.local.get(["comparisonBucket"], (res) => {
@@ -106,8 +109,36 @@ export const usePackageStats = () => {
     chrome.storage.local.set({ comparisonBucket: newBucket });
   };
 
+  const handleAddRecommendationToCompare = useCallback(
+    (packageName: string) => {
+      setAddingRecommendations((prev) => new Set(prev).add(packageName));
+      chrome.runtime.sendMessage(
+        { type: "GET_STATS", packageName },
+        (response) => {
+          setAddingRecommendations((prev) => {
+            const next = new Set(prev);
+            next.delete(packageName);
+            return next;
+          });
+          if (response?.success && response.data) {
+            setComparisonBucket((prev) => {
+              const newBucket = [...prev, response.data];
+              chrome.storage.local.set({ comparisonBucket: newBucket });
+              return newBucket;
+            });
+          }
+        },
+      );
+    },
+    [],
+  );
+
   const isAddedToCompare = comparisonBucket.some(
     (item) => item.packageName === stats?.packageName,
+  );
+
+  const comparisonBucketNames = new Set(
+    comparisonBucket.map((item) => item.packageName),
   );
 
   return {
@@ -116,5 +147,8 @@ export const usePackageStats = () => {
     error,
     isAddedToCompare,
     handleAddToCompare,
+    handleAddRecommendationToCompare,
+    comparisonBucketNames,
+    addingRecommendations,
   };
 };

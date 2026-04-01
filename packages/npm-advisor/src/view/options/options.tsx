@@ -1,183 +1,199 @@
 /**
- * External dependencies.
+ * External dependencies
  */
-import React, { useEffect, useState } from "react";
+import { StrictMode, useEffect, useMemo } from "react";
 import { createRoot } from "react-dom/client";
-import { Settings as SettingsIcon, BarChart2 } from "lucide-react";
-
-import "./options.css";
+import {
+  Sidebar,
+  SidebarProvider,
+  SidebarTrigger,
+  Toaster,
+  useSidebar,
+  type MenuItem,
+} from "@google-awlt/design-system";
+import { CpuIcon, Settings2, BarChart2 } from "lucide-react";
 
 /**
- * Internal dependencies.
+ * Internal dependencies
  */
-import { SettingsTab } from "./components/settingsTab";
-import { ComparisonTab } from "./components/comparisonTab";
-import { calculateScore } from "../../utils/calculateScore";
+import "./options.css";
+import ModelsTab from "./components/models";
+import SettingsTab from "./components/settings";
+import ComparisonPage from "./components/comparison";
+import { ModelProvider } from "./providers";
 
-const Options = () => {
-  const [activeTab, setActiveTab] = useState<"settings" | "comparison">(
-    window.location.hash === "#comparison" ? "comparison" : "settings",
+// ── Types ────────────────────────────────────────────────────────────────────
+
+type ExtendedMenuItem = MenuItem & {
+  component?: React.ReactNode;
+  items?: ExtendedMenuItem[];
+};
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+const VALID_PAGES = ["models", "comparison", "settings"];
+
+/** Read initial page from URL hash, fall back to "models". */
+function getInitialPage(): string {
+  const hash = window.location.hash.replace("#", "");
+  return VALID_PAGES.includes(hash) ? hash : "models";
+}
+
+/** Apply dark mode class based on stored preference. */
+function applyTheme() {
+  chrome.storage.local.get(["npmAdvisorDarkMode"], (res) => {
+    if (res.npmAdvisorDarkMode) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  });
+}
+
+// ── Sidebar header ────────────────────────────────────────────────────────────
+
+function NpmAdvisorHeader() {
+  const { sidebarState } = useSidebar(({ state }) => ({
+    sidebarState: state.sidebarState,
+  }));
+
+  const expanded = sidebarState === "expanded";
+
+  return (
+    <div className="flex items-center gap-2 overflow-hidden">
+      <div
+        className={`ml-2 shrink-0 transition-all duration-200 ${expanded ? "opacity-100 w-6" : "opacity-0 w-0"}`}
+      >
+        <img
+          src={chrome.runtime.getURL("icons/icon-128.png")}
+          className="h-6 w-6"
+          alt="NPM Advisor"
+        />
+      </div>
+      <span
+        className={`font-bold text-lg whitespace-nowrap overflow-hidden transition-all duration-200 ${expanded ? "opacity-100 max-w-xs" : "opacity-0 max-w-0"}`}
+      >
+        NPM Advisor
+      </span>
+    </div>
   );
-  const [comparisonBucket, setComparisonBucket] = useState<any[]>([]);
+}
 
-  const [targetLicense, setTargetLicense] = useState("MIT");
-  const [geminiApiKey, setGeminiApiKey] = useState("");
-  const [openAIApiKey, setOpenAIApiKey] = useState("");
-  const [isSaving, setIsSaving] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
+// ── Menu items ────────────────────────────────────────────────────────────────
 
+const Items: ExtendedMenuItem[] = [
+  {
+    title: "Models",
+    id: "models",
+    icon: () => <CpuIcon />,
+    component: <ModelsTab />,
+    isDisabled: false,
+  },
+  {
+    title: "Compare",
+    id: "comparison",
+    icon: () => <BarChart2 />,
+    component: <ComparisonPage />,
+    isDisabled: false,
+  },
+];
+
+const FooterItems: ExtendedMenuItem[] = [
+  {
+    title: "Settings",
+    id: "settings",
+    icon: () => <Settings2 />,
+    component: <SettingsTab />,
+  },
+];
+
+// ── Main Options component ────────────────────────────────────────────────────
+
+function Options() {
+  const { selectedMenuItem, setSelectedMenuItem } = useSidebar(
+    ({ state, actions }) => ({
+      selectedMenuItem: state.selectedMenuItem,
+      setSelectedMenuItem: actions.setSelectedMenuItem,
+    }),
+  );
+
+  const flatItems = useMemo(() => {
+    const flatten = (items: ExtendedMenuItem[]): ExtendedMenuItem[] =>
+      items.reduce((acc: ExtendedMenuItem[], item) => {
+        acc.push(item);
+        if (item.items) acc.push(...flatten(item.items));
+        return acc;
+      }, []);
+    return [...flatten(Items), ...flatten(FooterItems)];
+  }, []);
+
+  // Validate selection on mount / when flatItems change
   useEffect(() => {
-    // Load existing settings
-    chrome.storage.sync.get(
-      ["targetLicense", "geminiApiKey", "openAIApiKey"],
-      (result) => {
-        if (result.targetLicense)
-          setTargetLicense(result.targetLicense as string);
-        if (result.geminiApiKey) setGeminiApiKey(result.geminiApiKey as string);
-        if (result.openAIApiKey) setOpenAIApiKey(result.openAIApiKey as string);
-      },
+    const isValidSelection = flatItems.some(
+      (item) => item.id === selectedMenuItem,
     );
+    if (!selectedMenuItem || !isValidSelection) {
+      const defaultItem = flatItems.find((item) => item.component);
+      if (defaultItem) setSelectedMenuItem(defaultItem.id);
+    }
+  }, [selectedMenuItem, flatItems, setSelectedMenuItem]);
 
-    // Listen for hash changes if user clicks view comparison again
-    const onHashChange = () => {
-      if (window.location.hash === "#comparison") {
-        setActiveTab("comparison");
-      }
-    };
-    window.addEventListener("hashchange", onHashChange);
+  // Persist active page in URL hash so refresh restores it
+  useEffect(() => {
+    if (selectedMenuItem) {
+      window.location.hash = selectedMenuItem;
+    }
+  }, [selectedMenuItem]);
 
-    // Load comparison bucket
-    chrome.storage.local.get(["comparisonBucket"], (res) => {
-      if (res.comparisonBucket) {
-        setComparisonBucket(res.comparisonBucket as any[]);
-      }
-    });
-
-    // Listen for storage changes if popup adds new items while options is open
+  // Keep dark-mode class in sync when the popup toggles theme
+  useEffect(() => {
     const handleStorageChange = (
       changes: { [key: string]: chrome.storage.StorageChange },
       area: string,
     ) => {
-      if (area === "local" && changes.comparisonBucket) {
-        setComparisonBucket((changes.comparisonBucket.newValue as any[]) || []);
+      if (area === "local" && changes.npmAdvisorDarkMode !== undefined) {
+        if (changes.npmAdvisorDarkMode.newValue) {
+          document.documentElement.classList.add("dark");
+        } else {
+          document.documentElement.classList.remove("dark");
+        }
       }
     };
     chrome.storage.onChanged.addListener(handleStorageChange);
     return () => chrome.storage.onChanged.removeListener(handleStorageChange);
   }, []);
 
-  const handleSave = () => {
-    setIsSaving(true);
-    chrome.storage.sync.set(
-      { targetLicense, geminiApiKey, openAIApiKey },
-      () => {
-        setIsSaving(false);
-        setShowSuccess(true);
-        setTimeout(() => setShowSuccess(false), 3000);
-      },
-    );
-  };
-
-  const handleClearComparison = () => {
-    chrome.storage.local.set({ comparisonBucket: [] }, () => {
-      setComparisonBucket([]);
-    });
-  };
-
-  const calculateWinner = () => {
-    if (comparisonBucket.length === 0) return null;
-    let bestScore = -Infinity;
-    let winner = null;
-
-    comparisonBucket.forEach((pkg) => {
-      const score = calculateScore(pkg);
-      if (score > bestScore) {
-        bestScore = score;
-        winner = pkg.packageName;
-      }
-    });
-
-    return winner;
-  };
-
-  const winnerName = calculateWinner();
-
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col items-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="w-full max-w-4xl space-y-8 bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
-        {/* Header & Tabs */}
-        <div>
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center space-x-3">
-              <img
-                src={chrome.runtime.getURL("assets/icon.png")}
-                className="w-8 h-8"
-                alt="NPM Advisor Logo"
-              />
-              <h2 className="text-3xl font-bold tracking-tight text-slate-900">
-                NPM Advisor
-              </h2>
-            </div>
-
-            <div className="flex p-1 bg-slate-100 rounded-lg">
-              <button
-                onClick={() => setActiveTab("settings")}
-                className={`flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                  activeTab === "settings"
-                    ? "bg-white text-blue-700 shadow-sm"
-                    : "text-slate-600 hover:text-slate-900"
-                }`}
-              >
-                <SettingsIcon className="w-4 h-4 mr-2" />
-                Settings
-              </button>
-              <button
-                onClick={() => setActiveTab("comparison")}
-                className={`flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                  activeTab === "comparison"
-                    ? "bg-white text-blue-700 shadow-sm"
-                    : "text-slate-600 hover:text-slate-900"
-                }`}
-              >
-                <BarChart2 className="w-4 h-4 mr-2" />
-                Compare ({comparisonBucket.length})
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {activeTab === "settings" && (
-          <SettingsTab
-            targetLicense={targetLicense}
-            setTargetLicense={setTargetLicense}
-            geminiApiKey={geminiApiKey}
-            setGeminiApiKey={setGeminiApiKey}
-            openAIApiKey={openAIApiKey}
-            setOpenAIApiKey={setOpenAIApiKey}
-            handleSave={handleSave}
-            isSaving={isSaving}
-            showSuccess={showSuccess}
-          />
-        )}
-
-        {activeTab === "comparison" && (
-          <ComparisonTab
-            comparisonBucket={comparisonBucket}
-            handleClearComparison={handleClearComparison}
-            winnerName={winnerName}
-          />
-        )}
+    <>
+      <Toaster position="top-center" />
+      <div className="fixed top-0 left-0 z-20 md:hidden pl-4 shadow bg-sidebar rounded-md">
+        <SidebarTrigger />
       </div>
-    </div>
+      <Sidebar
+        items={Items}
+        footerItems={FooterItems}
+        collapsible="icon"
+        header={<NpmAdvisorHeader />}
+      />
+      {flatItems.find((item) => item.id === selectedMenuItem)?.component}
+    </>
   );
-};
+}
+
+// ── Entry point ───────────────────────────────────────────────────────────────
 
 const container = document.getElementById("root");
 if (container) {
-  const root = createRoot(container);
-  root.render(
-    <React.StrictMode>
-      <Options />
-    </React.StrictMode>,
+  applyTheme();
+  createRoot(container).render(
+    <StrictMode>
+      <div className="w-screen h-screen">
+        <ModelProvider>
+          <SidebarProvider defaultSelectedMenuItem={getInitialPage()}>
+            <Options />
+          </SidebarProvider>
+        </ModelProvider>
+      </div>
+    </StrictMode>,
   );
 }
