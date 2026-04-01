@@ -55,6 +55,7 @@ export const AskAI: React.FC<AskAIProps> = ({
       return transportGenerator(
         "gemini",
         "gemini-pro-latest",
+        true,
         {
           apiKey: apiKeys.gemini,
         },
@@ -65,6 +66,7 @@ export const AskAI: React.FC<AskAIProps> = ({
     return transportGenerator(
       "open-ai",
       "gpt-4o",
+      true,
       { apiKey: apiKeys.openai },
       getSystemPrompt(JSON.stringify(stats, null, 2)),
     );
