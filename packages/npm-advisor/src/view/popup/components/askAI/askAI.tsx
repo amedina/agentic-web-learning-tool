@@ -38,10 +38,14 @@ export const AskAI: React.FC<AskAIProps> = ({
   );
 
   useEffect(() => {
-    chrome.storage.sync.get(["geminiApiKey", "openAIApiKey"], (res) => {
+    chrome.storage.sync.get(["apiKeys"], (res) => {
+      const stored = (res.apiKeys ?? {}) as Record<
+        string,
+        { apiKey?: string; status?: boolean }
+      >;
       setApiKeys({
-        gemini: (res.geminiApiKey as string) || "",
-        openai: (res.openAIApiKey as string) || "",
+        gemini: stored["gemini"]?.apiKey || "",
+        openai: stored["open-ai"]?.apiKey || "",
       });
     });
   }, []);

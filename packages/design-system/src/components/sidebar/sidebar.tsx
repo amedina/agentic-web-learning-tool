@@ -3,7 +3,7 @@
  */
 import { ChevronRight } from 'lucide-react';
 import * as CollapsiblePrimitive from '@radix-ui/react-collapsible';
-import { useEffect } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import clsx from 'clsx';
 
 /**
@@ -34,6 +34,7 @@ type SidebarProps = {
   side?: 'left' | 'right';
   sidebarVariant?: 'sidebar' | 'floating' | 'inset';
   collapsible?: 'offcanvas' | 'icon' | 'none';
+  header?: ReactNode;
 };
 
 export function Sidebar({
@@ -42,6 +43,7 @@ export function Sidebar({
   sidebarVariant = 'sidebar',
   collapsible = 'offcanvas',
   side = 'left',
+  header,
 }: SidebarProps) {
   const {
     setSelectedMenuItem,
@@ -166,22 +168,24 @@ export function Sidebar({
   return (
     <SidebarMain variant={sidebarVariant} collapsible={collapsible} side={side}>
       <SidebarHeader className="flex justify-between items-center w-full">
-        <div className="flex items-center gap-2">
-          <div
-            className={`ml-2 ${sidebarState === 'expanded' ? '' : 'hidden'}`}
-          >
-            <OwlIcon className={classConfig.owlIcon} />
+        {header ?? (
+          <div className="flex items-center gap-2">
+            <div
+              className={`ml-2 ${sidebarState === 'expanded' ? '' : 'hidden'}`}
+            >
+              <OwlIcon className={classConfig.owlIcon} />
+            </div>
+            <span
+              className={clsx(
+                'font-bold',
+                sidebarState === 'expanded' ? '' : 'hidden',
+                classConfig.menuTitle
+              )}
+            >
+              AWL Tool
+            </span>
           </div>
-          <span
-            className={clsx(
-              'font-bold',
-              sidebarState === 'expanded' ? '' : 'hidden',
-              classConfig.menuTitle
-            )}
-          >
-            AWL Tool
-          </span>
-        </div>
+        )}
         <SidebarTrigger />
       </SidebarHeader>
       <SidebarContent>
