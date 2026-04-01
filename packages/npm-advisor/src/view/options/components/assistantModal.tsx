@@ -13,34 +13,24 @@ import { ChatUI } from "./chatUI";
 interface AssistantModalProps {
   apiKeys: { gemini?: string; openai?: string };
   changeTabToSettings: () => void;
-  activeTab: "settings" | "comparison";
-  closeModal: boolean;
 }
 
 export const AssistantModal = ({
   apiKeys,
   changeTabToSettings,
-  activeTab,
-  closeModal,
 }: AssistantModalProps) => {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    if (!closeModal) {
-      return;
-    }
-
-    setOpen(false);
-  }, [closeModal]);
+    return () => {
+      setOpen(false);
+    };
+  }, []);
 
   return (
     <AssistantModalPrimitive.Root open={open}>
       <AssistantModalPrimitive.Anchor className="aui-root aui-modal-anchor fixed right-4 bottom-4 size-11">
-        <AssistantModalPrimitive.Trigger
-          style={{ display: activeTab === "settings" ? "none" : "flex" }}
-          asChild
-          onClick={() => setOpen(!open)}
-        >
+        <AssistantModalPrimitive.Trigger asChild onClick={() => setOpen(!open)}>
           <AssistantModalButton data-state={open ? "open" : "closed"} />
         </AssistantModalPrimitive.Trigger>
       </AssistantModalPrimitive.Anchor>
@@ -48,7 +38,6 @@ export const AssistantModal = ({
         sideOffset={16}
         style={{
           height: "calc(var(--radix-popper-available-height) - 20px)",
-          display: activeTab === "settings" ? "none" : "flex",
         }}
         className="border border-slate-200 aui-root aui-modal-content data-[state=closed]:fade-out-0 data-[state=closed]:slide-out-to-bottom-1/2 data-[state=closed]:slide-out-to-right-1/2 data-[state=closed]:zoom-out data-[state=open]:fade-in-0 data-[state=open]:slide-in-from-bottom-1/2 data-[state=open]:slide-in-from-right-1/2 data-[state=open]:zoom-in z-50 h-125 w-100 overflow-clip overscroll-contain rounded-xl shadow-[0_10px_38px_-10px_rgba(22,23,24,0.35),0_10px_20px_-15px_rgba(22,23,24,0.2)] bg-popover p-0 text-popover-foreground shadow-md outline-none data-[state=closed]:animate-out data-[state=open]:animate-in [&>.aui-thread-root]:bg-inherit [&>.aui-thread-root_.aui-thread-viewport-footer]:bg-inherit"
       >
