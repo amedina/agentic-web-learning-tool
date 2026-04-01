@@ -15,6 +15,7 @@ import { ComparisonTab } from "./components/comparisonTab";
 import { calculateScore } from "../../utils/calculateScore";
 import { transportGenerator } from "../popup/runtime";
 import { AssistantModal } from "./components/assistantModal";
+import { getSystemPrompt } from "./components/getSystemPrompt";
 
 const Options = () => {
   const [activeTab, setActiveTab] = useState<"settings" | "comparison">(
@@ -31,13 +32,23 @@ const Options = () => {
 
   const transport = useMemo(() => {
     if (geminiApiKey) {
-      return transportGenerator("gemini", "gemini-pro-latest", {
-        apiKey: geminiApiKey,
-      });
+      return transportGenerator(
+        "gemini",
+        "gemini-pro-latest",
+        {
+          apiKey: geminiApiKey,
+        },
+        getSystemPrompt(JSON.stringify(comparisonBucket, null, 2)),
+      );
     }
 
-    return transportGenerator("open-ai", "gpt-4o", { apiKey: openAIApiKey });
-  }, [geminiApiKey, openAIApiKey]);
+    return transportGenerator(
+      "open-ai",
+      "gpt-4o",
+      { apiKey: openAIApiKey },
+      getSystemPrompt(JSON.stringify(comparisonBucket, null, 2)),
+    );
+  }, [geminiApiKey, openAIApiKey, comparisonBucket]);
 
   const runtime = useChatRuntime({
     messages: [],
