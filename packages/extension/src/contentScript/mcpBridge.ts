@@ -8,11 +8,11 @@ import {
   ToolListChangedNotificationSchema,
   type Tool,
 } from '@modelcontextprotocol/sdk/types.js';
-
+import { logger } from '@google-awlt/common';
 /**
  * Internal dependencies
  */
-import { MESSAGE_TYPES, setLogLevelFromSyncSettings, logger } from '../utils';
+import { MESSAGE_TYPES, setLogLevelFromSyncSettings } from '../utils';
 
 // Inject it in the content script before everything to get loglevel settings.
 // Using promise catch instead of IIFE to prevent content script from breaking due to top level await.

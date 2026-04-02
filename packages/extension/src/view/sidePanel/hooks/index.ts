@@ -1,1 +1,1 @@
-export * from './useAssistantMCP';
+export * from './useWorkflowSync';

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import Logger from 'loglevel';
+import { Logger } from '@google-awlt/common';
 /**
  * Internal dependencies
  */

@@ -36,6 +36,7 @@
     "@ai-sdk/provider": "^2.0.0",
     "@assistant-ui/react": "0.11.51",
     "@assistant-ui/react-ai-sdk": "1.1.19",
+    "@google-awlt/chatbot": "workspace:*",
     "@google-awlt/chrome-ai-playground": "workspace:*",
     "@google-awlt/common": "workspace:*",
     "@google-awlt/design-system": "workspace:*",
