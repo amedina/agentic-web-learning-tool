@@ -1,7 +1,7 @@
 /**
  * External dependencies.
  */
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { BarChart2, Trash2, Award } from "lucide-react";
 import { algoliasearch } from "algoliasearch";
 import {
@@ -44,13 +44,15 @@ const Hit = ({ hit, isSelected, onToggle }: HitProps) => {
         </div>
       </div>
       <div
-        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+        className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
           isSelected
-            ? "bg-blue-500 border-blue-500"
-            : "border-slate-200 bg-white"
+            ? "bg-blue-600 border-blue-600 shadow-sm"
+            : "border-slate-300 bg-white"
         }`}
       >
-        {isSelected && <div className="w-2 h-2 bg-white rounded-full"></div>}
+        {isSelected && (
+          <Check className="w-3.5 h-3.5 text-white stroke-[3px]" />
+        )}
       </div>
     </div>
   );
@@ -81,12 +83,12 @@ const ResultsList = ({
 
 const SearchWrapper = () => {
   const { query, refine } = useSearchBox();
-  const [selectedPackages, setSelectedPackages] = React.useState<any[]>([]);
-  const [isAnalyzing, setIsAnalyzing] = React.useState(false);
-  const [progress, setProgress] = React.useState({ current: 0, total: 0 });
-  const searchContainerRef = React.useRef<HTMLDivElement>(null);
+  const [selectedPackages, setSelectedPackages] = useState<any[]>([]);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [progress, setProgress] = useState({ current: 0, total: 0 });
+  const searchContainerRef = useRef<HTMLDivElement>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
         searchContainerRef.current &&
