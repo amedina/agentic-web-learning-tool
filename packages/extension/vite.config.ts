@@ -10,12 +10,25 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const packagesDir = resolve(__dirname, '../');
+const decodePath = resolve('../../node_modules/.pnpm');
+const decodeDir = path.dirname(decodePath);
 const aliases = readdirSync(packagesDir)
   .filter((name) => name !== 'shared-config')
   .map((name) => ({
     find: `@google-awlt/${name}`,
     replacement: resolve(packagesDir, name, 'src'),
   }));
+aliases.push({
+  find: 'decode-named-character-reference',
+  replacement: path.join(
+    decodeDir,
+    '.pnpm',
+    'decode-named-character-reference@1.3.0',
+    'node_modules',
+    'decode-named-character-reference',
+    'index.js'
+  ),
+});
 const distDir = path.resolve(__dirname, '../../dist/extension');
 // eslint-disable-next-line turbo/no-undeclared-env-vars
 const isDev = process.env.NODE_ENV === 'development';

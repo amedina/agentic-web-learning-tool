@@ -12,7 +12,7 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "typeRoots": ["./node_modules/@types"],
-    "types": ["jest", "chrome", "dom-chromium-ai"],
+    "types": ["jest", "chrome", "dom-chromium-ai", "react", "react-dom"],
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
     "baseUrl": "."
   },
