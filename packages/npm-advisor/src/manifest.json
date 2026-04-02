@@ -25,16 +25,17 @@
     {
       "js": ["contentScript/contentScript.js"],
       "matches": [
-        "*://www.npmjs.com/package/*",
+        "*://www.npmjs.com/*",
         "*://github.com/*/*/blob/*/package.json"
       ]
     }
   ],
-  "permissions": ["storage", "activeTab"],
+  "permissions": ["storage", "activeTab", "tabs"],
   "host_permissions": [
     "*://registry.npmjs.org/*",
     "*://api.github.com/*",
     "*://bundlephobia.com/*",
-    "*://raw.githubusercontent.com/*"
+    "*://raw.githubusercontent.com/*",
+    "*://www.npmjs.com/*"
   ]
 }
