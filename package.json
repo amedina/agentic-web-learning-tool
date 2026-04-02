@@ -47,6 +47,7 @@
     "dev:extension": "pnpm --filter extension dev:extension",
     "dev:npm-advisor": "pnpm --filter npm-advisor dev",
     "check-types": "pnpm --filter extension check-types",
+    "build:chatbot": "pnpm --filter chatbot build",
     "build:table": "pnpm --filter table build",
     "build:chrome-ai-playground": "pnpm --filter chrome-ai-playground build",
     "build:mcp-inspector": "pnpm --filter mcp-inspector build",
