@@ -10,25 +10,66 @@ The source code lives at: https://github.com/amedina/agentic-web-learning-tool
 
 Write a **timed voiceover transcript** that narrates what the viewer sees on screen throughout the video. The script should be ready to record as a voice track that syncs with the video's visual flow.
 
-### How to Provide the Video Timeline
+### Video Timeline (18 min 49 sec total)
 
-Since you cannot watch the YouTube video directly, I'm providing the scene-by-scene breakdown below. Use this timeline as the backbone for the script. Each entry describes what's visible on screen at that timestamp.
-
-**[IMPORTANT: Replace the placeholder timeline below with your actual video timeline before submitting this prompt. You can create it by watching the video and noting timestamps + what's on screen. Alternatively, use YouTube's auto-generated transcript/captions as a starting point, or take screenshots at key moments.]**
+The video is organized into distinct sections, each separated by title card transitions. Here is the scene-by-scene breakdown:
 
 ```
-VIDEO TIMELINE (fill in before using this prompt):
-- [0:00 - 0:XX] — (describe opening scene, e.g. "Browser open to example.com, AWL side panel visible")
-- [0:XX - 0:XX] — (describe next scene, e.g. "Options page → Models section, Gemini expanded")
-- [0:XX - 0:XX] — (next scene...)
-- ... continue for each distinct scene/transition in the video ...
-- [X:XX - end] — (closing scene)
-```
+SECTION 1: INTRO & GITHUB OVERVIEW [0:00 – 1:15]
+- [0:00 – 0:05]  Title card: "Agentic Web Learning Tool" / subtitle: "Models, MCP, WebMCP, Built-in AI, Skills" / "March 2025, albertomedina@"
+- [0:05 – 0:15]  GitHub Wiki page — "Who is this for?" (Developers, Researchers, Learners), Key Features list (Side Panel Chat, MCP Server Management, WebMCP, Workflow Engine, Built-in AI Playgrounds, MCP Inspector), Documentation Structure links
+- [0:15 – 0:30]  GitHub Releases page — v1.0.0 "Release 1.0.0" with Key Pillars: Workflow Composer, MCP Ecosystem, Native AI, Developer Tooling
+- [0:30 – 0:45]  Scrolling down releases page — "Others" section showing changelog items, Contributors avatars (amedina, gagan0123, and 5 others), Assets section (extension-v1.0.0.zip, 1.66 MB)
+- [0:45 – 1:15]  Navigating to chrome://extensions to install the extension, then opening a new tab and searching
 
-If you don't have a timeline ready, you can alternatively provide:
-- The YouTube auto-generated captions/transcript (paste them in)
-- A series of screenshots with approximate timestamps
-- Or simply ask me to generate a **template script organized by feature** (not timed), which you can then manually sync to the video later
+SECTION 2: SIDE PANEL CHAT + MODELS CONFIG [1:15 – 3:00]
+- [1:15 – 1:30]  example.com loaded with AWL side panel open. Panel shows owl mascot, "How can I help you today?", "I have access to 19 tools", model selector showing "prompt-api" (Chrome's on-device model)
+- [1:30 – 2:00]  Options page → Models section. Three provider accordions: anthropic, open-ai, gemini. Gemini expanded showing API Key field (empty), System Prompt, Thinking Mode toggle (off), Disable Provider toggle (on). Cursor clicking into API Key field
+- [2:00 – 2:30]  Gemini API key pasted, System Prompt filled with "You are AWL, a useful agent helping everyone to learn about the agentic web." Thinking Mode toggled ON. Configuration saved
+- [2:30 – 3:00]  Side panel now shows model selector switched to "gemini-3-flash-preview". User types "Hello, who are you?" — Assistant responds: "Hello! I am AWL, a useful agent dedicated to helping everyone learn about the agentic web. How can I assist you today?"
+
+SECTION 3: MCP SERVER MANAGEMENT [3:00 – 5:00]
+- [3:00 – 3:30]  Options page → MCP → MCP Servers. "New MCP Server" dialog opens with fields: Server Name ("Chrome DevTo..."), Transport Type (Streamable HTTP), URL, Connection Type, Authentication accordion, Configuration accordion, Copy Server Entry / Copy Servers File buttons, Inspect / Cancel / Connect buttons
+- [3:30 – 4:00]  MCP Server connection completes — success toast "MCP Server successfully added to extension". Shows "Chrome DevTools MCP Server" card with Disconnect button, Total Tools: 29, Inspect / Edit buttons
+- [4:00 – 4:30]  Adding a second MCP server ("Guidance MCP Server"). Navigating to MCP Inspector page
+- [4:30 – 5:00]  MCP Inspector inspecting Chrome DevTools MCP Server — Tools list shows hover, lighthouse_audit tools. History shows tools/list, logging/setLevel, initialize events
+
+SECTION 4: MCP INSPECTOR + GUIDANCE SERVER DEMO [5:00 – 8:30]
+- [5:00 – 5:30]  MCP Servers page showing both connected servers. Hovering over "+ New Server" button
+- [5:30 – 6:00]  MCP Inspector now inspecting "Guidance MCP Server" — Tools panel shows search_use_cases and get_best_practices tools. Right panel shows search_use_cases tool detail with query field filled with "Search hidden". History shows tools/list, initialize events
+- [6:00 – 7:00]  Executing tool calls in the inspector. Side panel chat opens alongside — user asks "Hello, who are you?" — assistant responds "Hello! I am AWL, a useful agent dedicated to helping everyone learn about the agentic web." Inspector History grows to show tools/call entries. Tool tabs visible: Tools, Ping, Sampling, Elicitations, Roots
+- [7:00 – 8:00]  Side panel shows agent using tools — get_best_practices tool call card expanded showing arguments: {"use_case_id": "search-hidden-content"}, Result showing "# Search hidden content". Model switched to "gemini-2.5-flash". Built-in AI section expanded in sidebar showing API Status, API Playgrounds, Workflow Composer
+- [8:00 – 8:30]  Scrolling through chat response showing detailed content about performance, prefetching, prerendering. Tool call card with get_best_practices visible
+
+SECTION 5: WEBMCP TOOLS + TOOL PROVIDERS [8:30 – 10:00]
+- [8:30 – 9:00]  example.com with side panel open — Tool Providers dropdown expanded showing: example.com, Guidance MCP Server, Chrome DevTools MCP Server, MCP-B. Tools column shows: change_bg_color, built_in__smart_translator, built_in__quick_summarizer, built_in__let_it_snow, transform_example_site. Model: gemini-2.5-f...
+- [9:00 – 9:30]  Navigating through options — WebMCP Tools page implied
+- [9:30 – 10:00] Options page → Built-in AI → API Status page. Dashboard showing "Built-in AI APIs" with all APIs listed as "Available" (green): Prompt API, Proofreader API, Translator API, Language Detector API, Summarizer API, Writer API, Rewriter API. "Local AI Environment" section below
+
+SECTION 6: BUILT-IN AI PLAYGROUNDS [10:00 – 13:00]
+- [10:00 – 10:30] API Playgrounds hub page — card grid showing: Prompt Lab, Writer's Studio, Summarization Station, Polyglot Panel, Proofreader
+- [10:30 – 11:00] Writer's Studio playground — Configuration panel: Mode (Writer/Rewriter toggle), Tone (Neutral), Length (Short), Format (Markdown), Output Language (English), Shared Context field. Right panel: Writer Prompt area, Generate Content button, Result section
+- [11:00 – 12:00] Writer's Studio in action — Prompt: "Write a short essay about an elephant." Tone changed to "Formal", Shared Context: "For children". Result shows generated essay "## The Majestic Elephant" with paragraphs about elephants
+- [12:00 – 12:30] (Continued exploration of playgrounds / Prompt Lab)
+
+TRANSITION CARD: "API Playgrounds" [~12:30 – 13:00]
+- [12:30 – 13:00] Dark transition title card: "API Playgrounds — Interactive sandbox for Chrome Built-in AI APIs" / "April 2026, @albertomedina"
+
+SECTION 7: WORKFLOW COMPOSER [13:00 – 15:30]
+- [13:00 – 14:00] Workflow Composer — three-column layout. Left sidebar: Gemini Nano APIs (Prompt API, Writer API, Rewriter API, Proofreader API, Translator API, Language Detector, Summarizer API), Input section (Dom Input, Static Input, Selection Tool). Center canvas: "New Workflow" tab with START node → DOM Input → Summarizer → END flow being built. Right panel: Node config showing Summarizer API Configuration (Summary Type: Key Points, Output Format: Markdown, Summary Length: Short, Input Languages: English/Spanish/Japanese). Text box tab open showing Wikipedia article
+- [14:00 – 15:00] Workflow execution and editing. Building the summarization workflow, connecting nodes
+- [15:00 – 15:30] Navigating away from Workflow Composer — new tab search bar visible showing AWL-related bookmarks (AWL Demos, AWLshop, AWL Options Page)
+
+SECTION 8: AWLSHOP DEMO (WebMCP E-COMMERCE) [15:30 – 18:00]
+- [15:30 – 16:00] AWLshop demo site (awl-shop.holodeck.work) loaded — "Our Products" showing Italian Spaghetti ($2.99, 500g), Free Range Eggs ($3.20, 6 count), and more. Side panel open with Tool Providers dropdown showing: awl-shop.holodeck.work, Guidance MCP Server, DevTools, MCP-B. Tools list includes: change_bg_color, built_in__quick_summarizer, built_in__let_it_snow, built_in__smart_translator, summarizer_1, search_products, add_to_cart, update_cart_quantity, get_cart_contents, approve_order, confirm_order, clear_cart, navigate_to_app
+- [16:00 – 16:30] User types in chat: "Add 1 packet of Italian Spaghetti of 500 grams to my cart." Agent processes the request
+- [16:30 – 17:00] AWLshop checkout page — showing cart with "Italian Spaghetti, Qty: 1 × $2.99, Total: $2.99". Buttons: Empty Cart, Complete Purchase. DevTools open showing Elements panel with page HTML/CSS
+- [17:00 – 17:30] DevTools → AWL tab open — Tool List showing 58 tools. Types include MCP and WebMCP, Categories include mcp-b, website. WebMCP tools: search_products, add_to_cart, update_cart_quantity, get_cart_contents, approve_order. DESCRIPTION panel showing search_products tool: "Search the catalog for items. Returns matching products with their pack size (unit_quantity) and type." INPUT SCHEMA shown as JSON
+- [17:30 – 18:00] Continued DevTools inspection of AWLshop WebMCP tools
+
+SECTION 9: SETTINGS & CLOSING [18:00 – 18:49]
+- [18:00 – 18:49] Options page → Settings section. Interface: Theme Preference (Light/Dark/Auto). Developer Logs: Debug/Warn(selected)/Error/Silent. Backup & Restore: Export Configuration / Import Configuration buttons. Factory Reset with "Reset Data" button (destructive, red). Video ends on this screen
+```
 
 ## About the Tool
 
@@ -83,9 +124,17 @@ AWL is a Chrome Extension designed to serve two primary purposes:
    - Supports save/load/import/export of workflows as WorkflowJSON
    - Execution via `WorkflowEngine` using topological sort
 
-### Demo Site Used in the Video
+### Demo Sites Used in the Video
 
-The video uses a demo site called **AWLeats** (at `awl-eats.holodeck.work`) — a curated Indian food recipe site featuring dishes like Butter Chicken (Murgh Makhani), Chicken Cafreal, etc. This site has WebMCP tools registered (e.g., `list_recipes`, `list_ingredients`, `get_recipe_details`, `get_categories`, `get_cuisines`, `navigate_to_app`), which the AI agent calls through the chat interface to retrieve recipe data.
+The video uses two demo sites on the `holodeck.work` domain:
+
+1. **AWLshop** (at `awl-shop.holodeck.work`) — An e-commerce grocery store with products like Italian Spaghetti ($2.99), Free Range Eggs ($3.20), etc. It has WebMCP tools registered for shopping: `search_products`, `add_to_cart`, `update_cart_quantity`, `get_cart_contents`, `approve_order`, `confirm_order`, `clear_cart`, `navigate_to_app`. The demo shows adding items to cart via natural language chat.
+
+2. **AWLeats** (at `awl-eats.holodeck.work`) — A curated Indian food recipe site featuring dishes like Butter Chicken (Murgh Makhani), Chicken Cafreal, etc. It has WebMCP tools: `list_recipes`, `list_ingredients`, `get_recipe_details`, `get_categories`, `get_cuisines`, `navigate_to_app`.
+
+The video also uses **example.com** as a basic test page for demonstrating the side panel, tool providers, and WebMCP built-in tools.
+
+Additionally, a **Guidance MCP Server** is connected that provides `search_use_cases` and `get_best_practices` tools — used to demonstrate how MCP servers can provide web development best practices to the agent.
 
 ## Script Requirements
 
@@ -121,7 +170,7 @@ Voiceover text here...
 - Any pauses or transitions where filler narration can bridge visual gaps
 
 ### Length
-Match the video duration. If the video is ~X minutes, the script should have approximately X minutes of narration content. Don't rush — leave natural breathing room and let visuals speak during transitions.
+The video is **18 minutes 49 seconds** long. The script should provide approximately 18-19 minutes of narration content. Don't rush — leave natural breathing room during transitions (especially the dark title card at ~13:00) and let visuals speak during key demo moments like tool call executions.
 
 ## Output Format
 
