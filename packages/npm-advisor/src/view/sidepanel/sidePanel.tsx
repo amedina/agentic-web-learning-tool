@@ -55,6 +55,13 @@ const SidePanel = () => {
               ),
             },
           ]}
+          customIcon={
+            <img
+              src="/icons/icon.png"
+              alt="NPM Advisor Logo"
+              className="w-[42px] h-[42px] rounded shrink-0 object-contain shadow-sm bg-white p-1"
+            />
+          }
           footerNode={<></>}
           assistantMessage={AssistantMessage}
           userMessage={UserMessage}

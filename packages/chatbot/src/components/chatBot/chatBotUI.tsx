@@ -76,7 +76,9 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
     CustomUserMessageComponent,
     CustomEditComposerComponent,
     allowToolCalling,
+    CustomIcon,
   } = usePropProvider(({ state }) => ({
+    CustomIcon: state.CustomIcon,
     allowToolCalling: state.allowToolCalling,
     CustomAssistantMessageComponent: state.CustomAssistantMessageComponent,
     CustomUserMessageComponent: state.CustomUserMessageComponent,
@@ -210,7 +212,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
               <ThreadPrimitive.Empty>
                 <div className="flex flex-col items-center justify-center text-center px-4">
                   <div className="mb-3">
-                    <OwlIcon width={42} height={42} />
+                    {CustomIcon ?? <OwlIcon width={42} height={42} />}
                   </div>
                   <h2 className="text-2xl font-bold text-primary mb-2">
                     How can I help you today?

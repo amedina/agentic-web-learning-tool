@@ -68,7 +68,9 @@ const ConversationalChatBot = ({ runtime }: ConversationalChatBotProps) => {
     CustomAssistantMessageComponent,
     CustomUserMessageComponent,
     CustomEditComposerComponent,
+    CustomIcon,
   } = usePropProvider(({ state }) => ({
+    CustomIcon: state.CustomIcon,
     CustomAssistantMessageComponent: state.CustomAssistantMessageComponent,
     CustomUserMessageComponent: state.CustomUserMessageComponent,
     CustomEditComposerComponent: state.CustomEditComposerComponent,
@@ -178,14 +180,13 @@ const ConversationalChatBot = ({ runtime }: ConversationalChatBotProps) => {
               <ThreadPrimitive.Empty>
                 <div className="flex flex-col items-center justify-center text-center px-4">
                   <div className="mb-3">
-                    <OwlIcon width={42} height={42} />
+                    {CustomIcon ?? <OwlIcon width={42} height={42} />}
                   </div>
                   <h2 className="text-2xl font-bold text-primary mb-2">
                     How can I help you today?
                   </h2>
                   <p className="text-zinc-500 max-w-md">
-                    I can help you write code, analyze data, or even check the
-                    weather.
+                    I can help you analyze packages.
                   </p>
                 </div>
               </ThreadPrimitive.Empty>
