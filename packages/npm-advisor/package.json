@@ -11,6 +11,8 @@
     "test": "vitest run --root . --silent"
   },
   "dependencies": {
+    "@google-awlt/chatbot": "workspace:*",
+    "@google-awlt/common": "workspace:*",
     "@google-awlt/design-system": "workspace:*",
     "@ai-sdk/google": "^2.0.45",
     "@ai-sdk/openai": "^2.0.77",

@@ -11,18 +11,22 @@ import type { SidePanelTabProps } from "../../../types";
 type PropProviderProps = PropsWithChildren & {
   footerNode: React.ReactNode;
   extraTabs: SidePanelTabProps["extraTabs"];
+  allowToolCalling: boolean;
   assistantMessage?: null | (() => React.JSX.Element);
   userMessage?: null | (() => React.JSX.Element);
   editComposer?: null | (() => React.JSX.Element);
+  getCustomSystemPrompt?: () => string;
 };
 
 function PropProvider({
   children,
   footerNode,
   extraTabs,
+  allowToolCalling = true,
   assistantMessage,
   userMessage,
   editComposer,
+  getCustomSystemPrompt,
 }: PropProviderProps) {
   const contextValue = useMemo<PropProviderType>(
     () => ({
@@ -32,10 +36,21 @@ function PropProvider({
         CustomAssistantMessageComponent: assistantMessage,
         CustomUserMessageComponent: userMessage,
         CustomEditComposerComponent: editComposer,
+        allowToolCalling,
       },
-      actions: {},
+      actions: {
+        getCustomSystemPrompt: getCustomSystemPrompt ?? (() => ""),
+      },
     }),
-    [footerNode, extraTabs, assistantMessage, userMessage, editComposer],
+    [
+      footerNode,
+      extraTabs,
+      allowToolCalling,
+      assistantMessage,
+      userMessage,
+      editComposer,
+      getCustomSystemPrompt,
+    ],
   );
 
   return (

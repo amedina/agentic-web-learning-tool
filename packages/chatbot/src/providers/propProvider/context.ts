@@ -11,8 +11,11 @@ export type PropProviderType = {
     CustomAssistantMessageComponent?: null | (() => React.JSX.Element);
     CustomUserMessageComponent?: null | (() => React.JSX.Element);
     CustomEditComposerComponent?: null | (() => React.JSX.Element);
+    allowToolCalling: boolean;
   };
-  actions: {};
+  actions: {
+    getCustomSystemPrompt: () => string;
+  };
 };
 
 const initialState: PropProviderType = {
@@ -22,8 +25,11 @@ const initialState: PropProviderType = {
     CustomAssistantMessageComponent: null,
     CustomUserMessageComponent: null,
     CustomEditComposerComponent: null,
+    allowToolCalling: true,
   },
-  actions: {},
+  actions: {
+    getCustomSystemPrompt: () => "",
+  },
 };
 const PropProviderContext = createContext<PropProviderType>(initialState);
 

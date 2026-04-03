@@ -45,7 +45,7 @@ export default defineConfig({
     outDir: distDir,
     rollupOptions: {
       input: {
-        popup: resolve(__dirname, "src/view/popup/popup.html"),
+        sidepanel: resolve(__dirname, "src/view/sidepanel/sidepanel.html"),
         options: resolve(__dirname, "src/view/options/options.html"),
         contentScript: resolve(__dirname, "src/contentScript/contentScript.ts"),
         background: resolve(__dirname, "src/background/background.ts"),

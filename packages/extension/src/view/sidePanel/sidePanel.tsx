@@ -57,6 +57,7 @@ const SidePanel = () => {
 
   return (
     <PropProvider
+      allowToolCalling={true}
       extraTabs={[
         {
           value: 'workflow',

@@ -8,14 +8,11 @@ import {
   useAssistantState,
   type AssistantRuntime,
 } from "@assistant-ui/react";
-import { useMcpClient } from "@mcp-b/react-webmcp";
-import { useCallback, useEffect, useMemo } from "react";
-import type { JSONRPCMessage } from "@modelcontextprotocol/sdk/types.js";
+import { useCallback, useMemo } from "react";
 import {
   Paperclip,
   SendHorizontal,
   CircleStop,
-  ListMinus,
   Settings,
   ChevronDown,
   PlusCircle,
@@ -33,9 +30,7 @@ import {
 /**
  * Internal dependencies
  */
-import { useAssistantMCP } from "../../hooks";
 import {
-  transport,
   useModelProvider,
   usePropProvider,
   useTabThreadInformation,
@@ -46,28 +41,26 @@ import UserMessage from "./userMessage";
 import { INITIAL_PROVIDERS } from "../../constants";
 import type { AgentType } from "../../../types";
 import { useCommandProvider } from "../../providers/commandProvider";
-import { createModelDropdown, createToolDropdown } from "./utils";
+import { createModelDropdown } from "./utils";
 import { openOptionsPage } from "../../utils";
 
-type ChatBotUIProps = {
+type ConversationalChatBotProps = {
   runtime: AssistantRuntime | null;
 };
-``;
 
-const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
-  const { client, tools } = useMcpClient();
-  const { apiKeys, setSelectedAgent, selectedAgent, toolNameToMCPMap } =
-    useModelProvider(({ state, actions }) => ({
+const ConversationalChatBot = ({ runtime }: ConversationalChatBotProps) => {
+  const { apiKeys, setSelectedAgent, selectedAgent } = useModelProvider(
+    ({ state, actions }) => ({
       apiKeys: state.apiKeys,
       toolNameToMCPMap: state.toolNameToMCPMap,
       setSelectedAgent: actions.setSelectedAgent,
       selectedAgent: state.selectedAgent,
-    }));
+    }),
+  );
 
   const api = useAssistantApi();
 
-  const { tabData, lockedThreads } = useTabThreadInformation(({ state }) => ({
-    tabData: state.tabData,
+  const { lockedThreads } = useTabThreadInformation(({ state }) => ({
     lockedThreads: state.lockedThreads,
   }));
 
@@ -75,39 +68,19 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
     CustomAssistantMessageComponent,
     CustomUserMessageComponent,
     CustomEditComposerComponent,
-    allowToolCalling,
   } = usePropProvider(({ state }) => ({
-    allowToolCalling: state.allowToolCalling,
     CustomAssistantMessageComponent: state.CustomAssistantMessageComponent,
     CustomUserMessageComponent: state.CustomUserMessageComponent,
     CustomEditComposerComponent: state.CustomEditComposerComponent,
   }));
 
-  useEffect(() => {
-    // Synchronization Mechanism: This block listens for a "Tool Changed" event from the
-    // Service Worker, and client.listTools() performs the actual "Refresh" to get the new data.
-    transport.onmessage = async (message: JSONRPCMessage) => {
-      if ("method" in message && message.method === "get/Tools") {
-        await client.listTools();
-      }
-    };
-  }, [client]);
-
   const threadId = useAssistantState(({ threadListItem }) => threadListItem.id);
   const messages = useAssistantState(({ thread }) => thread.messages);
   const isLoading = useAssistantState(({ threads }) => threads.isLoading);
 
-  useAssistantMCP(tools, client, threadId, runtime);
-
   const { handleMessageChange } = useCommandProvider(({ actions }) => ({
     handleMessageChange: actions.handleMessageChange,
   }));
-
-  const groupedTools = useMemo(() => {
-    if (!allowToolCalling) return [];
-    const tabId = parseInt(new URL(window.location.href).hash.substring(5));
-    return createToolDropdown(tools, toolNameToMCPMap, tabData, tabId);
-  }, [tools, toolNameToMCPMap, tabData, allowToolCalling]);
 
   const handleSelect = useCallback(
     (selectedId: string) => {
@@ -131,11 +104,6 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
     },
     [setSelectedAgent],
   );
-
-  const toolLength = useMemo(() => {
-    if (!allowToolCalling) return null;
-    return tools.filter((tool) => tool.name !== "dummyTool").length;
-  }, [tools, allowToolCalling]);
 
   const lockThread = useCallback(
     async (threadIdToLock: string) => {
@@ -217,7 +185,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
                   </h2>
                   <p className="text-zinc-500 max-w-md">
                     I can help you write code, analyze data, or even check the
-                    weather. I have access to {toolLength} tools.
+                    weather.
                   </p>
                 </div>
               </ThreadPrimitive.Empty>
@@ -257,18 +225,6 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
                     <Button variant="ghost" disabled title="Attach" size="icon">
                       <Paperclip size={18} />
                     </Button>
-                    {allowToolCalling ? (
-                      <Dropdown
-                        options={groupedTools}
-                        onSelect={(id) => console.log(id)}
-                        mainLabel="Tool Providers"
-                        selectedValue=""
-                      >
-                        <Button variant="ghost" size="icon">
-                          <ListMinus className="w-4 h-4" />
-                        </Button>
-                      </Dropdown>
-                    ) : null}
                     <Button
                       size="icon"
                       variant="ghost"
@@ -315,4 +271,4 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
   );
 };
 
-export default ChatBotUI;
+export default ConversationalChatBot;

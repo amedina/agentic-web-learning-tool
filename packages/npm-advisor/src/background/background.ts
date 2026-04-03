@@ -1,5 +1,6 @@
 import { getPackageStats, type PackageStats } from "../utils";
 import { DEFAULT_TARGET_PROJECT_LICENSE } from "../utils";
+import "./chromeListeners";
 
 // Memory cache for promises or resolved stats
 const statsCache = new Map<

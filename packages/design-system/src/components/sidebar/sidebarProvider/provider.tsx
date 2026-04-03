@@ -147,8 +147,9 @@ function SidebarProvider({
             } as CSSProperties
           }
           className={cn(
-            'group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar flex min-h-svh w-full',
-            className
+            'group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar flex w-full',
+            className,
+            className?.includes('flex-1') ? '' : 'min-h-svh'
           )}
           {...props}
         >
