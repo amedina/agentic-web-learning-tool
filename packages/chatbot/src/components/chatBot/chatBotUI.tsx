@@ -37,6 +37,7 @@ import { useAssistantMCP } from "../../hooks";
 import {
   transport,
   useModelProvider,
+  usePropProvider,
   useTabThreadInformation,
 } from "../../providers";
 import AssistantMessage from "./assistantMessage";
@@ -68,6 +69,16 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
   const { tabData, lockedThreads } = useTabThreadInformation(({ state }) => ({
     tabData: state.tabData,
     lockedThreads: state.lockedThreads,
+  }));
+
+  const {
+    CustomAssistantMessageComponent,
+    CustomUserMessageComponent,
+    CustomEditComposerComponent,
+  } = usePropProvider(({ state }) => ({
+    CustomAssistantMessageComponent: state.CustomAssistantMessageComponent,
+    CustomUserMessageComponent: state.CustomUserMessageComponent,
+    CustomEditComposerComponent: state.CustomEditComposerComponent,
   }));
 
   useEffect(() => {
@@ -209,9 +220,15 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
               <div className="h-full mt-8">
                 <ThreadPrimitive.Messages
                   components={{
-                    UserMessage,
-                    EditComposer,
-                    AssistantMessage,
+                    UserMessage: CustomUserMessageComponent
+                      ? CustomUserMessageComponent
+                      : UserMessage,
+                    EditComposer: CustomEditComposerComponent
+                      ? CustomEditComposerComponent
+                      : EditComposer,
+                    AssistantMessage: CustomAssistantMessageComponent
+                      ? CustomAssistantMessageComponent
+                      : AssistantMessage,
                   }}
                 />
               </div>

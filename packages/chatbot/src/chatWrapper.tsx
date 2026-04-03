@@ -14,13 +14,21 @@ import { SidebarProvider } from "@google-awlt/design-system";
  * Internal dependencies
  */
 import { ChatBotUI } from "./components";
-import { CommandProvider, useModelProvider } from "./providers";
+import {
+  CommandProvider,
+  useModelProvider,
+  usePropProvider,
+} from "./providers";
 import CustomRuntimeProvider from "./customRuntime/customRuntimeProvider";
-import type { SidePanelTabProps } from "../types";
 
-const SidePanel = ({ extraTabs, footerNode }: SidePanelTabProps) => {
+const SidePanel = () => {
   const { transport } = useModelProvider(({ state }) => ({
     transport: state.transport,
+  }));
+
+  const { extraTabs, footerNode } = usePropProvider(({ state }) => ({
+    extraTabs: state.extraTabs,
+    footerNode: state.footerNode,
   }));
 
   const runtimeRef = useRef<AssistantRuntime | null>(null);

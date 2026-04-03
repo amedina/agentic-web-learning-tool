@@ -4,16 +4,12 @@
 import "./index.css";
 import SidePanel from "./chatWrapper";
 import { ModelProvider, TabThreadInformationProvider } from "./providers";
-import type { SidePanelTabProps } from "../types";
 
-export const SidepanelChatbot = ({
-  extraTabs,
-  footerNode,
-}: SidePanelTabProps) => {
+export const SidepanelChatbot = () => {
   return (
     <ModelProvider>
       <TabThreadInformationProvider>
-        <SidePanel extraTabs={extraTabs} footerNode={footerNode} />
+        <SidePanel />
       </TabThreadInformationProvider>
     </ModelProvider>
   );

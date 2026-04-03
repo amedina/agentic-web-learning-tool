@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { useEffect, useState } from 'react';
-import { SidepanelChatbot } from '@google-awlt/chatbot';
+import { PropProvider, SidepanelChatbot } from '@google-awlt/chatbot';
 /**
  * Internal dependencies
  */
@@ -56,7 +56,7 @@ const SidePanel = () => {
   }, []);
 
   return (
-    <SidepanelChatbot
+    <PropProvider
       extraTabs={[
         {
           value: 'workflow',
@@ -70,7 +70,9 @@ const SidePanel = () => {
         },
       ]}
       footerNode={<GlobalStatusPill />}
-    />
+    >
+      <SidepanelChatbot />
+    </PropProvider>
   );
 };
 
