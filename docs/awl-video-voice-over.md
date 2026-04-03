@@ -11,25 +11,22 @@
 
 **[0:00 – 0:05] Title Card**
 
-> Hey everyone — welcome. This is AWL, the Agentic Web Learning Tool.
+> Hey everyone — welcome. This is AWL, the Agentic Web Learning Tool, better known as “owl”. 
+
 
 **[0:05 – 0:15] GitHub Wiki — "Who is this for?"**
 
-> AWL is an open-source Chrome Extension I've been building in Google Developer Relations. It's designed for three audiences: developers building AI agents that interact with the web, researchers exploring the intersection of large language models and browsers, and learners — anyone who wants to understand how the agentic web actually works.
->
-> You can see the key features listed here — a side panel chat, MCP server management, WebMCP integration, a visual workflow engine, built-in AI playgrounds, and even a full MCP inspector. There's a lot packed in, and I'm going to walk you through all of it.
+> Owl is an open-source Chrome Extension designed for three audiences: developers building AI agents that interact with the web, researchers exploring the intersection of large language models and browsers, and learners who wants to understand how the agentic web actually works.
 
 **[0:15 – 0:30] GitHub Releases — v1.0.0**
 
-> This is the v1.0.0 release. You'll notice the key pillars: a Workflow Composer for chaining AI operations visually, an MCP Ecosystem for connecting to external tool servers, Native AI support using Chrome's on-device models, and Developer Tooling for debugging and inspection.
+> This is the v1.0 release of the extension, and it is packed with features for learning about and playing with agentic web concepts and tools,
 
-**[0:30 – 0:45] Scrolling Releases — Contributors & Assets**
-
-> Scrolling down, you can see the changelog, the contributors who've helped build this — and most importantly, the downloadable asset right here: the extension zip file, about 1.6 megabytes. That's all you need.
 
 **[0:45 – 1:15] Installing the Extension**
+> Scrolling down to the end of the release page, you can find the extensions assets which can be downloaded and installed as a unpacked extension. 
 
-> Let's install it. I'm heading to `chrome://extensions`, enabling Developer Mode, and loading the extension. And just like that — AWL is installed. You'll see the icon appear in the toolbar. Now let's open a new tab and see what we're working with.
+> Once downloaded, go to `chrome://extensions`, enable Developer Mode, and then load the extension. After this, the extension is installed and you'll see the owl icon appear in the toolbar. 
 
 ---
 
@@ -37,15 +34,11 @@
 
 **[1:15 – 1:30] Side Panel on example.com**
 
-> Here's example.com — a nice blank canvas to start with. I've clicked the AWL icon and the side panel opens up. You can see our owl mascot, the greeting message, and down at the bottom — the model selector. Right now it says "prompt-api" — that's Chrome's on-device Gemini Nano model. So out of the box, AWL can talk to you using a model that runs entirely in your browser. No API key needed, no data leaving your machine.
->
-> It also says it has access to 19 tools. We'll get into those shortly.
+> Here's example.com — a nice blank site to start with. Clicking on the extension's icon opens up a persistent conversational interface housed in a Chrome side panel, giving users a seamless way to interact with AI agents directly alongside any webpage they're browsing. You can see the owl mascot, the greeting message, and down at the bottom — the model selector. 
 
 **[1:30 – 2:00] Options Page — Models Configuration**
 
-> But let's say you want more power — you want to connect a cloud model. Let's go to the Options page, Models section. You can see three provider accordions: Anthropic, OpenAI, and Gemini. Each one lets you plug in your own API key and configure the model however you want.
->
-> I'll expand Gemini here. There's the API Key field, a System Prompt area, a Thinking Mode toggle, and a Disable Provider toggle.
+> We can configure different foundation models by going to the Options page, Models section. There you can see three provider options: Anthropic, OpenAI, and Gemini. Each one lets you plug in your own API key and configure the model however you want.
 
 **[2:00 – 2:30] Configuring Gemini**
 
@@ -53,9 +46,9 @@
 
 **[2:30 – 3:00] Testing the Model**
 
-> Now back in the side panel, I switch the model selector to gemini-2.5-flash-preview. Let's test it — "Hello, who are you?"
+> Now we can open the side panel, and switch the model selector to a Gemini model such as gemini-2.5-flash-preview.
 >
-> And there it is — the model responds with our custom system prompt identity: "I am AWL, a useful agent dedicated to helping everyone learn about the agentic web." We're connected and ready to go.
+> And there it is — we greet the model and it responds with our custom system prompt identity: "I am AWL, a useful agent dedicated to helping everyone learn about the agentic web." We're connected and ready to go.
 
 ---
 
@@ -63,53 +56,32 @@
 
 **[3:00 – 3:30] Adding an MCP Server**
 
-> Now let's talk about MCP — the Model Context Protocol. This is the open standard that lets AI models discover and use external tools through a structured interface. Think of it as a universal adapter between an AI agent and the services it needs to interact with.
+> The Model Context Protocol is an open de-facto standard that lets AI models discover and use external tools through a structured interface. Think of it as a universal adapter between an AI agent and the services it needs to interact with.
 >
-> In AWL, you manage MCP servers right from the Options page. I'm clicking "New MCP Server" and you can see the dialog — it asks for a server name, transport type, URL, connection settings, and authentication options. I'm adding the Chrome DevTools MCP Server here, using Streamable HTTP transport.
+> The Owl extension enables users to manage MCP servers right from the Options page. 
+
+> Clicking on "MCP Servers" we can see the MCP servers section. For example we can configure the DevTools MCP Server by clicking "New MCP Server" and providing the server name, transport type, URL, connection settings, and authentication options. 
+
+> Once we entered the required input, we click on connect. If everything is correct, we get the success toast — "MCP Server successfully added to extension."
 
 **[3:30 – 4:00] Connection Success**
 
-> And we get the success toast — "MCP Server successfully added to extension." Now look at this card: Chrome DevTools MCP Server, connected, with 29 tools available. Twenty-nine tools that our agent can now use — things like inspecting DOM elements, running Lighthouse audits, evaluating scripts, and more. You can disconnect, inspect, or edit the server at any time.
-
-**[4:00 – 4:30] Adding a Second Server**
-
-> Let me add another one — the Guidance MCP Server. This is a server I've set up that provides web development best practices through MCP tools. Once it's connected, I'll head over to the MCP Inspector.
+>  Now in the MCP Servers section we can see the Chrome DevTools MCP Server, connected, with 29 tools available. Twenty-nine tools that the Owl agent can use for things like inspecting DOM elements, running Lighthouse audits, evaluating scripts, and more. You can disconnect the server, inspect it, or edit the server configuration at any time.
 
 **[4:30 – 5:00] MCP Inspector — DevTools Server**
 
-> Here's the inspector. I'm looking at the Chrome DevTools MCP Server and you can see the full list of tools it exposes — hover, lighthouse_audit, and many more. Over in the History panel, you can see the MCP protocol events: tools/list, logging/setLevel, initialize. This is the actual protocol handshake happening between AWL and the server. Full transparency.
+> To inspect a given MCP Server, we can click on the "Inspect" button, which takes us to Owl's integrated MCP inspector.  Here we can see the full list of tools it exposes — hover, lighthouse_audit, list pages, and many more. 
 
----
-
-## SECTION 4: MCP INSPECTOR + GUIDANCE SERVER DEMO [5:00 – 8:30]
-
-**[5:00 – 5:30] MCP Servers Overview**
-
-> Back on the MCP Servers page, you can see both servers connected and ready. The beauty of this architecture is that you can connect as many servers as you need — each one contributes its tools to the agent's capability set, and AWL manages all the connections for you.
-
-**[5:30 – 6:00] Inspecting the Guidance Server**
-
-> Let me switch the inspector to the Guidance MCP Server. This one is simpler — just two tools: search_use_cases and get_best_practices. I'll type "Search hidden" into the query field for the search_use_cases tool. These tools let the agent look up web development patterns and best practices on demand.
+> We can run specific tools directly from the inspector. For example, we can trigger a run of the "list_pages" tool and see how it works. 
 
 **[6:00 – 7:00] Tool Execution & Chat Interaction**
 
-> Now watch — I'm executing the tool call right here in the inspector, and you can see the result come back. Meanwhile, let me open the side panel chat alongside. The agent greets us again. But what I really want to show you is how the agent uses these tools in a real conversation.
->
-> As I interact, you can see the inspector's History panel growing — every tool call, every result, logged in real time. This is invaluable for debugging. You're not guessing what the agent did — you're seeing the full protocol trace.
+> Once an MCP Server is configured and connected, the corresponding tools are available to the Owl chat interface in the side panel. 
+> Here we see two MCP servers available: the DevTools and the Modern Web Guidance MCP servers. 
 
-**[7:00 – 8:00] Tool Call Cards in Chat**
+===> Note for Joel: You can show this using the idea you recorded showing the use of the guidance MCP server `best_practices` tool. 
 
-> And here's where it gets really interesting. Look at the side panel — the agent just made a get_best_practices tool call. You can see the Tool Call Card right here in the chat, expanded to show the arguments: use_case_id set to "search-hidden-content". And the result — a full markdown document about best practices for search and hidden content.
->
-> This is the magic of MCP in action. The model decided it needed specific information, chose the right tool, formulated the arguments, called the server, and wove the response into its answer — all transparently, all inspectable.
->
-> Notice I've also switched the model to gemini-2.5-flash for this. And in the sidebar, you can see the Built-in AI section — we'll explore that next.
-
-**[8:00 – 8:30] Detailed Response Content**
-
-> Scrolling through the response, the agent has pulled in detailed guidance about performance optimization, prefetching, and prerendering — all sourced from the Guidance MCP Server through that tool call. This is how you give an agent domain expertise: you connect it to the right MCP servers.
-
----
+===> Script has been reviewed until here. Joel to pick it up here and complete it. 
 
 ## SECTION 5: WEBMCP TOOLS + TOOL PROVIDERS [8:30 – 10:00]
 
