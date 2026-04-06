@@ -161,6 +161,14 @@ export class CloudHostedTransport implements ChatTransport<
       };
     });
 
+    if (this.model?.provider === "google.generative-ai") {
+      this.formattedTools.push({
+        google_search: {},
+      });
+    } else if (this.model?.provider === "openai") {
+      this.formattedTools.push({ type: "web_search" });
+    }
+
     return createUIMessageStream({
       execute: async ({ writer }) => {
         try {

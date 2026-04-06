@@ -102,24 +102,21 @@ export const usePackageStats = () => {
     fetchCurrentTabStats();
 
     chrome.webNavigation.onCompleted.addListener(async (details) => {
-      const [tab] = await chrome.tabs.query({
-        active: true,
-        currentWindow: true,
-      });
-      if (details.frameId !== 0 && details.tabId !== tab?.id) {
+      const currentTabId = Number(window.location.hash.slice(5));
+      if (details.frameId !== 0 || details.tabId !== currentTabId) {
         return;
       }
+
       fetchCurrentTabStats();
     });
+
     return () => {
       chrome.webNavigation.onCompleted.removeListener(async (details) => {
-        const [tab] = await chrome.tabs.query({
-          active: true,
-          currentWindow: true,
-        });
-        if (details.frameId !== 0 && details.tabId !== tab?.id) {
+        const currentTabId = Number(window.location.hash.slice(5));
+        if (details.frameId !== 0 || details.tabId !== currentTabId) {
           return;
         }
+
         fetchCurrentTabStats();
       });
     };
