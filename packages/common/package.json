@@ -25,7 +25,8 @@
   },
   "dependencies": {
     "lodash-es": "^4.17.22",
-    "use-context-selector": "^2.0.0"
+    "use-context-selector": "^2.0.0",
+    "loglevel": "^1.9.2"
   },
   "peerDependencies": {
     "react": "^19"

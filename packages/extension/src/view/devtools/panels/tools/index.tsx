@@ -17,7 +17,7 @@ import {
   type WebMCPTool,
 } from '@google-awlt/design-system';
 import type { Tool } from '@modelcontextprotocol/sdk/types.js';
-import { noop } from '@google-awlt/common';
+import { noop, logger } from '@google-awlt/common';
 import { RefreshCcw } from 'lucide-react';
 /**
  * Internal Dependencies
@@ -29,7 +29,7 @@ import { useToolExecution } from '../../hooks/useToolExecution';
 import { useEventLogs } from '../../providers';
 import useToolCategoryMapping from '../../hooks/useToolCategoryMapping';
 import { TOOL_CATEGORIES } from '../../constants';
-import { getToolCategory, logger } from '../../../../utils';
+import { getToolCategory } from '../../../../utils';
 import { builtInTools } from '../../../../contentScript/tools';
 import { stringifiedChangeBGColor } from '../../../../contentScript/tools/changeBgColor';
 import { stringifiedGetPageTitle } from '../../../../contentScript/tools/getPageTitle';

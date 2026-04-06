@@ -15,6 +15,7 @@ import {
   type CustomHeaders,
   type MCPConfig,
   type MCPServerConfig,
+  logger,
 } from '@google-awlt/common';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import { toast } from '@google-awlt/design-system';
@@ -27,7 +28,6 @@ import {
  * Internal dependencies
  */
 import MCPContext, { type MCPProviderContextType } from './context';
-import { logger } from '../../../../utils';
 import { StatelessHTTPClientTransport } from './StatelessHTTPClientTransport';
 
 type ClientState = {

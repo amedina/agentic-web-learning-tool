@@ -1,3 +1,4 @@
 @import "@google-awlt/shared-config/tailwind";
 
 @source "../../../../design-system";
+@source "../../../../chatbot";
