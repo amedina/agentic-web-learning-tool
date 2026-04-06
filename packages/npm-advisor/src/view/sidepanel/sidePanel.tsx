@@ -37,7 +37,7 @@ const SidePanel = () => {
       <ThemeProvider>
         <PropProvider
           allowToolCalling={false}
-          extraTabs={[
+          prefixTabs={[
             {
               value: "insights",
               label: "Insights",

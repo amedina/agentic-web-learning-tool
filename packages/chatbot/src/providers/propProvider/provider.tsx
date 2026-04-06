@@ -10,7 +10,8 @@ import type { SidePanelTabProps } from "../../../types";
 
 type PropProviderProps = PropsWithChildren & {
   footerNode: React.ReactNode;
-  extraTabs: SidePanelTabProps["extraTabs"];
+  prefixTabs?: SidePanelTabProps["extraTabs"];
+  suffixTabs?: SidePanelTabProps["extraTabs"];
   allowToolCalling: boolean;
   assistantMessage?: null | (() => React.JSX.Element);
   userMessage?: null | (() => React.JSX.Element);
@@ -27,7 +28,8 @@ type PropProviderProps = PropsWithChildren & {
 function PropProvider({
   children,
   footerNode,
-  extraTabs,
+  prefixTabs,
+  suffixTabs,
   allowToolCalling = true,
   assistantMessage,
   userMessage,
@@ -41,7 +43,8 @@ function PropProvider({
     () => ({
       state: {
         footerNode,
-        extraTabs,
+        prefixTabs: prefixTabs ?? [],
+        suffixTabs: suffixTabs ?? [],
         CustomAssistantMessageComponent: assistantMessage,
         CustomUserMessageComponent: userMessage,
         CustomEditComposerComponent: editComposer,
@@ -57,7 +60,8 @@ function PropProvider({
     [
       customIcon,
       footerNode,
-      extraTabs,
+      prefixTabs,
+      suffixTabs,
       allowToolCalling,
       suggestions,
       helperTextSet,

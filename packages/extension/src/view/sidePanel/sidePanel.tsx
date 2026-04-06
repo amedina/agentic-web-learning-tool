@@ -58,7 +58,7 @@ const SidePanel = () => {
   return (
     <PropProvider
       allowToolCalling={true}
-      extraTabs={[
+      suffixTabs={[
         {
           value: 'workflow',
           label: 'Workflows',

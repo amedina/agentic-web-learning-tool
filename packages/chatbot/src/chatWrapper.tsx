@@ -32,10 +32,13 @@ const SidePanel = () => {
     allowToolCalling: state.allowToolCalling,
   }));
 
-  const { extraTabs, footerNode } = usePropProvider(({ state }) => ({
-    extraTabs: state.extraTabs,
-    footerNode: state.footerNode,
-  }));
+  const { prefixTabs, suffixTabs, footerNode } = usePropProvider(
+    ({ state }) => ({
+      prefixTabs: state.prefixTabs,
+      suffixTabs: state.suffixTabs,
+      footerNode: state.footerNode,
+    }),
+  );
 
   const runtimeRef = useRef<AssistantRuntime | null>(null);
 
@@ -69,6 +72,7 @@ const SidePanel = () => {
 
   const tabsList = useMemo(() => {
     return [
+      ...prefixTabs,
       {
         value: "chat",
         label: "Chat",
@@ -78,9 +82,9 @@ const SidePanel = () => {
           <ChatBotUI runtime={runtimeRef.current} />
         ),
       },
-      ...extraTabs,
+      ...suffixTabs,
     ];
-  }, [extraTabs]);
+  }, [prefixTabs, suffixTabs]);
 
   return (
     <CustomRuntimeProvider transport={transport} runtimeRef={runtimeRef}>
@@ -90,7 +94,7 @@ const SidePanel = () => {
           className={`flex-1 ${activeTab === "insights" ? "overflow-y-auto" : "overflow-hidden"}`}
         >
           <Tabs
-            defaultValue="chat"
+            defaultValue={tabsList[0].value}
             className="flex flex-col h-full w-full bg-background"
           >
             <div className="px-4 py-2 border-b">
