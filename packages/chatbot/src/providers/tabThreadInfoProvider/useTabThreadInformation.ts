@@ -1,15 +1,15 @@
 /**
  * External dependencies
  */
-import { useContextSelector } from "@google-awlt/common";
+import { useContextSelector } from '@google-awlt/common';
 /**
  * Internal dependencies.
  */
-import Context, { type TabThreadContextProps } from "./context";
+import Context, { type TabThreadContextProps } from './context';
 
 export function useTabThreadInformation(): TabThreadContextProps;
 export function useTabThreadInformation<T>(
-  selector: (state: TabThreadContextProps) => T,
+  selector: (state: TabThreadContextProps) => T
 ): T;
 
 /**
@@ -19,8 +19,8 @@ export function useTabThreadInformation<T>(
  */
 export function useTabThreadInformation<T>(
   selector: (state: TabThreadContextProps) => T | TabThreadContextProps = (
-    state,
-  ) => state,
+    state
+  ) => state
 ) {
   return useContextSelector(Context, selector);
 }

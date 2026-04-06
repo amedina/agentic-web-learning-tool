@@ -1,32 +1,32 @@
 /**
  * External dependencies
  */
-import { type AssistantRuntime } from "@assistant-ui/react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { type AssistantRuntime } from '@assistant-ui/react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Tabs,
   TabsList,
   TabsTrigger,
   TabsContent,
-} from "@google-awlt/design-system";
-import { SidebarProvider } from "@google-awlt/design-system";
+} from '@google-awlt/design-system';
+import { SidebarProvider } from '@google-awlt/design-system';
 /**
  * Internal dependencies
  */
-import { ChatBotUI, ConversationalChatBot } from "./components";
+import { ChatBotUI, ConversationalChatBot } from './components';
 import {
   CommandProvider,
   useModelProvider,
   usePropProvider,
-} from "./providers";
-import CustomRuntimeProvider from "./customRuntime/customRuntimeProvider";
+} from './providers';
+import CustomRuntimeProvider from './customRuntime/customRuntimeProvider';
 
 const SidePanel = () => {
   const { transport } = useModelProvider(({ state }) => ({
     transport: state.transport,
   }));
 
-  const [activeTab, setActiveTab] = useState<string>("chat");
+  const [activeTab, setActiveTab] = useState<string>('chat');
 
   const { allowToolCalling } = usePropProvider(({ state }) => ({
     allowToolCalling: state.allowToolCalling,
@@ -37,7 +37,7 @@ const SidePanel = () => {
       prefixTabs: state.prefixTabs,
       suffixTabs: state.suffixTabs,
       footerNode: state.footerNode,
-    }),
+    })
   );
 
   const runtimeRef = useRef<AssistantRuntime | null>(null);
@@ -54,8 +54,8 @@ const SidePanel = () => {
 
   useEffect(() => {
     chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
-      if (message.type === "still_there") {
-        sendResponse({ status: "yes", type: "sidepanel" });
+      if (message.type === 'still_there') {
+        sendResponse({ status: 'yes', type: 'sidepanel' });
       }
     });
   }, []);
@@ -74,8 +74,8 @@ const SidePanel = () => {
     return [
       ...prefixTabs,
       {
-        value: "chat",
-        label: "Chat",
+        value: 'chat',
+        label: 'Chat',
         content: !allowToolCalling ? (
           <ConversationalChatBot runtime={runtimeRef.current} />
         ) : (
@@ -91,7 +91,7 @@ const SidePanel = () => {
       <CommandProvider>
         <SidebarProvider
           defaultOpen={false}
-          className={`flex-1 ${activeTab === "insights" ? "overflow-y-auto" : "overflow-hidden"}`}
+          className={`flex-1 ${activeTab === 'insights' ? 'overflow-y-auto' : 'overflow-hidden'}`}
         >
           <Tabs
             defaultValue={tabsList[0].value}
@@ -117,7 +117,7 @@ const SidePanel = () => {
                 <TabsContent
                   key={tab.value}
                   value={tab.value}
-                  className={`flex-1 p-0 border-none mt-0 ${activeTab !== "chat" ? "overflow-y-auto" : "overflow-hidden"}`}
+                  className={`flex-1 p-0 border-none mt-0 ${activeTab !== 'chat' ? 'overflow-y-auto' : 'overflow-hidden'}`}
                 >
                   {tab.content}
                 </TabsContent>

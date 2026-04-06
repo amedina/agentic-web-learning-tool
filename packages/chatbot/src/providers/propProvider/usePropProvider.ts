@@ -1,11 +1,11 @@
 /**
  * External dependencies
  */
-import { useContextSelector } from "@google-awlt/common";
+import { useContextSelector } from '@google-awlt/common';
 /**
  * Internal dependencies.
  */
-import Context, { type PropProviderType } from "./context";
+import Context, { type PropProviderType } from './context';
 
 export function usePropProvider(): PropProviderType;
 export function usePropProvider<T>(selector: (state: PropProviderType) => T): T;
@@ -16,8 +16,7 @@ export function usePropProvider<T>(selector: (state: PropProviderType) => T): T;
  * @returns selected part of the state
  */
 export function usePropProvider<T>(
-  selector: (state: PropProviderType) => T | PropProviderType = (state) =>
-    state,
+  selector: (state: PropProviderType) => T | PropProviderType = (state) => state
 ) {
   return useContextSelector(Context, selector);
 }

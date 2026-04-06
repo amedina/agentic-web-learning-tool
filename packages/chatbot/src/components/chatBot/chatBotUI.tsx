@@ -7,10 +7,10 @@ import {
   useAssistantApi,
   useAssistantState,
   type AssistantRuntime,
-} from "@assistant-ui/react";
-import { useMcpClient } from "@mcp-b/react-webmcp";
-import { useCallback, useEffect, useMemo } from "react";
-import type { JSONRPCMessage } from "@modelcontextprotocol/sdk/types.js";
+} from '@assistant-ui/react';
+import { useMcpClient } from '@mcp-b/react-webmcp';
+import { useCallback, useEffect, useMemo } from 'react';
+import type { JSONRPCMessage } from '@modelcontextprotocol/sdk/types.js';
 import {
   Paperclip,
   SendHorizontal,
@@ -20,7 +20,7 @@ import {
   ChevronDown,
   PlusCircle,
   Menu,
-} from "lucide-react";
+} from 'lucide-react';
 import {
   Button,
   Dropdown,
@@ -29,25 +29,25 @@ import {
   SidebarTrigger,
   ThreadListSidebar,
   Tooltip,
-} from "@google-awlt/design-system";
+} from '@google-awlt/design-system';
 /**
  * Internal dependencies
  */
-import { useAssistantMCP } from "../../hooks";
+import { useAssistantMCP } from '../../hooks';
 import {
   transport,
   useModelProvider,
   usePropProvider,
   useTabThreadInformation,
-} from "../../providers";
-import AssistantMessage from "./assistantMessage";
-import EditComposer from "./editComposer";
-import UserMessage from "./userMessage";
-import { INITIAL_PROVIDERS } from "../../constants";
-import type { AgentType } from "../../../types";
-import { useCommandProvider } from "../../providers/commandProvider";
-import { createModelDropdown, createToolDropdown } from "./utils";
-import { openOptionsPage } from "../../utils";
+} from '../../providers';
+import AssistantMessage from './assistantMessage';
+import EditComposer from './editComposer';
+import UserMessage from './userMessage';
+import { INITIAL_PROVIDERS } from '../../constants';
+import type { AgentType } from '../../../types';
+import { useCommandProvider } from '../../providers/commandProvider';
+import { createModelDropdown, createToolDropdown } from './utils';
+import { openOptionsPage } from '../../utils';
 
 type ChatBotUIProps = {
   runtime: AssistantRuntime | null;
@@ -75,12 +75,10 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
     CustomAssistantMessageComponent,
     CustomUserMessageComponent,
     CustomEditComposerComponent,
-    allowToolCalling,
     CustomIcon,
     helperTextSet,
   } = usePropProvider(({ state }) => ({
     CustomIcon: state.CustomIcon,
-    allowToolCalling: state.allowToolCalling,
     helperTextSet: state.helperTextSet,
     CustomAssistantMessageComponent: state.CustomAssistantMessageComponent,
     CustomUserMessageComponent: state.CustomUserMessageComponent,
@@ -91,7 +89,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
     // Synchronization Mechanism: This block listens for a "Tool Changed" event from the
     // Service Worker, and client.listTools() performs the actual "Refresh" to get the new data.
     transport.onmessage = async (message: JSONRPCMessage) => {
-      if ("method" in message && message.method === "get/Tools") {
+      if ('method' in message && message.method === 'get/Tools') {
         await client.listTools();
       }
     };
@@ -108,21 +106,20 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
   }));
 
   const groupedTools = useMemo(() => {
-    if (!allowToolCalling) return [];
     const tabId = parseInt(new URL(window.location.href).hash.substring(5));
     return createToolDropdown(tools, toolNameToMCPMap, tabData, tabId);
-  }, [tools, toolNameToMCPMap, tabData, allowToolCalling]);
+  }, [tools, toolNameToMCPMap, tabData]);
 
   const handleSelect = useCallback(
     (selectedId: string) => {
       const agent: AgentType = {
-        modelProvider: "",
-        model: "",
+        modelProvider: '',
+        model: '',
       };
 
       INITIAL_PROVIDERS.forEach((provider) => {
         const selectedModel = provider.models.find(
-          (model) => model.id === selectedId,
+          (model) => model.id === selectedId
         );
 
         if (selectedModel) {
@@ -133,13 +130,12 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
 
       setSelectedAgent(agent);
     },
-    [setSelectedAgent],
+    [setSelectedAgent]
   );
 
   const toolLength = useMemo(() => {
-    if (!allowToolCalling) return null;
-    return tools.filter((tool) => tool.name !== "dummyTool").length;
-  }, [tools, allowToolCalling]);
+    return tools.filter((tool) => tool.name !== 'dummyTool').length;
+  }, [tools]);
 
   const lockThread = useCallback(
     async (threadIdToLock: string) => {
@@ -147,26 +143,26 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
         lockedThreads: [...lockedThreads, threadIdToLock],
       });
     },
-    [lockedThreads],
+    [lockedThreads]
   );
 
   const unlockThread = useCallback(
     async (threadIdToUnlock: string) => {
       const unlockedThreads = lockedThreads.filter(
-        (id) => id !== threadIdToUnlock,
+        (id) => id !== threadIdToUnlock
       );
       await chrome.storage.session.set({ lockedThreads: unlockedThreads });
     },
-    [lockedThreads],
+    [lockedThreads]
   );
 
-  api.on("thread.run-end", async ({ threadId: threadIdToUnlock }) => {
+  api.on('thread.run-end', async ({ threadId: threadIdToUnlock }) => {
     setTimeout(async () => {
       await unlockThread(threadIdToUnlock);
     }, 500);
   });
 
-  api.on("composer.send", async ({ threadId: threadIdToLock }) => {
+  api.on('composer.send', async ({ threadId: threadIdToLock }) => {
     await lockThread(threadIdToLock);
   });
 
@@ -188,7 +184,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
               variant="ghost"
               size="icon"
               onKeyDown={(event) =>
-                event.key === "Enter"
+                event.key === 'Enter'
                   ? runtime?.threads.switchToNewThread()
                   : null
               }
@@ -205,10 +201,10 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
           <ThreadPrimitive.Viewport
             autoScroll={true}
             turnAnchor="bottom"
-            className={`flex flex-1 items-center overflow-y-auto scroll-smooth px-4 md:px-0 ${messages.length === 0 ? "" : "h-full"}`}
+            className={`flex flex-1 items-center overflow-y-auto scroll-smooth px-4 md:px-0 ${messages.length === 0 ? '' : 'h-full'}`}
           >
             <div
-              className={`max-w-3xl mx-auto w-full flex flex-col ${messages.length === 0 ? "" : "h-full"}`}
+              className={`max-w-3xl mx-auto w-full flex flex-col ${messages.length === 0 ? '' : 'h-full'}`}
             >
               {/* Empty State / Welcome */}
               <ThreadPrimitive.Empty>
@@ -260,18 +256,16 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
                     <Button variant="ghost" disabled title="Attach" size="icon">
                       <Paperclip size={18} />
                     </Button>
-                    {allowToolCalling ? (
-                      <Dropdown
-                        options={groupedTools}
-                        onSelect={(id) => console.log(id)}
-                        mainLabel="Tool Providers"
-                        selectedValue=""
-                      >
-                        <Button variant="ghost" size="icon">
-                          <ListMinus className="w-4 h-4" />
-                        </Button>
-                      </Dropdown>
-                    ) : null}
+                    <Dropdown
+                      options={groupedTools}
+                      onSelect={(id) => console.log(id)}
+                      mainLabel="Tool Providers"
+                      selectedValue=""
+                    >
+                      <Button variant="ghost" size="icon">
+                        <ListMinus className="w-4 h-4" />
+                      </Button>
+                    </Dropdown>
                     <Button
                       size="icon"
                       variant="ghost"
@@ -287,7 +281,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
                     >
                       <Button variant="ghost" className="rounded-2xl">
                         <span className="text-[11px] flex flex-row items-center">
-                          {selectedAgent.model}{" "}
+                          {selectedAgent.model}{' '}
                           <ChevronDown className="w-4 h-4" />
                         </span>
                       </Button>

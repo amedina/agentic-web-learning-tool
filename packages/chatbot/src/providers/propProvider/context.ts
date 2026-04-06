@@ -1,14 +1,14 @@
 /**
  * External dependencies
  */
-import { createContext } from "@google-awlt/common";
-import type { SidePanelTabProps } from "../../../types";
+import { createContext } from '@google-awlt/common';
+import type { SidePanelTabProps } from '../../../types';
 
 export type PropProviderType = {
   state: {
     footerNode: React.ReactNode;
-    prefixTabs: SidePanelTabProps["extraTabs"];
-    suffixTabs: SidePanelTabProps["extraTabs"];
+    prefixTabs: SidePanelTabProps['extraTabs'];
+    suffixTabs: SidePanelTabProps['extraTabs'];
     CustomAssistantMessageComponent?: null | (() => React.JSX.Element);
     CustomUserMessageComponent?: null | (() => React.JSX.Element);
     CustomEditComposerComponent?: null | (() => React.JSX.Element);
@@ -37,12 +37,12 @@ const initialState: PropProviderType = {
     CustomIcon: null,
     suggestions: [],
     helperTextSet: {
-      title: () => "",
-      description: () => "",
+      title: () => '',
+      description: () => '',
     },
   },
   actions: {
-    getCustomSystemPrompt: () => "",
+    getCustomSystemPrompt: () => '',
   },
 };
 const PropProviderContext = createContext<PropProviderType>(initialState);

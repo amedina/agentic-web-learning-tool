@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import { Button, Tooltip, cn } from "@google-awlt/design-system";
-import type { ComponentPropsWithoutRef, FC } from "react";
+import { Button, Tooltip, cn } from '@google-awlt/design-system';
+import type { ComponentPropsWithoutRef, FC } from 'react';
 
 type ActionButtonProps = ComponentPropsWithoutRef<typeof Button> & {
   tooltip: string;
@@ -19,7 +19,7 @@ const ActionButton: FC<ActionButtonProps> = ({
       <Button
         variant="ghost"
         size="icon"
-        className={cn("size-auto p-1 text-[#b4b4b4]", className)}
+        className={cn('size-auto p-1 text-[#b4b4b4]', className)}
         {...rest}
       >
         {children}

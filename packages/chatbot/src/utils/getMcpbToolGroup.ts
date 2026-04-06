@@ -4,12 +4,12 @@
 import {
   EXTENSION_TOOL_PREFIX,
   DOM_TOOL_NAME_PREFIX,
-} from "@google-awlt/common";
+} from '@google-awlt/common';
 
 /**
  * Internal dependencies
  */
-import { ToolNameMap } from "../constants";
+import { ToolNameMap } from '../constants';
 
 export const getMcpbToolGroup = (toolName: string): string | null => {
   if (
@@ -18,9 +18,9 @@ export const getMcpbToolGroup = (toolName: string): string | null => {
   ) {
     const prefixToUse = toolName.startsWith(EXTENSION_TOOL_PREFIX)
       ? EXTENSION_TOOL_PREFIX
-      : "";
+      : '';
     const toolNameWithoutHardCodePrefix = toolName.substring(
-      prefixToUse.length,
+      prefixToUse.length
     );
     return (
       ToolNameMap[toolNameWithoutHardCodePrefix as keyof typeof ToolNameMap] ??

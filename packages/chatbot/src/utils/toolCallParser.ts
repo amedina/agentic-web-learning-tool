@@ -4,11 +4,11 @@
  * fence starts/ends, and tracks state (in/out of a fence).
  */
 export class ToolCallParser {
-  FENCE_STARTS = ["```tool_call"];
-  FENCE_END = "```";
-  buffer = "";
+  FENCE_STARTS = ['```tool_call'];
+  FENCE_END = '```';
+  buffer = '';
   inFence = false;
-  fenceStartBuffer = "";
+  fenceStartBuffer = '';
   constructor() {}
 
   /**
@@ -31,7 +31,7 @@ export class ToolCallParser {
    * Clears the internal buffer.
    */
   clearBuffer() {
-    this.buffer = "";
+    this.buffer = '';
   }
 
   /**
@@ -42,7 +42,7 @@ export class ToolCallParser {
    */
   detectFence() {
     const { index: startIndex, prefix: startPrefix } = this.findFenceStart(
-      this.buffer,
+      this.buffer
     );
 
     // --- No Fence Start Found ---
@@ -50,13 +50,13 @@ export class ToolCallParser {
       // Check for partial fence starts at the end of the buffer
       const overlapLength = this.computeOverlapLength(
         this.buffer,
-        this.FENCE_STARTS,
+        this.FENCE_STARTS
       );
       const safeLength = this.buffer.length - overlapLength;
 
-      const prefixText = safeLength > 0 ? this.buffer.slice(0, safeLength) : "";
+      const prefixText = safeLength > 0 ? this.buffer.slice(0, safeLength) : '';
       const overlapText =
-        overlapLength > 0 ? this.buffer.slice(-overlapLength) : "";
+        overlapLength > 0 ? this.buffer.slice(-overlapLength) : '';
 
       // Keep the partial overlap for the next chunk
       this.buffer = overlapText;
@@ -64,7 +64,7 @@ export class ToolCallParser {
       return {
         fence: null,
         prefixText: prefixText,
-        remainingText: "",
+        remainingText: '',
         overlapLength: overlapLength,
       };
     }
@@ -87,7 +87,7 @@ export class ToolCallParser {
       return {
         fence: null,
         prefixText: prefixText,
-        remainingText: "",
+        remainingText: '',
         overlapLength: 0,
       };
     }
@@ -98,7 +98,7 @@ export class ToolCallParser {
     const remainingText = this.buffer.slice(fenceEndPosition);
 
     // This method is one-shot; it clears the buffer after finding one fence.
-    this.buffer = "";
+    this.buffer = '';
 
     return {
       fence: fence,
@@ -179,7 +179,7 @@ export class ToolCallParser {
     // --- STATE: Not in a fence ---
     if (!this.inFence) {
       const { index: startIndex, prefix: startPrefix } = this.findFenceStart(
-        this.buffer,
+        this.buffer
       );
 
       // --- No Fence Start Found ---
@@ -187,12 +187,12 @@ export class ToolCallParser {
         // Check for partial fence starts at the end
         const overlapLength = this.computeOverlapLength(
           this.buffer,
-          this.FENCE_STARTS,
+          this.FENCE_STARTS
         );
         const safeLength = this.buffer.length - overlapLength;
 
         const safeContent =
-          safeLength > 0 ? this.buffer.slice(0, safeLength) : "";
+          safeLength > 0 ? this.buffer.slice(0, safeLength) : '';
 
         // Keep only the overlapping part in the buffer
         this.buffer = this.buffer.slice(safeLength);
@@ -201,7 +201,7 @@ export class ToolCallParser {
           inFence: false,
           safeContent: safeContent,
           completeFence: null,
-          textAfterFence: "",
+          textAfterFence: '',
         };
       }
 
@@ -213,19 +213,19 @@ export class ToolCallParser {
       this.buffer = this.buffer.slice(startIndex + prefixLength);
 
       // Also strip a single newline immediately after the fence start
-      if (this.buffer.startsWith("\n")) {
+      if (this.buffer.startsWith('\n')) {
         this.buffer = this.buffer.slice(1);
       }
 
       // Update state
       this.inFence = true;
-      this.fenceStartBuffer = ""; // Clear internal fence content buffer
+      this.fenceStartBuffer = ''; // Clear internal fence content buffer
 
       return {
         inFence: true,
         safeContent: safeContent,
         completeFence: null,
-        textAfterFence: "",
+        textAfterFence: '',
       };
     }
 
@@ -249,16 +249,16 @@ export class ToolCallParser {
           inFence: true,
           safeContent: safeContent, // This is content *inside* the fence
           completeFence: null,
-          textAfterFence: "",
+          textAfterFence: '',
         };
       }
 
       // Buffer is empty or only contains overlap
       return {
         inFence: true,
-        safeContent: "",
+        safeContent: '',
         completeFence: null,
-        textAfterFence: "",
+        textAfterFence: '',
       };
     }
 
@@ -273,7 +273,7 @@ export class ToolCallParser {
 
     // Reset state
     this.inFence = false;
-    this.fenceStartBuffer = "";
+    this.fenceStartBuffer = '';
     this.buffer = textAfterFence; // Buffer now only contains text *after* the fence
 
     return {
@@ -297,6 +297,6 @@ export class ToolCallParser {
    */
   resetStreamingState() {
     this.inFence = false;
-    this.fenceStartBuffer = "";
+    this.fenceStartBuffer = '';
   }
 }

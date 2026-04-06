@@ -11,42 +11,42 @@ import {
   type UIMessage,
   type UIMessageChunk,
   type UITools,
-} from "ai";
+} from 'ai';
 import {
   type LanguageModelV2,
   type SharedV2ProviderOptions,
   type JSONSchema7,
-} from "@ai-sdk/provider";
-import type { AssistantRuntime } from "@assistant-ui/react";
+} from '@ai-sdk/provider';
+import type { AssistantRuntime } from '@assistant-ui/react';
 import {
   openai,
   type createOpenAI,
   type OpenAIProviderSettings,
-} from "@ai-sdk/openai";
+} from '@ai-sdk/openai';
 import {
   anthropic,
   type AnthropicProviderSettings,
   type createAnthropic,
-} from "@ai-sdk/anthropic";
+} from '@ai-sdk/anthropic';
 import {
   google,
   type createGoogleGenerativeAI,
   type GoogleGenerativeAIProviderSettings,
-} from "@ai-sdk/google";
-import z from "zod";
-import { logger } from "@google-awlt/common";
+} from '@ai-sdk/google';
+import z from 'zod';
+import { logger } from '@google-awlt/common';
 /**
  * Internal dependencies
  */
-import { jsonSchemaToZod } from "../../utils";
-import replaceSlashCommands from "../replaceSlashCommands";
+import { jsonSchemaToZod } from '../../utils';
+import replaceSlashCommands from '../replaceSlashCommands';
 
 type JsonSchemaObject = Record<string, unknown>;
 type SchemaInput = JsonSchemaObject | (() => JsonSchemaObject);
 
 type SendMessagesParams = {
   /** The type of message submission - either new message or regeneration */
-  trigger: "submit-message" | "regenerate-message";
+  trigger: 'submit-message' | 'regenerate-message';
   /** Unique identifier for the chat session */
   chatId: string;
   /** ID of the message to regenerate, or undefined for new messages */
@@ -74,12 +74,12 @@ export class CloudHostedTransport implements ChatTransport<
   private runtime: AssistantRuntime | null = null;
   private providerOptions: SharedV2ProviderOptions = {};
   formattedTools: any = {};
-  private modelId: string = "";
-  private systemPrompt: string = "";
+  private modelId: string = '';
+  private systemPrompt: string = '';
   constructor(
     modelId: string,
     providerOptions: SharedV2ProviderOptions,
-    systemPrompt: string,
+    systemPrompt: string
   ) {
     this.modelId = modelId;
     this.providerOptions = providerOptions;
@@ -96,7 +96,7 @@ export class CloudHostedTransport implements ChatTransport<
    */
   async initializeSession(
     modelInitializerFunction: ModelInitializer,
-    config: ProviderSettings,
+    config: ProviderSettings
   ): Promise<void> {
     if (this.model || this.isInitializing) {
       return;
@@ -107,7 +107,7 @@ export class CloudHostedTransport implements ChatTransport<
       //@ts-expect-error -- Gemini provider has different headers type than the Ollama provider
       this.model = modelInitializerFunction(config).languageModel(this.modelId);
     } catch (error) {
-      logger(["error"], ["Failed to initialize Gemini Nano session:", error]);
+      logger(['error'], ['Failed to initialize Gemini Nano session:', error]);
       this.model = null; // Ensure model is null on failure
     } finally {
       this.isInitializing = false;
@@ -127,7 +127,7 @@ export class CloudHostedTransport implements ChatTransport<
         ? jsonSchemaToZod(schema as JSONSchema7)
         : z.object({});
     } catch (error) {
-      logger(["error"], [`Failed to convert schema for:`, error]);
+      logger(['error'], [`Failed to convert schema for:`, error]);
       // Fallback to empty object schema
       zodSchema = z.object({});
     }
@@ -139,7 +139,7 @@ export class CloudHostedTransport implements ChatTransport<
    * This is called by `useChat` when a new message is sent.
    */
   async sendMessages(
-    params: SendMessagesParams,
+    params: SendMessagesParams
   ): Promise<ReadableStream<UIMessageChunk<unknown, UIDataTypes>>> {
     const { messages, abortSignal } = params;
     if (!this.runtime) {
@@ -160,25 +160,25 @@ export class CloudHostedTransport implements ChatTransport<
         description: value.description,
         execute: value.execute,
         inputSchema: this.jsonSchema(
-          value.parameters as Record<string, unknown>,
+          value.parameters as Record<string, unknown>
         ),
         name: key,
-        type: "function",
+        type: 'function',
       };
     });
 
-    if (this.model?.provider === "google.generative-ai") {
-      this.formattedTools["google_search"] = google.tools.googleSearch({});
-    } else if (this.model?.provider === "openai.responses") {
-      this.formattedTools["web_search"] = openai.tools.webSearch({
+    if (this.model?.provider === 'google.generative-ai') {
+      this.formattedTools['google_search'] = google.tools.googleSearch({});
+    } else if (this.model?.provider === 'openai.responses') {
+      this.formattedTools['web_search'] = openai.tools.webSearch({
         externalWebAccess: true,
-        searchContextSize: "high",
+        searchContextSize: 'high',
       });
-    } else if (this.model?.provider === "anthropic.messages") {
-      this.formattedTools["web_search"] = anthropic.tools.webSearch_20250305(
-        {},
+    } else if (this.model?.provider === 'anthropic.messages') {
+      this.formattedTools['web_search'] = anthropic.tools.webSearch_20250305(
+        {}
       );
-      this.formattedTools["web_fetch"] = anthropic.tools.webFetch_20250910({});
+      this.formattedTools['web_fetch'] = anthropic.tools.webFetch_20250910({});
     }
 
     return createUIMessageStream({
@@ -193,17 +193,17 @@ export class CloudHostedTransport implements ChatTransport<
             system: this.systemPrompt,
             stopWhen: ({ steps }) => steps.length === 100,
             onError: (err) => {
-              logger(["error"], [`AI SDK error [chatId=]:`, err.error]);
+              logger(['error'], [`AI SDK error [chatId=]:`, err.error]);
             },
             onAbort: (res) => {
               logger(
-                ["debug"],
-                [`Stream aborted after ${res.steps.length} steps [chatId=]`],
+                ['debug'],
+                [`Stream aborted after ${res.steps.length} steps [chatId=]`]
               );
             },
             onStepFinish: (res) => {
               logger(
-                ["debug"],
+                ['debug'],
                 [
                   `Step finished:`,
                   JSON.stringify(
@@ -213,23 +213,23 @@ export class CloudHostedTransport implements ChatTransport<
                       tokens: res.usage.totalTokens,
                     },
                     null,
-                    2,
+                    2
                   ),
-                ],
+                ]
               );
             },
           });
           try {
             writer.merge(result.toUIMessageStream());
           } catch (mergeError) {
-            logger(["error"], [` Error merging stream [chatId=]:`, mergeError]);
+            logger(['error'], [` Error merging stream [chatId=]:`, mergeError]);
             const errorMessage =
               mergeError instanceof Error
                 ? mergeError.message
-                : "An error occurred while processing the response";
+                : 'An error occurred while processing the response';
 
             writer.write({
-              type: "text-delta",
+              type: 'text-delta',
               delta: `Error: ${errorMessage}\n\nThe model may still be processing. Please try again.`,
               id: crypto.randomUUID(),
             });
@@ -237,7 +237,7 @@ export class CloudHostedTransport implements ChatTransport<
         } catch (executionError) {
           if (executionError instanceof Error) {
             logger(
-              ["error"],
+              ['error'],
               [
                 ` Stream execution error [chatId=]:`,
                 {
@@ -245,11 +245,11 @@ export class CloudHostedTransport implements ChatTransport<
                   name: executionError.name,
                   stack: executionError.stack,
                 },
-              ],
+              ]
             );
 
             writer.write({
-              type: "text-delta",
+              type: 'text-delta',
               delta: `Error: ${executionError.message}\n\nPlease check the console for more details.`,
               id: crypto.randomUUID(),
             });
@@ -257,11 +257,11 @@ export class CloudHostedTransport implements ChatTransport<
           }
 
           logger(
-            ["error"],
-            [`Unknown stream error [chatId=]:`, executionError],
+            ['error'],
+            [`Unknown stream error [chatId=]:`, executionError]
           );
           writer.write({
-            type: "text-delta",
+            type: 'text-delta',
             delta: `An unexpected error occurred. Please try again.`,
             id: crypto.randomUUID(),
           });

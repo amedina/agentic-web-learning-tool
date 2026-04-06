@@ -5,7 +5,7 @@ import type {
   ExportedMessageRepository,
   MessageFormatRepository,
   ThreadMessage,
-} from "@assistant-ui/react";
+} from '@assistant-ui/react';
 
 export type ExportedMessageRepositoryItem = {
   message: ThreadMessage;
@@ -28,7 +28,7 @@ export type LoadFunctionOutputType =
   | MessageFormatRepository<ThreadMessage>;
 
 export type RemoteThreadMetadata = {
-  readonly status: "archived" | "regular";
+  readonly status: 'archived' | 'regular';
   readonly remoteId: string;
   readonly externalId?: string | undefined;
   readonly tabId?: number | undefined;

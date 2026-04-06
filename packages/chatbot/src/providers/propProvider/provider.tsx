@@ -1,17 +1,17 @@
 /**
  * External dependencies
  */
-import { useMemo, type PropsWithChildren } from "react";
+import { useMemo, type PropsWithChildren } from 'react';
 /**
  * Internal dependencies
  */
-import PropProviderContext, { type PropProviderType } from "./context";
-import type { SidePanelTabProps } from "../../../types";
+import PropProviderContext, { type PropProviderType } from './context';
+import type { SidePanelTabProps } from '../../../types';
 
 type PropProviderProps = PropsWithChildren & {
   footerNode: React.ReactNode;
-  prefixTabs?: SidePanelTabProps["extraTabs"];
-  suffixTabs?: SidePanelTabProps["extraTabs"];
+  prefixTabs?: SidePanelTabProps['extraTabs'];
+  suffixTabs?: SidePanelTabProps['extraTabs'];
   allowToolCalling: boolean;
   assistantMessage?: null | (() => React.JSX.Element);
   userMessage?: null | (() => React.JSX.Element);
@@ -54,7 +54,7 @@ function PropProvider({
         helperTextSet,
       },
       actions: {
-        getCustomSystemPrompt: getCustomSystemPrompt ?? (() => ""),
+        getCustomSystemPrompt: getCustomSystemPrompt ?? (() => ''),
       },
     }),
     [
@@ -69,7 +69,7 @@ function PropProvider({
       userMessage,
       editComposer,
       getCustomSystemPrompt,
-    ],
+    ]
   );
 
   return (

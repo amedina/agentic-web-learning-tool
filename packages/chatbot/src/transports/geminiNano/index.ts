@@ -11,22 +11,22 @@ import {
   type UIMessage,
   type UIMessageChunk,
   type UITools,
-} from "ai";
-import { type LanguageModelV2 } from "@ai-sdk/provider";
-import type { AssistantRuntime } from "@assistant-ui/react";
-import { getToolNameWithoutPrefix } from "@google-awlt/design-system";
-import { logger } from "@google-awlt/common";
+} from 'ai';
+import { type LanguageModelV2 } from '@ai-sdk/provider';
+import type { AssistantRuntime } from '@assistant-ui/react';
+import { getToolNameWithoutPrefix } from '@google-awlt/design-system';
+import { logger } from '@google-awlt/common';
 /**
  * Internal dependencies
  */
-import ChromeAILanguageModel from "./chromeAILanguageModel";
-import { SYSTEM_PROMPT_START } from "../../utils";
-import replaceSlashCommands from "../replaceSlashCommands";
-import { jsonSchemaToZod } from "../../utils";
+import ChromeAILanguageModel from './chromeAILanguageModel';
+import { SYSTEM_PROMPT_START } from '../../utils';
+import replaceSlashCommands from '../replaceSlashCommands';
+import { jsonSchemaToZod } from '../../utils';
 
 type SendMessagesParams = {
   /** The type of message submission - either new message or regeneration */
-  trigger: "submit-message" | "regenerate-message";
+  trigger: 'submit-message' | 'regenerate-message';
   /** Unique identifier for the chat session */
   chatId: string;
   /** ID of the message to regenerate, or undefined for new messages */
@@ -71,33 +71,33 @@ export class GeminiNanoChatTransport implements ChatTransport<
       const lm = LanguageModel;
       if (!lm) {
         throw new Error(
-          "Gemini Nano API (window.ai.languageModel) is not available.",
+          'Gemini Nano API (window.ai.languageModel) is not available.'
         );
       }
 
       const availability = await lm.availability({
         expectedInputs: [
           {
-            type: "text",
-            languages: ["en"],
+            type: 'text',
+            languages: ['en'],
           },
         ],
-        expectedOutputs: [{ type: "text", languages: ["en"] }],
+        expectedOutputs: [{ type: 'text', languages: ['en'] }],
       });
 
-      if (availability === "unavailable") {
-        throw new Error("On-device Gemini Nano model is unavailable.");
+      if (availability === 'unavailable') {
+        throw new Error('On-device Gemini Nano model is unavailable.');
       }
 
       this.model = new ChromeAILanguageModel(
-        crypto.randomUUID(),
+        crypto.randomUUID()
       ) as unknown as LanguageModelV2;
       if (this.model) {
         //@ts-expect-error -- Mismatch in versions being used by library
         this.model.setRuntime(this.runtime);
       }
     } catch (error) {
-      logger(["error"], ["Failed to initialize Gemini Nano session: ", error]);
+      logger(['error'], ['Failed to initialize Gemini Nano session: ', error]);
       this.model = null; // Ensure model is null on failure
     } finally {
       this.isInitializing = false;
@@ -109,7 +109,7 @@ export class GeminiNanoChatTransport implements ChatTransport<
    * This is called by `useChat` when a new message is sent.
    */
   async sendMessages(
-    params: SendMessagesParams,
+    params: SendMessagesParams
   ): Promise<ReadableStream<UIMessageChunk<unknown, UIDataTypes>>> {
     //@ts-expect-error -- the command is being set from the chatbot
     const _command = window.command;
@@ -133,7 +133,7 @@ export class GeminiNanoChatTransport implements ChatTransport<
         inputSchema: jsonSchemaToZod(value.parameters),
         parameters: value.parameters,
         name: getToolNameWithoutPrefix(key),
-        type: "function",
+        type: 'function',
       },
     ]);
 
@@ -146,24 +146,24 @@ export class GeminiNanoChatTransport implements ChatTransport<
             tools: Object.fromEntries(this.formattedTools),
             abortSignal,
             providerOptions: {
-              "built-in-ai": {
+              'built-in-ai': {
                 parallelToolExecution: false,
               },
             },
             stopWhen: ({ steps }) => steps.length === 10,
             system: SYSTEM_PROMPT_START,
             onError: (err) => {
-              logger(["error"], ["AI SDK error [chatId=]: ", err.error]);
+              logger(['error'], ['AI SDK error [chatId=]: ', err.error]);
             },
             onAbort: (res) => {
               logger(
-                ["warn"],
-                [`Stream aborted after ${res.steps.length} steps [chatId=]`],
+                ['warn'],
+                [`Stream aborted after ${res.steps.length} steps [chatId=]`]
               );
             },
             onStepFinish: (res) => {
               logger(
-                ["debug"],
+                ['debug'],
                 [
                   `Step finished: `,
                   JSON.stringify(
@@ -173,9 +173,9 @@ export class GeminiNanoChatTransport implements ChatTransport<
                       tokens: res.usage.totalTokens,
                     },
                     null,
-                    2,
+                    2
                   ),
-                ],
+                ]
               );
             },
           });
@@ -183,16 +183,16 @@ export class GeminiNanoChatTransport implements ChatTransport<
             writer.merge(result.toUIMessageStream());
           } catch (mergeError) {
             logger(
-              ["error"],
-              [`Error merging stream [chatId=]: ${mergeError}`],
+              ['error'],
+              [`Error merging stream [chatId=]: ${mergeError}`]
             );
             const errorMessage =
               mergeError instanceof Error
                 ? mergeError.message
-                : "An error occurred while processing the response";
+                : 'An error occurred while processing the response';
 
             writer.write({
-              type: "text-delta",
+              type: 'text-delta',
               delta: `Error: ${errorMessage}\n\nThe model may still be processing. Please try again.`,
               id: crypto.randomUUID(),
             });
@@ -200,7 +200,7 @@ export class GeminiNanoChatTransport implements ChatTransport<
         } catch (executionError) {
           if (executionError instanceof Error) {
             logger(
-              ["error"],
+              ['error'],
               [
                 `Stream execution error [chatId=]: `,
                 {
@@ -208,11 +208,11 @@ export class GeminiNanoChatTransport implements ChatTransport<
                   name: executionError.name,
                   stack: executionError.stack,
                 },
-              ],
+              ]
             );
 
             writer.write({
-              type: "text-delta",
+              type: 'text-delta',
               delta: `Error: ${executionError.message}\n\nPlease check the console for more details.`,
               id: crypto.randomUUID(),
             });
@@ -220,11 +220,11 @@ export class GeminiNanoChatTransport implements ChatTransport<
           }
 
           logger(
-            ["error"],
-            [`Unknown stream error [chatId=]: ${executionError}`],
+            ['error'],
+            [`Unknown stream error [chatId=]: ${executionError}`]
           );
           writer.write({
-            type: "text-delta",
+            type: 'text-delta',
             delta: `An unexpected error occurred. Please try again.`,
             id: crypto.randomUUID(),
           });

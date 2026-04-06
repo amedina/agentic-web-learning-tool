@@ -1,14 +1,14 @@
 // For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
-import storybook from "eslint-plugin-storybook";
-import globals from "globals";
+import storybook from 'eslint-plugin-storybook';
+import globals from 'globals';
 
 /**
  * Imports.
  */
-import { config as baseConfig } from "@google-awlt/shared-config/eslint";
-import { config as reactConfig } from "@google-awlt/shared-config/eslint/react";
-import reactRefresh from "eslint-plugin-react-refresh";
-import { globalIgnores, defineConfig } from "eslint/config";
+import { config as baseConfig } from '@google-awlt/shared-config/eslint';
+import { config as reactConfig } from '@google-awlt/shared-config/eslint/react';
+import reactRefresh from 'eslint-plugin-react-refresh';
+import { globalIgnores, defineConfig } from 'eslint/config';
 
 /**
  * Export configs.
@@ -17,15 +17,15 @@ export default defineConfig(
   [
     ...baseConfig,
     ...reactConfig,
-    globalIgnores(["dist", "src/contentScript/assets/webmcp-polyfill.js"]),
+    globalIgnores(['dist', 'src/contentScript/assets/webmcp-polyfill.js']),
     {
-      files: ["**/*.{ts,tsx}"],
+      files: ['**/*.{ts,tsx}'],
       extends: [reactRefresh.configs.vite],
     },
     {
-      files: ["**/jest.*.js", "**/*.cjs"],
+      files: ['**/jest.*.js', '**/*.cjs'],
       languageOptions: {
-        sourceType: "commonjs",
+        sourceType: 'commonjs',
         globals: {
           ...globals.node,
           ...globals.browser,
@@ -33,12 +33,12 @@ export default defineConfig(
         },
       },
       rules: {
-        "eslint-comments/require-description": "off",
-        "@typescript-eslint/no-var-requires": "off",
-        "@typescript-eslint/no-require-imports": "off",
-        "no-redeclare": "off",
+        'eslint-comments/require-description': 'off',
+        '@typescript-eslint/no-var-requires': 'off',
+        '@typescript-eslint/no-require-imports': 'off',
+        'no-redeclare': 'off',
       },
     },
   ],
-  storybook.configs["flat/recommended"],
+  storybook.configs['flat/recommended']
 );

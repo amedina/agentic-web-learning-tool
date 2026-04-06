@@ -8,15 +8,15 @@ import {
   useCallback,
   useRef,
   useMemo,
-} from "react";
-import { useAssistantApi } from "@assistant-ui/react";
-import type { PromptCommand } from "@google-awlt/design-system";
+} from 'react';
+import { useAssistantApi } from '@assistant-ui/react';
+import type { PromptCommand } from '@google-awlt/design-system';
 
 /**
  * Internal dependencies.
  */
-import Context from "./context";
-import { BUILT_IN_COMMANDS } from "../../constants";
+import Context from './context';
+import { BUILT_IN_COMMANDS } from '../../constants';
 
 const Provider = ({ children }: PropsWithChildren) => {
   const [allCommands, setAllCommands] = useState<PromptCommand[]>([]);
@@ -26,7 +26,7 @@ const Provider = ({ children }: PropsWithChildren) => {
 
   const intitialSync = useCallback(async () => {
     chrome.storage.local.get(
-      ["promptCommands", "builtInPromptCommands"],
+      ['promptCommands', 'builtInPromptCommands'],
       (result) => {
         const userCommands = (result.promptCommands as PromptCommand[]) || [];
         const storedBuiltIns =
@@ -39,7 +39,7 @@ const Provider = ({ children }: PropsWithChildren) => {
 
         setAllCommands([...userCommands, ...mergedBuiltIns]);
         initialFetchDone.current = true;
-      },
+      }
     );
   }, []);
 
@@ -49,11 +49,11 @@ const Provider = ({ children }: PropsWithChildren) => {
       if (match) {
         const commandName = match[1];
         const command = allCommands.find(
-          (m) => m.name === commandName && m.enabled,
+          (m) => m.name === commandName && m.enabled
         );
-        if (command && command?.instructions.includes("$ARGUMENTS")) {
+        if (command && command?.instructions.includes('$ARGUMENTS')) {
           let expansion = command.instructions;
-          expansion = expansion.replaceAll("$ARGUMENTS", match[2] ?? "");
+          expansion = expansion.replaceAll('$ARGUMENTS', match[2] ?? '');
 
           if (command.isBuiltIn && !command.sendToLLM) {
             //@ts-expect-error -- this is being done to avoid delays for communication with LLM transports.
@@ -61,7 +61,7 @@ const Provider = ({ children }: PropsWithChildren) => {
           }
 
           return expansion;
-        } else if (command && !command?.instructions.includes("$ARGUMENTS")) {
+        } else if (command && !command?.instructions.includes('$ARGUMENTS')) {
           if (command.isBuiltIn && !command.sendToLLM) {
             //@ts-expect-error -- this is being done to avoid delays for communication with LLM transports.
             window.command = command.name;
@@ -72,16 +72,16 @@ const Provider = ({ children }: PropsWithChildren) => {
         }
       }
     },
-    [allCommands],
+    [allCommands]
   );
 
   const handleMessageChange = useCallback(
     (
       event:
         | React.KeyboardEvent<HTMLTextAreaElement>
-        | React.MouseEvent<HTMLButtonElement>,
+        | React.MouseEvent<HTMLButtonElement>
     ) => {
-      if (event.type === "click") {
+      if (event.type === 'click') {
         const currentValue = api.composer().getState().text;
         const finalText = extractMatchAndReturnMessage(currentValue);
         if (!finalText) {
@@ -96,7 +96,7 @@ const Provider = ({ children }: PropsWithChildren) => {
         return;
       }
 
-      if ((event as React.KeyboardEvent<HTMLTextAreaElement>).key === "Enter") {
+      if ((event as React.KeyboardEvent<HTMLTextAreaElement>).key === 'Enter') {
         const currentValue = api.composer().getState().text;
         const finalText = extractMatchAndReturnMessage(currentValue);
         if (!finalText) {
@@ -105,7 +105,7 @@ const Provider = ({ children }: PropsWithChildren) => {
         api.composer().setText(finalText);
       }
     },
-    [api, extractMatchAndReturnMessage],
+    [api, extractMatchAndReturnMessage]
   );
 
   const onLocalStorageChangedListener = useCallback(
@@ -115,7 +115,7 @@ const Provider = ({ children }: PropsWithChildren) => {
       }
 
       chrome.storage.local.get(
-        ["promptCommands", "builtInPromptCommands"],
+        ['promptCommands', 'builtInPromptCommands'],
         (result) => {
           const userCommands = (result.promptCommands as PromptCommand[]) || [];
           const storedBuiltIns =
@@ -127,10 +127,10 @@ const Provider = ({ children }: PropsWithChildren) => {
           });
 
           setAllCommands([...userCommands, ...mergedBuiltIns]);
-        },
+        }
       );
     },
-    [],
+    []
   );
 
   useEffect(() => {
@@ -138,7 +138,7 @@ const Provider = ({ children }: PropsWithChildren) => {
     chrome.storage.local.onChanged.addListener(onLocalStorageChangedListener);
     return () => {
       chrome.storage.local.onChanged.removeListener(
-        onLocalStorageChangedListener,
+        onLocalStorageChangedListener
       );
     };
   }, [intitialSync, onLocalStorageChangedListener]);

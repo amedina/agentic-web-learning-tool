@@ -5,18 +5,18 @@ import {
   AssistantRuntimeProvider,
   unstable_useRemoteThreadListRuntime as useRemoteThreadListRuntime,
   type AssistantRuntime,
-} from "@assistant-ui/react";
-import { useChatRuntime } from "@assistant-ui/react-ai-sdk";
-import { lastAssistantMessageIsCompleteWithToolCalls } from "ai";
-import { useEffect, type PropsWithChildren, type RefObject } from "react";
+} from '@assistant-ui/react';
+import { useChatRuntime } from '@assistant-ui/react-ai-sdk';
+import { lastAssistantMessageIsCompleteWithToolCalls } from 'ai';
+import { useEffect, type PropsWithChildren, type RefObject } from 'react';
 /**
  * Internal dependencies
  */
-import ChatAdapter from "./chatAdapter";
-import { HistoryAdapter } from "./historyAdpter";
-import type { GeminiNanoChatTransport } from "../transports/geminiNano";
-import type { CloudHostedTransport } from "../transports/cloudHosted";
-import { chatStorage } from "./chatStorage";
+import ChatAdapter from './chatAdapter';
+import { HistoryAdapter } from './historyAdpter';
+import type { GeminiNanoChatTransport } from '../transports/geminiNano';
+import type { CloudHostedTransport } from '../transports/cloudHosted';
+import { chatStorage } from './chatStorage';
 
 type CustomRuntimeProviderProps = PropsWithChildren & {
   runtimeRef: RefObject<AssistantRuntime | null>;
@@ -54,7 +54,7 @@ export default function CustomRuntimeProvider({
       }
 
       const lastActiveThread = await chatStorage.threads.getLastActiveThreadId(
-        activeTab.id,
+        activeTab.id
       );
 
       if (!lastActiveThread) {

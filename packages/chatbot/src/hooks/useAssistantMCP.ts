@@ -1,14 +1,14 @@
 /**
  * External dependencies
  */
-import { tool, type AssistantRuntime } from "@assistant-ui/react";
-import type { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { tool, type AssistantRuntime } from '@assistant-ui/react';
+import type { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import type {
   Tool as McpTool,
   CallToolResult,
-} from "@modelcontextprotocol/sdk/types.js";
-import { useEffect, useMemo } from "react";
-import { logger } from "@google-awlt/common";
+} from '@modelcontextprotocol/sdk/types.js';
+import { useEffect, useMemo } from 'react';
+import { logger } from '@google-awlt/common';
 /**
  * Internal dependencies
  */
@@ -17,8 +17,8 @@ import {
   formatToolResult,
   mcpToolToJSONSchema,
   validateToolPreferences,
-} from "../utils";
-import type { ToolExecutionArgs } from "../../types";
+} from '../utils';
+import type { ToolExecutionArgs } from '../../types';
 
 /**
  * Hook that bridges MCP tools with the Assistant UI framework.
@@ -39,10 +39,10 @@ export function useAssistantMCP(
   mcpTools: McpTool[],
   client: Client | null, // Allow null for initial loading states
   threadId: string,
-  runtime: AssistantRuntime | null,
+  runtime: AssistantRuntime | null
 ): void {
   const currentTabId = parseInt(
-    new URL(window.location.href).hash.substring(5),
+    new URL(window.location.href).hash.substring(5)
   );
   // 1. Filter tools based on thread preferences
   const filteredTools = useMemo(() => {
@@ -65,8 +65,8 @@ export function useAssistantMCP(
 
   // Create a stable dependency key for the effect based on tool names
   const toolSignature = useMemo(
-    () => filteredTools.map((t) => t.name).join(","),
-    [filteredTools],
+    () => filteredTools.map((t) => t.name).join(','),
+    [filteredTools]
   );
 
   // 2. Register tools with the Assistant Runtime
@@ -86,7 +86,7 @@ export function useAssistantMCP(
           name: uiToolName,
           // The Assistant UI 'tool' definition
           assistantTool: tool({
-            type: "frontend",
+            type: 'frontend',
             description: toolName.description,
             parameters: mcpToolToJSONSchema(toolName.inputSchema),
             execute: async (args, { abortSignal: signal }) => {
@@ -100,35 +100,35 @@ export function useAssistantMCP(
                     arguments: cleanedArgs,
                   },
                   undefined,
-                  { signal },
+                  { signal }
                 );
 
                 return formatToolResult(
-                  (toolResult?.structuredContent as CallToolResult["content"]) ??
-                    (toolResult.content as CallToolResult["content"]),
+                  (toolResult?.structuredContent as CallToolResult['content']) ??
+                    (toolResult.content as CallToolResult['content'])
                 );
               } catch (error) {
                 logger(
-                  ["error"],
+                  ['error'],
                   [
                     `[useAssistantMCP] Tool execution failed for '${logName}': ${error}`,
-                  ],
+                  ]
                 );
               }
             },
           }),
         };
       })
-      .filter((singleTool) => singleTool.name !== "dummyTool");
+      .filter((singleTool) => singleTool.name !== 'dummyTool');
 
     // Register the Context Provider with the Runtime
     const unregister = runtime?.registerModelContextProvider({
       getModelContext: () => ({
         // Hint to the model that tools are available
-        system: filteredTools.length > 0 ? "TOOLS:" : "",
+        system: filteredTools.length > 0 ? 'TOOLS:' : '',
         // Map: { [uiName]: ToolDefinition }
         tools: Object.fromEntries(
-          assistantTools.map((t) => [t.name, t.assistantTool]),
+          assistantTools.map((t) => [t.name, t.assistantTool])
         ),
       }),
     });
