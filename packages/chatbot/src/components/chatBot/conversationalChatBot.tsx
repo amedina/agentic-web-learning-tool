@@ -7,8 +7,8 @@ import {
   useAssistantApi,
   useAssistantState,
   type AssistantRuntime,
-} from "@assistant-ui/react";
-import { useCallback, useMemo } from "react";
+} from '@assistant-ui/react';
+import { useCallback, useMemo } from 'react';
 import {
   Paperclip,
   SendHorizontal,
@@ -17,7 +17,7 @@ import {
   ChevronDown,
   PlusCircle,
   Menu,
-} from "lucide-react";
+} from 'lucide-react';
 import {
   Button,
   Dropdown,
@@ -26,7 +26,7 @@ import {
   SidebarTrigger,
   ThreadListSidebar,
   Tooltip,
-} from "@google-awlt/design-system";
+} from '@google-awlt/design-system';
 /**
  * Internal dependencies
  */
@@ -34,15 +34,15 @@ import {
   useModelProvider,
   usePropProvider,
   useTabThreadInformation,
-} from "../../providers";
-import AssistantMessage from "./assistantMessage";
-import EditComposer from "./editComposer";
-import UserMessage from "./userMessage";
-import { INITIAL_PROVIDERS } from "../../constants";
-import type { AgentType } from "../../../types";
-import { useCommandProvider } from "../../providers/commandProvider";
-import { createModelDropdown } from "./utils";
-import { openOptionsPage } from "../../utils";
+} from '../../providers';
+import AssistantMessage from './assistantMessage';
+import EditComposer from './editComposer';
+import UserMessage from './userMessage';
+import { INITIAL_PROVIDERS } from '../../constants';
+import type { AgentType } from '../../../types';
+import { useCommandProvider } from '../../providers/commandProvider';
+import { createModelDropdown } from './utils';
+import { openOptionsPage } from '../../utils';
 
 type ConversationalChatBotProps = {
   runtime: AssistantRuntime | null;
@@ -55,7 +55,7 @@ const ConversationalChatBot = ({ runtime }: ConversationalChatBotProps) => {
       toolNameToMCPMap: state.toolNameToMCPMap,
       setSelectedAgent: actions.setSelectedAgent,
       selectedAgent: state.selectedAgent,
-    }),
+    })
   );
 
   const api = useAssistantApi();
@@ -91,13 +91,13 @@ const ConversationalChatBot = ({ runtime }: ConversationalChatBotProps) => {
   const handleSelect = useCallback(
     (selectedId: string) => {
       const agent: AgentType = {
-        modelProvider: "",
-        model: "",
+        modelProvider: '',
+        model: '',
       };
 
       INITIAL_PROVIDERS.forEach((provider) => {
         const selectedModel = provider.models.find(
-          (model) => model.id === selectedId,
+          (model) => model.id === selectedId
         );
 
         if (selectedModel) {
@@ -108,7 +108,7 @@ const ConversationalChatBot = ({ runtime }: ConversationalChatBotProps) => {
 
       setSelectedAgent(agent);
     },
-    [setSelectedAgent],
+    [setSelectedAgent]
   );
 
   const lockThread = useCallback(
@@ -117,26 +117,26 @@ const ConversationalChatBot = ({ runtime }: ConversationalChatBotProps) => {
         lockedThreads: [...lockedThreads, threadIdToLock],
       });
     },
-    [lockedThreads],
+    [lockedThreads]
   );
 
   const unlockThread = useCallback(
     async (threadIdToUnlock: string) => {
       const unlockedThreads = lockedThreads.filter(
-        (id) => id !== threadIdToUnlock,
+        (id) => id !== threadIdToUnlock
       );
       await chrome.storage.session.set({ lockedThreads: unlockedThreads });
     },
-    [lockedThreads],
+    [lockedThreads]
   );
 
-  api.on("thread.run-end", async ({ threadId: threadIdToUnlock }) => {
+  api.on('thread.run-end', async ({ threadId: threadIdToUnlock }) => {
     setTimeout(async () => {
       await unlockThread(threadIdToUnlock);
     }, 500);
   });
 
-  api.on("composer.send", async ({ threadId: threadIdToLock }) => {
+  api.on('composer.send', async ({ threadId: threadIdToLock }) => {
     await lockThread(threadIdToLock);
   });
 
@@ -158,7 +158,7 @@ const ConversationalChatBot = ({ runtime }: ConversationalChatBotProps) => {
               variant="ghost"
               size="icon"
               onKeyDown={(event) =>
-                event.key === "Enter"
+                event.key === 'Enter'
                   ? runtime?.threads.switchToNewThread()
                   : null
               }
@@ -175,10 +175,10 @@ const ConversationalChatBot = ({ runtime }: ConversationalChatBotProps) => {
           <ThreadPrimitive.Viewport
             autoScroll={true}
             turnAnchor="bottom"
-            className={`flex flex-1 items-center overflow-y-auto scroll-smooth px-4 md:px-0 ${messages.length === 0 ? "" : "h-full"}`}
+            className={`flex flex-1 items-center overflow-y-auto scroll-smooth px-4 md:px-0 ${messages.length === 0 ? '' : 'h-full'}`}
           >
             <div
-              className={`max-w-3xl mx-auto w-full flex flex-col ${messages.length === 0 ? "" : "h-full"}`}
+              className={`max-w-3xl mx-auto w-full flex flex-col ${messages.length === 0 ? '' : 'h-full'}`}
             >
               {/* Empty State / Welcome */}
               <ThreadPrimitive.Empty>
@@ -258,7 +258,7 @@ const ConversationalChatBot = ({ runtime }: ConversationalChatBotProps) => {
                     >
                       <Button variant="ghost" className="rounded-2xl">
                         <span className="text-[11px] flex flex-row items-center">
-                          {selectedAgent.model}{" "}
+                          {selectedAgent.model}{' '}
                           <ChevronDown className="w-4 h-4" />
                         </span>
                       </Button>
