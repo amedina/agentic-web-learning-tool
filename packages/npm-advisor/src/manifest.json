@@ -29,7 +29,13 @@
       ]
     }
   ],
-  "permissions": ["storage", "activeTab", "unlimitedStorage", "sidePanel"],
+  "permissions": [
+    "storage",
+    "activeTab",
+    "unlimitedStorage",
+    "sidePanel",
+    "webNavigation"
+  ],
   "host_permissions": [
     "*://registry.npmjs.org/*",
     "*://api.github.com/*",
