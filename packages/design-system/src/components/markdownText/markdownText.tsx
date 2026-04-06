@@ -37,6 +37,13 @@ const MarkdownTextImpl = ({
       className="aui-md"
       {...props}
       components={{ ...defaultComponents, ...components }}
+      urlTransform={(url, key, node) => {
+        if (url.startsWith('package:')) {
+          return url;
+        }
+
+        return props.urlTransform?.(url, key, node) ?? url;
+      }}
     />
   );
 };

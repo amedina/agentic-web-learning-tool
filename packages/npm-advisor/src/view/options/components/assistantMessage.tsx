@@ -108,36 +108,36 @@ const PackageButton = ({ packageName }: { packageName: string }) => {
   };
 
   return (
-    <span className="inline-flex items-center gap-1.5 bg-blue-50 border border-blue-200 px-1.5 py-0.5 rounded-md mx-1 align-bottom shadow-sm">
-      <span className="font-mono font-bold text-blue-700 text-xs">
+    <span className="inline-flex items-center gap-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 pl-2.5 pr-1 py-1 rounded-full mx-1 align-middle shadow-sm transition-colors mb-1">
+      <span className="font-mono font-medium text-slate-700 text-[11px] leading-none">
         {packageName}
       </span>
       <button
         onClick={handleAdd}
         disabled={isAdding || isAdded || isAlreadyAdded}
-        className={`flex items-center justify-center text-[10px] uppercase font-bold tracking-wider outline-none px-1.5 py-1 rounded transition-colors ${
+        className={`flex items-center justify-center text-[10px] uppercase font-bold tracking-wide outline-none px-2 py-1 rounded-full transition-all duration-200 ease-in-out ${
           isAdded || isAlreadyAdded
-            ? "bg-green-500 text-white"
+            ? "bg-emerald-100 text-emerald-700 border border-emerald-200"
             : isAdding
-              ? "bg-blue-300 text-white cursor-not-allowed"
-              : "bg-blue-600 hover:bg-blue-700 text-white cursor-pointer"
+              ? "bg-blue-50 text-blue-400 border border-blue-100 cursor-not-allowed"
+              : "bg-white text-blue-600 border border-blue-200 hover:bg-blue-50 hover:border-blue-300 hover:shadow-sm cursor-pointer"
         }`}
       >
         {isAlreadyAdded ? (
           <>
-            <Check className="w-3 h-3 mr-0.5" /> In comparison
+            <Check className="w-3 h-3 mr-1" /> In comparison
           </>
         ) : isAdded ? (
           <>
-            <Check className="w-3 h-3 mr-0.5" /> Added
+            <Check className="w-3 h-3 mr-1" /> Added
           </>
         ) : isAdding ? (
           <>
-            <Loader2 className="w-3 h-3 mr-0.5 animate-spin" /> Wait
+            <Loader2 className="w-3 h-3 mr-1 animate-spin" /> Wait
           </>
         ) : (
           <>
-            <Plus className="w-3 h-3 mr-0.5" /> Compare
+            <Plus className="w-3 h-3 mr-1" /> Compare
           </>
         )}
       </button>
