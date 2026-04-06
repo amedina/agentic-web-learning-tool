@@ -2,12 +2,12 @@
  * External dependencies
  */
 import type { WebMCPTool } from '@google-awlt/design-system';
+import { logger } from '@google-awlt/common';
 /**
  * Internal dependencies
  */
 import onLocalStorageChangedCallback from '../chromeListeners/onLocalStorageChangedCallback';
 import type McpHub from '../mcpHub';
-import { logger } from '../../utils';
 
 const handleToolEnableDisableOnLocalStorageChange = async (
   changes: {

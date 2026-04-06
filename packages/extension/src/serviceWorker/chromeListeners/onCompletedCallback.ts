@@ -1,8 +1,11 @@
 /**
+ * External dependencies
+ */
+import { logger } from '@google-awlt/common';
+/**
  * Internal dependencies
  */
 import { START_MCP_CONNECTION } from '../../constants';
-import { logger } from '../../utils';
 
 const onCompletedCallback = async (
   details: chrome.webNavigation.WebNavigationFramedCallbackDetails
