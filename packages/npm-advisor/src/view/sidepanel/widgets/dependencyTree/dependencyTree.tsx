@@ -1,13 +1,20 @@
 /**
  * External dependencies.
  */
-import React, { useState, useEffect } from "react";
-import { ChevronRight, ChevronDown, Network } from "lucide-react";
+import React, { useState, useEffect, useCallback } from "react";
+import {
+  ChevronRight,
+  ChevronDown,
+  Network,
+  LayoutList,
+  Share2,
+} from "lucide-react";
 
 /**
  * Internal dependencies.
  */
 import type { DependencyTree as DependencyTreeType } from "../../../../utils";
+import DependencyGraph from "./dependencyGraph";
 
 type DepNode = DependencyTreeType & { _loaded?: boolean };
 
@@ -31,7 +38,7 @@ const DepTreeNode = ({
   const isTruncated = node._truncated && !isLoaded;
   const versionStr = node.resolvedVersion || node.requestedVersion || "latest";
 
-  const loadMore = () => {
+  const loadMore = useCallback(() => {
     setLoadingMore(true);
     chrome.runtime.sendMessage(
       { type: "FETCH_DEP_TREE", packageName: node.name, version: versionStr },
@@ -44,7 +51,7 @@ const DepTreeNode = ({
         }
       },
     );
-  };
+  }, [node.name, versionStr]);
 
   useEffect(() => {
     if (expanded && isTruncated && !loadingMore && !isLoaded) {
@@ -118,19 +125,53 @@ export interface DependencyTreeProps {
 export const DependencyTree: React.FC<DependencyTreeProps> = ({
   dependencyTree,
 }) => {
+  const [viewMode, setViewMode] = useState<"tree" | "graph">("graph");
+
   if (!dependencyTree) return null;
 
   return (
     <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
-      <h2 className="text-sm font-semibold flex items-center text-slate-800 dark:text-slate-200 mb-2 pb-1 border-b border-slate-100 dark:border-slate-700">
-        <Network
-          size={16}
-          className="mr-2 text-slate-600 dark:text-slate-400"
-        />{" "}
-        Dependencies
-      </h2>
-      <div className="max-h-[300px] overflow-auto">
-        <DepTreeNode node={dependencyTree} depth={0} />
+      <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-100 dark:border-slate-700">
+        <h2 className="text-sm font-semibold flex items-center text-slate-800 dark:text-slate-200">
+          <Network
+            size={16}
+            className="mr-2 text-slate-600 dark:text-slate-400"
+          />{" "}
+          Dependencies
+        </h2>
+
+        <div className="flex bg-slate-100 dark:bg-slate-900 rounded-lg p-0.5">
+          <button
+            onClick={() => setViewMode("graph")}
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium transition-all ${
+              viewMode === "graph"
+                ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 shadow-sm"
+                : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+            }`}
+          >
+            <Share2 size={12} />
+            Graph
+          </button>
+          <button
+            onClick={() => setViewMode("tree")}
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium transition-all ${
+              viewMode === "tree"
+                ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 shadow-sm"
+                : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+            }`}
+          >
+            <LayoutList size={12} />
+            List
+          </button>
+        </div>
+      </div>
+
+      <div className="max-h-100 overflow-auto">
+        {viewMode === "tree" ? (
+          <DepTreeNode node={dependencyTree} depth={0} />
+        ) : (
+          <DependencyGraph data={dependencyTree} />
+        )}
       </div>
     </div>
   );
