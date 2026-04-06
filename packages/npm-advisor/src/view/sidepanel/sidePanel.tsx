@@ -68,6 +68,29 @@ const SidePanel = () => {
           getCustomSystemPrompt={() => {
             return getSystemPrompt(JSON.stringify(stats, null, 2));
           }}
+          suggestions={[
+            {
+              text: "Suggest better alternatives",
+              prompt: `Suggest better alternatives to ${stats.packageName}`,
+            },
+            {
+              text: "Compare with [Popular Library]",
+              prompt: `Compare ${stats.packageName} with a popular alternative library`,
+            },
+            {
+              text: "Is there a native JS way?",
+              prompt: `Is there a native vanilla JavaScript way to do what ${stats.packageName} does?`,
+            },
+            {
+              text: `Why use this over [X]?`,
+              prompt: `Why should I use ${stats.packageName} over other options?`,
+            },
+          ]}
+          helperTextSet={{
+            title: `Ask AI about ${stats.packageName}`,
+            description: `Hello! I can help you with questions about ${stats.packageName}. What
+                would you like to know?`,
+          }}
         >
           <div className="flex flex-col h-full w-full">
             <GlobalHeader />

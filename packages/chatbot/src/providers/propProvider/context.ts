@@ -13,6 +13,8 @@ export type PropProviderType = {
     CustomEditComposerComponent?: null | (() => React.JSX.Element);
     allowToolCalling: boolean;
     CustomIcon?: React.ReactNode;
+    suggestions?: { text: string; prompt: string }[];
+    helperTextSet?: { title: string; description: string };
   };
   actions: {
     getCustomSystemPrompt: () => string;
@@ -28,6 +30,8 @@ const initialState: PropProviderType = {
     CustomEditComposerComponent: null,
     allowToolCalling: true,
     CustomIcon: null,
+    suggestions: [],
+    helperTextSet: { title: "", description: "" },
   },
   actions: {
     getCustomSystemPrompt: () => "",

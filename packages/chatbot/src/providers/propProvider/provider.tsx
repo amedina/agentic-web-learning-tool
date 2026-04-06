@@ -17,6 +17,8 @@ type PropProviderProps = PropsWithChildren & {
   editComposer?: null | (() => React.JSX.Element);
   getCustomSystemPrompt?: () => string;
   customIcon?: React.ReactNode;
+  suggestions?: { text: string; prompt: string }[];
+  helperTextSet?: { title: string; description: string };
 };
 
 function PropProvider({
@@ -29,6 +31,8 @@ function PropProvider({
   editComposer,
   getCustomSystemPrompt,
   customIcon,
+  suggestions,
+  helperTextSet,
 }: PropProviderProps) {
   const contextValue = useMemo<PropProviderType>(
     () => ({
@@ -40,6 +44,8 @@ function PropProvider({
         CustomEditComposerComponent: editComposer,
         allowToolCalling,
         CustomIcon: customIcon,
+        suggestions,
+        helperTextSet,
       },
       actions: {
         getCustomSystemPrompt: getCustomSystemPrompt ?? (() => ""),
@@ -50,6 +56,8 @@ function PropProvider({
       footerNode,
       extraTabs,
       allowToolCalling,
+      suggestions,
+      helperTextSet,
       assistantMessage,
       userMessage,
       editComposer,

@@ -69,8 +69,10 @@ const ConversationalChatBot = ({ runtime }: ConversationalChatBotProps) => {
     CustomUserMessageComponent,
     CustomEditComposerComponent,
     CustomIcon,
+    suggestions,
   } = usePropProvider(({ state }) => ({
     CustomIcon: state.CustomIcon,
+    suggestions: state.suggestions,
     CustomAssistantMessageComponent: state.CustomAssistantMessageComponent,
     CustomUserMessageComponent: state.CustomUserMessageComponent,
     CustomEditComposerComponent: state.CustomEditComposerComponent,
@@ -188,6 +190,19 @@ const ConversationalChatBot = ({ runtime }: ConversationalChatBotProps) => {
                   <p className="text-zinc-500 max-w-md">
                     I can help you analyze packages.
                   </p>
+                  <div className="flex flex-wrap gap-2 justify-center w-full mt-6">
+                    {suggestions?.map((s, i) => (
+                      <ThreadPrimitive.Suggestion
+                        key={i}
+                        prompt={s.prompt}
+                        className="bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-full px-4 py-2 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors shadow-sm cursor-pointer"
+                        method="replace"
+                        autoSend
+                      >
+                        <span>{s.text}</span>
+                      </ThreadPrimitive.Suggestion>
+                    ))}
+                  </div>
                 </div>
               </ThreadPrimitive.Empty>
               <div className="h-full mt-8">
