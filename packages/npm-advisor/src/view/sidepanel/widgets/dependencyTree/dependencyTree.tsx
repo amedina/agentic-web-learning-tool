@@ -166,7 +166,7 @@ export const DependencyTree: React.FC<DependencyTreeProps> = ({
         </div>
       </div>
 
-      <div className="max-h-100 overflow-auto">
+      <div className="max-h-[200px] overflow-auto">
         {viewMode === "tree" ? (
           <DepTreeNode node={dependencyTree} depth={0} />
         ) : (

@@ -218,12 +218,7 @@ const DependencyGraph = ({ data }: DependencyGraphProps) => {
     drawTree();
   }, [data]);
 
-  return (
-    <div
-      ref={containerRef}
-      className="w-full h-full overflow-auto py-2 min-h-50 min-w-50"
-    />
-  );
+  return <div ref={containerRef} className="overflow-auto py-2" />;
 };
 
 export default DependencyGraph;
