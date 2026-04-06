@@ -10,32 +10,66 @@ import type { SidePanelTabProps } from '../../../types';
 
 type PropProviderProps = PropsWithChildren & {
   footerNode: React.ReactNode;
-  extraTabs: SidePanelTabProps['extraTabs'];
+  prefixTabs?: SidePanelTabProps['extraTabs'];
+  suffixTabs?: SidePanelTabProps['extraTabs'];
+  allowToolCalling: boolean;
   assistantMessage?: null | (() => React.JSX.Element);
   userMessage?: null | (() => React.JSX.Element);
   editComposer?: null | (() => React.JSX.Element);
+  getCustomSystemPrompt?: () => string;
+  customIcon?: React.ReactNode;
+  suggestions?: { text: string; prompt: string }[];
+  helperTextSet?: {
+    title: (props: any) => string;
+    description: (props: any) => string;
+  };
 };
 
 function PropProvider({
   children,
   footerNode,
-  extraTabs,
+  prefixTabs,
+  suffixTabs,
+  allowToolCalling = true,
   assistantMessage,
   userMessage,
   editComposer,
+  getCustomSystemPrompt,
+  customIcon,
+  suggestions,
+  helperTextSet,
 }: PropProviderProps) {
   const contextValue = useMemo<PropProviderType>(
     () => ({
       state: {
         footerNode,
-        extraTabs,
+        prefixTabs: prefixTabs ?? [],
+        suffixTabs: suffixTabs ?? [],
         CustomAssistantMessageComponent: assistantMessage,
         CustomUserMessageComponent: userMessage,
         CustomEditComposerComponent: editComposer,
+        allowToolCalling,
+        CustomIcon: customIcon,
+        suggestions,
+        helperTextSet,
       },
-      actions: {},
+      actions: {
+        getCustomSystemPrompt: getCustomSystemPrompt ?? (() => ''),
+      },
     }),
-    [footerNode, extraTabs, assistantMessage, userMessage, editComposer]
+    [
+      customIcon,
+      footerNode,
+      prefixTabs,
+      suffixTabs,
+      allowToolCalling,
+      suggestions,
+      helperTextSet,
+      assistantMessage,
+      userMessage,
+      editComposer,
+      getCustomSystemPrompt,
+    ]
   );
 
   return (

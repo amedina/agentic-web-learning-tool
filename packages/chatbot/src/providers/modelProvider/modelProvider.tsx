@@ -22,6 +22,7 @@ import { GeminiNanoChatTransport } from '../../transports/geminiNano';
 import Context, { FALLBACK_AGENT } from './context';
 import { CONNECTION_NAMES } from '../../constants';
 import type { AgentType, APIKeys } from '../../../types';
+import { usePropProvider } from '../propProvider';
 
 export const transport = new ExtensionClientTransport({
   portName: CONNECTION_NAMES.MCP_HOST_SIDEPANEL,
@@ -48,6 +49,20 @@ const Provider = ({ children }: PropsWithChildren) => {
   >(FALLBACK_AGENT);
   const initialFetchDone = useRef<boolean>(false);
 
+  const { getCustomSystemPrompt, allowToolCalling } = usePropProvider(
+    ({ state, actions }) => ({
+      getCustomSystemPrompt: actions.getCustomSystemPrompt,
+      allowToolCalling: state.allowToolCalling,
+    })
+  );
+
+  const systemPrompt = useMemo(() => {
+    if (getCustomSystemPrompt) {
+      return getCustomSystemPrompt();
+    }
+    return apiKeys[selectedAgent.modelProvider]?.systemPrompt;
+  }, [getCustomSystemPrompt]);
+
   useEffect(() => {
     if (!initialFetchDone.current) {
       return;
@@ -62,7 +77,7 @@ const Provider = ({ children }: PropsWithChildren) => {
             ...apiKeys[selectedAgent?.modelProvider],
           },
           apiKeys[selectedAgent.modelProvider]?.thinkingMode,
-          apiKeys[selectedAgent.modelProvider]?.systemPrompt
+          systemPrompt
         )
       );
     } else {
@@ -72,7 +87,7 @@ const Provider = ({ children }: PropsWithChildren) => {
     chrome.storage.sync.set({
       selectedAgent,
     });
-  }, [apiKeys, selectedAgent]);
+  }, [apiKeys, selectedAgent, systemPrompt]);
 
   const fetchMCPServersAndCreateMapping = useCallback(async () => {
     const {
@@ -204,9 +219,13 @@ const Provider = ({ children }: PropsWithChildren) => {
 
   return (
     <Context.Provider value={memoisedValue}>
-      <McpClientProvider client={client} transport={transport} opts={{}}>
-        {children}
-      </McpClientProvider>
+      {allowToolCalling ? (
+        <McpClientProvider client={client} transport={transport} opts={{}}>
+          {children}
+        </McpClientProvider>
+      ) : (
+        children
+      )}
     </Context.Provider>
   );
 };

@@ -100,6 +100,26 @@ export const usePackageStats = () => {
     };
 
     fetchCurrentTabStats();
+
+    chrome.webNavigation.onCompleted.addListener(async (details) => {
+      const currentTabId = Number(window.location.hash.slice(5));
+      if (details.frameId !== 0 || details.tabId !== currentTabId) {
+        return;
+      }
+
+      fetchCurrentTabStats();
+    });
+
+    return () => {
+      chrome.webNavigation.onCompleted.removeListener(async (details) => {
+        const currentTabId = Number(window.location.hash.slice(5));
+        if (details.frameId !== 0 || details.tabId !== currentTabId) {
+          return;
+        }
+
+        fetchCurrentTabStats();
+      });
+    };
   }, []);
 
   const handleAddToCompare = () => {

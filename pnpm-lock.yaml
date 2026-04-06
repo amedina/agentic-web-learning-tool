@@ -946,6 +946,12 @@ importers:
       '@assistant-ui/react-ai-sdk':
         specifier: 1.1.19
         version: 1.1.19(@assistant-ui/react@0.11.51(patch_hash=67df03cd2ce1371da3a413dd7f088ed189627bed887039984e53e03592e6ae44)(@types/react-dom@19.1.9(@types/react@19.2.14))(@types/react@19.2.14)(immer@9.0.21)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4)))(@types/react@19.2.14)(assistant-cloud@0.1.23)(immer@9.0.21)(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4))
+      '@google-awlt/chatbot':
+        specifier: workspace:*
+        version: link:../chatbot
+      '@google-awlt/common':
+        specifier: workspace:*
+        version: link:../common
       '@google-awlt/design-system':
         specifier: workspace:*
         version: link:../design-system
@@ -1013,6 +1019,9 @@ importers:
       cross-env:
         specifier: ^10.1.0
         version: 10.1.0
+      rimraf:
+        specifier: ^5.0.5
+        version: 5.0.10
       typescript:
         specifier: ~5.8.3
         version: 5.8.3

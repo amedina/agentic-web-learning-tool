@@ -1,5 +1,6 @@
 import { getPackageStats, type PackageStats } from "../utils";
 import { DEFAULT_TARGET_PROJECT_LICENSE } from "../utils";
+import "./chromeListeners";
 import { NPM_SEARCH_CONFIG } from "../constants";
 
 // Memory cache for promises or resolved stats

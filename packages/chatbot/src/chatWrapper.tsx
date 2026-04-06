@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { type AssistantRuntime } from '@assistant-ui/react';
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Tabs,
   TabsList,
@@ -13,7 +13,7 @@ import { SidebarProvider } from '@google-awlt/design-system';
 /**
  * Internal dependencies
  */
-import { ChatBotUI } from './components';
+import { ChatBotUI, ConversationalChatBot } from './components';
 import {
   CommandProvider,
   useModelProvider,
@@ -26,10 +26,19 @@ const SidePanel = () => {
     transport: state.transport,
   }));
 
-  const { extraTabs, footerNode } = usePropProvider(({ state }) => ({
-    extraTabs: state.extraTabs,
-    footerNode: state.footerNode,
+  const [activeTab, setActiveTab] = useState<string>('chat');
+
+  const { allowToolCalling } = usePropProvider(({ state }) => ({
+    allowToolCalling: state.allowToolCalling,
   }));
+
+  const { prefixTabs, suffixTabs, footerNode } = usePropProvider(
+    ({ state }) => ({
+      prefixTabs: state.prefixTabs,
+      suffixTabs: state.suffixTabs,
+      footerNode: state.footerNode,
+    })
+  );
 
   const runtimeRef = useRef<AssistantRuntime | null>(null);
 
@@ -63,28 +72,40 @@ const SidePanel = () => {
 
   const tabsList = useMemo(() => {
     return [
+      ...prefixTabs,
       {
         value: 'chat',
         label: 'Chat',
-        content: <ChatBotUI runtime={runtimeRef.current} />,
+        content: !allowToolCalling ? (
+          <ConversationalChatBot runtime={runtimeRef.current} />
+        ) : (
+          <ChatBotUI runtime={runtimeRef.current} />
+        ),
       },
-      ...extraTabs,
+      ...suffixTabs,
     ];
-  }, [extraTabs]);
+  }, [prefixTabs, suffixTabs]);
 
   return (
     <CustomRuntimeProvider transport={transport} runtimeRef={runtimeRef}>
       <CommandProvider>
-        <SidebarProvider defaultOpen={false}>
+        <SidebarProvider
+          defaultOpen={false}
+          className={`flex-1 ${activeTab === 'insights' ? 'overflow-y-auto' : 'overflow-hidden'}`}
+        >
           <Tabs
-            defaultValue="chat"
-            className="flex flex-col h-screen w-full bg-background"
+            defaultValue={tabsList[0].value}
+            className="flex flex-col h-full w-full bg-background"
           >
             <div className="px-4 py-2 border-b">
               <TabsList className="grid w-full grid-cols-2">
                 {tabsList.map((tab) => {
                   return (
-                    <TabsTrigger key={tab.value} value={tab.value}>
+                    <TabsTrigger
+                      onClick={() => setActiveTab(tab.value)}
+                      key={tab.value}
+                      value={tab.value}
+                    >
                       {tab.label}
                     </TabsTrigger>
                   );
@@ -96,7 +117,7 @@ const SidePanel = () => {
                 <TabsContent
                   key={tab.value}
                   value={tab.value}
-                  className="flex-1 overflow-hidden p-0 border-none mt-0"
+                  className={`flex-1 p-0 border-none mt-0 ${activeTab !== 'chat' ? 'overflow-y-auto' : 'overflow-hidden'}`}
                 >
                   {tab.content}
                 </TabsContent>

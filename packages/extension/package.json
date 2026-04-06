@@ -4,7 +4,7 @@
   "version": "1.0.1",
   "type": "module",
   "scripts": {
-    "predev": "rimraf ../../dist",
+    "predev": "rimraf ../../dist/extension",
     "dev": "concurrently \"pnpm run dev:engine-core\" \"pnpm run dev:engine-extension\" \"pnpm run dev:engine-web\" \"pnpm run dev:workflow-ui\" \"pnpm run dev:contentScript\" \"pnpm run dev:extension\"",
     "dev:engine-web": "pnpm --filter @google-awlt/engine-web dev",
     "dev:workflow-ui": "pnpm --filter @google-awlt/workflow-ui dev",

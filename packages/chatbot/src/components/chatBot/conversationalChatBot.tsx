@@ -8,14 +8,11 @@ import {
   useAssistantState,
   type AssistantRuntime,
 } from '@assistant-ui/react';
-import { useMcpClient } from '@mcp-b/react-webmcp';
-import { useCallback, useEffect, useMemo } from 'react';
-import type { JSONRPCMessage } from '@modelcontextprotocol/sdk/types.js';
+import { useCallback, useMemo } from 'react';
 import {
   Paperclip,
   SendHorizontal,
   CircleStop,
-  ListMinus,
   Settings,
   ChevronDown,
   PlusCircle,
@@ -33,9 +30,7 @@ import {
 /**
  * Internal dependencies
  */
-import { useAssistantMCP } from '../../hooks';
 import {
-  transport,
   useModelProvider,
   usePropProvider,
   useTabThreadInformation,
@@ -46,28 +41,26 @@ import UserMessage from './userMessage';
 import { INITIAL_PROVIDERS } from '../../constants';
 import type { AgentType } from '../../../types';
 import { useCommandProvider } from '../../providers/commandProvider';
-import { createModelDropdown, createToolDropdown } from './utils';
+import { createModelDropdown } from './utils';
 import { openOptionsPage } from '../../utils';
 
-type ChatBotUIProps = {
+type ConversationalChatBotProps = {
   runtime: AssistantRuntime | null;
 };
-``;
 
-const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
-  const { client, tools } = useMcpClient();
-  const { apiKeys, setSelectedAgent, selectedAgent, toolNameToMCPMap } =
-    useModelProvider(({ state, actions }) => ({
+const ConversationalChatBot = ({ runtime }: ConversationalChatBotProps) => {
+  const { apiKeys, setSelectedAgent, selectedAgent } = useModelProvider(
+    ({ state, actions }) => ({
       apiKeys: state.apiKeys,
       toolNameToMCPMap: state.toolNameToMCPMap,
       setSelectedAgent: actions.setSelectedAgent,
       selectedAgent: state.selectedAgent,
-    }));
+    })
+  );
 
   const api = useAssistantApi();
 
-  const { tabData, lockedThreads } = useTabThreadInformation(({ state }) => ({
-    tabData: state.tabData,
+  const { lockedThreads } = useTabThreadInformation(({ state }) => ({
     lockedThreads: state.lockedThreads,
   }));
 
@@ -76,39 +69,24 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
     CustomUserMessageComponent,
     CustomEditComposerComponent,
     CustomIcon,
+    suggestions,
     helperTextSet,
   } = usePropProvider(({ state }) => ({
     CustomIcon: state.CustomIcon,
+    suggestions: state.suggestions,
     helperTextSet: state.helperTextSet,
     CustomAssistantMessageComponent: state.CustomAssistantMessageComponent,
     CustomUserMessageComponent: state.CustomUserMessageComponent,
     CustomEditComposerComponent: state.CustomEditComposerComponent,
   }));
 
-  useEffect(() => {
-    // Synchronization Mechanism: This block listens for a "Tool Changed" event from the
-    // Service Worker, and client.listTools() performs the actual "Refresh" to get the new data.
-    transport.onmessage = async (message: JSONRPCMessage) => {
-      if ('method' in message && message.method === 'get/Tools') {
-        await client.listTools();
-      }
-    };
-  }, [client]);
-
   const threadId = useAssistantState(({ threadListItem }) => threadListItem.id);
   const messages = useAssistantState(({ thread }) => thread.messages);
   const isLoading = useAssistantState(({ threads }) => threads.isLoading);
 
-  useAssistantMCP(tools, client, threadId, runtime);
-
   const { handleMessageChange } = useCommandProvider(({ actions }) => ({
     handleMessageChange: actions.handleMessageChange,
   }));
-
-  const groupedTools = useMemo(() => {
-    const tabId = parseInt(new URL(window.location.href).hash.substring(5));
-    return createToolDropdown(tools, toolNameToMCPMap, tabData, tabId);
-  }, [tools, toolNameToMCPMap, tabData]);
 
   const handleSelect = useCallback(
     (selectedId: string) => {
@@ -132,10 +110,6 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
     },
     [setSelectedAgent]
   );
-
-  const toolLength = useMemo(() => {
-    return tools.filter((tool) => tool.name !== 'dummyTool').length;
-  }, [tools]);
 
   const lockThread = useCallback(
     async (threadIdToLock: string) => {
@@ -216,8 +190,21 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
                     {helperTextSet?.title()}
                   </h2>
                   <p className="text-zinc-500 max-w-md">
-                    {helperTextSet?.description({ toolLength })}
+                    {helperTextSet?.description()}
                   </p>
+                  <div className="flex flex-wrap gap-2 justify-center w-full mt-6">
+                    {suggestions?.map((s, i) => (
+                      <ThreadPrimitive.Suggestion
+                        key={i}
+                        prompt={s.prompt}
+                        className="bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-full px-4 py-2 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors shadow-sm cursor-pointer"
+                        method="replace"
+                        autoSend
+                      >
+                        <span>{s.text}</span>
+                      </ThreadPrimitive.Suggestion>
+                    ))}
+                  </div>
                 </div>
               </ThreadPrimitive.Empty>
               <div className="h-full mt-8">
@@ -256,16 +243,6 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
                     <Button variant="ghost" disabled title="Attach" size="icon">
                       <Paperclip size={18} />
                     </Button>
-                    <Dropdown
-                      options={groupedTools}
-                      onSelect={(id) => console.log(id)}
-                      mainLabel="Tool Providers"
-                      selectedValue=""
-                    >
-                      <Button variant="ghost" size="icon">
-                        <ListMinus className="w-4 h-4" />
-                      </Button>
-                    </Dropdown>
                     <Button
                       size="icon"
                       variant="ghost"
@@ -312,4 +289,4 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
   );
 };
 
-export default ChatBotUI;
+export default ConversationalChatBot;
