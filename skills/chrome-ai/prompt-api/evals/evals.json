@@ -1,0 +1,123 @@
+{
+  "skill_name": "Prompt API",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Check if the Prompt API is available on this device before I try to use it.",
+      "expected_output": "The agent identifies this as a Prompt API skill task and produces code that calls `LanguageModel.availability()` and handles all four return values: 'unavailable', 'downloadable', 'downloading', and 'available', with appropriate branching logic for each state.",
+      "files": [],
+      "expectations": [
+        "Calls `LanguageModel.availability()` (not a property check like `'LanguageModel' in window`)",
+        "Handles the 'unavailable' return value",
+        "Handles the 'downloadable' return value",
+        "Handles the 'downloading' return value",
+        "Handles the 'available' return value",
+        "Passes `expectedOutputs` options array with `languages` to `LanguageModel.availability()` to prevent Chrome warnings"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Create a language model session with a system prompt that makes it act as a pirate, then ask it what the weather is like.",
+      "expected_output": "The agent identifies this as a Prompt API skill task and produces code that calls `LanguageModel.create()` with an `initialPrompts` array containing a `{ role: 'system', content: '...' }` entry, then calls `session.prompt()` with the weather question, and calls `session.destroy()` when done.",
+      "files": [],
+      "expectations": [
+        "Calls `LanguageModel.create()` with an `initialPrompts` array",
+        "Includes a `{ role: 'system', content: '...' }` object in `initialPrompts`",
+        "Calls `session.prompt()` with the weather question",
+        "Calls `session.destroy()` to clean up the session"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Stream the output of a language model response word by word as the user types a question into a textarea.",
+      "expected_output": "The agent identifies this as a Prompt API skill task and produces code that calls `session.promptStreaming()` (not `session.prompt()`), iterates over the async stream with `for await...of`, and updates the DOM incrementally with each chunk.",
+      "files": [],
+      "expectations": [
+        "Calls `session.promptStreaming()` instead of `session.prompt()`",
+        "Uses `for await...of` to iterate over the stream",
+        "Updates the DOM incrementally inside the loop (not after the loop)"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "I need the model to always return a JSON object with a `sentiment` field set to either 'positive', 'negative', or 'neutral'. How do I constrain the output?",
+      "expected_output": "The agent identifies this as a Prompt API skill task and produces code that passes a `responseConstraint` option to `session.prompt()` (or `LanguageModel.create()`) containing a JSON Schema object with an enum for the sentiment values, ensuring the model output is machine-readable.",
+      "files": [],
+      "expectations": [
+        "Uses `responseConstraint` option (not just prompt-engineering instructions)",
+        "Passes a JSON Schema object as the value of `responseConstraint`",
+        "The schema includes an enum or property constraining output to 'positive', 'negative', 'neutral'",
+        "Parses the result with `JSON.parse()` or treats it as structured output"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Build a multi-turn chat interface where the model remembers previous messages in the conversation.",
+      "expected_output": "The agent identifies this as a Prompt API skill task and produces code that creates a single `LanguageModel` session and calls `session.prompt()` multiple times on the same session object, relying on the session's built-in context retention rather than manually re-sending history.",
+      "files": [],
+      "expectations": [
+        "Creates a single session with `LanguageModel.create()` and reuses it across turns",
+        "Does NOT reconstruct the full conversation history manually on each call",
+        "Calls `session.prompt()` for each new user message on the same session"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "How do I send an image to the Prompt API and ask the model to describe it?",
+      "expected_output": "The agent identifies this as a Prompt API skill task and produces code that passes an array to `session.prompt()` containing a multimodal input object with `{ type: 'image', value: <ImageBitmap or Blob> }` alongside a text part, demonstrating the multimodal input format.",
+      "files": [],
+      "expectations": [
+        "Passes an array (not a plain string) to `session.prompt()`",
+        "Includes an object with `type: 'image'` in the array",
+        "Uses `value` property to hold the image data (ImageBitmap, Blob, or similar)",
+        "Includes a text part in the same array for the question",
+        "Passes `expectedInputs` and `expectedOutputs` with proper `languages` arrays to `LanguageModel.create()`"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "My chat session is running out of context. How do I preserve recent conversation history without starting completely fresh?",
+      "expected_output": "The agent identifies this as a Prompt API skill task and produces code that calls `session.clone()` to create a new session inheriting the current context, then calls `session.destroy()` on the old session to free memory, allowing the conversation to continue without losing recent history.",
+      "files": [],
+      "expectations": [
+        "Calls `session.clone()` to duplicate the session",
+        "Calls `session.destroy()` on the old session after cloning",
+        "Mentions or checks `session.inputUsage` or `session.inputQuota` to detect when context is nearly full"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "How do I cancel an in-progress prompt if the user clicks a Stop button?",
+      "expected_output": "The agent identifies this as a Prompt API skill task and produces code that creates an `AbortController`, passes its `signal` to `session.prompt()` or `session.promptStreaming()`, and calls `controller.abort()` when the user clicks the stop button.",
+      "files": [],
+      "expectations": [
+        "Creates an `AbortController` instance",
+        "Passes `signal: controller.signal` to `session.prompt()` or `session.promptStreaming()`",
+        "Calls `controller.abort()` in the stop button's event handler"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "Set up a language model session with custom temperature and topK values for more creative outputs.",
+      "expected_output": "The agent identifies this as a Prompt API skill task and produces code that calls `LanguageModel.params()` to retrieve the model's supported parameter ranges, then passes both `temperature` and `topK` together to `LanguageModel.create()`, noting that both must be set or neither.",
+      "files": [],
+      "expectations": [
+        "Calls `LanguageModel.params()` to get supported parameter ranges",
+        "Passes `temperature` to `LanguageModel.create()`",
+        "Passes `topK` to `LanguageModel.create()`",
+        "Sets both `temperature` and `topK` together (not just one)"
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "I want to trigger the model download before the user actually needs it, so there's no delay later. How do I do that?",
+      "expected_output": "The agent identifies this as a Prompt API skill task and produces code that calls `LanguageModel.create()` inside a user activation event handler (e.g., a button click), not on page load, because the model download requires a user gesture. Explains why page-load initialization is unreliable.",
+      "files": [],
+      "expectations": [
+        "Calls `LanguageModel.create()` inside a user activation event handler (click or similar)",
+        "Explains that `create()` must be called after a user gesture to trigger download",
+        "Does NOT call `LanguageModel.create()` directly on page load without user interaction"
+      ]
+    }
+  ]
+}
