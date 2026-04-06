@@ -168,7 +168,7 @@ export class CloudHostedTransport implements ChatTransport<
 
     if (this.model?.provider === "google.generative-ai") {
       this.formattedTools["google_search"] = google.tools.googleSearch({});
-    } else if (this.model?.provider === "openai") {
+    } else if (this.model?.provider === "openai.responses") {
       this.formattedTools["web_search"] = openai.tools.webSearch({
         externalWebAccess: true,
         searchContextSize: "high",
