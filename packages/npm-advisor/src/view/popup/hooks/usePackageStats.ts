@@ -134,11 +134,11 @@ export const usePackageStats = () => {
   );
 
   const isAddedToCompare = comparisonBucket.some(
-    (item) => item.packageName === stats?.packageName,
+    (item) => item?.packageName === stats?.packageName,
   );
 
   const comparisonBucketNames = new Set(
-    comparisonBucket.map((item) => item.packageName),
+    comparisonBucket.map((item) => item?.packageName),
   );
 
   return {
