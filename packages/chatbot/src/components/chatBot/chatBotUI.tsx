@@ -77,9 +77,11 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
     CustomEditComposerComponent,
     allowToolCalling,
     CustomIcon,
+    helperTextSet,
   } = usePropProvider(({ state }) => ({
     CustomIcon: state.CustomIcon,
     allowToolCalling: state.allowToolCalling,
+    helperTextSet: state.helperTextSet,
     CustomAssistantMessageComponent: state.CustomAssistantMessageComponent,
     CustomUserMessageComponent: state.CustomUserMessageComponent,
     CustomEditComposerComponent: state.CustomEditComposerComponent,
@@ -215,11 +217,10 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
                     {CustomIcon ?? <OwlIcon width={42} height={42} />}
                   </div>
                   <h2 className="text-2xl font-bold text-primary mb-2">
-                    How can I help you today?
+                    {helperTextSet?.title()}
                   </h2>
                   <p className="text-zinc-500 max-w-md">
-                    I can help you write code, analyze data, or even check the
-                    weather. I have access to {toolLength} tools.
+                    {helperTextSet?.description({ toolLength })}
                   </p>
                 </div>
               </ThreadPrimitive.Empty>

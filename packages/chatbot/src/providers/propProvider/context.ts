@@ -14,7 +14,10 @@ export type PropProviderType = {
     allowToolCalling: boolean;
     CustomIcon?: React.ReactNode;
     suggestions?: { text: string; prompt: string }[];
-    helperTextSet?: { title: string; description: string };
+    helperTextSet?: {
+      title: (props?: any) => string;
+      description: (props?: any) => string;
+    };
   };
   actions: {
     getCustomSystemPrompt: () => string;
@@ -31,7 +34,10 @@ const initialState: PropProviderType = {
     allowToolCalling: true,
     CustomIcon: null,
     suggestions: [],
-    helperTextSet: { title: "", description: "" },
+    helperTextSet: {
+      title: () => "",
+      description: () => "",
+    },
   },
   actions: {
     getCustomSystemPrompt: () => "",

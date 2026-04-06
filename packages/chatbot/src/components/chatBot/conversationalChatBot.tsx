@@ -70,9 +70,11 @@ const ConversationalChatBot = ({ runtime }: ConversationalChatBotProps) => {
     CustomEditComposerComponent,
     CustomIcon,
     suggestions,
+    helperTextSet,
   } = usePropProvider(({ state }) => ({
     CustomIcon: state.CustomIcon,
     suggestions: state.suggestions,
+    helperTextSet: state.helperTextSet,
     CustomAssistantMessageComponent: state.CustomAssistantMessageComponent,
     CustomUserMessageComponent: state.CustomUserMessageComponent,
     CustomEditComposerComponent: state.CustomEditComposerComponent,
@@ -185,10 +187,10 @@ const ConversationalChatBot = ({ runtime }: ConversationalChatBotProps) => {
                     {CustomIcon ?? <OwlIcon width={42} height={42} />}
                   </div>
                   <h2 className="text-2xl font-bold text-primary mb-2">
-                    How can I help you today?
+                    {helperTextSet?.title()}
                   </h2>
                   <p className="text-zinc-500 max-w-md">
-                    I can help you analyze packages.
+                    {helperTextSet?.description()}
                   </p>
                   <div className="flex flex-wrap gap-2 justify-center w-full mt-6">
                     {suggestions?.map((s, i) => (

@@ -18,7 +18,10 @@ type PropProviderProps = PropsWithChildren & {
   getCustomSystemPrompt?: () => string;
   customIcon?: React.ReactNode;
   suggestions?: { text: string; prompt: string }[];
-  helperTextSet?: { title: string; description: string };
+  helperTextSet?: {
+    title: (props: any) => string;
+    description: (props: any) => string;
+  };
 };
 
 function PropProvider({

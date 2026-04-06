@@ -87,8 +87,9 @@ const SidePanel = () => {
             },
           ]}
           helperTextSet={{
-            title: `Ask AI about ${stats.packageName}`,
-            description: `Hello! I can help you with questions about ${stats.packageName}. What
+            title: () => `Ask AI about ${stats.packageName}`,
+            description:
+              () => `Hello! I can help you with questions about ${stats.packageName}. What
                 would you like to know?`,
           }}
         >

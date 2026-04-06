@@ -72,9 +72,10 @@ const SidePanel = () => {
       ]}
       footerNode={<GlobalStatusPill />}
       helperTextSet={{
-        title: 'How can I help you today?',
-        description: `I can help you write code, analyze data, or even check the
-                    weather`,
+        title: () => 'How can I help you today?',
+        description: ({ toolLength }) =>
+          `I can help you write code, analyze data, or even check the
+                    weather. I have access to ${toolLength} tools`,
       }}
     >
       <SidepanelChatbot />
