@@ -51,6 +51,7 @@ export class GeminiNanoChatTransport implements ChatTransport<
   private isInitializing: boolean = false;
   private runtime: AssistantRuntime | null = null;
   formattedTools: any[] = [];
+  private isNPMAdvisor: boolean = false;
 
   constructor() {}
 
@@ -61,12 +62,13 @@ export class GeminiNanoChatTransport implements ChatTransport<
    * Initializes the on-device model session.
    * This checks for API availability and creates a session.
    */
-  async initializeSession(): Promise<void> {
+  async initializeSession(isNPMAdvisor: boolean = false): Promise<void> {
     if (this.model || this.isInitializing) {
       return;
     }
 
     this.isInitializing = true;
+    this.isNPMAdvisor = isNPMAdvisor;
     try {
       const lm = LanguageModel;
       if (!lm) {
@@ -89,9 +91,9 @@ export class GeminiNanoChatTransport implements ChatTransport<
         throw new Error('On-device Gemini Nano model is unavailable.');
       }
 
-      this.model = new ChromeAILanguageModel(
-        crypto.randomUUID()
-      ) as unknown as LanguageModelV2;
+      this.model = new ChromeAILanguageModel(crypto.randomUUID(), {
+        isNPMAdvisor: this.isNPMAdvisor,
+      }) as unknown as LanguageModelV2;
       if (this.model) {
         //@ts-expect-error -- Mismatch in versions being used by library
         this.model.setRuntime(this.runtime);
