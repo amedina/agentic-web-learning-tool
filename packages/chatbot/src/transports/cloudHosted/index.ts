@@ -18,14 +18,19 @@ import {
   type JSONSchema7,
 } from "@ai-sdk/provider";
 import type { AssistantRuntime } from "@assistant-ui/react";
-import { type createOpenAI, type OpenAIProviderSettings } from "@ai-sdk/openai";
+import {
+  openai,
+  type createOpenAI,
+  type OpenAIProviderSettings,
+} from "@ai-sdk/openai";
 import type {
   AnthropicProviderSettings,
   createAnthropic,
 } from "@ai-sdk/anthropic";
-import type {
-  createGoogleGenerativeAI,
-  GoogleGenerativeAIProviderSettings,
+import {
+  google,
+  type createGoogleGenerativeAI,
+  type GoogleGenerativeAIProviderSettings,
 } from "@ai-sdk/google";
 import z from "zod";
 import { logger } from "@google-awlt/common";
@@ -162,11 +167,12 @@ export class CloudHostedTransport implements ChatTransport<
     });
 
     if (this.model?.provider === "google.generative-ai") {
-      this.formattedTools.push({
-        google_search: {},
-      });
+      this.formattedTools["google_search"] = google.tools.googleSearch({});
     } else if (this.model?.provider === "openai") {
-      this.formattedTools.push({ type: "web_search" });
+      this.formattedTools["web_search"] = openai.tools.webSearch({
+        externalWebAccess: true,
+        searchContextSize: "high",
+      });
     }
 
     return createUIMessageStream({
