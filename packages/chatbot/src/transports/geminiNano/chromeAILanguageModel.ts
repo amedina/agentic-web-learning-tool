@@ -54,6 +54,7 @@ class ChromeAILanguageModel {
   public readonly provider = 'browser-ai';
   public readonly modelId: string;
   private isNPMAdvisor: boolean;
+  private systemPrompt: string;
 
   // Defines supported media types (images/audio) via URL patterns
   public readonly supportedUrls = {
@@ -63,7 +64,10 @@ class ChromeAILanguageModel {
   // Configuration options for the model
   config: any;
 
-  constructor(modelId: string, options = { isNPMAdvisor: false }) {
+  constructor(
+    modelId: string,
+    options = { isNPMAdvisor: false, systemPrompt: '' }
+  ) {
     this.modelId = modelId;
     this.config = {
       provider: this.provider,
@@ -71,6 +75,7 @@ class ChromeAILanguageModel {
       options: options,
     };
     this.isNPMAdvisor = options.isNPMAdvisor;
+    this.systemPrompt = options.systemPrompt;
   }
 
   public setRuntime(runtime: AssistantRuntime) {
@@ -107,9 +112,9 @@ class ChromeAILanguageModel {
       };
     });
 
-    const initialSystemPrompt = systemPromptTemplate(
-      JSON.stringify(this.formattedTools, null, 2)
-    );
+    const initialSystemPrompt = !this.isNPMAdvisor
+      ? systemPromptTemplate(JSON.stringify(this.formattedTools, null, 2))
+      : this.systemPrompt;
 
     this.session = await lm.create({
       initialPrompts: [

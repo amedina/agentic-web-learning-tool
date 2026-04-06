@@ -125,7 +125,8 @@ const Provider = ({ children }: PropsWithChildren) => {
       setSelectedAgent({ model: 'prompt-api', modelProvider: 'browser-ai' });
       setTransport(FALLBACK_AGENT);
       (FALLBACK_AGENT as GeminiNanoChatTransport).initializeSession(
-        !allowToolCalling
+        !allowToolCalling,
+        getCustomSystemPrompt()
       );
       initialFetchDone.current = true;
       return;
@@ -135,7 +136,8 @@ const Provider = ({ children }: PropsWithChildren) => {
       setSelectedAgent(_selectedAgent);
       setTransport(FALLBACK_AGENT);
       (FALLBACK_AGENT as GeminiNanoChatTransport).initializeSession(
-        !allowToolCalling
+        !allowToolCalling,
+        getCustomSystemPrompt()
       );
     } else {
       setSelectedAgent(_selectedAgent);
@@ -189,9 +191,15 @@ const Provider = ({ children }: PropsWithChildren) => {
     }
 
     (_transport as GeminiNanoChatTransport).initializeSession(
-      !allowToolCalling
+      !allowToolCalling,
+      getCustomSystemPrompt()
     );
-  }, [selectedAgent?.modelProvider, _transport, allowToolCalling]);
+  }, [
+    selectedAgent?.modelProvider,
+    _transport,
+    allowToolCalling,
+    getCustomSystemPrompt,
+  ]);
 
   useEffect(() => {
     intitialSync();
@@ -209,6 +217,7 @@ const Provider = ({ children }: PropsWithChildren) => {
     intitialSync,
     onSyncStorageChangedListener,
     onLocalStorageChangedListener,
+    getCustomSystemPrompt,
   ]);
 
   const memoisedValue = useMemo(() => {

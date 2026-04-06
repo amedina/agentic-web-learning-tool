@@ -62,7 +62,10 @@ export class GeminiNanoChatTransport implements ChatTransport<
    * Initializes the on-device model session.
    * This checks for API availability and creates a session.
    */
-  async initializeSession(isNPMAdvisor: boolean = false): Promise<void> {
+  async initializeSession(
+    isNPMAdvisor: boolean = false,
+    systemPrompt = ''
+  ): Promise<void> {
     if (this.model || this.isInitializing) {
       return;
     }
@@ -93,6 +96,7 @@ export class GeminiNanoChatTransport implements ChatTransport<
 
       this.model = new ChromeAILanguageModel(crypto.randomUUID(), {
         isNPMAdvisor: this.isNPMAdvisor,
+        systemPrompt: systemPrompt,
       }) as unknown as LanguageModelV2;
       if (this.model) {
         //@ts-expect-error -- Mismatch in versions being used by library
