@@ -21,14 +21,16 @@
     "@assistant-ui/react-ai-sdk": "1.1.19",
     "@tailwindcss/vite": "^4.1.13",
     "ai": "^5.0.104",
+    "algoliasearch": "^5.50.0",
+    "clsx": "^2.1.1",
     "lucide-react": "^0.577.0",
     "rc-tree": "^5.13.1",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "react-instantsearch": "^7.28.1",
+    "tailwind-merge": "^3.3.1",
     "tailwindcss": "^4.1.13",
-    "zod": "4.3.5",
-    "clsx": "^2.1.1",
-    "tailwind-merge": "^3.3.1"
+    "zod": "4.3.5"
   },
   "devDependencies": {
     "@google-awlt/shared-config": "workspace:*",

@@ -24,7 +24,7 @@
     {
       "js": ["contentScript/contentScript.js"],
       "matches": [
-        "*://www.npmjs.com/package/*",
+        "*://www.npmjs.com/*",
         "*://github.com/*/*/blob/*/package.json"
       ]
     }
@@ -40,6 +40,7 @@
     "*://registry.npmjs.org/*",
     "*://api.github.com/*",
     "*://bundlephobia.com/*",
-    "*://raw.githubusercontent.com/*"
+    "*://raw.githubusercontent.com/*",
+    "*://www.npmjs.com/*"
   ]
 }
