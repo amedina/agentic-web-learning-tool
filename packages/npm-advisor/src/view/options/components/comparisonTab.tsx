@@ -175,15 +175,16 @@ const SearchWrapper = () => {
             className="mb-0"
             classNames={{
               input:
-                "w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all pr-24",
+                "w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all pr-32 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden",
               submit: "hidden",
-              reset: "hidden",
+              reset:
+                "absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 [&>svg]:w-4 [&>svg]:h-4 appearance-none ais-SearchBox-reset",
             }}
           />
-          {selectedPackages.length >= 2 && !isAnalyzing && (
+          {query.trim() && selectedPackages.length >= 2 && !isAnalyzing && (
             <button
               onClick={handleBatchCompare}
-              className="absolute right-2 top-1/2 -translate-y-1/2 bg-blue-600 text-white px-3 py-1.5 rounded-md text-xs font-bold hover:bg-blue-700 transition-all shadow-sm flex items-center animate-in fade-in zoom-in duration-300"
+              className="absolute right-15 top-1/2 -translate-y-1/2 bg-blue-600 text-white px-3 py-1.5 rounded-md text-xs font-bold hover:bg-blue-700 transition-all shadow-sm flex items-center animate-in fade-in zoom-in duration-300"
             >
               <Check className="w-3 h-3 mr-1" />
               Compare
