@@ -1,7 +1,7 @@
 /**
  * External dependencies.
  */
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import * as d3 from "d3";
 
 /**
@@ -23,7 +23,7 @@ type TreeNode = d3.HierarchyPointNode<DependencyTreeType> & {
 const DependencyGraph = ({ data }: DependencyGraphProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const drawTree = async () => {
+  const drawTree = useCallback(async () => {
     const marginTop = 30;
     const marginBottom = 30;
     const marginLeft = 100;
@@ -208,7 +208,7 @@ const DependencyGraph = ({ data }: DependencyGraphProps) => {
 
     update(root);
     containerRef.current?.appendChild(svg.node() as Node);
-  };
+  }, [data]);
 
   useEffect(() => {
     if (!containerRef.current || !data) return;

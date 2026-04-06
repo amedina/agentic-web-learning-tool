@@ -1,7 +1,7 @@
 /**
  * External dependencies.
  */
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   ChevronRight,
   ChevronDown,
@@ -38,7 +38,7 @@ const DepTreeNode = ({
   const isTruncated = node._truncated && !isLoaded;
   const versionStr = node.resolvedVersion || node.requestedVersion || "latest";
 
-  const loadMore = () => {
+  const loadMore = useCallback(() => {
     setLoadingMore(true);
     chrome.runtime.sendMessage(
       { type: "FETCH_DEP_TREE", packageName: node.name, version: versionStr },
@@ -51,7 +51,7 @@ const DepTreeNode = ({
         }
       },
     );
-  };
+  }, [node.name, versionStr]);
 
   useEffect(() => {
     if (expanded && isTruncated && !loadingMore && !isLoaded) {
@@ -125,7 +125,7 @@ export interface DependencyTreeProps {
 export const DependencyTree: React.FC<DependencyTreeProps> = ({
   dependencyTree,
 }) => {
-  const [viewMode, setViewMode] = useState<"tree" | "chart">("tree");
+  const [viewMode, setViewMode] = useState<"tree" | "graph">("graph");
 
   if (!dependencyTree) return null;
 
@@ -142,6 +142,17 @@ export const DependencyTree: React.FC<DependencyTreeProps> = ({
 
         <div className="flex bg-slate-100 dark:bg-slate-900 rounded-lg p-0.5">
           <button
+            onClick={() => setViewMode("graph")}
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium transition-all ${
+              viewMode === "graph"
+                ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 shadow-sm"
+                : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+            }`}
+          >
+            <Share2 size={12} />
+            Graph
+          </button>
+          <button
             onClick={() => setViewMode("tree")}
             className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium transition-all ${
               viewMode === "tree"
@@ -151,17 +162,6 @@ export const DependencyTree: React.FC<DependencyTreeProps> = ({
           >
             <LayoutList size={12} />
             List
-          </button>
-          <button
-            onClick={() => setViewMode("chart")}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium transition-all ${
-              viewMode === "chart"
-                ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 shadow-sm"
-                : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
-            }`}
-          >
-            <Share2 size={12} />
-            Chart
           </button>
         </div>
       </div>
