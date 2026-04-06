@@ -5,18 +5,18 @@ import {
   MessagePrimitive,
   ActionBarPrimitive,
   useAssistantState,
-} from "@assistant-ui/react";
-import { CheckIcon, CopyIcon, ReloadIcon } from "@radix-ui/react-icons";
-import { Bot } from "lucide-react";
-import { useCallback, type FC } from "react";
-import { MarkdownText, ToolFallback } from "@google-awlt/design-system";
+} from '@assistant-ui/react';
+import { CheckIcon, CopyIcon, ReloadIcon } from '@radix-ui/react-icons';
+import { Bot } from 'lucide-react';
+import { useCallback, type FC } from 'react';
+import { MarkdownText, ToolFallback } from '@google-awlt/design-system';
 
 /**
  * Internal dependencies
  */
-import ActionButton from "./actionButton";
-import { Reasoning, ReasoningGroup } from "./reasoning";
-import { useTabThreadInformation } from "../../providers";
+import ActionButton from './actionButton';
+import { Reasoning, ReasoningGroup } from './reasoning';
+import { useTabThreadInformation } from '../../providers';
 
 const AssistantMessage: FC = () => {
   const threadId = useAssistantState(({ threadListItem }) => threadListItem.id);

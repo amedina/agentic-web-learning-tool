@@ -1,14 +1,14 @@
 /**
  * External dependencies
  */
-import { getToolNameWithoutPrefix } from "@google-awlt/design-system";
-import type { Tool as McpTool } from "@modelcontextprotocol/sdk/types.js";
-import { isUrl } from "@google-awlt/common";
+import { getToolNameWithoutPrefix } from '@google-awlt/design-system';
+import type { Tool as McpTool } from '@modelcontextprotocol/sdk/types.js';
+import { isUrl } from '@google-awlt/common';
 /**
  * Internal dependencies
  */
-import { getMcpbToolGroup } from "../../../utils";
-import { ToolNameMap } from "../../../constants";
+import { getMcpbToolGroup } from '../../../utils';
+import { ToolNameMap } from '../../../constants';
 
 type ToolDropdownItem = {
   id: string;
@@ -46,7 +46,7 @@ const createToolDropdown = (
   tools: McpTool[],
   toolNameToMCPMap: Record<string, string>,
   tabIdToUrlMap: { [key: string]: chrome.tabs.Tab },
-  currentTabId: number,
+  currentTabId: number
 ) => {
   if (Object.keys(tabIdToUrlMap).length === 0) {
     return [];
@@ -54,34 +54,34 @@ const createToolDropdown = (
 
   const toolGroups: ToolDropdownItem = [];
   const toolToTypeMap = tools.reduce((acc, tool) => {
-    if (getToolNameWithoutPrefix(tool.name) === "dummyTool") {
+    if (getToolNameWithoutPrefix(tool.name) === 'dummyTool') {
       return acc;
     }
     const result =
       tabIdToUrlMap[currentTabId].url && isUrl(tabIdToUrlMap[currentTabId].url)
         ? new URL(tabIdToUrlMap[currentTabId].url).hostname
-        : "others";
+        : 'others';
     const mcpbGroup = getMcpbToolGroup(tool.name);
     if (mcpbGroup) {
-      if (acc["mcp-b"]) {
-        acc["mcp-b"].items.push(tool);
+      if (acc['mcp-b']) {
+        acc['mcp-b'].items.push(tool);
       } else {
-        acc["mcp-b"] = {
-          group: "MCP-B",
-          key: "mcp-b",
+        acc['mcp-b'] = {
+          group: 'MCP-B',
+          key: 'mcp-b',
           isMCPTool: false,
           isWebSiteTool: false,
           isExtensionTool: true,
           items: [tool],
         };
       }
-    } else if (tool.name.includes("_mcp")) {
+    } else if (tool.name.includes('_mcp')) {
       const match = tool.name.match(/^(.*?)_mcp_/);
       const mcpServerId = tool.name.substring(match?.[0].length ?? 0);
       const mcpServerName =
         mcpServerId && toolNameToMCPMap[mcpServerId]
           ? toolNameToMCPMap[mcpServerId]
-          : "others";
+          : 'others';
 
       if (acc[mcpServerName]) {
         acc[mcpServerName].items.push(tool);
@@ -123,10 +123,10 @@ const createToolDropdown = (
           {
             id: toolToTypeMap[key].group,
             label: toolToTypeMap[key].group,
-            mainLabel: "Tools",
+            mainLabel: 'Tools',
             submenu: toolToTypeMap[key].items.map((tool) => ({
               id: tool.name,
-              label: getToolNameWithoutPrefix(tool.name) ?? "",
+              label: getToolNameWithoutPrefix(tool.name) ?? '',
             })),
           },
         ],
@@ -145,10 +145,10 @@ const createToolDropdown = (
           {
             id: toolToTypeMap[key].group,
             label: toolToTypeMap[key].group,
-            mainLabel: "Tools",
+            mainLabel: 'Tools',
             submenu: toolToTypeMap[key].items.map((tool) => ({
               id: tool.name,
-              label: getToolNameWithoutPrefix(tool.name) ?? "",
+              label: getToolNameWithoutPrefix(tool.name) ?? '',
             })),
           },
         ],
@@ -158,16 +158,16 @@ const createToolDropdown = (
 
   const mcpBTools = Object.entries(ToolNameMap).reduce(
     (acc, [, currentValue]) => {
-      const filteredTools = toolToTypeMap["mcp-b"]?.items
+      const filteredTools = toolToTypeMap['mcp-b']?.items
         .filter(
           (tool) =>
             ToolNameMap[
               getToolNameWithoutPrefix(tool.name) as keyof typeof ToolNameMap
-            ] === currentValue,
+            ] === currentValue
         )
         .map((tool) => ({
           id: tool.name,
-          label: getToolNameWithoutPrefix(tool.name) ?? "",
+          label: getToolNameWithoutPrefix(tool.name) ?? '',
           hideLabel: false,
         }));
 
@@ -177,13 +177,13 @@ const createToolDropdown = (
         acc[currentValue] = {
           id: currentValue,
           label: currentValue,
-          mainLabel: "Tools",
+          mainLabel: 'Tools',
           submenu: filteredTools,
         };
       }
       return acc;
     },
-    {} as { [key: string]: SingleItemType },
+    {} as { [key: string]: SingleItemType }
   );
 
   Object.keys(toolToTypeMap).forEach((key) => {
@@ -197,9 +197,9 @@ const createToolDropdown = (
           {
             id: toolToTypeMap[key].group,
             label: toolToTypeMap[key].group,
-            mainLabel: "Tools Types",
+            mainLabel: 'Tools Types',
             submenu: Object.values(mcpBTools).filter(
-              (tool) => tool.submenu.length > 0,
+              (tool) => tool.submenu.length > 0
             ),
           },
         ],

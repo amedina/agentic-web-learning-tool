@@ -1,13 +1,13 @@
 /**
  * Internal dependencies
  */
-import type { RemoteThreadMetadata, SingleMessage } from "./types";
+import type { RemoteThreadMetadata, SingleMessage } from './types';
 
 export const chatStorage = {
   threads: {
     async findAll(): Promise<RemoteThreadMetadata[]> {
-      const { "assistant-ui-threads": storedThreads = [] } =
-        await chrome.storage.local.get("assistant-ui-threads");
+      const { 'assistant-ui-threads': storedThreads = [] } =
+        await chrome.storage.local.get('assistant-ui-threads');
       return storedThreads as RemoteThreadMetadata[];
     },
 
@@ -15,7 +15,7 @@ export const chatStorage = {
       const {
         lastActiveThreadsStore = {},
       }: { lastActiveThreadsStore: { [key: number]: string } } =
-        await chrome.storage.local.get("lastActiveThreadsStore");
+        await chrome.storage.local.get('lastActiveThreadsStore');
 
       lastActiveThreadsStore[tabId] = threadId;
 
@@ -28,7 +28,7 @@ export const chatStorage = {
       const {
         lastActiveThreadsStore = {},
       }: { lastActiveThreadsStore: { [key: number]: string } } =
-        await chrome.storage.local.get("lastActiveThreadsStore");
+        await chrome.storage.local.get('lastActiveThreadsStore');
 
       return lastActiveThreadsStore[tabId];
     },
@@ -42,8 +42,8 @@ export const chatStorage = {
       const newThread: RemoteThreadMetadata = {
         id,
         remoteId: id,
-        title: "New Chat",
-        status: "regular",
+        title: 'New Chat',
+        status: 'regular',
         tabId: currentTab[0]?.id,
         externalId: id,
       };
@@ -51,7 +51,7 @@ export const chatStorage = {
       const threads = await this.findAll();
       threads.push(newThread);
       await chrome.storage.local.set({
-        "assistant-ui-threads": threads,
+        'assistant-ui-threads': threads,
       });
 
       return newThread;
@@ -61,11 +61,11 @@ export const chatStorage = {
       const threads = await this.findAll();
 
       const updatedThreads = threads.map((thread) =>
-        thread.id === id ? { ...thread, ...data } : thread,
+        thread.id === id ? { ...thread, ...data } : thread
       );
 
       await chrome.storage.local.set({
-        "assistant-ui-threads": updatedThreads,
+        'assistant-ui-threads': updatedThreads,
       });
     },
 
@@ -74,24 +74,24 @@ export const chatStorage = {
       const filteredThreads = threads.filter((thread) => thread.id !== id);
 
       chrome.storage.local.set({
-        "assistant-ui-threads": filteredThreads,
+        'assistant-ui-threads': filteredThreads,
       });
     },
   },
 
   messages: {
     async findByThreadId(threadId: string) {
-      const { "assistant-ui-messages": messages = [] } =
-        await chrome.storage.local.get("assistant-ui-messages");
+      const { 'assistant-ui-messages': messages = [] } =
+        await chrome.storage.local.get('assistant-ui-messages');
       const allMessages = messages as SingleMessage[];
       return allMessages.filter(
-        (message: SingleMessage) => message.threadId === threadId,
+        (message: SingleMessage) => message.threadId === threadId
       );
     },
 
     async create(message: SingleMessage) {
-      const { "assistant-ui-messages": messages = [] } =
-        await chrome.storage.local.get("assistant-ui-messages");
+      const { 'assistant-ui-messages': messages = [] } =
+        await chrome.storage.local.get('assistant-ui-messages');
       const allMessages = messages as SingleMessage[];
       //@ts-expect-error -- Ignoring this since tested and parts and content are used interchangebly in ai-sdk and Assistant-ui
       if (message?.message?.parts?.length === 0) {
@@ -101,19 +101,19 @@ export const chatStorage = {
       allMessages.push(message);
 
       await chrome.storage.local.set({
-        "assistant-ui-messages": allMessages,
+        'assistant-ui-messages': allMessages,
       });
     },
 
     async deleteByThreadId(threadId: string) {
-      const { "assistant-ui-messages": messages = [] } =
-        await chrome.storage.local.get("assistant-ui-messages");
+      const { 'assistant-ui-messages': messages = [] } =
+        await chrome.storage.local.get('assistant-ui-messages');
       const allMessages = messages as SingleMessage[];
       const filteredMessages = allMessages.filter(
-        (message: SingleMessage) => message.threadId !== threadId,
+        (message: SingleMessage) => message.threadId !== threadId
       );
       await chrome.storage.local.set({
-        "assistant-ui-messages": filteredMessages,
+        'assistant-ui-messages': filteredMessages,
       });
     },
   },

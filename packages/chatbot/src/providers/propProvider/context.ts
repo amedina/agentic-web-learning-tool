@@ -1,13 +1,13 @@
 /**
  * External dependencies
  */
-import { createContext } from "@google-awlt/common";
-import type { SidePanelTabProps } from "../../../types";
+import { createContext } from '@google-awlt/common';
+import type { SidePanelTabProps } from '../../../types';
 
 export type PropProviderType = {
   state: {
     footerNode: React.ReactNode;
-    extraTabs: SidePanelTabProps["extraTabs"];
+    extraTabs: SidePanelTabProps['extraTabs'];
     CustomAssistantMessageComponent?: null | (() => React.JSX.Element);
     CustomUserMessageComponent?: null | (() => React.JSX.Element);
     CustomEditComposerComponent?: null | (() => React.JSX.Element);

@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import { noop, createContext } from "@google-awlt/common";
-import type { PromptCommand } from "@google-awlt/design-system";
+import { noop, createContext } from '@google-awlt/common';
+import type { PromptCommand } from '@google-awlt/design-system';
 
 export interface CommandProviderContextType {
   state: {
@@ -12,7 +12,7 @@ export interface CommandProviderContextType {
     handleMessageChange: (
       event:
         | React.KeyboardEvent<HTMLTextAreaElement>
-        | React.MouseEvent<HTMLButtonElement, MouseEvent>,
+        | React.MouseEvent<HTMLButtonElement, MouseEvent>
     ) => void;
   };
 }

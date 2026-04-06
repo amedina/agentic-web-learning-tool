@@ -1,1 +1,1 @@
-export { default as transportGenerator } from "./transportGenerator";
+export { default as transportGenerator } from './transportGenerator';

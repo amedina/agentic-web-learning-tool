@@ -1,25 +1,25 @@
 /**
  * External dependencies
  */
-import { type AssistantRuntime } from "@assistant-ui/react";
-import { useEffect, useMemo, useRef } from "react";
+import { type AssistantRuntime } from '@assistant-ui/react';
+import { useEffect, useMemo, useRef } from 'react';
 import {
   Tabs,
   TabsList,
   TabsTrigger,
   TabsContent,
-} from "@google-awlt/design-system";
-import { SidebarProvider } from "@google-awlt/design-system";
+} from '@google-awlt/design-system';
+import { SidebarProvider } from '@google-awlt/design-system';
 /**
  * Internal dependencies
  */
-import { ChatBotUI } from "./components";
+import { ChatBotUI } from './components';
 import {
   CommandProvider,
   useModelProvider,
   usePropProvider,
-} from "./providers";
-import CustomRuntimeProvider from "./customRuntime/customRuntimeProvider";
+} from './providers';
+import CustomRuntimeProvider from './customRuntime/customRuntimeProvider';
 
 const SidePanel = () => {
   const { transport } = useModelProvider(({ state }) => ({
@@ -45,8 +45,8 @@ const SidePanel = () => {
 
   useEffect(() => {
     chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
-      if (message.type === "still_there") {
-        sendResponse({ status: "yes", type: "sidepanel" });
+      if (message.type === 'still_there') {
+        sendResponse({ status: 'yes', type: 'sidepanel' });
       }
     });
   }, []);
@@ -64,8 +64,8 @@ const SidePanel = () => {
   const tabsList = useMemo(() => {
     return [
       {
-        value: "chat",
-        label: "Chat",
+        value: 'chat',
+        label: 'Chat',
         content: <ChatBotUI runtime={runtimeRef.current} />,
       },
       ...extraTabs,

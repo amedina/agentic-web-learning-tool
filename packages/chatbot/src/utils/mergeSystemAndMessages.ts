@@ -12,7 +12,7 @@
  */
 function mergeSystemAndMessages(
   messages: LanguageModelMessage[],
-  textToInject: string,
+  textToInject: string
 ): LanguageModelMessage[] {
   // 1. If the text to inject is empty or just whitespace, do nothing.
   if (!textToInject.trim()) {
@@ -25,7 +25,7 @@ function mergeSystemAndMessages(
   }));
 
   // 3. Find the index of the first message with the role "user".
-  const userMessageIndex = newMessages.findIndex((msg) => msg.role === "user");
+  const userMessageIndex = newMessages.findIndex((msg) => msg.role === 'user');
 
   if (userMessageIndex !== -1) {
     const userMessage = newMessages[userMessageIndex];
@@ -35,7 +35,7 @@ function mergeSystemAndMessages(
       const newContent = userMessage.content.slice();
 
       newContent.unshift({
-        type: "text",
+        type: 'text',
         value: `${textToInject}\n\n`,
       });
 
@@ -45,7 +45,7 @@ function mergeSystemAndMessages(
       };
     }
     // 4b. If content is a simple string, prepend the text directly.
-    else if (typeof userMessage.content === "string") {
+    else if (typeof userMessage.content === 'string') {
       newMessages[userMessageIndex] = {
         ...userMessage,
         content: `${textToInject}\n\n${userMessage.content}`,
@@ -54,7 +54,7 @@ function mergeSystemAndMessages(
   } else {
     // 5. If no user message exists, prepend a new one.
     newMessages.unshift({
-      role: "user",
+      role: 'user',
       content: textToInject,
     });
   }

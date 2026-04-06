@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { logger } from "@google-awlt/common";
+import { logger } from '@google-awlt/common';
 
 const openOptionsPage = async () => {
   try {
@@ -13,7 +13,7 @@ const openOptionsPage = async () => {
     });
 
     const preExistingOptionsPage = tabs.filter(
-      (tab) => tab.url && tab.url === optionsPageUrl,
+      (tab) => tab.url && tab.url === optionsPageUrl
     )?.[0];
 
     if (preExistingOptionsPage?.id) {
@@ -25,7 +25,7 @@ const openOptionsPage = async () => {
       });
     }
   } catch (error) {
-    logger(["error"], [error]);
+    logger(['error'], [error]);
   }
 };
 

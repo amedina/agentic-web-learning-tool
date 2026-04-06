@@ -8,11 +8,11 @@ import {
   useRef,
   useState,
   type PropsWithChildren,
-} from "react";
+} from 'react';
 /**
  * Internal dependencies
  */
-import TabThreadContext, { type TabThreadContextProps } from "./context";
+import TabThreadContext, { type TabThreadContextProps } from './context';
 
 function TabThreadInformationProvider({ children }: PropsWithChildren) {
   const initialFetch = useRef(false);
@@ -35,27 +35,27 @@ function TabThreadInformationProvider({ children }: PropsWithChildren) {
         },
         {} as {
           [key: string]: chrome.tabs.Tab;
-        },
-      ),
+        }
+      )
     );
   }, []);
 
   const sessionStorageListener = useCallback(
     async (changes: { [key: string]: chrome.storage.StorageChange }) => {
-      if (!changes["lockedThreads"]?.newValue) {
+      if (!changes['lockedThreads']?.newValue) {
         return;
       }
 
-      const updatedLockedThreads = changes["lockedThreads"]
+      const updatedLockedThreads = changes['lockedThreads']
         .newValue as string[];
       setLockedThreads(updatedLockedThreads);
     },
-    [],
+    []
   );
 
   const fetchAndUpdateSettings = useCallback(async () => {
     const { lockedThreads: _lockedThreads }: { lockedThreads: string[] } =
-      await chrome.storage.session.get("lockedThreads");
+      await chrome.storage.session.get('lockedThreads');
 
     setLockedThreads(_lockedThreads || []);
   }, []);
@@ -72,7 +72,7 @@ function TabThreadInformationProvider({ children }: PropsWithChildren) {
 
       fetchAndUpdateSettings();
     },
-    [fetchAndUpdateSettings],
+    [fetchAndUpdateSettings]
   );
 
   const addTabData = useCallback((tabData: chrome.tabs.Tab) => {
@@ -107,7 +107,7 @@ function TabThreadInformationProvider({ children }: PropsWithChildren) {
         return newData;
       });
     },
-    [],
+    []
   );
 
   useEffect(() => {
@@ -147,7 +147,7 @@ function TabThreadInformationProvider({ children }: PropsWithChildren) {
       },
       actions: {},
     }),
-    [lockedThreads, tabData],
+    [lockedThreads, tabData]
   );
 
   return (

@@ -10,13 +10,13 @@ export function extractArguments(inputString: string): string {
 
   // If "arguments" key is not found, return empty string
   if (!match || match.index === undefined) {
-    return "";
+    return '';
   }
 
   // Calculate where the value actually starts (after the match)
   const valueStartIndex = match.index + match[0].length;
 
-  let result = "";
+  let result = '';
   let nestingDepth = 0; // Tracks open braces/brackets ({ or [)
   let isInsideString = false; // Tracks if we are currently inside a JSON string value
   let isEscaped = false; // Tracks if the previous character was a backslash (\)
@@ -35,7 +35,7 @@ export function extractArguments(inputString: string): string {
       if (!/\s/.test(char)) {
         hasStarted = true;
         // If the value starts with { or [, initialize nesting
-        if (char === "{" || char === "[") {
+        if (char === '{' || char === '[') {
           nestingDepth = 1;
         }
       }
@@ -52,7 +52,7 @@ export function extractArguments(inputString: string): string {
     }
 
     // If this char is a backslash, set escape flag for next iteration
-    if (char === "\\") {
+    if (char === '\\') {
       isEscaped = true;
       continue;
     }
@@ -65,9 +65,9 @@ export function extractArguments(inputString: string): string {
 
     // If we are NOT inside a string, check for structure (braces/brackets)
     if (!isInsideString) {
-      if (char === "{" || char === "[") {
+      if (char === '{' || char === '[') {
         nestingDepth += 1;
-      } else if ((char === "}" || char === "]") && nestingDepth > 0) {
+      } else if ((char === '}' || char === ']') && nestingDepth > 0) {
         nestingDepth -= 1;
 
         // If nesting returns to 0, we have found the matching closing brace.

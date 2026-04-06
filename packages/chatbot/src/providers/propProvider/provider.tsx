@@ -1,16 +1,16 @@
 /**
  * External dependencies
  */
-import { useMemo, type PropsWithChildren } from "react";
+import { useMemo, type PropsWithChildren } from 'react';
 /**
  * Internal dependencies
  */
-import PropProviderContext, { type PropProviderType } from "./context";
-import type { SidePanelTabProps } from "../../../types";
+import PropProviderContext, { type PropProviderType } from './context';
+import type { SidePanelTabProps } from '../../../types';
 
 type PropProviderProps = PropsWithChildren & {
   footerNode: React.ReactNode;
-  extraTabs: SidePanelTabProps["extraTabs"];
+  extraTabs: SidePanelTabProps['extraTabs'];
   assistantMessage?: null | (() => React.JSX.Element);
   userMessage?: null | (() => React.JSX.Element);
   editComposer?: null | (() => React.JSX.Element);
@@ -35,7 +35,7 @@ function PropProvider({
       },
       actions: {},
     }),
-    [footerNode, extraTabs, assistantMessage, userMessage, editComposer],
+    [footerNode, extraTabs, assistantMessage, userMessage, editComposer]
   );
 
   return (

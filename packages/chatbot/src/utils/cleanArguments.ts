@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import type { ToolExecutionArgs } from "../../types";
+import type { ToolExecutionArgs } from '../../types';
 
 /**
  * Removes null or undefined values from the arguments object.
@@ -9,7 +9,7 @@ import type { ToolExecutionArgs } from "../../types";
  */
 function cleanArguments(args: ToolExecutionArgs): ToolExecutionArgs {
   return Object.fromEntries(
-    Object.entries(args).filter(([, v]) => v !== null && v !== undefined),
+    Object.entries(args).filter(([, v]) => v !== null && v !== undefined)
   );
 }
 

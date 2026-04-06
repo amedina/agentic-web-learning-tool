@@ -8,20 +8,20 @@ import {
   useCallback,
   useRef,
   useMemo,
-} from "react";
-import { McpClientProvider } from "@mcp-b/react-webmcp";
-import { ExtensionClientTransport } from "@mcp-b/transports";
-import { Client } from "@modelcontextprotocol/sdk/client";
-import { type MCPServerConfig } from "@google-awlt/common";
+} from 'react';
+import { McpClientProvider } from '@mcp-b/react-webmcp';
+import { ExtensionClientTransport } from '@mcp-b/transports';
+import { Client } from '@modelcontextprotocol/sdk/client';
+import { type MCPServerConfig } from '@google-awlt/common';
 /**
  * Internal dependencies.
  */
-import { transportGenerator } from "../../transports";
-import type { CloudHostedTransport } from "../../transports/cloudHosted";
-import { GeminiNanoChatTransport } from "../../transports/geminiNano";
-import Context, { FALLBACK_AGENT } from "./context";
-import { CONNECTION_NAMES } from "../../constants";
-import type { AgentType, APIKeys } from "../../../types";
+import { transportGenerator } from '../../transports';
+import type { CloudHostedTransport } from '../../transports/cloudHosted';
+import { GeminiNanoChatTransport } from '../../transports/geminiNano';
+import Context, { FALLBACK_AGENT } from './context';
+import { CONNECTION_NAMES } from '../../constants';
+import type { AgentType, APIKeys } from '../../../types';
 
 export const transport = new ExtensionClientTransport({
   portName: CONNECTION_NAMES.MCP_HOST_SIDEPANEL,
@@ -29,15 +29,15 @@ export const transport = new ExtensionClientTransport({
 
 //MCP client instance that connects to the extension background script
 export const client = new Client({
-  name: "Extension Sidepanel",
-  version: "1.0.0",
+  name: 'Extension Sidepanel',
+  version: '1.0.0',
 });
 
 const Provider = ({ children }: PropsWithChildren) => {
   const [apiKeys, setApiKeys] = useState<{ [key: string]: APIKeys }>({});
   const [selectedAgent, setSelectedAgent] = useState<AgentType>({
-    modelProvider: "browser-ai",
-    model: "prompt-api",
+    modelProvider: 'browser-ai',
+    model: 'prompt-api',
   });
   const [toolNameToMCPMap, setToolNameToMCPMap] = useState<
     Record<string, string>
@@ -53,7 +53,7 @@ const Provider = ({ children }: PropsWithChildren) => {
       return;
     }
 
-    if (selectedAgent && selectedAgent?.modelProvider !== "browser-ai") {
+    if (selectedAgent && selectedAgent?.modelProvider !== 'browser-ai') {
       setTransport(
         transportGenerator(
           selectedAgent?.modelProvider,
@@ -62,11 +62,11 @@ const Provider = ({ children }: PropsWithChildren) => {
             ...apiKeys[selectedAgent?.modelProvider],
           },
           apiKeys[selectedAgent.modelProvider]?.thinkingMode,
-          apiKeys[selectedAgent.modelProvider]?.systemPrompt,
-        ),
+          apiKeys[selectedAgent.modelProvider]?.systemPrompt
+        )
       );
     } else {
-      setTransport(transportGenerator("browser-ai", "prompt-api", {}));
+      setTransport(transportGenerator('browser-ai', 'prompt-api', {}));
     }
 
     chrome.storage.sync.set({
@@ -78,7 +78,7 @@ const Provider = ({ children }: PropsWithChildren) => {
     const {
       mcpServers = {},
     }: { mcpServers: { [key: string]: MCPServerConfig } } =
-      await chrome.storage.local.get("mcpServers");
+      await chrome.storage.local.get('mcpServers');
 
     const mappedObject: Record<string, string> = {};
 
@@ -98,21 +98,21 @@ const Provider = ({ children }: PropsWithChildren) => {
       apiKeys: _apiKeys = {},
       selectedAgent: _selectedAgent,
     }: { apiKeys: { [key: string]: APIKeys }; selectedAgent: AgentType } =
-      await chrome.storage.sync.get(["apiKeys", "selectedAgent"]);
+      await chrome.storage.sync.get(['apiKeys', 'selectedAgent']);
 
     await fetchMCPServersAndCreateMapping();
 
     setApiKeys(_apiKeys);
 
     if (!_selectedAgent) {
-      setSelectedAgent({ model: "prompt-api", modelProvider: "browser-ai" });
+      setSelectedAgent({ model: 'prompt-api', modelProvider: 'browser-ai' });
       setTransport(FALLBACK_AGENT);
       (FALLBACK_AGENT as GeminiNanoChatTransport).initializeSession();
       initialFetchDone.current = true;
       return;
     }
 
-    if (_selectedAgent?.modelProvider === "browser-ai") {
+    if (_selectedAgent?.modelProvider === 'browser-ai') {
       setSelectedAgent(_selectedAgent);
       setTransport(FALLBACK_AGENT);
       (FALLBACK_AGENT as GeminiNanoChatTransport).initializeSession();
@@ -126,8 +126,8 @@ const Provider = ({ children }: PropsWithChildren) => {
             ..._apiKeys[_selectedAgent?.modelProvider],
           },
           _apiKeys[_selectedAgent.modelProvider]?.thinkingMode,
-          _apiKeys[_selectedAgent.modelProvider]?.systemPrompt,
-        ),
+          _apiKeys[_selectedAgent.modelProvider]?.systemPrompt
+        )
       );
     }
     initialFetchDone.current = true;
@@ -140,11 +140,11 @@ const Provider = ({ children }: PropsWithChildren) => {
       }
 
       const { apiKeys = {} }: { apiKeys: { [key: string]: APIKeys } } =
-        await chrome.storage.sync.get("apiKeys");
+        await chrome.storage.sync.get('apiKeys');
 
       setApiKeys(apiKeys);
     },
-    [],
+    []
   );
 
   const onLocalStorageChangedListener = useCallback(
@@ -155,7 +155,7 @@ const Provider = ({ children }: PropsWithChildren) => {
 
       fetchMCPServersAndCreateMapping();
     },
-    [fetchMCPServersAndCreateMapping],
+    [fetchMCPServersAndCreateMapping]
   );
 
   useEffect(() => {
@@ -163,7 +163,7 @@ const Provider = ({ children }: PropsWithChildren) => {
       return;
     }
 
-    if (selectedAgent?.modelProvider !== "browser-ai") {
+    if (selectedAgent?.modelProvider !== 'browser-ai') {
       return;
     }
 
@@ -176,10 +176,10 @@ const Provider = ({ children }: PropsWithChildren) => {
     chrome.storage.local.onChanged.addListener(onLocalStorageChangedListener);
     return () => {
       chrome.storage.sync.onChanged.removeListener(
-        onSyncStorageChangedListener,
+        onSyncStorageChangedListener
       );
       chrome.storage.local.onChanged.removeListener(
-        onLocalStorageChangedListener,
+        onLocalStorageChangedListener
       );
     };
   }, [

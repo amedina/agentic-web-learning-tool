@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import { type AssistantRuntime } from "@assistant-ui/react";
-import type { Tool } from "ai";
+import { type AssistantRuntime } from '@assistant-ui/react';
+import type { Tool } from 'ai';
 
 /**
  * Internal dependencies
@@ -16,11 +16,11 @@ import {
   extractToolName,
   mergeSystemAndMessages,
   systemPromptTemplate,
-} from "../../utils";
+} from '../../utils';
 
 type ToolType = Tool & {
   name: string;
-  parameters?: Tool["inputSchema"];
+  parameters?: Tool['inputSchema'];
 };
 
 interface PromptOptions {
@@ -32,7 +32,7 @@ interface PromptOptions {
 interface LanguageModelV2CallOptions {
   temperature?: number;
   topK?: number;
-  responseFormat?: { type: "json"; schema?: any };
+  responseFormat?: { type: 'json'; schema?: any };
   tools?: ToolType[];
   prompt: any; // Standard AI SDK message format
   abortSignal?: AbortSignal;
@@ -50,14 +50,14 @@ class ChromeAILanguageModel {
   private runtime: AssistantRuntime | null = null;
   private formattedTools: any[] = [];
 
-  public readonly specificationVersion = "v2";
-  public readonly provider = "browser-ai";
+  public readonly specificationVersion = 'v2';
+  public readonly provider = 'browser-ai';
   public readonly modelId: string;
 
   // Defines supported media types (images/audio) via URL patterns
   public readonly supportedUrls = {
-    "image/*": [/^https?:\/\/.+$/],
-    "audio/*": [/^https?:\/\/.+$/],
+    'image/*': [/^https?:\/\/.+$/],
+    'audio/*': [/^https?:\/\/.+$/],
   };
   // Configuration options for the model
   config: any;
@@ -88,7 +88,7 @@ class ChromeAILanguageModel {
     const lm = LanguageModel;
     if (!lm) {
       throw new Error(
-        "Chrome LanguageModel API is not available in this browser.",
+        'Chrome LanguageModel API is not available in this browser.'
       );
     }
 
@@ -98,31 +98,31 @@ class ChromeAILanguageModel {
     this.formattedTools = functionTools.map((tool) => {
       return {
         name: tool.name,
-        description: tool.description ?? "No description Provided",
+        description: tool.description ?? 'No description Provided',
         parameters: tool?.parameters ?? tool?.inputSchema,
         execute: tool.execute,
-        type: "function",
+        type: 'function',
       };
     });
 
     const initialSystemPrompt = systemPromptTemplate(
-      JSON.stringify(this.formattedTools, null, 2),
+      JSON.stringify(this.formattedTools, null, 2)
     );
 
     this.session = await lm.create({
       initialPrompts: [
         {
-          role: "system",
+          role: 'system',
           content: initialSystemPrompt,
         },
       ],
       expectedInputs: [
         {
-          type: "text",
-          languages: ["en"],
+          type: 'text',
+          languages: ['en'],
         },
       ],
-      expectedOutputs: [{ type: "text", languages: ["en"] }],
+      expectedOutputs: [{ type: 'text', languages: ['en'] }],
     });
   }
 
@@ -133,11 +133,11 @@ class ChromeAILanguageModel {
     const { temperature, topK, responseFormat, tools, prompt } = args;
 
     const functionTools = (tools ?? []).filter(
-      (tool) => tool.type === "function",
+      (tool) => tool.type === 'function'
     );
     const promptOptions: PromptOptions = {};
 
-    if (responseFormat?.type === "json") {
+    if (responseFormat?.type === 'json') {
       promptOptions.responseConstraint = responseFormat.schema;
     }
 
@@ -164,12 +164,12 @@ class ChromeAILanguageModel {
     if (!this.session) return;
 
     // Merge the System Prompt (with tool definitions) into the message history
-    const finalMessages = mergeSystemAndMessages(messages, "");
+    const finalMessages = mergeSystemAndMessages(messages, '');
 
     // Execute prompt
     const responseText = await this.session.prompt(
       [...finalMessages],
-      promptOptions,
+      promptOptions
     );
 
     // Parse the full response to check for ```tool_call blocks
@@ -182,12 +182,12 @@ class ChromeAILanguageModel {
       const content = [];
 
       if (textContent) {
-        content.push({ type: "text", text: textContent });
+        content.push({ type: 'text', text: textContent });
       }
 
       for (const call of firstBatch) {
         content.push({
-          type: "tool-call",
+          type: 'tool-call',
           toolCallId: call.toolCallId,
           toolName: call.toolName,
           input: JSON.stringify(call.arguments ?? {}),
@@ -196,7 +196,7 @@ class ChromeAILanguageModel {
 
       return {
         content,
-        finishReason: "tool-calls",
+        finishReason: 'tool-calls',
         usage: {
           inputTokens: undefined,
           outputTokens: undefined,
@@ -210,8 +210,8 @@ class ChromeAILanguageModel {
 
     // 2. Handle Plain Text response
     return {
-      content: [{ type: "text", text: textContent || responseText }],
-      finishReason: "stop",
+      content: [{ type: 'text', text: textContent || responseText }],
+      finishReason: 'stop',
       usage: {
         inputTokens: undefined,
         outputTokens: undefined,
@@ -236,16 +236,16 @@ class ChromeAILanguageModel {
       return;
     }
 
-    const finalMessages = mergeSystemAndMessages(messages, "");
+    const finalMessages = mergeSystemAndMessages(messages, '');
 
     const messageContext = [...finalMessages];
-    const textPartId = "text-0";
+    const textPartId = 'text-0';
 
     return {
       stream: new ReadableStream({
         start: async (controller) => {
           // 1. Emit stream start event
-          controller.enqueue({ type: "stream-start" });
+          controller.enqueue({ type: 'stream-start' });
 
           // Stream State Tracking
           let hasStartedText = false;
@@ -259,7 +259,7 @@ class ChromeAILanguageModel {
           const emitTextStart = () => {
             if (!hasStartedText) {
               controller.enqueue({
-                type: "text-start",
+                type: 'text-start',
                 id: textPartId,
               });
               hasStartedText = true;
@@ -270,7 +270,7 @@ class ChromeAILanguageModel {
             if (delta) {
               emitTextStart();
               controller.enqueue({
-                type: "text-delta",
+                type: 'text-delta',
                 id: textPartId,
                 delta,
               });
@@ -280,7 +280,7 @@ class ChromeAILanguageModel {
           const emitTextEnd = () => {
             if (hasStartedText) {
               controller.enqueue({
-                type: "text-end",
+                type: 'text-end',
                 id: textPartId,
               });
               hasStartedText = false;
@@ -288,13 +288,13 @@ class ChromeAILanguageModel {
           };
 
           const finishStream = (
-            reason: "stop" | "tool-calls" | "length" | "error" | "other",
+            reason: 'stop' | 'tool-calls' | 'length' | 'error' | 'other'
           ) => {
             if (!hasFinished) {
               hasFinished = true;
               emitTextEnd();
               controller.enqueue({
-                type: "finish",
+                type: 'finish',
                 finishReason: reason,
                 usage: {
                   outputTokens: undefined,
@@ -311,18 +311,18 @@ class ChromeAILanguageModel {
             if (!isAborted) {
               isAborted = true;
               activeStreamReader?.cancel().catch(() => {});
-              finishStream("stop");
+              finishStream('stop');
             }
           };
 
           if (this.formattedTools.length === 0) {
-            emitTextDelta("Error: No tools are configured for tool calling.");
-            finishStream("error");
+            emitTextDelta('Error: No tools are configured for tool calling.');
+            finishStream('error');
             return;
           }
 
           if (callOptions.abortSignal) {
-            callOptions.abortSignal.addEventListener("abort", handleAbort);
+            callOptions.abortSignal.addEventListener('abort', handleAbort);
           }
 
           // --- Main Stream Logic ---
@@ -338,7 +338,7 @@ class ChromeAILanguageModel {
               loopCount++;
 
               if (!this.session) {
-                finishStream("stop");
+                finishStream('stop');
                 return;
               }
 
@@ -352,10 +352,10 @@ class ChromeAILanguageModel {
               // Parsing State
               let toolCallsFound: any[] = [];
               let hasToolCalls = false;
-              let textBuffer = "";
+              let textBuffer = '';
               let currentToolCallId: string | null = null;
               let hasEmittedToolStart = false;
-              let rawToolBuffer = ""; // Buffers the JSON string inside the fence
+              let rawToolBuffer = ''; // Buffers the JSON string inside the fence
               let processedArgLength = 0;
               let isInFence = false;
 
@@ -386,7 +386,7 @@ class ChromeAILanguageModel {
                     // Initialize new Tool Call
                     currentToolCallId = `call_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
                     hasEmittedToolStart = false;
-                    rawToolBuffer = "";
+                    rawToolBuffer = '';
                     processedArgLength = 0;
                     isInFence = true;
                     continue; // Loop to process next part of buffer
@@ -409,7 +409,7 @@ class ChromeAILanguageModel {
                         processedArgLength = allArgs.length;
                         if (deltaArgs.length > 0) {
                           controller.enqueue({
-                            type: "tool-input-delta",
+                            type: 'tool-input-delta',
                             id: currentToolCallId,
                             delta: deltaArgs,
                           });
@@ -419,7 +419,7 @@ class ChromeAILanguageModel {
 
                     // Parse the full block to confirm it's a valid tool call
                     const parsedCalls = extractToolCalls(
-                      scanResult.completeFence,
+                      scanResult.completeFence
                     ).toolCalls.slice(0, 1);
 
                     if (parsedCalls.length === 0) {
@@ -435,7 +435,7 @@ class ChromeAILanguageModel {
                       // Reset State
                       currentToolCallId = null;
                       hasEmittedToolStart = false;
-                      rawToolBuffer = "";
+                      rawToolBuffer = '';
                       processedArgLength = 0;
                       isInFence = false;
                       continue;
@@ -462,7 +462,7 @@ class ChromeAILanguageModel {
                         // Ensure start event was sent
                         if (!hasEmittedToolStart) {
                           controller.enqueue({
-                            type: "tool-input-start",
+                            type: 'tool-input-start',
                             id: callId,
                             toolName: name,
                           });
@@ -476,7 +476,7 @@ class ChromeAILanguageModel {
                           processedArgLength = currentArgs.length;
                           if (diff.length > 0) {
                             controller.enqueue({
-                              type: "tool-input-delta",
+                              type: 'tool-input-delta',
                               id: callId,
                               delta: diff,
                             });
@@ -485,13 +485,13 @@ class ChromeAILanguageModel {
                       } else {
                         // Secondary calls in same block (rare edge case)
                         controller.enqueue({
-                          type: "tool-input-start",
+                          type: 'tool-input-start',
                           id: callId,
                           toolName: name,
                         });
                         if (argsString.length > 0) {
                           controller.enqueue({
-                            type: "tool-input-delta",
+                            type: 'tool-input-delta',
                             id: callId,
                             delta: argsString,
                           });
@@ -499,11 +499,11 @@ class ChromeAILanguageModel {
                       }
 
                       controller.enqueue({
-                        type: "tool-input-end",
+                        type: 'tool-input-end',
                         id: callId,
                       });
                       controller.enqueue({
-                        type: "tool-call",
+                        type: 'tool-call',
                         toolCallId: callId,
                         toolName: name,
                         input: argsString,
@@ -527,7 +527,7 @@ class ChromeAILanguageModel {
                     // Reset State
                     currentToolCallId = null;
                     hasEmittedToolStart = false;
-                    rawToolBuffer = "";
+                    rawToolBuffer = '';
                     processedArgLength = 0;
                     isInFence = false;
                     continue;
@@ -547,7 +547,7 @@ class ChromeAILanguageModel {
                         currentToolCallId
                       ) {
                         controller.enqueue({
-                          type: "tool-input-start",
+                          type: 'tool-input-start',
                           id: currentToolCallId,
                           toolName: extractedName,
                         });
@@ -562,7 +562,7 @@ class ChromeAILanguageModel {
                           processedArgLength = currentArgs.length;
                           if (diff.length > 0) {
                             controller.enqueue({
-                              type: "tool-input-delta",
+                              type: 'tool-input-delta',
                               id: currentToolCallId,
                               delta: diff,
                             });
@@ -596,7 +596,7 @@ class ChromeAILanguageModel {
 
               // Finalize stream based on what we found
               if (!hasToolCalls || toolCallsFound.length === 0) {
-                finishStream("stop");
+                finishStream('stop');
                 return;
               }
 
@@ -604,20 +604,20 @@ class ChromeAILanguageModel {
                 emitTextDelta(textBuffer);
               }
 
-              finishStream("tool-calls");
+              finishStream('tool-calls');
               return;
             }
 
             // Fallback if loop finishes naturally without specific exit
             if (!hasFinished && !isAborted) {
-              finishStream("other");
+              finishStream('other');
             }
           } catch (err) {
-            controller.enqueue({ type: "error", error: err });
+            controller.enqueue({ type: 'error', error: err });
             controller.close();
           } finally {
             if (callOptions.abortSignal) {
-              callOptions.abortSignal.removeEventListener("abort", handleAbort);
+              callOptions.abortSignal.removeEventListener('abort', handleAbort);
             }
           }
         },

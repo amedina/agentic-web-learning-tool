@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { BrainIcon, ChevronDownIcon } from "lucide-react";
+import { BrainIcon, ChevronDownIcon } from 'lucide-react';
 import {
   memo,
   useCallback,
@@ -9,21 +9,21 @@ import {
   useState,
   type FC,
   type PropsWithChildren,
-} from "react";
+} from 'react';
 
 import {
   useScrollLock,
   useAssistantState,
   type ReasoningMessagePartComponent,
   type ReasoningGroupComponent,
-} from "@assistant-ui/react";
+} from '@assistant-ui/react';
 import {
   MarkdownText,
   cn,
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "@google-awlt/design-system";
+} from '@google-awlt/design-system';
 const ANIMATION_DURATION = 200;
 const SHIMMER_DURATION = 1000;
 
@@ -47,7 +47,7 @@ const ReasoningRoot: FC<
       }
       setIsOpen(open);
     },
-    [lockScroll],
+    [lockScroll]
   );
 
   return (
@@ -55,11 +55,11 @@ const ReasoningRoot: FC<
       ref={collapsibleRef}
       open={isOpen}
       onOpenChange={handleOpenChange}
-      className={cn("aui-reasoning-root mb-4 w-full", className)}
+      className={cn('aui-reasoning-root mb-4 w-full', className)}
       style={
         {
-          "--animation-duration": `${ANIMATION_DURATION}ms`,
-          "--shimmer-duration": `${SHIMMER_DURATION}ms`,
+          '--animation-duration': `${ANIMATION_DURATION}ms`,
+          '--shimmer-duration': `${SHIMMER_DURATION}ms`,
         } as React.CSSProperties
       }
     >
@@ -68,7 +68,7 @@ const ReasoningRoot: FC<
   );
 };
 
-ReasoningRoot.displayName = "ReasoningRoot";
+ReasoningRoot.displayName = 'ReasoningRoot';
 
 /**
  * Gradient overlay that softens the bottom edge during expand/collapse animations.
@@ -77,15 +77,15 @@ ReasoningRoot.displayName = "ReasoningRoot";
 const GradientFade: FC<{ className?: string }> = ({ className }) => (
   <div
     className={cn(
-      "aui-reasoning-fade pointer-events-none absolute inset-x-0 bottom-0 z-10 h-16",
-      "animate-in fade-in-0",
-      "group-data-[state=open]/collapsible-content:animate-out",
-      "group-data-[state=open]/collapsible-content:fade-out-0",
-      "group-data-[state=open]/collapsible-content:delay-[calc(var(--animation-duration)*0.75)]",
-      "group-data-[state=open]/collapsible-content:fill-mode-forwards",
-      "duration-(--animation-duration)",
-      "group-data-[state=open]/collapsible-content:duration-(--animation-duration)",
-      className,
+      'aui-reasoning-fade pointer-events-none absolute inset-x-0 bottom-0 z-10 h-16',
+      'animate-in fade-in-0',
+      'group-data-[state=open]/collapsible-content:animate-out',
+      'group-data-[state=open]/collapsible-content:fade-out-0',
+      'group-data-[state=open]/collapsible-content:delay-[calc(var(--animation-duration)*0.75)]',
+      'group-data-[state=open]/collapsible-content:fill-mode-forwards',
+      'duration-(--animation-duration)',
+      'group-data-[state=open]/collapsible-content:duration-(--animation-duration)',
+      className
     )}
   />
 );
@@ -100,8 +100,8 @@ const ReasoningTrigger: FC<{ active: boolean; className?: string }> = ({
 }) => (
   <CollapsibleTrigger
     className={cn(
-      "aui-reasoning-trigger group/trigger -mb-2 flex max-w-[75%] items-center gap-2 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground",
-      className,
+      'aui-reasoning-trigger group/trigger -mb-2 flex max-w-[75%] items-center gap-2 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground',
+      className
     )}
   >
     <BrainIcon className="aui-reasoning-trigger-icon size-4 shrink-0" />
@@ -128,20 +128,20 @@ const ReasoningTrigger: FC<{ active: boolean; className?: string }> = ({
 const ReasoningContent: FC<
   PropsWithChildren<{
     className?: string;
-    "aria-busy"?: boolean;
+    'aria-busy'?: boolean;
   }>
-> = ({ className, children, "aria-busy": ariaBusy }) => (
+> = ({ className, children, 'aria-busy': ariaBusy }) => (
   <CollapsibleContent
     className={cn(
-      "aui-reasoning-content relative overflow-hidden text-sm text-muted-foreground outline-none",
-      "group/collapsible-content ease-out",
-      "data-[state=closed]:animate-collapsible-up",
-      "data-[state=open]:animate-collapsible-down",
-      "data-[state=closed]:fill-mode-forwards",
-      "data-[state=closed]:pointer-events-none",
-      "data-[state=open]:duration-(--animation-duration)",
-      "data-[state=closed]:duration-(--animation-duration)",
-      className,
+      'aui-reasoning-content relative overflow-hidden text-sm text-muted-foreground outline-none',
+      'group/collapsible-content ease-out',
+      'data-[state=closed]:animate-collapsible-up',
+      'data-[state=open]:animate-collapsible-down',
+      'data-[state=closed]:fill-mode-forwards',
+      'data-[state=closed]:pointer-events-none',
+      'data-[state=open]:duration-(--animation-duration)',
+      'data-[state=closed]:duration-(--animation-duration)',
+      className
     )}
     aria-busy={ariaBusy}
   >
@@ -150,7 +150,7 @@ const ReasoningContent: FC<
   </CollapsibleContent>
 );
 
-ReasoningContent.displayName = "ReasoningContent";
+ReasoningContent.displayName = 'ReasoningContent';
 
 /**
  * Text content wrapper that animates the reasoning text visibility.
@@ -164,18 +164,18 @@ const ReasoningText: FC<
 > = ({ className, children }) => (
   <div
     className={cn(
-      "aui-reasoning-text relative z-0 space-y-4 pt-4 pl-6 leading-relaxed",
-      "transform-gpu transition-[transform,opacity]",
-      "group-data-[state=open]/collapsible-content:animate-in",
-      "group-data-[state=closed]/collapsible-content:animate-out",
-      "group-data-[state=open]/collapsible-content:fade-in-0",
-      "group-data-[state=closed]/collapsible-content:fade-out-0",
-      "group-data-[state=open]/collapsible-content:slide-in-from-top-4",
-      "group-data-[state=closed]/collapsible-content:slide-out-to-top-4",
-      "group-data-[state=open]/collapsible-content:duration-(--animation-duration)",
-      "group-data-[state=closed]/collapsible-content:duration-(--animation-duration)",
-      "[&_p]:-mb-2",
-      className,
+      'aui-reasoning-text relative z-0 space-y-4 pt-4 pl-6 leading-relaxed',
+      'transform-gpu transition-[transform,opacity]',
+      'group-data-[state=open]/collapsible-content:animate-in',
+      'group-data-[state=closed]/collapsible-content:animate-out',
+      'group-data-[state=open]/collapsible-content:fade-in-0',
+      'group-data-[state=closed]/collapsible-content:fade-out-0',
+      'group-data-[state=open]/collapsible-content:slide-in-from-top-4',
+      'group-data-[state=closed]/collapsible-content:slide-out-to-top-4',
+      'group-data-[state=open]/collapsible-content:duration-(--animation-duration)',
+      'group-data-[state=closed]/collapsible-content:duration-(--animation-duration)',
+      '[&_p]:-mb-2',
+      className
     )}
   >
     <div className="absolute z-[10] left-[10px] bg-border w-[1px] h-full" />
@@ -183,7 +183,7 @@ const ReasoningText: FC<
   </div>
 );
 
-ReasoningText.displayName = "ReasoningText";
+ReasoningText.displayName = 'ReasoningText';
 
 /**
  * Renders a single reasoning part's text with markdown support.
@@ -231,11 +231,11 @@ const ReasoningGroupImpl: ReasoningGroupComponent = ({
    * Detects if reasoning is currently streaming within this group's range.
    */
   const isReasoningStreaming = useAssistantState(({ message }) => {
-    if (message.status?.type !== "running") return false;
+    if (message.status?.type !== 'running') return false;
     const lastIndex = message.parts.length - 1;
     if (lastIndex < 0) return false;
     const lastType = message.parts[lastIndex]?.type;
-    if (lastType !== "reasoning") return false;
+    if (lastType !== 'reasoning') return false;
     return lastIndex >= startIndex && lastIndex <= endIndex;
   });
 
@@ -251,7 +251,7 @@ const ReasoningGroupImpl: ReasoningGroupComponent = ({
 };
 
 export const Reasoning = memo(ReasoningImpl);
-Reasoning.displayName = "Reasoning";
+Reasoning.displayName = 'Reasoning';
 
 export const ReasoningGroup = memo(ReasoningGroupImpl);
-ReasoningGroup.displayName = "ReasoningGroup";
+ReasoningGroup.displayName = 'ReasoningGroup';

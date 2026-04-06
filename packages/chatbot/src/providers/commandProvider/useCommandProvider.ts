@@ -1,15 +1,15 @@
 /**
  * External dependencies
  */
-import { useContextSelector } from "@google-awlt/common";
+import { useContextSelector } from '@google-awlt/common';
 /**
  * Internal dependencies.
  */
-import Context, { type CommandProviderContextType } from "./context";
+import Context, { type CommandProviderContextType } from './context';
 
 export function useCommandProvider(): CommandProviderContextType;
 export function useCommandProvider<T>(
-  selector: (state: CommandProviderContextType) => T,
+  selector: (state: CommandProviderContextType) => T
 ): T;
 
 /**
@@ -19,8 +19,8 @@ export function useCommandProvider<T>(
  */
 export function useCommandProvider<T>(
   selector: (
-    state: CommandProviderContextType,
-  ) => T | CommandProviderContextType = (state) => state,
+    state: CommandProviderContextType
+  ) => T | CommandProviderContextType = (state) => state
 ) {
   return useContextSelector(Context, selector);
 }

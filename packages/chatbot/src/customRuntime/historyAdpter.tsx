@@ -1,16 +1,16 @@
 /**
  * External dependencies
  */
-import { useMemo, useCallback, type PropsWithChildren } from "react";
-import { RuntimeAdapterProvider, useAssistantApi } from "@assistant-ui/react";
+import { useMemo, useCallback, type PropsWithChildren } from 'react';
+import { RuntimeAdapterProvider, useAssistantApi } from '@assistant-ui/react';
 /**
  * Internal dependencies
  */
-import { chatStorage } from "./chatStorage";
+import { chatStorage } from './chatStorage';
 import type {
   LoadFunctionOutputType,
   ExportedMessageRepositoryItem,
-} from "./types";
+} from './types';
 
 export const HistoryAdapter = () => {
   return useCallback(function Provider({ children }: PropsWithChildren) {
@@ -30,7 +30,7 @@ export const HistoryAdapter = () => {
       } as LoadFunctionOutputType;
     }, [api]);
 
-    api.on("thread.initialize", ({ threadId }) => {
+    api.on('thread.initialize', ({ threadId }) => {
       chrome.tabs
         .query({ active: true, currentWindow: true })
         .then(async ([tab]) => {
@@ -52,11 +52,11 @@ export const HistoryAdapter = () => {
 
         const messages = await chatStorage.messages.findByThreadId(remoteId);
 
-        if (message.message.role === "user" && messages.length === 0) {
+        if (message.message.role === 'user' && messages.length === 0) {
           //@ts-expect-error -- We are sure that the first message will have text part.
           const messageTitle = message.message.parts
             //@ts-expect-error -- We are sure that the first message will have text part.
-            .filter((part) => part.type === "text")[0]
+            .filter((part) => part.type === 'text')[0]
             .text.substring(0, 30);
 
           chatStorage.threads.update(remoteId, { title: messageTitle });
@@ -67,7 +67,7 @@ export const HistoryAdapter = () => {
           threadId: remoteId,
         });
       },
-      [api],
+      [api]
     );
 
     const history = useMemo(
@@ -81,7 +81,7 @@ export const HistoryAdapter = () => {
           };
         },
       }),
-      [load, append],
+      [load, append]
     );
 
     const adapters = useMemo(() => ({ history }), [history]);

@@ -1,29 +1,29 @@
 /**
  * External dependencies
  */
-import type { SharedV2ProviderOptions } from "@ai-sdk/provider";
+import type { SharedV2ProviderOptions } from '@ai-sdk/provider';
 
 function buildProviderOptions(
   thinkingMode: boolean,
-  modelProvider: string,
+  modelProvider: string
 ): SharedV2ProviderOptions | undefined {
   if (!thinkingMode) {
     return undefined;
   }
   // Provider-specific reasoning configurations
   switch (modelProvider) {
-    case "anthropic":
+    case 'anthropic':
       // Claude 4 models support thinking with budgetTokens
       return {
         anthropic: {
           thinking: {
-            type: "enabled",
+            type: 'enabled',
             budgetTokens: 12000,
           },
         },
       };
 
-    case "open-ai": {
+    case 'open-ai': {
       // GPT-5 models support reasoningEffort and reasoningSummary
       const openaiConfig: {
         openai: {
@@ -32,14 +32,14 @@ function buildProviderOptions(
         };
       } = {
         openai: {
-          reasoningEffort: "medium",
-          reasoningSummary: "auto",
+          reasoningEffort: 'medium',
+          reasoningSummary: 'auto',
         },
       };
       return openaiConfig;
     }
 
-    case "gemini": {
+    case 'gemini': {
       // Gemini 2.5 models support thinkingConfig
       return {
         google: {
@@ -51,7 +51,7 @@ function buildProviderOptions(
       };
     }
 
-    case "ollama":
+    case 'ollama':
       return {
         ollama: {
           think: true,

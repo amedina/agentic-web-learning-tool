@@ -1,18 +1,18 @@
 /**
  * External dependencies
  */
-import { logger } from "@google-awlt/common";
+import { logger } from '@google-awlt/common';
 /**
  * Internal dependencies
  */
-import type { ToolCallRequest } from "../../types";
+import type { ToolCallRequest } from '../../types';
 
 export function extractToolCall(text: string): {
   toolCall: ToolCallRequest[] | null;
   textPrefix: string | null;
 } {
-  const FENCE_START = "```tool_call";
-  const FENCE_END = "```";
+  const FENCE_START = '```tool_call';
+  const FENCE_END = '```';
 
   const startIndex = text.indexOf(FENCE_START);
   if (startIndex === -1) {
@@ -33,7 +33,7 @@ export function extractToolCall(text: string): {
     const toolCall: ToolCallRequest = JSON.parse(jsonBlock);
     return { toolCall: [toolCall], textPrefix: textPrefix || null };
   } catch (error) {
-    logger(["error"], ["Failed to parse tool call JSON:", error]);
+    logger(['error'], ['Failed to parse tool call JSON:', error]);
     return { toolCall: null, textPrefix: null };
   }
 }
@@ -66,7 +66,7 @@ export function extractToolCalls(text: string) {
     const [fullMatchString, innerContent] = match;
 
     // Remove the entire ```tool_call ... ``` block from the main text
-    cleanText = cleanText.replace(fullMatchString, "");
+    cleanText = cleanText.replace(fullMatchString, '');
 
     try {
       const jsonString = innerContent.trim();
@@ -81,7 +81,7 @@ export function extractToolCalls(text: string) {
         for (const item of items) {
           if (item.name) {
             extractedCalls.push({
-              type: "tool-call",
+              type: 'tool-call',
               toolCallId:
                 item.id ||
                 `call_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
@@ -91,11 +91,11 @@ export function extractToolCalls(text: string) {
           }
         }
       } catch (jsonError) {
-        logger(["warn"], [jsonError]);
+        logger(['warn'], [jsonError]);
         // Strategy 2: Fallback for Newline Delimited JSON (NDJSON)
         // Sometimes LLMs output multiple JSON objects separated by newlines
         // instead of a proper comma-separated array.
-        const lines = jsonString.split("\n").filter((line) => line.trim());
+        const lines = jsonString.split('\n').filter((line) => line.trim());
 
         for (const line of lines) {
           try {
@@ -103,7 +103,7 @@ export function extractToolCalls(text: string) {
             if (!item.name) continue;
 
             extractedCalls.push({
-              type: "tool-call",
+              type: 'tool-call',
               toolCallId:
                 item.id ||
                 `call_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
@@ -111,19 +111,19 @@ export function extractToolCalls(text: string) {
               args: item.arguments || {},
             });
           } catch (lineError) {
-            logger(["error"], [lineError]);
+            logger(['error'], [lineError]);
             continue;
           }
         }
       }
     } catch (error) {
-      logger(["error"], ["Failed to parse JSON tool call:", error]);
+      logger(['error'], ['Failed to parse JSON tool call:', error]);
       continue;
     }
   }
 
   // Collapse multiple newlines left behind by removals into a single newline
-  cleanText = cleanText.replace(/\n{2,}/g, "\n");
+  cleanText = cleanText.replace(/\n{2,}/g, '\n');
 
   return {
     toolCalls: extractedCalls,

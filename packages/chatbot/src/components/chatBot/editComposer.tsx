@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import { ComposerPrimitive } from "@assistant-ui/react";
-import type { FC } from "react";
+import { ComposerPrimitive } from '@assistant-ui/react';
+import type { FC } from 'react';
 
 const EditComposer: FC = () => {
   return (
