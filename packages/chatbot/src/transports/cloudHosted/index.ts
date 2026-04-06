@@ -23,9 +23,10 @@ import {
   type createOpenAI,
   type OpenAIProviderSettings,
 } from "@ai-sdk/openai";
-import type {
-  AnthropicProviderSettings,
-  createAnthropic,
+import {
+  anthropic,
+  type AnthropicProviderSettings,
+  type createAnthropic,
 } from "@ai-sdk/anthropic";
 import {
   google,
@@ -173,6 +174,11 @@ export class CloudHostedTransport implements ChatTransport<
         externalWebAccess: true,
         searchContextSize: "high",
       });
+    } else if (this.model?.provider === "anthropic.messages") {
+      this.formattedTools["web_search"] = anthropic.tools.webSearch_20250305(
+        {},
+      );
+      this.formattedTools["web_fetch"] = anthropic.tools.webFetch_20250910({});
     }
 
     return createUIMessageStream({
