@@ -18,7 +18,7 @@ This skill includes helper scripts and reference data. Use them instead of reimp
 | `scripts/parse-e18e.js` | Normalizes e18e CLI JSON into unified findings | Stage 2c — after e18e analysis completes |
 | `scripts/parse-stylelint.js` | Normalizes stylelint JSON into unified findings | Stage 2b — after stylelint analysis completes |
 | `scripts/merge-reports.js` | Merges ESLint + Lighthouse + e18e + stylelint into unified report | Stage 4 — combining results |
-| `scripts/render-html-report.js` | Renders unified report JSON into a self-contained HTML file | Stage 5 — after merge-reports.js produces the JSON |
+| `scripts/render-html-report.js` | Renders unified report JSON into a self-contained HTML file | Stage 5 — MANDATORY for every audit run |
 | `references/polyfill-registry.json` | Maps features to polyfill packages/fallbacks | Stage 4 — populating remediation advice |
 | `references/browserslist.example` | Example `.browserslistrc` configurations | Stage 1 — if the user needs help choosing targets |
 
@@ -329,7 +329,7 @@ This extracts findings from relevant audits (deprecations, console errors, unloa
 
 ## Stage 4: Merge findings, enrich & fix
 
-Use the bundled merge script to combine ESLint and Lighthouse findings, deduplicate, and produce a structured report:
+Use the bundled merge script to combine ESLint and Lighthouse findings, deduplicate, and produce a structured report. **Always run `merge-reports.js`** — even when only one analysis stage produced findings, even when every stage produced zero findings, and even when most stages were skipped. The unified JSON it emits is the input that Stage 5's HTML renderer requires; producing it is non-negotiable.
 
 ```bash
 node scripts/merge-reports.js \
@@ -338,12 +338,15 @@ node scripts/merge-reports.js \
   "$AUDIT_TMPDIR/e18e-parsed.json" \
   "$AUDIT_TMPDIR/stylelint-parsed.json" \
   --baseline "the resolved browserslist query" \
-  --browsers "the concrete browser list from npx browserslist"
+  --browsers "the concrete browser list from npx browserslist" \
+  > "$AUDIT_TMPDIR/report.json"
 ```
 
-If any analysis layer was skipped (e.g., no Chrome for Lighthouse, e18e not installed, or no CSS files found), pass `-` for that input to skip it.
+If any analysis layer was skipped (e.g., no Chrome for Lighthouse, e18e not installed, or no CSS files found), pass `-` for that input to skip it. A stage that ran and produced zero findings is **not** the same as a skipped stage — pass its real (possibly empty) JSON file, not `-`.
 
-The script outputs JSON to stdout with the unified report structure. Each finding includes an `id`, `source`, `feature`, `description`, `location`, `severity`, and `remediation` object.
+The script outputs JSON to stdout with the unified report structure. Each finding includes an `id`, `source`, `feature`, `description`, `location`, `severity`, and `remediation` object. Save this JSON to `$AUDIT_TMPDIR/report.json` — Stage 4 enrichment will mutate it in place, and Stage 5 will feed it to the HTML renderer.
+
+**Edge case — no analysis stage ran at all.** If every analysis stage was skipped (e.g., the audit target is a single file with no servable app, no lockfile, and no CSS) and the audit's findings come entirely from Stage 4 enrichment (e.g., `modern-web` best-practice verification), you may bypass `merge-reports.js` and hand-build `$AUDIT_TMPDIR/report.json` directly. The required top-level shape is `{ baseline, summary, findings, trace }` — see `scripts/render-html-report.js` for the exact field names each renderer section consumes (`report.summary`, `report.findings[]` with `id`/`source`/`feature`/`severity`/`location`/`remediation`/`auto_fixed`/`modern_web_guidance`, `report.trace.stages[]` as objects with `name`/`status`/`details`, and `report.trace.scripts`/`references`/`integrations` as arrays of objects). Hand-building is the exception, not the default — prefer running `merge-reports.js` with `-` placeholders whenever any analysis stage produced output.
 
 ### Enrich remediation recommendations
 
@@ -639,7 +642,7 @@ Detailed log of what the `web-compat-audit` skill executed during this audit run
 #### Stage 5: Present the report
 - Status: [COMPLETED]
 - Markdown report saved to: [file path]
-- HTML report saved to: [file path]
+- HTML report saved to: [file path — MANDATORY, must always be a real path]
 - Report filename collision: [no | yes — appended suffix -N]
 
 ### Skill components used
@@ -651,8 +654,8 @@ Detailed log of what the `web-compat-audit` skill executed during this audit run
 | `parse-lighthouse.js` | [YES / NO] | [e.g., "Parsed N audits from Lighthouse JSON" or "Skipped — no Lighthouse output"] |
 | `parse-e18e.js` | [YES / NO] | [e.g., "Parsed N diagnostics" or "Skipped — e18e not available"] |
 | `parse-stylelint.js` | [YES / NO] | [e.g., "Parsed N findings from stylelint" or "Skipped — no CSS files"] |
-| `merge-reports.js` | [YES / NO] | [e.g., "Merged 4 sources" or "Merged 2 sources (e18e and stylelint skipped)"] |
-| `render-html-report.js` | [YES / NO] | [e.g., "Rendered HTML report from merged JSON" or "Skipped — JSON not available"] |
+| `merge-reports.js` | [YES / NO] | [e.g., "Merged 4 sources" or "Merged 2 sources (e18e and stylelint passed as `-`)" — only mark NO when the unified JSON was hand-built per the Stage 4 edge case] |
+| `render-html-report.js` | [YES — always] | [e.g., "Rendered HTML report from $AUDIT_TMPDIR/report.json" — this script MUST be used on every audit run; NO is never a valid value here] |
 
 #### References (`references/`)
 | Reference | Used | Notes |
@@ -698,11 +701,9 @@ Write the full report content (using the template above) to `${REPORT_BASE}.md`.
 
 #### HTML report
 
-First, save the merged report JSON (the output of `merge-reports.js`, after enrichment) to a temporary file:
+**MANDATORY for every audit run.** The HTML report is the primary deliverable and must always be produced — there is no audit outcome (zero findings, single-source findings, all-stages-skipped, etc.) that justifies skipping it. If you find yourself about to write "HTML report skipped" in the trace, stop and generate it instead.
 
-```bash
-echo "$MERGED_JSON" > "$AUDIT_TMPDIR/report.json"
-```
+By the end of Stage 4 you should already have `$AUDIT_TMPDIR/report.json` on disk — either written by `merge-reports.js` or hand-built per the edge case in Stage 4. If for any reason it does not yet exist, build it now before proceeding (do not skip the HTML step on the basis of a missing input — produce the input).
 
 Then use the bundled renderer to produce the HTML:
 
@@ -725,7 +726,7 @@ The renderer produces a **self-contained HTML file** with all CSS inlined — no
 
 The HTML report is the primary deliverable for sharing and visualization. The Markdown report serves as a machine-readable / diff-friendly companion.
 
-**Note on enrichment data**: The HTML renderer reads the unified JSON produced by `merge-reports.js`. Any fields added during the enrichment phase (e.g., `auto_fixed`, `what_was_applied`, `modern_web_guidance`, `unsupported_browsers`) are rendered automatically if present. To get the richest HTML output, save the JSON **after** all Stage 4 enrichment is complete — including `modern-web` best-practice verification and e18e migration results. Fields that Claude adds during enrichment (not present in the raw merge output) should be injected into the JSON before passing it to the renderer.
+**Note on enrichment data**: The HTML renderer reads the unified JSON at `$AUDIT_TMPDIR/report.json`. Any fields added during the enrichment phase (e.g., `auto_fixed`, `what_was_applied`, `modern_web_guidance`, `unsupported_browsers`) are rendered automatically if present. To get the richest HTML output, write the JSON to disk **after** all Stage 4 enrichment is complete — including `modern-web` best-practice verification and e18e migration results. Fields that Claude adds during enrichment (not present in the raw merge output) must be injected into the JSON before invoking the renderer.
 
 Inform the user of both saved report paths so they can review or share them.
 
