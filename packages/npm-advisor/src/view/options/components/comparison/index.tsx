@@ -2,16 +2,26 @@
  * External dependencies
  */
 import { useEffect, useState, useMemo } from "react";
-import { OptionsPageTab } from "@google-awlt/design-system";
+import { OptionsPageTab, useSidebar } from "@google-awlt/design-system";
 
 /**
  * Internal dependencies
  */
 import { ComparisonTab } from "../comparisonTab";
 import { calculateScore } from "../../../../utils/calculateScore";
+import { AssistantModal } from "../assistantModal";
+import { useModelProvider } from "../../providers";
 
 export default function ComparisonPage() {
   const [comparisonBucket, setComparisonBucket] = useState<any[]>([]);
+
+  const { apiKeys } = useModelProvider(({ state }) => ({
+    apiKeys: state.apiKeys,
+  }));
+
+  const { setSelectedMenuItem } = useSidebar(({ actions }) => ({
+    setSelectedMenuItem: actions.setSelectedMenuItem,
+  }));
 
   useEffect(() => {
     chrome.storage.local.get(["comparisonBucket"], (res) => {
@@ -61,6 +71,13 @@ export default function ComparisonPage() {
         comparisonBucket={comparisonBucket}
         handleClearComparison={handleClearComparison}
         winnerName={winnerName}
+      />
+      <AssistantModal
+        apiKeys={{
+          gemini: apiKeys?.gemini?.apiKey,
+          openai: apiKeys?.["open-ai"]?.apiKey,
+        }}
+        changeTabToSettings={() => setSelectedMenuItem("models")}
       />
     </OptionsPageTab>
   );
