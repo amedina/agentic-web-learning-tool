@@ -181,7 +181,7 @@ const SearchWrapper = () => {
                 "absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 [&>svg]:w-4 [&>svg]:h-4 appearance-none ais-SearchBox-reset",
             }}
           />
-          {selectedPackages.length >= 2 && !isAnalyzing && (
+          {query.trim() && selectedPackages.length >= 2 && !isAnalyzing && (
             <button
               onClick={handleBatchCompare}
               className="absolute right-15 top-1/2 -translate-y-1/2 bg-blue-600 text-white px-3 py-1.5 rounded-md text-xs font-bold hover:bg-blue-700 transition-all shadow-sm flex items-center animate-in fade-in zoom-in duration-300"
