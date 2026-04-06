@@ -12,7 +12,9 @@ import {
   type MenuItem,
 } from "@google-awlt/design-system";
 import { CpuIcon, Settings2, BarChart2 } from "lucide-react";
-
+import { transportGenerator } from "@google-awlt/chatbot";
+import { AssistantRuntimeProvider } from "@assistant-ui/react";
+import { useChatRuntime } from "@assistant-ui/react-ai-sdk";
 /**
  * Internal dependencies
  */
@@ -21,9 +23,6 @@ import ModelsTab from "./components/models";
 import SettingsTab from "./components/settings";
 import ComparisonPage from "./components/comparison";
 import { ModelProvider, useModelProvider } from "./providers";
-import { AssistantRuntimeProvider } from "@assistant-ui/react";
-import { useChatRuntime } from "@assistant-ui/react-ai-sdk";
-import { transportGenerator } from "../popup/runtime";
 import { getSystemPrompt } from "./components/getSystemPrompt";
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -197,10 +196,10 @@ function Options() {
       return transportGenerator(
         "gemini",
         "gemini-pro-latest",
-        apiKeys.gemini?.thinkingMode,
         {
           apiKey: apiKeys.gemini?.apiKey,
         },
+        apiKeys.gemini?.thinkingMode,
         getSystemPrompt(JSON.stringify(comparisonBucket, null, 2)),
       );
     }
@@ -208,8 +207,8 @@ function Options() {
     return transportGenerator(
       "open-ai",
       "gpt-4o",
-      apiKeys?.["open-ai"]?.thinkingMode,
       { apiKey: apiKeys?.["open-ai"]?.apiKey },
+      apiKeys?.["open-ai"]?.thinkingMode,
       getSystemPrompt(JSON.stringify(comparisonBucket, null, 2)),
     );
   }, [apiKeys, comparisonBucket]);

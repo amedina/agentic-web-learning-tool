@@ -4,6 +4,8 @@
   "version": "1.0.1",
   "type": "module",
   "scripts": {
+    "predev": "rimraf ../../dist/npm-advisor",
+    "prebuild": "rimraf ../../dist/npm-advisor",
     "dev": "cross-env NODE_ENV=development vite build --watch --config vite.config.ts",
     "build": "cross-env NODE_ENV=production vite build --config vite.config.ts",
     "check-types": "tsc -b -noEmit",
@@ -41,6 +43,7 @@
     "@vitejs/plugin-react": "^5.0.0",
     "cross-env": "^10.1.0",
     "typescript": "~5.8.3",
+    "rimraf": "^5.0.5",
     "vite": "^7.1.11",
     "vite-plugin-static-copy": "^3.1.4",
     "vite-plugin-svgr": "^4.5.0",
