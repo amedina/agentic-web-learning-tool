@@ -55,7 +55,7 @@ export const GlobalHeader = () => {
     return () => chrome.storage.local.onChanged.removeListener(listener);
   }, []);
 
-  const openOptionsPage = () => {
+  const handleOpenOptions = () => {
     if (chrome.runtime.openOptionsPage) {
       chrome.runtime.openOptionsPage();
     } else {
@@ -70,7 +70,7 @@ export const GlobalHeader = () => {
   };
 
   return (
-    <div className="flex items-center justify-between w-full px-1 py-1 border-b bg-background">
+    <div className="flex items-center justify-between w-full px-1 border-b bg-background h-10 shrink-0">
       <div className="flex items-center">
         {allowChatStorage && isChatTabActive && (
           <>
@@ -102,7 +102,7 @@ export const GlobalHeader = () => {
           </>
         )}
       </div>
-      <div className="flex items-center gap-1">
+      <div className="flex items-center">
         {comparisonCount > 0 && (
           <button
             onClick={openComparisons}
@@ -117,21 +117,25 @@ export const GlobalHeader = () => {
           </button>
         )}
 
-        <button
-          onClick={openOptionsPage}
-          className="p-1.5 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleOpenOptions}
           title="Settings"
+          className="text-muted-foreground hover:text-foreground"
         >
-          <Settings size={15} />
-        </button>
+          <Settings size={16} />
+        </Button>
 
-        <button
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={toggleTheme}
-          className="p-1.5 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
           title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+          className="text-muted-foreground hover:text-foreground"
         >
-          {isDarkMode ? <Sun size={15} /> : <Moon size={15} />}
-        </button>
+          {isDarkMode ? <Sun size={16} /> : <Moon size={16} />}
+        </Button>
       </div>
     </div>
   );

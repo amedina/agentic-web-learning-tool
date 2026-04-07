@@ -99,10 +99,12 @@ const SidePanel = () => {
         >
           <SidebarProvider
             defaultOpen={false}
-            className="flex flex-col h-full w-full"
+            className="flex flex-col h-full w-full overflow-hidden"
           >
             <GlobalHeader />
-            <SidepanelChatbot />
+            <div className="flex-1 min-h-0 overflow-hidden">
+              <SidepanelChatbot />
+            </div>
           </SidebarProvider>
         </PropProvider>
       </ThemeProvider>
