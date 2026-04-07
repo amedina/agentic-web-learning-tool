@@ -9,10 +9,15 @@ import type {
 
 export type ExportedMessageRepositoryItem = {
   message: ThreadMessage;
+  parts: ThreadMessage['content'];
   parentId: string | null;
   runConfig?: {
     custom?: Record<string, unknown>;
   };
+};
+
+export type ChatDataType = ThreadMessage & {
+  parts: ThreadMessage['content'];
 };
 
 export type SingleMessage = {
