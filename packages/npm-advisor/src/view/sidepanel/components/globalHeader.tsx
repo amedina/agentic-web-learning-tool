@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { SidebarTrigger, Tooltip, Button } from "@google-awlt/design-system";
 import { usePropProvider } from "@google-awlt/chatbot";
+import { useThread } from "@assistant-ui/react";
 
 /**
  * Internal dependencies.
@@ -22,6 +23,8 @@ import { useTheme } from "../context/themeContext";
 export const GlobalHeader = () => {
   const { isDarkMode, toggleTheme } = useTheme();
   const [comparisonCount, setComparisonCount] = useState(0);
+  const messages = useThread((state) => state.messages);
+  const isThreadEmpty = messages.length === 0;
 
   const {
     allowChatStorage,
@@ -73,7 +76,7 @@ export const GlobalHeader = () => {
     <div className="flex items-center justify-between w-full px-1 border-b bg-background h-10 shrink-0">
       <div className="flex items-center">
         {allowChatStorage && isChatTabActive && (
-          <>
+          <div className="flex items-center gap-1 animate-in zoom-in duration-300">
             <Tooltip text="Chat History">
               <SidebarTrigger>
                 <Menu className="text-primary" size={16} />
@@ -84,6 +87,7 @@ export const GlobalHeader = () => {
                 <Button
                   variant="ghost"
                   size="icon"
+                  disabled={isThreadEmpty}
                   onClick={() => triggerExportChatRef.current?.()}
                 >
                   <Share2 className="text-primary" size={16} />
@@ -94,12 +98,13 @@ export const GlobalHeader = () => {
               <Button
                 variant="ghost"
                 size="icon"
+                disabled={isThreadEmpty}
                 onClick={() => switchToNewThreadRef.current?.()}
               >
                 <PlusCircle className="text-primary" size={16} />
               </Button>
             </Tooltip>
-          </>
+          </div>
         )}
       </div>
       <div className="flex items-center">

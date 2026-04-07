@@ -104,19 +104,32 @@ const SidePanel = () => {
           defaultValue={tabsList[0].value}
           className="flex flex-col h-full w-full bg-background"
         >
-          <TabsList className="flex w-full bg-transparent h-auto p-0 rounded-none border-b gap-0">
+          <TabsList className="relative flex w-full bg-transparent h-auto p-0 rounded-none gap-0 border-b">
             {tabsList.map((tab) => {
               return (
                 <TabsTrigger
                   onClick={() => setActiveTab(tab.value)}
                   key={tab.value}
                   value={tab.value}
-                  className="flex-1 rounded-none py-2.5 px-4 text-sm font-medium border-b-2 border-transparent data-[state=active]:border-[#c94137] data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none hover:bg-accent/40"
+                  className="flex-1 rounded-none py-2.5 px-4 text-sm font-medium text-muted-foreground data-[state=active]:text-foreground data-[state=active]:bg-transparent hover:bg-accent/40 relative z-10 shadow-none data-[state=active]:shadow-none"
                 >
                   {tab.label}
                 </TabsTrigger>
               );
             })}
+            <div
+              className="absolute bottom-[-1px] h-[2px] bg-[#c94137] transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
+              style={{
+                width: `${100 / tabsList.length}%`,
+                left: `${
+                  Math.max(
+                    0,
+                    tabsList.findIndex((t) => t.value === activeTab)
+                  ) *
+                  (100 / tabsList.length)
+                }%`,
+              }}
+            />
           </TabsList>
           {subHeaderNode}
           {tabsList.map((tab) => {
@@ -134,7 +147,7 @@ const SidePanel = () => {
       );
     }
     return tabsList[0].content;
-  }, [tabsList]);
+  }, [tabsList, activeTab, subHeaderNode]);
 
   return (
     <CustomRuntimeProvider transport={transport} runtimeRef={runtimeRef}>
