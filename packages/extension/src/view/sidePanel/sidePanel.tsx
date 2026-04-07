@@ -3,10 +3,11 @@
  */
 import { useEffect, useState } from 'react';
 import { PropProvider, SidepanelChatbot } from '@google-awlt/chatbot';
+import { SidebarProvider } from '@google-awlt/design-system';
 /**
  * Internal dependencies
  */
-import { WorkflowList, GlobalStatusPill } from './components';
+import { WorkflowList, GlobalStatusPill, GlobalHeader } from './components';
 
 const SidePanel = () => {
   const [activeTab, setActiveTab] = useState<chrome.tabs.Tab | null>(null);
@@ -78,7 +79,13 @@ const SidePanel = () => {
                     weather. I have access to ${toolLength} tools`,
       }}
     >
-      <SidepanelChatbot />
+      <SidebarProvider
+        defaultOpen={false}
+        className="flex flex-col h-full w-full"
+      >
+        <GlobalHeader />
+        <SidepanelChatbot />
+      </SidebarProvider>
     </PropProvider>
   );
 };
