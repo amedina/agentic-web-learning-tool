@@ -29,14 +29,21 @@ const SidePanel = () => {
     allowToolCalling: state.allowToolCalling,
   }));
 
-  const { prefixTabs, suffixTabs, footerNode, activeTab, setActiveTab } =
-    usePropProvider(({ state, actions }) => ({
-      prefixTabs: state.prefixTabs,
-      suffixTabs: state.suffixTabs,
-      footerNode: state.footerNode,
-      activeTab: state.activeTab,
-      setActiveTab: actions.setActiveTab,
-    }));
+  const {
+    prefixTabs,
+    suffixTabs,
+    footerNode,
+    subHeaderNode,
+    activeTab,
+    setActiveTab,
+  } = usePropProvider(({ state, actions }) => ({
+    prefixTabs: state.prefixTabs,
+    suffixTabs: state.suffixTabs,
+    footerNode: state.footerNode,
+    subHeaderNode: state.subHeaderNode,
+    activeTab: state.activeTab,
+    setActiveTab: actions.setActiveTab,
+  }));
 
   const runtimeRef = useRef<AssistantRuntime | null>(null);
 
@@ -111,6 +118,7 @@ const SidePanel = () => {
               );
             })}
           </TabsList>
+          {subHeaderNode}
           {tabsList.map((tab) => {
             return (
               <TabsContent

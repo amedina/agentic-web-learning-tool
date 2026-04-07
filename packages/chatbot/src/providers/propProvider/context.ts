@@ -12,6 +12,7 @@ import type { ChatDataType } from '../../customRuntime/types';
 export type PropProviderType = {
   state: {
     footerNode: React.ReactNode;
+    subHeaderNode?: React.ReactNode;
     prefixTabs: SidePanelTabProps['extraTabs'];
     suffixTabs: SidePanelTabProps['extraTabs'];
     CustomAssistantMessageComponent?: null | (() => React.JSX.Element);
@@ -41,6 +42,7 @@ export type PropProviderType = {
 const initialState: PropProviderType = {
   state: {
     footerNode: null,
+    subHeaderNode: null,
     prefixTabs: [],
     suffixTabs: [],
     CustomAssistantMessageComponent: null,

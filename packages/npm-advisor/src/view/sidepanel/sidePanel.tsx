@@ -67,6 +67,7 @@ const SidePanel = () => {
             />
           }
           footerNode={<></>}
+          subHeaderNode={<GlobalHeader />}
           assistantMessage={AssistantMessage}
           userMessage={UserMessage}
           getCustomSystemPrompt={() => {
@@ -101,7 +102,6 @@ const SidePanel = () => {
             defaultOpen={false}
             className="flex flex-col h-full w-full overflow-hidden"
           >
-            <GlobalHeader />
             <div className="flex-1 min-h-0 overflow-hidden">
               <SidepanelChatbot />
             </div>

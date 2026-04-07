@@ -11,6 +11,7 @@ import type { ChatDataType } from '../../customRuntime/types';
 
 type PropProviderProps = PropsWithChildren & {
   footerNode: React.ReactNode;
+  subHeaderNode?: React.ReactNode;
   prefixTabs?: SidePanelTabProps['extraTabs'];
   suffixTabs?: SidePanelTabProps['extraTabs'];
   allowToolCalling: boolean;
@@ -31,6 +32,7 @@ type PropProviderProps = PropsWithChildren & {
 function PropProvider({
   children,
   footerNode,
+  subHeaderNode,
   prefixTabs,
   suffixTabs,
   allowToolCalling = true,
@@ -52,6 +54,7 @@ function PropProvider({
     () => ({
       state: {
         footerNode,
+        subHeaderNode,
         prefixTabs: prefixTabs ?? [],
         suffixTabs: suffixTabs ?? [],
         CustomAssistantMessageComponent: assistantMessage,
@@ -75,6 +78,7 @@ function PropProvider({
     [
       customIcon,
       footerNode,
+      subHeaderNode,
       prefixTabs,
       suffixTabs,
       allowToolCalling,

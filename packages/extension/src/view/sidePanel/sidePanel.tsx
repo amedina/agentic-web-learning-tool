@@ -72,6 +72,7 @@ const SidePanel = () => {
         },
       ]}
       footerNode={<GlobalStatusPill />}
+      subHeaderNode={<GlobalHeader />}
       helperTextSet={{
         title: () => 'How can I help you today?',
         description: ({ toolLength }) =>
@@ -83,7 +84,6 @@ const SidePanel = () => {
         defaultOpen={false}
         className="flex flex-col h-full w-full overflow-hidden"
       >
-        <GlobalHeader />
         <div className="flex-1 min-h-0 overflow-hidden">
           <SidepanelChatbot />
         </div>
