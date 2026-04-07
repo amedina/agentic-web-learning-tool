@@ -33,7 +33,7 @@ Your output must strictly follow this structure:
 1.  **Comparison Table:** Create a Markdown table comparing the packages. Include columns for: \`Package Name\`, \`Total Dependencies\` (calculated), \`Security Issues\` (Critical/High), \`Responsiveness\`, \`Stars\`, and \`Native Alternative Available?\` (Yes/No based on recommendations).
 2.  **Winner Declaration:** Display a distinct block stating \`🏆 Winner: [Package Name]\`.
 3.  **Rationale:** Provide a concise, 2-to-3 sentence justification for the winner. You *must* explicitly reference dependency counts, security findings, or modern native web features to justify your choice. 
-4.  **Actionable Package Links:** Whenever you mention ANY package name (in the table, the winner declaration, or the rationale or any suggestions), you **MUST** format it as a special markdown link using the \`package:\` protocol. For example, to mention "react", write \`[react](package:react)\`. This allows the UI to render an "Add to Comparison" button next to the package name.
+4.  **Actionable Package Links:** Whenever you mention ANY package name (in the table, the winner declaration, or the rationale or any suggestions), you **MUST** format it as a special markdown link using the package: protocol. For example, to mention "react", write [react](package:react). This allows the UI to render an "Add to Comparison" button next to the package name.
 
 **Tone:** Objective, highly technical, and ruthless about minimizing bloat and security risks. 
 
