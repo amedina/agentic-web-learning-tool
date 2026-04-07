@@ -2,7 +2,7 @@
  * External dependencies.
  */
 import { useState, useEffect } from "react";
-import { Loader2, Scale, Check } from "lucide-react";
+import { Loader2, Plus, Check } from "lucide-react";
 
 export const PackageButton = ({ packageName }: { packageName: string }) => {
   const [isAdding, setIsAdding] = useState(false);
@@ -82,30 +82,28 @@ export const PackageButton = ({ packageName }: { packageName: string }) => {
         : "Add to comparison";
 
   return (
-    <span className="inline-flex items-center gap-1 shrink-0 align-middle">
-      <span className="font-mono text-[13px] font-semibold text-blue-600 dark:text-blue-400 leading-none">
+    <span className="inline-flex items-center gap-1.5 shrink-0 align-middle">
+      <span className="font-mono text-[13px] font-bold text-blue-600 dark:text-blue-400 hover:underline transition-all cursor-default">
         {packageName}
       </span>
       <button
         onClick={handleAdd}
         disabled={isAdding || isAdded || isAlreadyAdded}
         title={title}
-        className={`inline-flex items-center justify-center w-5 h-5 rounded-md transition-all duration-200 outline-none ${
+        className={`inline-flex items-center justify-center w-5 h-5 rounded-full transition-all duration-300 outline-none ${
           isAdded || isAlreadyAdded
-            ? "text-emerald-500 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-100 dark:border-emerald-800/50"
+            ? "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-700 hover:bg-emerald-200 dark:hover:bg-emerald-900/60"
             : isAdding
-              ? "text-slate-400 dark:text-slate-500 animate-pulse"
-              : "text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 border border-transparent hover:border-blue-100 dark:hover:border-blue-800/50 cursor-pointer"
+              ? "bg-slate-50 dark:bg-slate-800 text-slate-400 border border-slate-100 dark:border-slate-700 animate-pulse"
+              : "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-700 hover:bg-blue-100 dark:hover:bg-blue-900/40 hover:scale-110 active:scale-95 cursor-pointer shadow-sm hover:shadow-md"
         }`}
       >
-        {isAlreadyAdded ? (
-          <Check className="w-3.5 h-3.5" />
-        ) : isAdded ? (
-          <Check className="w-3.5 h-3.5" />
+        {isAlreadyAdded || isAdded ? (
+          <Check className="w-3 h-3 stroke-[3px] animate-in zoom-in duration-300" />
         ) : isAdding ? (
-          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+          <Loader2 className="w-3 h-3 animate-spin" />
         ) : (
-          <Scale className="w-4 h-4" />
+          <Plus className="w-3 h-3 stroke-[3px]" />
         )}
       </button>
     </span>
