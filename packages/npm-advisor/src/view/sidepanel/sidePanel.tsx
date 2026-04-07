@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { PropProvider, SidepanelChatbot } from "@google-awlt/chatbot";
+import { SidebarProvider } from "@google-awlt/design-system";
 /**
  * Internal dependencies
  */
@@ -96,10 +97,13 @@ const SidePanel = () => {
                 would you like to know?`,
           }}
         >
-          <div className="flex flex-col h-full w-full">
+          <SidebarProvider
+            defaultOpen={false}
+            className="flex flex-col h-full w-full"
+          >
             <GlobalHeader />
             <SidepanelChatbot />
-          </div>
+          </SidebarProvider>
         </PropProvider>
       </ThemeProvider>
     </ErrorBoundary>

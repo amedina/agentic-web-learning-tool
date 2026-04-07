@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { createContext } from '@google-awlt/common';
+import type { RefObject } from 'react';
 /**
  * Internal dependencies
  */
@@ -24,12 +25,16 @@ export type PropProviderType = {
       description: (props?: any) => string;
     };
     allowChatStorage: boolean;
+    activeTab: string;
   };
   actions: {
     getCustomSystemPrompt: () => string;
     exportChatCallback:
       | ((chatData: ChatDataType[], filename: string) => void)
       | null;
+    switchToNewThreadRef: RefObject<(() => void) | null>;
+    triggerExportChatRef: RefObject<(() => void) | null>;
+    setActiveTab: (tab: string) => void;
   };
 };
 
@@ -49,10 +54,14 @@ const initialState: PropProviderType = {
       description: () => '',
     },
     allowChatStorage: true,
+    activeTab: '',
   },
   actions: {
     getCustomSystemPrompt: () => '',
     exportChatCallback: null,
+    switchToNewThreadRef: { current: null },
+    triggerExportChatRef: { current: null },
+    setActiveTab: () => {},
   },
 };
 const PropProviderContext = createContext<PropProviderType>(initialState);

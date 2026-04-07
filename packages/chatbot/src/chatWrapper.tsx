@@ -2,14 +2,13 @@
  * External dependencies
  */
 import { type AssistantRuntime } from '@assistant-ui/react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import {
   Tabs,
   TabsList,
   TabsTrigger,
   TabsContent,
 } from '@google-awlt/design-system';
-import { SidebarProvider } from '@google-awlt/design-system';
 /**
  * Internal dependencies
  */
@@ -26,18 +25,17 @@ const SidePanel = () => {
     transport: state.transport,
   }));
 
-  const [activeTab, setActiveTab] = useState<string>('chat');
-
   const { allowToolCalling } = usePropProvider(({ state }) => ({
     allowToolCalling: state.allowToolCalling,
   }));
 
-  const { prefixTabs, suffixTabs, footerNode, allowChatStorage } =
-    usePropProvider(({ state }) => ({
+  const { prefixTabs, suffixTabs, footerNode, activeTab, setActiveTab } =
+    usePropProvider(({ state, actions }) => ({
       prefixTabs: state.prefixTabs,
       suffixTabs: state.suffixTabs,
       footerNode: state.footerNode,
-      allowChatStorage: state.allowChatStorage,
+      activeTab: state.activeTab,
+      setActiveTab: actions.setActiveTab,
     }));
 
   const runtimeRef = useRef<AssistantRuntime | null>(null);
@@ -84,7 +82,13 @@ const SidePanel = () => {
       },
       ...suffixTabs,
     ];
-  }, [prefixTabs, suffixTabs]);
+  }, [prefixTabs, suffixTabs, allowToolCalling]);
+
+  useEffect(() => {
+    if (tabsList.length > 0 && !activeTab) {
+      setActiveTab(tabsList[0].value);
+    }
+  }, [tabsList]);
 
   const tabbedUI = useMemo(() => {
     if (tabsList.length > 1) {
@@ -127,20 +131,8 @@ const SidePanel = () => {
   return (
     <CustomRuntimeProvider transport={transport} runtimeRef={runtimeRef}>
       <CommandProvider>
-        {allowChatStorage ? (
-          <SidebarProvider
-            defaultOpen={false}
-            className={`flex-1 ${activeTab === 'insights' ? 'overflow-y-auto' : 'overflow-hidden'}`}
-          >
-            {tabbedUI}
-            {footerNode}
-          </SidebarProvider>
-        ) : (
-          <>
-            {tabbedUI}
-            {footerNode}
-          </>
-        )}
+        {tabbedUI}
+        {footerNode}
       </CommandProvider>
     </CustomRuntimeProvider>
   );

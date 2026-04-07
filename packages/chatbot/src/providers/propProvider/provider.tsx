@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useMemo, type PropsWithChildren } from 'react';
+import { useMemo, useRef, useState, type PropsWithChildren } from 'react';
 /**
  * Internal dependencies
  */
@@ -44,6 +44,10 @@ function PropProvider({
   allowChatStorage,
   exportChatCallback,
 }: PropProviderProps) {
+  const switchToNewThreadRef = useRef<(() => void) | null>(null);
+  const triggerExportChatRef = useRef<(() => void) | null>(null);
+  const [activeTab, setActiveTab] = useState<string>('');
+
   const contextValue = useMemo<PropProviderType>(
     () => ({
       state: {
@@ -58,10 +62,14 @@ function PropProvider({
         suggestions,
         helperTextSet,
         allowChatStorage: allowChatStorage ?? true,
+        activeTab,
       },
       actions: {
         getCustomSystemPrompt: getCustomSystemPrompt ?? (() => ''),
         exportChatCallback: exportChatCallback ?? null,
+        switchToNewThreadRef,
+        triggerExportChatRef,
+        setActiveTab,
       },
     }),
     [
@@ -78,6 +86,7 @@ function PropProvider({
       editComposer,
       getCustomSystemPrompt,
       exportChatCallback,
+      activeTab,
     ]
   );
 
