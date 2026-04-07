@@ -7,6 +7,7 @@ import { useMemo, type PropsWithChildren } from 'react';
  */
 import PropProviderContext, { type PropProviderType } from './context';
 import type { SidePanelTabProps } from '../../../types';
+import type { ChatDataType } from '../../customRuntime/types';
 
 type PropProviderProps = PropsWithChildren & {
   footerNode: React.ReactNode;
@@ -24,6 +25,7 @@ type PropProviderProps = PropsWithChildren & {
     title: (props: any) => string;
     description: (props: any) => string;
   };
+  exportChatCallback?: (chatData: ChatDataType[], filename: string) => void;
 };
 
 function PropProvider({
@@ -40,6 +42,7 @@ function PropProvider({
   suggestions,
   helperTextSet,
   allowChatStorage,
+  exportChatCallback,
 }: PropProviderProps) {
   const contextValue = useMemo<PropProviderType>(
     () => ({
@@ -58,6 +61,7 @@ function PropProvider({
       },
       actions: {
         getCustomSystemPrompt: getCustomSystemPrompt ?? (() => ''),
+        exportChatCallback: exportChatCallback ?? null,
       },
     }),
     [
@@ -73,6 +77,7 @@ function PropProvider({
       userMessage,
       editComposer,
       getCustomSystemPrompt,
+      exportChatCallback,
     ]
   );
 

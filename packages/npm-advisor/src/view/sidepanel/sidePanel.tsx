@@ -17,6 +17,8 @@ import {
 import { usePackageStats } from "./hooks/usePackageStats";
 import { getSystemPrompt } from "./components/askAI/getSystemPrompt";
 import { ThemeProvider } from "./context/themeContext";
+import { downloadMarkdownFile } from "../../utils";
+
 const SidePanel = () => {
   const {
     stats,
@@ -37,6 +39,7 @@ const SidePanel = () => {
       <ThemeProvider>
         <PropProvider
           allowToolCalling={false}
+          exportChatCallback={downloadMarkdownFile}
           prefixTabs={[
             {
               value: "insights",

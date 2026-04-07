@@ -2,7 +2,11 @@
  * External dependencies
  */
 import { createContext } from '@google-awlt/common';
+/**
+ * Internal dependencies
+ */
 import type { SidePanelTabProps } from '../../../types';
+import type { ChatDataType } from '../../customRuntime/types';
 
 export type PropProviderType = {
   state: {
@@ -23,6 +27,9 @@ export type PropProviderType = {
   };
   actions: {
     getCustomSystemPrompt: () => string;
+    exportChatCallback:
+      | ((chatData: ChatDataType[], filename: string) => void)
+      | null;
   };
 };
 
@@ -45,6 +52,7 @@ const initialState: PropProviderType = {
   },
   actions: {
     getCustomSystemPrompt: () => '',
+    exportChatCallback: null,
   },
 };
 const PropProviderContext = createContext<PropProviderType>(initialState);
