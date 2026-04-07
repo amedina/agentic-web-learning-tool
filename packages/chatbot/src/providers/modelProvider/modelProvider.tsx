@@ -81,7 +81,9 @@ const Provider = ({ children }: PropsWithChildren) => {
         )
       );
     } else {
-      setTransport(transportGenerator('browser-ai', 'prompt-api', {}));
+      setTransport(
+        transportGenerator('browser-ai', 'prompt-api', {}, false, '')
+      );
     }
 
     chrome.storage.sync.set({
@@ -122,7 +124,10 @@ const Provider = ({ children }: PropsWithChildren) => {
     if (!_selectedAgent) {
       setSelectedAgent({ model: 'prompt-api', modelProvider: 'browser-ai' });
       setTransport(FALLBACK_AGENT);
-      (FALLBACK_AGENT as GeminiNanoChatTransport).initializeSession();
+      (FALLBACK_AGENT as GeminiNanoChatTransport).initializeSession(
+        !allowToolCalling,
+        getCustomSystemPrompt()
+      );
       initialFetchDone.current = true;
       return;
     }
@@ -130,7 +135,10 @@ const Provider = ({ children }: PropsWithChildren) => {
     if (_selectedAgent?.modelProvider === 'browser-ai') {
       setSelectedAgent(_selectedAgent);
       setTransport(FALLBACK_AGENT);
-      (FALLBACK_AGENT as GeminiNanoChatTransport).initializeSession();
+      (FALLBACK_AGENT as GeminiNanoChatTransport).initializeSession(
+        !allowToolCalling,
+        getCustomSystemPrompt()
+      );
     } else {
       setSelectedAgent(_selectedAgent);
       setTransport(
@@ -146,7 +154,7 @@ const Provider = ({ children }: PropsWithChildren) => {
       );
     }
     initialFetchDone.current = true;
-  }, [fetchMCPServersAndCreateMapping]);
+  }, [fetchMCPServersAndCreateMapping, allowToolCalling]);
 
   const onSyncStorageChangedListener = useCallback(
     async (changes: { [key: string]: chrome.storage.StorageChange }) => {
@@ -182,8 +190,16 @@ const Provider = ({ children }: PropsWithChildren) => {
       return;
     }
 
-    (_transport as GeminiNanoChatTransport).initializeSession();
-  }, [selectedAgent?.modelProvider, _transport]);
+    (_transport as GeminiNanoChatTransport).initializeSession(
+      !allowToolCalling,
+      getCustomSystemPrompt()
+    );
+  }, [
+    selectedAgent?.modelProvider,
+    _transport,
+    allowToolCalling,
+    getCustomSystemPrompt,
+  ]);
 
   useEffect(() => {
     intitialSync();
@@ -201,6 +217,7 @@ const Provider = ({ children }: PropsWithChildren) => {
     intitialSync,
     onSyncStorageChangedListener,
     onLocalStorageChangedListener,
+    getCustomSystemPrompt,
   ]);
 
   const memoisedValue = useMemo(() => {
