@@ -11,6 +11,7 @@ import remarkGfm from 'remark-gfm';
 import { type FC, memo, useState } from 'react';
 import { CheckIcon, CopyIcon } from 'lucide-react';
 import '@assistant-ui/react-markdown/styles/dot.css';
+import { type ComponentProps } from 'react';
 /**
  * Internal dependencies
  */
@@ -18,12 +19,31 @@ import { TooltipIconButton } from '../tooltipIconButton';
 import { SyntaxHighlighter } from '../syntaxHighlighter';
 import { cn } from '../../lib/utils';
 
-const MarkdownTextImpl = () => {
+type MarkdownTextImplProps = ComponentProps<typeof MarkdownTextPrimitive> & {
+  part?: unknown;
+  status?: unknown;
+  [key: string]: any;
+};
+
+const MarkdownTextImpl = ({
+  components,
+  part,
+  status,
+  ...props
+}: MarkdownTextImplProps) => {
   return (
     <MarkdownTextPrimitive
       remarkPlugins={[remarkGfm]}
       className="aui-md"
-      components={defaultComponents}
+      {...props}
+      components={{ ...defaultComponents, ...components }}
+      urlTransform={(url, key, node) => {
+        if (url.startsWith('package:')) {
+          return url;
+        }
+
+        return props.urlTransform?.(url, key, node) ?? url;
+      }}
     />
   );
 };
