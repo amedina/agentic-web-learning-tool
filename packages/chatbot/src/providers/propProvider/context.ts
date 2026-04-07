@@ -19,6 +19,7 @@ export type PropProviderType = {
       title: (props?: any) => string;
       description: (props?: any) => string;
     };
+    allowChatStorage: boolean;
   };
   actions: {
     getCustomSystemPrompt: () => string;
@@ -40,6 +41,7 @@ const initialState: PropProviderType = {
       title: () => '',
       description: () => '',
     },
+    allowChatStorage: true,
   },
   actions: {
     getCustomSystemPrompt: () => '',

@@ -72,13 +72,7 @@ export default function ComparisonPage() {
         handleClearComparison={handleClearComparison}
         winnerName={winnerName}
       />
-      <AssistantModal
-        apiKeys={{
-          gemini: apiKeys?.gemini?.apiKey,
-          openai: apiKeys?.["open-ai"]?.apiKey,
-        }}
-        changeTabToSettings={() => setSelectedMenuItem("models")}
-      />
+      <AssistantModal comparisonBucket={comparisonBucket} />
     </OptionsPageTab>
   );
 }

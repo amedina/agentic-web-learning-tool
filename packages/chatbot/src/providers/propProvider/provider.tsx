@@ -19,6 +19,7 @@ type PropProviderProps = PropsWithChildren & {
   getCustomSystemPrompt?: () => string;
   customIcon?: React.ReactNode;
   suggestions?: { text: string; prompt: string }[];
+  allowChatStorage?: boolean;
   helperTextSet?: {
     title: (props: any) => string;
     description: (props: any) => string;
@@ -38,6 +39,7 @@ function PropProvider({
   customIcon,
   suggestions,
   helperTextSet,
+  allowChatStorage,
 }: PropProviderProps) {
   const contextValue = useMemo<PropProviderType>(
     () => ({
@@ -52,6 +54,7 @@ function PropProvider({
         CustomIcon: customIcon,
         suggestions,
         helperTextSet,
+        allowChatStorage: allowChatStorage ?? true,
       },
       actions: {
         getCustomSystemPrompt: getCustomSystemPrompt ?? (() => ''),
@@ -65,6 +68,7 @@ function PropProvider({
       allowToolCalling,
       suggestions,
       helperTextSet,
+      allowChatStorage,
       assistantMessage,
       userMessage,
       editComposer,

@@ -71,10 +71,12 @@ const ConversationalChatBot = ({ runtime }: ConversationalChatBotProps) => {
     CustomIcon,
     suggestions,
     helperTextSet,
+    allowChatStorage,
   } = usePropProvider(({ state }) => ({
     CustomIcon: state.CustomIcon,
     suggestions: state.suggestions,
     helperTextSet: state.helperTextSet,
+    allowChatStorage: state.allowChatStorage,
     CustomAssistantMessageComponent: state.CustomAssistantMessageComponent,
     CustomUserMessageComponent: state.CustomUserMessageComponent,
     CustomEditComposerComponent: state.CustomEditComposerComponent,
@@ -145,32 +147,34 @@ const ConversationalChatBot = ({ runtime }: ConversationalChatBotProps) => {
 
   return (
     <>
-      <ThreadListSidebar isThreadLoading={isLoading} />
+      {allowChatStorage && <ThreadListSidebar isThreadLoading={isLoading} />}
       <SidebarInset className="h-full">
-        <div className="fixed top-15 left-0 z-5 flex flex-row items-center pl-1 pt-1 bg-background">
-          <Tooltip text="Chat History">
-            <SidebarTrigger className="bg-background">
-              <Menu className="text-primary" />
-            </SidebarTrigger>
-          </Tooltip>
-          <Tooltip text="New Chat">
-            <Button
-              variant="ghost"
-              size="icon"
-              onKeyDown={(event) =>
-                event.key === 'Enter'
-                  ? runtime?.threads.switchToNewThread()
-                  : null
-              }
-              role="button"
-              className="bg-background"
-              tabIndex={-1}
-              onClick={() => runtime?.threads.switchToNewThread()}
-            >
-              <PlusCircle className="text-primary" />
-            </Button>
-          </Tooltip>
-        </div>
+        {allowChatStorage && (
+          <div className="fixed top-15 left-0 z-5 flex flex-row items-center pl-1 pt-1 bg-background">
+            <Tooltip text="Chat History">
+              <SidebarTrigger className="bg-background">
+                <Menu className="text-primary" />
+              </SidebarTrigger>
+            </Tooltip>
+            <Tooltip text="New Chat">
+              <Button
+                variant="ghost"
+                size="icon"
+                onKeyDown={(event) =>
+                  event.key === 'Enter'
+                    ? runtime?.threads.switchToNewThread()
+                    : null
+                }
+                role="button"
+                className="bg-background"
+                tabIndex={-1}
+                onClick={() => runtime?.threads.switchToNewThread()}
+              >
+                <PlusCircle className="text-primary" />
+              </Button>
+            </Tooltip>
+          </div>
+        )}
         <ThreadPrimitive.Root className="h-full flex flex-col">
           <ThreadPrimitive.Viewport
             autoScroll={true}
