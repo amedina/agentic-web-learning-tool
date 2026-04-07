@@ -75,7 +75,7 @@ const SidePanel = () => {
       ...prefixTabs,
       {
         value: 'chat',
-        label: 'Chat',
+        label: 'Ask AI',
         content: !allowToolCalling ? (
           <ConversationalChatBot runtime={runtimeRef.current} />
         ) : (
@@ -93,21 +93,20 @@ const SidePanel = () => {
           defaultValue={tabsList[0].value}
           className="flex flex-col h-full w-full bg-background"
         >
-          <div className="px-4 py-2 border-b">
-            <TabsList className="grid w-full grid-cols-2">
-              {tabsList.map((tab) => {
-                return (
-                  <TabsTrigger
-                    onClick={() => setActiveTab(tab.value)}
-                    key={tab.value}
-                    value={tab.value}
-                  >
-                    {tab.label}
-                  </TabsTrigger>
-                );
-              })}
-            </TabsList>
-          </div>
+          <TabsList className="flex w-full bg-transparent h-auto p-0 rounded-none border-b gap-0">
+            {tabsList.map((tab) => {
+              return (
+                <TabsTrigger
+                  onClick={() => setActiveTab(tab.value)}
+                  key={tab.value}
+                  value={tab.value}
+                  className="flex-1 rounded-none py-2.5 px-4 text-sm font-medium border-b-2 border-transparent data-[state=active]:border-[#c94137] data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none hover:bg-accent/40"
+                >
+                  {tab.label}
+                </TabsTrigger>
+              );
+            })}
+          </TabsList>
           {tabsList.map((tab) => {
             return (
               <TabsContent

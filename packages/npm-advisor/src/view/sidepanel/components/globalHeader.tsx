@@ -44,28 +44,17 @@ export const GlobalHeader = () => {
   };
 
   return (
-    <div className="flex items-center justify-between w-full px-4 pt-[10px] pb-[10px] bg-[#c94137] text-white">
-      <div className="flex items-center space-x-3">
-        <img
-          src="/icons/icon.png"
-          alt="NPM Advisor Logo"
-          className="w-8 h-8 rounded shrink-0 object-contain shadow-sm bg-white p-1"
-        />
-        <h1 className="text-[17px] font-semibold tracking-tight">
-          NPM Advisor
-        </h1>
-      </div>
-
-      <div className="flex items-center space-x-4">
+    <div className="flex items-center justify-end w-full px-3 py-1.5 border-b bg-background">
+      <div className="flex items-center gap-1">
         {comparisonCount > 0 && (
           <button
             onClick={openComparisons}
-            className="flex items-center gap-1.5 text-white/80 hover:text-white transition-colors cursor-pointer text-xs font-medium"
+            className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors cursor-pointer text-xs font-medium px-2 py-1 rounded hover:bg-accent"
             title="View comparisons"
           >
             <GitCompareArrows size={14} />
             <span>View Comparisons</span>
-            <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-white/20 text-white text-[10px] font-bold leading-none">
+            <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-[#c94137]/15 text-[#c94137] text-[10px] font-bold leading-none">
               {comparisonCount}
             </span>
           </button>
@@ -73,18 +62,18 @@ export const GlobalHeader = () => {
 
         <button
           onClick={openOptionsPage}
-          className="text-white hover:text-slate-200 transition-colors cursor-pointer"
+          className="p-1.5 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
           title="Settings"
         >
-          <Settings size={16} />
+          <Settings size={15} />
         </button>
 
         <button
           onClick={toggleTheme}
-          className="text-white hover:text-slate-200 transition-colors cursor-pointer"
+          className="p-1.5 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
           title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
         >
-          {isDarkMode ? <Sun size={16} /> : <Moon size={16} />}
+          {isDarkMode ? <Sun size={15} /> : <Moon size={15} />}
         </button>
       </div>
     </div>
