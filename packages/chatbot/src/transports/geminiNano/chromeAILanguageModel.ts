@@ -53,6 +53,8 @@ class ChromeAILanguageModel {
   public readonly specificationVersion = 'v2';
   public readonly provider = 'browser-ai';
   public readonly modelId: string;
+  private isNPMAdvisor: boolean;
+  private systemPrompt: string;
 
   // Defines supported media types (images/audio) via URL patterns
   public readonly supportedUrls = {
@@ -62,13 +64,18 @@ class ChromeAILanguageModel {
   // Configuration options for the model
   config: any;
 
-  constructor(modelId: string, options = {}) {
+  constructor(
+    modelId: string,
+    options = { isNPMAdvisor: false, systemPrompt: '' }
+  ) {
     this.modelId = modelId;
     this.config = {
       provider: this.provider,
       modelId: modelId,
       options: options,
     };
+    this.isNPMAdvisor = options.isNPMAdvisor;
+    this.systemPrompt = options.systemPrompt;
   }
 
   public setRuntime(runtime: AssistantRuntime) {
@@ -105,9 +112,9 @@ class ChromeAILanguageModel {
       };
     });
 
-    const initialSystemPrompt = systemPromptTemplate(
-      JSON.stringify(this.formattedTools, null, 2)
-    );
+    const initialSystemPrompt = !this.isNPMAdvisor
+      ? systemPromptTemplate(JSON.stringify(this.formattedTools, null, 2))
+      : this.systemPrompt;
 
     this.session = await lm.create({
       initialPrompts: [
@@ -315,8 +322,23 @@ class ChromeAILanguageModel {
             }
           };
 
-          if (this.formattedTools.length === 0) {
+          if (this.formattedTools.length === 0 && !this.isNPMAdvisor) {
             emitTextDelta('Error: No tools are configured for tool calling.');
+            setTimeout(async () => {
+              const { lockedThreads = [] }: { lockedThreads: string[] } =
+                await chrome.storage.session.get('lockedThreads');
+              const threadIdToUnlock = this.runtime?.thread.getState().threadId;
+
+              if (!threadIdToUnlock) {
+              }
+              const unlockedThreads = lockedThreads.filter(
+                (id) => id !== threadIdToUnlock
+              );
+
+              await chrome.storage.session.set({
+                lockedThreads: unlockedThreads,
+              });
+            }, 1000);
             finishStream('error');
             return;
           }

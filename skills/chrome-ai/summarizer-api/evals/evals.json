@@ -1,0 +1,115 @@
+{
+  "skill_name": "Summarizer API",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Check if the Summarizer API is available before using it.",
+      "expected_output": "The agent identifies this as a Summarizer API skill task and produces code that calls `Summarizer.availability()` and handles all four return values: 'unavailable', 'downloadable', 'downloading', and 'available', with appropriate branching logic for each state.",
+      "files": [],
+      "expectations": [
+        "Calls `Summarizer.availability()` (not a property check like `'Summarizer' in window`)",
+        "Handles the 'unavailable' return value",
+        "Handles the 'downloadable' return value",
+        "Handles the 'downloading' return value",
+        "Handles the 'available' return value",
+        "Passes `{ outputLanguage: 'en' }` or similar to `Summarizer.availability()`"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Use the Summarizer API to generate a TL;DR summary of a news article.",
+      "expected_output": "The agent identifies this as a Summarizer API skill task and produces code that calls `Summarizer.create()` with `type: 'tldr'`, then calls `summarizer.summarize()` with the article text, and calls `summarizer.destroy()` when done.",
+      "files": [],
+      "expectations": [
+        "Calls `Summarizer.create()` with `type: 'tldr'`",
+        "Passes `outputLanguage` to `Summarizer.create()`",
+        "Calls `summarizer.summarize()` with the article text",
+        "Calls `summarizer.destroy()` to free resources after use"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Use the Summarizer API to extract the key points from a research paper.",
+      "expected_output": "The agent identifies this as a Summarizer API skill task and produces code that calls `Summarizer.create()` with `type: 'key-points'`, then calls `summarizer.summarize()` with the paper text. Optionally sets `format: 'markdown'` to get a bullet list.",
+      "files": [],
+      "expectations": [
+        "Calls `Summarizer.create()` with `type: 'key-points'`",
+        "Passes `outputLanguage` to `Summarizer.create()`",
+        "Calls `summarizer.summarize()` with the paper text",
+        "Optionally uses `format: 'markdown'` for bullet-list output"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Generate a short teaser summary of a blog post to use as a preview snippet.",
+      "expected_output": "The agent identifies this as a Summarizer API skill task and produces code that calls `Summarizer.create()` with `type: 'teaser'` and `length: 'short'`, then calls `summarizer.summarize()` with the blog post content.",
+      "files": [],
+      "expectations": [
+        "Calls `Summarizer.create()` with `type: 'teaser'`",
+        "Calls `Summarizer.create()` with `length: 'short'`",
+        "Passes `outputLanguage` to `Summarizer.create()`",
+        "Calls `summarizer.summarize()` with the blog post content"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Stream a summary of a long document using the Summarizer API and display it progressively.",
+      "expected_output": "The agent identifies this as a Summarizer API skill task and produces code that calls `summarizer.summarizeStreaming()` (not `summarizer.summarize()`), iterates over the async stream with `for await...of`, and updates the DOM incrementally with each chunk.",
+      "files": [],
+      "expectations": [
+        "Passes `outputLanguage` to `Summarizer.create()`",
+        "Calls `summarizer.summarizeStreaming()` instead of `summarizer.summarize()`",
+        "Uses `for await...of` to iterate over the stream",
+        "Updates the DOM incrementally inside the loop"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "I need to summarize 15 support tickets efficiently using the Summarizer API. How do I avoid creating a new summarizer for each one?",
+      "expected_output": "The agent identifies this as a Summarizer API skill task and produces code that creates a single summarizer with `Summarizer.create()` using `sharedContext` describing the domain (e.g., 'These are software bug reports'), then calls `summarizer.summarize()` for each ticket, and calls `summarizer.destroy()` once after all summaries.",
+      "files": [],
+      "expectations": [
+        "Creates a single summarizer instance with `Summarizer.create()` outside the loop",
+        "Passes `outputLanguage` to `Summarizer.create()`",
+        "Uses `sharedContext` to describe the domain or task",
+        "Calls `summarizer.summarize()` multiple times on the same instance",
+        "Calls `summarizer.destroy()` once after all summaries are complete"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Use the Summarizer API to generate a single-sentence headline for a news article.",
+      "expected_output": "The agent identifies this as a Summarizer API skill task and produces code that calls `Summarizer.create()` with `type: 'headline'`, then calls `summarizer.summarize()` with the article text, producing a single-sentence headline.",
+      "files": [],
+      "expectations": [
+        "Calls `Summarizer.create()` with `type: 'headline'`",
+        "Passes `outputLanguage` to `Summarizer.create()`",
+        "Calls `summarizer.summarize()` with the article text",
+        "Expects a single-sentence output from the model"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "Use the Summarizer API to produce plain text output instead of markdown.",
+      "expected_output": "The agent identifies this as a Summarizer API skill task and produces code that calls `Summarizer.create()` with `format: 'plain-text'` to suppress markdown output.",
+      "files": [],
+      "expectations": [
+        "Calls `Summarizer.create()` with `format: 'plain-text'`",
+        "Passes `outputLanguage` to `Summarizer.create()`",
+        "Does NOT omit the `format` option or use `format: 'markdown'`"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "How do I cancel a summarization if the user navigates away from the page?",
+      "expected_output": "The agent identifies this as a Summarizer API skill task and produces code that creates an `AbortController`, passes `signal: controller.signal` to `Summarizer.create()` or `summarizer.summarize()`, and calls `controller.abort()` when the user navigates away (e.g., in a `beforeunload` or `visibilitychange` handler).",
+      "files": [],
+      "expectations": [
+        "Creates an `AbortController` instance",
+        "Passes `outputLanguage` to `Summarizer.create()`",
+        "Passes `signal: controller.signal` to `Summarizer.create()` or the summarize call",
+        "Calls `controller.abort()` in a page navigation or visibility event handler"
+      ]
+    }
+  ]
+}

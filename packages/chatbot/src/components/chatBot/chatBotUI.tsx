@@ -20,6 +20,7 @@ import {
   ChevronDown,
   PlusCircle,
   Menu,
+  Share2,
 } from 'lucide-react';
 import {
   Button,
@@ -48,6 +49,7 @@ import type { AgentType } from '../../../types';
 import { useCommandProvider } from '../../providers/commandProvider';
 import { createModelDropdown, createToolDropdown } from './utils';
 import { openOptionsPage } from '../../utils';
+import type { ChatDataType } from '../../customRuntime/types';
 
 type ChatBotUIProps = {
   runtime: AssistantRuntime | null;
@@ -77,9 +79,13 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
     CustomEditComposerComponent,
     CustomIcon,
     helperTextSet,
-  } = usePropProvider(({ state }) => ({
+    allowChatStorage,
+    exportChatCallback,
+  } = usePropProvider(({ state, actions }) => ({
     CustomIcon: state.CustomIcon,
+    allowChatStorage: state.allowChatStorage,
     helperTextSet: state.helperTextSet,
+    exportChatCallback: actions.exportChatCallback,
     CustomAssistantMessageComponent: state.CustomAssistantMessageComponent,
     CustomUserMessageComponent: state.CustomUserMessageComponent,
     CustomEditComposerComponent: state.CustomEditComposerComponent,
@@ -169,34 +175,62 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
   //Only shows models whose apiKeys have been and have been enabled
   const modelOptions = useMemo(() => createModelDropdown(apiKeys), [apiKeys]);
 
+  const exportChat = useCallback(async () => {
+    const chatData = api.thread().getState()
+      .messages as unknown as ChatDataType[];
+    const title = api.threadListItem().getState().title;
+    if (chatData && exportChatCallback && title) {
+      exportChatCallback(chatData, `conversation-${Date.now()}-${title}.md`);
+    }
+  }, [exportChatCallback, api]);
+
   return (
     <>
-      <ThreadListSidebar isThreadLoading={isLoading} />
+      {allowChatStorage && <ThreadListSidebar isThreadLoading={isLoading} />}
       <SidebarInset className="h-full">
-        <div className="fixed top-15 left-0 z-5 flex flex-row items-center pl-1 pt-1 bg-background">
-          <Tooltip text="Chat History">
-            <SidebarTrigger className="bg-background">
-              <Menu className="text-primary" />
-            </SidebarTrigger>
-          </Tooltip>
-          <Tooltip text="New Chat">
-            <Button
-              variant="ghost"
-              size="icon"
-              onKeyDown={(event) =>
-                event.key === 'Enter'
-                  ? runtime?.threads.switchToNewThread()
-                  : null
-              }
-              role="button"
-              className="bg-background"
-              tabIndex={-1}
-              onClick={() => runtime?.threads.switchToNewThread()}
-            >
-              <PlusCircle className="text-primary" />
-            </Button>
-          </Tooltip>
-        </div>
+        {allowChatStorage && (
+          <div className="fixed top-15 left-0 z-5 flex flex-row items-center pl-1 pt-1 bg-background">
+            <Tooltip text="Chat History">
+              <SidebarTrigger className="bg-background">
+                <Menu className="text-primary" />
+              </SidebarTrigger>
+            </Tooltip>
+            {exportChatCallback && (
+              <Tooltip text="Share Conversation">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onKeyDown={(event) =>
+                    event.key === 'Enter' ? exportChat() : null
+                  }
+                  role="button"
+                  className="bg-background"
+                  tabIndex={-1}
+                  onClick={() => exportChat()}
+                >
+                  <Share2 className="text-primary" />
+                </Button>
+              </Tooltip>
+            )}
+            <Tooltip text="New Chat">
+              <Button
+                variant="ghost"
+                size="icon"
+                onKeyDown={(event) =>
+                  event.key === 'Enter'
+                    ? runtime?.threads.switchToNewThread()
+                    : null
+                }
+                role="button"
+                className="bg-background"
+                tabIndex={-1}
+                onClick={() => runtime?.threads.switchToNewThread()}
+              >
+                <PlusCircle className="text-primary" />
+              </Button>
+            </Tooltip>
+          </div>
+        )}
         <ThreadPrimitive.Root className="h-full flex flex-col">
           <ThreadPrimitive.Viewport
             autoScroll={true}

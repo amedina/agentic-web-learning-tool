@@ -32,13 +32,13 @@ const SidePanel = () => {
     allowToolCalling: state.allowToolCalling,
   }));
 
-  const { prefixTabs, suffixTabs, footerNode } = usePropProvider(
-    ({ state }) => ({
+  const { prefixTabs, suffixTabs, footerNode, allowChatStorage } =
+    usePropProvider(({ state }) => ({
       prefixTabs: state.prefixTabs,
       suffixTabs: state.suffixTabs,
       footerNode: state.footerNode,
-    })
-  );
+      allowChatStorage: state.allowChatStorage,
+    }));
 
   const runtimeRef = useRef<AssistantRuntime | null>(null);
 
@@ -86,46 +86,62 @@ const SidePanel = () => {
     ];
   }, [prefixTabs, suffixTabs]);
 
+  const tabbedUI = useMemo(() => {
+    if (tabsList.length > 1) {
+      return (
+        <Tabs
+          defaultValue={tabsList[0].value}
+          className="flex flex-col h-full w-full bg-background"
+        >
+          <div className="px-4 py-2 border-b">
+            <TabsList className="grid w-full grid-cols-2">
+              {tabsList.map((tab) => {
+                return (
+                  <TabsTrigger
+                    onClick={() => setActiveTab(tab.value)}
+                    key={tab.value}
+                    value={tab.value}
+                  >
+                    {tab.label}
+                  </TabsTrigger>
+                );
+              })}
+            </TabsList>
+          </div>
+          {tabsList.map((tab) => {
+            return (
+              <TabsContent
+                key={tab.value}
+                value={tab.value}
+                className={`flex-1 p-0 border-none mt-0 ${activeTab !== 'chat' ? 'overflow-y-auto' : 'overflow-hidden'}`}
+              >
+                {tab.content}
+              </TabsContent>
+            );
+          })}
+        </Tabs>
+      );
+    }
+    return tabsList[0].content;
+  }, [tabsList]);
+
   return (
     <CustomRuntimeProvider transport={transport} runtimeRef={runtimeRef}>
       <CommandProvider>
-        <SidebarProvider
-          defaultOpen={false}
-          className={`flex-1 ${activeTab === 'insights' ? 'overflow-y-auto' : 'overflow-hidden'}`}
-        >
-          <Tabs
-            defaultValue={tabsList[0].value}
-            className="flex flex-col h-full w-full bg-background"
+        {allowChatStorage ? (
+          <SidebarProvider
+            defaultOpen={false}
+            className={`flex-1 ${activeTab === 'insights' ? 'overflow-y-auto' : 'overflow-hidden'}`}
           >
-            <div className="px-4 py-2 border-b">
-              <TabsList className="grid w-full grid-cols-2">
-                {tabsList.map((tab) => {
-                  return (
-                    <TabsTrigger
-                      onClick={() => setActiveTab(tab.value)}
-                      key={tab.value}
-                      value={tab.value}
-                    >
-                      {tab.label}
-                    </TabsTrigger>
-                  );
-                })}
-              </TabsList>
-            </div>
-            {tabsList.map((tab) => {
-              return (
-                <TabsContent
-                  key={tab.value}
-                  value={tab.value}
-                  className={`flex-1 p-0 border-none mt-0 ${activeTab !== 'chat' ? 'overflow-y-auto' : 'overflow-hidden'}`}
-                >
-                  {tab.content}
-                </TabsContent>
-              );
-            })}
-          </Tabs>
-          {footerNode}
-        </SidebarProvider>
+            {tabbedUI}
+            {footerNode}
+          </SidebarProvider>
+        ) : (
+          <>
+            {tabbedUI}
+            {footerNode}
+          </>
+        )}
       </CommandProvider>
     </CustomRuntimeProvider>
   );
