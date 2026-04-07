@@ -5,7 +5,7 @@ import {
   ThreadListItemPrimitive,
   ThreadListPrimitive,
 } from '@assistant-ui/react';
-import { ArchiveIcon, PlusIcon, Sidebar, MessageSquare } from 'lucide-react';
+import { ArchiveIcon, PlusIcon, Sidebar } from 'lucide-react';
 /**
  * Internal dependencies
  */
@@ -38,8 +38,8 @@ const ThreadListNew = () => {
   return (
     <ThreadListPrimitive.New asChild>
       <Button
-        variant="default"
-        className="aui-thread-list-new flex-1 h-9 justify-start gap-2 rounded-lg px-3 text-sm font-medium shadow-sm"
+        variant="outline"
+        className="aui-thread-list-new flex-1 h-9 justify-start gap-2 rounded-lg px-3 text-sm hover:bg-muted data-active:bg-muted"
       >
         <PlusIcon className="size-4" />
         New Chat
@@ -50,8 +50,8 @@ const ThreadListNew = () => {
 
 const ThreadListClose = () => {
   return (
-    <SidebarTrigger className="aui-thread-list-new h-9 w-9 flex items-center justify-center rounded-lg text-sm hover:bg-muted data-active:bg-muted ml-0.5 shrink-0 transition-colors">
-      <Sidebar className="size-4 text-muted-foreground" />
+    <SidebarTrigger className="aui-thread-list-new h-9 justify-start gap-2 rounded-lg px-3 text-sm hover:bg-muted data-active:bg-muted">
+      <Sidebar className="size-4" />
     </SidebarTrigger>
   );
 };
@@ -78,12 +78,11 @@ const ThreadListItem = () => {
     setOpen: actions.setOpen,
   }));
   return (
-    <ThreadListItemPrimitive.Root className="aui-thread-list-item group flex h-9 items-center rounded-lg transition-colors hover:bg-accent/40 focus-visible:bg-accent focus-visible:outline-none data-active:bg-accent data-[active]:bg-accent/70 mt-1 cursor-pointer">
+    <ThreadListItemPrimitive.Root className="aui-thread-list-item group flex h-9 items-center rounded-lg transition-colors hover:bg-muted focus-visible:bg-muted focus-visible:outline-none data-active:bg-muted mt-3">
       <ThreadListItemPrimitive.Trigger
         onClick={() => setOpen(false)}
-        className="aui-thread-list-item-trigger flex h-full flex-1 items-center gap-2.5 truncate px-3 text-start text-sm font-medium text-muted-foreground group-data-[active]:text-foreground transition-colors"
+        className="aui-thread-list-item-trigger flex h-full flex-1 items-center truncate px-3 text-start text-sm"
       >
-        <MessageSquare className="size-3.5 shrink-0" />
         <ThreadListItemPrimitive.Title fallback="New Chat" />
       </ThreadListItemPrimitive.Trigger>
       <ThreadListItemArchive />

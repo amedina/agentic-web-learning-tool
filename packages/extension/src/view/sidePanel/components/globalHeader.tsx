@@ -29,7 +29,7 @@ export const GlobalHeader = () => {
     <div className="flex items-center justify-between w-full px-1 border-b bg-background h-10 shrink-0">
       <div className="flex items-center">
         {allowChatStorage && isChatTabActive && (
-          <div className="flex items-center gap-1 animate-in zoom-in duration-300">
+          <>
             <Tooltip text="Chat History">
               <SidebarTrigger>
                 <Menu className="text-primary" size={16} />
@@ -57,7 +57,7 @@ export const GlobalHeader = () => {
                 <PlusCircle className="text-primary" size={16} />
               </Button>
             </Tooltip>
-          </div>
+          </>
         )}
       </div>
       <div className="flex items-center">
