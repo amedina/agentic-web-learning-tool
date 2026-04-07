@@ -1,8 +1,11 @@
 /**
+ * External dependencies
+ */
+import { logger } from '@google-awlt/common';
+/**
  * Internal dependencies
  */
 import type { SettingsType } from '../types';
-import logger from './logger';
 
 function settingsValidator(
   settings: SettingsType

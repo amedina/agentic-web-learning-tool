@@ -4,10 +4,10 @@
 import { ExtensionServerTransport } from '@mcp-b/transports';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
+import { logger } from '@google-awlt/common';
 /**
  * Internal dependencies
  */
-import { logger } from '../../utils';
 import McpHub from '../mcpHub';
 import handleToolEnableDisableOnLocalStorageChange from './handleToolEnableDisableOnLocalStorageChange';
 import { START_MCP_CONNECTION } from '../../constants';

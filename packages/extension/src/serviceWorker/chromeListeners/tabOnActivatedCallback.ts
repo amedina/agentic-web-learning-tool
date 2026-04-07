@@ -1,7 +1,10 @@
 /**
+ * External dependencies
+ */
+import { logger } from '@google-awlt/common';
+/**
  * Internal dependencies
  */
-import { logger } from '../../utils';
 import { configureTabPanel } from '../utils';
 
 const tabOnActivatedCallback = async (

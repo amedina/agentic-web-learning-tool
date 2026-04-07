@@ -17,16 +17,18 @@ import {
 import {
   DOM_TOOL_NAME_PREFIX,
   EXTENSION_TOOL_PREFIX,
+  logger,
   type CustomHeaders,
   type MCPConfig,
   type MCPServerConfig,
 } from '@google-awlt/common';
 import type { WebMCPTool } from '@google-awlt/design-system';
+import { jsonSchemaToZod } from '@google-awlt/chatbot';
 /**
  * Internal dependencies
  */
 import { RequestManager, sanitizeToolName, isDomainAllowed } from './utils';
-import { MESSAGE_TYPES, logger, jsonSchemaToZod } from '../utils';
+import { MESSAGE_TYPES } from '../utils';
 import type { ContentScriptMessage } from './types';
 import { mcpbTools, type keys } from '../contentScript/tools/mcpbTools';
 import { StatelessHTTPClientTransport } from '../view/options/providers/mcpProvider/StatelessHTTPClientTransport';

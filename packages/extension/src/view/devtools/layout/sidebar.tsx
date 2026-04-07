@@ -3,11 +3,11 @@
  */
 import { Sidebar as DevtoolsSidebar } from '@google-awlt/design-system';
 import { Hammer, Settings, Activity } from 'lucide-react';
-
+import { openOptionsPage } from '@google-awlt/chatbot';
 /**
  * Internal dependencies
  */
-import { openOptionsPage } from '../../../utils';
+import {} from '../../../utils';
 
 const Sidebar = () => {
   const items = [

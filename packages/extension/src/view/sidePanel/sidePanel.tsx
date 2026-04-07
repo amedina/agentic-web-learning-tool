@@ -1,27 +1,14 @@
 /**
  * External dependencies
  */
-import { type AssistantRuntime } from '@assistant-ui/react';
-import { useEffect, useRef, useState } from 'react';
-import {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
-} from '@google-awlt/design-system';
-import { SidebarProvider } from '@google-awlt/design-system';
+import { useEffect, useState } from 'react';
+import { PropProvider, SidepanelChatbot } from '@google-awlt/chatbot';
 /**
  * Internal dependencies
  */
-import { ChatBotUI, WorkflowList, GlobalStatusPill } from './components';
-import { CommandProvider, useModelProvider } from './providers';
-import CustomRuntimeProvider from './customRuntime/customRuntimeProvider';
+import { WorkflowList, GlobalStatusPill } from './components';
 
 const SidePanel = () => {
-  const { transport } = useModelProvider(({ state }) => ({
-    transport: state.transport,
-  }));
-
   const [activeTab, setActiveTab] = useState<chrome.tabs.Tab | null>(null);
 
   useEffect(() => {
@@ -50,18 +37,6 @@ const SidePanel = () => {
     }
   }, []);
 
-  const runtimeRef = useRef<AssistantRuntime | null>(null);
-
-  useEffect(() => {
-    (async () => {
-      if (!runtimeRef.current) {
-        return;
-      }
-      runtimeRef.current.thread.reset();
-      transport?.setRuntime(runtimeRef.current);
-    })();
-  }, [transport]);
-
   useEffect(() => {
     chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
       if (message.type === 'still_there') {
@@ -81,39 +56,30 @@ const SidePanel = () => {
   }, []);
 
   return (
-    <CustomRuntimeProvider transport={transport} runtimeRef={runtimeRef}>
-      <CommandProvider>
-        <SidebarProvider defaultOpen={false}>
-          <Tabs
-            defaultValue="chat"
-            className="flex flex-col h-screen w-full bg-background"
-          >
-            <div className="px-4 py-2 border-b">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="chat">Chat</TabsTrigger>
-                <TabsTrigger value="workflows">Workflows</TabsTrigger>
-              </TabsList>
-            </div>
-            <TabsContent
-              value="chat"
-              className="flex-1 overflow-hidden p-0 border-none mt-0"
-            >
-              <ChatBotUI runtime={runtimeRef.current} />
-            </TabsContent>
-            <TabsContent
-              value="workflows"
-              className="flex-1 overflow-hidden p-4 border-none mt-0"
-            >
-              <WorkflowList
-                activeTabId={activeTab?.id}
-                activeTabUrl={activeTab?.url}
-              />
-            </TabsContent>
-            <GlobalStatusPill />
-          </Tabs>
-        </SidebarProvider>
-      </CommandProvider>
-    </CustomRuntimeProvider>
+    <PropProvider
+      allowToolCalling={true}
+      suffixTabs={[
+        {
+          value: 'workflow',
+          label: 'Workflows',
+          content: (
+            <WorkflowList
+              activeTabId={activeTab?.id}
+              activeTabUrl={activeTab?.url}
+            />
+          ),
+        },
+      ]}
+      footerNode={<GlobalStatusPill />}
+      helperTextSet={{
+        title: () => 'How can I help you today?',
+        description: ({ toolLength }) =>
+          `I can help you write code, analyze data, or even check the
+                    weather. I have access to ${toolLength} tools`,
+      }}
+    >
+      <SidepanelChatbot />
+    </PropProvider>
   );
 };
 

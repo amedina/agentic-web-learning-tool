@@ -105,28 +105,4 @@ export const mcpbTools = {
   },
 };
 
-export const ToolNameMap = {
-  window_parameters_description: 'Windows',
-  window_operations: 'Windows',
-  tab_group_parameters_description: 'Tab Group',
-  tab_group_operations: 'Tab Group',
-  tab_parameters_description: 'Tab',
-  tab_operations: 'Tab',
-  history_parameters_description: 'History',
-  history_operations: 'History',
-  bookmark_parameters_description: 'Bookmark',
-  bookmark_operations: 'Bookmark',
-  storage_parameters_description: 'Storage',
-  storage_operations: 'Storage',
-  dom_extract_region: 'DOM Extraction',
-  dom_extract_content: 'DOM Extraction',
-  dom_extract_structure: 'DOM Extraction',
-  execute_script: 'Scripting',
-  execute_user_script: 'Scripting',
-  execute_user_script_legacy: 'Scripting',
-  insert_css: 'Scripting',
-  remove_css: 'Scripting',
-  check_available_apis: 'API Check',
-};
-
 export type keys = keyof typeof mcpbTools;

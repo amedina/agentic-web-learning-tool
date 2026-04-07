@@ -4,6 +4,8 @@
   "version": "1.0.1",
   "type": "module",
   "scripts": {
+    "predev": "rimraf ../../dist/npm-advisor",
+    "prebuild": "rimraf ../../dist/npm-advisor",
     "dev": "cross-env NODE_ENV=development vite build --watch --config vite.config.ts",
     "build": "cross-env NODE_ENV=production vite build --config vite.config.ts",
     "check-types": "tsc -b -noEmit",
@@ -11,12 +13,14 @@
     "test": "vitest run --root . --silent"
   },
   "dependencies": {
+    "@google-awlt/chatbot": "workspace:*",
+    "@google-awlt/common": "workspace:*",
+    "@google-awlt/design-system": "workspace:*",
     "@ai-sdk/google": "^2.0.45",
     "@ai-sdk/openai": "^2.0.77",
     "@ai-sdk/provider": "^2.0.0",
     "@assistant-ui/react": "0.11.51",
     "@assistant-ui/react-ai-sdk": "1.1.19",
-    "@google-awlt/design-system": "workspace:*",
     "@tailwindcss/vite": "^4.1.13",
     "ai": "^5.0.104",
     "algoliasearch": "^5.50.0",
@@ -28,17 +32,20 @@
     "react-instantsearch": "^7.28.1",
     "tailwind-merge": "^3.3.1",
     "tailwindcss": "^4.1.13",
-    "zod": "4.3.5"
+    "zod": "4.3.5",
+    "d3": "^7.9.0"
   },
   "devDependencies": {
     "@google-awlt/shared-config": "workspace:*",
     "@types/chrome": "^0.1.27",
+    "@types/d3": "^7.4.3",
     "@types/node": "^24.3.0",
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",
     "@vitejs/plugin-react": "^5.0.0",
     "cross-env": "^10.1.0",
     "typescript": "~5.8.3",
+    "rimraf": "^5.0.5",
     "vite": "^7.1.11",
     "vite-plugin-static-copy": "^3.1.4",
     "vite-plugin-svgr": "^4.5.0",
