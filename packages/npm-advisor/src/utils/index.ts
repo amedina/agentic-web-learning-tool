@@ -9,5 +9,5 @@ export * from "./fetchModuleReplacements";
 export * from "./checkLicenseCompatibility";
 export * from "./parseGithubUrl";
 export * from "./getPackageStats";
-
+export * from "./downloadMarkdownFile";
 export * from "./calculateScore";

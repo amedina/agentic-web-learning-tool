@@ -299,6 +299,15 @@ function setupSearchOverlay() {
       debounceTimer = setTimeout(updateSearch, 200);
     });
 
+    customInput.addEventListener("focus", () => {
+      if (!chrome.runtime?.id) {
+        alert(
+          "NPM Advisor extension was updated. The page will now reload to apply the latest changes.",
+        );
+        window.location.reload();
+      }
+    });
+
     document.addEventListener("click", (e) => {
       if (!searchForm.contains(e.target as Node)) {
         overlay.style.display = "none";
@@ -350,7 +359,7 @@ function renderHits(overlay: HTMLElement, hits: any[]) {
     item.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
-      window.location.href = `https://www.npmjs.com/package/${hit.name}`;
+      window.open(`https://www.npmjs.com/package/${hit.name}`, "_blank");
     });
 
     overlay.appendChild(item);

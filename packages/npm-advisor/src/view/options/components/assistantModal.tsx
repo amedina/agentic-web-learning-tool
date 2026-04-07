@@ -5,20 +5,19 @@ import { BotIcon, ChevronDownIcon } from "lucide-react";
 import { forwardRef, useEffect, useState } from "react";
 import { AssistantModalPrimitive } from "@assistant-ui/react";
 import { TooltipIconButton } from "@google-awlt/design-system";
+import { PropProvider, SidepanelChatbot } from "@google-awlt/chatbot";
 /**
  * Internal dependencies
  */
-import { ChatUI } from "./chatUI";
+import { AssistantMessage } from "./assistantMessage";
+import { getSystemPrompt } from "./getSystemPrompt";
+import { UserMessage } from "./userMessage";
 
 interface AssistantModalProps {
-  apiKeys: { gemini?: string; openai?: string };
-  changeTabToSettings: () => void;
+  comparisonBucket: any[];
 }
 
-export const AssistantModal = ({
-  apiKeys,
-  changeTabToSettings,
-}: AssistantModalProps) => {
+export const AssistantModal = ({ comparisonBucket }: AssistantModalProps) => {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -41,7 +40,33 @@ export const AssistantModal = ({
         }}
         className="border border-slate-200 aui-root aui-modal-content data-[state=closed]:fade-out-0 data-[state=closed]:slide-out-to-bottom-1/2 data-[state=closed]:slide-out-to-right-1/2 data-[state=closed]:zoom-out data-[state=open]:fade-in-0 data-[state=open]:slide-in-from-bottom-1/2 data-[state=open]:slide-in-from-right-1/2 data-[state=open]:zoom-in z-50 h-125 w-100 overflow-clip overscroll-contain rounded-xl shadow-[0_10px_38px_-10px_rgba(22,23,24,0.35),0_10px_20px_-15px_rgba(22,23,24,0.2)] bg-popover p-0 text-popover-foreground shadow-md outline-none data-[state=closed]:animate-out data-[state=open]:animate-in [&>.aui-thread-root]:bg-inherit [&>.aui-thread-root_.aui-thread-viewport-footer]:bg-inherit"
       >
-        <ChatUI apiKeys={apiKeys} changeTabToSettings={changeTabToSettings} />
+        <PropProvider
+          allowToolCalling={false}
+          customIcon={
+            <img
+              src="/icons/icon.png"
+              alt="NPM Advisor Logo"
+              className="w-[42px] h-[42px] rounded shrink-0 object-contain shadow-sm bg-white p-1"
+            />
+          }
+          footerNode={<></>}
+          assistantMessage={AssistantMessage}
+          userMessage={UserMessage}
+          getCustomSystemPrompt={() => {
+            return getSystemPrompt(JSON.stringify(comparisonBucket, null, 2));
+          }}
+          allowChatStorage={false}
+          helperTextSet={{
+            title: () => `Ask AI about comparison`,
+            description:
+              () => `Hello! I can help you with questions about comparison shown.
+                What would you like to know?`,
+          }}
+        >
+          <div className="flex flex-col h-full w-full">
+            <SidepanelChatbot />
+          </div>
+        </PropProvider>
       </AssistantModalPrimitive.Content>
     </AssistantModalPrimitive.Root>
   );
