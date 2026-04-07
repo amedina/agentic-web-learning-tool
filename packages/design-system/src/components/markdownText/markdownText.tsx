@@ -184,20 +184,22 @@ const defaultComponents = memoizeMarkdownComponents({
     <hr className={cn('aui-md-hr my-5 border-b', className)} {...props} />
   ),
   table: ({ className, children, ...props }) => (
-    <table
-      className={cn(
-        'aui-md-table my-5 w-full border-separate border-spacing-0 overflow-y-auto',
-        className
-      )}
-      {...props}
-    >
-      {children}
-    </table>
+    <div className="overflow-y-auto">
+      <table
+        className={cn(
+          'aui-md-table my-5 w-full border-separate border-spacing-0',
+          className
+        )}
+        {...props}
+      >
+        {children}
+      </table>
+    </div>
   ),
   th: ({ className, children, ...props }) => (
     <th
       className={cn(
-        'aui-md-th bg-muted px-4 py-2 text-left font-bold text-xs first:rounded-tl-lg last:rounded-tr-lg [&[align=center]]:text-center [&[align=right]]:text-right',
+        'aui-md-th bg-muted border-b border-l border-t last:border-r px-4 py-2 text-left font-bold text-xs first:rounded-tl-lg last:rounded-tr-lg [&[align=center]]:text-center [&[align=right]]:text-right',
         className
       )}
       {...props}
