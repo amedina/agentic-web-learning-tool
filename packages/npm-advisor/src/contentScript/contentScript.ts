@@ -59,6 +59,21 @@ async function main() {
   }
 }
 
+function isDarkMode(): boolean {
+  const html = document.documentElement;
+
+  const colorMode = html.getAttribute("data-color-mode");
+
+  if (colorMode === "dark") return true;
+  if (colorMode === "light") return false;
+
+  if (html.dataset.colorMode === "dark") {
+    return true;
+  }
+
+  return window.matchMedia("(prefers-color-scheme: dark)").matches;
+}
+
 function setupSearchOverlay() {
   const searchInput = document.querySelector(
     'input[aria-label="Search packages"]',
@@ -72,8 +87,49 @@ function setupSearchOverlay() {
   if (!searchFormParent) return;
 
   chrome.storage.local.get(["useAlgoliaSearch"], (result) => {
-    const useAlgolia = result.useAlgoliaSearch !== false; // Default to true
+    const useAlgolia = result.useAlgoliaSearch !== false;
     if (!useAlgolia) return;
+
+    const applyTheme = () => {
+      const dark = isDarkMode();
+
+      const bg = "var(--color-bg-default, " + (dark ? "#1a1a1a" : "#fff") + ")";
+      const border =
+        "var(--color-border-default, " + (dark ? "#3d3d3d" : "#ddd") + ")";
+      const inputBg =
+        "var(--search-bg-subtle, " + (dark ? "#2d2d2d" : "#fff") + ")";
+      const inputText =
+        "var(--color-fg-default, " + (dark ? "#e6e6e6" : "#333") + ")";
+      const iconColor =
+        "var(--color-fg-muted, " + (dark ? "#999" : "#666") + ")";
+
+      Object.assign(overlay.style, {
+        backgroundColor: bg,
+        border: `1px solid ${border}`,
+        boxShadow: dark
+          ? "0 4px 12px rgba(0,0,0,0.5)"
+          : "0 4px 12px rgba(0,0,0,0.1)",
+      });
+
+      Object.assign(customInput.style, {
+        backgroundColor: inputBg,
+        border: `1px solid ${border}`,
+        color: inputText,
+      });
+
+      Object.assign(filterMenu.style, {
+        backgroundColor: bg,
+        border: `1px solid ${border}`,
+      });
+
+      if (filterBtn) {
+        filterBtn.style.color = iconColor;
+      }
+
+      if (overlay.style.display === "block" && lastHits.length > 0) {
+        renderHits(overlay, lastHits);
+      }
+    };
 
     // Create overlay container
     const overlay = document.createElement("div");
@@ -83,7 +139,6 @@ function setupSearchOverlay() {
       top: "100%",
       left: "0",
       right: "0",
-      backgroundColor: "#fff",
       border: "1px solid #ddd",
       borderRadius: "4px",
       boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
@@ -109,7 +164,6 @@ function setupSearchOverlay() {
       height: "100%",
       paddingRight: "40px",
       zIndex: "5",
-      backgroundColor: "#fff",
       border: "1px solid #ddd",
       borderRadius: "4px",
       boxSizing: "border-box",
@@ -122,6 +176,69 @@ function setupSearchOverlay() {
 
     searchFormParent.appendChild(customInput);
 
+    const filterMenu = document.createElement("div");
+    Object.assign(filterMenu.style, {
+      position: "absolute",
+      top: "100%",
+      right: "0",
+      border: "1px solid #ddd",
+      borderRadius: "4px",
+      boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+      zIndex: "10000",
+      display: "none",
+      padding: "10px",
+      marginTop: "8px",
+      minWidth: "180px",
+    });
+    searchFormParent.appendChild(filterMenu);
+
+    const filterBtn = document.createElement("button");
+    filterBtn.type = "button";
+    filterBtn.innerHTML =
+      '<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>';
+    Object.assign(filterBtn.style, {
+      position: "absolute",
+      right: "12px",
+      top: "50%",
+      transform: "translateY(-50%)",
+      background: "none",
+      border: "none",
+      outline: "none",
+      cursor: "pointer",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: "0",
+      zIndex: "10",
+      transition: "all 0.2s ease-in-out",
+    });
+
+    filterBtn.onmouseover = () => {
+      filterBtn.style.color = "#fb823e";
+      filterBtn.style.transform = "translateY(-50%) scale(1.1)";
+    };
+
+    filterBtn.onmouseout = () => {
+      filterBtn.style.color = isDarkMode() ? "#999" : "#666";
+      filterBtn.style.transform = "translateY(-50%) scale(1)";
+    };
+
+    searchFormParent.appendChild(filterBtn);
+
+    applyTheme();
+
+    window
+      .matchMedia("(prefers-color-scheme: dark)")
+      .addEventListener("change", applyTheme);
+
+    const themeObserver = new MutationObserver(applyTheme);
+    themeObserver.observe(document.documentElement, {
+      attributes: true,
+      subtree: true,
+      attributeFilter: ["class", "data-color-mode", "data-theme-setting"],
+    });
+
+    let lastHits: any[] = [];
     let activeFilterMode: { label: string; key: string } | null = null;
 
     const chipsContainer = document.createElement("div");
@@ -139,56 +256,6 @@ function setupSearchOverlay() {
       searchForm.parentElement.insertBefore(chipsContainer, searchForm);
     }
 
-    const filterBtn = document.createElement("button");
-    filterBtn.type = "button";
-    filterBtn.innerHTML =
-      '<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>';
-    Object.assign(filterBtn.style, {
-      position: "absolute",
-      right: "12px",
-      top: "50%",
-      transform: "translateY(-50%)",
-      background: "none",
-      border: "none",
-      outline: "none",
-      cursor: "pointer",
-      color: "#666",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      padding: "0",
-      zIndex: "10",
-      transition: "all 0.2s ease-in-out",
-    });
-
-    filterBtn.onmouseover = () => {
-      filterBtn.style.color = "#fb823e";
-      filterBtn.style.transform = "translateY(-50%) scale(1.1)";
-    };
-    filterBtn.onmouseout = () => {
-      filterBtn.style.color = "#666";
-      filterBtn.style.transform = "translateY(-50%) scale(1)";
-    };
-
-    searchFormParent.appendChild(filterBtn);
-
-    const filterMenu = document.createElement("div");
-    Object.assign(filterMenu.style, {
-      position: "absolute",
-      top: "100%",
-      right: "0",
-      backgroundColor: "#fff",
-      border: "1px solid #ddd",
-      borderRadius: "4px",
-      boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-      zIndex: "10000",
-      display: "none",
-      padding: "10px",
-      marginTop: "8px",
-      minWidth: "180px",
-    });
-    searchFormParent.appendChild(filterMenu);
-
     function updateSearch() {
       const inputVal = customInput.value;
       if (!inputVal.trim() && !activeFilterMode) {
@@ -205,6 +272,7 @@ function setupSearchOverlay() {
         { type: "SEARCH_NPM", query, facetFilters },
         (response) => {
           if (response && response.success) {
+            lastHits = response.hits;
             renderHits(overlay, response.hits);
           }
         },
@@ -255,13 +323,13 @@ function setupSearchOverlay() {
       const isVisible = filterMenu.style.display === "block";
       filterMenu.style.display = isVisible ? "none" : "block";
 
+      const dark = isDarkMode();
       const staticModes = [
         { label: "Owner", key: "owner.name" },
         { label: "Keyword", key: "keywords" },
       ];
 
-      filterMenu.innerHTML =
-        '<div style="font-weight:bold; margin-bottom:8px; font-size:11px; color:#999; letter-spacing:0.05em; text-transform:uppercase;">Search Modes</div>';
+      filterMenu.innerHTML = `<div style="font-weight:bold; margin-bottom:8px; font-size:11px; color:#999; letter-spacing:0.05em; text-transform:uppercase;">Search Modes</div>`;
 
       staticModes.forEach((m) => {
         const opt = document.createElement("div");
@@ -275,20 +343,27 @@ function setupSearchOverlay() {
           borderRadius: "4px",
           transition: "background-color 0.2s",
           backgroundColor: isActive ? "#fb823e10" : "transparent",
-          color: isActive ? "#fb823e" : "#333",
+          color: isActive ? "#fb823e" : dark ? "#e6e6e6" : "#333",
           fontWeight: isActive ? "600" : "400",
         });
 
         opt.onmouseover = () =>
-          (opt.style.backgroundColor = isActive ? "#fb823e15" : "#f8f8f8");
+          (opt.style.backgroundColor = isActive
+            ? "#fb823e15"
+            : dark
+              ? "#242424"
+              : "#f8f8f8");
+
         opt.onmouseout = () =>
           (opt.style.backgroundColor = isActive ? "#fb823e10" : "transparent");
+
         opt.onclick = () => {
           activeFilterMode = m;
           renderChips();
           updateSearch();
           filterMenu.style.display = "none";
         };
+
         filterMenu.appendChild(opt);
       });
     };
@@ -316,29 +391,40 @@ function renderHits(overlay: HTMLElement, hits: any[]) {
   }
 
   overlay.style.display = "block";
+  const dark = isDarkMode();
+
   hits.forEach((hit) => {
     const item = document.createElement("div");
+    const baseBg =
+      "var(--color-bg-default, " + (dark ? "#1a1a1a" : "#fff") + ")";
+    const hoverBg =
+      "var(--color-bg-subtle, " + (dark ? "#242424" : "#fb823e10") + ")";
+    const borderColor =
+      "var(--color-border-muted, " + (dark ? "#3d3d3d" : "#eee") + ")";
+
     Object.assign(item.style, {
       padding: "10px",
-      borderBottom: "1px solid #eee",
+      borderBottom: `1px solid ${borderColor}`,
       cursor: "pointer",
       transition: "background-color 0.2s",
+      backgroundColor: baseBg,
     });
-    item.onmouseover = () => (item.style.backgroundColor = "#fb823e10");
-    item.onmouseout = () => (item.style.backgroundColor = "#fff");
+
+    item.onmouseover = () => (item.style.backgroundColor = hoverBg);
+    item.onmouseout = () => (item.style.backgroundColor = baseBg);
 
     const name = document.createElement("div");
     name.textContent = hit.name;
     Object.assign(name.style, {
       fontWeight: "bold",
-      color: "#333",
+      color: "var(--color-fg-default, " + (dark ? "#e6e6e6" : "#333") + ")",
     });
 
     const desc = document.createElement("div");
     desc.textContent = hit.description;
     Object.assign(desc.style, {
       fontSize: "12px",
-      color: "#666",
+      color: "var(--color-fg-muted, " + (dark ? "#999" : "#666") + ")",
       whiteSpace: "nowrap",
       overflow: "hidden",
       textOverflow: "ellipsis",
@@ -350,7 +436,7 @@ function renderHits(overlay: HTMLElement, hits: any[]) {
     item.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
-      window.location.href = `https://www.npmjs.com/package/${hit.name}`;
+      window.open(`https://www.npmjs.com/package/${hit.name}`, "_blank");
     });
 
     overlay.appendChild(item);
