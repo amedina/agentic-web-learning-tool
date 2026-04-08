@@ -322,7 +322,7 @@ export const ComparisonTab: React.FC<ComparisonTabProps> = ({
                       </button>
                     </div>
                     {winnerName === pkg.packageName && (
-                      <span className="flex items-center bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-700 text-[10px] uppercase font-bold px-2 py-0.5 rounded-full absolute top-2 right-2">
+                      <span className="flex items-center bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-700 text-[10px] uppercase font-bold px-2 py-0.5 rounded-full absolute top-[2px] right-px">
                         <Award className="w-3 h-3 mr-1" />
                         Winner
                       </span>

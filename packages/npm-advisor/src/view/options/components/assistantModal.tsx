@@ -57,6 +57,24 @@ export const AssistantModal = ({ comparisonBucket }: AssistantModalProps) => {
           }}
           allowChatStorage={false}
           isOptionsPage={true}
+          suggestions={[
+            {
+              text: "Compare all packages",
+              prompt: "Compare all of these packages.",
+            },
+            {
+              text: "Which is the winner?",
+              prompt: "Out of these packages, which one is the winner and why?",
+            },
+            {
+              text: "Any native alternatives?",
+              prompt: "Are there modern native alternatives?",
+            },
+            {
+              text: "Find similar packages",
+              prompt: "Find more similar packages to these.",
+            },
+          ]}
           helperTextSet={{
             title: () => `Ask AI about comparison`,
             description:
