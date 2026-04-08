@@ -43,7 +43,6 @@ import { INITIAL_PROVIDERS } from '../../constants';
 import type { AgentType } from '../../../types';
 import { useCommandProvider } from '../../providers/commandProvider';
 import { createModelDropdown, createToolDropdown } from './utils';
-import { openOptionsPage } from '../../utils';
 import type { ChatDataType } from '../../customRuntime/types';
 
 type ChatBotUIProps = {
@@ -188,6 +187,14 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
     triggerExportChatRef.current = exportChat;
   }, [runtime, exportChat, switchToNewThreadRef, triggerExportChatRef]);
 
+  const handleOpenOptions = () => {
+    if (chrome.runtime.openOptionsPage) {
+      chrome.runtime.openOptionsPage();
+    } else {
+      window.open(chrome.runtime.getURL('options/options.html'));
+    }
+  };
+
   return (
     <>
       {allowChatStorage && <ThreadListSidebar isThreadLoading={isLoading} />}
@@ -264,7 +271,7 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
                     <Button
                       size="icon"
                       variant="ghost"
-                      onClick={openOptionsPage}
+                      onClick={handleOpenOptions}
                     >
                       <Settings className="w-4 h-4" />
                     </Button>
