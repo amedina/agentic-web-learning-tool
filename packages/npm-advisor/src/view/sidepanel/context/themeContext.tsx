@@ -1,7 +1,7 @@
 /**
  * External dependencies.
  */
-import React, {
+import {
   createContext,
   useCallback,
   useContext,
@@ -30,6 +30,18 @@ export const ThemeProvider = ({ children }: PropsWithChildren) => {
       const dark = !!res.npmAdvisorDarkMode;
       setIsDarkMode(dark);
     });
+
+    const handleStorageChange = (
+      changes: { [key: string]: chrome.storage.StorageChange },
+      area: string,
+    ) => {
+      if (area === "local" && changes.npmAdvisorDarkMode !== undefined) {
+        setIsDarkMode(!!changes.npmAdvisorDarkMode.newValue);
+      }
+    };
+
+    chrome.storage.onChanged.addListener(handleStorageChange);
+    return () => chrome.storage.onChanged.removeListener(handleStorageChange);
   }, []);
 
   useEffect(() => {
@@ -38,11 +50,14 @@ export const ThemeProvider = ({ children }: PropsWithChildren) => {
     } else {
       document.documentElement.classList.remove("dark");
     }
-    chrome.storage.local.set({ npmAdvisorDarkMode: isDarkMode });
   }, [isDarkMode]);
 
   const toggleTheme = useCallback(() => {
-    setIsDarkMode((prev) => !prev);
+    setIsDarkMode((prev) => {
+      const newVal = !prev;
+      chrome.storage.local.set({ npmAdvisorDarkMode: newVal });
+      return newVal;
+    });
   }, []);
 
   return (
