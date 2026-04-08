@@ -101,24 +101,26 @@ export const usePackageStats = () => {
 
     fetchCurrentTabStats();
 
-    chrome.webNavigation.onCompleted.addListener(async (details) => {
-      const currentTabId = Number(window.location.hash.slice(5));
-      if (details.frameId !== 0 || details.tabId !== currentTabId) {
-        return;
+    const handleTabUpdated = (tabId: number, changeInfo: any) => {
+      if (changeInfo.status === "complete" || changeInfo.url) {
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+          if (tabs[0] && tabs[0].id === tabId) {
+            fetchCurrentTabStats();
+          }
+        });
       }
+    };
 
+    const handleTabActivated = () => {
       fetchCurrentTabStats();
-    });
+    };
+
+    chrome.tabs.onUpdated.addListener(handleTabUpdated);
+    chrome.tabs.onActivated.addListener(handleTabActivated);
 
     return () => {
-      chrome.webNavigation.onCompleted.removeListener(async (details) => {
-        const currentTabId = Number(window.location.hash.slice(5));
-        if (details.frameId !== 0 || details.tabId !== currentTabId) {
-          return;
-        }
-
-        fetchCurrentTabStats();
-      });
+      chrome.tabs.onUpdated.removeListener(handleTabUpdated);
+      chrome.tabs.onActivated.removeListener(handleTabActivated);
     };
   }, []);
 
