@@ -8,6 +8,12 @@ import { useState, useEffect, useCallback } from "react";
  */
 import { type PackageStats } from "../../../utils";
 
+// Cache to prevent reloading state when returning to a previously visited tab
+const urlCache = new Map<
+  string,
+  { stats: PackageStats | null; error: string | null }
+>();
+
 export const usePackageStats = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -26,9 +32,6 @@ export const usePackageStats = () => {
 
     const fetchCurrentTabStats = async () => {
       try {
-        setLoading(true);
-        setError(null);
-
         // 1. Query chrome active tab
         const [tab] = await chrome.tabs.query({
           active: true,
@@ -39,6 +42,17 @@ export const usePackageStats = () => {
         if (!url) {
           throw new Error("Could not determine current tab URL.");
         }
+
+        if (urlCache.has(url)) {
+          const cached = urlCache.get(url)!;
+          setStats(cached.stats);
+          setError(cached.error);
+          setLoading(false);
+          return;
+        }
+
+        setLoading(true);
+        setError(null);
 
         let packageName: string | null = null;
         if (url.includes("npmjs.com/package/")) {
@@ -62,9 +76,10 @@ export const usePackageStats = () => {
         }
 
         if (!packageName) {
-          throw new Error(
-            "Navigate to an NPM package or a GitHub package.json page to view stats.",
-          );
+          const message =
+            "Navigate to an NPM package or a GitHub package.json page to view stats.";
+          urlCache.set(url, { stats: null, error: message });
+          throw new Error(message);
         }
 
         // Ask background script for the cached stats payload
@@ -72,29 +87,36 @@ export const usePackageStats = () => {
           { type: "GET_STATS", packageName },
           (response) => {
             if (chrome.runtime.lastError) {
-              setLoading(false);
-              return setError(
+              const errorMessage =
                 chrome.runtime.lastError.message ||
-                  "Failed to communicate with background script.",
-              );
+                "Failed to communicate with background script.";
+              urlCache.set(url, { stats: null, error: errorMessage });
+              setLoading(false);
+              return setError(errorMessage);
             }
             if (response && response.success) {
               if (response.data) {
+                urlCache.set(url, { stats: response.data, error: null });
                 setStats(response.data);
               } else {
-                setError("Failed to load statistics for this package.");
+                const errorMessage =
+                  "Failed to load statistics for this package.";
+                urlCache.set(url, { stats: null, error: errorMessage });
+                setError(errorMessage);
               }
             } else {
-              setError(
+              const errorMessage =
                 response?.error ||
-                  "Failed to load statistics for this package.",
-              );
+                "Failed to load statistics for this package.";
+              urlCache.set(url, { stats: null, error: errorMessage });
+              setError(errorMessage);
             }
             setLoading(false);
           },
         );
       } catch (err: any) {
-        setError(err.message || "An unknown error occurred.");
+        const message = err.message || "An unknown error occurred.";
+        setError(message);
         setLoading(false);
       }
     };
