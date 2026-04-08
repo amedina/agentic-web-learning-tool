@@ -33,25 +33,27 @@ const Hit = ({ hit, isSelected, onToggle }: HitProps) => {
   return (
     <div
       onClick={() => onToggle(hit)}
-      className={`p-3 border-b border-slate-100 hover:bg-blue-50 cursor-pointer transition-colors flex justify-between items-center ${
-        isSelected ? "bg-blue-50" : ""
+      className={`p-4 border-b border-subtle-zinc dark:border-darth-vader hover:bg-baby-blue/10 dark:hover:bg-baby-blue/20 cursor-pointer transition-all flex justify-between items-center group/hit ${
+        isSelected ? "bg-baby-blue/5 dark:bg-baby-blue/10" : ""
       }`}
     >
-      <div className="flex-1 min-w-0">
-        <div className="font-semibold text-slate-800 truncate">{hit.name}</div>
-        <div className="text-xs text-slate-500 leading-relaxed truncate">
+      <div className="flex-1 min-w-0 pr-4">
+        <div className="font-semibold text-text-primary truncate group-hover/hit:text-baby-blue transition-colors">
+          {hit.name}
+        </div>
+        <div className="text-xs text-amethyst-haze leading-relaxed truncate mt-0.5">
           {hit.description}
         </div>
       </div>
       <div
-        className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
+        className={`w-6 h-6 shrink-0 rounded-md border-2 flex items-center justify-center transition-all ${
           isSelected
-            ? "bg-blue-600 border-blue-600 shadow-sm"
-            : "border-slate-300 bg-white"
+            ? "bg-baby-blue border-baby-blue shadow-[0_2px_8px_rgba(59,130,246,0.4)] scale-110"
+            : "border-strong-zinc dark:border-darth-vader bg-bg-surface dark:bg-aswad group-hover/hit:border-baby-blue/50"
         }`}
       >
         {isSelected && (
-          <Check className="w-3.5 h-3.5 text-white stroke-[3px]" />
+          <Check className="w-4 h-4 text-white stroke-[4px] animate-in zoom-in duration-200" />
         )}
       </div>
     </div>
@@ -68,7 +70,7 @@ const ResultsList = ({
   const { hits } = useHits();
 
   return (
-    <div className="absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-xl z-50 max-h-60 overflow-y-auto">
+    <div className="absolute left-0 right-0 mt-2 bg-bg-surface dark:bg-aswad border border-subtle-zinc dark:border-darth-vader rounded-xl shadow-2xl z-50 max-h-72 overflow-y-auto glass border-opacity-50 transition-all animate-in fade-in slide-in-from-top-2 duration-300">
       {hits.map((hit) => (
         <Hit
           key={hit.objectID}
@@ -164,30 +166,29 @@ const SearchWrapper = () => {
   };
 
   return (
-    <div ref={searchContainerRef} className="space-y-4">
-      <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-sm relative">
-        <h4 className="text-sm font-semibold text-slate-700 mb-3 uppercase tracking-wider">
+    <div ref={searchContainerRef} className="space-y-6">
+      <div className="p-6 bg-bg-surface dark:bg-aswad rounded-2xl border border-subtle-zinc dark:border-darth-vader shadow-xl relative transition-all duration-300">
+        <h4 className="text-xs font-bold text-exclusive-plum mb-4 uppercase tracking-[0.2em]">
           Search Packages
         </h4>
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none z-10" />
+        <div className="relative group/search">
           <SearchBox
             placeholder="Search npm packages to compare..."
             className="mb-0"
             classNames={{
               input:
-                "w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all pr-32 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden",
+                "w-full px-5 py-3 bg-bg-surface-subtle dark:bg-bg-background border border-subtle-zinc dark:border-darth-vader text-text-primary placeholder:text-amethyst-haze rounded-xl focus:ring-2 focus:ring-baby-blue focus:border-transparent outline-none transition-all pr-36 group-hover/search:border-baby-blue/50 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden",
               submit: "hidden",
               reset:
-                "absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 [&>svg]:w-4 [&>svg]:h-4 appearance-none ais-SearchBox-reset",
+                "absolute right-3 top-1/2 -translate-y-1/2 p-2 text-amethyst-haze hover:text-baby-blue [&>svg]:w-5 [&>svg]:h-5 appearance-none",
             }}
           />
           {query.trim() && selectedPackages.length >= 2 && !isAnalyzing && (
             <button
               onClick={handleBatchCompare}
-              className="absolute right-15 top-1/2 -translate-y-1/2 bg-blue-600 text-white px-3 py-1.5 rounded-md text-xs font-bold hover:bg-blue-700 transition-all shadow-sm flex items-center animate-in fade-in zoom-in duration-300"
+              className="absolute right-12 top-1/2 -translate-y-1/2 bg-baby-blue text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-baby-blue/90 transition-all shadow-[0_4px_14px_0_rgba(59,130,246,0.39)] flex items-center animate-in fade-in zoom-in duration-300"
             >
-              <Check className="w-3 h-3 mr-1" />
+              <Check className="w-3.5 h-3.5 mr-1.5" />
               Compare
             </button>
           )}
@@ -201,19 +202,19 @@ const SearchWrapper = () => {
 
         {/* Selected Packages Tags */}
         {selectedPackages.length > 0 && (
-          <div className="mt-4 pt-4 border-t border-slate-100">
-            <div className="flex flex-wrap gap-2 mb-4">
+          <div className="mt-5 pt-5 border-t border-subtle-zinc dark:border-darth-vader">
+            <div className="flex flex-wrap gap-2.5 mb-5">
               {selectedPackages.map((pkg) => (
                 <div
                   key={pkg.name}
-                  className="flex items-center bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm font-medium border border-blue-100 animate-in fade-in zoom-in duration-200"
+                  className="flex items-center bg-baby-blue/10 text-baby-blue px-4 py-1.5 rounded-full text-sm font-semibold border border-baby-blue/20 animate-in slide-in-from-left-2 duration-300 shadow-sm"
                 >
-                  <span className="max-w-40 truncate">{pkg.name}</span>
+                  <span className="max-w-50 truncate">{pkg.name}</span>
                   <button
                     onClick={() => removeSelected(pkg.name)}
-                    className="ml-2 hover:text-blue-900 transition-colors"
+                    className="ml-2.5 hover:text-baby-blue/80 transition-colors"
                   >
-                    <X className="w-3 h-3" />
+                    <X className="w-3.5 h-3.5" />
                   </button>
                 </div>
               ))}
@@ -222,15 +223,15 @@ const SearchWrapper = () => {
             <button
               onClick={handleBatchCompare}
               disabled={isAnalyzing}
-              className={`w-full py-2.5 rounded-lg font-semibold flex items-center justify-center transition-all ${
+              className={`w-full py-3.5 rounded-xl font-bold text-sm tracking-wide uppercase flex items-center justify-center transition-all ${
                 isAnalyzing
-                  ? "bg-slate-100 text-slate-400 cursor-not-allowed"
-                  : "bg-blue-600 text-white hover:bg-blue-700 shadow-md hover:shadow-lg active:transform active:scale-[0.98]"
+                  ? "bg-aswad text-amethyst-haze cursor-not-allowed opacity-70"
+                  : "bg-baby-blue text-white hover:bg-baby-blue/90 shadow-[0_8px_20px_rgba(59,130,246,0.3)] hover:shadow-[0_12px_28px_rgba(59,130,246,0.4)] active:scale-[0.98]"
               }`}
             >
               {isAnalyzing ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <Loader2 className="w-4 h-4 mr-2.5 animate-spin" />
                   Analyzing {progress.current}/{progress.total}...
                 </>
               ) : (
