@@ -61,4 +61,25 @@ describe("checkLicenseCompatibility", () => {
       explanation: `Compatibility mapping for "Unlisted-License" against "MIT" not found in matrix.`,
     });
   });
+
+  it("should return null for licenses starting with 'SEE LICENSE IN'", () => {
+    expect(
+      checkLicenseCompatibility(
+        "SEE LICENSE IN https://github.com/foo/bar/LICENSE",
+        "MIT",
+      ),
+    ).toBeNull();
+    expect(
+      checkLicenseCompatibility("see license in some-file", "MIT"),
+    ).toBeNull();
+  });
+
+  it("should return null for licenses that are direct HTTP or HTTPS URLs", () => {
+    expect(
+      checkLicenseCompatibility("https://custom-license.com", "MIT"),
+    ).toBeNull();
+    expect(
+      checkLicenseCompatibility("http://custom-license.com", "MIT"),
+    ).toBeNull();
+  });
 });
