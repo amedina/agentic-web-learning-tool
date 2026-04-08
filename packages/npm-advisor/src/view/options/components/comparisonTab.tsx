@@ -571,7 +571,7 @@ export const ComparisonTab: React.FC<ComparisonTabProps> = ({
                       </span>
                     ) : (
                       <span className="text-red-500 dark:text-red-400">
-                        No ({pkg.license || "Default"})
+                        No ({pkg.license ?? "Unknown"})
                       </span>
                     )}
                   </td>
