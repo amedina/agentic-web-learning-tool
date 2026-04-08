@@ -25,8 +25,9 @@ const SidePanel = () => {
     transport: state.transport,
   }));
 
-  const { allowToolCalling } = usePropProvider(({ state }) => ({
+  const { allowToolCalling, isOptionsPage } = usePropProvider(({ state }) => ({
     allowToolCalling: state.allowToolCalling,
+    isOptionsPage: state.isOptionsPage,
   }));
 
   const {
@@ -82,7 +83,10 @@ const SidePanel = () => {
         value: 'chat',
         label: 'Ask AI',
         content: !allowToolCalling ? (
-          <ConversationalChatBot runtime={runtimeRef.current} />
+          <ConversationalChatBot
+            runtime={runtimeRef.current}
+            isOptionsPage={isOptionsPage}
+          />
         ) : (
           <ChatBotUI runtime={runtimeRef.current} />
         ),

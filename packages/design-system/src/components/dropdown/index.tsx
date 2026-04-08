@@ -17,7 +17,7 @@ import {
 import { ChevronDown } from 'lucide-react';
 
 const itemStyles = `
-  group relative flex items-center h-9 px-2.5 w-full
+  group relative flex items-center h-9 px-2.5 w-full z-100
   text-[13px] font-medium leading-[1.2] text-primary
   rounded-[6px] outline-none select-none cursor-default
   data-[highlighted]:bg-sidebar-border data-[highlighted]:text-primary
@@ -187,6 +187,7 @@ export default function DropDown({
                   maxWidth:
                     'var(--radix-dropdown-menu-content-available-width)',
                   overflowY: 'auto',
+                  zIndex: 100,
                 }}
                 arrowPadding={50}
                 className={menuContentStyles}
@@ -226,6 +227,9 @@ export default function DropDown({
             key={item.id}
             className={itemStyles}
             onClick={() => handleSelect(item.id)}
+            style={{
+              zIndex: 100,
+            }}
           >
             <div className="flex items-center gap-3 w-full">
               <span className="text-ellipsis overflow-hidden">
@@ -288,7 +292,13 @@ export default function DropDown({
         </DropdownMenuTrigger>
 
         <DropDownMenuPortal>
-          <DropDownMenuContent sideOffset={5} className={menuContentStyles}>
+          <DropDownMenuContent
+            sideOffset={5}
+            className={menuContentStyles}
+            style={{
+              zIndex: 100,
+            }}
+          >
             <div
               className={`overflow-auto flex-1 max-h-[400px] ${scrollBarStyles}`}
             >

@@ -27,6 +27,7 @@ type PropProviderProps = PropsWithChildren & {
     description: (props: any) => string;
   };
   exportChatCallback?: (chatData: ChatDataType[], filename: string) => void;
+  isOptionsPage?: boolean;
 };
 
 function PropProvider({
@@ -45,6 +46,7 @@ function PropProvider({
   helperTextSet,
   allowChatStorage,
   exportChatCallback,
+  isOptionsPage,
 }: PropProviderProps) {
   const switchToNewThreadRef = useRef<(() => void) | null>(null);
   const triggerExportChatRef = useRef<(() => void) | null>(null);
@@ -66,6 +68,7 @@ function PropProvider({
         helperTextSet,
         allowChatStorage: allowChatStorage ?? true,
         activeTab,
+        isOptionsPage: isOptionsPage ?? false,
       },
       actions: {
         getCustomSystemPrompt: getCustomSystemPrompt ?? (() => ''),
@@ -91,6 +94,7 @@ function PropProvider({
       getCustomSystemPrompt,
       exportChatCallback,
       activeTab,
+      isOptionsPage,
     ]
   );
 
