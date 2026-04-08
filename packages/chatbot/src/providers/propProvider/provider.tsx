@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useMemo, type PropsWithChildren } from 'react';
+import { useMemo, useRef, useState, type PropsWithChildren } from 'react';
 /**
  * Internal dependencies
  */
@@ -11,6 +11,7 @@ import type { ChatDataType } from '../../customRuntime/types';
 
 type PropProviderProps = PropsWithChildren & {
   footerNode: React.ReactNode;
+  subHeaderNode?: React.ReactNode;
   prefixTabs?: SidePanelTabProps['extraTabs'];
   suffixTabs?: SidePanelTabProps['extraTabs'];
   allowToolCalling: boolean;
@@ -31,6 +32,7 @@ type PropProviderProps = PropsWithChildren & {
 function PropProvider({
   children,
   footerNode,
+  subHeaderNode,
   prefixTabs,
   suffixTabs,
   allowToolCalling = true,
@@ -44,10 +46,15 @@ function PropProvider({
   allowChatStorage,
   exportChatCallback,
 }: PropProviderProps) {
+  const switchToNewThreadRef = useRef<(() => void) | null>(null);
+  const triggerExportChatRef = useRef<(() => void) | null>(null);
+  const [activeTab, setActiveTab] = useState<string>('');
+
   const contextValue = useMemo<PropProviderType>(
     () => ({
       state: {
         footerNode,
+        subHeaderNode,
         prefixTabs: prefixTabs ?? [],
         suffixTabs: suffixTabs ?? [],
         CustomAssistantMessageComponent: assistantMessage,
@@ -58,15 +65,20 @@ function PropProvider({
         suggestions,
         helperTextSet,
         allowChatStorage: allowChatStorage ?? true,
+        activeTab,
       },
       actions: {
         getCustomSystemPrompt: getCustomSystemPrompt ?? (() => ''),
         exportChatCallback: exportChatCallback ?? null,
+        switchToNewThreadRef,
+        triggerExportChatRef,
+        setActiveTab,
       },
     }),
     [
       customIcon,
       footerNode,
+      subHeaderNode,
       prefixTabs,
       suffixTabs,
       allowToolCalling,
@@ -78,6 +90,7 @@ function PropProvider({
       editComposer,
       getCustomSystemPrompt,
       exportChatCallback,
+      activeTab,
     ]
   );
 

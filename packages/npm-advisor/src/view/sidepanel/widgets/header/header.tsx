@@ -85,11 +85,12 @@ export const Header: React.FC<HeaderProps> = ({
           )}
         </div>
         <div className="text-right">
-          {license && (
-            <span className="inline-flex items-center px-2 py-1 rounded text-xs font-mono bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-600">
-              {license}
-            </span>
-          )}
+          <span
+            className="inline-flex items-center px-2 py-1 rounded text-xs font-mono bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-600 truncate max-w-[150px]"
+            title={license ?? "Unknown"}
+          >
+            {license ?? "Unknown"}
+          </span>
         </div>
       </div>
 

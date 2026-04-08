@@ -24,6 +24,16 @@ export function checkLicenseCompatibility(
 ): LicenseCompatibilityResult | null {
   if (!packageLicense) return null;
 
+  const licenseStr = packageLicense.trim();
+  const licenseUpper = licenseStr.toUpperCase();
+  if (
+    licenseUpper.startsWith("SEE LICENSE IN") ||
+    licenseStr.startsWith("http://") ||
+    licenseStr.startsWith("https://")
+  ) {
+    return null;
+  }
+
   // We look for our target project license in the main array
   const targetLicenseEntry = licenseMatrixData.licenses.find(
     (l: any) => l.name.toLowerCase() === targetProjectLicense.toLowerCase(),

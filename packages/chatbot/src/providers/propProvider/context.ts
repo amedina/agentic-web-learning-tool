@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { createContext } from '@google-awlt/common';
+import type { RefObject } from 'react';
 /**
  * Internal dependencies
  */
@@ -11,6 +12,7 @@ import type { ChatDataType } from '../../customRuntime/types';
 export type PropProviderType = {
   state: {
     footerNode: React.ReactNode;
+    subHeaderNode?: React.ReactNode;
     prefixTabs: SidePanelTabProps['extraTabs'];
     suffixTabs: SidePanelTabProps['extraTabs'];
     CustomAssistantMessageComponent?: null | (() => React.JSX.Element);
@@ -24,18 +26,23 @@ export type PropProviderType = {
       description: (props?: any) => string;
     };
     allowChatStorage: boolean;
+    activeTab: string;
   };
   actions: {
     getCustomSystemPrompt: () => string;
     exportChatCallback:
       | ((chatData: ChatDataType[], filename: string) => void)
       | null;
+    switchToNewThreadRef: RefObject<(() => void) | null>;
+    triggerExportChatRef: RefObject<(() => void) | null>;
+    setActiveTab: (tab: string) => void;
   };
 };
 
 const initialState: PropProviderType = {
   state: {
     footerNode: null,
+    subHeaderNode: null,
     prefixTabs: [],
     suffixTabs: [],
     CustomAssistantMessageComponent: null,
@@ -49,10 +56,14 @@ const initialState: PropProviderType = {
       description: () => '',
     },
     allowChatStorage: true,
+    activeTab: '',
   },
   actions: {
     getCustomSystemPrompt: () => '',
     exportChatCallback: null,
+    switchToNewThreadRef: { current: null },
+    triggerExportChatRef: { current: null },
+    setActiveTab: () => {},
   },
 };
 const PropProviderContext = createContext<PropProviderType>(initialState);

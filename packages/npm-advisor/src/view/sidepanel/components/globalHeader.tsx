@@ -2,7 +2,18 @@
  * External dependencies.
  */
 import React, { useState, useEffect } from "react";
-import { Settings, Moon, Sun, GitCompareArrows } from "lucide-react";
+import {
+  Settings,
+  Moon,
+  Sun,
+  GitCompareArrows,
+  Menu,
+  Share2,
+  PlusCircle,
+} from "lucide-react";
+import { SidebarTrigger, Tooltip, Button } from "@google-awlt/design-system";
+import { usePropProvider } from "@google-awlt/chatbot";
+import { useThread } from "@assistant-ui/react";
 
 /**
  * Internal dependencies.
@@ -12,6 +23,24 @@ import { useTheme } from "../context/themeContext";
 export const GlobalHeader = () => {
   const { isDarkMode, toggleTheme } = useTheme();
   const [comparisonCount, setComparisonCount] = useState(0);
+  const messages = useThread((state) => state.messages);
+  const isThreadEmpty = messages.length === 0;
+
+  const {
+    allowChatStorage,
+    activeTab,
+    exportChatCallback,
+    switchToNewThreadRef,
+    triggerExportChatRef,
+  } = usePropProvider(({ state, actions }) => ({
+    allowChatStorage: state.allowChatStorage,
+    activeTab: state.activeTab,
+    exportChatCallback: actions.exportChatCallback,
+    switchToNewThreadRef: actions.switchToNewThreadRef,
+    triggerExportChatRef: actions.triggerExportChatRef,
+  }));
+
+  const isChatTabActive = activeTab === "chat";
 
   useEffect(() => {
     chrome.storage.local.get(["comparisonBucket"], (res) => {
@@ -29,7 +58,7 @@ export const GlobalHeader = () => {
     return () => chrome.storage.local.onChanged.removeListener(listener);
   }, []);
 
-  const openOptionsPage = () => {
+  const handleOpenOptions = () => {
     if (chrome.runtime.openOptionsPage) {
       chrome.runtime.openOptionsPage();
     } else {
@@ -44,48 +73,74 @@ export const GlobalHeader = () => {
   };
 
   return (
-    <div className="flex items-center justify-between w-full px-4 pt-[10px] pb-[10px] bg-[#c94137] text-white">
-      <div className="flex items-center space-x-3">
-        <img
-          src="/icons/icon.png"
-          alt="NPM Advisor Logo"
-          className="w-8 h-8 rounded shrink-0 object-contain shadow-sm bg-white p-1"
-        />
-        <h1 className="text-[17px] font-semibold tracking-tight">
-          NPM Advisor
-        </h1>
+    <div className="flex items-center justify-between w-full px-1 border-b bg-background h-10 shrink-0">
+      <div className="flex items-center">
+        {allowChatStorage && isChatTabActive && (
+          <>
+            <Tooltip text="Chat History">
+              <SidebarTrigger>
+                <Menu className="text-primary" size={16} />
+              </SidebarTrigger>
+            </Tooltip>
+            {exportChatCallback && (
+              <Tooltip text="Share Conversation">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  disabled={isThreadEmpty}
+                  onClick={() => triggerExportChatRef.current?.()}
+                >
+                  <Share2 className="text-primary" size={16} />
+                </Button>
+              </Tooltip>
+            )}
+            <Tooltip text="New Chat">
+              <Button
+                variant="ghost"
+                size="icon"
+                disabled={isThreadEmpty}
+                onClick={() => switchToNewThreadRef.current?.()}
+              >
+                <PlusCircle className="text-primary" size={16} />
+              </Button>
+            </Tooltip>
+          </>
+        )}
       </div>
-
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center">
         {comparisonCount > 0 && (
           <button
             onClick={openComparisons}
-            className="flex items-center gap-1.5 text-white/80 hover:text-white transition-colors cursor-pointer text-xs font-medium"
+            className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors cursor-pointer text-xs font-medium px-2 py-1 rounded hover:bg-accent"
             title="View comparisons"
           >
             <GitCompareArrows size={14} />
             <span>View Comparisons</span>
-            <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-white/20 text-white text-[10px] font-bold leading-none">
+            <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-[#c94137]/15 text-[#c94137] text-[10px] font-bold leading-none">
               {comparisonCount}
             </span>
           </button>
         )}
 
-        <button
-          onClick={openOptionsPage}
-          className="text-white hover:text-slate-200 transition-colors cursor-pointer"
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleOpenOptions}
           title="Settings"
+          className="text-muted-foreground hover:text-foreground"
         >
           <Settings size={16} />
-        </button>
+        </Button>
 
-        <button
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={toggleTheme}
-          className="text-white hover:text-slate-200 transition-colors cursor-pointer"
           title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+          className="text-muted-foreground hover:text-foreground"
         >
           {isDarkMode ? <Sun size={16} /> : <Moon size={16} />}
-        </button>
+        </Button>
       </div>
     </div>
   );

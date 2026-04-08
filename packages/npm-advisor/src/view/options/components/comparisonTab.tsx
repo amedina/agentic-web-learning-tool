@@ -2,7 +2,7 @@
  * External dependencies.
  */
 import React, { useEffect, useRef, useState } from "react";
-import { BarChart2, Trash2, Award } from "lucide-react";
+import { BarChart2, Trash2, Award, Search } from "lucide-react";
 import { algoliasearch } from "algoliasearch";
 import {
   InstantSearch,
@@ -248,6 +248,7 @@ const SearchWrapper = () => {
 interface ComparisonTabProps {
   comparisonBucket: any[];
   handleClearComparison: () => void;
+  handleRemovePackage: (packageName: string) => void;
   winnerName: string | null;
 }
 
@@ -257,6 +258,7 @@ interface ComparisonTabProps {
 export const ComparisonTab: React.FC<ComparisonTabProps> = ({
   comparisonBucket,
   handleClearComparison,
+  handleRemovePackage,
   winnerName,
 }) => {
   return (
@@ -275,10 +277,10 @@ export const ComparisonTab: React.FC<ComparisonTabProps> = ({
         {comparisonBucket.length > 0 && (
           <button
             onClick={handleClearComparison}
-            className="flex items-center text-sm text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors font-medium border border-red-200 dark:border-red-800 hover:bg-red-50 dark:hover:bg-red-950 px-3 py-1.5 rounded-md"
+            className="flex items-center gap-1.5 text-sm text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors"
           >
-            <Trash2 className="w-4 h-4 mr-2" />
-            Clear Bucket
+            <Trash2 className="w-3.5 h-3.5" />
+            Clear All
           </button>
         )}
       </div>
@@ -307,15 +309,24 @@ export const ComparisonTab: React.FC<ComparisonTabProps> = ({
                     key={idx}
                     className="px-6 py-4 text-left font-semibold text-slate-900 dark:text-slate-100 border-r border-slate-200 dark:border-slate-700 min-w-[200px] relative"
                   >
-                    <div className="flex items-center space-x-2">
-                      <span className="text-lg">{pkg.packageName}</span>
-                      {winnerName === pkg.packageName && (
-                        <span className="flex items-center bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-700 text-[10px] uppercase font-bold px-2 py-0.5 rounded-full absolute top-2 right-2">
-                          <Award className="w-3 h-3 mr-1" />
-                          Winner
-                        </span>
-                      )}
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-lg truncate">
+                        {pkg.packageName}
+                      </span>
+                      <button
+                        onClick={() => handleRemovePackage(pkg.packageName)}
+                        className="shrink-0 p-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors rounded"
+                        title={`Remove ${pkg.packageName}`}
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
                     </div>
+                    {winnerName === pkg.packageName && (
+                      <span className="flex items-center bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-700 text-[10px] uppercase font-bold px-2 py-0.5 rounded-full absolute top-2 right-2">
+                        <Award className="w-3 h-3 mr-1" />
+                        Winner
+                      </span>
+                    )}
                   </th>
                 ))}
               </tr>
@@ -573,7 +584,7 @@ export const ComparisonTab: React.FC<ComparisonTabProps> = ({
                       </span>
                     ) : (
                       <span className="text-red-500 dark:text-red-400">
-                        No ({pkg.license || "Default"})
+                        No ({pkg.license ?? "Unknown"})
                       </span>
                     )}
                   </td>
