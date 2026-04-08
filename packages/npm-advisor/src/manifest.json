@@ -34,7 +34,8 @@
     "activeTab",
     "unlimitedStorage",
     "sidePanel",
-    "webNavigation"
+    "webNavigation",
+    "management"
   ],
   "host_permissions": [
     "*://registry.npmjs.org/*",
