@@ -1,7 +1,7 @@
 /**
  * External dependencies.
  */
-import React from "react";
+import React, { useState } from "react";
 import { ShieldAlert } from "lucide-react";
 
 export interface SecurityAdvisoriesProps {
@@ -13,8 +13,15 @@ export interface SecurityAdvisoriesProps {
 export const SecurityAdvisories: React.FC<SecurityAdvisoriesProps> = ({
   securityAdvisories,
 }) => {
+  const [showAll, setShowAll] = useState(false);
+
   if (!securityAdvisories || securityAdvisories.issues.length === 0)
     return null;
+
+  const visibleIssues = showAll
+    ? securityAdvisories.issues
+    : securityAdvisories.issues.slice(0, 3);
+  const remaining = securityAdvisories.issues.length - 3;
 
   return (
     <div className="bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-200 dark:border-red-800 p-4">
@@ -26,7 +33,7 @@ export const SecurityAdvisories: React.FC<SecurityAdvisoriesProps> = ({
         Security Advisories ({securityAdvisories.issues.length})
       </h2>
       <ul className="space-y-2 mt-2">
-        {securityAdvisories.issues.slice(0, 3).map((issue, idx) => (
+        {visibleIssues.map((issue, idx) => (
           <li
             key={idx}
             className="text-xs bg-white dark:bg-slate-800 rounded p-2 border border-red-100 dark:border-red-800 flex flex-col"
@@ -48,9 +55,16 @@ export const SecurityAdvisories: React.FC<SecurityAdvisoriesProps> = ({
             </div>
           </li>
         ))}
-        {securityAdvisories.issues.length > 3 && (
-          <li className="text-xs text-red-600 dark:text-red-400 font-medium px-1 pt-1 opacity-80">
-            +{securityAdvisories.issues.length - 3} more vulnerabilities
+        {remaining > 0 && (
+          <li>
+            <button
+              onClick={() => setShowAll((prev) => !prev)}
+              className="text-xs text-red-600 dark:text-red-400 font-medium px-1 pt-1 hover:underline cursor-pointer"
+            >
+              {showAll
+                ? "Show less"
+                : `+${remaining} more vulnerabilit${remaining === 1 ? "y" : "ies"}`}
+            </button>
           </li>
         )}
       </ul>
