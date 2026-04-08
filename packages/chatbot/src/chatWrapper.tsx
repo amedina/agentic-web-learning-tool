@@ -25,8 +25,9 @@ const SidePanel = () => {
     transport: state.transport,
   }));
 
-  const { allowToolCalling } = usePropProvider(({ state }) => ({
+  const { allowToolCalling, isOptionsPage } = usePropProvider(({ state }) => ({
     allowToolCalling: state.allowToolCalling,
+    isOptionsPage: state.isOptionsPage,
   }));
 
   const {
@@ -82,7 +83,10 @@ const SidePanel = () => {
         value: 'chat',
         label: 'Ask AI',
         content: !allowToolCalling ? (
-          <ConversationalChatBot runtime={runtimeRef.current} />
+          <ConversationalChatBot
+            runtime={runtimeRef.current}
+            isOptionsPage={isOptionsPage}
+          />
         ) : (
           <ChatBotUI runtime={runtimeRef.current} />
         ),
@@ -91,24 +95,18 @@ const SidePanel = () => {
     ];
   }, [prefixTabs, suffixTabs, allowToolCalling]);
 
-  useEffect(() => {
-    if (tabsList.length > 0 && !activeTab) {
-      setActiveTab(tabsList[0].value);
-    }
-  }, [tabsList]);
-
   const tabbedUI = useMemo(() => {
     if (tabsList.length > 1) {
       return (
         <Tabs
-          defaultValue={tabsList[0].value}
+          value={activeTab || tabsList[0]?.value}
+          onValueChange={setActiveTab}
           className="flex flex-col h-full w-full bg-background"
         >
           <TabsList className="relative flex w-full bg-transparent h-auto p-0 rounded-none gap-0 border-b">
             {tabsList.map((tab) => {
               return (
                 <TabsTrigger
-                  onClick={() => setActiveTab(tab.value)}
                   key={tab.value}
                   value={tab.value}
                   className="flex-1 rounded-none py-2.5 px-4 text-sm font-medium text-muted-foreground data-[state=active]:text-foreground data-[state=active]:bg-transparent hover:bg-accent/40 relative z-10 shadow-none data-[state=active]:shadow-none"
@@ -124,7 +122,9 @@ const SidePanel = () => {
                 left: `${
                   Math.max(
                     0,
-                    tabsList.findIndex((t) => t.value === activeTab)
+                    tabsList.findIndex(
+                      (t) => t.value === (activeTab || tabsList[0]?.value)
+                    )
                   ) *
                   (100 / tabsList.length)
                 }%`,
@@ -147,7 +147,7 @@ const SidePanel = () => {
       );
     }
     return tabsList[0].content;
-  }, [tabsList, activeTab, subHeaderNode]);
+  }, [tabsList, activeTab, subHeaderNode, setActiveTab]);
 
   return (
     <CustomRuntimeProvider transport={transport} runtimeRef={runtimeRef}>

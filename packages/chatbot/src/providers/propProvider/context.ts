@@ -27,6 +27,7 @@ export type PropProviderType = {
     };
     allowChatStorage: boolean;
     activeTab: string;
+    isOptionsPage?: boolean;
   };
   actions: {
     getCustomSystemPrompt: () => string;

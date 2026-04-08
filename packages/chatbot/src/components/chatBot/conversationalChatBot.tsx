@@ -42,9 +42,13 @@ import type { ChatDataType } from '../../customRuntime/types';
 
 type ConversationalChatBotProps = {
   runtime: AssistantRuntime | null;
+  isOptionsPage?: boolean;
 };
 
-const ConversationalChatBot = ({ runtime }: ConversationalChatBotProps) => {
+const ConversationalChatBot = ({
+  runtime,
+  isOptionsPage,
+}: ConversationalChatBotProps) => {
   const { apiKeys, setSelectedAgent, selectedAgent } = useModelProvider(
     ({ state, actions }) => ({
       apiKeys: state.apiKeys,
@@ -245,13 +249,15 @@ const ConversationalChatBot = ({ runtime }: ConversationalChatBotProps) => {
                     <Button variant="ghost" disabled title="Attach" size="icon">
                       <Paperclip size={18} />
                     </Button>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      onClick={handleOpenOptions}
-                    >
-                      <Settings className="w-4 h-4" />
-                    </Button>
+                    {!isOptionsPage && (
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={handleOpenOptions}
+                      >
+                        <Settings className="w-4 h-4" />
+                      </Button>
+                    )}
                     <Dropdown
                       options={modelOptions}
                       onSelect={(id) => handleSelect(id)}

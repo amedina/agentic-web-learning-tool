@@ -56,6 +56,7 @@ export const AssistantModal = ({ comparisonBucket }: AssistantModalProps) => {
             return getSystemPrompt(JSON.stringify(comparisonBucket, null, 2));
           }}
           allowChatStorage={false}
+          isOptionsPage={true}
           suggestions={[
             {
               text: "Compare all packages",
