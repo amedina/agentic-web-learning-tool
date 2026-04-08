@@ -50,7 +50,7 @@ export const LicenseCheck: React.FC<LicenseCheckProps> = ({
         </div>
       ) : (
         <p className="text-sm text-slate-500 dark:text-slate-400">
-          Unknown compatibility status
+          Unknown license — compatibility cannot be determined
         </p>
       )}
     </div>

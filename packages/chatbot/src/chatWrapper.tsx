@@ -2,14 +2,13 @@
  * External dependencies
  */
 import { type AssistantRuntime } from '@assistant-ui/react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import {
   Tabs,
   TabsList,
   TabsTrigger,
   TabsContent,
 } from '@google-awlt/design-system';
-import { SidebarProvider } from '@google-awlt/design-system';
 /**
  * Internal dependencies
  */
@@ -26,19 +25,25 @@ const SidePanel = () => {
     transport: state.transport,
   }));
 
-  const [activeTab, setActiveTab] = useState<string>('chat');
-
   const { allowToolCalling } = usePropProvider(({ state }) => ({
     allowToolCalling: state.allowToolCalling,
   }));
 
-  const { prefixTabs, suffixTabs, footerNode, allowChatStorage } =
-    usePropProvider(({ state }) => ({
-      prefixTabs: state.prefixTabs,
-      suffixTabs: state.suffixTabs,
-      footerNode: state.footerNode,
-      allowChatStorage: state.allowChatStorage,
-    }));
+  const {
+    prefixTabs,
+    suffixTabs,
+    footerNode,
+    subHeaderNode,
+    activeTab,
+    setActiveTab,
+  } = usePropProvider(({ state, actions }) => ({
+    prefixTabs: state.prefixTabs,
+    suffixTabs: state.suffixTabs,
+    footerNode: state.footerNode,
+    subHeaderNode: state.subHeaderNode,
+    activeTab: state.activeTab,
+    setActiveTab: actions.setActiveTab,
+  }));
 
   const runtimeRef = useRef<AssistantRuntime | null>(null);
 
@@ -75,7 +80,7 @@ const SidePanel = () => {
       ...prefixTabs,
       {
         value: 'chat',
-        label: 'Chat',
+        label: 'Ask AI',
         content: !allowToolCalling ? (
           <ConversationalChatBot runtime={runtimeRef.current} />
         ) : (
@@ -84,7 +89,13 @@ const SidePanel = () => {
       },
       ...suffixTabs,
     ];
-  }, [prefixTabs, suffixTabs]);
+  }, [prefixTabs, suffixTabs, allowToolCalling]);
+
+  useEffect(() => {
+    if (tabsList.length > 0 && !activeTab) {
+      setActiveTab(tabsList[0].value);
+    }
+  }, [tabsList]);
 
   const tabbedUI = useMemo(() => {
     if (tabsList.length > 1) {
@@ -93,21 +104,34 @@ const SidePanel = () => {
           defaultValue={tabsList[0].value}
           className="flex flex-col h-full w-full bg-background"
         >
-          <div className="px-4 py-2 border-b">
-            <TabsList className="grid w-full grid-cols-2">
-              {tabsList.map((tab) => {
-                return (
-                  <TabsTrigger
-                    onClick={() => setActiveTab(tab.value)}
-                    key={tab.value}
-                    value={tab.value}
-                  >
-                    {tab.label}
-                  </TabsTrigger>
-                );
-              })}
-            </TabsList>
-          </div>
+          <TabsList className="relative flex w-full bg-transparent h-auto p-0 rounded-none gap-0 border-b">
+            {tabsList.map((tab) => {
+              return (
+                <TabsTrigger
+                  onClick={() => setActiveTab(tab.value)}
+                  key={tab.value}
+                  value={tab.value}
+                  className="flex-1 rounded-none py-2.5 px-4 text-sm font-medium text-muted-foreground data-[state=active]:text-foreground data-[state=active]:bg-transparent hover:bg-accent/40 relative z-10 shadow-none data-[state=active]:shadow-none"
+                >
+                  {tab.label}
+                </TabsTrigger>
+              );
+            })}
+            <div
+              className="absolute bottom-[-1px] h-[2px] bg-[#c94137] transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
+              style={{
+                width: `${100 / tabsList.length}%`,
+                left: `${
+                  Math.max(
+                    0,
+                    tabsList.findIndex((t) => t.value === activeTab)
+                  ) *
+                  (100 / tabsList.length)
+                }%`,
+              }}
+            />
+          </TabsList>
+          {subHeaderNode}
           {tabsList.map((tab) => {
             return (
               <TabsContent
@@ -123,25 +147,13 @@ const SidePanel = () => {
       );
     }
     return tabsList[0].content;
-  }, [tabsList]);
+  }, [tabsList, activeTab, subHeaderNode]);
 
   return (
     <CustomRuntimeProvider transport={transport} runtimeRef={runtimeRef}>
       <CommandProvider>
-        {allowChatStorage ? (
-          <SidebarProvider
-            defaultOpen={false}
-            className={`flex-1 ${activeTab === 'insights' ? 'overflow-y-auto' : 'overflow-hidden'}`}
-          >
-            {tabbedUI}
-            {footerNode}
-          </SidebarProvider>
-        ) : (
-          <>
-            {tabbedUI}
-            {footerNode}
-          </>
-        )}
+        {tabbedUI}
+        {footerNode}
       </CommandProvider>
     </CustomRuntimeProvider>
   );

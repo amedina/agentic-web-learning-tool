@@ -39,6 +39,15 @@ export default function ComparisonPage() {
     );
   };
 
+  const handleRemovePackage = (packageName: string) => {
+    const updated = comparisonBucket.filter(
+      (p) => p.packageName !== packageName,
+    );
+    chrome.storage.local.set({ comparisonBucket: updated }, () =>
+      setComparisonBucket(updated),
+    );
+  };
+
   const winnerName = useMemo(() => {
     if (comparisonBucket.length === 0) return null;
     let bestScore = -Infinity;
@@ -61,6 +70,7 @@ export default function ComparisonPage() {
       <ComparisonTab
         comparisonBucket={comparisonBucket}
         handleClearComparison={handleClearComparison}
+        handleRemovePackage={handleRemovePackage}
         winnerName={winnerName}
       />
       <AssistantModal comparisonBucket={comparisonBucket} />

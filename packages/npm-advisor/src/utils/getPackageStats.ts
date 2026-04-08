@@ -127,10 +127,21 @@ export async function getPackageStats(
 
   const licenseStr =
     typeof rawLicense === "string" ? rawLicense : rawLicense?.type || null;
+
+  // Treat URL-based license fields as unknown — the raw URL is not a valid
+  // SPDX identifier and cannot be used for compatibility checks.
+  const isUrlLicense =
+    !!licenseStr &&
+    (/^https?:\/\//i.test(licenseStr.trim()) ||
+      /^see\s+license\s+in/i.test(licenseStr.trim()));
+
   const licenseCompatibility = checkLicenseCompatibility(
     licenseStr,
     targetLicense,
   );
+
+  // Normalise to null so UI layers uniformly display "Unknown".
+  const displayLicense = isUrlLicense ? null : licenseStr;
 
   const githubInfo = repoUrlField ? parseGithubUrl(repoUrlField) : null;
 
@@ -295,7 +306,7 @@ export async function getPackageStats(
     securityAdvisories,
     bundle,
     dependencyTree,
-    license: licenseStr,
+    license: displayLicense,
     licenseCompatibility,
     recommendations,
     score,
