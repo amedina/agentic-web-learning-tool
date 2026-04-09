@@ -24,7 +24,7 @@ export const ComparisonTable: React.FC<ComparisonTableProps> = ({
   winnerName,
 }) => (
   <>
-    <div className="flex items-center justify-between my-4">
+    <div className="flex items-center justify-end my-4 pr-[4px]">
       <button
         onClick={handleClearComparison}
         className="flex items-center gap-1.5 text-sm text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors"
