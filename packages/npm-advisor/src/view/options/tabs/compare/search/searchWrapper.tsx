@@ -94,17 +94,14 @@ export const SearchWrapper = () => {
 
   return (
     <div ref={searchContainerRef} className="space-y-6">
-      <div className="p-6 bg-bg-surface dark:bg-aswad rounded-2xl border border-subtle-zinc dark:border-darth-vader shadow-xl relative transition-all duration-300">
-        <h4 className="text-xs font-bold text-exclusive-plum mb-4 uppercase tracking-[0.2em]">
-          Search Packages
-        </h4>
+      <div className="">
         <div className="relative group/search">
           <SearchBox
             placeholder="Search npm packages to compare..."
             className="mb-0"
             classNames={{
               input:
-                "w-full px-5 py-3 bg-bg-surface-subtle dark:bg-bg-background border border-subtle-zinc dark:border-darth-vader text-text-primary placeholder:text-amethyst-haze rounded-xl focus:ring-2 focus:ring-baby-blue focus:border-transparent outline-none transition-all pr-36 group-hover/search:border-baby-blue/50 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden",
+                "w-full px-5 py-3 bg-white-subtle dark:bg-bg-background border border-subtle-zinc dark:border-darth-vader text-text-primary placeholder:text-amethyst-haze rounded-xl focus:ring-2 focus:ring-baby-blue focus:border-transparent outline-none transition-all pr-36 group-hover/search:border-baby-blue/50 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden",
               submit: "hidden",
               reset:
                 "absolute right-3 top-1/2 -translate-y-1/2 p-2 text-amethyst-haze hover:text-baby-blue [&>svg]:w-5 [&>svg]:h-5 appearance-none",

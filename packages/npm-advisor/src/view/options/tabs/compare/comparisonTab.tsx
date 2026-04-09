@@ -27,7 +27,7 @@ export const ComparisonTab: React.FC<ComparisonTabProps> = ({
   handleRemovePackage,
   winnerName,
 }) => (
-  <div className="mt-8">
+  <div>
     <PackageSearch />
     {comparisonBucket.length === 0 ? (
       <EmptyState />
