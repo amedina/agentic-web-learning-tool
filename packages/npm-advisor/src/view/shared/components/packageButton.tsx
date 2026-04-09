@@ -83,7 +83,7 @@ export const PackageButton = ({ packageName }: { packageName: string }) => {
 
   return (
     <span className="inline-flex items-center gap-1.5 shrink-0 align-middle">
-      <span className="font-mono text-[13px] font-bold text-blue-600 dark:text-blue-400 hover:underline transition-all cursor-default">
+      <span className="font-mono text-[13px] font-bold text-blue-600 dark:text-blue-400 transition-all cursor-default">
         {packageName}
       </span>
       <button

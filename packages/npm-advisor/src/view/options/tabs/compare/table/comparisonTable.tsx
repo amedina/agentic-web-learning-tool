@@ -82,6 +82,19 @@ export const ComparisonTable: React.FC<ComparisonTableProps> = ({
           </tr>
           <tr>
             <td className="px-6 py-4 font-medium text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700">
+              Description
+            </td>
+            {comparisonBucket.map((pkg, idx) => (
+              <td
+                key={idx}
+                className="px-6 py-4 text-slate-500 dark:text-slate-400 border-r border-slate-200 dark:border-slate-700 italic text-xs leading-relaxed"
+              >
+                {pkg.description || "N/A"}
+              </td>
+            ))}
+          </tr>
+          <tr>
+            <td className="px-6 py-4 font-medium text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700">
               GitHub Stars
             </td>
             {comparisonBucket.map((pkg, idx) => (

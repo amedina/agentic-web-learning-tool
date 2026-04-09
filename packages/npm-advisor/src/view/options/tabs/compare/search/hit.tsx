@@ -6,19 +6,22 @@ import { Check } from "lucide-react";
 interface HitProps {
   hit: any;
   isSelected: boolean;
+  isActive: boolean;
   onToggle: (hit: any) => void;
 }
 
-export const Hit = ({ hit, isSelected, onToggle }: HitProps) => {
+export const Hit = ({ hit, isSelected, isActive, onToggle }: HitProps) => {
   return (
     <div
       onClick={() => onToggle(hit)}
       className={`p-4 border-b border-subtle-zinc dark:border-darth-vader hover:bg-baby-blue/10 dark:hover:bg-baby-blue/20 cursor-pointer transition-all flex justify-between items-center group/hit ${
         isSelected ? "bg-baby-blue/5 dark:bg-baby-blue/10" : ""
-      }`}
+      } ${isActive ? "bg-baby-blue/10 dark:bg-baby-blue/20 ring-inset ring-2 ring-baby-blue/30" : ""}`}
     >
       <div className="flex-1 min-w-0 pr-4">
-        <div className="font-semibold text-text-primary truncate group-hover/hit:text-baby-blue transition-colors">
+        <div
+          className={`font-semibold text-text-primary truncate transition-colors ${isActive ? "text-baby-blue" : "group-hover/hit:text-baby-blue"}`}
+        >
           {hit.name}
         </div>
         <div className="text-xs text-amethyst-haze leading-relaxed truncate mt-0.5">

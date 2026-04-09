@@ -1,8 +1,8 @@
 /**
  * External dependencies.
  */
-import { useEffect, useRef, useState } from "react";
-import { SearchBox, useSearchBox } from "react-instantsearch";
+import { useRef, useState } from "react";
+import { SearchBox, useInfiniteHits, useSearchBox } from "react-instantsearch";
 import { X, Loader2, Check, Search } from "lucide-react";
 
 /**
@@ -12,23 +12,12 @@ import { ResultsList } from "./resultsList";
 
 export const SearchWrapper = () => {
   const { query, refine } = useSearchBox();
+  const { items } = useInfiniteHits();
   const [selectedPackages, setSelectedPackages] = useState<any[]>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [progress, setProgress] = useState({ current: 0, total: 0 });
+  const [activeIndex, setActiveIndex] = useState(-1);
   const searchContainerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        searchContainerRef.current &&
-        !searchContainerRef.current.contains(event.target as Node)
-      ) {
-        refine("");
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [refine]);
 
   const togglePackage = (hit: any) => {
     setSelectedPackages((prev) => {
@@ -36,6 +25,7 @@ export const SearchWrapper = () => {
       if (exists) {
         return prev.filter((p) => p.name !== hit.name);
       }
+
       return [...prev, { name: hit.name, description: hit.description }];
     });
   };
@@ -44,12 +34,36 @@ export const SearchWrapper = () => {
     setSelectedPackages((prev) => prev.filter((p) => p.name !== name));
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!query) return;
+
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+
+      setActiveIndex((prev) => Math.min(prev + 1, items.length - 1));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+
+      setActiveIndex((prev) => Math.max(prev - 1, -1));
+    } else if (e.key === "Enter") {
+      if (activeIndex >= 0 && items[activeIndex]) {
+        e.preventDefault();
+
+        togglePackage(items[activeIndex]);
+      }
+    } else if (e.key === "Escape") {
+      refine("");
+      setActiveIndex(-1);
+    }
+  };
+
   const handleBatchCompare = async () => {
     if (selectedPackages.length === 0 || isAnalyzing) return;
 
     setIsAnalyzing(true);
     setProgress({ current: 0, total: selectedPackages.length });
-    refine(""); // Clear search to hide overlay immediately
+    refine("");
+    setActiveIndex(-1);
 
     try {
       const res = await new Promise<any>((resolve) => {
@@ -94,7 +108,7 @@ export const SearchWrapper = () => {
 
   return (
     <div ref={searchContainerRef} className="max-w-[600px]">
-      <div className="relative group/search">
+      <div className="relative group/search" onKeyDown={handleKeyDown}>
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-amethyst-haze pointer-events-none z-10" />
         <SearchBox
           placeholder="Search npm packages to compare..."
@@ -120,6 +134,7 @@ export const SearchWrapper = () => {
           <ResultsList
             onToggle={togglePackage}
             selectedPackages={selectedPackages}
+            activeIndex={activeIndex}
           />
         )}
       </div>

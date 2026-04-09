@@ -239,6 +239,10 @@ function setupSearchOverlay() {
     });
 
     let lastHits: any[] = [];
+    let activeIndex = -1;
+    let currentPage = 0;
+    let nbPages = 0;
+    let isFetchingMore = false;
     let activeFilterMode: { label: string; key: string } | null = null;
 
     const chipsContainer = document.createElement("div");
@@ -260,6 +264,8 @@ function setupSearchOverlay() {
       const inputVal = customInput.value;
       if (!inputVal.trim() && !activeFilterMode) {
         overlay.style.display = "none";
+        lastHits = [];
+        activeIndex = -1;
         return;
       }
 
@@ -268,12 +274,17 @@ function setupSearchOverlay() {
         ? [`${activeFilterMode.key}:${inputVal}`]
         : [];
 
+      isFetchingMore = true;
+
       chrome.runtime.sendMessage(
-        { type: "SEARCH_NPM", query, facetFilters },
+        { type: "SEARCH_NPM", query, facetFilters, page: currentPage },
         (response) => {
+          isFetchingMore = false;
           if (response && response.success) {
-            lastHits = response.hits;
-            renderHits(overlay, response.hits);
+            currentPage = response.page;
+            nbPages = response.nbPages;
+            lastHits = [...lastHits, ...response.hits];
+            renderHits(overlay, lastHits, activeIndex);
           }
         },
       );
@@ -383,6 +394,69 @@ function setupSearchOverlay() {
       }
     });
 
+    searchForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      const query = customInput.value.trim();
+      if (query) {
+        window.location.href = `https://www.npmjs.com/search?q=${encodeURIComponent(query)}`;
+      }
+    });
+
+    customInput.addEventListener("keydown", (e) => {
+      if (overlay.style.display === "none" && e.key !== "Enter") return;
+
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        activeIndex = Math.min(activeIndex + 1, lastHits.length - 1);
+
+        renderHits(overlay, lastHits, activeIndex);
+        scrollActiveIntoView();
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        activeIndex = Math.max(activeIndex - 1, -1);
+
+        renderHits(overlay, lastHits, activeIndex);
+        scrollActiveIntoView();
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+
+        const activeItem = overlay.children[activeIndex] as HTMLElement;
+        if (activeItem) {
+          activeItem.click();
+        }
+      }
+    });
+
+    function scrollActiveIntoView() {
+      if (activeIndex < 0) return;
+      const activeItem = overlay.children[activeIndex] as HTMLElement;
+
+      if (!activeItem) return;
+
+      const overlayRect = overlay.getBoundingClientRect();
+      const itemRect = activeItem.getBoundingClientRect();
+
+      if (itemRect.bottom > overlayRect.bottom) {
+        overlay.scrollTop += itemRect.bottom - overlayRect.bottom;
+      } else if (itemRect.top < overlayRect.top) {
+        overlay.scrollTop -= overlayRect.top - itemRect.top;
+      }
+    }
+
+    overlay.addEventListener("scroll", () => {
+      if (isFetchingMore || currentPage >= nbPages - 1) return;
+
+      const threshold = 50;
+      if (
+        overlay.scrollHeight - overlay.scrollTop - overlay.clientHeight <
+        threshold
+      ) {
+        currentPage++;
+        updateSearch();
+      }
+    });
+
     document.addEventListener("click", (e) => {
       if (!searchForm.contains(e.target as Node)) {
         overlay.style.display = "none";
@@ -392,7 +466,11 @@ function setupSearchOverlay() {
   });
 }
 
-function renderHits(overlay: HTMLElement, hits: any[]) {
+function renderHits(
+  overlay: HTMLElement,
+  hits: any[],
+  activeIndex: number = -1,
+) {
   overlay.innerHTML = "";
   if (hits.length === 0) {
     overlay.style.display = "none";
@@ -402,31 +480,44 @@ function renderHits(overlay: HTMLElement, hits: any[]) {
   overlay.style.display = "block";
   const dark = isDarkMode();
 
-  hits.forEach((hit) => {
+  hits.forEach((hit, index) => {
     const item = document.createElement("div");
+    const isActive = index === activeIndex;
+
     const baseBg =
       "var(--color-bg-default, " + (dark ? "#1a1a1a" : "#fff") + ")";
     const hoverBg =
-      "var(--color-bg-subtle, " + (dark ? "#242424" : "#fb823e10") + ")";
+      "var(--color-bg-subtle, " + (dark ? "#242424" : "#f8f8f8") + ")";
+    const activeBg = dark ? "#fb823e25" : "#fb823e10";
     const borderColor =
       "var(--color-border-muted, " + (dark ? "#3d3d3d" : "#eee") + ")";
+    const accentColor = "#fb823e";
 
     Object.assign(item.style, {
       padding: "10px",
       borderBottom: `1px solid ${borderColor}`,
+      borderLeft: isActive
+        ? `3px solid ${accentColor}`
+        : "3px solid transparent",
       cursor: "pointer",
-      transition: "background-color 0.2s",
-      backgroundColor: baseBg,
+      transition: "all 0.2s",
+      backgroundColor: isActive ? activeBg : baseBg,
     });
 
-    item.onmouseover = () => (item.style.backgroundColor = hoverBg);
-    item.onmouseout = () => (item.style.backgroundColor = baseBg);
+    item.onmouseover = () => {
+      if (!isActive) item.style.backgroundColor = hoverBg;
+    };
+    item.onmouseout = () => {
+      if (!isActive) item.style.backgroundColor = baseBg;
+    };
 
     const name = document.createElement("div");
     name.textContent = hit.name;
     Object.assign(name.style, {
-      fontWeight: "bold",
-      color: "var(--color-fg-default, " + (dark ? "#e6e6e6" : "#333") + ")",
+      fontWeight: isActive ? "800" : "bold",
+      color: isActive
+        ? accentColor
+        : "var(--color-fg-default, " + (dark ? "#e6e6e6" : "#333") + ")",
     });
 
     const desc = document.createElement("div");
@@ -437,6 +528,7 @@ function renderHits(overlay: HTMLElement, hits: any[]) {
       whiteSpace: "nowrap",
       overflow: "hidden",
       textOverflow: "ellipsis",
+      fontWeight: isActive ? "500" : "normal",
     });
 
     item.appendChild(name);
@@ -445,7 +537,7 @@ function renderHits(overlay: HTMLElement, hits: any[]) {
     item.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
-      window.open(`https://www.npmjs.com/package/${hit.name}`, "_blank");
+      window.location.href = `https://www.npmjs.com/package/${hit.name}`;
     });
 
     overlay.appendChild(item);
