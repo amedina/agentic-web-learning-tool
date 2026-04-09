@@ -31,14 +31,17 @@ export const usePackageStats = () => {
       }
     });
 
-    const fetchCurrentTabStats = async () => {
+    const fetchCurrentTabStats = async (overrideUrl?: string) => {
       try {
-        // 1. Query chrome active tab
-        const [tab] = await chrome.tabs.query({
-          active: true,
-          currentWindow: true,
-        });
-        const url = tab?.url;
+        let url = overrideUrl;
+        if (!url) {
+          // 1. Query chrome active tab
+          const [tab] = await chrome.tabs.query({
+            active: true,
+            currentWindow: true,
+          });
+          url = tab?.url;
+        }
 
         if (!url) {
           throw new Error("Could not determine current tab URL.");
@@ -81,6 +84,7 @@ export const usePackageStats = () => {
         if (!packageName) {
           urlCache.set(url, { stats: null, error: null });
           setIsNavigationMessage(true);
+          setStats(null);
           setLoading(false);
           return;
         }
@@ -127,17 +131,22 @@ export const usePackageStats = () => {
     fetchCurrentTabStats();
 
     const handleTabUpdated = (tabId: number, changeInfo: any) => {
-      if (changeInfo.status === "complete" || changeInfo.url) {
-        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-          if (tabs[0] && tabs[0].id === tabId) {
-            fetchCurrentTabStats();
-          }
-        });
-      }
+      chrome.tabs.get(tabId, (tab) => {
+        if (chrome.runtime.lastError || !tab?.active) return;
+        if (changeInfo.url) {
+          // Pass URL directly — tab.url may still reflect the previous page.
+          fetchCurrentTabStats(changeInfo.url);
+        } else if (changeInfo.status === "complete" && tab.url) {
+          // Safety net: re-evaluate once the page has fully loaded.
+          fetchCurrentTabStats(tab.url);
+        }
+      });
     };
 
-    const handleTabActivated = () => {
-      fetchCurrentTabStats();
+    const handleTabActivated = (activeInfo: { tabId: number }) => {
+      chrome.tabs.get(activeInfo.tabId, (tab) => {
+        if (tab) fetchCurrentTabStats(tab.url);
+      });
     };
 
     chrome.tabs.onUpdated.addListener(handleTabUpdated);

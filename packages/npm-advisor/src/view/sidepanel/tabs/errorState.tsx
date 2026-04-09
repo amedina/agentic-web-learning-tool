@@ -45,7 +45,7 @@ export const NavigationMessage: React.FC = () => (
         >
           github.com
         </button>{" "}
-        package.json page to view stats.
+        package.json file to view stats.
       </p>
     </div>
   </div>
