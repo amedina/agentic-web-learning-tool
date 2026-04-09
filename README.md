@@ -1,5 +1,3 @@
-# AWL README.md
-
 # **🦉 Agentic Web Learning Tool (AWL)**
 
 **An open-source Chrome Extension for learning, exploring, and experimenting with the technologies of the Agentic Web.**
