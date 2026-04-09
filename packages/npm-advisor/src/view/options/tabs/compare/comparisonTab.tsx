@@ -15,8 +15,8 @@ import { X, Loader2, Check } from "lucide-react";
 /**
  * Internal dependencies.
  */
-import { NPM_SEARCH_CONFIG } from "../../../constants";
-import { calculateScore } from "../../../utils/calculateScore";
+import { NPM_SEARCH_CONFIG } from "../../../../constants";
+import { calculateScore } from "../../../../utils/calculateScore";
 
 const searchClient = algoliasearch(
   NPM_SEARCH_CONFIG.appId,
