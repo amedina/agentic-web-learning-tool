@@ -23,7 +23,7 @@ import ModelsTab from "./tabs/models";
 import SettingsTab from "./tabs/settings";
 import ComparisonPage from "./tabs/compare";
 import { ModelProvider, useModelProvider } from "./providers";
-import { getSystemPrompt } from "./tabs/compare/getSystemPrompt";
+import { getSystemPrompt } from "./tabs/compare/chatUI/getSystemPrompt";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
