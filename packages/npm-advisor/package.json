@@ -1,7 +1,7 @@
 {
   "name": "@google-awlt/npm-advisor",
   "private": true,
-  "version": "1.0.1",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
     "predev": "rimraf ../../dist/npm-advisor",
