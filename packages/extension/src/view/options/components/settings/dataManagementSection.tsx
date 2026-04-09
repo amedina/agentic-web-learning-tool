@@ -25,12 +25,12 @@ import {
 import { saveWorkflow } from '@google-awlt/engine-extension';
 import { WorkflowJSONSchema } from '@google-awlt/engine-core';
 import { getUniqueNames } from '@google-awlt/workflow-ui';
-
+import { logger } from '@google-awlt/common';
 /**
  * Internal dependencies
  */
 import type { SettingsType } from '../../../../types';
-import { logger, settingsValidator } from '../../../../utils';
+import { settingsValidator } from '../../../../utils';
 
 type DataManagementSectionProps = {
   settings: () => Promise<SettingsType>;

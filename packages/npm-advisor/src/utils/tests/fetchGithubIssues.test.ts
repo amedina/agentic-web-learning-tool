@@ -24,6 +24,6 @@ describe("fetchGithubIssues", () => {
     expect(fetchWithCache).toHaveBeenCalledWith(
       `https://api.github.com/search/issues?q=${expectedQuery}&per_page=100`,
     );
-    expect(result).toEqual(mockData);
+    expect(result).toEqual({ ...mockData, openTotalCount: null });
   });
 });

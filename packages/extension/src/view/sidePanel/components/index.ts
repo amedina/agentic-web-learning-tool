@@ -1,2 +1,2 @@
-export * from './chatBot';
 export * from './workflow';
+export * from './globalHeader';

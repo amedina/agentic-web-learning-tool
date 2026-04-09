@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Skill Evals Schema",
+  "description": "Schema for skill evaluation test cases used by skill-creator.",
+  "type": "object",
+  "required": ["skill_name", "evals"],
+  "properties": {
+    "skill_name": {
+      "type": "string",
+      "description": "Name matching the skill's frontmatter"
+    },
+    "evals": {
+      "type": "array",
+      "description": "List of evaluation test cases",
+      "items": {
+        "type": "object",
+        "required": ["id", "prompt", "expected_output", "files"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Unique integer identifier for the eval"
+          },
+          "prompt": {
+            "type": "string",
+            "description": "The task prompt to execute"
+          },
+          "expected_output": {
+            "type": "string",
+            "description": "Human-readable description of the expected result"
+          },
+          "files": {
+            "type": "array",
+            "description": "Optional list of input file paths relative to skill root",
+            "items": {
+              "type": "string"
+            }
+          },
+          "expectations": {
+            "type": "array",
+            "description": "List of verifiable statements about the expected output",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

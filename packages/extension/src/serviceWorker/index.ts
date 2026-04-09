@@ -6,6 +6,7 @@ z.config({ jitless: true });
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { WebMCPTool } from '@google-awlt/design-system';
 import PQueue from 'p-queue';
+import { isUrl, logger } from '@google-awlt/common';
 /**
  * Internal dependencies
  */
@@ -13,12 +14,7 @@ import {
   updateWorkflowsContextMenu,
   handleContextMenuClick,
 } from '../view/contextMenu';
-import {
-  CONNECTION_NAMES,
-  logger,
-  isUrl,
-  setLogLevelFromSyncSettings,
-} from '../utils';
+import { CONNECTION_NAMES, setLogLevelFromSyncSettings } from '../utils';
 import McpHub from './mcpHub';
 import './chromeListeners';
 import './workflowEngine';

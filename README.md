@@ -1,6 +1,6 @@
 # Agentic Web Learning Tool
 
-Instructions to run build and run this locally
+The Agentic Web Learning Tool is a Chrome extension that provides an AI-powered chat interface with extensible tool execution capabilities via the Model Context Protocol (MCP). The extension acts as a bridge between AI language models and browser tools, enabling AI agents to interact with web pages, Chrome APIs, external MCP servers, and custom user-defined workflows.
 
 ## Prerequisites
 - Git

@@ -11,6 +11,7 @@ import remarkGfm from 'remark-gfm';
 import { type FC, memo, useState } from 'react';
 import { CheckIcon, CopyIcon } from 'lucide-react';
 import '@assistant-ui/react-markdown/styles/dot.css';
+import { type ComponentProps } from 'react';
 /**
  * Internal dependencies
  */
@@ -18,12 +19,31 @@ import { TooltipIconButton } from '../tooltipIconButton';
 import { SyntaxHighlighter } from '../syntaxHighlighter';
 import { cn } from '../../lib/utils';
 
-const MarkdownTextImpl = () => {
+type MarkdownTextImplProps = ComponentProps<typeof MarkdownTextPrimitive> & {
+  part?: unknown;
+  status?: unknown;
+  [key: string]: any;
+};
+
+const MarkdownTextImpl = ({
+  components,
+  part,
+  status,
+  ...props
+}: MarkdownTextImplProps) => {
   return (
     <MarkdownTextPrimitive
       remarkPlugins={[remarkGfm]}
       className="aui-md"
-      components={defaultComponents}
+      {...props}
+      components={{ ...defaultComponents, ...components }}
+      urlTransform={(url, key, node) => {
+        if (url.startsWith('package:')) {
+          return url;
+        }
+
+        return props.urlTransform?.(url, key, node) ?? url;
+      }}
     />
   );
 };
@@ -184,20 +204,22 @@ const defaultComponents = memoizeMarkdownComponents({
     <hr className={cn('aui-md-hr my-5 border-b', className)} {...props} />
   ),
   table: ({ className, children, ...props }) => (
-    <table
-      className={cn(
-        'aui-md-table my-5 w-full border-separate border-spacing-0 overflow-y-auto',
-        className
-      )}
-      {...props}
-    >
-      {children}
-    </table>
+    <div className="overflow-y-auto">
+      <table
+        className={cn(
+          'aui-md-table my-5 w-full border-separate border-spacing-0',
+          className
+        )}
+        {...props}
+      >
+        {children}
+      </table>
+    </div>
   ),
   th: ({ className, children, ...props }) => (
     <th
       className={cn(
-        'aui-md-th bg-muted px-4 py-2 text-left font-bold text-xs first:rounded-tl-lg last:rounded-tr-lg [&[align=center]]:text-center [&[align=right]]:text-right',
+        'aui-md-th bg-muted border-b border-l border-t last:border-r px-4 py-2 text-left font-bold text-xs first:rounded-tl-lg last:rounded-tr-lg [&[align=center]]:text-center [&[align=right]]:text-right',
         className
       )}
       {...props}

@@ -1,7 +1,7 @@
 /**
- * Internal dependencies
+ * External dependencies
  */
-import { logger } from '../../utils';
+import { logger } from '@google-awlt/common';
 
 /**
  * Ensure a tab-specific side panel is configured before opening

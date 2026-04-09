@@ -1,0 +1,199 @@
+{
+  "skill_name": "webmcp-builder",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I want to add WebMCP tools to my vanilla JS todo app so an AI agent can add and remove items.",
+      "expected_output": "The skill produces a complete WebMCP integration: feature detection with `'modelContext' in navigator` inside a `window.addEventListener('load', ...)` callback, tool registrations for adding and removing todo items using `navigator.modelContext.registerTool`, proper `inputSchema` with JSON Schema, and `execute` functions that update the DOM and return structured `{ success, message, new_state }` responses.",
+      "files": [],
+      "expectations": [
+        "Uses `'modelContext' in navigator` for feature detection",
+        "Wraps registration in `window.addEventListener('load', ...)`",
+        "Registers at least one tool for adding a todo item",
+        "Registers at least one tool for removing a todo item",
+        "Each tool has a `name`, `description`, `inputSchema`, and `execute` field",
+        "execute functions return structured objects with a `success` field"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Help me expose my React flight search app's functionality to AI agents using WebMCP. The app can search flights, apply filters, and show results.",
+      "expected_output": "The skill produces a React-compatible WebMCP integration using `registerTool`/`unregisterTool` for dynamic registration tied to component lifecycle (useEffect), tools for `search_flights` and `set_filters` with appropriate inputSchemas, and guidance on syncing tool calls with React state.",
+      "files": [],
+      "expectations": [
+        "Uses `registerTool` and `unregisterTool` (not just `provideContext`)",
+        "Integrates with React component lifecycle (useEffect or equivalent)",
+        "Defines a `search_flights` tool with origin/destination parameters",
+        "Defines a `set_filters` tool",
+        "Includes feature detection before registration"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Create a webmcp.ts file for my e-commerce site that lets agents add items to cart, view the cart, and clear it.",
+      "expected_output": "A TypeScript `webmcp.ts` module with three tools: `add_to_cart`, `get_cart`, and `clear_cart`. Each tool has a proper `inputSchema`, an `execute` function that interacts with the app's cart state, and returns `{ success, message, new_state }`. The file uses feature detection and registers tools on load.",
+      "files": [],
+      "expectations": [
+        "Produces a standalone `webmcp.ts` file",
+        "Defines `add_to_cart` tool with item and quantity parameters",
+        "Defines `get_cart` tool (read-only, annotated with `readOnlyHint: true`)",
+        "Defines `clear_cart` tool",
+        "All execute functions return structured JSON with `success` field",
+        "Uses feature detection before calling `registerTool`"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "I have a restaurant booking form. I want an AI agent to be able to fill it in and submit it on behalf of the user, but only after the user confirms.",
+      "expected_output": "A WebMCP tool named `book_table` (or similar) that collects booking parameters (name, date, time, guests, phone), uses `agent.requestUserInteraction()` to get user confirmation before submitting, and returns a structured success/failure response. The skill explains the confirmation pattern clearly.",
+      "files": [],
+      "expectations": [
+        "Defines a booking tool with relevant input parameters",
+        "Uses `agent.requestUserInteraction()` for user confirmation before submitting",
+        "Returns structured response with `success` field",
+        "Explains or demonstrates the destructive/confirmation pattern"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "What's the difference between `provideContext` and `registerTool` in WebMCP, and when should I use each?",
+      "expected_output": "A clear explanation: `provideContext` registers all tools at once and replaces previous registrations (good for simple/static apps), while `registerTool`/`unregisterTool` adds/removes individual tools incrementally (better for SPAs where available tools change with navigation). Includes code examples for both.",
+      "files": [],
+      "expectations": [
+        "Explains `provideContext` as batch registration that replaces all tools",
+        "Explains `registerTool`/`unregisterTool` as incremental registration",
+        "Recommends `registerTool` for SPAs with dynamic tool sets",
+        "Provides code examples for both approaches"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "My WebMCP tools aren't being detected. I'm opening the HTML file directly in the browser with a file:// URL.",
+      "expected_output": "The skill identifies the root cause: `navigator.modelContext` is only injected on HTTP/HTTPS pages, not `file://` URLs. It instructs the user to run a local dev server (e.g., `npx serve`, `python -m http.server`) and re-test at `http://localhost:PORT`.",
+      "files": [],
+      "expectations": [
+        "Identifies `file://` URL as the cause of the issue",
+        "Explains that `navigator.modelContext` requires HTTP or HTTPS",
+        "Provides a concrete command to start a local dev server",
+        "Does not suggest workarounds that bypass the HTTP requirement"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Add a `get_product_details` read-only tool to my existing webmcp.ts that fetches product info by SKU from my app's in-memory catalog.",
+      "expected_output": "A new `get_product_details` tool added to the existing file, with `sku` as a required string parameter, an async `execute` that looks up the catalog and returns the product data, `readOnlyHint: true` and `idempotentHint: true` annotations, and a structured return value.",
+      "files": [],
+      "expectations": [
+        "Adds a `get_product_details` tool (not a replacement of existing tools)",
+        "Includes `sku` as a required parameter in `inputSchema`",
+        "Sets `readOnlyHint: true` in annotations",
+        "execute function returns structured product data or an error object",
+        "Annotation values are booleans, not strings"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "I want to build a WebMCP demo from scratch for a pizza ordering app. The agent should be able to choose size, add toppings, and place the order.",
+      "expected_output": "A complete WebMCP implementation for a pizza app: project structure recommendation, tools for `set_pizza_size`, `add_topping`, and `place_order`, each with appropriate schemas and execute functions. `place_order` uses `agent.requestUserInteraction()` for confirmation. Returns structured responses throughout.",
+      "files": [],
+      "expectations": [
+        "Defines `set_pizza_size` tool with size parameter (enum or string)",
+        "Defines `add_topping` tool",
+        "Defines `place_order` tool that uses `agent.requestUserInteraction()`",
+        "All tools registered inside `window.addEventListener('load', ...)`",
+        "Includes feature detection",
+        "Returns structured `{ success, message, new_state }` from execute functions"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "How do I make my WebMCP tools available only when the user is on the checkout page of my SPA, and unregister them when they navigate away?",
+      "expected_output": "The skill explains dynamic tool registration for SPAs: call `registerTool` when the checkout route mounts and `unregisterTool` when it unmounts. Provides a concrete example using a router lifecycle hook or React useEffect cleanup. Explains why this matters (agents shouldn't see tools that aren't relevant to the current view).",
+      "files": [],
+      "expectations": [
+        "Uses `registerTool` on route/component mount",
+        "Uses `unregisterTool` on route/component unmount",
+        "Provides a code example with cleanup logic",
+        "Explains the rationale for dynamic registration in SPAs"
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "I'm getting a runtime error: `expected: \"boolean\", code: \"invalid_type\"` when registering my WebMCP tool. What's wrong?",
+      "expected_output": "The skill identifies the cause: annotation values were passed as strings (`\"true\"`) instead of booleans (`true`). It shows the incorrect code and the corrected version with proper boolean values in the `annotations` object.",
+      "files": [],
+      "expectations": [
+        "Correctly identifies string annotation values as the cause",
+        "Shows the fix: use `true`/`false` not `\"true\"`/`\"false\"`",
+        "References the `annotations` field specifically",
+        "Provides a corrected code example"
+      ]
+    },
+    {
+      "id": 11,
+      "prompt": "Write WebMCP tools for a smart home dashboard that can turn lights on/off and set brightness levels.",
+      "expected_output": "Tools `set_light_state` (with `light_id` and `action: 'on'|'off'`) and `set_brightness` (with `light_id` and `level: 0-100`). Execute functions update the UI and return `{ success, message, new_state: { light_id, on, brightness } }` so the agent doesn't need a follow-up read call.",
+      "files": [],
+      "expectations": [
+        "Defines a tool to toggle lights on/off",
+        "Defines a tool to set brightness with a numeric level",
+        "Returns `new_state` in the response so agent can verify outcome",
+        "Uses enum or pattern constraints on parameters where appropriate",
+        "Includes feature detection and load-event wrapping"
+      ]
+    },
+    {
+      "id": 12,
+      "prompt": "How should I structure the return value from a WebMCP tool's execute function so the agent always knows if it succeeded or failed?",
+      "expected_output": "The skill recommends returning a JSON-stringified object with `success: true/false`, a `message` field, and `new_state` on success or `error` on failure. Explains why plain strings are ambiguous to agents. Provides both success and failure code examples.",
+      "files": [],
+      "expectations": [
+        "Recommends `{ success, message, new_state }` structure",
+        "Explains that plain strings can be misinterpreted by agents",
+        "Shows a success example with `success: true` and `new_state`",
+        "Shows a failure example with `success: false` and `error`",
+        "Recommends `JSON.stringify()` for the return value"
+      ]
+    },
+    {
+      "id": 13,
+      "prompt": "I want to integrate WebMCP into my Vue 3 app. Where should I register the tools and how do I keep the UI in sync?",
+      "expected_output": "The skill recommends registering tools in `onMounted` lifecycle hook (with `onUnmounted` cleanup for dynamic tools), using Vue's reactive state inside `execute` functions to trigger UI updates, and wrapping registration in feature detection. Provides a Vue 3 Composition API example.",
+      "files": [],
+      "expectations": [
+        "Uses Vue 3 `onMounted` for tool registration",
+        "Uses `onUnmounted` for cleanup/unregistration",
+        "Accesses Vue reactive state inside `execute`",
+        "Includes feature detection",
+        "Provides a Composition API code example"
+      ]
+    },
+    {
+      "id": 14,
+      "prompt": "What annotations should I use for a WebMCP tool that deletes a user's saved address? It's irreversible.",
+      "expected_output": "The skill recommends `destructiveHint: true`, `idempotentHint: false`, `readOnlyHint: false`, and suggests using `agent.requestUserInteraction()` for confirmation before deletion. Explains what each annotation communicates to the agent.",
+      "files": [],
+      "expectations": [
+        "Recommends `destructiveHint: true`",
+        "Recommends `readOnlyHint: false`",
+        "Suggests `agent.requestUserInteraction()` for confirmation",
+        "Explains the meaning of the annotations to the agent",
+        "All annotation values are booleans"
+      ]
+    },
+    {
+      "id": 15,
+      "prompt": "Can you show me a complete end-to-end example of a WebMCP tool that searches a product catalog and returns results the agent can use?",
+      "expected_output": "A complete, copy-pasteable example: feature detection, `window.addEventListener('load', ...)`, a `search_products` tool with a `query` parameter, an async `execute` that calls an existing search function, and a structured return value with the results array and a count. Includes error handling for empty results.",
+      "files": [],
+      "expectations": [
+        "Provides a complete, self-contained code example",
+        "Includes feature detection and load-event wrapping",
+        "Tool has a `query` parameter in `inputSchema`",
+        "execute is async and returns structured results",
+        "Handles the case where no results are found",
+        "Return value includes enough context for the agent to act"
+      ]
+    }
+  ]
+}
