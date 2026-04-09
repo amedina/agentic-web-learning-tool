@@ -1,24 +1,24 @@
 /**
  * External dependencies.
  */
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import {
   Settings,
   Moon,
   Sun,
   GitCompareArrows,
   Menu,
-  Share2,
+  Download,
   PlusCircle,
-} from "lucide-react";
-import { SidebarTrigger, Tooltip, Button } from "@google-awlt/design-system";
-import { usePropProvider } from "@google-awlt/chatbot";
-import { useThread } from "@assistant-ui/react";
+} from 'lucide-react';
+import { SidebarTrigger, Tooltip, Button } from '@google-awlt/design-system';
+import { usePropProvider } from '@google-awlt/chatbot';
+import { useThread } from '@assistant-ui/react';
 
 /**
  * Internal dependencies.
  */
-import { useTheme } from "../context/themeContext";
+import { useTheme } from '../context/themeContext';
 
 export const GlobalHeader = () => {
   const { isDarkMode, toggleTheme } = useTheme();
@@ -40,17 +40,17 @@ export const GlobalHeader = () => {
     triggerExportChatRef: actions.triggerExportChatRef,
   }));
 
-  const isChatTabActive = activeTab === "chat";
+  const isChatTabActive = activeTab === 'chat';
 
   useEffect(() => {
-    chrome.storage.local.get(["comparisonBucket"], (res) => {
+    chrome.storage.local.get(['comparisonBucket'], (res) => {
       setComparisonCount((res.comparisonBucket ?? []).length);
     });
 
     const listener = (
-      changes: Record<string, chrome.storage.StorageChange>,
+      changes: Record<string, chrome.storage.StorageChange>
     ) => {
-      if ("comparisonBucket" in changes) {
+      if ('comparisonBucket' in changes) {
         setComparisonCount((changes.comparisonBucket.newValue ?? []).length);
       }
     };
@@ -62,13 +62,13 @@ export const GlobalHeader = () => {
     if (chrome.runtime.openOptionsPage) {
       chrome.runtime.openOptionsPage();
     } else {
-      window.open(chrome.runtime.getURL("options/options.html"));
+      window.open(chrome.runtime.getURL('options/options.html'));
     }
   };
 
   const openComparisons = () => {
     chrome.tabs.create({
-      url: chrome.runtime.getURL("options/options.html#comparison"),
+      url: chrome.runtime.getURL('options/options.html#comparison'),
     });
   };
 
@@ -83,14 +83,14 @@ export const GlobalHeader = () => {
               </SidebarTrigger>
             </Tooltip>
             {exportChatCallback && (
-              <Tooltip text="Share Conversation">
+              <Tooltip text="Download Conversation">
                 <Button
                   variant="ghost"
                   size="icon"
                   disabled={isThreadEmpty}
                   onClick={() => triggerExportChatRef.current?.()}
                 >
-                  <Share2 className="text-primary" size={16} />
+                  <Download className="text-primary" size={16} />
                 </Button>
               </Tooltip>
             )}
@@ -136,7 +136,7 @@ export const GlobalHeader = () => {
           variant="ghost"
           size="icon"
           onClick={toggleTheme}
-          title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+          title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
           className="text-muted-foreground hover:text-foreground"
         >
           {isDarkMode ? <Sun size={16} /> : <Moon size={16} />}
