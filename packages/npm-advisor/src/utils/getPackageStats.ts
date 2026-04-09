@@ -20,6 +20,7 @@ import { parseGithubUrl } from "./parseGithubUrl";
 
 export interface PackageStats {
   packageName: string;
+  description: string | null;
   githubUrl: string | null;
   stars: number | null;
   collaboratorsCount: number | null;
@@ -193,7 +194,7 @@ export async function getPackageStats(
         // Use the true total open count from the dedicated `is:open` query;
         // fall back to the sample count if unavailable.
         const openIssuesCount =
-          issuesData.openTotalCount ??
+          issuesData?.openTotalCount ??
           issuesList.filter((issue: any) => issue.state === "open").length;
 
         responsiveness = {
@@ -296,6 +297,7 @@ export async function getPackageStats(
 
   const stats: PackageStats = {
     packageName,
+    description: npmData.description || null,
     githubUrl: githubInfo
       ? `https://github.com/${githubInfo.owner}/${githubInfo.repo}`
       : null,

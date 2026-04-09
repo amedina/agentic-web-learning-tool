@@ -87,8 +87,11 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     const { appId, apiKey, indexName } = NPM_SEARCH_CONFIG;
     const url = `https://${appId.toLowerCase()}-dsn.algolia.net/1/indexes/${indexName}/query`;
 
+    const page = request.page || 0;
+    const hitsPerPage = request.hitsPerPage || 10;
+
     console.log(
-      `[NPM Advisor] Searching for "${request.query}" with filters:`,
+      `[NPM Advisor] Searching for "${request.query}" (Page ${page}) with filters:`,
       request.facetFilters,
     );
 
@@ -112,7 +115,8 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
       body: JSON.stringify({
         query: request.query || "",
         filters: filterString,
-        hitsPerPage: 10,
+        hitsPerPage: hitsPerPage,
+        page: page,
         attributesToRetrieve: [
           "name",
           "version",
@@ -133,7 +137,12 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
       .then((response) => response.json())
       .then((data) => {
         console.log(`[NPM Advisor] Search results:`, data.nbHits, "hits");
-        sendResponse({ success: true, hits: data.hits || [] });
+        sendResponse({
+          success: true,
+          hits: data.hits || [],
+          nbPages: data.nbPages,
+          page: data.page,
+        });
       })
       .catch((err) => {
         console.error("[NPM Advisor] Search failed:", err);

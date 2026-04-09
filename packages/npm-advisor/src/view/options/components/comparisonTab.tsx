@@ -2,12 +2,12 @@
  * External dependencies.
  */
 import React, { useEffect, useRef, useState } from "react";
-import { BarChart2, Trash2, Award, Search } from "lucide-react";
+import { BarChart2, Trash2, Award } from "lucide-react";
 import { algoliasearch } from "algoliasearch";
 import {
   InstantSearch,
   SearchBox,
-  useHits,
+  useInfiniteHits,
   useSearchBox,
 } from "react-instantsearch";
 import { X, Loader2, Check } from "lucide-react";
@@ -26,19 +26,22 @@ const searchClient = algoliasearch(
 interface HitProps {
   hit: any;
   isSelected: boolean;
+  isActive: boolean;
   onToggle: (hit: any) => void;
 }
 
-const Hit = ({ hit, isSelected, onToggle }: HitProps) => {
+const Hit = ({ hit, isSelected, isActive, onToggle }: HitProps) => {
   return (
     <div
       onClick={() => onToggle(hit)}
       className={`p-4 border-b border-subtle-zinc dark:border-darth-vader hover:bg-baby-blue/10 dark:hover:bg-baby-blue/20 cursor-pointer transition-all flex justify-between items-center group/hit ${
         isSelected ? "bg-baby-blue/5 dark:bg-baby-blue/10" : ""
-      }`}
+      } ${isActive ? "bg-baby-blue/10 dark:bg-baby-blue/20 ring-inset ring-2 ring-baby-blue/30" : ""}`}
     >
       <div className="flex-1 min-w-0 pr-4">
-        <div className="font-semibold text-text-primary truncate group-hover/hit:text-baby-blue transition-colors">
+        <div
+          className={`font-semibold text-text-primary truncate transition-colors ${isActive ? "text-baby-blue" : "group-hover/hit:text-baby-blue"}`}
+        >
           {hit.name}
         </div>
         <div className="text-xs text-amethyst-haze leading-relaxed truncate mt-0.5">
@@ -63,19 +66,55 @@ const Hit = ({ hit, isSelected, onToggle }: HitProps) => {
 const ResultsList = ({
   onToggle,
   selectedPackages,
+  activeIndex,
 }: {
   onToggle: (hit: any) => void;
   selectedPackages: any[];
+  activeIndex: number;
 }) => {
-  const { hits } = useHits();
+  const { items, showMore, isLastPage } = useInfiniteHits();
+  const listRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!listRef.current || isLastPage) return;
+
+      const { scrollTop, scrollHeight, clientHeight } = listRef.current;
+
+      if (scrollHeight - scrollTop <= clientHeight + 50) {
+        showMore();
+      }
+    };
+
+    const el = listRef.current;
+    if (el) {
+      el.addEventListener("scroll", handleScroll);
+
+      return () => el.removeEventListener("scroll", handleScroll);
+    }
+  }, [showMore, isLastPage]);
+
+  useEffect(() => {
+    if (activeIndex >= 0 && listRef.current) {
+      const activeEl = listRef.current.children[activeIndex] as HTMLElement;
+
+      if (activeEl) {
+        activeEl.scrollIntoView({ block: "nearest" });
+      }
+    }
+  }, [activeIndex]);
 
   return (
-    <div className="absolute left-0 right-0 mt-2 bg-white dark:bg-aswad border border-subtle-zinc dark:border-darth-vader rounded-xl shadow-2xl z-50 max-h-72 overflow-y-auto glass border-opacity-50 transition-all animate-in fade-in slide-in-from-top-2 duration-300">
-      {hits.map((hit) => (
+    <div
+      ref={listRef}
+      className="absolute left-0 right-0 mt-2 bg-white dark:bg-aswad border border-subtle-zinc dark:border-darth-vader rounded-xl shadow-2xl z-50 max-h-72 overflow-y-auto glass border-opacity-50 transition-all animate-in fade-in slide-in-from-top-2 duration-300"
+    >
+      {items.map((hit, index) => (
         <Hit
           key={hit.objectID}
           hit={hit}
           isSelected={selectedPackages.some((p) => p.name === hit.name)}
+          isActive={index === activeIndex}
           onToggle={onToggle}
         />
       ))}
@@ -85,23 +124,12 @@ const ResultsList = ({
 
 const SearchWrapper = () => {
   const { query, refine } = useSearchBox();
+  const { items } = useInfiniteHits();
   const [selectedPackages, setSelectedPackages] = useState<any[]>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [progress, setProgress] = useState({ current: 0, total: 0 });
+  const [activeIndex, setActiveIndex] = useState(-1);
   const searchContainerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        searchContainerRef.current &&
-        !searchContainerRef.current.contains(event.target as Node)
-      ) {
-        refine("");
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [refine]);
 
   const togglePackage = (hit: any) => {
     setSelectedPackages((prev) => {
@@ -109,6 +137,7 @@ const SearchWrapper = () => {
       if (exists) {
         return prev.filter((p) => p.name !== hit.name);
       }
+
       return [...prev, { name: hit.name, description: hit.description }];
     });
   };
@@ -117,12 +146,36 @@ const SearchWrapper = () => {
     setSelectedPackages((prev) => prev.filter((p) => p.name !== name));
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!query) return;
+
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+
+      setActiveIndex((prev) => Math.min(prev + 1, items.length - 1));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+
+      setActiveIndex((prev) => Math.max(prev - 1, -1));
+    } else if (e.key === "Enter") {
+      if (activeIndex >= 0 && items[activeIndex]) {
+        e.preventDefault();
+
+        togglePackage(items[activeIndex]);
+      }
+    } else if (e.key === "Escape") {
+      refine("");
+      setActiveIndex(-1);
+    }
+  };
+
   const handleBatchCompare = async () => {
     if (selectedPackages.length === 0 || isAnalyzing) return;
 
     setIsAnalyzing(true);
     setProgress({ current: 0, total: selectedPackages.length });
-    refine(""); // Clear search to hide overlay immediately
+    refine("");
+    setActiveIndex(-1);
 
     try {
       const res = await new Promise<any>((resolve) => {
@@ -167,7 +220,10 @@ const SearchWrapper = () => {
 
   return (
     <div ref={searchContainerRef} className="space-y-6">
-      <div className="p-6 bg-bg-surface dark:bg-aswad rounded-2xl border border-subtle-zinc dark:border-darth-vader shadow-xl relative transition-all duration-300">
+      <div
+        className="p-4 bg-bg-surface dark:bg-aswad rounded-2xl border border-subtle-zinc dark:border-darth-vader relative transition-all duration-300"
+        onKeyDown={handleKeyDown}
+      >
         <h4 className="text-xs font-bold text-exclusive-plum mb-4 uppercase tracking-[0.2em]">
           Search Packages
         </h4>
@@ -196,6 +252,7 @@ const SearchWrapper = () => {
             <ResultsList
               onToggle={togglePackage}
               selectedPackages={selectedPackages}
+              activeIndex={activeIndex}
             />
           )}
         </div>
@@ -342,6 +399,19 @@ export const ComparisonTab: React.FC<ComparisonTabProps> = ({
                     className="px-6 py-4 font-bold text-[#c94137] border-r border-slate-200 dark:border-slate-700 text-lg"
                   >
                     {calculateScore(pkg)}
+                  </td>
+                ))}
+              </tr>
+              <tr>
+                <td className="px-6 py-4 font-medium text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700">
+                  Description
+                </td>
+                {comparisonBucket.map((pkg, idx) => (
+                  <td
+                    key={idx}
+                    className="px-6 py-4 text-slate-500 dark:text-slate-400 border-r border-slate-200 dark:border-slate-700 italic text-xs leading-relaxed"
+                  >
+                    {pkg.description || "N/A"}
                   </td>
                 ))}
               </tr>
