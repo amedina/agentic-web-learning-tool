@@ -57,7 +57,8 @@ const DependencyGraph = ({ data }: DependencyGraphProps) => {
     const gLink = svg
       .append("g")
       .attr("fill", "none")
-      .attr("stroke", "#92DCE5")
+      .attr("stroke", "var(--accent-blue)")
+      .attr("stroke-opacity", 0.4)
       .attr("stroke-width", 1.5);
 
     const gNode = svg
@@ -117,8 +118,10 @@ const DependencyGraph = ({ data }: DependencyGraphProps) => {
       nodeEnter
         .append("circle")
         .attr("r", 4)
-        .attr("fill", (d) => (d._children ? "#92DCE5" : "#fff"))
-        .attr("stroke", "#197BBD")
+        .attr("fill", (d) =>
+          d._children ? "var(--accent-blue)" : "var(--bg-surface)",
+        )
+        .attr("stroke", "var(--accent-blue)")
         .attr("stroke-width", 1.5);
 
       nodeEnter
@@ -127,12 +130,13 @@ const DependencyGraph = ({ data }: DependencyGraphProps) => {
         .attr("x", (d) => (d._children ? -10 : 10))
         .attr("text-anchor", (d) => (d._children ? "end" : "start"))
         .text((d) => d.data.name)
-        .attr("class", "dark:fill-slate-300 fill-slate-700")
+        .attr("fill", "var(--text-primary)")
+        .attr("class", "text-[11px] font-medium")
         .clone(true)
         .lower()
         .attr("stroke-linejoin", "round")
         .attr("stroke-width", 3)
-        .attr("stroke", "white");
+        .attr("stroke", "var(--bg-surface)");
 
       node
         .merge(nodeEnter)
