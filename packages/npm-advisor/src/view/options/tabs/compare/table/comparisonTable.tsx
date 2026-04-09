@@ -39,13 +39,13 @@ export const ComparisonTable: React.FC<ComparisonTableProps> = ({
         <table className="w-fit rounded-xl divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-800 text-sm table-fixed">
           <thead className="bg-slate-50 dark:bg-slate-900">
             <tr>
-              <th className="px-6 py-4 text-left font-semibold text-slate-900 dark:text-slate-100 border-r border-slate-200 dark:border-slate-700 w-60 rounded-tl-xl">
+              <th className="px-6 py-4 text-left font-semibold text-slate-900 dark:text-slate-100 border-r border-slate-200 dark:border-slate-700 w-70 rounded-tl-xl">
                 Metric
               </th>
               {comparisonBucket.map((pkg, idx) => (
                 <th
                   key={idx}
-                  className={`px-6 py-4 text-left font-semibold text-slate-900 dark:text-slate-100 ${idx !== comparisonBucket.length - 1 ? "border-r" : ""} border-slate-200 dark:border-slate-700 w-60 relative ${idx === comparisonBucket.length - 1 ? "rounded-tr-xl" : ""}`}
+                  className={`px-6 py-4 text-left font-semibold text-slate-900 dark:text-slate-100 ${idx !== comparisonBucket.length - 1 ? "border-r" : ""} border-slate-200 dark:border-slate-700 w-70 relative ${idx === comparisonBucket.length - 1 ? "rounded-tr-xl" : ""}`}
                 >
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-lg truncate">{pkg.packageName}</span>
