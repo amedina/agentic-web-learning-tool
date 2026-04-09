@@ -3,7 +3,7 @@
  */
 import { useEffect, useRef, useState } from "react";
 import { SearchBox, useSearchBox } from "react-instantsearch";
-import { X, Loader2, Check } from "lucide-react";
+import { X, Loader2, Check, Search } from "lucide-react";
 
 /**
  * Internal dependencies.
@@ -95,12 +95,13 @@ export const SearchWrapper = () => {
   return (
     <div ref={searchContainerRef} className="max-w-[600px]">
       <div className="relative group/search">
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-amethyst-haze pointer-events-none z-10" />
         <SearchBox
           placeholder="Search npm packages to compare..."
           className="mb-0"
           classNames={{
             input:
-              "w-full px-5 py-3 bg-white-subtle dark:bg-bg-background border border-subtle-zinc dark:border-darth-vader text-text-primary placeholder:text-amethyst-haze rounded-sm focus:ring-2 focus:ring-baby-blue focus:border-transparent outline-none transition-all pr-36 group-hover/search:border-baby-blue/50 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden",
+              "w-full pl-11 py-3 bg-white-subtle dark:bg-bg-background border border-subtle-zinc dark:border-darth-vader text-text-primary placeholder:text-amethyst-haze rounded-sm focus:ring-2 focus:ring-baby-blue focus:border-transparent outline-none transition-all pr-36 group-hover/search:border-baby-blue/50 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden",
             submit: "hidden",
             reset:
               "absolute right-3 top-1/2 -translate-y-1/2 p-2 text-amethyst-haze hover:text-baby-blue [&>svg]:w-5 [&>svg]:h-5 appearance-none",
