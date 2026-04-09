@@ -424,6 +424,8 @@ function setupSearchOverlay() {
         const activeItem = overlay.children[activeIndex] as HTMLElement;
         if (activeItem) {
           activeItem.click();
+        } else {
+          window.location.href = `https://www.npmjs.com/search?q=${encodeURIComponent(customInput.value.trim())}`;
         }
       }
     });
