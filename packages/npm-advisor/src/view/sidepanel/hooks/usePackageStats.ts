@@ -17,6 +17,7 @@ const urlCache = new Map<
 export const usePackageStats = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isNavigationMessage, setIsNavigationMessage] = useState(false);
   const [stats, setStats] = useState<PackageStats | null>(null);
   const [comparisonBucket, setComparisonBucket] = useState<any[]>([]);
   const [addingRecommendations, setAddingRecommendations] = useState<
@@ -47,12 +48,14 @@ export const usePackageStats = () => {
           const cached = urlCache.get(url)!;
           setStats(cached.stats);
           setError(cached.error);
+          setIsNavigationMessage(!cached.stats && !cached.error);
           setLoading(false);
           return;
         }
 
         setLoading(true);
         setError(null);
+        setIsNavigationMessage(false);
 
         let packageName: string | null = null;
         if (url.includes("npmjs.com/package/")) {
@@ -76,10 +79,10 @@ export const usePackageStats = () => {
         }
 
         if (!packageName) {
-          const message =
-            "Navigate to an NPM package or a GitHub package.json page to view stats.";
-          urlCache.set(url, { stats: null, error: message });
-          throw new Error(message);
+          urlCache.set(url, { stats: null, error: null });
+          setIsNavigationMessage(true);
+          setLoading(false);
+          return;
         }
 
         // Ask background script for the cached stats payload
@@ -189,6 +192,7 @@ export const usePackageStats = () => {
     stats,
     loading,
     error,
+    isNavigationMessage,
     isAddedToCompare,
     handleAddToCompare,
     handleAddRecommendationToCompare,
