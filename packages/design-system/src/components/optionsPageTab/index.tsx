@@ -23,7 +23,7 @@ function OptionsPageTab({
   wrapperClasses?: string;
 }) {
   return (
-    <div className="min-h-screen w-full bg-background p-6 md:p-10">
+    <div className="min-h-screen w-full bg-background p-6 md:p-10 box-border overflow-auto">
       <div className={cn('max-w-6xl', wrapperClasses)}>
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
