@@ -8,7 +8,7 @@ import {
   Sun,
   GitCompareArrows,
   Menu,
-  Share2,
+  Download,
   PlusCircle,
 } from "lucide-react";
 import { SidebarTrigger, Tooltip, Button } from "@google-awlt/design-system";
@@ -83,14 +83,14 @@ export const GlobalHeader = () => {
               </SidebarTrigger>
             </Tooltip>
             {exportChatCallback && (
-              <Tooltip text="Share Conversation">
+              <Tooltip text="Download Conversation">
                 <Button
                   variant="ghost"
                   size="icon"
                   disabled={isThreadEmpty}
                   onClick={() => triggerExportChatRef.current?.()}
                 >
-                  <Share2 className="text-primary" size={16} />
+                  <Download className="text-primary" size={16} />
                 </Button>
               </Tooltip>
             )}

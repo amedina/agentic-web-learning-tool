@@ -19,11 +19,11 @@ import { useChatRuntime } from "@assistant-ui/react-ai-sdk";
  * Internal dependencies
  */
 import "./options.css";
-import ModelsTab from "./components/models";
-import SettingsTab from "./components/settings";
-import ComparisonPage from "./components/comparison";
+import ModelsTab from "./tabs/models";
+import SettingsTab from "./tabs/settings";
+import ComparisonPage from "./tabs/compare";
 import { ModelProvider, useModelProvider } from "./providers";
-import { getSystemPrompt } from "./components/getSystemPrompt";
+import { getSystemPrompt } from "./tabs/compare/chatUI/getSystemPrompt";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 

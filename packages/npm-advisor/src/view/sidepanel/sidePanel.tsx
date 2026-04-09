@@ -14,9 +14,9 @@ import {
   UserMessage,
   GlobalHeader,
   ErrorBoundary,
-} from "./components";
+} from "./tabs";
 import { usePackageStats } from "./hooks/usePackageStats";
-import { getSystemPrompt } from "./components/askAI/getSystemPrompt";
+import { getSystemPrompt } from "./tabs/askAI/getSystemPrompt";
 import { ThemeProvider } from "./context/themeContext";
 import { downloadMarkdownFile } from "../../utils";
 
