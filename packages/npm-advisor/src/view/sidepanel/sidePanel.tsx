@@ -9,6 +9,7 @@ import { SidebarProvider } from "@google-awlt/design-system";
 import {
   LoadingState,
   ErrorState,
+  NavigationMessage,
   InsightsTab,
   AssistantMessage,
   UserMessage,
@@ -25,6 +26,7 @@ const SidePanel = () => {
     stats,
     loading,
     error,
+    isNavigationMessage,
     isAddedToCompare,
     handleAddToCompare,
     handleAddRecommendationToCompare,
@@ -33,6 +35,7 @@ const SidePanel = () => {
   } = usePackageStats();
 
   if (loading) return <LoadingState />;
+  if (isNavigationMessage) return <NavigationMessage />;
   if (error || !stats) return <ErrorState error={error} />;
 
   return (

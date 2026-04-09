@@ -66,6 +66,7 @@ export default function ComparisonPage() {
     <OptionsPageTab
       title="Compare"
       description="Compare NPM packages side by side based on key metrics."
+      wrapperClasses="max-w-full"
     >
       <ComparisonTab
         comparisonBucket={comparisonBucket}
