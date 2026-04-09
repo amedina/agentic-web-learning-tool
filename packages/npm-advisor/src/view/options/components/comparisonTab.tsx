@@ -70,7 +70,7 @@ const ResultsList = ({
   const { hits } = useHits();
 
   return (
-    <div className="absolute left-0 right-0 mt-2 bg-bg-surface dark:bg-aswad border border-subtle-zinc dark:border-darth-vader rounded-xl shadow-2xl z-50 max-h-72 overflow-y-auto glass border-opacity-50 transition-all animate-in fade-in slide-in-from-top-2 duration-300">
+    <div className="absolute left-0 right-0 mt-2 bg-white dark:bg-aswad border border-subtle-zinc dark:border-darth-vader rounded-xl shadow-2xl z-50 max-h-72 overflow-y-auto glass border-opacity-50 transition-all animate-in fade-in slide-in-from-top-2 duration-300">
       {hits.map((hit) => (
         <Hit
           key={hit.objectID}
@@ -262,7 +262,7 @@ export const ComparisonTab: React.FC<ComparisonTabProps> = ({
   winnerName,
 }) => {
   return (
-    <div className="mt-8">
+    <div>
       <InstantSearch
         searchClient={searchClient}
         indexName={NPM_SEARCH_CONFIG.indexName}
@@ -270,7 +270,7 @@ export const ComparisonTab: React.FC<ComparisonTabProps> = ({
         <SearchWrapper />
       </InstantSearch>
 
-      <div className="flex items-center justify-between my-4">
+      <div className="flex items-center justify-between mb-4 mt-12">
         <h3 className="text-lg font-semibold text-accent-foreground">
           Package Comparison
         </h3>
