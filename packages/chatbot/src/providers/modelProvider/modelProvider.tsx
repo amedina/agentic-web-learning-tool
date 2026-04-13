@@ -49,12 +49,12 @@ const Provider = ({ children }: PropsWithChildren) => {
   >(FALLBACK_AGENT);
   const initialFetchDone = useRef<boolean>(false);
 
-  const { getCustomSystemPrompt, allowToolCalling } = usePropProvider(
-    ({ state, actions }) => ({
+  const { getCustomSystemPrompt, allowToolCalling, isNPMAdvisor } =
+    usePropProvider(({ state, actions }) => ({
       getCustomSystemPrompt: actions.getCustomSystemPrompt,
       allowToolCalling: state.allowToolCalling,
-    })
-  );
+      isNPMAdvisor: state.isNPMAdvisor,
+    }));
 
   const systemPrompt = useMemo(() => {
     if (getCustomSystemPrompt) {
@@ -77,7 +77,8 @@ const Provider = ({ children }: PropsWithChildren) => {
             ...apiKeys[selectedAgent?.modelProvider],
           },
           apiKeys[selectedAgent.modelProvider]?.thinkingMode,
-          systemPrompt
+          systemPrompt,
+          isNPMAdvisor
         )
       );
     } else {
@@ -89,7 +90,7 @@ const Provider = ({ children }: PropsWithChildren) => {
     chrome.storage.sync.set({
       selectedAgent,
     });
-  }, [apiKeys, selectedAgent, systemPrompt]);
+  }, [apiKeys, selectedAgent, systemPrompt, isNPMAdvisor]);
 
   const fetchMCPServersAndCreateMapping = useCallback(async () => {
     const {
@@ -125,7 +126,7 @@ const Provider = ({ children }: PropsWithChildren) => {
       setSelectedAgent({ model: 'prompt-api', modelProvider: 'browser-ai' });
       setTransport(FALLBACK_AGENT);
       (FALLBACK_AGENT as GeminiNanoChatTransport).initializeSession(
-        !allowToolCalling,
+        isNPMAdvisor,
         getCustomSystemPrompt()
       );
       initialFetchDone.current = true;
@@ -136,7 +137,7 @@ const Provider = ({ children }: PropsWithChildren) => {
       setSelectedAgent(_selectedAgent);
       setTransport(FALLBACK_AGENT);
       (FALLBACK_AGENT as GeminiNanoChatTransport).initializeSession(
-        !allowToolCalling,
+        isNPMAdvisor,
         getCustomSystemPrompt()
       );
     } else {
@@ -149,12 +150,13 @@ const Provider = ({ children }: PropsWithChildren) => {
             ..._apiKeys[_selectedAgent?.modelProvider],
           },
           _apiKeys[_selectedAgent.modelProvider]?.thinkingMode,
-          _apiKeys[_selectedAgent.modelProvider]?.systemPrompt
+          _apiKeys[_selectedAgent.modelProvider]?.systemPrompt,
+          isNPMAdvisor
         )
       );
     }
     initialFetchDone.current = true;
-  }, [fetchMCPServersAndCreateMapping, allowToolCalling]);
+  }, [fetchMCPServersAndCreateMapping, isNPMAdvisor]);
 
   const onSyncStorageChangedListener = useCallback(
     async (changes: { [key: string]: chrome.storage.StorageChange }) => {
@@ -191,13 +193,13 @@ const Provider = ({ children }: PropsWithChildren) => {
     }
 
     (_transport as GeminiNanoChatTransport).initializeSession(
-      !allowToolCalling,
+      isNPMAdvisor,
       getCustomSystemPrompt()
     );
   }, [
     selectedAgent?.modelProvider,
     _transport,
-    allowToolCalling,
+    isNPMAdvisor,
     getCustomSystemPrompt,
   ]);
 
@@ -217,7 +219,6 @@ const Provider = ({ children }: PropsWithChildren) => {
     intitialSync,
     onSyncStorageChangedListener,
     onLocalStorageChangedListener,
-    getCustomSystemPrompt,
   ]);
 
   const memoisedValue = useMemo(() => {

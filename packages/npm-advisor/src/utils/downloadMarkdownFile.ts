@@ -27,6 +27,36 @@ function generateMarkdownString(chatData: ChatDataType[]) {
         markdown += `${part.text}\n\n`;
       } else if (part.type === "reasoning" && part.text) {
         markdown += `> **Reasoning:**\n> ${part.text.replace(/\n/g, "\n> ")}\n\n`;
+      } else if (part.type === "tool-call") {
+        const toolName = part.toolName;
+        markdown += `> 🛠 **Tool Used:** \`${toolName}\`\n>\n`;
+
+        // Handle generic Input/Args (Checks new schema first, then old schema)
+        let inputData = null;
+        if (part.args && Object.keys(part.args).length > 0) {
+          inputData = part.argsText;
+        } else {
+          inputData = JSON.stringify(part.argsText, null, 2);
+        }
+
+        if (inputData) {
+          markdown += `> **Input:** \`${inputData}\`\n>\n`;
+        }
+
+        const outputData = part.result;
+
+        if (outputData) {
+          const outputString = JSON.stringify(outputData, null, 2);
+
+          const blockquotedOutput = outputString
+            .split("\n")
+            .map((line) => `> ${line}`)
+            .join("\n");
+
+          markdown += `> <details>\n> <summary><b>View Tool Output</b></summary>\n>\n> \`\`\`json\n${blockquotedOutput}\n> \`\`\`\n> </details>\n\n`;
+        } else {
+          markdown += `\n`; // Close the blockquote if no output exists
+        }
       }
     });
 
