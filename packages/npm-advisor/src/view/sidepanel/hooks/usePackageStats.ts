@@ -18,6 +18,8 @@ export const usePackageStats = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isNavigationMessage, setIsNavigationMessage] = useState(false);
+  const [isOptionsPage, setIsOptionsPage] = useState(false);
+  const [isComparisonPage, setIsComparisonPage] = useState(false);
   const [stats, setStats] = useState<PackageStats | null>(null);
   const [comparisonBucket, setComparisonBucket] = useState<any[]>([]);
   const [addingRecommendations, setAddingRecommendations] = useState<
@@ -56,6 +58,18 @@ export const usePackageStats = () => {
           return;
         }
 
+        if (url.startsWith("chrome-extension://")) {
+          setIsOptionsPage(true);
+          setIsComparisonPage(url.includes("#comparison"));
+          setStats(null);
+          setError(null);
+          setIsNavigationMessage(false);
+          setLoading(false);
+          return;
+        }
+
+        setIsOptionsPage(false);
+        setIsComparisonPage(false);
         setLoading(true);
         setError(null);
         setIsNavigationMessage(false);
@@ -202,6 +216,9 @@ export const usePackageStats = () => {
     loading,
     error,
     isNavigationMessage,
+    isOptionsPage,
+    isComparisonPage,
+    comparisonBucket,
     isAddedToCompare,
     handleAddToCompare,
     handleAddRecommendationToCompare,
