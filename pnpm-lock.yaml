@@ -15,7 +15,7 @@ overrides:
 
 patchedDependencies:
   '@ai-sdk/google':
-    hash: 0ef4857fea537a3d17550c0bcee8ad60dced4f22dbad5d9b7d1433f3d86e4b3c
+    hash: fbe7376576fc115f2c4c8e0218ad9e803f7cb7e1159245bb23b608b5794ea6b1
     path: patches/@ai-sdk__google.patch
   '@assistant-ui/react':
     hash: 67df03cd2ce1371da3a413dd7f088ed189627bed887039984e53e03592e6ae44
@@ -63,7 +63,7 @@ importers:
         version: 2.0.71(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
       '@ai-sdk/google':
         specifier: 2.0.63
-        version: 2.0.63(patch_hash=0ef4857fea537a3d17550c0bcee8ad60dced4f22dbad5d9b7d1433f3d86e4b3c)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+        version: 2.0.63(patch_hash=fbe7376576fc115f2c4c8e0218ad9e803f7cb7e1159245bb23b608b5794ea6b1)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
       '@ai-sdk/openai':
         specifier: ^2.0.77
         version: 2.0.101(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
@@ -7974,7 +7974,7 @@ snapshots:
       '@vercel/oidc': 3.1.0
       zod: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
 
-  '@ai-sdk/google@2.0.63(patch_hash=0ef4857fea537a3d17550c0bcee8ad60dced4f22dbad5d9b7d1433f3d86e4b3c)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))':
+  '@ai-sdk/google@2.0.63(patch_hash=fbe7376576fc115f2c4c8e0218ad9e803f7cb7e1159245bb23b608b5794ea6b1)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))':
     dependencies:
       '@ai-sdk/provider': 2.0.1
       '@ai-sdk/provider-utils': 3.0.22(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))

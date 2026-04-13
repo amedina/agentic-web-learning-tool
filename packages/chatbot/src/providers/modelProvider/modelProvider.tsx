@@ -217,7 +217,6 @@ const Provider = ({ children }: PropsWithChildren) => {
     intitialSync,
     onSyncStorageChangedListener,
     onLocalStorageChangedListener,
-    getCustomSystemPrompt,
   ]);
 
   const memoisedValue = useMemo(() => {

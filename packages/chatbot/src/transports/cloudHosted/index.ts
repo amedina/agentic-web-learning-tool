@@ -18,12 +18,18 @@ import {
   type JSONSchema7,
 } from '@ai-sdk/provider';
 import type { AssistantRuntime } from '@assistant-ui/react';
-import { type createOpenAI, type OpenAIProviderSettings } from '@ai-sdk/openai';
 import {
+  openai,
+  type createOpenAI,
+  type OpenAIProviderSettings,
+} from '@ai-sdk/openai';
+import {
+  anthropic,
   type AnthropicProviderSettings,
   type createAnthropic,
 } from '@ai-sdk/anthropic';
 import {
+  google,
   type createGoogleGenerativeAI,
   type GoogleGenerativeAIProviderSettings,
 } from '@ai-sdk/google';
@@ -160,6 +166,20 @@ export class CloudHostedTransport implements ChatTransport<
         type: 'function',
       };
     });
+
+    if (this.model?.provider === 'google.generative-ai') {
+      this.formattedTools['google_search'] = google.tools.googleSearch({});
+    } else if (this.model?.provider === 'openai.responses') {
+      this.formattedTools['web_search'] = openai.tools.webSearch({
+        externalWebAccess: true,
+        searchContextSize: 'high',
+      });
+    } else if (this.model?.provider === 'anthropic.messages') {
+      this.formattedTools['web_search'] = anthropic.tools.webSearch_20250305(
+        {}
+      );
+      this.formattedTools['web_fetch'] = anthropic.tools.webFetch_20250910({});
+    }
 
     return createUIMessageStream({
       execute: async ({ writer }) => {
