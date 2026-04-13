@@ -200,7 +200,7 @@ Contributions are welcome\! To get started:
 
 ## **License**
 
-[Apache 2.0](http://LICENSE)
+[Apache 2.0](LICENSE)
 
 ---
 
