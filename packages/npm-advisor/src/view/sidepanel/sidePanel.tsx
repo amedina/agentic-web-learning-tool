@@ -48,6 +48,7 @@ const SidePanel = () => {
         <ThemeProvider>
           <PropProvider
             allowToolCalling={false}
+            isOptionsPage={true}
             exportChatCallback={downloadMarkdownFile}
             customIcon={
               <img
