@@ -17,7 +17,8 @@ function transportGenerator(
   model = 'prompt-api',
   config: ProviderSettings,
   thinkingMode = false,
-  systemPrompt = ''
+  systemPrompt = '',
+  isNPMAdivsor = false
 ) {
   let modelInstance = null;
   logger(
@@ -33,7 +34,7 @@ function transportGenerator(
         buildProviderOptions(thinkingMode, provider) ?? {},
         systemPrompt
       );
-      modelInstance.initializeSession(createOpenAI, config);
+      modelInstance.initializeSession(createOpenAI, config, isNPMAdivsor);
       return modelInstance;
     case 'anthropic':
       modelInstance = new CloudHostedTransport(
@@ -41,7 +42,7 @@ function transportGenerator(
         buildProviderOptions(thinkingMode, provider) ?? {},
         systemPrompt
       );
-      modelInstance.initializeSession(createAnthropic, config);
+      modelInstance.initializeSession(createAnthropic, config, isNPMAdivsor);
       return modelInstance;
     case 'gemini':
       modelInstance = new CloudHostedTransport(
@@ -49,7 +50,11 @@ function transportGenerator(
         buildProviderOptions(thinkingMode, provider) ?? {},
         systemPrompt
       );
-      modelInstance.initializeSession(createGoogleGenerativeAI, config);
+      modelInstance.initializeSession(
+        createGoogleGenerativeAI,
+        config,
+        isNPMAdivsor
+      );
       return modelInstance;
     default:
       return new GeminiNanoChatTransport();

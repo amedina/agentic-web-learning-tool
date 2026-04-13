@@ -34,11 +34,13 @@ type PropProviderProps = PropsWithChildren & {
   };
   exportChatCallback?: (chatData: ChatDataType[], filename: string) => void;
   isOptionsPage?: boolean;
+  view?: 'awl' | 'npm-advisor';
 };
 
 const TAB_PERSISTENCE_KEY = 'npmAdvisorSidepanelActiveTab';
 
 function PropProvider({
+  view,
   children,
   footerNode,
   subHeaderNode,
@@ -104,6 +106,7 @@ function PropProvider({
         CustomUserMessageComponent: userMessage,
         CustomEditComposerComponent: editComposer,
         allowToolCalling,
+        isNPMAdvisor: view === 'npm-advisor',
         CustomIcon: customIcon,
         suggestions,
         helperTextSet,
@@ -120,6 +123,7 @@ function PropProvider({
       },
     }),
     [
+      view,
       customIcon,
       footerNode,
       subHeaderNode,
