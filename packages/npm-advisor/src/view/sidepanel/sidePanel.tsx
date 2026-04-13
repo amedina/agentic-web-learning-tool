@@ -129,6 +129,7 @@ const SidePanel = () => {
       <ThemeProvider>
         <PropProvider
           allowToolCalling={false}
+          view="npm-advisor"
           exportChatCallback={downloadMarkdownFile}
           prefixTabs={[
             {

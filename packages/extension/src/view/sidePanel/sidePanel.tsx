@@ -59,6 +59,7 @@ const SidePanel = () => {
   return (
     <PropProvider
       allowToolCalling={true}
+      view="awl"
       suffixTabs={[
         {
           value: 'workflow',

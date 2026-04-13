@@ -57,6 +57,7 @@ export const AssistantModal = ({ comparisonBucket }: AssistantModalProps) => {
           }}
           allowChatStorage={false}
           isOptionsPage={true}
+          view="npm-advisor"
           suggestions={[
             {
               text: "Compare all packages",
