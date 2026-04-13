@@ -24,7 +24,8 @@
       "assistant-stream": "patches/assistant-stream@0.2.46.patch",
       "ajv@^8.0.0": "patches/ajv.patch",
       "@mcp-b/transports@^2.0.0": "patches/@mcp-b__transports.patch",
-      "@mcp-b/react-webmcp@^2.0.0": "patches/@mcp-b__react-webmcp.patch"
+      "@mcp-b/react-webmcp@^2.0.0": "patches/@mcp-b__react-webmcp.patch",
+      "@ai-sdk/google": "patches/@ai-sdk__google.patch"
     }
   },
   "scripts": {
