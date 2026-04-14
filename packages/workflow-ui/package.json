@@ -25,7 +25,7 @@
     "@google-awlt/common": "workspace:*",
     "@google-awlt/design-system": "workspace:*",
     "@google-awlt/engine-core": "workspace:*",
-    "@google-awlt/engine-extension": "workspace:*",
+    "@google-awlt/engine-connector": "workspace:*",
     "@xyflow/react": "^12.9.3",
     "clsx": "^2.1.1",
     "immer": "^9.0.21",

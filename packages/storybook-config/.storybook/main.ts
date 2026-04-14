@@ -6,7 +6,7 @@ import path from 'path';
 const config: StorybookConfig = {
   stories: [
     '../../design-system/src/components/**/*.stories.@(js|jsx|ts|tsx)',
-    '../../extension/src/view/**/*.stories.@(js|jsx|ts|tsx)',
+    '../../awl-extension/src/view/**/*.stories.@(js|jsx|ts|tsx)',
   ],
   addons: [
     '@chromatic-com/storybook',
@@ -28,9 +28,9 @@ const config: StorybookConfig = {
             __dirname,
             '../../design-system/src'
           ),
-          '@google-awlt/extension': path.resolve(
+          '@google-awlt/awl-extension': path.resolve(
             __dirname,
-            '../../extension/src'
+            '../../awl-extension/src'
           ),
           '@google-awlt/table': path.resolve(__dirname, '../../table/src'),
           '@google-awlt/common': path.resolve(__dirname, '../../common/src'),

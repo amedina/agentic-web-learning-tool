@@ -3,7 +3,7 @@
  */
 import { useEffect, useImperativeHandle, useState } from "react";
 import { Settings } from "lucide-react";
-import { getWorkflowClient } from "@google-awlt/engine-extension";
+import { getWorkflowClient } from "@google-awlt/engine-connector";
 import {
   TranslatorApiConfigSchema,
   type TranslatorApiConfig,

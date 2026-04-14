@@ -4,7 +4,7 @@
 import {
   listWorkflows,
   type WorkflowMetadata,
-} from "@google-awlt/engine-extension";
+} from "@google-awlt/engine-connector";
 
 /**
  * Get unique name and sanitized name for a workflow to avoid collisions.
