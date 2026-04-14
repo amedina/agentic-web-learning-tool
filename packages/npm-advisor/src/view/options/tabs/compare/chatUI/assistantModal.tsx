@@ -47,7 +47,7 @@ export const AssistantModal = ({ comparisonBucket }: AssistantModalProps) => {
         // @ts-ignore - ts(2322)
         style={
           {
-            "--sidebar-width": "18rem",
+            "--sidebar-width": "35rem",
           } as React.CSSProperties
         }
         side="right"
