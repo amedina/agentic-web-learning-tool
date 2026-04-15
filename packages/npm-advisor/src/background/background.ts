@@ -30,9 +30,53 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
         page: request.page,
         hitsPerPage: request.hitsPerPage,
         facetFilters: request.facetFilters,
+        numericFilters: request.numericFilters,
+        filters: request.filters,
       })
       .then((results) => sendResponse({ success: true, ...results }))
       .catch((err) => sendResponse({ success: false, error: err.message }));
+    return true;
+  }
+
+  // 4. Add to Comparison Bucket
+  else if (request.type === "ADD_TO_COMPARISON" && request.package) {
+    const packageName = request.package.name;
+
+    chrome.storage.local.get(["comparisonBucket"], (res: any) => {
+      const bucket = (res.comparisonBucket || []) as any[];
+      const exists = bucket.some(
+        (pkg: any) =>
+          pkg.packageName === packageName || pkg.name === packageName,
+      );
+
+      if (exists) {
+        sendResponse({
+          success: true,
+          added: false,
+          message: "Package already in comparison",
+        });
+        return;
+      }
+
+      packageStatsService
+        .getStats(packageName)
+        .then((stats) => {
+          if (stats) {
+            const newBucket = [...bucket, stats];
+            chrome.storage.local.set({ comparisonBucket: newBucket }, () => {
+              sendResponse({ success: true, added: true, data: stats });
+            });
+          } else {
+            sendResponse({
+              success: false,
+              error: "Failed to calculate stats for comparison",
+            });
+          }
+        })
+        .catch((err) => {
+          sendResponse({ success: false, error: err.message });
+        });
+    });
     return true;
   }
 });

@@ -106,7 +106,8 @@ function initSearchExperience() {
     host.style.height = "100%";
     host.style.zIndex = "10";
 
-    searchFormParent.appendChild(host);
+    searchForm.style.position = "relative";
+    searchForm.appendChild(host);
 
     const container = document.createElement("div");
     container.style.width = "100%";
@@ -125,6 +126,11 @@ function initSearchExperience() {
     ._89eb4d40, .e6f92c42, div:has(> ul[role="listbox"][id^="typeahead-list-"]) {
       display: none !important;
       visibility: hidden !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+    /* Hide the native search button if we are overlaying the whole form */
+    form:has(#npm-advisor-overlay-host) button[type="submit"] {
       opacity: 0 !important;
       pointer-events: none !important;
     }

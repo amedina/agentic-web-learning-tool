@@ -12,26 +12,25 @@ export const npmSearchService = {
     query: string;
     page?: number;
     hitsPerPage?: number;
-    facetFilters?: string[];
+    facetFilters?: Array<string | string[]>;
+    numericFilters?: string[];
+    filters?: string;
   }) {
     const { appId, apiKey, indexName } = NPM_SEARCH_CONFIG;
     const url = `https://${appId.toLowerCase()}-dsn.algolia.net/1/indexes/${indexName}/query`;
 
-    const { query, page = 0, hitsPerPage = 10, facetFilters = [] } = params;
-
-    // Build Algolia numeric filter array into string
-    const combinedFilters = [
-      ...facetFilters.map((f) => {
-        const [key, value] = f.split(":");
-        return `${key}:"${value}"`;
-      }),
-    ]
-      .filter(Boolean)
-      .join(" AND ");
+    const {
+      query,
+      page = 0,
+      hitsPerPage = 10,
+      facetFilters = [],
+      numericFilters = [],
+      filters = "",
+    } = params;
 
     console.log(
       `[NPM Advisor] Searching for "${query}" (Page ${page}) with filters:`,
-      combinedFilters,
+      { facetFilters, numericFilters, filters },
     );
 
     const response = await fetch(url, {
@@ -43,7 +42,9 @@ export const npmSearchService = {
       },
       body: JSON.stringify({
         query: query || "",
-        filters: combinedFilters,
+        ...(filters && { filters }),
+        ...(facetFilters.length > 0 && { facetFilters }),
+        ...(numericFilters.length > 0 && { numericFilters }),
         hitsPerPage,
         page,
         attributesToRetrieve: [
@@ -55,11 +56,15 @@ export const npmSearchService = {
           "repository",
           "owners",
           "downloadsLast30Days",
+          "downloadsRatio",
+          "stargazers",
           "popular",
           "keywords",
           "deprecated",
           "isDeprecated",
           "license",
+          "dependents",
+          "owner",
         ],
       }),
     });

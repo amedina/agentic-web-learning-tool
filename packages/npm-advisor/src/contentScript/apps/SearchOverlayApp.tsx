@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Filter, ChevronDown, Check } from "lucide-react";
+import { Filter, ChevronDown, Check, Search } from "lucide-react";
+import { useThemeSync } from "../hooks/useThemeSync";
 
 /**
  * Search Overlay App.
  * Replaces the Vanilla NPM Search overlay with a React-based implementation.
  */
 export const SearchOverlayApp: React.FC = () => {
+  const isDark = useThemeSync();
   const [query, setQuery] = useState("");
   const [hits, setHits] = useState<any[]>([]);
   const [nbPages, setNbPages] = useState(0);
@@ -156,8 +158,11 @@ export const SearchOverlayApp: React.FC = () => {
   };
 
   return (
-    <div ref={containerRef} className="relative w-full h-full font-sans">
-      <div className="relative w-full h-full flex items-center bg-zinc-100 dark:bg-zinc-800/50">
+    <div
+      ref={containerRef}
+      className={`relative w-full h-full font-sans${isDark ? " dark" : ""}`}
+    >
+      <div className="relative w-full h-full flex items-center bg-zinc-100 dark:bg-zinc-800">
         {/* Search Mode Filter Toggle */}
         <button
           onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)}
@@ -231,10 +236,22 @@ export const SearchOverlayApp: React.FC = () => {
           className="flex-1 h-full px-4 py-2.5 bg-transparent border-none rounded-none text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 placeholder:font-normal outline-none focus:bg-white dark:focus:bg-zinc-900 transition-all shadow-inner"
         />
 
-        {isFetching && (
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 z-20">
+        {isFetching ? (
+          <div className="px-3 flex items-center justify-center">
             <div className="w-3.5 h-3.5 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
           </div>
+        ) : (
+          <button
+            onClick={() => {
+              if (query) {
+                window.location.href = `https://www.npmjs.com/search?q=${encodeURIComponent(query)}`;
+              }
+            }}
+            className="h-full px-4 flex items-center justify-center text-zinc-400 hover:text-orange-600 transition-colors border-l border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800/80"
+            title="Search NPM"
+          >
+            <Search size={18} />
+          </button>
         )}
       </div>
 
