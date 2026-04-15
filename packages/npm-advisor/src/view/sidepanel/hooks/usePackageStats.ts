@@ -42,13 +42,13 @@ export const usePackageStats = () => {
             currentWindow: true,
           });
           url = tab?.url;
-          setCurrentTabUrl(url as string);
         }
 
         if (!url) {
           throw new Error("Could not determine current tab URL.");
         }
 
+        setCurrentTabUrl(url as string);
         if (urlCache.has(url)) {
           const cached = urlCache.get(url)!;
           setStats(cached.stats);
@@ -132,17 +132,24 @@ export const usePackageStats = () => {
 
     fetchCurrentTabStats();
 
-    const handleTabUpdated = (tabId: number, changeInfo: any) => {
-      chrome.tabs.get(tabId, (tab) => {
-        if (chrome.runtime.lastError || !tab?.active) return;
-        if (changeInfo.url) {
-          // Pass URL directly — tab.url may still reflect the previous page.
-          fetchCurrentTabStats(changeInfo.url);
-        } else if (changeInfo.status === "complete" && tab.url) {
-          // Safety net: re-evaluate once the page has fully loaded.
-          fetchCurrentTabStats(tab.url);
-        }
-      });
+    const handleTabUpdated = async (
+      details: chrome.webNavigation.WebNavigationTransitionCallbackDetails,
+    ) => {
+      const { tabId, frameId, url } = details;
+      const currentTab = (
+        await chrome.tabs.query({
+          active: true,
+          currentWindow: true,
+        })
+      )?.[0];
+
+      if (chrome.runtime.lastError) return;
+
+      if (frameId !== 0 || tabId !== currentTab?.id) {
+        return;
+      }
+
+      fetchCurrentTabStats(url);
     };
 
     const handleTabActivated = (activeInfo: { tabId: number }) => {
@@ -151,11 +158,11 @@ export const usePackageStats = () => {
       });
     };
 
-    chrome.tabs.onUpdated.addListener(handleTabUpdated);
+    chrome.webNavigation.onCommitted.addListener(handleTabUpdated);
     chrome.tabs.onActivated.addListener(handleTabActivated);
 
     return () => {
-      chrome.tabs.onUpdated.removeListener(handleTabUpdated);
+      chrome.webNavigation.onCommitted.removeListener(handleTabUpdated);
       chrome.tabs.onActivated.removeListener(handleTabActivated);
     };
   }, []);
