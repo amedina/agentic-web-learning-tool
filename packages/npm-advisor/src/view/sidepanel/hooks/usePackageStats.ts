@@ -78,7 +78,7 @@ export const usePackageStats = () => {
 
         let packageName: string | null = null;
         if (url.includes("npmjs.com/package/")) {
-          const match = url.match(/npmjs\.com\/package\/([^/?#]+)/);
+          const match = url.match(/npmjs\.com\/package\/([^?#]+)/);
           if (match && match[1]) {
             packageName = decodeURIComponent(match[1]);
           }
@@ -146,7 +146,7 @@ export const usePackageStats = () => {
 
     fetchCurrentTabStats();
 
-    const handleTabUpdated = async (
+    const handleHistoryStateUpdated = async (
       details: chrome.webNavigation.WebNavigationTransitionCallbackDetails,
     ) => {
       const { tabId, frameId, url } = details;
@@ -172,13 +172,24 @@ export const usePackageStats = () => {
       });
     };
 
-    chrome.webNavigation.onHistoryStateUpdated.addListener(handleTabUpdated);
+    const handleTabUpdated = (tabId: number) => {
+      chrome.tabs.get(tabId, (tab) => {
+        if (tab) fetchCurrentTabStats(tab.url);
+      });
+    };
+
+    chrome.webNavigation.onHistoryStateUpdated.addListener(
+      handleHistoryStateUpdated,
+    );
+    chrome.tabs.onUpdated.addListener(handleTabUpdated);
+
     chrome.tabs.onActivated.addListener(handleTabActivated);
 
     return () => {
       chrome.webNavigation.onHistoryStateUpdated.removeListener(
-        handleTabUpdated,
+        handleHistoryStateUpdated,
       );
+      chrome.tabs.onUpdated.removeListener(handleTabUpdated);
       chrome.tabs.onActivated.removeListener(handleTabActivated);
     };
   }, []);

@@ -4,7 +4,7 @@ async function main() {
 
   // 1. Detect if on npmjs.com package page
   if (url.includes("npmjs.com/package/")) {
-    const match = url.match(/npmjs\.com\/package\/([^/?#]+)/);
+    const match = url.match(/npmjs\.com\/package\/([^?#]+)/);
     if (match && match[1]) {
       packageName = decodeURIComponent(match[1]);
     }
