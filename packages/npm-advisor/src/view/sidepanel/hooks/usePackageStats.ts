@@ -158,11 +158,13 @@ export const usePackageStats = () => {
       });
     };
 
-    chrome.webNavigation.onCommitted.addListener(handleTabUpdated);
+    chrome.webNavigation.onHistoryStateUpdated.addListener(handleTabUpdated);
     chrome.tabs.onActivated.addListener(handleTabActivated);
 
     return () => {
-      chrome.webNavigation.onCommitted.removeListener(handleTabUpdated);
+      chrome.webNavigation.onHistoryStateUpdated.removeListener(
+        handleTabUpdated,
+      );
       chrome.tabs.onActivated.removeListener(handleTabActivated);
     };
   }, []);
