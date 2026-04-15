@@ -1,7 +1,7 @@
 {
   "name": "@google-awlt/chatbot",
   "private": true,
-  "version": "1.0.2",
+  "version": "1.0.3",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^2.0.53",
-    "@ai-sdk/google": "^2.0.45",
+    "@ai-sdk/google": "2.0.63",
     "@ai-sdk/openai": "^2.0.77",
     "@ai-sdk/provider": "^2.0.0",
     "@assistant-ui/react": "0.11.51",

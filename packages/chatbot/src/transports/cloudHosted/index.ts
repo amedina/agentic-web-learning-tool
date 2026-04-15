@@ -73,6 +73,7 @@ export class CloudHostedTransport implements ChatTransport<
   private isInitializing: boolean = false;
   private runtime: AssistantRuntime | null = null;
   private providerOptions: SharedV2ProviderOptions = {};
+  private isNPMAdivsor = false;
   formattedTools: any = {};
   private modelId: string = '';
   private systemPrompt: string = '';
@@ -96,12 +97,13 @@ export class CloudHostedTransport implements ChatTransport<
    */
   async initializeSession(
     modelInitializerFunction: ModelInitializer,
-    config: ProviderSettings
+    config: ProviderSettings,
+    isNPMAdvisor = false
   ): Promise<void> {
     if (this.model || this.isInitializing) {
       return;
     }
-
+    this.isNPMAdivsor = isNPMAdvisor;
     this.isInitializing = true;
     try {
       //@ts-expect-error -- Gemini provider has different headers type than the Ollama provider
@@ -167,18 +169,22 @@ export class CloudHostedTransport implements ChatTransport<
       };
     });
 
-    if (this.model?.provider === 'google.generative-ai') {
-      this.formattedTools['google_search'] = google.tools.googleSearch({});
-    } else if (this.model?.provider === 'openai.responses') {
-      this.formattedTools['web_search'] = openai.tools.webSearch({
-        externalWebAccess: true,
-        searchContextSize: 'high',
-      });
-    } else if (this.model?.provider === 'anthropic.messages') {
-      this.formattedTools['web_search'] = anthropic.tools.webSearch_20250305(
-        {}
-      );
-      this.formattedTools['web_fetch'] = anthropic.tools.webFetch_20250910({});
+    if (this.isNPMAdivsor) {
+      if (this.model?.provider === 'google.generative-ai') {
+        this.formattedTools['google_search'] = google.tools.googleSearch({});
+      } else if (this.model?.provider === 'openai.responses') {
+        this.formattedTools['web_search'] = openai.tools.webSearch({
+          externalWebAccess: true,
+          searchContextSize: 'high',
+        });
+      } else if (this.model?.provider === 'anthropic.messages') {
+        this.formattedTools['web_search'] = anthropic.tools.webSearch_20250305(
+          {}
+        );
+        this.formattedTools['web_fetch'] = anthropic.tools.webFetch_20250910(
+          {}
+        );
+      }
     }
 
     return createUIMessageStream({
