@@ -41,7 +41,7 @@ export async function getDependencyTree(
   visited.add(packageName);
 
   try {
-    const url = `https://registry.npmjs.org/${encodeURIComponent(packageName)}/${encodeURIComponent(version)}`;
+    const url = `https://registry.npmjs.org/${packageName}/${version}`;
     const data = await fetchWithCache(url);
 
     if (!data) {
