@@ -146,7 +146,12 @@ const SidePanel = () => {
         </Tabs>
       );
     }
-    return tabsList[0].content;
+    return (
+      <div className="flex flex-col h-full w-full bg-background">
+        {subHeaderNode}
+        {tabsList[0].content}
+      </div>
+    );
   }, [tabsList, activeTab, subHeaderNode, setActiveTab]);
 
   return (

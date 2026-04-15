@@ -9,7 +9,6 @@ import { OptionsPageTab } from "@google-awlt/design-system";
  */
 import { ComparisonTab } from "./comparisonTab";
 import { calculateScore } from "../../../../utils/calculateScore";
-import { AssistantModal } from "./chatUI/assistantModal";
 
 export default function ComparisonPage() {
   const [comparisonBucket, setComparisonBucket] = useState<any[]>([]);
@@ -74,7 +73,6 @@ export default function ComparisonPage() {
         handleRemovePackage={handleRemovePackage}
         winnerName={winnerName}
       />
-      <AssistantModal comparisonBucket={comparisonBucket} />
     </OptionsPageTab>
   );
 }
