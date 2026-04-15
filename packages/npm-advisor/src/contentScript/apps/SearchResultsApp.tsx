@@ -3,6 +3,7 @@ import { FilterSidebar } from "../components/FilterSidebar";
 import { ResultCard } from "../components/ResultCard";
 import { useThemeSync } from "../hooks/useThemeSync";
 import { calculateScore } from "../../utils";
+import { BarChart2 } from "lucide-react";
 
 /**
  * Search Results App.
@@ -164,9 +165,6 @@ export const SearchResultsApp: React.FC = () => {
                   } else if (filters.ranking === "maintenance") {
                     valA = a.modified ? new Date(a.modified).getTime() : 0;
                     valB = b.modified ? new Date(b.modified).getTime() : 0;
-                  } else if (filters.ranking === "quality") {
-                    valA = a.downloadsRatio || 0;
-                    valB = b.downloadsRatio || 0;
                   } else if (filters.ranking === "advisor") {
                     const findScore = (h: any) => {
                       const match = comparisonBucket.find(
@@ -258,6 +256,18 @@ export const SearchResultsApp: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-3">
+              {comparisonBucket.length > 0 && (
+                <button
+                  onClick={() =>
+                    chrome.runtime.sendMessage({ type: "OPEN_OPTIONS" })
+                  }
+                  className="flex items-center gap-2 px-3 py-1.5 bg-zinc-100 dark:bg-zinc-900 hover:bg-orange-50 dark:hover:bg-orange-900/20 text-orange-600 rounded border border-zinc-200 dark:border-zinc-800 transition-all font-bold text-xs mr-2 shadow-sm"
+                  title="View Comparison"
+                >
+                  <BarChart2 size={16} />
+                  <span>View Comparison ({comparisonBucket.length})</span>
+                </button>
+              )}
               <span className="text-xs font-semibold text-zinc-400 uppercase tracking-tighter">
                 Sort by:
               </span>
@@ -271,7 +281,6 @@ export const SearchResultsApp: React.FC = () => {
                 >
                   <option value="optimal">Relevance</option>
                   <option value="popularity">Popularity</option>
-                  <option value="quality">Quality</option>
                   <option value="maintenance">Maintenance</option>
                   <option value="advisor">Advisor Score</option>
                 </select>

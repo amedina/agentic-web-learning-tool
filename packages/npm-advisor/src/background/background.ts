@@ -79,4 +79,12 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     });
     return true;
   }
+
+  // 5. Open Options Page
+  else if (request.type === "OPEN_OPTIONS") {
+    chrome.tabs.create({
+      url: chrome.runtime.getURL("options/options.html#comparison"),
+    });
+    sendResponse({ success: true });
+  }
 });

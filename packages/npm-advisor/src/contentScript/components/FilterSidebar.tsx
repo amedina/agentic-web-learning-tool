@@ -28,7 +28,7 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
       <div className="flex flex-col gap-8 px-1">
         <div>
           <h3 className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.15em] mb-5 flex items-center gap-3">
-            <span className="shrink-0">Core Engines</span>
+            <span className="shrink-0">Server-side Filters</span>
             <div className="h-[1px] w-full bg-zinc-100 dark:bg-zinc-800/50" />
           </h3>
 
@@ -157,11 +157,11 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
 
         <div className="pt-2">
           <h3 className="text-[10px] font-black uppercase text-orange-500 tracking-[0.15em] mb-4 flex items-center gap-3">
-            <span className="shrink-0">Deep Sifter</span>
+            <span className="shrink-0">Client-side Filters</span>
             <div className="h-[1px] w-full bg-orange-100 dark:bg-orange-500/20" />
           </h3>
           <p className="text-[10px] text-zinc-400 leading-relaxed mb-5 font-medium italic">
-            Scanning top 500 packages locally for deep metadata matches.
+            Scanning top 500 packages locally.
           </p>
 
           <div className="flex flex-col gap-2.5">
