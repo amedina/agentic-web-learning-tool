@@ -37,10 +37,11 @@ const SidePanel = () => {
     handleAddRecommendationToCompare,
     comparisonBucketNames,
     addingRecommendations,
+    currentTabUrl,
   } = usePackageStats();
 
   if (loading) return <LoadingState />;
-  if (isNavigationMessage) return <NavigationMessage />;
+  if (isNavigationMessage) return <NavigationMessage url={currentTabUrl} />;
 
   if (isOptionsPage) {
     if (isComparisonPage) {
