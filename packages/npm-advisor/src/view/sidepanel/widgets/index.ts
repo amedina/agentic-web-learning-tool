@@ -1,4 +1,5 @@
 export * from "./bundleFootprint/bundleFootprint";
+export * from "./comparisonTable/sidepanelComparisonTable";
 export * from "./dependencyTree/dependencyTree";
 export * from "./header/header";
 export * from "./licenseCheck/licenseCheck";

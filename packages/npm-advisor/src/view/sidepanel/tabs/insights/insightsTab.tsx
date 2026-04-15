@@ -15,6 +15,7 @@ import {
   SecurityAdvisories,
   Recommendations,
   DependencyTree,
+  SidepanelComparisonTable,
 } from "../../widgets";
 
 interface InsightsTabProps {
@@ -51,6 +52,7 @@ export const InsightsTab: React.FC<InsightsTabProps> = ({
 
   return (
     <div className="text-slate-800 dark:text-slate-200 p-4 space-y-4 h-full overflow-y-auto">
+      <SidepanelComparisonTable />
       <Header
         packageName={packageName}
         githubUrl={githubUrl}
