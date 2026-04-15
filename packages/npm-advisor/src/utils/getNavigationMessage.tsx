@@ -18,7 +18,9 @@ export function getNavigationMessage(urlString: string | null) {
     const pathname = url.pathname;
 
     const isNpm = hostname.endsWith("npmjs.com");
-    const isGithub = hostname.endsWith("github.com");
+    const isGithub =
+      hostname.endsWith("github.com") ||
+      hostname.endsWith("githubusercontent.com");
 
     const isNpmPackagePage = isNpm && pathname.startsWith("/package/");
     const isGithubPackageJson = isGithub && pathname.endsWith("package.json");
