@@ -21,6 +21,7 @@ import { getSystemPrompt } from "./tabs/askAI/getSystemPrompt";
 import { ThemeProvider } from "./context/themeContext";
 import { downloadMarkdownFile } from "../../utils";
 import OptionsPageSidePanel from "./optionsPageSidePanel";
+import ComparisonPageSidePanel from "./comparisonPageSidePanel";
 
 const SidePanel = () => {
   const {
@@ -42,12 +43,10 @@ const SidePanel = () => {
   if (isNavigationMessage) return <NavigationMessage />;
 
   if (isOptionsPage) {
-    return (
-      <OptionsPageSidePanel
-        isComparisonPage={isComparisonPage}
-        comparisonBucket={comparisonBucket}
-      />
-    );
+    if (isComparisonPage) {
+      return <ComparisonPageSidePanel comparisonBucket={comparisonBucket} />;
+    }
+    return <OptionsPageSidePanel />;
   }
 
   if (error || !stats) return <ErrorState error={error} />;
