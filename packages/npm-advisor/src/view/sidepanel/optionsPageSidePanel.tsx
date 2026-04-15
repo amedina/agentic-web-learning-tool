@@ -62,7 +62,7 @@ const OptionsPageSidePanel = ({
                     prompt: "Compare all of these packages.",
                   },
                   {
-                    text: "Which is the winner?",
+                    text: "Which one is the winner?",
                     prompt:
                       "Out of these packages, which one is the winner and why?",
                   },
