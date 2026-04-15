@@ -11,3 +11,4 @@ export * from "./parseGithubUrl";
 export * from "./getPackageStats";
 export * from "./downloadMarkdownFile";
 export * from "./calculateScore";
+export * from "./getNavigationMessage";

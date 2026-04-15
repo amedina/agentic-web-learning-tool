@@ -17,6 +17,7 @@ const urlCache = new Map<
 export const usePackageStats = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentTabUrl, setCurrentTabUrl] = useState<string | null>(null);
   const [isNavigationMessage, setIsNavigationMessage] = useState(false);
   const [stats, setStats] = useState<PackageStats | null>(null);
   const [comparisonBucket, setComparisonBucket] = useState<any[]>([]);
@@ -41,6 +42,7 @@ export const usePackageStats = () => {
             currentWindow: true,
           });
           url = tab?.url;
+          setCurrentTabUrl(url as string);
         }
 
         if (!url) {
@@ -207,5 +209,6 @@ export const usePackageStats = () => {
     handleAddRecommendationToCompare,
     comparisonBucketNames,
     addingRecommendations,
+    currentTabUrl,
   };
 };
