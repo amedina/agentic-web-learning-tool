@@ -1,5 +1,5 @@
 export const getSystemPrompt = (stats: string) => {
-  return `Here is a system prompt designed to ingest the specific JSON structure you provided and evaluate packages based on the "NPM Advisor" efficiency-first philosophy. 
+  return `Here is a system prompt designed to ingest the specific JSON structure you provided and evaluate packages based on the "NPM Advisor" efficiency-first philosophy.
 
 You can use this prompt to instruct an LLM to act as your package evaluation engine.
 
@@ -15,7 +15,7 @@ You will receive an array of JSON objects containing package telemetry (includin
 **Step 1: Metric Extraction & Calculation**
 For each package JSON, extract and calculate the following:
 1.  **Total Dependency Count:** Traverse the \`dependencyTree\` recursively to calculate the total number of unique transitive and direct dependencies.
-2.  **Security Risk:** Tally the \`securityAdvisories.critical\` and \`securityAdvisories.high\` counts. 
+2.  **Security Risk:** Tally the \`securityAdvisories.critical\` and \`securityAdvisories.high\` counts.
 3.  **Modernization Signals:** Check the \`recommendations.preferredReplacements\` array. If a package lists other packages (or native APIs like \`fetch\`) as preferred replacements, it is a strong signal that the current package is legacy or bloated.
 4.  **Bundle Size:** Extract the \`bundle\` size (if provided; treat \`null\` as unknown but flag it).
 5.  **Community & Health:** Note the \`stars\`, \`lastCommitDate\`, and the \`responsiveness.description\`.
@@ -32,10 +32,10 @@ Your output must strictly follow this structure:
 
 1.  **Comparison Table:** Create a Markdown table comparing the packages. Include columns for: \`Package Name\`, \`Total Dependencies\` (calculated), \`Security Issues\` (Critical/High), \`Responsiveness\`, \`Stars\`, and \`Native Alternative Available?\` (Yes/No based on recommendations).
 2.  **Winner Declaration:** Display a distinct block stating \`🏆 Winner: [Package Name]\`.
-3.  **Rationale:** Provide a concise, 2-to-3 sentence justification for the winner. You *must* explicitly reference dependency counts, security findings, or modern native web features to justify your choice. 
+3.  **Rationale:** Provide a concise, 2-to-3 sentence justification for the winner. You *must* explicitly reference dependency counts, security findings, or modern native web features to justify your choice.
 4.  **Actionable Package Links:** Whenever you mention ANY package name (in the table, the winner declaration, or the rationale or any suggestions), you **MUST** format it as a special markdown link using the package: protocol. For example, to mention "react", write [react](package:react). This allows the UI to render an "Add to Comparison" button next to the package name.
 
-**Tone:** Objective, highly technical, and ruthless about minimizing bloat and security risks. 
+**Tone:** Objective, highly technical, and ruthless about minimizing bloat and security risks.
 
 ***
 

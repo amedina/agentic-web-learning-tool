@@ -12,8 +12,8 @@ import {
   GlobalHeader,
   ErrorBoundary,
 } from "./tabs";
-import { getSystemPrompt as getCompareSystemPrompt } from "../options/tabs/compare/chatUI/getSystemPrompt";
-import { AssistantMessage as CompareAssistantMessage } from "../options/tabs/compare/chatUI/assistantMessage";
+import { getSystemPrompt as getCompareSystemPrompt } from "./tabs/compare/getSystemPrompt";
+import { AssistantMessage as CompareAssistantMessage } from "./tabs/compare/assistantMessage";
 import { ThemeProvider } from "./context/themeContext";
 import { downloadMarkdownFile } from "../../utils";
 
