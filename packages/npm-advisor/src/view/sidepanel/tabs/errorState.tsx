@@ -61,8 +61,7 @@ export const NavigationMessage = ({ url }: NavigationMessageProps) => {
       if (isGithub && !isGithubPackageJson) {
         return (
           <p className="font-semibold text-slate-600 dark:text-slate-300">
-            Please navigate to a package.json file page in this GitHub
-            repository.
+            Please navigate to a package.json file page in a GitHub repository.
           </p>
         );
       }
