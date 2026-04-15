@@ -20,6 +20,8 @@ import { usePackageStats } from "./hooks/usePackageStats";
 import { getSystemPrompt } from "./tabs/askAI/getSystemPrompt";
 import { ThemeProvider } from "./context/themeContext";
 import { downloadMarkdownFile } from "../../utils";
+import OptionsPageSidePanel from "./optionsPageSidePanel";
+import ComparisonPageSidePanel from "./comparisonPageSidePanel";
 
 const SidePanel = () => {
   const {
@@ -27,6 +29,9 @@ const SidePanel = () => {
     loading,
     error,
     isNavigationMessage,
+    isOptionsPage,
+    isComparisonPage,
+    comparisonBucket,
     isAddedToCompare,
     handleAddToCompare,
     handleAddRecommendationToCompare,
@@ -37,6 +42,14 @@ const SidePanel = () => {
 
   if (loading) return <LoadingState />;
   if (isNavigationMessage) return <NavigationMessage url={currentTabUrl} />;
+
+  if (isOptionsPage) {
+    if (isComparisonPage) {
+      return <ComparisonPageSidePanel comparisonBucket={comparisonBucket} />;
+    }
+    return <OptionsPageSidePanel />;
+  }
+
   if (error || !stats) return <ErrorState error={error} />;
 
   return (
