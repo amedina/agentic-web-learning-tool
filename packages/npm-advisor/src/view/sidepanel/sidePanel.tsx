@@ -11,6 +11,7 @@ import {
   ErrorState,
   NavigationMessage,
   InsightsTab,
+  ComparisonTab,
   AssistantMessage,
   UserMessage,
   GlobalHeader,
@@ -76,6 +77,22 @@ const SidePanel = () => {
                 />
               ),
             },
+            ...(comparisonBucket.length > 0
+              ? [
+                  {
+                    value: "comparison",
+                    label: (
+                      <span className="flex items-center gap-1.5">
+                        Comparison
+                        <span className="inline-flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full bg-[#c94137] text-white text-[10px] font-bold leading-none">
+                          {comparisonBucket.length}
+                        </span>
+                      </span>
+                    ),
+                    content: <ComparisonTab />,
+                  },
+                ]
+              : []),
           ]}
           customIcon={
             <img
