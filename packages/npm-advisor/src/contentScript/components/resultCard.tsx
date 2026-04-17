@@ -1,10 +1,17 @@
+/**
+ * External dependencies
+ */
 import React, { useState, useEffect } from "react";
 import { User, Clock, Download, Plus, Check, Loader2 } from "lucide-react";
+
+/**
+ * Internal dependencies
+ */
 import { calculateScore } from "../../utils";
+import type { AlgoliaHit } from "../types";
 
 interface ResultCardProps {
-  hit: any;
-  advisorScore?: number;
+  hit: AlgoliaHit;
   query?: string;
 }
 
@@ -16,9 +23,12 @@ export const ResultCard: React.FC<ResultCardProps> = ({ hit, query }) => {
   useEffect(() => {
     const checkStatus = () => {
       chrome.storage.local.get(["comparisonBucket"], (res) => {
-        const bucket = (res.comparisonBucket || []) as any[];
+        const bucket = (res.comparisonBucket || []) as Record<
+          string,
+          unknown
+        >[];
         const exists = bucket.find(
-          (pkg: any) => pkg.packageName === hit.name || pkg.name === hit.name,
+          (pkg) => pkg.packageName === hit.name || pkg.name === hit.name,
         );
 
         if (exists) {
@@ -26,13 +36,16 @@ export const ResultCard: React.FC<ResultCardProps> = ({ hit, query }) => {
           setAdvisorScore(calculateScore(exists));
         } else {
           setIsAdded(false);
+          setAdvisorScore(null);
         }
       });
     };
 
     checkStatus();
     // Listen for storage changes to keep state in sync across components
-    const listener = (changes: any) => {
+    const listener = (
+      changes: Record<string, chrome.storage.StorageChange>,
+    ) => {
       if (changes.comparisonBucket) {
         checkStatus();
       }
@@ -59,6 +72,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ hit, query }) => {
       },
     );
   };
+
   return (
     <div
       className="p-6 border-b border-zinc-100 dark:border-zinc-800/50 hover:bg-zinc-50/80 dark:hover:bg-zinc-900/40 transition-all cursor-pointer group relative"
@@ -138,17 +152,19 @@ export const ResultCard: React.FC<ResultCardProps> = ({ hit, query }) => {
               <User size={16} className="text-zinc-400" />
             )}
             <span className="font-bold text-zinc-800 dark:text-zinc-100">
-              {hit.owner.name || hit.owner}
+              {hit.owner.name}
             </span>
           </div>
         )}
 
-        <div className="flex items-center gap-1.5" title="Last Published">
-          <Clock size={15} className="text-zinc-400" />
-          <span className="text-zinc-600 dark:text-zinc-400 font-semibold">
-            {new Date(hit.modified).toLocaleDateString()}
-          </span>
-        </div>
+        {hit.modified && (
+          <div className="flex items-center gap-1.5" title="Last Published">
+            <Clock size={15} className="text-zinc-400" />
+            <span className="text-zinc-600 dark:text-zinc-400 font-semibold">
+              {new Date(hit.modified).toLocaleDateString()}
+            </span>
+          </div>
+        )}
 
         {hit.downloadsLast30Days !== undefined && (
           <div
@@ -165,7 +181,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ hit, query }) => {
           </div>
         )}
 
-        {hit.dependents > 0 && (
+        {hit.dependents !== undefined && hit.dependents > 0 && (
           <div
             className="flex items-center gap-1.5 border-l border-zinc-200 dark:border-zinc-800 pl-6"
             title="Dependents Count"
@@ -188,7 +204,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ hit, query }) => {
 
       {hit.keywords && hit.keywords.length > 0 && (
         <div className="flex flex-wrap gap-2 mt-4">
-          {hit.keywords.slice(0, 6).map((kw: string) => (
+          {hit.keywords.slice(0, 6).map((kw) => (
             <span
               key={kw}
               className="text-[10px] px-2 py-0.5 bg-zinc-50 dark:bg-zinc-800/50 text-zinc-500 border border-zinc-100 dark:border-zinc-800 rounded-sm hover:border-orange-200 transition-colors"

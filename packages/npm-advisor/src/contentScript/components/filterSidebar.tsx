@@ -1,8 +1,19 @@
+/**
+ * External dependencies
+ */
 import React from "react";
 
+/**
+ * Internal dependencies
+ */
+import type { SearchFilters } from "../types";
+
 interface FilterSidebarProps {
-  filters: any;
-  onFilterChange: (key: string, value: any) => void;
+  filters: SearchFilters;
+  onFilterChange: (
+    key: keyof SearchFilters,
+    value: SearchFilters[keyof SearchFilters],
+  ) => void;
   onClear: () => void;
 }
 

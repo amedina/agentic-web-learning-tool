@@ -1,3 +1,6 @@
+/**
+ * Internal dependencies
+ */
 import { packageStatsService } from "./services/packageStats";
 import { npmSearchService } from "./services/npmSearch";
 import "./chromeListeners";
@@ -42,11 +45,10 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   else if (request.type === "ADD_TO_COMPARISON" && request.package) {
     const packageName = request.package.name;
 
-    chrome.storage.local.get(["comparisonBucket"], (res: any) => {
-      const bucket = (res.comparisonBucket || []) as any[];
+    chrome.storage.local.get(["comparisonBucket"], (res) => {
+      const bucket = (res.comparisonBucket || []) as Record<string, unknown>[];
       const exists = bucket.some(
-        (pkg: any) =>
-          pkg.packageName === packageName || pkg.name === packageName,
+        (pkg) => pkg.packageName === packageName || pkg.name === packageName,
       );
 
       if (exists) {

@@ -1,3 +1,6 @@
+/**
+ * Internal dependencies
+ */
 import { NPM_SEARCH_CONFIG } from "../../constants";
 
 /**
