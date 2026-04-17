@@ -58,14 +58,6 @@ export const usePackageStats = () => {
         }
 
         setCurrentTabUrl(url as string);
-        if (urlCache.has(url)) {
-          const cached = urlCache.get(url)!;
-          setStats(cached.stats);
-          setError(cached.error);
-          setIsNavigationMessage(!cached.stats && !cached.error);
-          setLoading(false);
-          return;
-        }
 
         if (url.startsWith("chrome-extension://")) {
           setIsOptionsPage(true);
@@ -79,6 +71,15 @@ export const usePackageStats = () => {
 
         setIsOptionsPage(false);
         setIsComparisonPage(false);
+
+        if (urlCache.has(url)) {
+          const cached = urlCache.get(url)!;
+          setStats(cached.stats);
+          setError(cached.error);
+          setIsNavigationMessage(!cached.stats && !cached.error);
+          setLoading(false);
+          return;
+        }
         setLoading(true);
         setError(null);
         setIsNavigationMessage(false);
