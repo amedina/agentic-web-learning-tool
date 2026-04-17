@@ -48,7 +48,7 @@ export default function ComparisonPage() {
 
   return (
     <OptionsPageTab
-      title="Compare"
+      title="Comparison"
       description="Compare NPM packages side by side based on key metrics."
       wrapperClasses="max-w-full"
     >

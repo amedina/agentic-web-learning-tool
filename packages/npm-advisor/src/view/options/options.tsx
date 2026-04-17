@@ -89,7 +89,7 @@ const Items: ExtendedMenuItem[] = [
     isDisabled: false,
   },
   {
-    title: "Compare",
+    title: "Comparison",
     id: "comparison",
     icon: () => <BarChart2 />,
     component: <ComparisonPage />,
