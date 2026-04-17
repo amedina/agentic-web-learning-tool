@@ -2,14 +2,20 @@
  * External dependencies.
  */
 import React, { useState, useEffect, useMemo } from "react";
-import { Award, ExternalLink, Trash2, X } from "lucide-react";
+import { Award, Trash2, X } from "lucide-react";
 
 /**
  * Internal dependencies.
  */
 import { calculateScore } from "../../../../utils/calculateScore";
 
-export const SidepanelComparisonTable: React.FC = () => {
+interface SidepanelComparisonTableProps {
+  onClear?: () => void;
+}
+
+export const SidepanelComparisonTable: React.FC<
+  SidepanelComparisonTableProps
+> = ({ onClear }) => {
   const [comparisonBucket, setComparisonBucket] = useState<any[]>([]);
 
   useEffect(() => {
@@ -46,6 +52,7 @@ export const SidepanelComparisonTable: React.FC = () => {
 
   const handleClearComparison = () => {
     chrome.storage.local.set({ comparisonBucket: [] });
+    onClear?.();
   };
 
   const handleRemovePackage = (packageName: string) => {
@@ -53,12 +60,6 @@ export const SidepanelComparisonTable: React.FC = () => {
       (p) => p.packageName !== packageName,
     );
     chrome.storage.local.set({ comparisonBucket: updated });
-  };
-
-  const openInOptionsPage = () => {
-    chrome.tabs.create({
-      url: chrome.runtime.getURL("options/options.html#comparison"),
-    });
   };
 
   const rows: Array<{ label: string; render: (pkg: any) => React.ReactNode }> =
@@ -246,23 +247,14 @@ export const SidepanelComparisonTable: React.FC = () => {
         <span className="text-sm font-semibold text-slate-800 dark:text-slate-100">
           Comparison ({comparisonBucket.length})
         </span>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={openInOptionsPage}
-            className="flex items-center gap-1 text-xs text-[#c94137] hover:text-[#a83129] transition-colors font-medium"
-            title="View in options page"
-          >
-            <ExternalLink className="w-3 h-3" />
-            View in options page
-          </button>
-          <button
-            onClick={handleClearComparison}
-            className="flex items-center gap-1 text-xs text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
-            title="Clear all"
-          >
-            <Trash2 className="w-3 h-3" />
-          </button>
-        </div>
+        <button
+          onClick={handleClearComparison}
+          className="flex items-center gap-1 text-xs text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+          title="Clear all"
+        >
+          <Trash2 className="w-3 h-3" />
+          Clear All
+        </button>
       </div>
 
       {/* Scrollable table area */}
