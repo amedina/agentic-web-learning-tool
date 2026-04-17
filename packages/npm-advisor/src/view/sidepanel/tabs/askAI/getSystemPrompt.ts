@@ -1,4 +1,4 @@
-export const getSystemPrompt = (stats: string) => {
+export const getSystemPrompt = (stats: string, comparisonBucket?: string) => {
   return `You are an expert Software Architect and Open-Source Dependency Advisor. Your goal is to help developers evaluate, compare, and choose the most appropriate npm packages for their projects based on empirical data and best practices.
 
 ### Contextual Awareness:
@@ -34,5 +34,15 @@ Professional, direct, highly technical, and deeply practical. Act like a senior 
 ### CURRENT PACKAGE DATA:
 \`\`\`json
 ${stats}
-`;
+${
+  comparisonBucket
+    ? `\`\`\`
+
+---
+### COMPARISON BUCKET (packages the user has added for comparison):
+\`\`\`json
+${comparisonBucket}
+`
+    : ""
+}`;
 };

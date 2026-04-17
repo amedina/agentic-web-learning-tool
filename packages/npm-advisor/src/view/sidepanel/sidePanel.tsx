@@ -108,9 +108,22 @@ const SidePanel = () => {
           assistantMessage={AssistantMessage}
           userMessage={UserMessage}
           getCustomSystemPrompt={() => {
-            return getSystemPrompt(JSON.stringify(stats, null, 2));
+            return getSystemPrompt(
+              JSON.stringify(stats, null, 2),
+              comparisonBucket.length > 0
+                ? JSON.stringify(comparisonBucket, null, 2)
+                : undefined,
+            );
           }}
           suggestions={[
+            ...(comparisonBucket.length > 0
+              ? [
+                  {
+                    text: "Compare all packages",
+                    prompt: "Compare all of these packages.",
+                  },
+                ]
+              : []),
             {
               text: "Suggest better alternatives",
               prompt: `Suggest better alternatives to ${stats.packageName}`,
