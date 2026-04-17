@@ -3,6 +3,7 @@
  */
 import React from "react";
 import { Github, Star, Users, Clock, Activity, Info } from "lucide-react";
+import { usePropProvider } from "@google-awlt/chatbot";
 
 export interface HeaderProps {
   packageName: string;
@@ -27,6 +28,10 @@ export const Header: React.FC<HeaderProps> = ({
   isAddedToCompare,
   score,
 }) => {
+  const { setActiveTab } = usePropProvider(({ actions }) => ({
+    setActiveTab: actions.setActiveTab,
+  }));
+
   const formatDate = (dateString: string) => {
     const d = new Date(dateString);
     const day = d.getDate();
@@ -48,13 +53,7 @@ export const Header: React.FC<HeaderProps> = ({
             </h1>
             {isAddedToCompare ? (
               <button
-                onClick={() => {
-                  chrome.tabs.create({
-                    url: chrome.runtime.getURL(
-                      "options/options.html#comparison",
-                    ),
-                  });
-                }}
+                onClick={() => setActiveTab("comparison")}
                 className={`px-2 py-1 text-xs font-semibold rounded-md border transition-colors bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800 hover:bg-green-100 dark:hover:bg-green-900/40 flex items-center space-x-1 cursor-pointer`}
               >
                 <span>View Comparison</span>

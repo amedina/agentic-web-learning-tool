@@ -1,12 +1,12 @@
 /**
  * External dependencies.
  */
-import React, { useState, useEffect } from "react";
+import React from "react";
 import {
   Settings,
   Moon,
   Sun,
-  GitCompareArrows,
+  ExternalLink,
   Menu,
   Download,
   PlusCircle,
@@ -22,7 +22,6 @@ import { useTheme } from "../context/themeContext";
 
 export const GlobalHeader = () => {
   const { isDarkMode, toggleTheme } = useTheme();
-  const [comparisonCount, setComparisonCount] = useState(0);
   const messages = useThread((state) => state.messages);
   const isThreadEmpty = messages.length === 0;
 
@@ -43,22 +42,6 @@ export const GlobalHeader = () => {
   }));
 
   const isChatTabActive = activeTab === "chat";
-
-  useEffect(() => {
-    chrome.storage.local.get(["comparisonBucket"], (res) => {
-      setComparisonCount((res.comparisonBucket ?? []).length);
-    });
-
-    const listener = (
-      changes: Record<string, chrome.storage.StorageChange>,
-    ) => {
-      if ("comparisonBucket" in changes) {
-        setComparisonCount((changes.comparisonBucket.newValue ?? []).length);
-      }
-    };
-    chrome.storage.local.onChanged.addListener(listener);
-    return () => chrome.storage.local.onChanged.removeListener(listener);
-  }, []);
 
   const handleOpenOptions = () => {
     if (chrome.runtime.openOptionsPage) {
@@ -112,17 +95,14 @@ export const GlobalHeader = () => {
         )}
       </div>
       <div className="flex items-center">
-        {!isOptionsPage && comparisonCount > 0 && (
+        {!isOptionsPage && activeTab === "comparison" && (
           <button
             onClick={openComparisons}
             className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors cursor-pointer text-xs font-medium px-2 py-1 rounded hover:bg-accent"
-            title="View comparisons"
+            title="View in options page"
           >
-            <GitCompareArrows size={14} />
-            <span>View Comparisons</span>
-            <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-[#c94137]/15 text-[#c94137] text-[10px] font-bold leading-none">
-              {comparisonCount}
-            </span>
+            <ExternalLink size={14} />
+            <span>View in options page</span>
           </button>
         )}
 

@@ -29,10 +29,17 @@ export const usePackageStats = () => {
 
   useEffect(() => {
     chrome.storage.local.get(["comparisonBucket"], (res) => {
-      if (res.comparisonBucket) {
-        setComparisonBucket(res.comparisonBucket as any[]);
-      }
+      setComparisonBucket(res.comparisonBucket ?? []);
     });
+
+    const storageListener = (
+      changes: Record<string, chrome.storage.StorageChange>,
+    ) => {
+      if ("comparisonBucket" in changes) {
+        setComparisonBucket(changes.comparisonBucket.newValue ?? []);
+      }
+    };
+    chrome.storage.local.onChanged.addListener(storageListener);
 
     const fetchCurrentTabStats = async (overrideUrl?: string) => {
       try {
@@ -51,14 +58,6 @@ export const usePackageStats = () => {
         }
 
         setCurrentTabUrl(url as string);
-        if (urlCache.has(url)) {
-          const cached = urlCache.get(url)!;
-          setStats(cached.stats);
-          setError(cached.error);
-          setIsNavigationMessage(!cached.stats && !cached.error);
-          setLoading(false);
-          return;
-        }
 
         if (url.startsWith("chrome-extension://")) {
           setIsOptionsPage(true);
@@ -72,6 +71,15 @@ export const usePackageStats = () => {
 
         setIsOptionsPage(false);
         setIsComparisonPage(false);
+
+        if (urlCache.has(url)) {
+          const cached = urlCache.get(url)!;
+          setStats(cached.stats);
+          setError(cached.error);
+          setIsNavigationMessage(!cached.stats && !cached.error);
+          setLoading(false);
+          return;
+        }
         setLoading(true);
         setError(null);
         setIsNavigationMessage(false);
@@ -186,6 +194,7 @@ export const usePackageStats = () => {
     chrome.tabs.onActivated.addListener(handleTabActivated);
 
     return () => {
+      chrome.storage.local.onChanged.removeListener(storageListener);
       chrome.webNavigation.onHistoryStateUpdated.removeListener(
         handleHistoryStateUpdated,
       );

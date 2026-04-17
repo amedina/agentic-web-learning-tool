@@ -7,14 +7,12 @@ import React from "react";
  * Internal dependencies.
  */
 import PackageSearch from "./search";
-import { ComparisonTable } from "./table/comparisonTable";
 import { EmptyState } from "./table/emptyState";
 import { WinnerBanner } from "./table/winnerBanner";
+import { SidepanelComparisonTable } from "../../../sidepanel/tabs/comparison/sidepanelComparisonTable";
 
 interface ComparisonTabProps {
   comparisonBucket: any[];
-  handleClearComparison: () => void;
-  handleRemovePackage: (packageName: string) => void;
   winnerName: string | null;
 }
 
@@ -23,8 +21,6 @@ interface ComparisonTabProps {
  */
 export const ComparisonTab: React.FC<ComparisonTabProps> = ({
   comparisonBucket,
-  handleClearComparison,
-  handleRemovePackage,
   winnerName,
 }) => (
   <div className="mt-[-10px]">
@@ -32,12 +28,7 @@ export const ComparisonTab: React.FC<ComparisonTabProps> = ({
     {comparisonBucket.length === 0 ? (
       <EmptyState />
     ) : (
-      <ComparisonTable
-        comparisonBucket={comparisonBucket}
-        handleClearComparison={handleClearComparison}
-        handleRemovePackage={handleRemovePackage}
-        winnerName={winnerName}
-      />
+      <SidepanelComparisonTable showHeader={false} />
     )}
     {comparisonBucket.length > 0 && winnerName && (
       <WinnerBanner winnerName={winnerName} />
