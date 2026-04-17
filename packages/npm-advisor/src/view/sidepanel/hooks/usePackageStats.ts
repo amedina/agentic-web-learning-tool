@@ -17,7 +17,10 @@ const urlCache = new Map<
 export const usePackageStats = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentTabUrl, setCurrentTabUrl] = useState<string | null>(null);
   const [isNavigationMessage, setIsNavigationMessage] = useState(false);
+  const [isOptionsPage, setIsOptionsPage] = useState(false);
+  const [isComparisonPage, setIsComparisonPage] = useState(false);
   const [stats, setStats] = useState<PackageStats | null>(null);
   const [comparisonBucket, setComparisonBucket] = useState<any[]>([]);
   const [addingRecommendations, setAddingRecommendations] = useState<
@@ -26,10 +29,17 @@ export const usePackageStats = () => {
 
   useEffect(() => {
     chrome.storage.local.get(["comparisonBucket"], (res) => {
-      if (res.comparisonBucket) {
-        setComparisonBucket(res.comparisonBucket as any[]);
-      }
+      setComparisonBucket(res.comparisonBucket ?? []);
     });
+
+    const storageListener = (
+      changes: Record<string, chrome.storage.StorageChange>,
+    ) => {
+      if ("comparisonBucket" in changes) {
+        setComparisonBucket(changes.comparisonBucket.newValue ?? []);
+      }
+    };
+    chrome.storage.local.onChanged.addListener(storageListener);
 
     const fetchCurrentTabStats = async (overrideUrl?: string) => {
       try {
@@ -47,6 +57,21 @@ export const usePackageStats = () => {
           throw new Error("Could not determine current tab URL.");
         }
 
+        setCurrentTabUrl(url as string);
+
+        if (url.startsWith("chrome-extension://")) {
+          setIsOptionsPage(true);
+          setIsComparisonPage(url.includes("#comparison"));
+          setStats(null);
+          setError(null);
+          setIsNavigationMessage(false);
+          setLoading(false);
+          return;
+        }
+
+        setIsOptionsPage(false);
+        setIsComparisonPage(false);
+
         if (urlCache.has(url)) {
           const cached = urlCache.get(url)!;
           setStats(cached.stats);
@@ -55,14 +80,13 @@ export const usePackageStats = () => {
           setLoading(false);
           return;
         }
-
         setLoading(true);
         setError(null);
         setIsNavigationMessage(false);
 
         let packageName: string | null = null;
         if (url.includes("npmjs.com/package/")) {
-          const match = url.match(/npmjs\.com\/package\/([^/?#]+)/);
+          const match = url.match(/npmjs\.com\/package\/([^?#]+)/);
           if (match && match[1]) {
             packageName = decodeURIComponent(match[1]);
           }
@@ -130,17 +154,24 @@ export const usePackageStats = () => {
 
     fetchCurrentTabStats();
 
-    const handleTabUpdated = (tabId: number, changeInfo: any) => {
-      chrome.tabs.get(tabId, (tab) => {
-        if (chrome.runtime.lastError || !tab?.active) return;
-        if (changeInfo.url) {
-          // Pass URL directly — tab.url may still reflect the previous page.
-          fetchCurrentTabStats(changeInfo.url);
-        } else if (changeInfo.status === "complete" && tab.url) {
-          // Safety net: re-evaluate once the page has fully loaded.
-          fetchCurrentTabStats(tab.url);
-        }
-      });
+    const handleHistoryStateUpdated = async (
+      details: chrome.webNavigation.WebNavigationTransitionCallbackDetails,
+    ) => {
+      const { tabId, frameId, url } = details;
+      const currentTab = (
+        await chrome.tabs.query({
+          active: true,
+          currentWindow: true,
+        })
+      )?.[0];
+
+      if (chrome.runtime.lastError) return;
+
+      if (frameId !== 0 || tabId !== currentTab?.id) {
+        return;
+      }
+
+      fetchCurrentTabStats(url);
     };
 
     const handleTabActivated = (activeInfo: { tabId: number }) => {
@@ -149,10 +180,24 @@ export const usePackageStats = () => {
       });
     };
 
+    const handleTabUpdated = (tabId: number) => {
+      chrome.tabs.get(tabId, (tab) => {
+        if (tab) fetchCurrentTabStats(tab.url);
+      });
+    };
+
+    chrome.webNavigation.onHistoryStateUpdated.addListener(
+      handleHistoryStateUpdated,
+    );
     chrome.tabs.onUpdated.addListener(handleTabUpdated);
+
     chrome.tabs.onActivated.addListener(handleTabActivated);
 
     return () => {
+      chrome.storage.local.onChanged.removeListener(storageListener);
+      chrome.webNavigation.onHistoryStateUpdated.removeListener(
+        handleHistoryStateUpdated,
+      );
       chrome.tabs.onUpdated.removeListener(handleTabUpdated);
       chrome.tabs.onActivated.removeListener(handleTabActivated);
     };
@@ -202,10 +247,14 @@ export const usePackageStats = () => {
     loading,
     error,
     isNavigationMessage,
+    isOptionsPage,
+    isComparisonPage,
+    comparisonBucket,
     isAddedToCompare,
     handleAddToCompare,
     handleAddRecommendationToCompare,
     comparisonBucketNames,
     addingRecommendations,
+    currentTabUrl,
   };
 };

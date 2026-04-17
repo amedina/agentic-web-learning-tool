@@ -1,6 +1,6 @@
 {
   "name": "@google-awlt/shared-config",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "type": "module",
   "private": true,
   "exports": {

@@ -11,6 +11,7 @@ import {
   ErrorState,
   NavigationMessage,
   InsightsTab,
+  ComparisonTab,
   AssistantMessage,
   UserMessage,
   GlobalHeader,
@@ -20,6 +21,8 @@ import { usePackageStats } from "./hooks/usePackageStats";
 import { getSystemPrompt } from "./tabs/askAI/getSystemPrompt";
 import { ThemeProvider } from "./context/themeContext";
 import { downloadMarkdownFile } from "../../utils";
+import OptionsPageSidePanel from "./optionsPageSidePanel";
+import ComparisonPageSidePanel from "./comparisonPageSidePanel";
 
 const SidePanel = () => {
   const {
@@ -27,15 +30,27 @@ const SidePanel = () => {
     loading,
     error,
     isNavigationMessage,
+    isOptionsPage,
+    isComparisonPage,
+    comparisonBucket,
     isAddedToCompare,
     handleAddToCompare,
     handleAddRecommendationToCompare,
     comparisonBucketNames,
     addingRecommendations,
+    currentTabUrl,
   } = usePackageStats();
 
   if (loading) return <LoadingState />;
-  if (isNavigationMessage) return <NavigationMessage />;
+  if (isNavigationMessage) return <NavigationMessage url={currentTabUrl} />;
+
+  if (isOptionsPage) {
+    if (isComparisonPage) {
+      return <ComparisonPageSidePanel comparisonBucket={comparisonBucket} />;
+    }
+    return <OptionsPageSidePanel />;
+  }
+
   if (error || !stats) return <ErrorState error={error} />;
 
   return (
@@ -43,6 +58,7 @@ const SidePanel = () => {
       <ThemeProvider>
         <PropProvider
           allowToolCalling={false}
+          view="npm-advisor"
           exportChatCallback={downloadMarkdownFile}
           prefixTabs={[
             {
@@ -62,6 +78,24 @@ const SidePanel = () => {
               ),
             },
           ]}
+          suffixTabs={
+            comparisonBucket.length > 0
+              ? [
+                  {
+                    value: "comparison",
+                    label: (
+                      <span className="flex items-center gap-1.5">
+                        Comparison
+                        <span className="inline-flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full bg-[#c94137] text-white text-[10px] font-bold leading-none">
+                          {comparisonBucket.length}
+                        </span>
+                      </span>
+                    ),
+                    content: <ComparisonTab />,
+                  },
+                ]
+              : []
+          }
           customIcon={
             <img
               src="/icons/icon.png"
@@ -74,9 +108,22 @@ const SidePanel = () => {
           assistantMessage={AssistantMessage}
           userMessage={UserMessage}
           getCustomSystemPrompt={() => {
-            return getSystemPrompt(JSON.stringify(stats, null, 2));
+            return getSystemPrompt(
+              JSON.stringify(stats, null, 2),
+              comparisonBucket.length > 0
+                ? JSON.stringify(comparisonBucket, null, 2)
+                : undefined,
+            );
           }}
           suggestions={[
+            ...(comparisonBucket.length > 0
+              ? [
+                  {
+                    text: "Compare all packages",
+                    prompt: "Compare all of these packages.",
+                  },
+                ]
+              : []),
             {
               text: "Suggest better alternatives",
               prompt: `Suggest better alternatives to ${stats.packageName}`,

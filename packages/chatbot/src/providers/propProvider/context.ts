@@ -28,6 +28,7 @@ export type PropProviderType = {
     allowChatStorage: boolean;
     activeTab: string;
     isOptionsPage?: boolean;
+    isNPMAdvisor: boolean;
   };
   actions: {
     getCustomSystemPrompt: () => string;
@@ -58,6 +59,7 @@ const initialState: PropProviderType = {
     },
     allowChatStorage: true,
     activeTab: '',
+    isNPMAdvisor: false,
   },
   actions: {
     getCustomSystemPrompt: () => '',

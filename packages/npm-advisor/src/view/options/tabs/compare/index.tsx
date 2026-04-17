@@ -9,7 +9,6 @@ import { OptionsPageTab } from "@google-awlt/design-system";
  */
 import { ComparisonTab } from "./comparisonTab";
 import { calculateScore } from "../../../../utils/calculateScore";
-import { AssistantModal } from "./chatUI/assistantModal";
 
 export default function ComparisonPage() {
   const [comparisonBucket, setComparisonBucket] = useState<any[]>([]);
@@ -33,21 +32,6 @@ export default function ComparisonPage() {
     return () => chrome.storage.onChanged.removeListener(handleStorageChange);
   }, []);
 
-  const handleClearComparison = () => {
-    chrome.storage.local.set({ comparisonBucket: [] }, () =>
-      setComparisonBucket([]),
-    );
-  };
-
-  const handleRemovePackage = (packageName: string) => {
-    const updated = comparisonBucket.filter(
-      (p) => p.packageName !== packageName,
-    );
-    chrome.storage.local.set({ comparisonBucket: updated }, () =>
-      setComparisonBucket(updated),
-    );
-  };
-
   const winnerName = useMemo(() => {
     if (comparisonBucket.length === 0) return null;
     let bestScore = -Infinity;
@@ -64,17 +48,14 @@ export default function ComparisonPage() {
 
   return (
     <OptionsPageTab
-      title="Compare"
+      title="Comparison"
       description="Compare NPM packages side by side based on key metrics."
       wrapperClasses="max-w-full"
     >
       <ComparisonTab
         comparisonBucket={comparisonBucket}
-        handleClearComparison={handleClearComparison}
-        handleRemovePackage={handleRemovePackage}
         winnerName={winnerName}
       />
-      <AssistantModal comparisonBucket={comparisonBucket} />
     </OptionsPageTab>
   );
 }

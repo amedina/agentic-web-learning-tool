@@ -3,6 +3,7 @@
  */
 import React from "react";
 import { Info, Plus, Check, Loader2, ExternalLink } from "lucide-react";
+import { usePropProvider } from "@google-awlt/chatbot";
 
 export interface RecommendationsProps {
   recommendations: {
@@ -37,6 +38,10 @@ const AddToCompareButton: React.FC<AddToCompareButtonProps> = ({
   isAdded,
   isAdding,
 }) => {
+  const { setActiveTab } = usePropProvider(({ actions }) => ({
+    setActiveTab: actions.setActiveTab,
+  }));
+
   if (isAdding) {
     return (
       <span className="ml-2 inline-flex items-center justify-center w-5 h-5 shrink-0">
@@ -49,11 +54,7 @@ const AddToCompareButton: React.FC<AddToCompareButtonProps> = ({
     return (
       <div className="group/tooltip relative ml-2 shrink-0">
         <button
-          onClick={() => {
-            chrome.tabs.create({
-              url: chrome.runtime.getURL("options/options.html#comparison"),
-            });
-          }}
+          onClick={() => setActiveTab("comparison")}
           className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-green-100 dark:bg-green-900/40 text-green-600 dark:text-green-400 border border-green-200 dark:border-green-700 hover:bg-green-200 dark:hover:bg-green-900/60 transition-colors"
         >
           <Check size={10} />

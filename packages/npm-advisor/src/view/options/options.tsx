@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { StrictMode, useEffect, useMemo, useState } from "react";
+import { StrictMode, useEffect, useMemo } from "react";
 import { createRoot } from "react-dom/client";
 import {
   Sidebar,
@@ -12,9 +12,6 @@ import {
   type MenuItem,
 } from "@google-awlt/design-system";
 import { CpuIcon, Settings2, BarChart2 } from "lucide-react";
-import { transportGenerator } from "@google-awlt/chatbot";
-import { AssistantRuntimeProvider } from "@assistant-ui/react";
-import { useChatRuntime } from "@assistant-ui/react-ai-sdk";
 /**
  * Internal dependencies
  */
@@ -22,8 +19,7 @@ import "./options.css";
 import ModelsTab from "./tabs/models";
 import SettingsTab from "./tabs/settings";
 import ComparisonPage from "./tabs/compare";
-import { ModelProvider, useModelProvider } from "./providers";
-import { getSystemPrompt } from "./tabs/compare/chatUI/getSystemPrompt";
+import { ModelProvider } from "./providers";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -93,7 +89,7 @@ const Items: ExtendedMenuItem[] = [
     isDisabled: false,
   },
   {
-    title: "Compare",
+    title: "Comparison",
     id: "comparison",
     icon: () => <BarChart2 />,
     component: <ComparisonPage />,
@@ -166,62 +162,8 @@ function Options() {
     return () => chrome.storage.onChanged.removeListener(handleStorageChange);
   }, []);
 
-  const [comparisonBucket, setComparisonBucket] = useState<any[]>([]);
-
-  useEffect(() => {
-    chrome.storage.local.get(["comparisonBucket"], (res) => {
-      if (res.comparisonBucket) {
-        setComparisonBucket(res.comparisonBucket as any[]);
-      }
-    });
-
-    const handleStorageChange = (
-      changes: { [key: string]: chrome.storage.StorageChange },
-      area: string,
-    ) => {
-      if (area === "local" && changes.comparisonBucket) {
-        setComparisonBucket((changes.comparisonBucket.newValue as any[]) || []);
-      }
-    };
-    chrome.storage.onChanged.addListener(handleStorageChange);
-    return () => chrome.storage.onChanged.removeListener(handleStorageChange);
-  }, []);
-
-  const { apiKeys } = useModelProvider(({ state }) => ({
-    apiKeys: state.apiKeys,
-  }));
-
-  const transport = useMemo(() => {
-    if (apiKeys?.gemini) {
-      return transportGenerator(
-        "gemini",
-        "gemini-pro-latest",
-        {
-          apiKey: apiKeys.gemini?.apiKey,
-        },
-        apiKeys.gemini?.thinkingMode,
-        getSystemPrompt(JSON.stringify(comparisonBucket, null, 2)),
-      );
-    }
-
-    return transportGenerator(
-      "open-ai",
-      "gpt-4o",
-      { apiKey: apiKeys?.["open-ai"]?.apiKey },
-      apiKeys?.["open-ai"]?.thinkingMode,
-      getSystemPrompt(JSON.stringify(comparisonBucket, null, 2)),
-    );
-  }, [apiKeys, comparisonBucket]);
-
-  const runtime = useChatRuntime({
-    messages: [],
-    transport,
-  });
-
-  transport.setRuntime(runtime);
-
   return (
-    <AssistantRuntimeProvider runtime={runtime}>
+    <>
       <Toaster position="top-center" />
       <div className="fixed top-0 left-0 z-20 md:hidden pl-4 shadow bg-sidebar rounded-md">
         <SidebarTrigger />
@@ -233,7 +175,7 @@ function Options() {
         header={<NpmAdvisorHeader />}
       />
       {flatItems.find((item) => item.id === selectedMenuItem)?.component}
-    </AssistantRuntimeProvider>
+    </>
   );
 }
 
