@@ -11,23 +11,24 @@ import { calculateScore } from "../../../../utils/calculateScore";
 
 interface SidepanelComparisonTableProps {
   onClear?: () => void;
+  showHeader?: boolean;
 }
 
 export const SidepanelComparisonTable: React.FC<
   SidepanelComparisonTableProps
-> = ({ onClear }) => {
+> = ({ onClear, showHeader = true }) => {
   const [comparisonBucket, setComparisonBucket] = useState<any[]>([]);
 
   useEffect(() => {
     chrome.storage.local.get(["comparisonBucket"], (res) => {
-      setComparisonBucket(res.comparisonBucket ?? []);
+      setComparisonBucket((res.comparisonBucket as any[]) ?? []);
     });
 
     const listener = (
       changes: Record<string, chrome.storage.StorageChange>,
     ) => {
       if ("comparisonBucket" in changes) {
-        setComparisonBucket(changes.comparisonBucket.newValue ?? []);
+        setComparisonBucket((changes.comparisonBucket.newValue as any[]) ?? []);
       }
     };
     chrome.storage.local.onChanged.addListener(listener);
@@ -246,9 +247,13 @@ export const SidepanelComparisonTable: React.FC<
     <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-2.5 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
-        <span className="text-sm font-semibold text-slate-800 dark:text-slate-100">
-          Comparison ({comparisonBucket.length})
-        </span>
+        {showHeader ? (
+          <span className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+            Comparison ({comparisonBucket.length})
+          </span>
+        ) : (
+          <span />
+        )}
         <button
           onClick={handleClearComparison}
           className="flex items-center gap-1 text-xs font-medium text-slate-400 dark:text-slate-500 hover:text-[#c94137] dark:hover:text-[#c94137] transition-colors"
@@ -270,7 +275,7 @@ export const SidepanelComparisonTable: React.FC<
               {comparisonBucket.map((pkg, idx) => (
                 <th
                   key={idx}
-                  className={`px-3 py-2.5 text-left font-semibold text-slate-800 dark:text-slate-100 border-b border-slate-200 dark:border-slate-600 ${idx !== comparisonBucket.length - 1 ? "border-r border-slate-200 dark:border-slate-600" : ""} w-36 relative pb-6`}
+                  className={`px-3 py-[12px] text-left font-semibold text-slate-800 dark:text-slate-100 border-b border-slate-200 dark:border-slate-600 ${idx !== comparisonBucket.length - 1 ? "border-r border-slate-200 dark:border-slate-600" : ""} w-36 relative`}
                 >
                   <div className="flex items-center justify-between gap-1">
                     <span className="truncate text-xs leading-tight">
@@ -285,7 +290,7 @@ export const SidepanelComparisonTable: React.FC<
                     </button>
                   </div>
                   {winnerName === pkg.packageName && (
-                    <span className="absolute bottom-1.5 left-3 flex items-center gap-0.5 bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-700 text-[9px] uppercase font-bold px-1.5 py-0.5 rounded-full w-fit">
+                    <span className="absolute bottom-[-10px] right-0 z-10 flex items-center gap-0.5 bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-700 text-[9px] uppercase font-bold px-1.5 py-0.5 rounded-full w-fit">
                       <Award className="w-2.5 h-2.5" />
                       Winner
                     </span>
