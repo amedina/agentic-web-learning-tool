@@ -60,7 +60,7 @@ export interface ToolExecutionArgs {
 export type SidePanelTabProps = {
   extraTabs: {
     value: string;
-    label: string;
+    label: React.ReactNode;
     content: React.ReactNode;
   }[];
   footerNode?: React.ReactNode;
