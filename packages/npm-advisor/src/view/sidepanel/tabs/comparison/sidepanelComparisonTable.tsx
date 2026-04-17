@@ -240,16 +240,18 @@ export const SidepanelComparisonTable: React.FC<
       },
     ];
 
+  const lastRowLabel = rows[rows.length - 1]?.label;
+
   return (
-    <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm overflow-hidden">
+    <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-2.5 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900">
+      <div className="flex items-center justify-between px-4 py-2.5 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
         <span className="text-sm font-semibold text-slate-800 dark:text-slate-100">
           Comparison ({comparisonBucket.length})
         </span>
         <button
           onClick={handleClearComparison}
-          className="flex items-center gap-1 text-xs text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+          className="flex items-center gap-1 text-xs font-medium text-slate-400 dark:text-slate-500 hover:text-[#c94137] dark:hover:text-[#c94137] transition-colors"
           title="Clear all"
         >
           <Trash2 className="w-3 h-3" />
@@ -259,16 +261,16 @@ export const SidepanelComparisonTable: React.FC<
 
       {/* Scrollable table area */}
       <div className="overflow-x-auto">
-        <table className="w-full text-xs table-fixed divide-y divide-slate-200 dark:divide-slate-700">
-          <thead className="bg-slate-50 dark:bg-slate-900">
+        <table className="w-full text-xs table-fixed">
+          <thead className="bg-slate-100 dark:bg-slate-700/60">
             <tr>
-              <th className="px-3 py-2.5 text-left font-semibold text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 w-28 shrink-0">
+              <th className="px-3 py-2.5 text-left font-semibold text-slate-600 dark:text-slate-300 border-r border-b border-slate-200 dark:border-slate-600 w-28 shrink-0 uppercase tracking-wide text-[10px]">
                 Metric
               </th>
               {comparisonBucket.map((pkg, idx) => (
                 <th
                   key={idx}
-                  className={`px-3 py-2.5 text-left font-semibold text-slate-900 dark:text-slate-100 ${idx !== comparisonBucket.length - 1 ? "border-r" : ""} border-slate-200 dark:border-slate-700 w-36 relative`}
+                  className={`px-3 py-2.5 text-left font-semibold text-slate-800 dark:text-slate-100 border-b border-slate-200 dark:border-slate-600 ${idx !== comparisonBucket.length - 1 ? "border-r border-slate-200 dark:border-slate-600" : ""} w-36 relative pb-6`}
                 >
                   <div className="flex items-center justify-between gap-1">
                     <span className="truncate text-xs leading-tight">
@@ -283,7 +285,7 @@ export const SidepanelComparisonTable: React.FC<
                     </button>
                   </div>
                   {winnerName === pkg.packageName && (
-                    <span className="flex items-center gap-0.5 mt-0.5 bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-700 text-[9px] uppercase font-bold px-1.5 py-0.5 rounded-full w-fit">
+                    <span className="absolute bottom-1.5 left-3 flex items-center gap-0.5 bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-700 text-[9px] uppercase font-bold px-1.5 py-0.5 rounded-full w-fit">
                       <Award className="w-2.5 h-2.5" />
                       Winner
                     </span>
@@ -292,22 +294,34 @@ export const SidepanelComparisonTable: React.FC<
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
-            {rows.map((row) => (
-              <tr key={row.label}>
-                <td className="px-3 py-2.5 font-medium text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700 align-top">
-                  {row.label}
-                </td>
-                {comparisonBucket.map((pkg, idx) => (
+          <tbody>
+            {rows.map((row, rowIdx) => {
+              const isLast = row.label === lastRowLabel;
+              const isEven = rowIdx % 2 === 0;
+              const rowBg = isEven
+                ? "bg-white dark:bg-slate-800"
+                : "bg-slate-50 dark:bg-slate-800/50";
+              return (
+                <tr
+                  key={row.label}
+                  className={`${rowBg} ${!isLast ? "border-b border-slate-100 dark:border-slate-700/60" : ""}`}
+                >
                   <td
-                    key={idx}
-                    className={`px-3 py-2.5 text-slate-500 dark:text-slate-400 ${idx !== comparisonBucket.length - 1 ? "border-r" : ""} border-slate-200 dark:border-slate-700 align-top`}
+                    className={`px-3 font-medium text-slate-600 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 align-top ${isLast ? "pt-2.5 pb-[15px]" : "py-2.5"}`}
                   >
-                    {row.render(pkg)}
+                    {row.label}
                   </td>
-                ))}
-              </tr>
-            ))}
+                  {comparisonBucket.map((pkg, idx) => (
+                    <td
+                      key={idx}
+                      className={`px-3 text-slate-500 dark:text-slate-400 align-top ${isLast ? "pt-2.5 pb-[15px]" : "py-2.5"} ${idx !== comparisonBucket.length - 1 ? "border-r border-slate-200 dark:border-slate-700" : ""}`}
+                    >
+                      {row.render(pkg)}
+                    </td>
+                  ))}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
