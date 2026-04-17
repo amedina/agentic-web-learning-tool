@@ -77,7 +77,9 @@ const SidePanel = () => {
                 />
               ),
             },
-            ...(comparisonBucket.length > 0
+          ]}
+          suffixTabs={
+            comparisonBucket.length > 0
               ? [
                   {
                     value: "comparison",
@@ -92,8 +94,8 @@ const SidePanel = () => {
                     content: <ComparisonTab />,
                   },
                 ]
-              : []),
-          ]}
+              : []
+          }
           customIcon={
             <img
               src="/icons/icon.png"
