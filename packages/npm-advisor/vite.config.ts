@@ -52,6 +52,14 @@ export default defineConfig({
       },
       output: {
         entryFileNames: "[name]/[name].js",
+        chunkFileNames: (chunkInfo) => {
+          const isLanguageChunk = chunkInfo.moduleIds.some((id) =>
+            id.includes("refractor/lang/"),
+          );
+          return isLanguageChunk
+            ? "assets/languages/[name].[hash].js"
+            : "assets/[name].[hash].js";
+        },
       },
     },
   },
