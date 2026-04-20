@@ -70,7 +70,14 @@ export default defineConfig({
         entryFileNames: isContentBuild
           ? "contentScript/contentScript.js"
           : "[name]/[name].js",
-        chunkFileNames: "assets/[name].[hash].js",
+        chunkFileNames: (chunkInfo) => {
+          const isLanguageChunk = chunkInfo.moduleIds.some((id) =>
+            id.includes("refractor/lang/"),
+          );
+          return isLanguageChunk
+            ? "assets/languages/[name].[hash].js"
+            : "assets/[name].[hash].js";
+        },
         assetFileNames: (assetInfo) => {
           if (isContentBuild && assetInfo.name?.endsWith(".css")) {
             return "assets/contentScript.css";
