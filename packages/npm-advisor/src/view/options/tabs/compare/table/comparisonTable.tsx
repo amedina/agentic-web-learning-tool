@@ -8,7 +8,7 @@ import { X } from "lucide-react";
 /**
  * Internal dependencies.
  */
-import { calculateScore } from "../../../../../utils/calculateScore";
+import { calculateScore } from "../../../../../lib/calculateScore";
 
 interface ComparisonTableProps {
   comparisonBucket: any[];

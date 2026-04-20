@@ -13,7 +13,7 @@ import {
 /**
  * Internal dependencies.
  */
-import type { DependencyTree as DependencyTreeType } from "../../../../utils";
+import type { DependencyTree as DependencyTreeType } from "../../../../lib";
 import DependencyGraph from "./dependencyGraph";
 
 type DepNode = DependencyTreeType & { _loaded?: boolean };

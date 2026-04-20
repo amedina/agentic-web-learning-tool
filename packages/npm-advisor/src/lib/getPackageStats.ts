@@ -1,13 +1,13 @@
 /**
  * Internal dependencies.
  */
-import { fetchNpmPackage } from "./fetchNpmPackage";
-import { fetchGithubRepo } from "./fetchGithubRepo";
-import { fetchGithubIssues } from "./fetchGithubIssues";
-import { fetchGithubSecurityAdvisories } from "./fetchGithubSecurityAdvisories";
-import { fetchBundlephobiaData } from "./fetchBundlephobiaData";
+import { fetchNpmPackage } from "../utils/fetchNpmPackage";
+import { fetchGithubRepo } from "../utils/fetchGithubRepo";
+import { fetchGithubIssues } from "../utils/fetchGithubIssues";
+import { fetchGithubSecurityAdvisories } from "../utils/fetchGithubSecurityAdvisories";
+import { fetchBundlephobiaData } from "../utils/fetchBundlephobiaData";
 import { getDependencyTree, type DependencyTree } from "./getDependencyTree";
-import { fetchModuleReplacements } from "./fetchModuleReplacements";
+import { fetchModuleReplacements } from "../utils/fetchModuleReplacements";
 
 /**
  * External dependencies.
@@ -16,7 +16,7 @@ import {
   checkLicenseCompatibility,
   type LicenseCompatibilityResult,
 } from "./checkLicenseCompatibility";
-import { parseGithubUrl } from "./parseGithubUrl";
+import { parseGithubUrl } from "../utils/parseGithubUrl";
 
 export interface PackageStats {
   packageName: string;

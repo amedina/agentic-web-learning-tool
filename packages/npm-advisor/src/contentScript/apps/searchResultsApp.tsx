@@ -10,7 +10,7 @@ import { BarChart2 } from "lucide-react";
 import { FilterSidebar } from "../components/filterSidebar";
 import { ResultCard } from "../components/resultCard";
 import { useThemeSync } from "../hooks/useThemeSync";
-import { calculateScore } from "../../utils";
+import { calculateScore } from "../../lib";
 import type { AlgoliaHit, SearchFilters } from "../types";
 
 const DEFAULT_FILTERS: SearchFilters = {

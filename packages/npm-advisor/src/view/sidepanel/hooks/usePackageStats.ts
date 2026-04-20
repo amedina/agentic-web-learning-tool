@@ -6,7 +6,7 @@ import { useState, useEffect, useCallback } from "react";
 /**
  * Internal dependencies.
  */
-import { type PackageStats } from "../../../utils";
+import { type PackageStats } from "../../../lib";
 
 // Cache to prevent reloading state when returning to a previously visited tab
 const urlCache = new Map<

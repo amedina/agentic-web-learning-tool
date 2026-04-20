@@ -1,7 +1,7 @@
 /**
  * Internal dependencies.
  */
-import { fetchWithCache } from "./fetchWithCache";
+import { fetchWithCache } from "../utils/fetchWithCache";
 
 export interface DependencyTree {
   name: string;

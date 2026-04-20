@@ -5,7 +5,7 @@ import {
   getPackageStats,
   type PackageStats,
   DEFAULT_TARGET_PROJECT_LICENSE,
-} from "../../utils";
+} from "../../lib";
 import { storageService } from "./storage";
 
 /**

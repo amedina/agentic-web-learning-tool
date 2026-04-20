@@ -7,7 +7,7 @@ import { User, Clock, Download, Plus, Check, Loader2 } from "lucide-react";
 /**
  * Internal dependencies
  */
-import { calculateScore } from "../../utils";
+import { calculateScore } from "../../lib";
 import type { AlgoliaHit } from "../types";
 
 interface ResultCardProps {
