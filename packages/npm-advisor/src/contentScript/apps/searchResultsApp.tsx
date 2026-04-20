@@ -1,9 +1,29 @@
+/**
+ * External dependencies
+ */
 import React, { useState, useEffect, useCallback } from "react";
-import { FilterSidebar } from "../components/FilterSidebar";
-import { ResultCard } from "../components/ResultCard";
+import { BarChart2 } from "lucide-react";
+
+/**
+ * Internal dependencies
+ */
+import { FilterSidebar } from "../components/filterSidebar";
+import { ResultCard } from "../components/resultCard";
 import { useThemeSync } from "../hooks/useThemeSync";
 import { calculateScore } from "../../utils";
-import { BarChart2 } from "lucide-react";
+import type { AlgoliaHit, SearchFilters } from "../types";
+
+const DEFAULT_FILTERS: SearchFilters = {
+  minDownloads: null,
+  lastUpdated: null,
+  notDeprecated: true,
+  hasTypes: false,
+  moduleEsm: false,
+  licenseMit: false,
+  hasHomepage: false,
+  hasRepo: false,
+  ranking: "optimal",
+};
 
 /**
  * Search Results App.
@@ -12,36 +32,33 @@ import { BarChart2 } from "lucide-react";
 export const SearchResultsApp: React.FC = () => {
   const isDark = useThemeSync();
   const [query, setQuery] = useState("");
-  const [hits, setHits] = useState<any[]>([]);
+  const [hits, setHits] = useState<AlgoliaHit[]>([]);
   const [nbHits, setNbHits] = useState(0);
   const [page, setPage] = useState(0);
   const [nbPages, setNbPages] = useState(0);
   const [isFetching, setIsFetching] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<"desc" | "asc">("desc");
-
-  const [filters, setFilters] = useState({
-    minDownloads: null as number | null,
-    lastUpdated: null as number | null,
-    notDeprecated: true,
-    hasTypes: false,
-    moduleEsm: false,
-    licenseMit: false,
-    hasHomepage: false,
-    hasRepo: false,
-    ranking: "optimal",
-  });
-
-  const [comparisonBucket, setComparisonBucket] = useState<any[]>([]);
+  const [filters, setFilters] = useState<SearchFilters>(DEFAULT_FILTERS);
+  const [comparisonBucket, setComparisonBucket] = useState<
+    Record<string, unknown>[]
+  >([]);
 
   useEffect(() => {
-    chrome.storage.local.get(["comparisonBucket"], (res: any) => {
-      setComparisonBucket(res.comparisonBucket || []);
+    chrome.storage.local.get(["comparisonBucket"], (res) => {
+      setComparisonBucket(
+        (res.comparisonBucket as Record<string, unknown>[]) || [],
+      );
     });
 
-    const listener = (changes: any) => {
+    const listener = (
+      changes: Record<string, chrome.storage.StorageChange>,
+    ) => {
       if (changes.comparisonBucket) {
-        setComparisonBucket(changes.comparisonBucket.newValue || []);
+        setComparisonBucket(
+          (changes.comparisonBucket.newValue as Record<string, unknown>[]) ||
+            [],
+        );
       }
     };
     chrome.storage.onChanged.addListener(listener);
@@ -65,6 +82,9 @@ export const SearchResultsApp: React.FC = () => {
     return () => window.removeEventListener("popstate", syncFromUrl);
   }, []);
 
+  // Keep the URL in sync with state using replaceState to avoid polluting history
+  // on initial load or filter changes; pagination uses the same approach since
+  // the back button restores the previous query via popstate → syncFromUrl.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const urlQ = params.get("q") || "";
@@ -78,11 +98,10 @@ export const SearchResultsApp: React.FC = () => {
       if (filters.ranking !== "optimal")
         newParams.set("ranking", filters.ranking);
 
-      const newUrl = `${window.location.pathname}?${newParams.toString()}`;
-      window.history.pushState(
+      window.history.replaceState(
         { query, page, ranking: filters.ranking },
         "",
-        newUrl,
+        `${window.location.pathname}?${newParams.toString()}`,
       );
     }
   }, [query, page, filters.ranking]);
@@ -102,7 +121,7 @@ export const SearchResultsApp: React.FC = () => {
       numericFilters.push(`modified > ${now - ms}`);
     }
 
-    const categoricalFilters: string[] = [];
+    const categoricalFilters: Array<string | string[]> = [];
     if (filters.notDeprecated) {
       categoricalFilters.push("isDeprecated:false");
     }
@@ -110,122 +129,110 @@ export const SearchResultsApp: React.FC = () => {
       categoricalFilters.push([
         "types.ts:included",
         "types.ts:definitely-typed",
-      ] as any);
+      ]);
     }
     if (filters.moduleEsm) {
       categoricalFilters.push("moduleTypes:esm");
     }
 
-    try {
-      const isCustomSort = filters.ranking !== "optimal";
-      const isClientSideMode =
-        isCustomSort ||
-        filters.licenseMit ||
-        filters.hasHomepage ||
-        filters.hasRepo;
+    const isCustomSort = filters.ranking !== "optimal";
+    const isClientSideMode =
+      isCustomSort ||
+      filters.licenseMit ||
+      filters.hasHomepage ||
+      filters.hasRepo;
 
-      const fetchPage = isClientSideMode ? 0 : page;
-      const fetchHitsPerPage = isClientSideMode ? 500 : 20;
+    const fetchPage = isClientSideMode ? 0 : page;
+    const fetchHitsPerPage = isClientSideMode ? 500 : 20;
 
-      chrome.runtime.sendMessage(
-        {
-          type: "SEARCH_NPM",
-          query,
-          page: fetchPage,
-          hitsPerPage: fetchHitsPerPage,
-          facetFilters: categoricalFilters,
-          numericFilters,
-        },
-        (response) => {
-          setIsFetching(false);
-          if (response && response.success) {
-            let finalHits = response.hits || [];
+    chrome.runtime.sendMessage(
+      {
+        type: "SEARCH_NPM",
+        query,
+        page: fetchPage,
+        hitsPerPage: fetchHitsPerPage,
+        facetFilters: categoricalFilters,
+        numericFilters,
+      },
+      (response) => {
+        setIsFetching(false);
+        if (response && response.success) {
+          let finalHits: AlgoliaHit[] = response.hits || [];
 
-            if (isClientSideMode) {
-              // Client-Side Reductions
-              if (filters.licenseMit) {
-                finalHits = finalHits.filter((h: any) => h.license === "MIT");
-              }
-              if (filters.hasHomepage) {
-                finalHits = finalHits.filter((h: any) => !!h.homepage);
-              }
-              if (filters.hasRepo) {
-                finalHits = finalHits.filter((h: any) => !!h.repository?.url);
-              }
-
-              // Client-Side Sorting
-              if (isCustomSort) {
-                finalHits.sort((a: any, b: any) => {
-                  let valA = 0;
-                  let valB = 0;
-
-                  if (filters.ranking === "popularity") {
-                    valA = a.downloadsLast30Days || 0;
-                    valB = b.downloadsLast30Days || 0;
-                  } else if (filters.ranking === "maintenance") {
-                    valA = a.modified ? new Date(a.modified).getTime() : 0;
-                    valB = b.modified ? new Date(b.modified).getTime() : 0;
-                  } else if (filters.ranking === "advisor") {
-                    const findScore = (h: any) => {
-                      const match = comparisonBucket.find(
-                        (pkg) =>
-                          pkg.packageName === h.name || pkg.name === h.name,
-                      );
-                      return match ? (calculateScore(match) ?? 0) : null;
-                    };
-                    const scoreA = findScore(a);
-                    const scoreB = findScore(b);
-
-                    if (scoreA !== null && scoreB !== null) {
-                      return sortOrder === "desc"
-                        ? scoreB - scoreA
-                        : scoreA - scoreB;
-                    }
-                    if (scoreA !== null) return -1;
-                    if (scoreB !== null) return 1;
-                    return 0;
-                  }
-
-                  return sortOrder === "desc" ? valB - valA : valA - valB;
-                });
-              }
+          if (isClientSideMode) {
+            // Client-Side Reductions
+            if (filters.licenseMit) {
+              finalHits = finalHits.filter((h) => h.license === "MIT");
+            }
+            if (filters.hasHomepage) {
+              finalHits = finalHits.filter((h) => !!h.homepage);
+            }
+            if (filters.hasRepo) {
+              finalHits = finalHits.filter((h) => !!h.repository?.url);
             }
 
-            setHits(finalHits);
-            setNbHits(response.nbHits);
-            setNbPages(isClientSideMode ? 1 : response.nbPages);
-          } else {
-            setError(response?.error || "Failed to fetch results");
+            // Client-Side Sorting
+            if (isCustomSort) {
+              finalHits.sort((a, b) => {
+                let valA = 0;
+                let valB = 0;
+
+                if (filters.ranking === "popularity") {
+                  valA = a.downloadsLast30Days || 0;
+                  valB = b.downloadsLast30Days || 0;
+                } else if (filters.ranking === "maintenance") {
+                  valA = a.modified ? new Date(a.modified).getTime() : 0;
+                  valB = b.modified ? new Date(b.modified).getTime() : 0;
+                } else if (filters.ranking === "advisor") {
+                  const findScore = (h: AlgoliaHit) => {
+                    const match = comparisonBucket.find(
+                      (pkg) =>
+                        pkg.packageName === h.name || pkg.name === h.name,
+                    );
+                    return match ? (calculateScore(match) ?? 0) : null;
+                  };
+                  const scoreA = findScore(a);
+                  const scoreB = findScore(b);
+
+                  if (scoreA !== null && scoreB !== null) {
+                    return sortOrder === "desc"
+                      ? scoreB - scoreA
+                      : scoreA - scoreB;
+                  }
+                  if (scoreA !== null) return -1;
+                  if (scoreB !== null) return 1;
+                  return 0;
+                }
+
+                return sortOrder === "desc" ? valB - valA : valA - valB;
+              });
+            }
           }
-        },
-      );
-    } catch (err: any) {
-      setIsFetching(false);
-      setError(err.message);
-    }
+
+          setHits(finalHits);
+          setNbHits(response.nbHits);
+          setNbPages(isClientSideMode ? 1 : response.nbPages);
+        } else {
+          setError(response?.error || "Failed to fetch results");
+        }
+      },
+    );
   }, [query, page, filters, sortOrder, comparisonBucket]);
 
   useEffect(() => {
     performSearch();
   }, [performSearch]);
 
-  const handleFilterChange = (key: string, value: any) => {
+  const handleFilterChange = (
+    key: keyof SearchFilters,
+    value: SearchFilters[keyof SearchFilters],
+  ) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
-    setPage(0); // Reset to first page on filter change
+    setPage(0);
   };
 
   const clearFilters = () => {
-    setFilters({
-      minDownloads: null,
-      lastUpdated: null,
-      notDeprecated: true,
-      hasTypes: false,
-      moduleEsm: false,
-      licenseMit: false,
-      hasHomepage: false,
-      hasRepo: false,
-      ranking: "optimal",
-    });
+    setFilters(DEFAULT_FILTERS);
     setPage(0);
   };
 
@@ -245,10 +252,7 @@ export const SearchResultsApp: React.FC = () => {
           <div className="px-8 py-4 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center bg-white/95 dark:bg-zinc-950/95 backdrop-blur-sm top-0 shrink-0">
             <div>
               <h1 className="text-lg font-bold">
-                {filters.ranking !== "optimal" ||
-                filters.licenseMit ||
-                filters.hasHomepage ||
-                filters.hasRepo
+                {isClientSideModeActive(filters)
                   ? `Showing top ${hits.length} sorted results for `
                   : `${nbHits.toLocaleString()} results for `}
                 <span className="italic text-orange-600">"{query}"</span>
@@ -371,3 +375,12 @@ export const SearchResultsApp: React.FC = () => {
     </div>
   );
 };
+
+function isClientSideModeActive(filters: SearchFilters): boolean {
+  return (
+    filters.ranking !== "optimal" ||
+    filters.licenseMit ||
+    filters.hasHomepage ||
+    filters.hasRepo
+  );
+}

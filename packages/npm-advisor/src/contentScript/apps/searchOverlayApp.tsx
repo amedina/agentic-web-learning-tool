@@ -1,15 +1,23 @@
-import React, { useState, useEffect, useRef } from "react";
+/**
+ * External dependencies
+ */
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Filter, ChevronDown, Check, Search } from "lucide-react";
+
+/**
+ * Internal dependencies
+ */
 import { useThemeSync } from "../hooks/useThemeSync";
+import type { AlgoliaHit } from "../types";
 
 /**
  * Search Overlay App.
- * Replaces the Vanilla NPM Search overlay with a React-based implementation.
+ * Replaces the native NPM Search overlay with a React-based implementation.
  */
 export const SearchOverlayApp: React.FC = () => {
   const isDark = useThemeSync();
   const [query, setQuery] = useState("");
-  const [hits, setHits] = useState<any[]>([]);
+  const [hits, setHits] = useState<AlgoliaHit[]>([]);
   const [nbPages, setNbPages] = useState(0);
   const [page, setPage] = useState(0);
   const [activeIndex, setActiveIndex] = useState(-1);
@@ -45,7 +53,43 @@ export const SearchOverlayApp: React.FC = () => {
     return () => document.removeEventListener("click", handleOutsideClick);
   }, []);
 
-  // Handle Initial Search (reset on query/filter change)
+  const performSearch = useCallback(
+    (targetPage: number) => {
+      if (targetPage === 0) {
+        setIsFetching(true);
+      } else {
+        setIsFetchingMore(true);
+      }
+
+      chrome.runtime.sendMessage(
+        {
+          type: "SEARCH_NPM",
+          query,
+          page: targetPage,
+          hitsPerPage: 20,
+          facetFilters: activeFilter ? [`${activeFilter.key}:${query}`] : [],
+        },
+        (response) => {
+          setIsFetching(false);
+          setIsFetchingMore(false);
+
+          if (response && response.success) {
+            if (targetPage === 0) {
+              setHits(response.hits);
+              setActiveIndex(-1);
+            } else {
+              setHits((prev) => [...prev, ...response.hits]);
+            }
+            setNbPages(response.nbPages);
+            setIsVisible(true);
+          }
+        },
+      );
+    },
+    [query, activeFilter],
+  );
+
+  // Re-run search when query or active filter mode changes
   useEffect(() => {
     if (!query.trim()) {
       setHits([]);
@@ -61,40 +105,7 @@ export const SearchOverlayApp: React.FC = () => {
     }, 200);
 
     return () => clearTimeout(timer);
-  }, [query]);
-
-  const performSearch = async (targetPage: number) => {
-    if (targetPage === 0) {
-      setIsFetching(true);
-    } else {
-      setIsFetchingMore(true);
-    }
-
-    chrome.runtime.sendMessage(
-      {
-        type: "SEARCH_NPM",
-        query,
-        page: targetPage,
-        hitsPerPage: 20,
-        facetFilters: activeFilter ? [`${activeFilter.key}:${query}`] : [],
-      },
-      (response) => {
-        setIsFetching(false);
-        setIsFetchingMore(false);
-
-        if (response && response.success) {
-          if (targetPage === 0) {
-            setHits(response.hits);
-            setActiveIndex(-1);
-          } else {
-            setHits((prev) => [...prev, ...response.hits]);
-          }
-          setNbPages(response.nbPages);
-          setIsVisible(true);
-        }
-      },
-    );
-  };
+  }, [query, activeFilter, performSearch]);
 
   const loadMore = () => {
     if (isFetching || isFetchingMore || page >= nbPages - 1) return;
@@ -196,19 +207,17 @@ export const SearchOverlayApp: React.FC = () => {
               <button
                 key={mode.key}
                 onClick={() => {
-                  setActiveFilter(mode);
+                  setActiveFilter(activeFilter?.key === mode.key ? null : mode);
                   setIsFilterMenuOpen(false);
                 }}
                 className={`w-full flex items-center justify-between px-3 py-2 text-xs transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800 ${
-                  activeFilter?.key === mode.key ||
-                  (!activeFilter && mode.key === "all")
+                  activeFilter?.key === mode.key
                     ? "text-orange-600 dark:text-orange-400 font-bold bg-orange-50/50 dark:bg-orange-900/10"
                     : "text-zinc-700 dark:text-zinc-300"
                 }`}
               >
                 {mode.label}
-                {(activeFilter?.key === mode.key ||
-                  (!activeFilter && mode.key === "all")) && <Check size={14} />}
+                {activeFilter?.key === mode.key && <Check size={14} />}
               </button>
             ))}
           </div>

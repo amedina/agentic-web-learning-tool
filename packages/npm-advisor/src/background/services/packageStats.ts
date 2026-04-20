@@ -1,3 +1,6 @@
+/**
+ * Internal dependencies
+ */
 import {
   getPackageStats,
   type PackageStats,
@@ -19,7 +22,7 @@ class PackageStatsService {
    * Prefetch stats for a package if not already cached.
    */
   async prefetch(packageName: string): Promise<void> {
-    if (!this.statsCache.has(packageName)) return;
+    if (this.statsCache.has(packageName)) return;
 
     console.log(`[NPM Advisor] Prefetching stats for ${packageName}...`);
 
