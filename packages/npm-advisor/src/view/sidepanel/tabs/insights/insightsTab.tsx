@@ -6,7 +6,7 @@ import React from "react";
 /**
  * Internal dependencies.
  */
-import { type PackageStats } from "../../../../utils";
+import { type PackageStats } from "../../../../lib";
 import {
   Header,
   LicenseCheck,

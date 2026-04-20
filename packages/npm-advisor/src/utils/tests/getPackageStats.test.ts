@@ -6,7 +6,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 /**
  * Internal dependencies.
  */
-import { getPackageStats } from "../getPackageStats";
+import { getPackageStats } from "../../lib/getPackageStats";
 import { fetchNpmPackage } from "../fetchNpmPackage";
 import { fetchBundlephobiaData } from "../fetchBundlephobiaData";
 import { getDependencyTree } from "../getDependencyTree";

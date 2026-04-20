@@ -1,0 +1,16 @@
+@import "@google-awlt/shared-config/tailwind";
+
+@source "./apps";
+@source "./components";
+
+/* Content Script Specific Tweaks */
+:host {
+  all: initial; /* Reset everything to prevent parent leakage */
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+}
+
+/* Ensure our containers are visible within the shadow root */
+#npm-advisor-overlay-root,
+#npm-advisor-results-root {
+  display: block;
+}

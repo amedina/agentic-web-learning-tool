@@ -8,7 +8,7 @@ import { OptionsPageTab } from "@google-awlt/design-system";
  * Internal dependencies
  */
 import { ComparisonTab } from "./comparisonTab";
-import { calculateScore } from "../../../../utils/calculateScore";
+import { calculateScore } from "../../../../lib/calculateScore";
 
 export default function ComparisonPage() {
   const [comparisonBucket, setComparisonBucket] = useState<any[]>([]);

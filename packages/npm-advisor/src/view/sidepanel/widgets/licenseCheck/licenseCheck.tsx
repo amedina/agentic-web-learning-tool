@@ -7,7 +7,7 @@ import { ShieldAlert, CheckCircle, XCircle } from "lucide-react";
 /**
  * Internal dependencies.
  */
-import type { LicenseCompatibilityResult } from "../../../../utils";
+import type { LicenseCompatibilityResult } from "../../../../lib";
 
 export interface LicenseCheckProps {
   licenseCompatibility: LicenseCompatibilityResult | null;

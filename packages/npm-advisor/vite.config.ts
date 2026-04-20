@@ -19,19 +19,26 @@ const aliases = readdirSync(packagesDir)
   }));
 
 const isDev = process.env.NODE_ENV === "development";
+const isContentBuild = process.env.CONTENT_BUILD === "true";
 
 export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
     svgr(),
-    viteStaticCopy({
-      targets: [
-        { src: resolve(__dirname, "src/manifest.json"), dest: "" },
-        { src: resolve(__dirname, "src/icons/*"), dest: "icons" },
-      ],
-    }),
-  ],
+    !isContentBuild &&
+      viteStaticCopy({
+        targets: [
+          { src: resolve(__dirname, "src/manifest.json"), dest: "" },
+          { src: resolve(__dirname, "src/icons/*"), dest: "icons" },
+        ],
+      }),
+  ].filter(Boolean),
+  define: {
+    "process.env.NODE_ENV": JSON.stringify(
+      isDev ? "development" : "production",
+    ),
+  },
   base: "",
   root: "src/view",
   resolve: {
@@ -43,15 +50,26 @@ export default defineConfig({
     sourcemap: isDev ? true : false,
     minify: !isDev,
     outDir: distDir,
+    lib: isContentBuild
+      ? {
+          entry: resolve(__dirname, "src/contentScript/contentScript.tsx"),
+          name: "contentScript",
+          formats: ["iife"],
+          fileName: () => "contentScript/contentScript.js",
+        }
+      : undefined,
     rollupOptions: {
-      input: {
-        sidepanel: resolve(__dirname, "src/view/sidepanel/sidePanel.html"),
-        options: resolve(__dirname, "src/view/options/options.html"),
-        contentScript: resolve(__dirname, "src/contentScript/contentScript.ts"),
-        background: resolve(__dirname, "src/background/background.ts"),
-      },
+      input: isContentBuild
+        ? undefined
+        : {
+            sidepanel: resolve(__dirname, "src/view/sidepanel/sidePanel.html"),
+            options: resolve(__dirname, "src/view/options/options.html"),
+            background: resolve(__dirname, "src/background/background.ts"),
+          },
       output: {
-        entryFileNames: "[name]/[name].js",
+        entryFileNames: isContentBuild
+          ? "contentScript/contentScript.js"
+          : "[name]/[name].js",
         chunkFileNames: (chunkInfo) => {
           const isLanguageChunk = chunkInfo.moduleIds.some((id) =>
             id.includes("refractor/lang/"),
@@ -60,6 +78,14 @@ export default defineConfig({
             ? "assets/languages/[name].[hash].js"
             : "assets/[name].[hash].js";
         },
+        assetFileNames: (assetInfo) => {
+          if (isContentBuild && assetInfo.name?.endsWith(".css")) {
+            return "assets/contentScript.css";
+          }
+          return "assets/[name]-[hash][extname]";
+        },
+        format: isContentBuild ? "iife" : "esm",
+        inlineDynamicImports: isContentBuild,
       },
     },
   },

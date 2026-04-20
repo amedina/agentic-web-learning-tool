@@ -7,7 +7,7 @@ import * as d3 from "d3";
 /**
  * Internal dependencies.
  */
-import type { DependencyTree as DependencyTreeType } from "../../../../utils";
+import type { DependencyTree as DependencyTreeType } from "../../../../lib";
 
 interface DependencyGraphProps {
   data: DependencyTreeType;

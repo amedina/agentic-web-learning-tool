@@ -6,8 +6,12 @@
   "scripts": {
     "predev": "rimraf ../../dist/npm-advisor",
     "prebuild": "rimraf ../../dist/npm-advisor",
-    "dev": "cross-env NODE_ENV=development vite build --watch --config vite.config.ts",
-    "build": "cross-env NODE_ENV=production vite build --config vite.config.ts",
+    "dev": "pnpm run dev:main & pnpm run dev:content",
+    "dev:main": "cross-env NODE_ENV=development vite build --watch --config vite.config.ts",
+    "dev:content": "cross-env NODE_ENV=development CONTENT_BUILD=true vite build --watch --config vite.config.ts",
+    "build": "pnpm run build:main && pnpm run build:content",
+    "build:main": "cross-env NODE_ENV=production vite build --config vite.config.ts",
+    "build:content": "cross-env NODE_ENV=production CONTENT_BUILD=true vite build --config vite.config.ts",
     "check-types": "tsc -b -noEmit",
     "lint": "eslint .",
     "test": "vitest run --root . --silent"
