@@ -25,6 +25,7 @@ export const SearchOverlayApp: React.FC = () => {
   const [isFetching, setIsFetching] = useState(false);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
   const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
+  const [isInputFocused, setIsInputFocused] = useState(false);
   const [activeFilter, setActiveFilter] = useState<{
     label: string;
     key: string;
@@ -173,7 +174,12 @@ export const SearchOverlayApp: React.FC = () => {
       ref={containerRef}
       className={`relative w-full h-full font-sans${isDark ? " dark" : ""}`}
     >
-      <div className="relative w-full h-full flex items-center bg-zinc-100 dark:bg-zinc-800">
+      <div
+        className="relative w-full h-full flex items-center bg-zinc-100 dark:bg-zinc-800"
+        style={
+          isInputFocused ? { boxShadow: "inset 0 0 0 1px #fb923c" } : undefined
+        }
+      >
         {/* Search Mode Filter Toggle */}
         <button
           onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)}
@@ -232,8 +238,10 @@ export const SearchOverlayApp: React.FC = () => {
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
           onFocus={() => {
+            setIsInputFocused(true);
             if (hits.length > 0) setIsVisible(true);
           }}
+          onBlur={() => setIsInputFocused(false)}
           onClick={() => {
             if (hits.length > 0) setIsVisible(true);
           }}
@@ -242,7 +250,7 @@ export const SearchOverlayApp: React.FC = () => {
               ? `Search by ${activeFilter.label.toLowerCase()}...`
               : "Search packages"
           }
-          className="flex-1 h-full px-4 py-2.5 bg-transparent border-none rounded-none text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 placeholder:font-normal outline-none focus:bg-white dark:focus:bg-zinc-900 transition-all shadow-inner"
+          className="flex-1 h-full px-4 py-2.5 bg-transparent border-none rounded-none text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 placeholder:font-normal outline-none transition-all shadow-inner"
         />
 
         {isFetching ? (
