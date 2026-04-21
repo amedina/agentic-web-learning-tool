@@ -87,7 +87,47 @@ importers:
         specifier: ~5.9.2
         version: 5.9.3
 
-  packages/awl/engine-awl:
+  packages/awl/engine-core:
+    dependencies:
+      zod:
+        specifier: 4.3.5
+        version: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
+    devDependencies:
+      '@google-awlt/shared-config':
+        specifier: workspace:*
+        version: link:../../shared/shared-config
+      '@types/jest':
+        specifier: ^29.5.14
+        version: 29.5.14
+      '@types/node':
+        specifier: ^24.3.0
+        version: 24.12.0
+      eslint:
+        specifier: ^9.33.0
+        version: 9.39.4(jiti@2.6.1)
+      eslint-plugin-react-hooks:
+        specifier: ^5.2.0
+        version: 5.2.0(eslint@9.39.4(jiti@2.6.1))
+      globals:
+        specifier: ^16.3.0
+        version: 16.5.0
+      jest-environment-node:
+        specifier: ^29.7.0
+        version: 29.7.0
+      prettier:
+        specifier: ^3.0.0
+        version: 3.8.1
+      rimraf:
+        specifier: ^5.0.10
+        version: 5.0.10
+      ts-jest:
+        specifier: ^29.4.6
+        version: 29.4.6(@babel/core@7.29.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.29.0))(jest-util@29.7.0)(jest@29.7.0(@types/node@24.12.0))(typescript@5.9.3)
+      typescript:
+        specifier: ~5.9.2
+        version: 5.9.3
+
+  packages/awl/engine-extension:
     dependencies:
       '@google-awlt/engine-core':
         specifier: workspace:*
@@ -123,46 +163,6 @@ importers:
       jest-environment-jsdom:
         specifier: ^29.7.0
         version: 29.7.0
-      jest-environment-node:
-        specifier: ^29.7.0
-        version: 29.7.0
-      prettier:
-        specifier: ^3.0.0
-        version: 3.8.1
-      rimraf:
-        specifier: ^5.0.10
-        version: 5.0.10
-      ts-jest:
-        specifier: ^29.4.6
-        version: 29.4.6(@babel/core@7.29.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.29.0))(jest-util@29.7.0)(jest@29.7.0(@types/node@24.12.0))(typescript@5.9.3)
-      typescript:
-        specifier: ~5.9.2
-        version: 5.9.3
-
-  packages/awl/engine-core:
-    dependencies:
-      zod:
-        specifier: 4.3.5
-        version: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
-    devDependencies:
-      '@google-awlt/shared-config':
-        specifier: workspace:*
-        version: link:../../shared/shared-config
-      '@types/jest':
-        specifier: ^29.5.14
-        version: 29.5.14
-      '@types/node':
-        specifier: ^24.3.0
-        version: 24.12.0
-      eslint:
-        specifier: ^9.33.0
-        version: 9.39.4(jiti@2.6.1)
-      eslint-plugin-react-hooks:
-        specifier: ^5.2.0
-        version: 5.2.0(eslint@9.39.4(jiti@2.6.1))
-      globals:
-        specifier: ^16.3.0
-        version: 16.5.0
       jest-environment-node:
         specifier: ^29.7.0
         version: 29.7.0
@@ -324,12 +324,12 @@ importers:
       '@google-awlt/design-system':
         specifier: workspace:*
         version: link:../../shared/design-system
-      '@google-awlt/engine-awl':
-        specifier: workspace:*
-        version: link:../engine-awl
       '@google-awlt/engine-core':
         specifier: workspace:*
         version: link:../engine-core
+      '@google-awlt/engine-extension':
+        specifier: workspace:*
+        version: link:../engine-extension
       '@xyflow/react':
         specifier: ^12.9.3
         version: 12.10.2(@types/react@19.2.14)(immer@9.0.21)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -406,12 +406,12 @@ importers:
       '@google-awlt/design-system':
         specifier: workspace:*
         version: link:../../shared/design-system
-      '@google-awlt/engine-awl':
-        specifier: workspace:*
-        version: link:../../awl/engine-awl
       '@google-awlt/engine-core':
         specifier: workspace:*
         version: link:../../awl/engine-core
+      '@google-awlt/engine-extension':
+        specifier: workspace:*
+        version: link:../../awl/engine-extension
       '@google-awlt/engine-web':
         specifier: workspace:*
         version: link:../../awl/engine-web

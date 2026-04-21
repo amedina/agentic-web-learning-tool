@@ -1,1 +1,0 @@
-export { initContentScriptBridge } from './bridge';
