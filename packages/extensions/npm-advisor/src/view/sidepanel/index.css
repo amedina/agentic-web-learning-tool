@@ -1,7 +1,7 @@
 @import "@google-awlt/shared-config/tailwind";
 
-@source "../../../../../design-system";
-@source "../../../../../chatbot";
+@source "../../../../../shared/design-system";
+@source "../../../../../shared/chatbot";
 
 html, body, #root {
   height: 100%;

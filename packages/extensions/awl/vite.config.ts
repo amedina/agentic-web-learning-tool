@@ -12,12 +12,24 @@ const __dirname = path.dirname(__filename);
 const packagesDir = resolve(__dirname, '../../');
 const decodePath = resolve('../../../node_modules/.pnpm');
 const decodeDir = path.dirname(decodePath);
-const aliases = readdirSync(packagesDir)
-  .filter((name) => name !== 'shared-config')
-  .map((name) => ({
+const awlDir = resolve(packagesDir, 'awl');
+const sharedDir = resolve(packagesDir, 'shared');
+const aliases = [
+  ...readdirSync(awlDir).map((name) => ({
     find: `@google-awlt/${name}`,
-    replacement: resolve(packagesDir, name, 'src'),
-  }));
+    replacement: resolve(awlDir, name, 'src'),
+  })),
+  ...readdirSync(sharedDir)
+    .filter((name) => name !== 'shared-config' && name !== 'storybook-config')
+    .map((name) => ({
+      find: `@google-awlt/${name}`,
+      replacement: resolve(sharedDir, name, 'src'),
+    })),
+  {
+    find: '@google-awlt/common',
+    replacement: resolve(sharedDir, 'common', 'src'),
+  },
+];
 aliases.push({
   find: 'decode-named-character-reference',
   replacement: path.join(

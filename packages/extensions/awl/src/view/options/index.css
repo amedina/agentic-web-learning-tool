@@ -1,5 +1,5 @@
 @import "@google-awlt/shared-config/tailwind";
 
-@source "../../../../../design-system";
+@source "../../../../../shared/design-system";
 @source "../../utils/constants.ts";
-@source "../../../../../workflow-ui";
+@source "../../../../../awl/workflow-ui";

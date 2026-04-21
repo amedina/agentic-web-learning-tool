@@ -11,12 +11,24 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const distDir = path.resolve(__dirname, "../../../dist/npm-advisor");
 const packagesDir = resolve(__dirname, "../../");
-const aliases = readdirSync(packagesDir)
-  .filter((name) => name !== "shared-config")
-  .map((name) => ({
+const awlDir = resolve(packagesDir, "awl");
+const sharedDir = resolve(packagesDir, "shared");
+const aliases = [
+  ...readdirSync(awlDir).map((name) => ({
     find: `@google-awlt/${name}`,
-    replacement: resolve(packagesDir, name, "src"),
-  }));
+    replacement: resolve(awlDir, name, "src"),
+  })),
+  ...readdirSync(sharedDir)
+    .filter((name) => name !== "shared-config" && name !== "storybook-config")
+    .map((name) => ({
+      find: `@google-awlt/${name}`,
+      replacement: resolve(sharedDir, name, "src"),
+    })),
+  {
+    find: "@google-awlt/common",
+    replacement: resolve(sharedDir, "common", "src"),
+  },
+];
 
 const isDev = process.env.NODE_ENV === "development";
 const isContentBuild = process.env.CONTENT_BUILD === "true";
