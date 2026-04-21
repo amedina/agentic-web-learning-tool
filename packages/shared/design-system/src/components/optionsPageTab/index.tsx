@@ -40,7 +40,15 @@ function OptionsPageTab({
         </div>
       </div>
       <div className="w-full font-sans antialiased">
-        <main className={cn('py-10 space-y-12', className)}>{children}</main>
+        <main
+          className={cn(
+            'max-w-4xl py-10 space-y-12',
+            className,
+            wrapperClasses
+          )}
+        >
+          {children}
+        </main>
       </div>
     </div>
   );
