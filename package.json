@@ -82,7 +82,7 @@
   },
   "lint-staged": {
     "*.(cjs|js|ts|tsx)": [
-      "eslint -c packages/shared-config/eslint/index.js  --fix",
+      "eslint -c packages/shared/shared-config/eslint/index.js  --fix",
       "prettier --write"
     ],
     "*.(json|xml|xml.dist|yml)": [
