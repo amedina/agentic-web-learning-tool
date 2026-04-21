@@ -1,10 +1,7 @@
 /**
  * External dependencies
  */
-import {
-  listWorkflows,
-  type WorkflowMetadata,
-} from "@google-awlt/engine-extension";
+import { listWorkflows, type WorkflowMetadata } from "@google-awlt/engine-awl";
 
 /**
  * Get unique name and sanitized name for a workflow to avoid collisions.

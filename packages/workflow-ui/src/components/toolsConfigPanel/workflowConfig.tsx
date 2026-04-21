@@ -3,7 +3,7 @@
  */
 import { AlertCircle, Plus, X } from "lucide-react";
 import { useCallback, useState, useEffect } from "react";
-import { listWorkflows } from "@google-awlt/engine-extension";
+import { listWorkflows } from "@google-awlt/engine-awl";
 
 /**
  * Internal dependencies
