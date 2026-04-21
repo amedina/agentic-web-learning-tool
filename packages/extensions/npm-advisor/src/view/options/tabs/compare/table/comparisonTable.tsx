@@ -37,16 +37,16 @@ export const ComparisonTable: React.FC<ComparisonTableProps> = ({
         </div>
 
         <div className="w-fit rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
-          <table className="w-fit rounded-xl divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-800 text-sm table-fixed">
+          <table className="w-fit rounded-xl bg-white dark:bg-slate-800 text-sm table-fixed">
             <thead className="bg-slate-50 dark:bg-slate-900">
               <tr>
-                <th className="px-6 py-4 text-left font-semibold text-slate-900 dark:text-slate-100 border-r border-slate-200 dark:border-slate-700 w-70 rounded-tl-xl">
+                <th className="px-6 py-4 text-left font-semibold text-slate-900 dark:text-slate-100 border-r border-b border-slate-200 dark:border-slate-700 w-70 rounded-tl-xl">
                   Metric
                 </th>
                 {comparisonBucket.map((pkg, idx) => (
                   <th
                     key={idx}
-                    className={`px-6 py-4 text-left font-semibold text-slate-900 dark:text-slate-100 ${idx !== comparisonBucket.length - 1 ? "border-r" : ""} border-slate-200 dark:border-slate-700 w-70 relative ${idx === comparisonBucket.length - 1 ? "rounded-tr-xl" : ""}`}
+                    className={`px-6 py-4 text-left font-semibold text-slate-900 dark:text-slate-100 ${idx !== comparisonBucket.length - 1 ? "border-r" : ""} border-b border-slate-200 dark:border-slate-700 w-70 relative ${idx === comparisonBucket.length - 1 ? "rounded-tr-xl" : ""}`}
                   >
                     <div className="flex items-center justify-between gap-2">
                       <span className="text-lg truncate">
@@ -70,54 +70,54 @@ export const ComparisonTable: React.FC<ComparisonTableProps> = ({
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
+            <tbody>
               <tr>
-                <td className="px-6 py-4 font-medium text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700">
+                <td className="px-6 py-4 font-medium text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 border-r border-b border-slate-200 dark:border-slate-700">
                   Advisor Score
                 </td>
                 {comparisonBucket.map((pkg, idx) => (
                   <td
                     key={idx}
-                    className={`px-6 py-4 font-bold text-[#c94137] ${idx !== comparisonBucket.length - 1 ? "border-r" : ""} border-slate-200 dark:border-slate-700 text-lg`}
+                    className={`px-6 py-4 font-bold text-[#c94137] ${idx !== comparisonBucket.length - 1 ? "border-r" : ""} border-b border-slate-200 dark:border-slate-700 text-lg`}
                   >
                     {calculateScore(pkg)}
                   </td>
                 ))}
               </tr>
               <tr>
-                <td className="px-6 py-4 font-medium text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700">
+                <td className="px-6 py-4 font-medium text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 border-r border-b border-slate-200 dark:border-slate-700">
                   Description
                 </td>
                 {comparisonBucket.map((pkg, idx) => (
                   <td
                     key={idx}
-                    className={`px-6 py-4 text-slate-500 dark:text-slate-400 ${idx !== comparisonBucket.length - 1 ? "border-r" : ""} border-slate-200 dark:border-slate-700 italic text-xs leading-relaxed`}
+                    className={`px-6 py-4 text-slate-500 dark:text-slate-400 ${idx !== comparisonBucket.length - 1 ? "border-r" : ""} border-b border-slate-200 dark:border-slate-700 italic text-xs leading-relaxed`}
                   >
                     {pkg.description || "N/A"}
                   </td>
                 ))}
               </tr>
               <tr>
-                <td className="px-6 py-4 font-medium text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700">
+                <td className="px-6 py-4 font-medium text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 border-r border-b border-slate-200 dark:border-slate-700">
                   GitHub Stars
                 </td>
                 {comparisonBucket.map((pkg, idx) => (
                   <td
                     key={idx}
-                    className={`px-6 py-4 text-slate-500 dark:text-slate-400 ${idx !== comparisonBucket.length - 1 ? "border-r" : ""} border-slate-200 dark:border-slate-700`}
+                    className={`px-6 py-4 text-slate-500 dark:text-slate-400 ${idx !== comparisonBucket.length - 1 ? "border-r" : ""} border-b border-slate-200 dark:border-slate-700`}
                   >
                     {pkg.stars?.toLocaleString() || "N/A"}
                   </td>
                 ))}
               </tr>
               <tr>
-                <td className="px-6 py-4 font-medium text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700">
+                <td className="px-6 py-4 font-medium text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 border-r border-b border-slate-200 dark:border-slate-700">
                   Collaborators
                 </td>
                 {comparisonBucket.map((pkg, idx) => (
                   <td
                     key={idx}
-                    className={`px-6 py-4 text-slate-500 dark:text-slate-400 ${idx !== comparisonBucket.length - 1 ? "border-r" : ""} border-slate-200 dark:border-slate-700`}
+                    className={`px-6 py-4 text-slate-500 dark:text-slate-400 ${idx !== comparisonBucket.length - 1 ? "border-r" : ""} border-b border-slate-200 dark:border-slate-700`}
                   >
                     {pkg.collaboratorsCount !== null
                       ? pkg.collaboratorsCount
@@ -126,13 +126,13 @@ export const ComparisonTable: React.FC<ComparisonTableProps> = ({
                 ))}
               </tr>
               <tr>
-                <td className="px-6 py-4 font-medium text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700">
+                <td className="px-6 py-4 font-medium text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 border-r border-b border-slate-200 dark:border-slate-700">
                   Last Commit
                 </td>
                 {comparisonBucket.map((pkg, idx) => (
                   <td
                     key={idx}
-                    className={`px-6 py-4 text-slate-500 dark:text-slate-400 ${idx !== comparisonBucket.length - 1 ? "border-r" : ""} border-slate-200 dark:border-slate-700`}
+                    className={`px-6 py-4 text-slate-500 dark:text-slate-400 ${idx !== comparisonBucket.length - 1 ? "border-r" : ""} border-b border-slate-200 dark:border-slate-700`}
                   >
                     {pkg.lastCommitDate
                       ? new Date(pkg.lastCommitDate).toLocaleDateString(
@@ -148,13 +148,13 @@ export const ComparisonTable: React.FC<ComparisonTableProps> = ({
                 ))}
               </tr>
               <tr>
-                <td className="px-6 py-4 font-medium text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700">
+                <td className="px-6 py-4 font-medium text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 border-r border-b border-slate-200 dark:border-slate-700">
                   Minified Size
                 </td>
                 {comparisonBucket.map((pkg, idx) => (
                   <td
                     key={idx}
-                    className={`px-6 py-4 text-slate-500 dark:text-slate-400 ${idx !== comparisonBucket.length - 1 ? "border-r" : ""} border-slate-200 dark:border-slate-700`}
+                    className={`px-6 py-4 text-slate-500 dark:text-slate-400 ${idx !== comparisonBucket.length - 1 ? "border-r" : ""} border-b border-slate-200 dark:border-slate-700`}
                   >
                     {pkg.bundle?.size
                       ? `${(pkg.bundle.size / 1024).toFixed(1)} kB`
@@ -163,13 +163,13 @@ export const ComparisonTable: React.FC<ComparisonTableProps> = ({
                 ))}
               </tr>
               <tr>
-                <td className="px-6 py-4 font-medium text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700">
+                <td className="px-6 py-4 font-medium text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 border-r border-b border-slate-200 dark:border-slate-700">
                   GZipped Size
                 </td>
                 {comparisonBucket.map((pkg, idx) => (
                   <td
                     key={idx}
-                    className={`px-6 py-4 text-slate-500 dark:text-slate-400 ${idx !== comparisonBucket.length - 1 ? "border-r" : ""} border-slate-200 dark:border-slate-700`}
+                    className={`px-6 py-4 text-slate-500 dark:text-slate-400 ${idx !== comparisonBucket.length - 1 ? "border-r" : ""} border-b border-slate-200 dark:border-slate-700`}
                   >
                     {pkg.bundle?.gzip ? (
                       <span className="font-semibold text-slate-700 dark:text-slate-200">
@@ -182,13 +182,13 @@ export const ComparisonTable: React.FC<ComparisonTableProps> = ({
                 ))}
               </tr>
               <tr>
-                <td className="px-6 py-4 font-medium text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700">
+                <td className="px-6 py-4 font-medium text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 border-r border-b border-slate-200 dark:border-slate-700">
                   Tree Shakeable
                 </td>
                 {comparisonBucket.map((pkg, idx) => (
                   <td
                     key={idx}
-                    className={`px-6 py-4 ${idx !== comparisonBucket.length - 1 ? "border-r" : ""} border-slate-200 dark:border-slate-700`}
+                    className={`px-6 py-4 ${idx !== comparisonBucket.length - 1 ? "border-r" : ""} border-b border-slate-200 dark:border-slate-700`}
                   >
                     {pkg.bundle?.isTreeShakeable ? (
                       <span className="text-green-600 dark:text-green-400 font-medium">
@@ -203,13 +203,13 @@ export const ComparisonTable: React.FC<ComparisonTableProps> = ({
                 ))}
               </tr>
               <tr>
-                <td className="px-6 py-4 font-medium text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700">
+                <td className="px-6 py-4 font-medium text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 border-r border-b border-slate-200 dark:border-slate-700">
                   Side Effects
                 </td>
                 {comparisonBucket.map((pkg, idx) => (
                   <td
                     key={idx}
-                    className={`px-6 py-4 ${idx !== comparisonBucket.length - 1 ? "border-r" : ""} border-slate-200 dark:border-slate-700`}
+                    className={`px-6 py-4 ${idx !== comparisonBucket.length - 1 ? "border-r" : ""} border-b border-slate-200 dark:border-slate-700`}
                   >
                     {pkg.bundle?.hasSideEffects === false ? (
                       <span className="text-green-600 dark:text-green-400 font-medium">
@@ -227,26 +227,26 @@ export const ComparisonTable: React.FC<ComparisonTableProps> = ({
                 ))}
               </tr>
               <tr>
-                <td className="px-6 py-4 font-medium text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700">
+                <td className="px-6 py-4 font-medium text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 border-r border-b border-slate-200 dark:border-slate-700">
                   Total Dependencies
                 </td>
                 {comparisonBucket.map((pkg, idx) => (
                   <td
                     key={idx}
-                    className={`px-6 py-4 text-slate-500 dark:text-slate-400 ${idx !== comparisonBucket.length - 1 ? "border-r" : ""} border-slate-200 dark:border-slate-700`}
+                    className={`px-6 py-4 text-slate-500 dark:text-slate-400 ${idx !== comparisonBucket.length - 1 ? "border-r" : ""} border-b border-slate-200 dark:border-slate-700`}
                   >
                     {Object.keys(pkg.dependencyTree?.dependencies || {}).length}
                   </td>
                 ))}
               </tr>
               <tr>
-                <td className="px-6 py-4 font-medium text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700">
+                <td className="px-6 py-4 font-medium text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 border-r border-b border-slate-200 dark:border-slate-700">
                   Responsiveness
                 </td>
                 {comparisonBucket.map((pkg, idx) => (
                   <td
                     key={idx}
-                    className={`px-6 py-4 text-slate-500 dark:text-slate-400 ${idx !== comparisonBucket.length - 1 ? "border-r" : ""} border-slate-200 dark:border-slate-700`}
+                    className={`px-6 py-4 text-slate-500 dark:text-slate-400 ${idx !== comparisonBucket.length - 1 ? "border-r" : ""} border-b border-slate-200 dark:border-slate-700`}
                   >
                     {pkg.responsiveness?.description ? (
                       <div className="flex items-center mb-1">
@@ -274,7 +274,7 @@ export const ComparisonTable: React.FC<ComparisonTableProps> = ({
                 ))}
               </tr>
               <tr>
-                <td className="px-6 py-4 font-medium text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700">
+                <td className="px-6 py-4 font-medium text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 border-r border-b border-slate-200 dark:border-slate-700">
                   Security Advisories
                 </td>
                 {comparisonBucket.map((pkg, idx) => {
@@ -282,7 +282,7 @@ export const ComparisonTable: React.FC<ComparisonTableProps> = ({
                   return (
                     <td
                       key={idx}
-                      className={`px-6 py-4 text-slate-500 dark:text-slate-400 ${idx !== comparisonBucket.length - 1 ? "border-r" : ""} border-slate-200 dark:border-slate-700`}
+                      className={`px-6 py-4 text-slate-500 dark:text-slate-400 ${idx !== comparisonBucket.length - 1 ? "border-r" : ""} border-b border-slate-200 dark:border-slate-700`}
                     >
                       {!adv ? (
                         "Unknown"
