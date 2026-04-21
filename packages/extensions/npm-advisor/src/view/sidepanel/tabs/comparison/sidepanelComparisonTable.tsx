@@ -307,19 +307,16 @@ export const SidepanelComparisonTable: React.FC<
                 ? "bg-white dark:bg-slate-800"
                 : "bg-slate-50 dark:bg-slate-800/50";
               return (
-                <tr
-                  key={row.label}
-                  className={`${rowBg} ${!isLast ? "border-b border-slate-100 dark:border-slate-700/60" : ""}`}
-                >
+                <tr key={row.label} className={rowBg}>
                   <td
-                    className={`px-3 font-medium text-slate-600 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 align-top ${isLast ? "pt-2.5 pb-[15px]" : "py-2.5"}`}
+                    className={`px-3 font-medium text-slate-600 dark:text-slate-300 border-r ${!isLast ? "border-b" : ""} border-slate-200 dark:border-slate-700 align-top ${isLast ? "pt-2.5 pb-[15px]" : "py-2.5"}`}
                   >
                     {row.label}
                   </td>
                   {comparisonBucket.map((pkg, idx) => (
                     <td
                       key={idx}
-                      className={`px-3 text-slate-500 dark:text-slate-400 align-top ${isLast ? "pt-2.5 pb-[15px]" : "py-2.5"} ${idx !== comparisonBucket.length - 1 ? "border-r border-slate-200 dark:border-slate-700" : ""}`}
+                      className={`px-3 text-slate-500 dark:text-slate-400 align-top ${isLast ? "pt-2.5 pb-[15px]" : "py-2.5"} ${idx !== comparisonBucket.length - 1 ? "border-r border-slate-200 dark:border-slate-700" : ""} ${!isLast ? "border-b border-slate-200 dark:border-slate-700" : ""}`}
                     >
                       {row.render(pkg)}
                     </td>
