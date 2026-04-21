@@ -28,9 +28,9 @@ const config: StorybookConfig = {
             __dirname,
             '../../design-system/src'
           ),
-          '@google-awlt/extension': path.resolve(
+          '@google-awlt/awl': path.resolve(
             __dirname,
-            '../../extension/src'
+            '../../extensions/awl/src'
           ),
           '@google-awlt/table': path.resolve(__dirname, '../../table/src'),
           '@google-awlt/common': path.resolve(__dirname, '../../common/src'),
