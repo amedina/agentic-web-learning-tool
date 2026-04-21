@@ -3,7 +3,7 @@
  */
 import { WebMCPToolsTab as WebMCPToolsUI } from '@google-awlt/design-system';
 import { useMemo, useState, useEffect, useCallback } from 'react';
-import { listWorkflows, saveWorkflow } from '@google-awlt/engine-awl';
+import { listWorkflows, saveWorkflow } from '@google-awlt/engine-extension';
 import type { WorkflowJSON } from '@google-awlt/engine-core';
 /**
  * Internal Dependencies.

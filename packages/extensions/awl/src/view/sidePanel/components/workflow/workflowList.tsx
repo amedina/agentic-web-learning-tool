@@ -3,7 +3,7 @@
  */
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import { TerminalIcon } from 'lucide-react';
-import { listWorkflows } from '@google-awlt/engine-awl';
+import { listWorkflows } from '@google-awlt/engine-extension';
 import type { WorkflowJSON } from '@google-awlt/engine-core';
 
 /**

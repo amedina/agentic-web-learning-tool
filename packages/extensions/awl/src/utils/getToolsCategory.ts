@@ -5,7 +5,7 @@ import {
   EXTENSION_TOOL_PREFIX,
   DOM_TOOL_NAME_PREFIX,
 } from '@google-awlt/common';
-import { PREDEFINED_WORKFLOWS } from '@google-awlt/engine-awl';
+import { PREDEFINED_WORKFLOWS } from '@google-awlt/engine-extension';
 
 /**
  * Internal dependencies.

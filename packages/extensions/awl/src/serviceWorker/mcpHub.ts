@@ -13,7 +13,7 @@ import type { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
 import {
   listWorkflows,
   transformWorkflowToTool,
-} from '@google-awlt/engine-awl';
+} from '@google-awlt/engine-extension';
 import {
   DOM_TOOL_NAME_PREFIX,
   EXTENSION_TOOL_PREFIX,

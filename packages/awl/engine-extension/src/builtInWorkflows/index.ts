@@ -1,0 +1,438 @@
+/**
+ * External dependencies
+ */
+import { type WorkflowJSON, NodeType } from '@google-awlt/engine-core';
+
+export const PREDEFINED_WORKFLOWS: WorkflowJSON[] = [
+  {
+    meta: {
+      id: 'demo-translation',
+      name: 'Built-in: Smart Translator',
+      sanitizedName: 'built_in__smart_translator',
+      description: 'Automatically translates paragraph text into Spanish.',
+      savedAt: new Date().toISOString(),
+      allowedDomains: ['<all_urls>'],
+      isWebMCP: true,
+      autosave: false,
+    },
+    graph: {
+      nodes: [
+        {
+          id: 'start',
+          type: NodeType.START,
+          config: {
+            title: 'Start',
+          },
+          label: 'start',
+          ui: {
+            position: {
+              x: 27,
+              y: 52,
+            },
+          },
+        },
+        {
+          id: 'dom-input',
+          type: NodeType.DOM_INPUT,
+          config: {
+            title: 'Get Text',
+            description: 'Get text from the DOM.',
+            cssSelector: 'p',
+            extract: 'innerHTML',
+            defaultValue: 'Selection not found',
+            isMultiple: true,
+          },
+          label: 'domInput',
+          ui: {
+            position: {
+              x: 35,
+              y: 130,
+            },
+          },
+        },
+        {
+          id: 'translator',
+          type: NodeType.TRANSLATOR_API,
+          config: {
+            title: 'Translate',
+            sourceLanguage: 'en',
+            targetLanguage: 'es',
+          },
+          label: 'translatorApi',
+          ui: {
+            position: {
+              x: 393,
+              y: 70,
+            },
+          },
+        },
+        {
+          id: 'alert',
+          type: NodeType.ALERT_NOTIFICATION,
+          config: {
+            title: 'Translation Result',
+            useCustomMessage: true,
+            message: 'Text translated to Spanish!',
+          },
+          label: 'alertNotification',
+          ui: {
+            position: {
+              x: 473,
+              y: 327,
+            },
+          },
+        },
+        {
+          id: 'end',
+          type: NodeType.END,
+          config: {
+            title: 'End',
+          },
+          label: 'end',
+          ui: {
+            position: {
+              x: 629,
+              y: 568,
+            },
+          },
+        },
+        {
+          id: 'loop',
+          type: NodeType.LOOP,
+          config: {
+            title: 'Loop',
+            description: 'Iterate over an array of items.',
+            maxIterations: 1000,
+          },
+          label: 'Loop',
+          ui: {
+            position: {
+              x: 26,
+              y: 332,
+            },
+          },
+        },
+        {
+          id: 'domReplacement',
+          type: NodeType.DOM_REPLACEMENT,
+          config: {
+            title: 'Set Text',
+            description: 'Set text to the DOM.',
+            selector: 'p',
+            isMultiple: false,
+            mode: 'innerHTML',
+          },
+          label: 'Set Text',
+          ui: {
+            position: {
+              x: 743,
+              y: 79,
+            },
+          },
+        },
+      ],
+      edges: [
+        {
+          id: 'e1-2',
+          source: 'start',
+          target: 'dom-input',
+          sourceHandle: null,
+          targetHandle: null,
+        },
+        {
+          id: 'e2-3',
+          source: 'dom-input',
+          target: 'loop',
+          sourceHandle: null,
+          targetHandle: 'in',
+        },
+        {
+          id: 'e3-4',
+          source: 'loop',
+          target: 'translator',
+          sourceHandle: 'item',
+          targetHandle: null,
+        },
+        {
+          id: 'e4-5',
+          source: 'loop',
+          target: 'alert',
+          sourceHandle: 'done',
+          targetHandle: null,
+        },
+        {
+          id: 'e5-6',
+          source: 'alert',
+          target: 'end',
+          sourceHandle: null,
+          targetHandle: null,
+        },
+        {
+          id: 'e4-6',
+          source: 'translator',
+          target: 'domReplacement',
+          sourceHandle: null,
+          targetHandle: null,
+        },
+      ],
+    },
+  },
+  {
+    meta: {
+      id: 'demo-summarizer',
+      name: 'Built-in: Quick Summarizer',
+      sanitizedName: 'built_in__quick_summarizer',
+      description: 'Summarizes the current page into key points.',
+      savedAt: new Date().toISOString(),
+      allowedDomains: ['<all_urls>'],
+      isWebMCP: true,
+      autosave: false,
+    },
+    graph: {
+      nodes: [
+        {
+          id: 'start',
+          type: NodeType.START,
+          config: {
+            title: 'Start',
+          },
+          label: 'start',
+          ui: {
+            position: {
+              x: 21,
+              y: 47,
+            },
+          },
+        },
+        {
+          id: 'dom-input',
+          type: NodeType.DOM_INPUT,
+          config: {
+            title: 'Get Content',
+            cssSelector: 'p',
+            extract: 'innerText',
+            defaultValue: '',
+            isMultiple: true,
+          },
+          label: 'domInput',
+          ui: {
+            position: {
+              x: 52,
+              y: 153,
+            },
+          },
+        },
+        {
+          id: 'summarizer',
+          type: NodeType.SUMMARIZER_API,
+          config: {
+            title: 'Summarize',
+            type: 'key-points',
+            format: 'markdown',
+            length: 'medium',
+            outputLanguage: 'en',
+            context: 'Summarize the following content into key points.',
+            expectedInputLanguages: ['en'],
+          },
+          label: 'summarizerApi',
+          ui: {
+            position: {
+              x: 286,
+              y: 394,
+            },
+          },
+        },
+        {
+          id: 'alert',
+          type: NodeType.ALERT_NOTIFICATION,
+          config: {
+            title: 'Summary',
+            useCustomMessage: false,
+          },
+          label: 'alertNotification',
+          ui: {
+            position: {
+              x: 566,
+              y: 128,
+            },
+          },
+        },
+        {
+          id: 'end',
+          type: NodeType.END,
+          config: {
+            title: 'End',
+          },
+          label: 'end',
+          ui: {
+            position: {
+              x: 752,
+              y: 441,
+            },
+          },
+        },
+      ],
+      edges: [
+        {
+          id: 'e1-2',
+          source: 'start',
+          target: 'dom-input',
+          sourceHandle: null,
+          targetHandle: null,
+        },
+        {
+          id: 'e2-3',
+          source: 'dom-input',
+          target: 'summarizer',
+          sourceHandle: null,
+          targetHandle: null,
+        },
+        {
+          id: 'e3-4',
+          source: 'summarizer',
+          target: 'alert',
+          sourceHandle: null,
+          targetHandle: null,
+        },
+        {
+          id: 'e4-5',
+          source: 'alert',
+          target: 'end',
+          sourceHandle: null,
+          targetHandle: null,
+        },
+      ],
+    },
+  },
+  {
+    meta: {
+      id: 'demo-snowfall',
+      name: 'Built-in: Let It Snow!',
+      sanitizedName: 'built_in__let_it_snow',
+      description:
+        'Injects a snowfall effect into the current page. WARNING: Resets DOM state (forms, video, etc).',
+      savedAt: new Date().toISOString(),
+      allowedDomains: ['<all_urls>'],
+      isWebMCP: true,
+      autosave: false,
+    },
+    graph: {
+      nodes: [
+        {
+          id: 'start',
+          type: NodeType.START,
+          config: {
+            title: 'Start',
+            description: 'Workflow entry point',
+          },
+          label: 'start',
+          ui: {
+            position: {
+              x: 23,
+              y: 33,
+            },
+          },
+        },
+        {
+          id: 'get-body-content',
+          type: NodeType.DOM_INPUT,
+          config: {
+            title: 'Read Body HTML',
+            description: 'Reads the current page content to preserve it.',
+            cssSelector: 'body',
+            extract: 'innerHTML',
+            isMultiple: false,
+            defaultValue: '',
+          },
+          label: 'domInput',
+          ui: {
+            position: {
+              x: 47,
+              y: 149,
+            },
+          },
+        },
+        {
+          id: 'add-snow-overlay',
+          type: NodeType.DATA_TRANSFORMER,
+          config: {
+            title: 'Inject Snow HTML/CSS',
+            operation: 'template',
+            template:
+              '{{input}} <style> #awlt-snow-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999999; overflow: hidden; } .snowflake { position: absolute; top: -10px; color: #FFF; font-size: 2em; font-family: Arial, sans-serif; text-shadow: 0 0 5px #000; user-select: none; z-index: 1000; animation-name: snow-fall, snow-shake; animation-duration: 10s, 3s; animation-timing-function: linear, ease-in-out; animation-iteration-count: infinite, infinite; animation-play-state: running, running; } @keyframes snow-fall { 0% { top: -10%; } 100% { top: 100%; } } @keyframes snow-shake { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(80px); } } .snowflake:nth-of-type(0) { left: 1%; animation-delay: 0s, 0s; } .snowflake:nth-of-type(1) { left: 10%; animation-delay: 1s, 1s; } .snowflake:nth-of-type(2) { left: 20%; animation-delay: 6s, .5s; } .snowflake:nth-of-type(3) { left: 30%; animation-delay: 4s, 2s; } .snowflake:nth-of-type(4) { left: 40%; animation-delay: 2s, 2s; } .snowflake:nth-of-type(5) { left: 50%; animation-delay: 8s, 3s; } .snowflake:nth-of-type(6) { left: 60%; animation-delay: 6s, 2s; } .snowflake:nth-of-type(7) { left: 70%; animation-delay: 2.5s, 1s; } .snowflake:nth-of-type(8) { left: 80%; animation-delay: 1s, 0s; } .snowflake:nth-of-type(9) { left: 90%; animation-delay: 3s, 1.5s; } .snowflake:nth-of-type(10) { left: 25%; animation-delay: 2s, 0s; } </style> <div id="awlt-snow-container" aria-hidden="true"> <div class="snowflake">❄</div> <div class="snowflake">❅</div> <div class="snowflake">❆</div> <div class="snowflake">❄</div> <div class="snowflake">❅</div> <div class="snowflake">❆</div> <div class="snowflake">❄</div> <div class="snowflake">❅</div> <div class="snowflake">❆</div> <div class="snowflake">❄</div> <div class="snowflake">❅</div> </div>',
+          },
+          label: 'dataTransformer',
+          ui: {
+            position: {
+              x: 163,
+              y: 385,
+            },
+          },
+        },
+        {
+          id: 'apply-changes',
+          type: NodeType.DOM_REPLACEMENT,
+          config: {
+            title: 'Update Page Body',
+            description: 'Replaces the body content with the snow version.',
+            selector: 'body',
+            mode: 'innerHTML',
+            isMultiple: false,
+          },
+          label: 'domReplacement',
+          ui: {
+            position: {
+              x: 508,
+              y: 181,
+            },
+          },
+        },
+        {
+          id: 'end',
+          type: NodeType.END,
+          config: {
+            title: 'End',
+            description: 'Workflow exit point',
+          },
+          label: 'end',
+          ui: {
+            position: {
+              x: 824,
+              y: 428,
+            },
+          },
+        },
+      ],
+      edges: [
+        {
+          id: 'edge-1',
+          source: 'start',
+          target: 'get-body-content',
+          sourceHandle: null,
+          targetHandle: null,
+        },
+        {
+          id: 'edge-2',
+          source: 'get-body-content',
+          target: 'add-snow-overlay',
+          sourceHandle: null,
+          targetHandle: null,
+        },
+        {
+          id: 'edge-3',
+          source: 'add-snow-overlay',
+          target: 'apply-changes',
+          sourceHandle: null,
+          targetHandle: null,
+        },
+        {
+          id: 'edge-4',
+          source: 'apply-changes',
+          target: 'end',
+          sourceHandle: null,
+          targetHandle: null,
+        },
+      ],
+    },
+  },
+];

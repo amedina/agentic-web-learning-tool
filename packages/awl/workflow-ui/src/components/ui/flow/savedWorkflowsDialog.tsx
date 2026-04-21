@@ -9,7 +9,7 @@ import {
   deleteWorkflow,
   type WorkflowMetadata,
   PREDEFINED_WORKFLOWS,
-} from "@google-awlt/engine-awl";
+} from "@google-awlt/engine-extension";
 import { type WorkflowJSON } from "@google-awlt/engine-core";
 
 /**

@@ -3,7 +3,7 @@
  */
 import { useCallback, useState } from 'react';
 import { OptionsPageTab, type PromptCommand } from '@google-awlt/design-system';
-import { listWorkflows } from '@google-awlt/engine-awl';
+import { listWorkflows } from '@google-awlt/engine-extension';
 
 /**
  * Internal dependencies

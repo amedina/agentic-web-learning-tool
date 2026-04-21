@@ -10,7 +10,7 @@ import {
 import {
   getWorkflowClient,
   setLastOpenedWorkflowId,
-} from "@google-awlt/engine-awl";
+} from "@google-awlt/engine-extension";
 import { type WorkflowMeta } from "@google-awlt/engine-core";
 
 /**

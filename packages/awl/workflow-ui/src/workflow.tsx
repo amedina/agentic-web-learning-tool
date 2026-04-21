@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { ReactFlowProvider } from "@xyflow/react";
-import { initContentScriptBridge } from "@google-awlt/engine-awl";
+import { initContentScriptBridge } from "@google-awlt/engine-extension";
 
 /**
  * Internal dependencies

@@ -5,7 +5,7 @@ import {
   listWorkflows,
   loadWorkflow,
   handleRunWorkflow,
-} from '@google-awlt/engine-awl';
+} from '@google-awlt/engine-extension';
 import type { WorkflowJSON } from '@google-awlt/engine-core';
 import { logger } from '@google-awlt/common';
 /**

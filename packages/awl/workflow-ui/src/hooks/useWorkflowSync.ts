@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import {
   getWorkflowClient,
   type GlobalWorkflowState,
-} from "@google-awlt/engine-awl";
+} from "@google-awlt/engine-extension";
 import type { WorkflowJSON } from "@google-awlt/engine-core";
 
 /**

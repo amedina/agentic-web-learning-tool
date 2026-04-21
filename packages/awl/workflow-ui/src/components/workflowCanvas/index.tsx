@@ -10,7 +10,7 @@ import {
   deleteWorkflow,
   setLastOpenedWorkflowId,
   listWorkflows,
-} from "@google-awlt/engine-awl";
+} from "@google-awlt/engine-extension";
 import {
   type NodeConfig,
   NodeType,
