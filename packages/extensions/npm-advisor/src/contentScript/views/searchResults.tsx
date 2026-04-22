@@ -248,7 +248,7 @@ export const SearchResults: React.FC = () => {
 
         <div className="flex-1 flex flex-col">
           {/* Results Header */}
-          <div className="px-8 py-4 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center bg-white/95 dark:bg-zinc-950/95 backdrop-blur-sm top-0 shrink-0">
+          <div className="px-6 py-4 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center bg-white/95 dark:bg-zinc-950/95 backdrop-blur-sm top-0 shrink-0 max-w-5xl">
             <div>
               <h1 className="text-lg font-bold">
                 {isClientSideModeActive(filters)
@@ -333,7 +333,7 @@ export const SearchResults: React.FC = () => {
                 {error}
               </div>
             ) : (
-              <div className="max-w-4xl">
+              <div className="max-w-5xl">
                 {hits.map((hit) => (
                   <ResultCard
                     key={hit.objectID || hit.name}
