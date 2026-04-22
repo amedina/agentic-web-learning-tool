@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React from "react";
-import { BarChart2 } from "lucide-react";
+import { BarChart2, ExternalLink } from "lucide-react";
 
 /**
  * Internal dependencies
@@ -36,7 +36,7 @@ export const ResultsHeader: React.FC<ResultsHeaderProps> = ({
   onSortOrderToggle,
 }) => {
   return (
-    <div className="px-6 py-4 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center bg-white/95 dark:bg-zinc-950/95 backdrop-blur-sm top-0 shrink-0 max-w-5xl">
+    <div className="px-6 py-4 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center bg-white/95 dark:bg-zinc-950/95 backdrop-blur-sm top-0 shrink-0 min-w-5xl">
       <div>
         <h1 className="text-lg font-bold">
           {isClientSideMode
@@ -55,6 +55,7 @@ export const ResultsHeader: React.FC<ResultsHeaderProps> = ({
           >
             <BarChart2 size={16} />
             <span>View Comparison ({comparisonBucket.length})</span>
+            <ExternalLink size={12} />
           </button>
         )}
         <span className="text-xs font-semibold text-zinc-400 uppercase tracking-tighter">

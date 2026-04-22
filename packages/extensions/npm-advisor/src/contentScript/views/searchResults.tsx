@@ -236,7 +236,7 @@ export const SearchResults: React.FC = () => {
   };
 
   return (
-    <div className={isDark ? "dark" : ""}>
+    <div className={`flex justify-center ${isDark ? "dark" : ""}`}>
       <div className="flex min-h-screen bg-white dark:bg-zinc-950 font-sans text-zinc-900 dark:text-zinc-100">
         <div className="sticky top-0 h-screen overflow-y-auto border-r border-zinc-200 dark:border-zinc-800">
           <FilterSidebar
@@ -275,7 +275,7 @@ export const SearchResults: React.FC = () => {
                 {error}
               </div>
             ) : (
-              <div className="max-w-5xl">
+              <div className="min-w-5xl">
                 {hits.map((hit) => (
                   <ResultCard
                     key={hit.objectID || hit.name}
