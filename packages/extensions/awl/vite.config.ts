@@ -68,6 +68,7 @@ export default defineConfig({
     sourcemap: isDev ? true : false,
     minify: !isDev,
     outDir: distDir,
+    chunkSizeWarningLimit: 5000,
     rollupOptions: {
       input: {
         options: resolve(__dirname, 'src/view/options/options.html'),

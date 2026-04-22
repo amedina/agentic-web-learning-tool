@@ -62,6 +62,7 @@ export default defineConfig({
     sourcemap: isDev ? true : false,
     minify: !isDev,
     outDir: distDir,
+    chunkSizeWarningLimit: 5000,
     lib: isContentBuild
       ? {
           entry: resolve(__dirname, "src/contentScript/contentScript.tsx"),
