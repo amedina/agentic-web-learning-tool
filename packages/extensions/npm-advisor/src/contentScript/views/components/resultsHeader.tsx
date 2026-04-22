@@ -36,7 +36,7 @@ export const ResultsHeader: React.FC<ResultsHeaderProps> = ({
   onSortOrderToggle,
 }) => {
   return (
-    <div className="px-6 py-4 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center bg-white/95 dark:bg-zinc-950/95 backdrop-blur-sm top-0 shrink-0 min-w-5xl">
+    <div className="px-6 py-4 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center bg-white/95 dark:bg-zinc-950/95 backdrop-blur-sm top-0 shrink-0 lg:w-5xl">
       <div>
         <h1 className="text-lg font-bold">
           {isClientSideMode

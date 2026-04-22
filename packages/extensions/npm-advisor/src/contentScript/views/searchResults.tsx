@@ -275,7 +275,7 @@ export const SearchResults: React.FC = () => {
                 {error}
               </div>
             ) : (
-              <div className="min-w-5xl">
+              <div className="lg:w-5xl">
                 {hits.map((hit) => (
                   <ResultCard
                     key={hit.objectID || hit.name}
