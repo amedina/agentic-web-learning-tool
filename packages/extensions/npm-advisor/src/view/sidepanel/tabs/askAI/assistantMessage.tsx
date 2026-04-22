@@ -7,7 +7,7 @@ import { MarkdownText, ToolFallback } from "@google-awlt/design-system";
  * Internal dependencies.
  */
 import { Reasoning, ReasoningGroup } from "./reasoning";
-import { PackageButton } from "../../../shared/components/packageButton";
+import { PackageButton } from "../../../shared/packageButton";
 
 export const AssistantMessage = () => {
   return (

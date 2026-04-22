@@ -9,7 +9,7 @@ import React from "react";
 import PackageSearch from "./search";
 import { EmptyState } from "./table/emptyState";
 import { WinnerBanner } from "./table/winnerBanner";
-import { SidepanelComparisonTable } from "../../../sidepanel/tabs/comparison/sidepanelComparisonTable";
+import { SidepanelComparisonTable } from "../../../shared/sidepanelComparisonTable";
 
 interface ComparisonTabProps {
   comparisonBucket: any[];

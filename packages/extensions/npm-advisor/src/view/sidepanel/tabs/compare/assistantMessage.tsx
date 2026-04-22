@@ -6,7 +6,7 @@ import { MarkdownText } from "@google-awlt/design-system";
 /**
  * Internal dependencies.
  */
-import { PackageButton } from "../../../shared/components/packageButton";
+import { PackageButton } from "../../../shared/packageButton";
 
 export const AssistantMessage = () => {
   return (
