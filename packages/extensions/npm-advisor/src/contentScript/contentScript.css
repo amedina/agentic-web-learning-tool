@@ -1,7 +1,6 @@
 @import "@google-awlt/shared-config/tailwind";
 
-@source "./apps";
-@source "./components";
+@source "./views";
 
 /* Content Script Specific Tweaks */
 :host {
