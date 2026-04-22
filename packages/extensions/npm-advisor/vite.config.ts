@@ -77,7 +77,10 @@ export default defineConfig({
         : {
             sidepanel: resolve(__dirname, "src/view/sidepanel/sidePanel.html"),
             options: resolve(__dirname, "src/view/options/options.html"),
-            background: resolve(__dirname, "src/background/background.ts"),
+            serviceWorker: resolve(
+              __dirname,
+              "src/serviceWorker/serviceWorker.ts",
+            ),
           },
       output: {
         entryFileNames: isContentBuild

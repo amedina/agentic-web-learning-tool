@@ -7,7 +7,7 @@ import { usePropProvider } from "@google-awlt/chatbot";
 /**
  * Internal dependencies.
  */
-import { SidepanelComparisonTable } from "./sidepanelComparisonTable";
+import { SidepanelComparisonTable } from "../../../shared/sidepanelComparisonTable";
 
 export const ComparisonTab: React.FC = () => {
   const { setActiveTab } = usePropProvider(({ actions }) => ({

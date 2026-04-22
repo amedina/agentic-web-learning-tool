@@ -11,10 +11,9 @@ import { useThemeSync } from "../hooks/useThemeSync";
 import type { AlgoliaHit } from "../types";
 
 /**
- * Search Overlay App.
  * Replaces the native NPM Search overlay with a React-based implementation.
  */
-export const SearchOverlayApp: React.FC = () => {
+export const SearchBar: React.FC = () => {
   const isDark = useThemeSync();
   const [query, setQuery] = useState("");
   const [hits, setHits] = useState<AlgoliaHit[]>([]);

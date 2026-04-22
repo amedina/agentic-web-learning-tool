@@ -6,8 +6,8 @@ import { createRoot } from "react-dom/client";
 /**
  * Internal dependencies
  */
-import { SearchOverlayApp } from "./apps/searchOverlayApp";
-import { SearchResultsApp } from "./apps/searchResultsApp";
+import { SearchBar } from "./views/searchBar";
+import { SearchResults } from "./views/searchResults";
 
 // Vite inlines the Tailwind CSS as a string so it can be injected into the Shadow DOM
 import contentStyles from "./contentScript.css?inline";
@@ -159,7 +159,7 @@ const npmAdvisor = {
       container.id = "npm-advisor-overlay-root";
       shadow.appendChild(container);
 
-      createRoot(container).render(<SearchOverlayApp />);
+      createRoot(container).render(<SearchBar />);
     }
 
     // Hide native dropdowns/backdrops
@@ -195,7 +195,7 @@ const npmAdvisor = {
     container.id = "npm-advisor-results-root";
     shadow.appendChild(container);
 
-    createRoot(container).render(<SearchResultsApp />);
+    createRoot(container).render(<SearchResults />);
   },
 
   /**

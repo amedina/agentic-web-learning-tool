@@ -6,7 +6,7 @@ import React from "react";
 /**
  * Internal dependencies
  */
-import type { SearchFilters } from "../types";
+import type { SearchFilters } from "../../types";
 
 interface FilterSidebarProps {
   filters: SearchFilters;
@@ -51,9 +51,9 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
               </h3>
               <div className="flex flex-col gap-2">
                 {[
-                  { label: "> 1M monthly", value: 1000000 },
-                  { label: "> 100k monthly", value: 100000 },
-                  { label: "> 10k monthly", value: 10000 },
+                  { label: "1M+ monthly", value: 1000000 },
+                  { label: "100k+ monthly", value: 100000 },
+                  { label: "10k+ monthly", value: 10000 },
                 ].map((item) => (
                   <label
                     key={item.label}
