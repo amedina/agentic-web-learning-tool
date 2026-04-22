@@ -7,8 +7,8 @@ import { BarChart2 } from "lucide-react";
 /**
  * Internal dependencies
  */
-import { FilterSidebar } from "../components/filterSidebar";
-import { ResultCard } from "../components/resultCard";
+import { FilterSidebar } from "./components/filterSidebar";
+import { ResultCard } from "./components/resultCard";
 import { useThemeSync } from "../hooks/useThemeSync";
 import { calculateScore } from "../../lib";
 import type { AlgoliaHit, SearchFilters } from "../types";
@@ -26,10 +26,9 @@ const DEFAULT_FILTERS: SearchFilters = {
 };
 
 /**
- * Search Results App.
  * Full-page takeover for npmjs.com/search.
  */
-export const SearchResultsApp: React.FC = () => {
+export const SearchResults: React.FC = () => {
   const isDark = useThemeSync();
   const [query, setQuery] = useState("");
   const [hits, setHits] = useState<AlgoliaHit[]>([]);

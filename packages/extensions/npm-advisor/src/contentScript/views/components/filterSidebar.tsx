@@ -6,7 +6,7 @@ import React from "react";
 /**
  * Internal dependencies
  */
-import type { SearchFilters } from "../types";
+import type { SearchFilters } from "../../types";
 
 interface FilterSidebarProps {
   filters: SearchFilters;
