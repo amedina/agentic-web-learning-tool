@@ -2,13 +2,13 @@
  * External dependencies
  */
 import React, { useState, useEffect, useCallback } from "react";
-import { BarChart2 } from "lucide-react";
 
 /**
  * Internal dependencies
  */
 import { FilterSidebar } from "./components/filterSidebar";
 import { ResultCard } from "./components/resultCard";
+import { ResultsHeader } from "./components/resultsHeader";
 import { useThemeSync } from "../hooks/useThemeSync";
 import { calculateScore } from "../../lib";
 import type { AlgoliaHit, SearchFilters } from "../types";
@@ -247,77 +247,19 @@ export const SearchResults: React.FC = () => {
         </div>
 
         <div className="flex-1 flex flex-col">
-          {/* Results Header */}
-          <div className="px-6 py-4 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center bg-white/95 dark:bg-zinc-950/95 backdrop-blur-sm top-0 shrink-0 max-w-5xl">
-            <div>
-              <h1 className="text-lg font-bold">
-                {isClientSideModeActive(filters)
-                  ? `Showing top ${hits.length} sorted results for `
-                  : `${nbHits.toLocaleString()} results for `}
-                <span className="italic text-orange-600">"{query}"</span>
-              </h1>
-            </div>
-
-            <div className="flex items-center gap-3">
-              {comparisonBucket.length > 0 && (
-                <button
-                  onClick={() =>
-                    chrome.runtime.sendMessage({ type: "OPEN_OPTIONS" })
-                  }
-                  className="flex items-center gap-2 px-3 py-1.5 bg-zinc-100 dark:bg-zinc-900 hover:bg-orange-50 dark:hover:bg-orange-900/20 text-orange-600 rounded border border-zinc-200 dark:border-zinc-800 transition-all font-bold text-xs mr-2 shadow-sm"
-                  title="View Comparison"
-                >
-                  <BarChart2 size={16} />
-                  <span>View Comparison ({comparisonBucket.length})</span>
-                </button>
-              )}
-              <span className="text-xs font-semibold text-zinc-400 uppercase tracking-tighter">
-                Sort by:
-              </span>
-              <div className="flex items-center gap-1">
-                <select
-                  value={filters.ranking}
-                  onChange={(e) =>
-                    handleFilterChange("ranking", e.target.value)
-                  }
-                  className="text-xs font-bold bg-zinc-100 dark:bg-zinc-900 border-none rounded px-3 py-1.5 focus:ring-2 focus:ring-orange-500 outline-none appearance-none cursor-pointer"
-                >
-                  <option value="optimal">Relevance</option>
-                  <option value="popularity">Popularity</option>
-                  <option value="maintenance">Maintenance</option>
-                  <option value="advisor">Advisor Score</option>
-                </select>
-
-                {filters.ranking !== "optimal" && (
-                  <button
-                    onClick={() =>
-                      setSortOrder((o) => (o === "desc" ? "asc" : "desc"))
-                    }
-                    className="p-1.5 bg-zinc-100 dark:bg-zinc-900 rounded hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors"
-                    title={`Currently sorting ${sortOrder === "desc" ? "Descending" : "Ascending"}`}
-                  >
-                    <svg
-                      width="14"
-                      height="14"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className={
-                        sortOrder === "asc"
-                          ? "rotate-180 transition-transform"
-                          : "transition-transform"
-                      }
-                    >
-                      <path d="M12 5v14M19 12l-7 7-7-7" />
-                    </svg>
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
+          <ResultsHeader
+            query={query}
+            hitsCount={hits.length}
+            nbHits={nbHits}
+            isClientSideMode={isClientSideModeActive(filters)}
+            filters={filters}
+            sortOrder={sortOrder}
+            comparisonBucket={comparisonBucket}
+            onFilterChange={handleFilterChange}
+            onSortOrderToggle={() =>
+              setSortOrder((order) => (order === "desc" ? "asc" : "desc"))
+            }
+          />
 
           {/* Results Scroll Area */}
           <div id="npc-advisor-results-scroll-container">
