@@ -89,9 +89,9 @@ const Details = ({
                   role="checkbox"
                   type="checkbox"
                   className={clsx(
-                    'ml-3 mr-1 cursor-pointer dark:accent-orange-400 accent-royal-blue',
+                    'ml-3 mr-1 cursor-pointer dark:accent-orange-400 accent-traditional-blue',
                     {
-                      'dark:min-h-0 dark:min-w-0 dark:h-[13px] dark:w-[13px] dark:appearance-none dark:bg-outer-space dark:border dark:border-manatee dark:rounded-[3px]':
+                      'dark:min-h-0 dark:min-w-0 dark:h-[13px] dark:w-[13px] dark:appearance-none dark:bg-muted-stone dark:border dark:border-manatee dark:rounded-[3px]':
                         !showUrlDecoded,
                     }
                   )}
