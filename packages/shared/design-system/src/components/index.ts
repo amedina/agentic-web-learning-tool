@@ -36,3 +36,15 @@ export { default as Textarea } from './textarea';
 export * from './combobox';
 export * from './codeEditor';
 export * from './types';
+
+export { default as Circle } from './circle';
+export { default as CircleEmpty } from './circle/circleEmpty';
+export { default as Matrix } from './matrix';
+export {
+  default as MatrixComponent,
+  type MatrixComponentProps,
+} from './matrix/matrixComponent';
+export {
+  default as MatrixComponentHorizontal,
+  type MatrixComponentHorizontalProps,
+} from './matrix/matrixComponent/matrixComponentHorizontal';
