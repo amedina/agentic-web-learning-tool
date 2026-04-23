@@ -4,9 +4,8 @@
 import React, { useMemo } from "react";
 import {
   CirclePieChart,
-  DetailsCard,
-  Details,
-  type DetailsSection,
+  Matrix,
+  type MatrixComponentProps,
 } from "@google-awlt/design-system";
 
 /**
@@ -119,33 +118,44 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const totalDeclared = prodCount + devCount + peerCount;
   const unanalysedCount = summary.notFound + summary.errored;
 
-  const detailsSections: DetailsSection[] = [
+  const matrixComponents: MatrixComponentProps[] = [
     {
-      label: "Total Dependencies",
-      content: `${totalDeclared} packages declared across dependencies (${prodCount}), devDependencies (${devCount}), and peerDependencies (${peerCount}).`,
+      color: COLORS.prod,
+      title: "Total Dependencies",
+      count: totalDeclared,
+      countClassName: "font-semibold",
+      description: `Packages declared across <strong>dependencies</strong> (${prodCount}), <strong>devDependencies</strong> (${devCount}), and <strong>peerDependencies</strong> (${peerCount}).`,
     },
     {
-      label: "With Vulnerabilities",
-      content: `${breakdown.vulnerableCount} of ${breakdown.analysed} analysed packages have at least one published GitHub security advisory.`,
+      color: COLORS.vulnerable,
+      title: "With Vulnerabilities",
+      count: breakdown.vulnerableCount,
+      countClassName: "font-semibold",
+      description: `Analysed packages with at least one published GitHub security advisory (${breakdown.vulnerableCount} of ${breakdown.analysed}).`,
     },
     {
-      label: "License Issues",
-      content: `${breakdown.licenseIssueCount} of ${breakdown.analysed} analysed packages declare a license that is not compatible with your target project license.`,
+      color: COLORS.licenseIssue,
+      title: "License Issues",
+      count: breakdown.licenseIssueCount,
+      countClassName: "font-semibold",
+      description: `Packages whose declared license is not compatible with your target project license (${breakdown.licenseIssueCount} of ${breakdown.analysed}).`,
     },
     {
-      label: "Replaceable",
-      content: `${breakdown.replaceableCount} of ${breakdown.analysed} analysed packages have a native JavaScript, micro-utility, or preferred alternative available via the e18e recommendations.`,
-    },
-    {
-      label: "Production Bundle Footprint",
-      content: `${formatBytes(breakdown.totalGzip)} gzipped across the ${prodCount} production dependencies. Only packages listed under "dependencies" ship to end users.`,
+      color: COLORS.replaceable,
+      title: "Replaceable",
+      count: breakdown.replaceableCount,
+      countClassName: "font-semibold",
+      description: `Packages with a native JavaScript, micro-utility, or preferred alternative available via the e18e recommendations (${breakdown.replaceableCount} of ${breakdown.analysed}).`,
     },
   ];
 
   if (unanalysedCount > 0) {
-    detailsSections.push({
-      label: "Could Not Analyse",
-      content: `${unanalysedCount} package${unanalysedCount === 1 ? " was" : "s were"} skipped because they are not published on npmjs.com or failed to load.`,
+    matrixComponents.push({
+      color: "#94a3b8",
+      title: "Could Not Analyse",
+      count: unanalysedCount,
+      countClassName: "font-semibold",
+      description: `Packages skipped because they are not published on npmjs.com or failed to load.`,
     });
   }
 
@@ -229,21 +239,18 @@ export const Dashboard: React.FC<DashboardProps> = ({
         <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
           What do these mean?
         </h3>
-        {/*
-         * DetailsCard relies on `h-full` internally, so it needs a parent
-         * with a resolvable height. A flex container with a content-based
-         * min-height lets the card grow with its sections instead of
-         * collapsing behind `overflow-y-auto`.
-         */}
-        <div
-          className="flex bg-white dark:bg-slate-800 rounded-xl"
-          style={{ minHeight: 40 * detailsSections.length + 40 }}
-        >
-          <DetailsCard hasContent>
-            <Details sections={detailsSections} />
-          </DetailsCard>
-        </div>
+        <Matrix dataComponents={matrixComponents} expand />
       </div>
+
+      {prodCount > 0 && (
+        <p className="text-xs text-slate-500 dark:text-slate-400 px-1">
+          Production bundle footprint:{" "}
+          <span className="font-semibold text-slate-700 dark:text-slate-200">
+            {formatBytes(breakdown.totalGzip)}
+          </span>{" "}
+          gzipped across {prodCount} production dependencies.
+        </p>
+      )}
     </div>
   );
 };
