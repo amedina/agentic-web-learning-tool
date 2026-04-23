@@ -66,7 +66,8 @@
   },
   "peerDependencies": {
     "lucide-react": "^0.577.0",
-    "react": "^19"
+    "react": "^19",
+    "victory-pie": ">=37"
   },
   "devDependencies": {
     "@babel/plugin-transform-react-jsx": "^7.27.1",

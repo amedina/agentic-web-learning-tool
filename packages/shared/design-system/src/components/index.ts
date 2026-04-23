@@ -36,3 +36,7 @@ export { default as Textarea } from './textarea';
 export * from './combobox';
 export * from './codeEditor';
 export * from './types';
+export * from './circle';
+export * from './circlePieChart';
+export * from './detailsCard';
+export * from './matrix';
