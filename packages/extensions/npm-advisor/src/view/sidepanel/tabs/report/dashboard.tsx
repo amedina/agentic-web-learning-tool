@@ -160,7 +160,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 mb-15">
       <div className="bg-white dark:bg-slate-800 rounded-xl p-4">
         <div className="flex items-center justify-between mb-4">
           {!summary.isComplete && summary.total > 0 && (
@@ -170,7 +170,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
           )}
         </div>
 
-        <div className="flex flex-nowrap items-start justify-center gap-3">
+        <div className="flex flex-nowrap items-start justify-center gap-3 max-w-[420px] mx-auto">
           <CirclePieChart
             centerCount={totalDeclared}
             title="Total Dependencies"
@@ -238,16 +238,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
         </h3>
         <Matrix dataComponents={matrixComponents} expand />
       </div>
-
-      {prodCount > 0 && (
-        <p className="text-xs text-slate-500 dark:text-slate-400 px-1">
-          Production bundle footprint:{" "}
-          <span className="font-semibold text-slate-700 dark:text-slate-200">
-            {formatBytes(breakdown.totalGzip)}
-          </span>{" "}
-          gzipped across {prodCount} production dependencies.
-        </p>
-      )}
     </div>
   );
 };
