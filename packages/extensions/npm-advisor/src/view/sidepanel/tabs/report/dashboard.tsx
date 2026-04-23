@@ -161,11 +161,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
   return (
     <div className="space-y-4">
-      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
+      <div className="bg-white dark:bg-slate-800 rounded-xl p-4">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200">
-            Dependency Report
-          </h2>
           {!summary.isComplete && summary.total > 0 && (
             <span className="text-xs text-slate-500 dark:text-slate-400">
               Analysed {summary.loaded} / {summary.total}
@@ -173,7 +170,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
           )}
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="flex flex-nowrap items-start justify-center gap-3">
           <CirclePieChart
             centerCount={totalDeclared}
             title="Total Dependencies"
@@ -235,7 +232,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         </div>
       </div>
 
-      <div>
+      <div className="mt-10">
         <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
           What do these mean?
         </h3>
