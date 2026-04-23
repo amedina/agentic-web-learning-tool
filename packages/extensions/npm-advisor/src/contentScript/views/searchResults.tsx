@@ -44,10 +44,10 @@ export const SearchResults: React.FC = () => {
     Record<string, unknown>[]
   >([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isDesktop, setIsDesktop] = useState(() => window.innerWidth >= 1024);
+  const [isDesktop, setIsDesktop] = useState(() => window.innerWidth >= 1280);
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia("(min-width: 1024px)");
+    const mediaQuery = window.matchMedia("(min-width: 1280px)");
     const handleChange = (event: MediaQueryListEvent) => {
       setIsDesktop(event.matches);
       if (event.matches) {
@@ -250,8 +250,6 @@ export const SearchResults: React.FC = () => {
     setPage(0);
   };
 
-  console.log(isDesktop);
-
   return (
     <div className={`flex justify-center ${isDark ? "dark" : ""}`}>
       <div className="flex min-h-screen bg-white dark:bg-zinc-950 font-sans text-zinc-900 dark:text-zinc-100">
@@ -329,7 +327,7 @@ export const SearchResults: React.FC = () => {
                 {error}
               </div>
             ) : (
-              <div className="lg:w-5xl">
+              <div className="xl:w-5xl">
                 {hits.map((hit) => (
                   <ResultCard
                     key={hit.objectID || hit.name}

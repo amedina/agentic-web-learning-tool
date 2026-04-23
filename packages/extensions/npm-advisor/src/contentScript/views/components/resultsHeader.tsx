@@ -38,17 +38,17 @@ export const ResultsHeader: React.FC<ResultsHeaderProps> = ({
   onOpenFilters,
 }) => {
   return (
-    <div className="px-6 py-4 border-b border-zinc-200 dark:border-zinc-800 bg-white/95 dark:bg-zinc-950/95 backdrop-blur-sm top-0 shrink-0 lg:w-5xl">
+    <div className="px-6 py-4 border-b border-zinc-200 dark:border-zinc-800 bg-white/95 dark:bg-zinc-950/95 backdrop-blur-sm top-0 shrink-0 xl:w-5xl">
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-3">
           <button
             onClick={onOpenFilters}
-            className="lg:hidden flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-zinc-200 dark:bg-zinc-900 rounded border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors"
+            className="xl:hidden flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-zinc-200 dark:bg-zinc-900 rounded border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors"
           >
             <SlidersHorizontal size={14} />
             Filters
           </button>
-          <h1 className="text-lg font-bold hidden lg:block">
+          <h1 className="text-lg font-bold hidden xl:block">
             {isClientSideMode
               ? `Showing top ${hitsCount} sorted results for `
               : `${nbHits.toLocaleString()} results for `}
@@ -115,7 +115,7 @@ export const ResultsHeader: React.FC<ResultsHeaderProps> = ({
           </div>
         </div>
       </div>
-      <h1 className="text-lg font-bold lg:hidden mt-5">
+      <h1 className="text-lg font-bold xl:hidden mt-5">
         {isClientSideMode
           ? `Showing top ${hitsCount} sorted results for `
           : `${nbHits.toLocaleString()} results for `}
