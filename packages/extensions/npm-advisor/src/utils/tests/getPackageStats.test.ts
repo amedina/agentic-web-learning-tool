@@ -43,6 +43,16 @@ describe("getPackageStats", () => {
     expect(result).toBeNull();
   });
 
+  it("should return null when the package is not published on npmjs.com", async () => {
+    vi.mocked(fetchNpmPackage).mockResolvedValueOnce(null);
+    vi.mocked(fetchBundlephobiaData).mockResolvedValueOnce(null);
+    vi.mocked(getDependencyTree).mockResolvedValueOnce(null as any);
+    vi.mocked(fetchModuleReplacements).mockResolvedValue(null);
+
+    const result = await getPackageStats("floating-ui");
+    expect(result).toBeNull();
+  });
+
   it("should return stats gracefully handling partial data failures", async () => {
     vi.mocked(fetchNpmPackage).mockResolvedValueOnce({
       maintainers: [{ name: "test" }],

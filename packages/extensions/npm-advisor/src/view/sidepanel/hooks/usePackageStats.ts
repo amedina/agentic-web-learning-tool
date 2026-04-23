@@ -131,7 +131,7 @@ export const usePackageStats = () => {
                 setStats(response.data);
               } else {
                 const errorMessage =
-                  "Failed to load statistics for this package.";
+                  "This package was not found on npmjs.com. It may not be published.";
                 urlCache.set(url, { stats: null, error: errorMessage });
                 setError(errorMessage);
               }
