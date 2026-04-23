@@ -24,7 +24,7 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
 }) => {
   return (
     <div className="w-[280px] shrink-0 flex flex-col gap-8 p-8 h-full">
-      <div className="flex justify-between items-center bg-zinc-50 dark:bg-zinc-900/50 p-3 rounded-lg border border-zinc-100 dark:border-zinc-800/50">
+      <div className="flex justify-between items-center bg-zinc-50 dark:bg-zinc-900/50 p-1 rounded-lg border border-zinc-100 dark:border-zinc-800/50">
         <h2 className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-500">
           Filters
         </h2>
