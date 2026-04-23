@@ -204,7 +204,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ hit, query }) => {
 
       {hit.keywords && hit.keywords.length > 0 && (
         <div className="flex flex-wrap gap-2 mt-4">
-          {hit.keywords.slice(0, 6).map((kw) => (
+          {[...new Set(hit.keywords)].slice(0, 6).map((kw) => (
             <span
               key={kw}
               className="text-[10px] px-2 py-0.5 bg-zinc-50 dark:bg-zinc-800/50 text-zinc-500 border border-zinc-100 dark:border-zinc-800 rounded-sm hover:border-orange-200 transition-colors"

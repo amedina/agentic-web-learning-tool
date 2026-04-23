@@ -72,6 +72,15 @@ export default defineConfig({
         }
       : undefined,
     rollupOptions: {
+      onwarn(warning, defaultHandler) {
+        if (
+          warning.plugin === "@tailwindcss/vite:generate:build" &&
+          warning.code === "SOURCEMAP_ERROR"
+        ) {
+          return;
+        }
+        defaultHandler(warning);
+      },
       input: isContentBuild
         ? undefined
         : {
