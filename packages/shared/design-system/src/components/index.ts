@@ -39,6 +39,13 @@ export * from './types';
 
 export { default as Circle } from './circle';
 export { default as CircleEmpty } from './circle/circleEmpty';
+export { default as DetailsCard, type DetailsCardProps } from './detailsCard';
+export {
+  default as Details,
+  type DetailsProps,
+  type DetailsSection,
+  type DetailsRow,
+} from './detailsCard/details';
 export { default as Matrix } from './matrix';
 export {
   default as MatrixComponent,
