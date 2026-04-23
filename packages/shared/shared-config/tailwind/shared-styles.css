@@ -1,7 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "@google-awlt/table/styles.css";
-@import "@google-awlt/chrome-ai-playground/styles.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -223,6 +222,21 @@
   }
 }
 
+@theme {
+  --text-xxl: 1.375rem;
+  --text-xxl--line-height: 1;
+
+  --color-raisin-black: #212121;
+  --color-outer-space-crayola: #303942;
+  --color-granite-gray: #5f6369;
+  --color-darkest-gray: #616161;
+  --color-manatee: #9aa0a6;
+  --color-bright-gray: #e8eaed;
+  --color-quartz: #494c50;
+  --color-light-gray: #f1f1f1;
+  --color-cultured: #f6f6f699;
+}
+
 .dark {
   color-scheme: dark;
 
@@ -384,4 +398,20 @@
 .no-scrollbar {
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  opacity: 1 !important;
+  animation: fadeIn 0.3s ease;
 }
