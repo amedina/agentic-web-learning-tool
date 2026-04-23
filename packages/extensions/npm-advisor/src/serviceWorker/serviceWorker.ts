@@ -25,6 +25,16 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     return true;
   }
 
+  // 2b. Get Light Package Stats (no transitive dependency tree). Used by the
+  // Report tab so analysing 30+ deps doesn't trigger recursive npm fetches.
+  else if (request.type === "GET_LIGHT_STATS" && request.packageName) {
+    packageStatsService
+      .getLightStats(request.packageName)
+      .then((stats) => sendResponse({ success: true, data: stats }))
+      .catch((err) => sendResponse({ success: false, error: err.message }));
+    return true;
+  }
+
   // 3. Search NPM Packages (via Algolia)
   else if (request.type === "SEARCH_NPM" && request.query !== undefined) {
     npmSearchService

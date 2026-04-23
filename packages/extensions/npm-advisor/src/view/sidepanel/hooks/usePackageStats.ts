@@ -8,11 +8,29 @@ import { useState, useEffect, useCallback } from "react";
  */
 import { type PackageStats } from "../../../lib";
 
+export interface PackageJsonDependencies {
+  dependencies: string[];
+  devDependencies: string[];
+  peerDependencies: string[];
+}
+
 // Cache to prevent reloading state when returning to a previously visited tab
 const urlCache = new Map<
   string,
-  { stats: PackageStats | null; error: string | null }
+  {
+    stats: PackageStats | null;
+    error: string | null;
+    packageJsonDependencies: PackageJsonDependencies | null;
+  }
 >();
+
+const extractDependencies = (pkg: any): PackageJsonDependencies => ({
+  dependencies: pkg?.dependencies ? Object.keys(pkg.dependencies) : [],
+  devDependencies: pkg?.devDependencies ? Object.keys(pkg.devDependencies) : [],
+  peerDependencies: pkg?.peerDependencies
+    ? Object.keys(pkg.peerDependencies)
+    : [],
+});
 
 export const usePackageStats = () => {
   const [loading, setLoading] = useState(true);
@@ -22,6 +40,8 @@ export const usePackageStats = () => {
   const [isOptionsPage, setIsOptionsPage] = useState(false);
   const [isComparisonPage, setIsComparisonPage] = useState(false);
   const [stats, setStats] = useState<PackageStats | null>(null);
+  const [packageJsonDependencies, setPackageJsonDependencies] =
+    useState<PackageJsonDependencies | null>(null);
   const [comparisonBucket, setComparisonBucket] = useState<any[]>([]);
   const [addingRecommendations, setAddingRecommendations] = useState<
     Set<string>
@@ -63,6 +83,7 @@ export const usePackageStats = () => {
           setIsOptionsPage(true);
           setIsComparisonPage(url.includes("#comparison"));
           setStats(null);
+          setPackageJsonDependencies(null);
           setError(null);
           setIsNavigationMessage(false);
           setLoading(false);
@@ -76,6 +97,7 @@ export const usePackageStats = () => {
           const cached = urlCache.get(url)!;
           setStats(cached.stats);
           setError(cached.error);
+          setPackageJsonDependencies(cached.packageJsonDependencies);
           setIsNavigationMessage(!cached.stats && !cached.error);
           setLoading(false);
           return;
@@ -83,8 +105,10 @@ export const usePackageStats = () => {
         setLoading(true);
         setError(null);
         setIsNavigationMessage(false);
+        setPackageJsonDependencies(null);
 
         let packageName: string | null = null;
+        let parsedDependencies: PackageJsonDependencies | null = null;
         if (url.includes("npmjs.com/package/")) {
           const match = url.match(/npmjs\.com\/package\/([^?#]+)/);
           if (match && match[1]) {
@@ -102,11 +126,26 @@ export const usePackageStats = () => {
             if (pkg && pkg.name) {
               packageName = pkg.name;
             }
+            parsedDependencies = extractDependencies(pkg);
           }
         }
 
+        const hasAnyDeclaredDep =
+          !!parsedDependencies &&
+          (parsedDependencies.dependencies.length > 0 ||
+            parsedDependencies.devDependencies.length > 0 ||
+            parsedDependencies.peerDependencies.length > 0);
+        const dependenciesToExpose = hasAnyDeclaredDep
+          ? parsedDependencies
+          : null;
+        setPackageJsonDependencies(dependenciesToExpose);
+
         if (!packageName) {
-          urlCache.set(url, { stats: null, error: null });
+          urlCache.set(url, {
+            stats: null,
+            error: null,
+            packageJsonDependencies: dependenciesToExpose,
+          });
           setIsNavigationMessage(true);
           setStats(null);
           setLoading(false);
@@ -121,25 +160,41 @@ export const usePackageStats = () => {
               const errorMessage =
                 chrome.runtime.lastError.message ||
                 "Failed to communicate with background script.";
-              urlCache.set(url, { stats: null, error: errorMessage });
+              urlCache.set(url, {
+                stats: null,
+                error: errorMessage,
+                packageJsonDependencies: dependenciesToExpose,
+              });
               setLoading(false);
               return setError(errorMessage);
             }
             if (response && response.success) {
               if (response.data) {
-                urlCache.set(url, { stats: response.data, error: null });
+                urlCache.set(url, {
+                  stats: response.data,
+                  error: null,
+                  packageJsonDependencies: dependenciesToExpose,
+                });
                 setStats(response.data);
               } else {
                 const errorMessage =
                   "This package was not found on npmjs.com. It may not be published.";
-                urlCache.set(url, { stats: null, error: errorMessage });
+                urlCache.set(url, {
+                  stats: null,
+                  error: errorMessage,
+                  packageJsonDependencies: dependenciesToExpose,
+                });
                 setError(errorMessage);
               }
             } else {
               const errorMessage =
                 response?.error ||
                 "Failed to load statistics for this package.";
-              urlCache.set(url, { stats: null, error: errorMessage });
+              urlCache.set(url, {
+                stats: null,
+                error: errorMessage,
+                packageJsonDependencies: dependenciesToExpose,
+              });
               setError(errorMessage);
             }
             setLoading(false);
@@ -256,5 +311,6 @@ export const usePackageStats = () => {
     comparisonBucketNames,
     addingRecommendations,
     currentTabUrl,
+    packageJsonDependencies,
   };
 };

@@ -56,14 +56,28 @@ export interface PackageStats {
   score: number;
 }
 
+export interface GetPackageStatsOptions {
+  /**
+   * Whether to resolve the full transitive dependency tree. Skipping the tree
+   * avoids the recursive npm fetch cost when analysing many packages at once
+   * (e.g. the Report tab's dependency list).
+   */
+  includeDependencyTree?: boolean;
+}
+
 /**
  * Get Package Stats.
  */
 export async function getPackageStats(
   packageName: string,
   targetLicense: string = "MIT",
+  options: GetPackageStatsOptions = {},
 ): Promise<PackageStats | null> {
-  console.log(`[NPM Advisor] Fetching stats for ${packageName}...`);
+  const { includeDependencyTree = true } = options;
+
+  console.log(
+    `[NPM Advisor] Fetching stats for ${packageName}${includeDependencyTree ? "" : " (light)"}...`,
+  );
 
   const [
     npmData,
@@ -81,13 +95,15 @@ export async function getPackageStats(
       );
       return null;
     }),
-    getDependencyTree(packageName).catch((e) => {
-      console.warn(
-        `[NPM Advisor] Failed to fetch dependency tree for ${packageName}`,
-        e,
-      );
-      return null;
-    }),
+    includeDependencyTree
+      ? getDependencyTree(packageName).catch((e) => {
+          console.warn(
+            `[NPM Advisor] Failed to fetch dependency tree for ${packageName}`,
+            e,
+          );
+          return null;
+        })
+      : Promise.resolve(null),
     fetchModuleReplacements("native").catch(() => null),
     fetchModuleReplacements("micro-utilities").catch(() => null),
     fetchModuleReplacements("preferred").catch(() => null),
@@ -278,10 +294,20 @@ export async function getPackageStats(
   if (gzip < 50000) score += 10;
   if (gzip < 10000) score += 20;
 
-  // Reward low dependency count
-  const deps = dependencyTree
-    ? Object.keys(dependencyTree.dependencies || {}).length
-    : 0;
+  // Reward low dependency count. When we skipped the dependency tree fetch,
+  // fall back to the top-level deps declared on the published version so the
+  // score stays meaningful without triggering a recursive npm fetch.
+  let deps: number;
+  if (dependencyTree) {
+    deps = Object.keys(dependencyTree.dependencies || {}).length;
+  } else if (!includeDependencyTree) {
+    const topLevelDeps = latestVersion
+      ? npmData.versions[latestVersion]?.dependencies
+      : undefined;
+    deps = topLevelDeps ? Object.keys(topLevelDeps).length : 0;
+  } else {
+    deps = 0;
+  }
   if (deps === 0) score += 30;
   else if (deps < 5) score += 15;
 

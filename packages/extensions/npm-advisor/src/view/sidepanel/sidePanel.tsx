@@ -11,6 +11,7 @@ import {
   ErrorState,
   NavigationMessage,
   InsightsTab,
+  ReportTab,
   ComparisonTab,
   AssistantMessage,
   UserMessage,
@@ -39,7 +40,14 @@ const SidePanel = () => {
     comparisonBucketNames,
     addingRecommendations,
     currentTabUrl,
+    packageJsonDependencies,
   } = usePackageStats();
+
+  const hasAnalysableDependencies =
+    !!packageJsonDependencies &&
+    (packageJsonDependencies.dependencies.length > 0 ||
+      packageJsonDependencies.devDependencies.length > 0 ||
+      packageJsonDependencies.peerDependencies.length > 0);
 
   if (loading) return <LoadingState />;
   if (isNavigationMessage) return <NavigationMessage url={currentTabUrl} />;
@@ -77,6 +85,24 @@ const SidePanel = () => {
                 />
               ),
             },
+            ...(hasAnalysableDependencies && packageJsonDependencies
+              ? [
+                  {
+                    value: "report",
+                    label: "Report",
+                    content: (
+                      <ReportTab
+                        packageJsonDependencies={packageJsonDependencies}
+                        onAddRecommendationToCompare={
+                          handleAddRecommendationToCompare
+                        }
+                        comparisonBucketNames={comparisonBucketNames}
+                        addingRecommendations={addingRecommendations}
+                      />
+                    ),
+                  },
+                ]
+              : []),
           ]}
           suffixTabs={
             comparisonBucket.length > 0
