@@ -1,7 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "@google-awlt/table/styles.css";
-@import "@google-awlt/chrome-ai-playground/styles.css";
 
 @custom-variant dark (&:is(.dark *));
 
