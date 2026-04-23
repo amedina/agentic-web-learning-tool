@@ -10,3 +10,4 @@ const Circle = ({ color }: CircleProps) => (
 );
 
 export default Circle;
+export { default as CircleEmpty } from './circleEmpty';

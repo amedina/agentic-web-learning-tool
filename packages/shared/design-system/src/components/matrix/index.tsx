@@ -64,3 +64,11 @@ const Matrix = ({ dataComponents, expand, extraClasses }: MatrixProps) => {
 };
 
 export default Matrix;
+export {
+  default as MatrixComponent,
+  type MatrixComponentProps,
+} from './matrixComponent';
+export {
+  default as MatrixComponentHorizontal,
+  type MatrixComponentHorizontalProps,
+} from './matrixComponent/matrixComponentHorizontal';

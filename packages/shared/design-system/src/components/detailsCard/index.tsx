@@ -33,3 +33,9 @@ const DetailsCard = ({
 };
 
 export default DetailsCard;
+export {
+  default as Details,
+  type DetailsProps,
+  type DetailsSection,
+  type DetailsRow,
+} from './details';
