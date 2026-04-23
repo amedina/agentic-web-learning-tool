@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React from "react";
-import { BarChart2, ExternalLink } from "lucide-react";
+import { BarChart2, ExternalLink, SlidersHorizontal } from "lucide-react";
 
 /**
  * Internal dependencies
@@ -22,6 +22,7 @@ interface ResultsHeaderProps {
     value: SearchFilters[keyof SearchFilters],
   ) => void;
   onSortOrderToggle: () => void;
+  onOpenFilters: () => void;
 }
 
 export const ResultsHeader: React.FC<ResultsHeaderProps> = ({
@@ -34,10 +35,18 @@ export const ResultsHeader: React.FC<ResultsHeaderProps> = ({
   comparisonBucket,
   onFilterChange,
   onSortOrderToggle,
+  onOpenFilters,
 }) => {
   return (
     <div className="px-6 py-4 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center bg-white/95 dark:bg-zinc-950/95 backdrop-blur-sm top-0 shrink-0 lg:w-5xl">
-      <div>
+      <div className="flex items-center gap-3">
+        <button
+          onClick={onOpenFilters}
+          className="lg:hidden flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-zinc-100 dark:bg-zinc-900 rounded border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors"
+        >
+          <SlidersHorizontal size={14} />
+          Filters
+        </button>
         <h1 className="text-lg font-bold">
           {isClientSideMode
             ? `Showing top ${hitsCount} sorted results for `

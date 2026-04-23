@@ -2,6 +2,7 @@
  * External dependencies
  */
 import React, { useState, useEffect, useCallback } from "react";
+import { X } from "lucide-react";
 
 /**
  * Internal dependencies
@@ -42,6 +43,20 @@ export const SearchResults: React.FC = () => {
   const [comparisonBucket, setComparisonBucket] = useState<
     Record<string, unknown>[]
   >([]);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(() => window.innerWidth >= 1024);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(min-width: 1024px)");
+    const handleChange = (event: MediaQueryListEvent) => {
+      setIsDesktop(event.matches);
+      if (event.matches) {
+        setIsSidebarOpen(false);
+      }
+    };
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }, []);
 
   useEffect(() => {
     chrome.storage.local.get(["comparisonBucket"], (res) => {
@@ -235,16 +250,54 @@ export const SearchResults: React.FC = () => {
     setPage(0);
   };
 
+  console.log(isDesktop);
+
   return (
     <div className={`flex justify-center ${isDark ? "dark" : ""}`}>
       <div className="flex min-h-screen bg-white dark:bg-zinc-950 font-sans text-zinc-900 dark:text-zinc-100">
-        <div className="sticky top-0 h-screen overflow-y-auto border-r border-zinc-200 dark:border-zinc-800">
-          <FilterSidebar
-            filters={filters}
-            onFilterChange={handleFilterChange}
-            onClear={clearFilters}
-          />
-        </div>
+        {isDesktop ? (
+          <div className="sticky top-0 h-screen overflow-y-auto border-r border-zinc-200 dark:border-zinc-800">
+            <FilterSidebar
+              filters={filters}
+              onFilterChange={handleFilterChange}
+              onClear={clearFilters}
+            />
+          </div>
+        ) : (
+          <>
+            {isSidebarOpen && (
+              <div
+                className="fixed inset-0 bg-black/40"
+                style={{ zIndex: 9998 }}
+                onClick={() => setIsSidebarOpen(false)}
+              />
+            )}
+            <div
+              className="fixed top-0 left-0 h-full overflow-y-auto border-r border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950"
+              style={{
+                zIndex: 9999,
+                transform: isSidebarOpen
+                  ? "translateX(0)"
+                  : "translateX(-100%)",
+                transition: "transform 300ms ease-in-out",
+              }}
+            >
+              <div className="flex justify-end p-3">
+                <button
+                  onClick={() => setIsSidebarOpen(false)}
+                  className="p-1.5 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+              <FilterSidebar
+                filters={filters}
+                onFilterChange={handleFilterChange}
+                onClear={clearFilters}
+              />
+            </div>
+          </>
+        )}
 
         <div className="flex-1 flex flex-col">
           <ResultsHeader
@@ -259,6 +312,7 @@ export const SearchResults: React.FC = () => {
             onSortOrderToggle={() =>
               setSortOrder((order) => (order === "desc" ? "asc" : "desc"))
             }
+            onOpenFilters={() => setIsSidebarOpen(true)}
           />
 
           {/* Results Scroll Area */}
