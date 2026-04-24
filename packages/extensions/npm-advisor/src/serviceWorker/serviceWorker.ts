@@ -27,9 +27,11 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
 
   // 2b. Get Light Package Stats (no transitive dependency tree). Used by the
   // Report tab so analysing 30+ deps doesn't trigger recursive npm fetches.
+  // An optional `dependencyCategory` (runtime / dev / unknown) tailors the
+  // scoring so dev-only packages aren't penalised for bundle size.
   else if (request.type === "GET_LIGHT_STATS" && request.packageName) {
     packageStatsService
-      .getLightStats(request.packageName)
+      .getLightStats(request.packageName, request.dependencyCategory)
       .then((stats) => sendResponse({ success: true, data: stats }))
       .catch((err) => sendResponse({ success: false, error: err.message }));
     return true;

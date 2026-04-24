@@ -77,6 +77,21 @@ export interface ScoreBreakdownItem {
   status: "scored" | "unavailable" | "penalty";
 }
 
+/**
+ * How the package is consumed in the user's project. The scorer uses this
+ * to pick which axes apply — a dev-only tool (like TypeScript) shouldn't
+ * be penalised for bundle size because it never ships to end users.
+ *
+ * - `runtime`: declared under `dependencies` or `peerDependencies`; ships
+ *   to end users. Bundle size matters.
+ * - `dev`: declared under `devDependencies`; never shipped. Bundle size
+ *   and dep-count axes are marked unavailable.
+ * - `unknown` (default): we don't know the consumption context (e.g. the
+ *   user is viewing a standalone npm package page). Assume frontend use
+ *   so the score reflects "how fit for a client-side bundle is this?".
+ */
+export type DependencyCategory = "runtime" | "dev" | "unknown";
+
 export interface GetPackageStatsOptions {
   /**
    * Whether to resolve the full transitive dependency tree. Skipping the tree
@@ -84,6 +99,12 @@ export interface GetPackageStatsOptions {
    * (e.g. the Report tab's dependency list).
    */
   includeDependencyTree?: boolean;
+  /**
+   * How this package is consumed in the user's project, if known. Defaults
+   * to `unknown`, which scores as if the package will be shipped to a
+   * client-side bundle.
+   */
+  dependencyCategory?: DependencyCategory;
 }
 
 /**
@@ -94,7 +115,8 @@ export async function getPackageStats(
   targetLicense: string = "MIT",
   options: GetPackageStatsOptions = {},
 ): Promise<PackageStats | null> {
-  const { includeDependencyTree = true } = options;
+  const { includeDependencyTree = true, dependencyCategory = "unknown" } =
+    options;
 
   console.log(
     `[NPM Advisor] Fetching stats for ${packageName}${includeDependencyTree ? "" : " (light)"}...`,
@@ -322,13 +344,19 @@ export async function getPackageStats(
 
   // Axis 1: bundle size (max 40). Rewards smaller gzipped payloads —
   // weighted highest because bundle size is the most direct user-facing
-  // cost (download, parse, execute). Marked unavailable when bundlephobia
-  // did not return data so the package isn't penalised for a data gap.
+  // cost (download, parse, execute). Marked unavailable when:
+  //   - bundlephobia did not return data, so we can't measure it, or
+  //   - the package is declared under devDependencies and so never ships
+  //     to end users (a dev-only tool like TypeScript shouldn't be
+  //     penalised for being large).
   const gzip = bundle?.gzip ?? null;
   let bundlePoints = 0;
   let bundleReason: string;
   let bundleStatus: ScoreBreakdownItem["status"] = "scored";
-  if (gzip === null) {
+  if (dependencyCategory === "dev") {
+    bundleReason = "Dev-only package — bundle size does not ship to users";
+    bundleStatus = "unavailable";
+  } else if (gzip === null) {
     bundleReason = "Bundle data not available";
     bundleStatus = "unavailable";
   } else if (gzip < 10000) {

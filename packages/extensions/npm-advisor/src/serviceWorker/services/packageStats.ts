@@ -4,6 +4,7 @@
 import {
   getPackageStats,
   type PackageStats,
+  type DependencyCategory,
   DEFAULT_TARGET_PROJECT_LICENSE,
 } from "../../lib";
 import { storageService } from "./storage";
@@ -93,18 +94,26 @@ class PackageStatsService {
    * If the package already has full stats cached, reuse them — a full result
    * is always a superset of the light result. Otherwise fetch and cache
    * separately so a later full `getStats` call can still populate the tree.
+   *
+   * The light cache is keyed by `${packageName}::${category}` so that the
+   * same package scored under different dependency categories (e.g. runtime
+   * vs dev) has independent entries; the scoring rules differ per category.
    */
-  async getLightStats(packageName: string): Promise<PackageStats | null> {
+  async getLightStats(
+    packageName: string,
+    dependencyCategory: DependencyCategory = "unknown",
+  ): Promise<PackageStats | null> {
     const full = this.statsCache.get(packageName);
     if (full) {
       return full instanceof Promise ? await full : full;
     }
 
-    let cached = this.lightStatsCache.get(packageName);
+    const cacheKey = `${packageName}::${dependencyCategory}`;
+    let cached = this.lightStatsCache.get(cacheKey);
 
     if (!cached) {
       console.log(
-        `[NPM Advisor] Light cache miss for ${packageName}, fetching now...`,
+        `[NPM Advisor] Light cache miss for ${cacheKey}, fetching now...`,
       );
       const promise = (async () => {
         try {
@@ -116,19 +125,20 @@ class PackageStatsService {
 
           const stats = await getPackageStats(packageName, targetLicense, {
             includeDependencyTree: false,
+            dependencyCategory,
           });
-          this.lightStatsCache.set(packageName, stats);
+          this.lightStatsCache.set(cacheKey, stats);
           return stats;
         } catch (err) {
-          this.lightStatsCache.delete(packageName);
+          this.lightStatsCache.delete(cacheKey);
           throw err;
         }
       })();
 
       cached = promise;
-      this.lightStatsCache.set(packageName, promise);
+      this.lightStatsCache.set(cacheKey, promise);
     } else {
-      console.log(`[NPM Advisor] Light cache hit for ${packageName}`);
+      console.log(`[NPM Advisor] Light cache hit for ${cacheKey}`);
     }
 
     return cached instanceof Promise ? await cached : cached;

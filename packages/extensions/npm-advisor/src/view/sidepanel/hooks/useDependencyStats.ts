@@ -6,7 +6,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 /**
  * Internal dependencies.
  */
-import { type PackageStats } from "../../../lib";
+import { type DependencyCategory, type PackageStats } from "../../../lib";
 import { type PackageJsonDependencies } from "./usePackageStats";
 
 export type DependencyStatsState =
@@ -22,14 +22,21 @@ export interface DependencyStatsByName {
 
 const CONCURRENCY = 3;
 
-// Cross-render cache keyed by the flat list of package names. Keeps state
-// stable when the Report tab unmounts/remounts (e.g. user switches tabs).
+// Cross-render cache keyed by `${packageName}::${category}` so the same
+// package scored as a runtime dep in one project and a dev dep in another
+// keeps independent entries (scoring rules differ per category).
 const dependencyStatsCache = new Map<string, DependencyStatsState>();
 
-const fetchLightStats = (packageName: string): Promise<DependencyStatsState> =>
+const cacheKey = (packageName: string, category: DependencyCategory) =>
+  `${packageName}::${category}`;
+
+const fetchLightStats = (
+  packageName: string,
+  dependencyCategory: DependencyCategory,
+): Promise<DependencyStatsState> =>
   new Promise((resolve) => {
     chrome.runtime.sendMessage(
-      { type: "GET_LIGHT_STATS", packageName },
+      { type: "GET_LIGHT_STATS", packageName, dependencyCategory },
       (response) => {
         if (chrome.runtime.lastError) {
           resolve({
@@ -61,23 +68,41 @@ const fetchLightStats = (packageName: string): Promise<DependencyStatsState> =>
  * in the three dep lists of a package.json, with a small concurrency pool so
  * we don't saturate GitHub/npm rate limits.
  */
+interface DependencyEntry {
+  name: string;
+  category: DependencyCategory;
+}
+
 export const useDependencyStats = (
   packageJsonDependencies: PackageJsonDependencies | null,
 ) => {
-  const allPackageNames = useMemo(() => {
-    if (!packageJsonDependencies) return [] as string[];
-    const unique = new Set<string>([
-      ...packageJsonDependencies.dependencies,
-      ...packageJsonDependencies.devDependencies,
-      ...packageJsonDependencies.peerDependencies,
-    ]);
-    return Array.from(unique);
+  // Resolve each package to a single category for scoring. A package listed
+  // in multiple sections (rare but legal) is treated as runtime if it
+  // appears under dependencies or peerDependencies, otherwise dev — so we
+  // never score it with the stricter "dev" rules if it also ships.
+  const dependencyEntries = useMemo<DependencyEntry[]>(() => {
+    if (!packageJsonDependencies) return [];
+    const byName = new Map<string, DependencyCategory>();
+    for (const name of packageJsonDependencies.devDependencies) {
+      byName.set(name, "dev");
+    }
+    for (const name of packageJsonDependencies.peerDependencies) {
+      byName.set(name, "runtime");
+    }
+    for (const name of packageJsonDependencies.dependencies) {
+      byName.set(name, "runtime");
+    }
+    return Array.from(byName, ([name, category]) => ({ name, category }));
   }, [packageJsonDependencies]);
 
   const [statsByName, setStatsByName] = useState<DependencyStatsByName>(() => {
     const initial: DependencyStatsByName = {};
-    for (const name of allPackageNames) {
-      initial[name] = dependencyStatsCache.get(name) ?? { status: "pending" };
+    for (const entry of dependencyEntries) {
+      initial[entry.name] = dependencyStatsCache.get(
+        cacheKey(entry.name, entry.category),
+      ) ?? {
+        status: "pending",
+      };
     }
     return initial;
   });
@@ -87,7 +112,7 @@ export const useDependencyStats = (
   const runIdRef = useRef(0);
 
   useEffect(() => {
-    if (allPackageNames.length === 0) {
+    if (dependencyEntries.length === 0) {
       setStatsByName({});
       return;
     }
@@ -95,14 +120,16 @@ export const useDependencyStats = (
     const runId = ++runIdRef.current;
 
     const initial: DependencyStatsByName = {};
-    const queue: string[] = [];
-    for (const name of allPackageNames) {
-      const cached = dependencyStatsCache.get(name);
+    const queue: DependencyEntry[] = [];
+    for (const entry of dependencyEntries) {
+      const cached = dependencyStatsCache.get(
+        cacheKey(entry.name, entry.category),
+      );
       if (cached && cached.status !== "pending") {
-        initial[name] = cached;
+        initial[entry.name] = cached;
       } else {
-        initial[name] = { status: "pending" };
-        queue.push(name);
+        initial[entry.name] = { status: "pending" };
+        queue.push(entry);
       }
     }
     setStatsByName(initial);
@@ -117,22 +144,22 @@ export const useDependencyStats = (
         if (currentIndex >= queue.length) return;
         if (runId !== runIdRef.current) return;
 
-        const packageName = queue[currentIndex];
+        const { name, category } = queue[currentIndex];
 
         setStatsByName((previous) => ({
           ...previous,
-          [packageName]: { status: "loading" },
+          [name]: { status: "loading" },
         }));
 
-        const result = await fetchLightStats(packageName);
+        const result = await fetchLightStats(name, category);
 
-        dependencyStatsCache.set(packageName, result);
+        dependencyStatsCache.set(cacheKey(name, category), result);
 
         if (runId !== runIdRef.current) return;
 
         setStatsByName((previous) => ({
           ...previous,
-          [packageName]: result,
+          [name]: result,
         }));
       }
     };
@@ -141,7 +168,7 @@ export const useDependencyStats = (
     for (let i = 0; i < workerCount; i++) {
       void runWorker();
     }
-  }, [allPackageNames]);
+  }, [dependencyEntries]);
 
   const summary = useMemo(() => {
     const entries = Object.values(statsByName);
