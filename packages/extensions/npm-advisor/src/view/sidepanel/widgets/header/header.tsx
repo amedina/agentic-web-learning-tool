@@ -4,6 +4,12 @@
 import React from "react";
 import { Github, Star, Users, Clock, Activity, Info } from "lucide-react";
 import { usePropProvider } from "@google-awlt/chatbot";
+import { Tooltip } from "@google-awlt/design-system";
+
+/**
+ * Internal dependencies.
+ */
+import { type ScoreBreakdownItem } from "../../../../lib";
 
 export interface HeaderProps {
   packageName: string;
@@ -15,6 +21,8 @@ export interface HeaderProps {
   onAddToCompare: () => void;
   isAddedToCompare: boolean;
   score: number | null;
+  scoreBreakdown?: ScoreBreakdownItem[];
+  scoreMaxPoints?: number;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -27,6 +35,8 @@ export const Header: React.FC<HeaderProps> = ({
   onAddToCompare,
   isAddedToCompare,
   score,
+  scoreBreakdown,
+  scoreMaxPoints,
 }) => {
   const { setActiveTab } = usePropProvider(({ actions }) => ({
     setActiveTab: actions.setActiveTab,
@@ -97,14 +107,104 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="flex flex-col items-center space-y-1">
           <div className="flex items-center text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold whitespace-nowrap">
             <Activity size={12} className="mr-1 shadow-sm" /> Score
-            <div className="group relative flex items-center ml-1 cursor-help">
-              <Info size={12} className="text-slate-400 dark:text-slate-500" />
-              <div className="hidden group-hover:block absolute z-50 w-48 p-2 bg-slate-800 text-white text-xs rounded-md bottom-full left-1/2 -translate-x-1/2 mb-2 shadow-lg text-center font-normal normal-case tracking-normal whitespace-normal">
-                Calculated based on Bundle Size, Dependencies, and Modern
-                Replacements.
-                <div className="absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent border-t-slate-800"></div>
-              </div>
-            </div>
+            <Tooltip
+              placement="bottom"
+              delayDuration={0}
+              contentClassName="w-64 p-3 text-left font-normal normal-case tracking-normal bg-slate-800 text-white shadow-lg"
+              body={
+                scoreBreakdown && scoreBreakdown.length > 0 ? (
+                  <div>
+                    <p className="font-semibold mb-2 text-sm">
+                      Score {score ?? 0}{" "}
+                      <span className="text-slate-400">
+                        / {scoreMaxPoints ?? 0}
+                      </span>
+                    </p>
+                    <ul className="space-y-2">
+                      {scoreBreakdown.map((item) => {
+                        const isUnavailable = item.status === "unavailable";
+                        const isPenalty = item.status === "penalty";
+                        return (
+                          <li
+                            key={item.label}
+                            className="flex items-start justify-between gap-2"
+                          >
+                            <div className="flex-1 min-w-0">
+                              <span
+                                className={`text-xs font-medium ${
+                                  isUnavailable
+                                    ? "text-slate-400"
+                                    : isPenalty
+                                      ? "text-red-300"
+                                      : ""
+                                }`}
+                              >
+                                {item.label}
+                              </span>
+                              <span
+                                className={`block text-[11px] leading-snug ${
+                                  isUnavailable
+                                    ? "italic text-slate-500"
+                                    : isPenalty
+                                      ? "text-red-200/80"
+                                      : "text-slate-300"
+                                }`}
+                              >
+                                {item.reason}
+                              </span>
+                            </div>
+                            <span
+                              className={`shrink-0 tabular-nums text-xs ${
+                                isUnavailable
+                                  ? "text-slate-500"
+                                  : isPenalty
+                                    ? "text-red-300"
+                                    : ""
+                              }`}
+                            >
+                              {isUnavailable ? (
+                                "—"
+                              ) : isPenalty ? (
+                                `${item.points}`
+                              ) : (
+                                <>
+                                  +{item.points}{" "}
+                                  <span className="text-slate-400">
+                                    / {item.maxPoints}
+                                  </span>
+                                </>
+                              )}
+                            </span>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                    {scoreBreakdown.some((i) => i.status === "unavailable") && (
+                      <p className="mt-2 pt-2 border-t border-slate-700 text-[11px] text-slate-400 leading-snug">
+                        Axes marked — were excluded because the required data
+                        wasn&rsquo;t available.
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-xs">
+                    Calculated based on Bundle Size, Dependencies, and Modern
+                    Replacements.
+                  </p>
+                )
+              }
+            >
+              <button
+                type="button"
+                aria-label="How is this score calculated?"
+                className="ml-1 flex items-center cursor-help focus:outline-none"
+              >
+                <Info
+                  size={12}
+                  className="text-slate-400 dark:text-slate-500"
+                />
+              </button>
+            </Tooltip>
           </div>
           <span className="font-bold text-[#c94137] text-lg leading-none text-center">
             {score !== null ? score : "N/A"}

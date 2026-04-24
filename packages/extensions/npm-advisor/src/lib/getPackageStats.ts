@@ -54,6 +54,27 @@ export interface PackageStats {
     preferredReplacements?: any;
   };
   score: number;
+  scoreBreakdown: ScoreBreakdownItem[];
+  scoreMaxPoints: number;
+}
+
+export interface ScoreBreakdownItem {
+  label: string;
+  points: number;
+  maxPoints: number;
+  reason: string;
+  /**
+   * - `scored`: the axis was evaluated; both `points` and `maxPoints`
+   *   contribute to the displayed score.
+   * - `unavailable`: required data was missing so the axis was skipped.
+   *   It contributes 0 to the numerator AND 0 to the denominator, so the
+   *   package isn't unfairly penalized for a data gap.
+   * - `penalty`: the axis only deducts from the score. `points` is
+   *   negative, `maxPoints` is 0, so the denominator is unaffected but the
+   *   numerator drops. Used for things like security advisories where the
+   *   signal is strictly a downside, never an upside.
+   */
+  status: "scored" | "unavailable" | "penalty";
 }
 
 export interface GetPackageStatsOptions {
@@ -287,16 +308,51 @@ export async function getPackageStats(
   if (preferredMatches)
     recommendations.preferredReplacements = preferredMatches;
 
-  let score = 0;
+  // Score is computed from three weighted axes summing to 100 when every
+  // axis is scored. Each axis is also written to `scoreBreakdown` so the
+  // UI can show the user how the score was arrived at, including any
+  // axes that were skipped because the underlying data was unavailable.
+  //
+  // Note: the e18e "modern replacements" list is intentionally not part of
+  // the score. Whether a replacement exists is a property of the ecosystem
+  // around the package, not of the package itself, so rewarding or
+  // penalising it conflates "this has alternatives" with "this is good/bad".
+  // The Recommendations widget still surfaces that guidance to the user.
+  const scoreBreakdown: ScoreBreakdownItem[] = [];
 
-  // Reward small bundle size (e.g., under 50kb gzip gets points)
-  const gzip = bundle?.gzip || Infinity;
-  if (gzip < 50000) score += 10;
-  if (gzip < 10000) score += 20;
+  // Axis 1: bundle size (max 40). Rewards smaller gzipped payloads —
+  // weighted highest because bundle size is the most direct user-facing
+  // cost (download, parse, execute). Marked unavailable when bundlephobia
+  // did not return data so the package isn't penalised for a data gap.
+  const gzip = bundle?.gzip ?? null;
+  let bundlePoints = 0;
+  let bundleReason: string;
+  let bundleStatus: ScoreBreakdownItem["status"] = "scored";
+  if (gzip === null) {
+    bundleReason = "Bundle data not available";
+    bundleStatus = "unavailable";
+  } else if (gzip < 10000) {
+    bundlePoints = 40;
+    bundleReason = "Gzipped size under 10 KB";
+  } else if (gzip < 50000) {
+    bundlePoints = 15;
+    bundleReason = "Gzipped size under 50 KB";
+  } else {
+    bundleReason = "Gzipped size of 50 KB or more";
+  }
+  scoreBreakdown.push({
+    label: "Bundle Size",
+    points: bundlePoints,
+    maxPoints: 40,
+    reason: bundleReason,
+    status: bundleStatus,
+  });
 
-  // Reward low dependency count. When we skipped the dependency tree fetch,
-  // fall back to the top-level deps declared on the published version so the
-  // score stays meaningful without triggering a recursive npm fetch.
+  // Axis 2: dependency count (max 30). Rewards leaf packages with no or few
+  // direct dependencies — a proxy for supply-chain surface area. When we
+  // skipped the transitive tree fetch, fall back to the top-level deps
+  // declared on the published version so the axis still contributes
+  // without triggering a recursive npm fetch.
   let deps: number;
   if (dependencyTree) {
     deps = Object.keys(dependencyTree.dependencies || {}).length;
@@ -308,18 +364,96 @@ export async function getPackageStats(
   } else {
     deps = 0;
   }
-  if (deps === 0) score += 30;
-  else if (deps < 5) score += 15;
-
-  // Reward native/e18e replacements availability
-  const recs = recommendations;
-  if (
-    recs &&
-    (recs.nativeReplacements?.length > 0 ||
-      recs.preferredReplacements?.length > 0)
-  ) {
-    score += 25; // Being recommended is highly weighted
+  let depsPoints = 0;
+  let depsReason: string;
+  if (deps === 0) {
+    depsPoints = 30;
+    depsReason = "No direct dependencies";
+  } else if (deps < 5) {
+    depsPoints = 15;
+    depsReason = `Only ${deps} direct ${deps === 1 ? "dependency" : "dependencies"}`;
+  } else {
+    depsReason = `${deps} direct dependencies`;
   }
+  scoreBreakdown.push({
+    label: "Dependencies",
+    points: depsPoints,
+    maxPoints: 30,
+    reason: depsReason,
+    status: "scored",
+  });
+
+  // Axis 3: maintainer responsiveness (max 30). Scaled linearly from the
+  // sampled closed-issues ratio: ratio of 1.0 awards the full 30 points,
+  // 0.5 awards 15, and so on. Marked unavailable when the package has no
+  // linked GitHub repo or no issues sample, so packages without a public
+  // repo aren't penalised for a missing signal.
+  let responsivenessPoints = 0;
+  let responsivenessReason: string;
+  let responsivenessStatus: ScoreBreakdownItem["status"] = "scored";
+  const closedRatio = responsiveness?.closedIssuesRatio ?? null;
+  if (!responsiveness || closedRatio === null) {
+    responsivenessReason = "Issue activity not available";
+    responsivenessStatus = "unavailable";
+  } else {
+    responsivenessPoints = Math.round(closedRatio * 30);
+    const percentage = Math.round(closedRatio * 100);
+    if (closedRatio > 0.8) {
+      responsivenessReason = `Highly responsive — ${percentage}% of sampled issues closed`;
+    } else if (closedRatio > 0.5) {
+      responsivenessReason = `Moderately responsive — ${percentage}% of sampled issues closed`;
+    } else {
+      responsivenessReason = `Low issue closure rate — ${percentage}% of sampled issues closed`;
+    }
+  }
+  scoreBreakdown.push({
+    label: "Responsiveness",
+    points: responsivenessPoints,
+    maxPoints: 30,
+    reason: responsivenessReason,
+    status: responsivenessStatus,
+  });
+
+  // Penalty axis: security advisories. Contributes only negative points
+  // so the numerator drops without inflating the denominator. Points are
+  // weighted by severity (critical > high > moderate > low) and capped so
+  // a long tail of low-severity advisories can't dominate the score.
+  if (securityAdvisories) {
+    const { critical, high, moderate, low } = securityAdvisories;
+    const total = critical + high + moderate + low;
+    if (total > 0) {
+      const rawPenalty = critical * 15 + high * 10 + moderate * 5 + low * 2;
+      const cappedPenalty = Math.min(rawPenalty, 50);
+      const severityParts: string[] = [];
+      if (critical > 0) severityParts.push(`${critical} critical`);
+      if (high > 0) severityParts.push(`${high} high`);
+      if (moderate > 0) severityParts.push(`${moderate} moderate`);
+      if (low > 0) severityParts.push(`${low} low`);
+      scoreBreakdown.push({
+        label: "Security Advisories",
+        points: -cappedPenalty,
+        maxPoints: 0,
+        reason: `${total} open ${total === 1 ? "advisory" : "advisories"} (${severityParts.join(", ")})`,
+        status: "penalty",
+      });
+    }
+  }
+
+  // Only `scored` axes contribute to the max denominator. `penalty` axes
+  // only reduce the numerator; `unavailable` axes contribute nothing.
+  // The final score is clamped to [0, max] so a heavily-advisory'd
+  // package shows "0 / N" rather than a negative number.
+  const rawScore = scoreBreakdown.reduce((sum, item) => {
+    if (item.status === "scored" || item.status === "penalty") {
+      return sum + item.points;
+    }
+    return sum;
+  }, 0);
+  const scoreMaxPoints = scoreBreakdown.reduce(
+    (sum, item) => (item.status === "scored" ? sum + item.maxPoints : sum),
+    0,
+  );
+  const score = Math.max(0, Math.min(rawScore, scoreMaxPoints));
 
   const stats: PackageStats = {
     packageName,
@@ -338,6 +472,8 @@ export async function getPackageStats(
     licenseCompatibility,
     recommendations,
     score,
+    scoreBreakdown,
+    scoreMaxPoints,
   };
 
   return stats;

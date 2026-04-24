@@ -48,6 +48,8 @@ export const InsightsTab: React.FC<InsightsTabProps> = ({
         onAddToCompare={onAddToCompare}
         isAddedToCompare={isAddedToCompare}
         score={stats.score}
+        scoreBreakdown={stats.scoreBreakdown}
+        scoreMaxPoints={stats.scoreMaxPoints}
       />
 
       <PackageInsightsBody
