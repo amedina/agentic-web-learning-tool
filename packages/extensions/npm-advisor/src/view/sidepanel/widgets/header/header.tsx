@@ -106,19 +106,24 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="flex items-start justify-between mt-4 pt-4 border-t border-slate-100 dark:border-slate-700">
         <div className="flex flex-col items-center space-y-1">
           <div className="flex items-center text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold whitespace-nowrap">
-            <Activity size={12} className="mr-1 shadow-sm" /> Score
+            <Activity size={12} className="mr-1 shadow-sm" /> Fitness
             <Tooltip
               placement="bottom"
               delayDuration={0}
-              contentClassName="w-64 p-3 text-left font-normal normal-case tracking-normal bg-slate-800 text-white shadow-lg"
+              contentClassName="w-72 p-3 text-left font-normal normal-case tracking-normal bg-slate-800 text-white shadow-lg"
               body={
                 scoreBreakdown && scoreBreakdown.length > 0 ? (
                   <div>
-                    <p className="font-semibold mb-2 text-sm">
-                      Score {score ?? 0}{" "}
+                    <p className="font-semibold text-sm">
+                      Frontend Fitness {score ?? 0}{" "}
                       <span className="text-slate-400">
                         / {scoreMaxPoints ?? 0}
                       </span>
+                    </p>
+                    <p className="text-[11px] text-slate-400 mb-2 leading-snug">
+                      How well this package fits into a client-side bundle.
+                      Server-side and dev-only packages may score low here by
+                      design.
                     </p>
                     <ul className="space-y-2">
                       {scoreBreakdown.map((item) => {
