@@ -259,7 +259,13 @@ export async function getPackageStats(
       const { owner, repo } = githubInfo;
 
       // Core API failures (repo / advisories) flip `githubRateLimited`.
-      // Search API failures (issues) flip the issues-specific flag only.
+      // Search API failures (issues) flip the issues-specific flag for any
+      // error — not just GithubRateLimitError — because GitHub's secondary
+      // rate limit (triggered when the Report tab fans out fetchGithubIssues
+      // across many deps) returns 403 without x-ratelimit-remaining:0, so it
+      // doesn't qualify as GithubRateLimitError but still means the data is
+      // temporarily unavailable. Without this, the widget shows "Not enough
+      // data to determine" instead of "Couldn't fetch right now."
       const swallowGithubError =
         (label: string, isSearchApi = false) =>
         (error: unknown) => {
@@ -270,6 +276,9 @@ export async function getPackageStats(
               githubRateLimited = true;
             }
           } else {
+            if (isSearchApi) {
+              githubIssuesUnavailable = true;
+            }
             console.warn(
               `[NPM Advisor] ${label} fetch failed:`,
               (error as Error)?.message,
