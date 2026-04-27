@@ -8,6 +8,11 @@ import { useEffect, useMemo, useRef, useState } from "react";
  */
 import { type DependencyCategory, type PackageStats } from "../../../lib";
 import { type PackageJsonDependencies } from "./usePackageStats";
+import {
+  GITHUB_RATE_LIMIT_USER_MESSAGE,
+  isGithubRateLimitError,
+  showGithubRateLimitToastOnce,
+} from "../utils/githubRateLimitToast";
 
 export type DependencyStatsState =
   | { status: "pending" }
@@ -55,9 +60,17 @@ const fetchLightStats = (
           }
           return;
         }
+        const rawError = response?.error;
+        if (isGithubRateLimitError(rawError)) {
+          resolve({
+            status: "error",
+            error: GITHUB_RATE_LIMIT_USER_MESSAGE,
+          });
+          return;
+        }
         resolve({
           status: "error",
-          error: response?.error || "Failed to load package stats.",
+          error: rawError || "Failed to load package stats.",
         });
       },
     );
@@ -153,7 +166,20 @@ export const useDependencyStats = (
 
         const result = await fetchLightStats(name, category);
 
-        dependencyStatsCache.set(cacheKey(name, category), result);
+        // Don't cache rate-limit errors: caching them would mean the next
+        // load shows the same incomplete data instead of retrying. Bug
+        // observed when scanning a 44-dep package.json — the limit was hit
+        // mid-scan, partial nulls got cached, and a subsequent load showed
+        // 1/4 vulnerabilities.
+        const isRateLimited =
+          result.status === "error" &&
+          result.error === GITHUB_RATE_LIMIT_USER_MESSAGE;
+
+        if (isRateLimited) {
+          showGithubRateLimitToastOnce();
+        } else {
+          dependencyStatsCache.set(cacheKey(name, category), result);
+        }
 
         if (runId !== runIdRef.current) return;
 
