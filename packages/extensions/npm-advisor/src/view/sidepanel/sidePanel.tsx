@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { PropProvider, SidepanelChatbot } from "@google-awlt/chatbot";
-import { SidebarProvider } from "@google-awlt/design-system";
+import { SidebarProvider, Toaster } from "@google-awlt/design-system";
 /**
  * Internal dependencies
  */
@@ -49,20 +49,52 @@ const SidePanel = () => {
       packageJsonDependencies.devDependencies.length > 0 ||
       packageJsonDependencies.peerDependencies.length > 0);
 
-  if (loading) return <LoadingState />;
-  if (isNavigationMessage) return <NavigationMessage url={currentTabUrl} />;
+  if (loading) {
+    return (
+      <>
+        <Toaster position="top-center" />
+        <LoadingState />
+      </>
+    );
+  }
+  if (isNavigationMessage) {
+    return (
+      <>
+        <Toaster position="top-center" />
+        <NavigationMessage url={currentTabUrl} />
+      </>
+    );
+  }
 
   if (isOptionsPage) {
     if (isComparisonPage) {
-      return <ComparisonPageSidePanel comparisonBucket={comparisonBucket} />;
+      return (
+        <>
+          <Toaster position="top-center" />
+          <ComparisonPageSidePanel comparisonBucket={comparisonBucket} />
+        </>
+      );
     }
-    return <OptionsPageSidePanel />;
+    return (
+      <>
+        <Toaster position="top-center" />
+        <OptionsPageSidePanel />
+      </>
+    );
   }
 
-  if (error || !stats) return <ErrorState error={error} />;
+  if (error || !stats) {
+    return (
+      <>
+        <Toaster position="top-center" />
+        <ErrorState error={error} />
+      </>
+    );
+  }
 
   return (
     <ErrorBoundary>
+      <Toaster position="top-center" />
       <ThemeProvider>
         <PropProvider
           allowToolCalling={false}

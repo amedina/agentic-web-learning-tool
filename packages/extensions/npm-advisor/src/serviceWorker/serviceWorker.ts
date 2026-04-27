@@ -101,4 +101,13 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     });
     sendResponse({ success: true });
   }
+
+  // 6. Open Options Page on the Settings tab (used by the GitHub rate-limit
+  // toast to deep-link the user to the PAT input).
+  else if (request.type === "OPEN_OPTIONS_SETTINGS") {
+    chrome.tabs.create({
+      url: chrome.runtime.getURL("options/options.html#settings"),
+    });
+    sendResponse({ success: true });
+  }
 });

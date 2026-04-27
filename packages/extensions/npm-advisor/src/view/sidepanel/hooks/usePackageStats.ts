@@ -2,11 +2,39 @@
  * External dependencies.
  */
 import { useState, useEffect, useCallback } from "react";
+import { toast } from "@google-awlt/design-system";
 
 /**
  * Internal dependencies.
  */
 import { type PackageStats } from "../../../lib";
+import { GITHUB_RATE_LIMIT_ERROR_MARKER } from "../../../utils/githubFetch";
+
+const GITHUB_RATE_LIMIT_USER_MESSAGE =
+  "GitHub API rate limit reached. Add a Personal Access Token in Options to raise the limit from 60 to 5,000 requests per hour.";
+
+// Module-scoped so the toast fires at most once per sidepanel session.
+let rateLimitToastShown = false;
+
+function showRateLimitToastOnce() {
+  if (rateLimitToastShown) {
+    return;
+  }
+  rateLimitToastShown = true;
+  toast.error(GITHUB_RATE_LIMIT_USER_MESSAGE, {
+    duration: 10000,
+    action: {
+      label: "Open Options",
+      onClick: () => {
+        chrome.runtime.sendMessage({ type: "OPEN_OPTIONS_SETTINGS" });
+      },
+    },
+  });
+}
+
+function isRateLimitError(message: string | undefined): boolean {
+  return !!message && message.includes(GITHUB_RATE_LIMIT_ERROR_MARKER);
+}
 
 export interface PackageJsonDependencies {
   dependencies: string[];
@@ -187,9 +215,13 @@ export const usePackageStats = () => {
                 setError(errorMessage);
               }
             } else {
-              const errorMessage =
-                response?.error ||
-                "Failed to load statistics for this package.";
+              const rawError = response?.error;
+              if (isRateLimitError(rawError)) {
+                showRateLimitToastOnce();
+              }
+              const errorMessage = isRateLimitError(rawError)
+                ? GITHUB_RATE_LIMIT_USER_MESSAGE
+                : rawError || "Failed to load statistics for this package.";
               urlCache.set(url, {
                 stats: null,
                 error: errorMessage,
