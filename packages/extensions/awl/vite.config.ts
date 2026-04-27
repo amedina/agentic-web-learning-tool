@@ -41,7 +41,7 @@ aliases.push({
     'index.js'
   ),
 });
-const distDir = path.resolve(__dirname, '../../../dist/extension');
+const distDir = path.resolve(__dirname, '../../../dist/awl');
 // eslint-disable-next-line turbo/no-undeclared-env-vars
 const isDev = process.env.NODE_ENV === 'development';
 // More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
