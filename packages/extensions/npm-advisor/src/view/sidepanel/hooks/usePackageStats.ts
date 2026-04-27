@@ -2,39 +2,16 @@
  * External dependencies.
  */
 import { useState, useEffect, useCallback } from "react";
-import { toast } from "@google-awlt/design-system";
 
 /**
  * Internal dependencies.
  */
 import { type PackageStats } from "../../../lib";
-import { GITHUB_RATE_LIMIT_ERROR_MARKER } from "../../../utils/githubFetch";
-
-const GITHUB_RATE_LIMIT_USER_MESSAGE =
-  "GitHub API rate limit reached. Add a Personal Access Token in Options to raise the limit from 60 to 5,000 requests per hour.";
-
-// Module-scoped so the toast fires at most once per sidepanel session.
-let rateLimitToastShown = false;
-
-function showRateLimitToastOnce() {
-  if (rateLimitToastShown) {
-    return;
-  }
-  rateLimitToastShown = true;
-  toast.error(GITHUB_RATE_LIMIT_USER_MESSAGE, {
-    duration: 10000,
-    action: {
-      label: "Open Options",
-      onClick: () => {
-        chrome.runtime.sendMessage({ type: "OPEN_OPTIONS_SETTINGS" });
-      },
-    },
-  });
-}
-
-function isRateLimitError(message: string | undefined): boolean {
-  return !!message && message.includes(GITHUB_RATE_LIMIT_ERROR_MARKER);
-}
+import {
+  GITHUB_RATE_LIMIT_USER_MESSAGE,
+  isGithubRateLimitError,
+  showGithubRateLimitToastOnce,
+} from "../utils/githubRateLimitToast";
 
 export interface PackageJsonDependencies {
   dependencies: string[];
@@ -216,17 +193,23 @@ export const usePackageStats = () => {
               }
             } else {
               const rawError = response?.error;
-              if (isRateLimitError(rawError)) {
-                showRateLimitToastOnce();
+              const isRateLimit = isGithubRateLimitError(rawError);
+              if (isRateLimit) {
+                showGithubRateLimitToastOnce();
               }
-              const errorMessage = isRateLimitError(rawError)
+              const errorMessage = isRateLimit
                 ? GITHUB_RATE_LIMIT_USER_MESSAGE
                 : rawError || "Failed to load statistics for this package.";
-              urlCache.set(url, {
-                stats: null,
-                error: errorMessage,
-                packageJsonDependencies: dependenciesToExpose,
-              });
+              // Don't cache a rate-limit error: if the user adds a token (or
+              // the limit resets) we want the next visit to actually retry,
+              // not re-display the same stale error.
+              if (!isRateLimit) {
+                urlCache.set(url, {
+                  stats: null,
+                  error: errorMessage,
+                  packageJsonDependencies: dependenciesToExpose,
+                });
+              }
               setError(errorMessage);
             }
             setLoading(false);
