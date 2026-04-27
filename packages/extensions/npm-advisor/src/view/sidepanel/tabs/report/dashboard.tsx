@@ -56,6 +56,33 @@ const TILE_TITLE_TO_FILTER: Record<string, ReportFilterKey | "clear"> = {
   Replaceable: "replaceable",
 };
 
+interface ClickableCircleProps {
+  title: string;
+  onTrigger: (title: string) => void;
+  children: React.ReactNode;
+}
+
+/**
+ * Wraps a CirclePieChart in a button so the same `handleTileClick` mapping
+ * used by the Matrix tiles below also fires on circle clicks. Kept inline
+ * because the wiring is specific to this report; the design-system
+ * CirclePieChart deliberately stays click-agnostic.
+ */
+const ClickableCircle: React.FC<ClickableCircleProps> = ({
+  title,
+  onTrigger,
+  children,
+}) => (
+  <button
+    type="button"
+    onClick={() => onTrigger(title)}
+    aria-label={`Filter by ${title}`}
+    className="cursor-pointer bg-transparent border-0 p-0 m-0 text-inherit focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 rounded-md"
+  >
+    {children}
+  </button>
+);
+
 const hasRecommendations = (stats: PackageStats): boolean => {
   const recommendations = stats.recommendations;
   if (!recommendations) return false;
@@ -212,70 +239,84 @@ export const Dashboard: React.FC<DashboardProps> = ({
         </div>
 
         <div className="flex flex-nowrap items-start justify-center gap-3 max-w-[420px] mx-auto">
-          <CirclePieChart
-            centerCount={totalDeclared}
+          <ClickableCircle
             title="Total Dependencies"
-            tooltipText={`${prodCount} prod · ${devCount} dev · ${peerCount} peer`}
-            data={[
-              { count: prodCount, color: REPORT_COLORS.prod },
-              { count: devCount, color: REPORT_COLORS.dev },
-              { count: peerCount, color: REPORT_COLORS.peer },
-            ]}
-          />
-          <CirclePieChart
-            centerCount={breakdown.vulnerableCount}
+            onTrigger={handleTileClick}
+          >
+            <CirclePieChart
+              centerCount={totalDeclared}
+              title="Total Dependencies"
+              tooltipText={`${prodCount} prod · ${devCount} dev · ${peerCount} peer`}
+              data={[
+                { count: prodCount, color: REPORT_COLORS.prod },
+                { count: devCount, color: REPORT_COLORS.dev },
+                { count: peerCount, color: REPORT_COLORS.peer },
+              ]}
+            />
+          </ClickableCircle>
+          <ClickableCircle
             title="With Vulnerabilities"
-            tooltipText={`${breakdown.vulnerableCount} of ${breakdown.analysed} analysed`}
-            data={[
-              {
-                count: breakdown.vulnerableCount,
-                color: REPORT_COLORS.vulnerable,
-              },
-              {
-                count: Math.max(
-                  0,
-                  breakdown.analysed - breakdown.vulnerableCount,
-                ),
-                color: REPORT_COLORS.neutral,
-              },
-            ]}
-          />
-          <CirclePieChart
-            centerCount={breakdown.licenseIssueCount}
-            title="License Issues"
-            tooltipText={`${breakdown.licenseIssueCount} of ${breakdown.analysed} analysed`}
-            data={[
-              {
-                count: breakdown.licenseIssueCount,
-                color: REPORT_COLORS.licenseIssue,
-              },
-              {
-                count: Math.max(
-                  0,
-                  breakdown.analysed - breakdown.licenseIssueCount,
-                ),
-                color: REPORT_COLORS.neutral,
-              },
-            ]}
-          />
-          <CirclePieChart
-            centerCount={breakdown.replaceableCount}
-            title="Replaceable"
-            tooltipText={`${breakdown.replaceableCount} of ${breakdown.analysed} analysed`}
-            data={[
-              {
-                count: breakdown.replaceableCount,
-                color: REPORT_COLORS.replaceable,
-              },
-              {
-                count: Math.max(
-                  0,
-                  breakdown.analysed - breakdown.replaceableCount,
-                ),
-                color: REPORT_COLORS.neutral,
-              },
-            ]}
-          />
+            onTrigger={handleTileClick}
+          >
+            <CirclePieChart
+              centerCount={breakdown.vulnerableCount}
+              title="With Vulnerabilities"
+              tooltipText={`${breakdown.vulnerableCount} of ${breakdown.analysed} analysed`}
+              data={[
+                {
+                  count: breakdown.vulnerableCount,
+                  color: REPORT_COLORS.vulnerable,
+                },
+                {
+                  count: Math.max(
+                    0,
+                    breakdown.analysed - breakdown.vulnerableCount,
+                  ),
+                  color: REPORT_COLORS.neutral,
+                },
+              ]}
+            />
+          </ClickableCircle>
+          <ClickableCircle title="License Issues" onTrigger={handleTileClick}>
+            <CirclePieChart
+              centerCount={breakdown.licenseIssueCount}
+              title="License Issues"
+              tooltipText={`${breakdown.licenseIssueCount} of ${breakdown.analysed} analysed`}
+              data={[
+                {
+                  count: breakdown.licenseIssueCount,
+                  color: REPORT_COLORS.licenseIssue,
+                },
+                {
+                  count: Math.max(
+                    0,
+                    breakdown.analysed - breakdown.licenseIssueCount,
+                  ),
+                  color: REPORT_COLORS.neutral,
+                },
+              ]}
+            />
+          </ClickableCircle>
+          <ClickableCircle title="Replaceable" onTrigger={handleTileClick}>
+            <CirclePieChart
+              centerCount={breakdown.replaceableCount}
+              title="Replaceable"
+              tooltipText={`${breakdown.replaceableCount} of ${breakdown.analysed} analysed`}
+              data={[
+                {
+                  count: breakdown.replaceableCount,
+                  color: REPORT_COLORS.replaceable,
+                },
+                {
+                  count: Math.max(
+                    0,
+                    breakdown.analysed - breakdown.replaceableCount,
+                  ),
+                  color: REPORT_COLORS.neutral,
+                },
+              ]}
+            />
+          </ClickableCircle>
         </div>
       </div>
 

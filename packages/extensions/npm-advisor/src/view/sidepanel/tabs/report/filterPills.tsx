@@ -36,6 +36,11 @@ export const FilterPills: React.FC<FilterPillsProps> = ({
 }) => {
   const isAllActive = activeFilters.size === 0;
 
+  // Hide zero-count pills unless they're currently active. Keeping an
+  // active pill visible prevents it from disappearing mid-interaction (the
+  // count can drop to 0 once the filter is applied to a partially-loaded
+  // dataset), which would strand the user with an active filter and no way
+  // to remove it.
   const pills: PillSpec[] = [
     {
       key: "withIssues",
@@ -61,15 +66,15 @@ export const FilterPills: React.FC<FilterPillsProps> = ({
       color: REPORT_COLORS.replaceable,
       count: counts.replaceable,
     },
-  ];
+  ].filter((pill) => pill.count > 0 || activeFilters.has(pill.key));
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className="flex flex-nowrap items-center gap-2 overflow-x-auto whitespace-nowrap -mx-4 px-4 pb-1 [scrollbar-width:thin]">
       <button
         type="button"
         onClick={onClear}
         aria-pressed={isAllActive}
-        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-medium transition-colors cursor-pointer ${
+        className={`shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-medium transition-colors cursor-pointer ${
           isAllActive
             ? "bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 border-slate-900 dark:border-slate-100"
             : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50"
@@ -87,7 +92,7 @@ export const FilterPills: React.FC<FilterPillsProps> = ({
             type="button"
             onClick={() => onToggle(pill.key)}
             aria-pressed={isActive}
-            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-medium transition-colors cursor-pointer ${
+            className={`shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-medium transition-colors cursor-pointer ${
               isActive
                 ? "border-transparent text-white"
                 : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50"
