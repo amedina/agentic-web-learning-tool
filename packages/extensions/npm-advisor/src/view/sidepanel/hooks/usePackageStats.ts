@@ -34,31 +34,31 @@ const extractDependencies = (pkg: any): PackageJsonDependencies => ({
 });
 
 /**
- * Returns true when the URL is one the panel would actually display stats
- * for. Used to ignore browser tab/window switches that move focus to an
- * unrelated page (docs, search, etc.) — without this guard the Report tab
- * would tear itself down and refetch dozens of dependency stats every time
- * the user glances at another tab. We also include the extension's own
- * options page so navigating to options doesn't lose the loaded report.
+ * Extracts the package name we expect the panel to display, derived from
+ * the URL alone. Lets the side panel render the header / suggestions /
+ * Ask AI prompt with the right name *before* the stats fetch completes,
+ * so the shell feels immediate even on a cold cache.
  */
-const isPanelRelevantUrl = (url: string | undefined): boolean => {
-  if (!url) return false;
-  if (url.startsWith("chrome-extension://")) return true;
-  if (url.includes("npmjs.com/package/")) return true;
-  if (
-    url.includes("github.com") &&
-    url.endsWith("package.json") &&
-    url.includes("/blob/")
-  ) {
-    return true;
+export const getPackageNameFromUrl = (
+  url: string | undefined,
+): string | null => {
+  if (!url) return null;
+  if (url.includes("npmjs.com/package/")) {
+    const match = url.match(/npmjs\.com\/package\/([^?#]+)/);
+    if (match && match[1]) {
+      return decodeURIComponent(match[1]);
+    }
   }
-  return false;
+  return null;
 };
 
 export const usePackageStats = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentTabUrl, setCurrentTabUrl] = useState<string | null>(null);
+  const [pendingPackageName, setPendingPackageName] = useState<string | null>(
+    null,
+  );
   const [isNavigationMessage, setIsNavigationMessage] = useState(false);
   const [isOptionsPage, setIsOptionsPage] = useState(false);
   const [isComparisonPage, setIsComparisonPage] = useState(false);
@@ -101,6 +101,7 @@ export const usePackageStats = () => {
         }
 
         setCurrentTabUrl(url as string);
+        setPendingPackageName(getPackageNameFromUrl(url));
 
         if (url.startsWith("chrome-extension://")) {
           setIsOptionsPage(true);
@@ -129,6 +130,11 @@ export const usePackageStats = () => {
         setError(null);
         setIsNavigationMessage(false);
         setPackageJsonDependencies(null);
+        // Clear the previous package's stats immediately so widgets fall
+        // back to their skeleton state during the new fetch. Without this
+        // the panel would keep rendering the prior package (e.g. react-dom)
+        // until chalk's fetch resolved.
+        setStats(null);
 
         let packageName: string | null = null;
         let parsedDependencies: PackageJsonDependencies | null = null;
@@ -148,6 +154,7 @@ export const usePackageStats = () => {
             const pkg = await response.json();
             if (pkg && pkg.name) {
               packageName = pkg.name;
+              setPendingPackageName(pkg.name);
             }
             parsedDependencies = extractDependencies(pkg);
           }
@@ -239,45 +246,48 @@ export const usePackageStats = () => {
 
     fetchCurrentTabStats();
 
-    const handleHistoryStateUpdated = async (
+    // Each side panel instance is bound to a specific tab via the hash
+    // configured by `configureTabPanel` (#tab=<id>). Without pinning the
+    // listeners to that tab id, opening an external link in a new tab
+    // (or any other tab gaining focus / updating its URL) would wipe this
+    // panel's loaded stats and start refetching for the unrelated URL.
+    const boundTabIdMatch = window.location.hash.match(/tab=(\d+)/);
+    const boundTabId = boundTabIdMatch ? Number(boundTabIdMatch[1]) : null;
+
+    // Listeners are scoped to the bound tab id (set above). We deliberately
+    // *don't* pre-filter by `isPanelRelevantUrl` here — `fetchCurrentTabStats`
+    // already routes non-package URLs to the NavigationMessage path, and
+    // pre-filtering would freeze the panel on the previous package when the
+    // user navigates away from a /package/ URL on the same tab (e.g. clicks
+    // the npmjs.com logo to go home).
+    const handleHistoryStateUpdated = (
       details: chrome.webNavigation.WebNavigationTransitionCallbackDetails,
     ) => {
       const { tabId, frameId, url } = details;
-      const currentTab = (
-        await chrome.tabs.query({
-          active: true,
-          currentWindow: true,
-        })
-      )?.[0];
-
-      if (chrome.runtime.lastError) return;
-
-      if (frameId !== 0 || tabId !== currentTab?.id) {
-        return;
-      }
-
-      // Only react to navigations that land on a URL the panel actually
-      // shows stats for. Otherwise switching to e.g. a docs tab tears down
-      // the loaded Report and forces a full refetch on switch-back.
-      if (!isPanelRelevantUrl(url)) return;
-
+      if (frameId !== 0) return;
+      if (boundTabId !== null && tabId !== boundTabId) return;
       fetchCurrentTabStats(url);
     };
 
     const handleTabActivated = (activeInfo: { tabId: number }) => {
+      if (boundTabId !== null && activeInfo.tabId !== boundTabId) return;
       chrome.tabs.get(activeInfo.tabId, (tab) => {
-        if (tab && isPanelRelevantUrl(tab.url)) {
+        if (tab?.url) {
           fetchCurrentTabStats(tab.url);
         }
       });
     };
 
-    const handleTabUpdated = (tabId: number) => {
-      chrome.tabs.get(tabId, (tab) => {
-        if (tab && isPanelRelevantUrl(tab.url)) {
-          fetchCurrentTabStats(tab.url);
-        }
-      });
+    const handleTabUpdated = (
+      tabId: number,
+      changeInfo: { url?: string },
+      tab: chrome.tabs.Tab,
+    ) => {
+      if (boundTabId !== null && tabId !== boundTabId) return;
+      // Skip non-navigation updates (title, favicon, loading state) so we
+      // don't refetch on every micro-update the active page emits.
+      if (!changeInfo.url) return;
+      fetchCurrentTabStats(tab.url);
     };
 
     chrome.webNavigation.onHistoryStateUpdated.addListener(
@@ -362,5 +372,6 @@ export const usePackageStats = () => {
     addingRecommendations,
     currentTabUrl,
     packageJsonDependencies,
+    pendingPackageName,
   };
 };

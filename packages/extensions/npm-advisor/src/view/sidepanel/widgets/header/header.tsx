@@ -39,7 +39,19 @@ export interface HeaderProps {
    * quota), so the Fitness composite would be misleading.
    */
   hideFitness?: boolean;
+  /**
+   * Renders skeleton bars in place of the stat values (stars / collabs /
+   * last-commit / fitness / license) so the header keeps its full size
+   * while the per-package fetch is still in flight.
+   */
+  isLoading?: boolean;
 }
+
+const SkeletonValue: React.FC<{ width?: string }> = ({ width = "w-10" }) => (
+  <span
+    className={`inline-block h-4 ${width} rounded bg-slate-200 dark:bg-slate-700 animate-pulse align-middle`}
+  />
+);
 
 const GITHUB_RATE_LIMIT_TITLE =
   "Couldn't fetch — GitHub API rate limit reached. Add a Personal Access Token in Options.";
@@ -68,6 +80,7 @@ export const Header: React.FC<HeaderProps> = ({
   scoreMaxPoints,
   githubRateLimited = false,
   hideFitness = false,
+  isLoading = false,
 }) => {
   const { setActiveTab } = usePropProvider(({ actions }) => ({
     setActiveTab: actions.setActiveTab,
@@ -118,6 +131,10 @@ export const Header: React.FC<HeaderProps> = ({
             >
               <Github size={14} className="mr-1" /> View Source
             </a>
+          ) : isLoading ? (
+            <div className="mt-1">
+              <SkeletonValue width="w-24" />
+            </div>
           ) : (
             <p className="text-sm text-slate-400 dark:text-slate-500 mt-1">
               No repository linked
@@ -125,12 +142,16 @@ export const Header: React.FC<HeaderProps> = ({
           )}
         </div>
         <div className="text-right">
-          <span
-            className="inline-flex items-center px-2 py-1 rounded text-xs font-mono bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-600 truncate max-w-[150px]"
-            title={license ?? "Unknown"}
-          >
-            {license ?? "Unknown"}
-          </span>
+          {isLoading && !license ? (
+            <SkeletonValue width="w-16" />
+          ) : (
+            <span
+              className="inline-flex items-center px-2 py-1 rounded text-xs font-mono bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-600 truncate max-w-[150px]"
+              title={license ?? "Unknown"}
+            >
+              {license ?? "Unknown"}
+            </span>
+          )}
         </div>
       </div>
 
@@ -246,7 +267,13 @@ export const Header: React.FC<HeaderProps> = ({
               </Tooltip>
             </div>
             <span className="font-bold text-[#c94137] text-lg leading-none text-center">
-              {score !== null ? score : "N/A"}
+              {score !== null ? (
+                score
+              ) : isLoading ? (
+                <SkeletonValue width="w-8" />
+              ) : (
+                "N/A"
+              )}
             </span>
           </div>
         )}
@@ -259,6 +286,8 @@ export const Header: React.FC<HeaderProps> = ({
               stars.toLocaleString()
             ) : githubRateLimited ? (
               <RateLimitedValue />
+            ) : isLoading ? (
+              <SkeletonValue width="w-12" />
             ) : (
               "N/A"
             )}
@@ -272,7 +301,13 @@ export const Header: React.FC<HeaderProps> = ({
             <Users size={12} className="mr-1" /> Collabs
           </div>
           <span className="font-medium text-slate-800 dark:text-slate-200">
-            {collaboratorsCount ?? "N/A"}
+            {collaboratorsCount !== null && collaboratorsCount !== undefined ? (
+              collaboratorsCount
+            ) : isLoading ? (
+              <SkeletonValue width="w-8" />
+            ) : (
+              "N/A"
+            )}
           </span>
         </div>
         <div className="flex flex-col items-center space-y-1">
@@ -287,6 +322,8 @@ export const Header: React.FC<HeaderProps> = ({
               formatDate(lastCommitDate)
             ) : githubRateLimited ? (
               <RateLimitedValue />
+            ) : isLoading ? (
+              <SkeletonValue width="w-20" />
             ) : (
               "N/A"
             )}

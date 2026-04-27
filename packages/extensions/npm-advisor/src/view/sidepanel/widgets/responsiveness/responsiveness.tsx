@@ -23,12 +23,18 @@ export interface ResponsivenessProps {
    * scan and isn't user-actionable, so we surface a softer hint here.
    */
   githubIssuesUnavailable?: boolean;
+  /**
+   * Renders a skeleton placeholder inside the card shell while stats are
+   * still being fetched, so the layout does not shift on resolve.
+   */
+  isLoading?: boolean;
 }
 
 export const Responsiveness: React.FC<ResponsivenessProps> = ({
   responsiveness,
   githubRateLimited = false,
   githubIssuesUnavailable = false,
+  isLoading = false,
 }) => {
   return (
     <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4 flex flex-col justify-between">
@@ -47,7 +53,17 @@ export const Responsiveness: React.FC<ResponsivenessProps> = ({
             </div>
           </div>
         </h2>
-        {responsiveness ? (
+        {!responsiveness && isLoading ? (
+          <div className="animate-pulse">
+            <div className="flex items-end justify-between">
+              <div className="flex-1">
+                <div className="h-3 w-24 rounded bg-slate-200 dark:bg-slate-600 mb-2" />
+                <div className="h-2.5 w-32 rounded bg-slate-200 dark:bg-slate-600" />
+              </div>
+              <div className="h-5 w-10 rounded bg-slate-200 dark:bg-slate-600" />
+            </div>
+          </div>
+        ) : responsiveness ? (
           <>
             <div className="flex items-end justify-between">
               <div>

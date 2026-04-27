@@ -29,6 +29,13 @@ interface PackageInsightsBodyProps {
    */
   bundleLoading?: boolean;
   /**
+   * When true, every widget renders in skeleton mode. Used by the
+   * Insights tab while the per-package stats fetch is still in flight,
+   * so the panel shell shows immediately and individual widgets fill in
+   * as data resolves rather than blocking on a full-page loader.
+   */
+  isLoading?: boolean;
+  /**
    * When true, prepends the full Header widget (package name, github link,
    * stars, collabs, last commit, fitness score) to the body. Used by the
    * Report tab's accordion rows so each expanded dep shows the same set
@@ -65,6 +72,7 @@ export const PackageInsightsBody: React.FC<PackageInsightsBodyProps> = ({
   dependencyTreeLoading = false,
   hideResponsiveness = false,
   hideFitness = false,
+  isLoading = false,
 }) => {
   const {
     packageName,
@@ -109,37 +117,47 @@ export const PackageInsightsBody: React.FC<PackageInsightsBodyProps> = ({
           isAddedToCompare={headerIsAddedToCompare}
           onAddToCompare={() => onAddRecommendationToCompare?.(packageName)}
           hideFitness={hideFitness}
+          isLoading={isLoading}
         />
       )}
 
       {hideResponsiveness ? (
-        <LicenseCheck licenseCompatibility={licenseCompatibility} />
+        <LicenseCheck
+          licenseCompatibility={licenseCompatibility}
+          isLoading={isLoading}
+        />
       ) : (
         <div className="grid grid-cols-2 gap-4">
-          <LicenseCheck licenseCompatibility={licenseCompatibility} />
+          <LicenseCheck
+            licenseCompatibility={licenseCompatibility}
+            isLoading={isLoading}
+          />
           <Responsiveness
             responsiveness={responsiveness as any}
             githubRateLimited={githubRateLimited}
             githubIssuesUnavailable={githubIssuesUnavailable}
+            isLoading={isLoading}
           />
         </div>
       )}
 
-      <BundleFootprint bundle={bundle} isLoading={bundleLoading} />
+      <BundleFootprint bundle={bundle} isLoading={bundleLoading || isLoading} />
       <SecurityAdvisories
         securityAdvisories={securityAdvisories}
         githubRateLimited={githubRateLimited}
+        isLoading={isLoading}
       />
       <Recommendations
         recommendations={recommendations}
         onAddToCompare={onAddRecommendationToCompare}
         comparisonBucketNames={comparisonBucketNames}
         addingRecommendations={addingRecommendations}
+        isLoading={isLoading}
       />
       {showDependencyTree && (
         <DependencyTree
           dependencyTree={dependencyTree}
-          isLoading={dependencyTreeLoading}
+          isLoading={dependencyTreeLoading || isLoading}
         />
       )}
     </div>

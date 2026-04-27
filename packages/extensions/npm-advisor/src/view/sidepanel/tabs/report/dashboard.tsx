@@ -18,6 +18,7 @@ import {
   type DependencyStatsState,
 } from "../../hooks/useDependencyStats";
 import { REPORT_COLORS, dominantDependencyColor } from "./reportColors";
+import { type ReportFilterKey } from "./reportFilters";
 
 interface DashboardProps {
   statsByName: DependencyStatsByName;
@@ -30,7 +31,57 @@ interface DashboardProps {
     pendingOrLoading: number;
     isComplete: boolean;
   };
+  /**
+   * Set the given filter on (additive) when a Matrix tile is clicked.
+   * Tiles do not toggle — they're a quick-add affordance; the user removes
+   * a filter via the pill row's X.
+   */
+  onSetFilter: (key: ReportFilterKey) => void;
+  /**
+   * Clear all filters (used by the "Total Dependencies" tile, which acts
+   * as the "show everything" shortcut).
+   */
+  onClearFilters: () => void;
 }
+
+/**
+ * Maps a Matrix tile title to the filter action it should trigger. Kept as
+ * a lookup so the Matrix `onClick` callback (which only receives `title`)
+ * can dispatch without the Dashboard caring about the wiring.
+ */
+const TILE_TITLE_TO_FILTER: Record<string, ReportFilterKey | "clear"> = {
+  "Total Dependencies": "clear",
+  "With Vulnerabilities": "vulnerable",
+  "License Issues": "licenseIssue",
+  Replaceable: "replaceable",
+};
+
+interface ClickableCircleProps {
+  title: string;
+  onTrigger: (title: string) => void;
+  children: React.ReactNode;
+}
+
+/**
+ * Wraps a CirclePieChart in a button so the same `handleTileClick` mapping
+ * used by the Matrix tiles below also fires on circle clicks. Kept inline
+ * because the wiring is specific to this report; the design-system
+ * CirclePieChart deliberately stays click-agnostic.
+ */
+const ClickableCircle: React.FC<ClickableCircleProps> = ({
+  title,
+  onTrigger,
+  children,
+}) => (
+  <button
+    type="button"
+    onClick={() => onTrigger(title)}
+    aria-label={`Filter by ${title}`}
+    className="cursor-pointer bg-transparent border-0 p-0 m-0 text-inherit focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 rounded-md"
+  >
+    {children}
+  </button>
+);
 
 const hasRecommendations = (stats: PackageStats): boolean => {
   const recommendations = stats.recommendations;
@@ -72,7 +123,20 @@ export const Dashboard: React.FC<DashboardProps> = ({
   statsByName,
   packageJsonDependencies,
   summary,
+  onSetFilter,
+  onClearFilters,
 }) => {
+  const handleTileClick = (title: string) => {
+    const action = TILE_TITLE_TO_FILTER[title];
+    if (!action) {
+      return;
+    }
+    if (action === "clear") {
+      onClearFilters();
+      return;
+    }
+    onSetFilter(action);
+  };
   const breakdown = useMemo(() => {
     const prodLoaded = loadedEntries(
       packageJsonDependencies.dependencies,
@@ -125,6 +189,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       count: totalDeclared,
       countClassName: "font-semibold",
       description: `Packages declared across <strong>dependencies</strong> (${prodCount}), <strong>devDependencies</strong> (${devCount}), and <strong>peerDependencies</strong> (${peerCount}).`,
+      onClick: handleTileClick,
     },
     {
       color: REPORT_COLORS.vulnerable,
@@ -132,6 +197,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       count: breakdown.vulnerableCount,
       countClassName: "font-semibold",
       description: `Analysed packages with at least one published GitHub security advisory (${breakdown.vulnerableCount} of ${breakdown.analysed}).`,
+      onClick: handleTileClick,
     },
     {
       color: REPORT_COLORS.licenseIssue,
@@ -139,6 +205,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       count: breakdown.licenseIssueCount,
       countClassName: "font-semibold",
       description: `Packages whose declared license is not compatible with your target project license (${breakdown.licenseIssueCount} of ${breakdown.analysed}).`,
+      onClick: handleTileClick,
     },
     {
       color: REPORT_COLORS.replaceable,
@@ -146,6 +213,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       count: breakdown.replaceableCount,
       countClassName: "font-semibold",
       description: `Packages with a native JavaScript, micro-utility, or preferred alternative available via the e18e recommendations (${breakdown.replaceableCount} of ${breakdown.analysed}).`,
+      onClick: handleTileClick,
     },
   ];
 
@@ -171,70 +239,84 @@ export const Dashboard: React.FC<DashboardProps> = ({
         </div>
 
         <div className="flex flex-nowrap items-start justify-center gap-3 max-w-[420px] mx-auto">
-          <CirclePieChart
-            centerCount={totalDeclared}
+          <ClickableCircle
             title="Total Dependencies"
-            tooltipText={`${prodCount} prod · ${devCount} dev · ${peerCount} peer`}
-            data={[
-              { count: prodCount, color: REPORT_COLORS.prod },
-              { count: devCount, color: REPORT_COLORS.dev },
-              { count: peerCount, color: REPORT_COLORS.peer },
-            ]}
-          />
-          <CirclePieChart
-            centerCount={breakdown.vulnerableCount}
+            onTrigger={handleTileClick}
+          >
+            <CirclePieChart
+              centerCount={totalDeclared}
+              title="Total Dependencies"
+              tooltipText={`${prodCount} prod · ${devCount} dev · ${peerCount} peer`}
+              data={[
+                { count: prodCount, color: REPORT_COLORS.prod },
+                { count: devCount, color: REPORT_COLORS.dev },
+                { count: peerCount, color: REPORT_COLORS.peer },
+              ]}
+            />
+          </ClickableCircle>
+          <ClickableCircle
             title="With Vulnerabilities"
-            tooltipText={`${breakdown.vulnerableCount} of ${breakdown.analysed} analysed`}
-            data={[
-              {
-                count: breakdown.vulnerableCount,
-                color: REPORT_COLORS.vulnerable,
-              },
-              {
-                count: Math.max(
-                  0,
-                  breakdown.analysed - breakdown.vulnerableCount,
-                ),
-                color: REPORT_COLORS.neutral,
-              },
-            ]}
-          />
-          <CirclePieChart
-            centerCount={breakdown.licenseIssueCount}
-            title="License Issues"
-            tooltipText={`${breakdown.licenseIssueCount} of ${breakdown.analysed} analysed`}
-            data={[
-              {
-                count: breakdown.licenseIssueCount,
-                color: REPORT_COLORS.licenseIssue,
-              },
-              {
-                count: Math.max(
-                  0,
-                  breakdown.analysed - breakdown.licenseIssueCount,
-                ),
-                color: REPORT_COLORS.neutral,
-              },
-            ]}
-          />
-          <CirclePieChart
-            centerCount={breakdown.replaceableCount}
-            title="Replaceable"
-            tooltipText={`${breakdown.replaceableCount} of ${breakdown.analysed} analysed`}
-            data={[
-              {
-                count: breakdown.replaceableCount,
-                color: REPORT_COLORS.replaceable,
-              },
-              {
-                count: Math.max(
-                  0,
-                  breakdown.analysed - breakdown.replaceableCount,
-                ),
-                color: REPORT_COLORS.neutral,
-              },
-            ]}
-          />
+            onTrigger={handleTileClick}
+          >
+            <CirclePieChart
+              centerCount={breakdown.vulnerableCount}
+              title="With Vulnerabilities"
+              tooltipText={`${breakdown.vulnerableCount} of ${breakdown.analysed} analysed`}
+              data={[
+                {
+                  count: breakdown.vulnerableCount,
+                  color: REPORT_COLORS.vulnerable,
+                },
+                {
+                  count: Math.max(
+                    0,
+                    breakdown.analysed - breakdown.vulnerableCount,
+                  ),
+                  color: REPORT_COLORS.neutral,
+                },
+              ]}
+            />
+          </ClickableCircle>
+          <ClickableCircle title="License Issues" onTrigger={handleTileClick}>
+            <CirclePieChart
+              centerCount={breakdown.licenseIssueCount}
+              title="License Issues"
+              tooltipText={`${breakdown.licenseIssueCount} of ${breakdown.analysed} analysed`}
+              data={[
+                {
+                  count: breakdown.licenseIssueCount,
+                  color: REPORT_COLORS.licenseIssue,
+                },
+                {
+                  count: Math.max(
+                    0,
+                    breakdown.analysed - breakdown.licenseIssueCount,
+                  ),
+                  color: REPORT_COLORS.neutral,
+                },
+              ]}
+            />
+          </ClickableCircle>
+          <ClickableCircle title="Replaceable" onTrigger={handleTileClick}>
+            <CirclePieChart
+              centerCount={breakdown.replaceableCount}
+              title="Replaceable"
+              tooltipText={`${breakdown.replaceableCount} of ${breakdown.analysed} analysed`}
+              data={[
+                {
+                  count: breakdown.replaceableCount,
+                  color: REPORT_COLORS.replaceable,
+                },
+                {
+                  count: Math.max(
+                    0,
+                    breakdown.analysed - breakdown.replaceableCount,
+                  ),
+                  color: REPORT_COLORS.neutral,
+                },
+              ]}
+            />
+          </ClickableCircle>
         </div>
       </div>
 
