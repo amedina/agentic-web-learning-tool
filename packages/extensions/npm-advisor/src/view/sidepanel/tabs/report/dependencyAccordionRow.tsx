@@ -74,8 +74,12 @@ const StatusSummary: React.FC<{ state: DependencyStatsState }> = ({
     (recommendations?.nativeReplacements?.length ?? 0) > 0 ||
     (recommendations?.preferredReplacements?.length ?? 0) > 0 ||
     (recommendations?.microUtilityReplacements?.length ?? 0) > 0;
-  const score = stats.score;
 
+  // The Fitness score is intentionally not shown on Report rows. Fitness
+  // is a composite that includes Responsiveness, which we don't load for
+  // dep rows because the Search API quota that powers it routinely
+  // throttles during a multi-dep scan. Showing a partial-coverage score
+  // here would be misleading.
   return (
     <div className="flex items-center gap-1.5">
       {vulnerabilityCount > 0 && (
@@ -101,12 +105,6 @@ const StatusSummary: React.FC<{ state: DependencyStatsState }> = ({
           title="Modern replacement available"
         />
       )}
-      <span
-        className="inline-flex items-center justify-center min-w-[28px] h-5 px-1.5 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-[11px] font-semibold"
-        title="Package score"
-      >
-        {score}
-      </span>
     </div>
   );
 };
@@ -280,6 +278,8 @@ export const DependencyAccordionRow: React.FC<DependencyAccordionRowProps> = ({
             showDependencyTree
             bundleLoading={bundleLoading}
             dependencyTreeLoading={depTreeLoading}
+            hideResponsiveness
+            hideFitness
           />
         ) : state.status === "not_found" ? (
           <p className="text-xs text-slate-500 dark:text-slate-400 italic">

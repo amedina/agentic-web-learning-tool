@@ -33,6 +33,12 @@ export interface HeaderProps {
   scoreMaxPoints?: number;
   /** True when a GitHub rate-limit prevented stars / lastCommit from loading. */
   githubRateLimited?: boolean;
+  /**
+   * Hide the Fitness column. Used by the Report tab accordion rows where
+   * the Responsiveness signal is intentionally not loaded (Search API
+   * quota), so the Fitness composite would be misleading.
+   */
+  hideFitness?: boolean;
 }
 
 const GITHUB_RATE_LIMIT_TITLE =
@@ -61,6 +67,7 @@ export const Header: React.FC<HeaderProps> = ({
   scoreBreakdown,
   scoreMaxPoints,
   githubRateLimited = false,
+  hideFitness = false,
 }) => {
   const { setActiveTab } = usePropProvider(({ actions }) => ({
     setActiveTab: actions.setActiveTab,
@@ -128,117 +135,121 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       <div className="flex items-start justify-between mt-4 pt-4 border-t border-slate-100 dark:border-slate-700">
-        <div className="flex flex-col items-center space-y-1">
-          <div className="flex items-center text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold whitespace-nowrap">
-            <Activity size={12} className="mr-1 shadow-sm" /> Fitness
-            <Tooltip
-              placement="bottom"
-              delayDuration={0}
-              contentClassName="w-72 p-3 text-left font-normal normal-case tracking-normal bg-slate-800 text-white shadow-lg"
-              body={
-                scoreBreakdown && scoreBreakdown.length > 0 ? (
-                  <div>
-                    <p className="font-semibold text-sm">
-                      Frontend Fitness {score ?? 0}{" "}
-                      <span className="text-slate-400">
-                        / {scoreMaxPoints ?? 0}
-                      </span>
-                    </p>
-                    <p className="text-[11px] text-slate-400 mb-2 leading-snug">
-                      How well this package fits into a client-side bundle.
-                      Server-side and dev-only packages may score low here by
-                      design.
-                    </p>
-                    <ul className="space-y-2">
-                      {scoreBreakdown.map((item) => {
-                        const isUnavailable = item.status === "unavailable";
-                        const isPenalty = item.status === "penalty";
-                        return (
-                          <li
-                            key={item.label}
-                            className="flex items-start justify-between gap-2"
-                          >
-                            <div className="flex-1 min-w-0">
+        {!hideFitness && (
+          <div className="flex flex-col items-center space-y-1">
+            <div className="flex items-center text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold whitespace-nowrap">
+              <Activity size={12} className="mr-1 shadow-sm" /> Fitness
+              <Tooltip
+                placement="bottom"
+                delayDuration={0}
+                contentClassName="w-72 p-3 text-left font-normal normal-case tracking-normal bg-slate-800 text-white shadow-lg"
+                body={
+                  scoreBreakdown && scoreBreakdown.length > 0 ? (
+                    <div>
+                      <p className="font-semibold text-sm">
+                        Frontend Fitness {score ?? 0}{" "}
+                        <span className="text-slate-400">
+                          / {scoreMaxPoints ?? 0}
+                        </span>
+                      </p>
+                      <p className="text-[11px] text-slate-400 mb-2 leading-snug">
+                        How well this package fits into a client-side bundle.
+                        Server-side and dev-only packages may score low here by
+                        design.
+                      </p>
+                      <ul className="space-y-2">
+                        {scoreBreakdown.map((item) => {
+                          const isUnavailable = item.status === "unavailable";
+                          const isPenalty = item.status === "penalty";
+                          return (
+                            <li
+                              key={item.label}
+                              className="flex items-start justify-between gap-2"
+                            >
+                              <div className="flex-1 min-w-0">
+                                <span
+                                  className={`text-xs font-medium ${
+                                    isUnavailable
+                                      ? "text-slate-400"
+                                      : isPenalty
+                                        ? "text-red-300"
+                                        : ""
+                                  }`}
+                                >
+                                  {item.label}
+                                </span>
+                                <span
+                                  className={`block text-[11px] leading-snug ${
+                                    isUnavailable
+                                      ? "italic text-slate-500"
+                                      : isPenalty
+                                        ? "text-red-200/80"
+                                        : "text-slate-300"
+                                  }`}
+                                >
+                                  {item.reason}
+                                </span>
+                              </div>
                               <span
-                                className={`text-xs font-medium ${
+                                className={`shrink-0 tabular-nums text-xs ${
                                   isUnavailable
-                                    ? "text-slate-400"
+                                    ? "text-slate-500"
                                     : isPenalty
                                       ? "text-red-300"
                                       : ""
                                 }`}
                               >
-                                {item.label}
+                                {isUnavailable ? (
+                                  "—"
+                                ) : isPenalty ? (
+                                  `${item.points}`
+                                ) : (
+                                  <>
+                                    +{item.points}{" "}
+                                    <span className="text-slate-400">
+                                      / {item.maxPoints}
+                                    </span>
+                                  </>
+                                )}
                               </span>
-                              <span
-                                className={`block text-[11px] leading-snug ${
-                                  isUnavailable
-                                    ? "italic text-slate-500"
-                                    : isPenalty
-                                      ? "text-red-200/80"
-                                      : "text-slate-300"
-                                }`}
-                              >
-                                {item.reason}
-                              </span>
-                            </div>
-                            <span
-                              className={`shrink-0 tabular-nums text-xs ${
-                                isUnavailable
-                                  ? "text-slate-500"
-                                  : isPenalty
-                                    ? "text-red-300"
-                                    : ""
-                              }`}
-                            >
-                              {isUnavailable ? (
-                                "—"
-                              ) : isPenalty ? (
-                                `${item.points}`
-                              ) : (
-                                <>
-                                  +{item.points}{" "}
-                                  <span className="text-slate-400">
-                                    / {item.maxPoints}
-                                  </span>
-                                </>
-                              )}
-                            </span>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                    {scoreBreakdown.some((i) => i.status === "unavailable") && (
-                      <p className="mt-2 pt-2 border-t border-slate-700 text-[11px] text-slate-400 leading-snug">
-                        Axes marked — were excluded because the required data
-                        wasn&rsquo;t available.
-                      </p>
-                    )}
-                  </div>
-                ) : (
-                  <p className="text-xs">
-                    Calculated based on Bundle Size, Dependencies, and Modern
-                    Replacements.
-                  </p>
-                )
-              }
-            >
-              <button
-                type="button"
-                aria-label="How is this score calculated?"
-                className="ml-1 flex items-center cursor-help focus:outline-none"
+                            </li>
+                          );
+                        })}
+                      </ul>
+                      {scoreBreakdown.some(
+                        (i) => i.status === "unavailable",
+                      ) && (
+                        <p className="mt-2 pt-2 border-t border-slate-700 text-[11px] text-slate-400 leading-snug">
+                          Axes marked — were excluded because the required data
+                          wasn&rsquo;t available.
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-xs">
+                      Calculated based on Bundle Size, Dependencies, and Modern
+                      Replacements.
+                    </p>
+                  )
+                }
               >
-                <Info
-                  size={12}
-                  className="text-slate-400 dark:text-slate-500"
-                />
-              </button>
-            </Tooltip>
+                <button
+                  type="button"
+                  aria-label="How is this score calculated?"
+                  className="ml-1 flex items-center cursor-help focus:outline-none"
+                >
+                  <Info
+                    size={12}
+                    className="text-slate-400 dark:text-slate-500"
+                  />
+                </button>
+              </Tooltip>
+            </div>
+            <span className="font-bold text-[#c94137] text-lg leading-none text-center">
+              {score !== null ? score : "N/A"}
+            </span>
           </div>
-          <span className="font-bold text-[#c94137] text-lg leading-none text-center">
-            {score !== null ? score : "N/A"}
-          </span>
-        </div>
+        )}
         <div className="flex flex-col items-center space-y-1">
           <div className="flex items-center text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold whitespace-nowrap">
             <Star size={12} className="mr-1 shadow-sm" /> Stars

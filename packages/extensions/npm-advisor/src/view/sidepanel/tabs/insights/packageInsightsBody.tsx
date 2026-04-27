@@ -40,6 +40,18 @@ interface PackageInsightsBodyProps {
    * Report tab when the tree is fetched lazily on accordion expand.
    */
   dependencyTreeLoading?: boolean;
+  /**
+   * Hide the Responsiveness widget. Used by the Report tab where the
+   * issues data isn't loaded for individual deps (Search API quota), so
+   * showing the widget would be misleading.
+   */
+  hideResponsiveness?: boolean;
+  /**
+   * Hide the Fitness column from the embedded Header. Used together with
+   * `hideResponsiveness` since Fitness is a composite that includes
+   * Responsiveness — without that signal the score is misleading.
+   */
+  hideFitness?: boolean;
 }
 
 export const PackageInsightsBody: React.FC<PackageInsightsBodyProps> = ({
@@ -51,6 +63,8 @@ export const PackageInsightsBody: React.FC<PackageInsightsBodyProps> = ({
   bundleLoading = false,
   showHeader = false,
   dependencyTreeLoading = false,
+  hideResponsiveness = false,
+  hideFitness = false,
 }) => {
   const {
     packageName,
@@ -69,6 +83,7 @@ export const PackageInsightsBody: React.FC<PackageInsightsBodyProps> = ({
     recommendations,
     dependencyTree,
     githubRateLimited,
+    githubIssuesUnavailable,
   } = stats;
 
   // For accordion-mounted Headers we route the "+ Compare" button through
@@ -93,16 +108,22 @@ export const PackageInsightsBody: React.FC<PackageInsightsBodyProps> = ({
           githubRateLimited={githubRateLimited}
           isAddedToCompare={headerIsAddedToCompare}
           onAddToCompare={() => onAddRecommendationToCompare?.(packageName)}
+          hideFitness={hideFitness}
         />
       )}
 
-      <div className="grid grid-cols-2 gap-4">
+      {hideResponsiveness ? (
         <LicenseCheck licenseCompatibility={licenseCompatibility} />
-        <Responsiveness
-          responsiveness={responsiveness as any}
-          githubRateLimited={githubRateLimited}
-        />
-      </div>
+      ) : (
+        <div className="grid grid-cols-2 gap-4">
+          <LicenseCheck licenseCompatibility={licenseCompatibility} />
+          <Responsiveness
+            responsiveness={responsiveness as any}
+            githubRateLimited={githubRateLimited}
+            githubIssuesUnavailable={githubIssuesUnavailable}
+          />
+        </div>
+      )}
 
       <BundleFootprint bundle={bundle} isLoading={bundleLoading} />
       <SecurityAdvisories
