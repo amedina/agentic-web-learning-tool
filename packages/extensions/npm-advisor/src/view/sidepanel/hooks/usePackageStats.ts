@@ -33,6 +33,28 @@ const extractDependencies = (pkg: any): PackageJsonDependencies => ({
     : [],
 });
 
+/**
+ * Returns true when the URL is one the panel would actually display stats
+ * for. Used to ignore browser tab/window switches that move focus to an
+ * unrelated page (docs, search, etc.) — without this guard the Report tab
+ * would tear itself down and refetch dozens of dependency stats every time
+ * the user glances at another tab. We also include the extension's own
+ * options page so navigating to options doesn't lose the loaded report.
+ */
+const isPanelRelevantUrl = (url: string | undefined): boolean => {
+  if (!url) return false;
+  if (url.startsWith("chrome-extension://")) return true;
+  if (url.includes("npmjs.com/package/")) return true;
+  if (
+    url.includes("github.com") &&
+    url.endsWith("package.json") &&
+    url.includes("/blob/")
+  ) {
+    return true;
+  }
+  return false;
+};
+
 export const usePackageStats = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -234,18 +256,27 @@ export const usePackageStats = () => {
         return;
       }
 
+      // Only react to navigations that land on a URL the panel actually
+      // shows stats for. Otherwise switching to e.g. a docs tab tears down
+      // the loaded Report and forces a full refetch on switch-back.
+      if (!isPanelRelevantUrl(url)) return;
+
       fetchCurrentTabStats(url);
     };
 
     const handleTabActivated = (activeInfo: { tabId: number }) => {
       chrome.tabs.get(activeInfo.tabId, (tab) => {
-        if (tab) fetchCurrentTabStats(tab.url);
+        if (tab && isPanelRelevantUrl(tab.url)) {
+          fetchCurrentTabStats(tab.url);
+        }
       });
     };
 
     const handleTabUpdated = (tabId: number) => {
       chrome.tabs.get(tabId, (tab) => {
-        if (tab) fetchCurrentTabStats(tab.url);
+        if (tab && isPanelRelevantUrl(tab.url)) {
+          fetchCurrentTabStats(tab.url);
+        }
       });
     };
 
