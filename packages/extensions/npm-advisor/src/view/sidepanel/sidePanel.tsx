@@ -7,7 +7,6 @@ import { SidebarProvider, Toaster } from "@google-awlt/design-system";
  * Internal dependencies
  */
 import {
-  LoadingState,
   ErrorState,
   NavigationMessage,
   InsightsTab,
@@ -41,6 +40,7 @@ const SidePanel = () => {
     addingRecommendations,
     currentTabUrl,
     packageJsonDependencies,
+    pendingPackageName,
   } = usePackageStats();
 
   const hasAnalysableDependencies =
@@ -49,14 +49,8 @@ const SidePanel = () => {
       packageJsonDependencies.devDependencies.length > 0 ||
       packageJsonDependencies.peerDependencies.length > 0);
 
-  if (loading) {
-    return (
-      <>
-        <Toaster position="bottom-center" />
-        <LoadingState />
-      </>
-    );
-  }
+  // Options / comparison / navigation / hard error messages stay as full
+  // takeovers — they don't have meaningful tabs/skeletons to show.
   if (isNavigationMessage) {
     return (
       <>
@@ -83,7 +77,7 @@ const SidePanel = () => {
     );
   }
 
-  if (error || !stats) {
+  if (error) {
     return (
       <>
         <Toaster position="bottom-center" />
@@ -91,6 +85,12 @@ const SidePanel = () => {
       </>
     );
   }
+
+  // We're on a relevant npm/github page — render the full shell (tabs +
+  // chatbot + suggestions + Ask AI) immediately. Per-widget skeletons fill
+  // in until `stats` resolves so the panel never feels blocked.
+  const isStatsLoading = loading || !stats;
+  const headerPackageName = stats?.packageName ?? pendingPackageName ?? "";
 
   return (
     <ErrorBoundary>
@@ -107,6 +107,8 @@ const SidePanel = () => {
               content: (
                 <InsightsTab
                   stats={stats}
+                  pendingPackageName={pendingPackageName}
+                  isLoading={isStatsLoading}
                   onAddToCompare={handleAddToCompare}
                   isAddedToCompare={isAddedToCompare}
                   onAddRecommendationToCompare={
@@ -166,44 +168,59 @@ const SidePanel = () => {
           assistantMessage={AssistantMessage}
           userMessage={UserMessage}
           getCustomSystemPrompt={() => {
+            // While stats are still loading, fall back to whatever package
+            // name we know from the URL so the assistant has at least some
+            // grounding context. Once stats resolve, the full payload is
+            // serialized in.
+            const statsPayload = stats
+              ? JSON.stringify(stats, null, 2)
+              : JSON.stringify({ packageName: headerPackageName }, null, 2);
             return getSystemPrompt(
-              JSON.stringify(stats, null, 2),
+              statsPayload,
               comparisonBucket.length > 0
                 ? JSON.stringify(comparisonBucket, null, 2)
                 : undefined,
             );
           }}
-          suggestions={[
-            ...(comparisonBucket.length > 0
+          suggestions={
+            stats
               ? [
+                  ...(comparisonBucket.length > 0
+                    ? [
+                        {
+                          text: "Compare all packages",
+                          prompt: "Compare all of these packages.",
+                        },
+                      ]
+                    : []),
                   {
-                    text: "Compare all packages",
-                    prompt: "Compare all of these packages.",
+                    text: "Suggest better alternatives",
+                    prompt: `Suggest better alternatives to ${stats.packageName}`,
+                  },
+                  {
+                    text: "Compare with [Popular Library]",
+                    prompt: `Compare ${stats.packageName} with a popular alternative library`,
+                  },
+                  {
+                    text: "Is there a native JS way?",
+                    prompt: `Is there a native vanilla JavaScript way to do what ${stats.packageName} does?`,
+                  },
+                  {
+                    text: `Why use this over [X]?`,
+                    prompt: `Why should I use ${stats.packageName} over other options?`,
                   },
                 ]
-              : []),
-            {
-              text: "Suggest better alternatives",
-              prompt: `Suggest better alternatives to ${stats.packageName}`,
-            },
-            {
-              text: "Compare with [Popular Library]",
-              prompt: `Compare ${stats.packageName} with a popular alternative library`,
-            },
-            {
-              text: "Is there a native JS way?",
-              prompt: `Is there a native vanilla JavaScript way to do what ${stats.packageName} does?`,
-            },
-            {
-              text: `Why use this over [X]?`,
-              prompt: `Why should I use ${stats.packageName} over other options?`,
-            },
-          ]}
+              : []
+          }
           helperTextSet={{
-            title: () => `Ask AI about ${stats.packageName}`,
-            description:
-              () => `Hello! I can help you with questions about ${stats.packageName}. What
-                would you like to know?`,
+            title: () =>
+              headerPackageName
+                ? `Ask AI about ${headerPackageName}`
+                : "Ask AI",
+            description: () =>
+              headerPackageName
+                ? `Hello! I can help you with questions about ${headerPackageName}. What would you like to know?`
+                : "Hello! What would you like to know?",
           }}
         >
           <SidebarProvider

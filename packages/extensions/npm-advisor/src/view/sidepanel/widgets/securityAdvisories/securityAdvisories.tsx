@@ -10,13 +10,37 @@ export interface SecurityAdvisoriesProps {
   } | null;
   /** True when a GitHub rate-limit prevented this signal from loading. */
   githubRateLimited?: boolean;
+  /**
+   * Renders a placeholder shell while stats are still loading. Once the
+   * fetch resolves, the widget reverts to its existing logic — including
+   * returning null when there are no advisories.
+   */
+  isLoading?: boolean;
 }
 
 export const SecurityAdvisories: React.FC<SecurityAdvisoriesProps> = ({
   securityAdvisories,
   githubRateLimited = false,
+  isLoading = false,
 }) => {
   const [showAll, setShowAll] = useState(false);
+
+  if (!securityAdvisories && isLoading && !githubRateLimited) {
+    return (
+      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
+        <h2 className="text-sm font-semibold flex items-center text-slate-800 dark:text-slate-200 mb-2">
+          <ShieldAlert
+            size={16}
+            className="mr-2 text-slate-600 dark:text-slate-400"
+          />{" "}
+          Security Advisories
+        </h2>
+        <div className="animate-pulse">
+          <div className="h-2.5 w-40 rounded bg-slate-200 dark:bg-slate-700" />
+        </div>
+      </div>
+    );
+  }
 
   // Rate-limited but advisories never loaded — surface a small warning row
   // so the user knows the gap is transient, not the package's actual state.

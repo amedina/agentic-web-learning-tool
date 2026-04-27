@@ -14,6 +14,12 @@ export interface RecommendationsProps {
   onAddToCompare?: (packageName: string) => void;
   comparisonBucketNames?: Set<string>;
   addingRecommendations?: Set<string>;
+  /**
+   * Renders a placeholder shell while stats are still loading. After the
+   * fetch resolves, the widget reverts to its existing logic — including
+   * returning null when no recommendations exist.
+   */
+  isLoading?: boolean;
 }
 
 import { getRecommendationUrl } from "./utils/getRecommendationUrl";
@@ -88,8 +94,24 @@ export const Recommendations: React.FC<RecommendationsProps> = ({
   onAddToCompare,
   comparisonBucketNames = new Set(),
   addingRecommendations = new Set(),
+  isLoading = false,
 }) => {
-  if (!Object.values(recommendations || {}).some((rec) => !!rec)) return null;
+  const hasAnyRec = Object.values(recommendations || {}).some((rec) => !!rec);
+  if (!hasAnyRec && isLoading) {
+    return (
+      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
+        <h2 className="text-sm font-semibold flex items-center text-slate-800 dark:text-slate-200 mb-3">
+          <Info size={16} className="mr-2 text-slate-600 dark:text-slate-400" />{" "}
+          Alternative Recommendations
+        </h2>
+        <div className="space-y-2 animate-pulse">
+          <div className="h-3 w-32 rounded bg-slate-200 dark:bg-slate-700" />
+          <div className="h-3 w-40 rounded bg-slate-200 dark:bg-slate-700" />
+        </div>
+      </div>
+    );
+  }
+  if (!hasAnyRec) return null;
 
   const renderItem = (r: any, idx: number, showExample = true) => {
     const linkUrl = getRecommendationUrl(r);

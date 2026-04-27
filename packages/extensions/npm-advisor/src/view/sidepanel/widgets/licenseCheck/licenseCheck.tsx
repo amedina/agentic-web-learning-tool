@@ -11,10 +11,16 @@ import type { LicenseCompatibilityResult } from "../../../../lib";
 
 export interface LicenseCheckProps {
   licenseCompatibility: LicenseCompatibilityResult | null;
+  /**
+   * Renders a skeleton placeholder inside the card shell while stats are
+   * still being fetched, so the layout does not shift on resolve.
+   */
+  isLoading?: boolean;
 }
 
 export const LicenseCheck: React.FC<LicenseCheckProps> = ({
   licenseCompatibility,
+  isLoading = false,
 }) => {
   return (
     <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
@@ -25,7 +31,12 @@ export const LicenseCheck: React.FC<LicenseCheckProps> = ({
         />{" "}
         License Check
       </h2>
-      {licenseCompatibility ? (
+      {!licenseCompatibility && isLoading ? (
+        <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-700 animate-pulse">
+          <div className="h-3 w-32 rounded bg-slate-200 dark:bg-slate-600 mb-2" />
+          <div className="h-2.5 w-48 rounded bg-slate-200 dark:bg-slate-600" />
+        </div>
+      ) : licenseCompatibility ? (
         <div
           className={`p-2 rounded-lg flex items-start space-x-2 ${licenseCompatibility.isCompatible ? "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-300" : "bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-300"}`}
         >
