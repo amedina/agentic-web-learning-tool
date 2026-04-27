@@ -52,7 +52,7 @@ const SidePanel = () => {
   if (loading) {
     return (
       <>
-        <Toaster position="top-center" />
+        <Toaster position="bottom-center" />
         <LoadingState />
       </>
     );
@@ -60,7 +60,7 @@ const SidePanel = () => {
   if (isNavigationMessage) {
     return (
       <>
-        <Toaster position="top-center" />
+        <Toaster position="bottom-center" />
         <NavigationMessage url={currentTabUrl} />
       </>
     );
@@ -70,14 +70,14 @@ const SidePanel = () => {
     if (isComparisonPage) {
       return (
         <>
-          <Toaster position="top-center" />
+          <Toaster position="bottom-center" />
           <ComparisonPageSidePanel comparisonBucket={comparisonBucket} />
         </>
       );
     }
     return (
       <>
-        <Toaster position="top-center" />
+        <Toaster position="bottom-center" />
         <OptionsPageSidePanel />
       </>
     );
@@ -86,7 +86,7 @@ const SidePanel = () => {
   if (error || !stats) {
     return (
       <>
-        <Toaster position="top-center" />
+        <Toaster position="bottom-center" />
         <ErrorState error={error} />
       </>
     );
@@ -94,7 +94,7 @@ const SidePanel = () => {
 
   return (
     <ErrorBoundary>
-      <Toaster position="top-center" />
+      <Toaster position="bottom-center" />
       <ThemeProvider>
         <PropProvider
           allowToolCalling={false}

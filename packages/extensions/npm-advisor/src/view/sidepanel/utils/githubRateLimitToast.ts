@@ -9,7 +9,7 @@ import { toast } from "@google-awlt/design-system";
 import { GITHUB_RATE_LIMIT_ERROR_MARKER } from "../../../utils/githubFetch";
 
 export const GITHUB_RATE_LIMIT_USER_MESSAGE =
-  "GitHub API rate limit reached. Add a Personal Access Token in Options to raise the limit from 60 to 5,000 requests per hour.";
+  "GitHub API rate limit reached. Add a Personal Access Token in Options.";
 
 // Module-scoped so the toast fires at most once per sidepanel session, no
 // matter how many fetchers (main package, dependency tree) hit the limit.
@@ -22,9 +22,12 @@ export function showGithubRateLimitToastOnce() {
   rateLimitToastShown = true;
   toast.error(GITHUB_RATE_LIMIT_USER_MESSAGE, {
     duration: 10000,
+    closeButton: true,
     action: {
-      label: "Open Options",
+      label: "Open Settings",
       onClick: () => {
+        // Deep-links to the Settings tab of the Options page so the user
+        // lands directly on the PAT input rather than the default Models tab.
         chrome.runtime.sendMessage({ type: "OPEN_OPTIONS_SETTINGS" });
       },
     },
