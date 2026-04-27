@@ -8,6 +8,7 @@ import {
   Network,
   LayoutList,
   Share2,
+  Loader2,
 } from "lucide-react";
 
 /**
@@ -120,12 +121,41 @@ const DepTreeNode = ({
 
 export interface DependencyTreeProps {
   dependencyTree: DependencyTreeType | null;
+  /**
+   * When true, renders the widget shell with a centered loader. Used by
+   * the Report tab where the transitive dep tree is fetched lazily on
+   * accordion expand to avoid hammering npm with recursive fetches up front.
+   */
+  isLoading?: boolean;
 }
 
 export const DependencyTree: React.FC<DependencyTreeProps> = ({
   dependencyTree,
+  isLoading = false,
 }) => {
   const [viewMode, setViewMode] = useState<"tree" | "graph">("graph");
+
+  if (!dependencyTree && isLoading) {
+    return (
+      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
+        <h2 className="text-sm font-semibold flex items-center text-slate-800 dark:text-slate-200 mb-3">
+          <Network
+            size={16}
+            className="mr-2 text-slate-600 dark:text-slate-400"
+          />
+          Dependencies
+        </h2>
+        <div
+          className="flex items-center justify-center gap-2 py-6 text-xs text-slate-500 dark:text-slate-400"
+          role="status"
+          aria-live="polite"
+        >
+          <Loader2 size={14} className="animate-spin" />
+          <span>Resolving transitive dependency tree…</span>
+        </div>
+      </div>
+    );
+  }
 
   if (!dependencyTree) return null;
 

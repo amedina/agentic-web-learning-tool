@@ -132,6 +132,9 @@ class PackageStatsService {
 
           const stats = await getPackageStats(packageName, targetLicense, {
             includeDependencyTree: false,
+            // Defer bundlephobia until the user actually expands the row.
+            // Avoids a network round-trip per dep when most aren't opened.
+            includeBundle: false,
             dependencyCategory,
           });
           if (stats?.githubRateLimited) {

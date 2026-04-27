@@ -109,6 +109,14 @@ export interface GetPackageStatsOptions {
    */
   includeDependencyTree?: boolean;
   /**
+   * Whether to fetch bundlephobia data for this package. Skipping it cuts a
+   * network round-trip per dep, which matters when the Report tab fans out
+   * to dozens of packages and most never get expanded. The Bundle Size
+   * scoring axis is then marked unavailable (with a "deferred" reason) until
+   * the caller fetches the bundle separately via `fetchBundlephobiaData`.
+   */
+  includeBundle?: boolean;
+  /**
    * How this package is consumed in the user's project, if known. Defaults
    * to `unknown`, which scores as if the package will be shipped to a
    * client-side bundle.
@@ -124,8 +132,11 @@ export async function getPackageStats(
   targetLicense: string = "MIT",
   options: GetPackageStatsOptions = {},
 ): Promise<PackageStats | null> {
-  const { includeDependencyTree = true, dependencyCategory = "unknown" } =
-    options;
+  const {
+    includeDependencyTree = true,
+    includeBundle = true,
+    dependencyCategory = "unknown",
+  } = options;
 
   console.log(
     `[NPM Advisor] Fetching stats for ${packageName}${includeDependencyTree ? "" : " (light)"}...`,
@@ -140,13 +151,15 @@ export async function getPackageStats(
     preferredReplacementsRaw,
   ] = await Promise.all([
     fetchNpmPackage(packageName),
-    fetchBundlephobiaData(packageName).catch((e) => {
-      console.warn(
-        `[NPM Advisor] Failed to fetch bundle data for ${packageName}`,
-        e,
-      );
-      return null;
-    }),
+    includeBundle
+      ? fetchBundlephobiaData(packageName).catch((e) => {
+          console.warn(
+            `[NPM Advisor] Failed to fetch bundle data for ${packageName}`,
+            e,
+          );
+          return null;
+        })
+      : Promise.resolve(null),
     includeDependencyTree
       ? getDependencyTree(packageName).catch((e) => {
           console.warn(
@@ -374,6 +387,8 @@ export async function getPackageStats(
   // Axis 1: bundle size (max 40). Rewards smaller gzipped payloads —
   // weighted highest because bundle size is the most direct user-facing
   // cost (download, parse, execute). Marked unavailable when:
+  //   - the caller asked us to skip the bundlephobia fetch (deferred until
+  //     the user expands an accordion row), or
   //   - bundlephobia did not return data, so we can't measure it, or
   //   - the package is declared under devDependencies and so never ships
   //     to end users (a dev-only tool like TypeScript shouldn't be
@@ -384,6 +399,9 @@ export async function getPackageStats(
   let bundleStatus: ScoreBreakdownItem["status"] = "scored";
   if (dependencyCategory === "dev") {
     bundleReason = "Dev-only package — bundle size does not ship to users";
+    bundleStatus = "unavailable";
+  } else if (!includeBundle) {
+    bundleReason = "Bundle data deferred — expand the row to fetch";
     bundleStatus = "unavailable";
   } else if (gzip === null) {
     bundleReason = "Bundle data not available";

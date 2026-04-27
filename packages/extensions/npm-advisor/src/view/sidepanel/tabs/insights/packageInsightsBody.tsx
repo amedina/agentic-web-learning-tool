@@ -8,6 +8,7 @@ import React from "react";
  */
 import { type PackageStats } from "../../../../lib";
 import {
+  Header,
   LicenseCheck,
   Responsiveness,
   BundleFootprint,
@@ -22,6 +23,23 @@ interface PackageInsightsBodyProps {
   comparisonBucketNames?: Set<string>;
   addingRecommendations?: Set<string>;
   showDependencyTree?: boolean;
+  /**
+   * Renders BundleFootprint in a loading state. Used by the Report tab,
+   * where the bundle is fetched lazily on accordion expand.
+   */
+  bundleLoading?: boolean;
+  /**
+   * When true, prepends the full Header widget (package name, github link,
+   * stars, collabs, last commit, fitness score) to the body. Used by the
+   * Report tab's accordion rows so each expanded dep shows the same set
+   * of stats as the main Insights tab, not just the bottom widgets.
+   */
+  showHeader?: boolean;
+  /**
+   * Renders the DependencyTree widget in a loading state. Used by the
+   * Report tab when the tree is fetched lazily on accordion expand.
+   */
+  dependencyTreeLoading?: boolean;
 }
 
 export const PackageInsightsBody: React.FC<PackageInsightsBodyProps> = ({
@@ -30,8 +48,20 @@ export const PackageInsightsBody: React.FC<PackageInsightsBodyProps> = ({
   comparisonBucketNames,
   addingRecommendations,
   showDependencyTree = true,
+  bundleLoading = false,
+  showHeader = false,
+  dependencyTreeLoading = false,
 }) => {
   const {
+    packageName,
+    githubUrl,
+    stars,
+    collaboratorsCount,
+    lastCommitDate,
+    license,
+    score,
+    scoreBreakdown,
+    scoreMaxPoints,
     responsiveness,
     securityAdvisories,
     bundle,
@@ -41,8 +71,31 @@ export const PackageInsightsBody: React.FC<PackageInsightsBodyProps> = ({
     githubRateLimited,
   } = stats;
 
+  // For accordion-mounted Headers we route the "+ Compare" button through
+  // the same handler the Recommendations widget uses, so a dep can be
+  // added to the comparison bucket without extra plumbing.
+  const headerIsAddedToCompare =
+    comparisonBucketNames?.has(packageName) ?? false;
+
   return (
     <div className="space-y-4">
+      {showHeader && (
+        <Header
+          packageName={packageName}
+          githubUrl={githubUrl}
+          stars={stars}
+          collaboratorsCount={collaboratorsCount}
+          lastCommitDate={lastCommitDate}
+          license={license}
+          score={score}
+          scoreBreakdown={scoreBreakdown}
+          scoreMaxPoints={scoreMaxPoints}
+          githubRateLimited={githubRateLimited}
+          isAddedToCompare={headerIsAddedToCompare}
+          onAddToCompare={() => onAddRecommendationToCompare?.(packageName)}
+        />
+      )}
+
       <div className="grid grid-cols-2 gap-4">
         <LicenseCheck licenseCompatibility={licenseCompatibility} />
         <Responsiveness
@@ -51,7 +104,7 @@ export const PackageInsightsBody: React.FC<PackageInsightsBodyProps> = ({
         />
       </div>
 
-      <BundleFootprint bundle={bundle} />
+      <BundleFootprint bundle={bundle} isLoading={bundleLoading} />
       <SecurityAdvisories
         securityAdvisories={securityAdvisories}
         githubRateLimited={githubRateLimited}
@@ -62,7 +115,12 @@ export const PackageInsightsBody: React.FC<PackageInsightsBodyProps> = ({
         comparisonBucketNames={comparisonBucketNames}
         addingRecommendations={addingRecommendations}
       />
-      {showDependencyTree && <DependencyTree dependencyTree={dependencyTree} />}
+      {showDependencyTree && (
+        <DependencyTree
+          dependencyTree={dependencyTree}
+          isLoading={dependencyTreeLoading}
+        />
+      )}
     </div>
   );
 };

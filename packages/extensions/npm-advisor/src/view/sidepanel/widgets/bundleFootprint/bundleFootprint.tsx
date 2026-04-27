@@ -2,7 +2,7 @@
  * External dependencies.
  */
 import React from "react";
-import { Zap, HardDrive, Leaf, Info, Box } from "lucide-react";
+import { Zap, HardDrive, Leaf, Info, Box, Loader2 } from "lucide-react";
 
 const formatBytes = (bytes: number, decimals = 2) => {
   if (!+bytes) return "0 Bytes";
@@ -20,9 +20,37 @@ export interface BundleFootprintProps {
     isTreeShakeable: boolean;
     hasSideEffects: boolean | string[];
   } | null;
+  /**
+   * When true, renders the widget shell with a centered loader instead of
+   * hiding it. Used by the Report tab where bundle data is fetched lazily
+   * on accordion expand to avoid hammering bundlephobia upfront.
+   */
+  isLoading?: boolean;
 }
 
-export const BundleFootprint: React.FC<BundleFootprintProps> = ({ bundle }) => {
+export const BundleFootprint: React.FC<BundleFootprintProps> = ({
+  bundle,
+  isLoading = false,
+}) => {
+  if (!bundle && isLoading) {
+    return (
+      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
+        <h2 className="text-sm font-semibold flex items-center text-slate-800 dark:text-slate-200 mb-3">
+          <Zap size={16} className="mr-2 text-slate-600 dark:text-slate-400" />
+          Bundle footprint
+        </h2>
+        <div
+          className="flex items-center justify-center gap-2 py-6 text-xs text-slate-500 dark:text-slate-400"
+          role="status"
+          aria-live="polite"
+        >
+          <Loader2 size={14} className="animate-spin" />
+          <span>Fetching bundle size from bundlephobia…</span>
+        </div>
+      </div>
+    );
+  }
+
   if (!bundle) return null;
 
   return (
