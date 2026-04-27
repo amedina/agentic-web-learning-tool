@@ -18,6 +18,7 @@ import {
   type DependencyStatsState,
 } from "../../hooks/useDependencyStats";
 import { REPORT_COLORS, dominantDependencyColor } from "./reportColors";
+import { type ReportFilterKey } from "./reportFilters";
 
 interface DashboardProps {
   statsByName: DependencyStatsByName;
@@ -30,7 +31,30 @@ interface DashboardProps {
     pendingOrLoading: number;
     isComplete: boolean;
   };
+  /**
+   * Set the given filter on (additive) when a Matrix tile is clicked.
+   * Tiles do not toggle — they're a quick-add affordance; the user removes
+   * a filter via the pill row's X.
+   */
+  onSetFilter: (key: ReportFilterKey) => void;
+  /**
+   * Clear all filters (used by the "Total Dependencies" tile, which acts
+   * as the "show everything" shortcut).
+   */
+  onClearFilters: () => void;
 }
+
+/**
+ * Maps a Matrix tile title to the filter action it should trigger. Kept as
+ * a lookup so the Matrix `onClick` callback (which only receives `title`)
+ * can dispatch without the Dashboard caring about the wiring.
+ */
+const TILE_TITLE_TO_FILTER: Record<string, ReportFilterKey | "clear"> = {
+  "Total Dependencies": "clear",
+  "With Vulnerabilities": "vulnerable",
+  "License Issues": "licenseIssue",
+  Replaceable: "replaceable",
+};
 
 const hasRecommendations = (stats: PackageStats): boolean => {
   const recommendations = stats.recommendations;
@@ -72,7 +96,20 @@ export const Dashboard: React.FC<DashboardProps> = ({
   statsByName,
   packageJsonDependencies,
   summary,
+  onSetFilter,
+  onClearFilters,
 }) => {
+  const handleTileClick = (title: string) => {
+    const action = TILE_TITLE_TO_FILTER[title];
+    if (!action) {
+      return;
+    }
+    if (action === "clear") {
+      onClearFilters();
+      return;
+    }
+    onSetFilter(action);
+  };
   const breakdown = useMemo(() => {
     const prodLoaded = loadedEntries(
       packageJsonDependencies.dependencies,
@@ -125,6 +162,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       count: totalDeclared,
       countClassName: "font-semibold",
       description: `Packages declared across <strong>dependencies</strong> (${prodCount}), <strong>devDependencies</strong> (${devCount}), and <strong>peerDependencies</strong> (${peerCount}).`,
+      onClick: handleTileClick,
     },
     {
       color: REPORT_COLORS.vulnerable,
@@ -132,6 +170,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       count: breakdown.vulnerableCount,
       countClassName: "font-semibold",
       description: `Analysed packages with at least one published GitHub security advisory (${breakdown.vulnerableCount} of ${breakdown.analysed}).`,
+      onClick: handleTileClick,
     },
     {
       color: REPORT_COLORS.licenseIssue,
@@ -139,6 +178,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       count: breakdown.licenseIssueCount,
       countClassName: "font-semibold",
       description: `Packages whose declared license is not compatible with your target project license (${breakdown.licenseIssueCount} of ${breakdown.analysed}).`,
+      onClick: handleTileClick,
     },
     {
       color: REPORT_COLORS.replaceable,
@@ -146,6 +186,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       count: breakdown.replaceableCount,
       countClassName: "font-semibold",
       description: `Packages with a native JavaScript, micro-utility, or preferred alternative available via the e18e recommendations (${breakdown.replaceableCount} of ${breakdown.analysed}).`,
+      onClick: handleTileClick,
     },
   ];
 

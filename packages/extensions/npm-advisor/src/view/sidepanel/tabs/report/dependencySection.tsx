@@ -1,13 +1,14 @@
 /**
  * External dependencies.
  */
-import React from "react";
+import React, { useMemo } from "react";
 
 /**
  * Internal dependencies.
  */
 import { type DependencyStatsByName } from "../../hooks/useDependencyStats";
 import { DependencyAccordionRow } from "./dependencyAccordionRow";
+import { matchesFilters, type ReportFilterSet } from "./reportFilters";
 
 interface DependencySectionProps {
   title: string;
@@ -16,6 +17,7 @@ interface DependencySectionProps {
   onAddRecommendationToCompare: (packageName: string) => void;
   comparisonBucketNames: Set<string>;
   addingRecommendations: Set<string>;
+  activeFilters: ReportFilterSet;
 }
 
 export const DependencySection: React.FC<DependencySectionProps> = ({
@@ -25,8 +27,19 @@ export const DependencySection: React.FC<DependencySectionProps> = ({
   onAddRecommendationToCompare,
   comparisonBucketNames,
   addingRecommendations,
+  activeFilters,
 }) => {
-  if (packageNames.length === 0) return null;
+  const visibleNames = useMemo(
+    () =>
+      packageNames.filter((name) =>
+        matchesFilters(statsByName[name], activeFilters),
+      ),
+    [packageNames, statsByName, activeFilters],
+  );
+
+  if (packageNames.length === 0 || visibleNames.length === 0) {
+    return null;
+  }
 
   return (
     <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
@@ -35,11 +48,13 @@ export const DependencySection: React.FC<DependencySectionProps> = ({
           {title}
         </h3>
         <span className="text-xs text-slate-500 dark:text-slate-400">
-          {packageNames.length}
+          {activeFilters.size > 0
+            ? `${visibleNames.length} / ${packageNames.length}`
+            : packageNames.length}
         </span>
       </div>
       <div>
-        {packageNames.map((name) => (
+        {visibleNames.map((name) => (
           <DependencyAccordionRow
             key={name}
             packageName={name}
