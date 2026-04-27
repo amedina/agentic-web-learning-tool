@@ -6,7 +6,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 /**
  * Internal dependencies.
  */
-import { getDependencyTree } from "../getDependencyTree";
+import { getDependencyTree } from "../../lib/getDependencyTree";
 import { fetchWithCache } from "../fetchWithCache";
 
 vi.mock("../fetchWithCache", () => ({

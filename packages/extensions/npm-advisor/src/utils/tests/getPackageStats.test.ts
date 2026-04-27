@@ -9,7 +9,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { getPackageStats } from "../../lib/getPackageStats";
 import { fetchNpmPackage } from "../fetchNpmPackage";
 import { fetchBundlephobiaData } from "../fetchBundlephobiaData";
-import { getDependencyTree } from "../getDependencyTree";
+import { getDependencyTree } from "../../lib/getDependencyTree";
 import { fetchModuleReplacements } from "../fetchModuleReplacements";
 import { fetchGithubRepo } from "../fetchGithubRepo";
 import { fetchGithubIssues } from "../fetchGithubIssues";
@@ -19,7 +19,7 @@ import { GithubRateLimitError } from "../githubFetch";
 
 vi.mock("../fetchNpmPackage", () => ({ fetchNpmPackage: vi.fn() }));
 vi.mock("../fetchBundlephobiaData", () => ({ fetchBundlephobiaData: vi.fn() }));
-vi.mock("../getDependencyTree", () => ({ getDependencyTree: vi.fn() }));
+vi.mock("../../lib/getDependencyTree", () => ({ getDependencyTree: vi.fn() }));
 vi.mock("../fetchModuleReplacements", () => ({
   fetchModuleReplacements: vi.fn(),
 }));
@@ -28,7 +28,7 @@ vi.mock("../fetchGithubIssues", () => ({ fetchGithubIssues: vi.fn() }));
 vi.mock("../fetchGithubSecurityAdvisories", () => ({
   fetchGithubSecurityAdvisories: vi.fn(),
 }));
-vi.mock("../checkLicenseCompatibility", () => ({
+vi.mock("../../lib/checkLicenseCompatibility", () => ({
   checkLicenseCompatibility: vi.fn(),
 }));
 vi.mock("../parseGithubUrl", () => ({ parseGithubUrl: vi.fn() }));
