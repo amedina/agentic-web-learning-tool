@@ -17,6 +17,7 @@ import {
   type DependencyStatsByName,
   type DependencyStatsState,
 } from "../../hooks/useDependencyStats";
+import { REPORT_COLORS, dominantDependencyColor } from "./reportColors";
 
 interface DashboardProps {
   statsByName: DependencyStatsByName;
@@ -30,16 +31,6 @@ interface DashboardProps {
     isComplete: boolean;
   };
 }
-
-const COLORS = {
-  prod: "#4C79F4",
-  dev: "#F3AE4E",
-  peer: "#5CC971",
-  vulnerable: "#EC7159",
-  licenseIssue: "#F3AE4E",
-  replaceable: "#8b5cf6",
-  neutral: "#e2e8f0",
-};
 
 const hasRecommendations = (stats: PackageStats): boolean => {
   const recommendations = stats.recommendations;
@@ -118,30 +109,39 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const totalDeclared = prodCount + devCount + peerCount;
   const unanalysedCount = summary.notFound + summary.errored;
 
+  // The Total Dependencies swatch picks the colour of whichever dependency
+  // category is the largest (prod / dev / peer). Production wins ties so a
+  // typical "all three present" project still reads as blue.
+  const totalDependenciesColor = dominantDependencyColor({
+    prod: prodCount,
+    dev: devCount,
+    peer: peerCount,
+  });
+
   const matrixComponents: MatrixComponentProps[] = [
     {
-      color: COLORS.prod,
+      color: totalDependenciesColor,
       title: "Total Dependencies",
       count: totalDeclared,
       countClassName: "font-semibold",
       description: `Packages declared across <strong>dependencies</strong> (${prodCount}), <strong>devDependencies</strong> (${devCount}), and <strong>peerDependencies</strong> (${peerCount}).`,
     },
     {
-      color: COLORS.vulnerable,
+      color: REPORT_COLORS.vulnerable,
       title: "With Vulnerabilities",
       count: breakdown.vulnerableCount,
       countClassName: "font-semibold",
       description: `Analysed packages with at least one published GitHub security advisory (${breakdown.vulnerableCount} of ${breakdown.analysed}).`,
     },
     {
-      color: COLORS.licenseIssue,
+      color: REPORT_COLORS.licenseIssue,
       title: "License Issues",
       count: breakdown.licenseIssueCount,
       countClassName: "font-semibold",
       description: `Packages whose declared license is not compatible with your target project license (${breakdown.licenseIssueCount} of ${breakdown.analysed}).`,
     },
     {
-      color: COLORS.replaceable,
+      color: REPORT_COLORS.replaceable,
       title: "Replaceable",
       count: breakdown.replaceableCount,
       countClassName: "font-semibold",
@@ -176,9 +176,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
             title="Total Dependencies"
             tooltipText={`${prodCount} prod · ${devCount} dev · ${peerCount} peer`}
             data={[
-              { count: prodCount, color: COLORS.prod },
-              { count: devCount, color: COLORS.dev },
-              { count: peerCount, color: COLORS.peer },
+              { count: prodCount, color: REPORT_COLORS.prod },
+              { count: devCount, color: REPORT_COLORS.dev },
+              { count: peerCount, color: REPORT_COLORS.peer },
             ]}
           />
           <CirclePieChart
@@ -186,13 +186,16 @@ export const Dashboard: React.FC<DashboardProps> = ({
             title="With Vulnerabilities"
             tooltipText={`${breakdown.vulnerableCount} of ${breakdown.analysed} analysed`}
             data={[
-              { count: breakdown.vulnerableCount, color: COLORS.vulnerable },
+              {
+                count: breakdown.vulnerableCount,
+                color: REPORT_COLORS.vulnerable,
+              },
               {
                 count: Math.max(
                   0,
                   breakdown.analysed - breakdown.vulnerableCount,
                 ),
-                color: COLORS.neutral,
+                color: REPORT_COLORS.neutral,
               },
             ]}
           />
@@ -203,14 +206,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
             data={[
               {
                 count: breakdown.licenseIssueCount,
-                color: COLORS.licenseIssue,
+                color: REPORT_COLORS.licenseIssue,
               },
               {
                 count: Math.max(
                   0,
                   breakdown.analysed - breakdown.licenseIssueCount,
                 ),
-                color: COLORS.neutral,
+                color: REPORT_COLORS.neutral,
               },
             ]}
           />
@@ -219,13 +222,16 @@ export const Dashboard: React.FC<DashboardProps> = ({
             title="Replaceable"
             tooltipText={`${breakdown.replaceableCount} of ${breakdown.analysed} analysed`}
             data={[
-              { count: breakdown.replaceableCount, color: COLORS.replaceable },
+              {
+                count: breakdown.replaceableCount,
+                color: REPORT_COLORS.replaceable,
+              },
               {
                 count: Math.max(
                   0,
                   breakdown.analysed - breakdown.replaceableCount,
                 ),
-                color: COLORS.neutral,
+                color: REPORT_COLORS.neutral,
               },
             ]}
           />
