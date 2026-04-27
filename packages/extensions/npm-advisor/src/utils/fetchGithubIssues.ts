@@ -1,7 +1,7 @@
 /**
  * Internal dependencies.
  */
-import { fetchWithCache } from "./fetchWithCache";
+import { githubFetch } from "./githubFetch";
 
 /**
  * Fetch Github Issues.
@@ -19,10 +19,10 @@ export async function fetchGithubIssues(owner: string, repo: string) {
   const openCountQuery = `repo:${owner}/${repo} is:issue is:open`;
   const openCountUrl = `https://api.github.com/search/issues?q=${openCountQuery}&per_page=1`;
 
-  const [sampleData, openCountData] = await Promise.all([
-    fetchWithCache(sampleUrl),
-    fetchWithCache(openCountUrl),
-  ]);
+  const [sampleData, openCountData] = (await Promise.all([
+    githubFetch(sampleUrl),
+    githubFetch(openCountUrl),
+  ])) as [any, any];
 
   return {
     items: sampleData?.items ?? (Array.isArray(sampleData) ? sampleData : []),

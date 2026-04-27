@@ -7,23 +7,24 @@ import { describe, it, expect, vi } from "vitest";
  * Internal dependencies.
  */
 import { fetchGithubIssues } from "../fetchGithubIssues";
-import { fetchWithCache } from "../fetchWithCache";
+import { githubFetch } from "../githubFetch";
 
-vi.mock("../fetchWithCache", () => ({
-  fetchWithCache: vi.fn(),
+vi.mock("../githubFetch", () => ({
+  githubFetch: vi.fn(),
 }));
 
 describe("fetchGithubIssues", () => {
-  it("should call fetchWithCache with the correct Github Issues Search URL", async () => {
+  it("should call githubFetch with the correct Github Issues Search URL", async () => {
     const mockData = { items: [] };
-    vi.mocked(fetchWithCache).mockResolvedValueOnce(mockData);
+    vi.mocked(githubFetch).mockResolvedValueOnce(mockData);
+    vi.mocked(githubFetch).mockResolvedValueOnce({ total_count: 0 });
 
     const result = await fetchGithubIssues("facebook", "react");
 
-    const expectedQuery = encodeURIComponent("repo:facebook/react is:issue");
-    expect(fetchWithCache).toHaveBeenCalledWith(
+    const expectedQuery = "repo:facebook/react is:issue";
+    expect(githubFetch).toHaveBeenCalledWith(
       `https://api.github.com/search/issues?q=${expectedQuery}&per_page=100`,
     );
-    expect(result).toEqual({ ...mockData, openTotalCount: null });
+    expect(result).toEqual({ items: [], openTotalCount: 0 });
   });
 });
