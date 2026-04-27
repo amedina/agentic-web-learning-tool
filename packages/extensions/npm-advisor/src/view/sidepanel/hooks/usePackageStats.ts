@@ -7,12 +7,53 @@ import { useState, useEffect, useCallback } from "react";
  * Internal dependencies.
  */
 import { type PackageStats } from "../../../lib";
+import { showGithubRateLimitToastOnce } from "../utils/githubRateLimitToast";
+
+export interface PackageJsonDependencies {
+  dependencies: string[];
+  devDependencies: string[];
+  peerDependencies: string[];
+}
 
 // Cache to prevent reloading state when returning to a previously visited tab
 const urlCache = new Map<
   string,
-  { stats: PackageStats | null; error: string | null }
+  {
+    stats: PackageStats | null;
+    error: string | null;
+    packageJsonDependencies: PackageJsonDependencies | null;
+  }
 >();
+
+const extractDependencies = (pkg: any): PackageJsonDependencies => ({
+  dependencies: pkg?.dependencies ? Object.keys(pkg.dependencies) : [],
+  devDependencies: pkg?.devDependencies ? Object.keys(pkg.devDependencies) : [],
+  peerDependencies: pkg?.peerDependencies
+    ? Object.keys(pkg.peerDependencies)
+    : [],
+});
+
+/**
+ * Returns true when the URL is one the panel would actually display stats
+ * for. Used to ignore browser tab/window switches that move focus to an
+ * unrelated page (docs, search, etc.) — without this guard the Report tab
+ * would tear itself down and refetch dozens of dependency stats every time
+ * the user glances at another tab. We also include the extension's own
+ * options page so navigating to options doesn't lose the loaded report.
+ */
+const isPanelRelevantUrl = (url: string | undefined): boolean => {
+  if (!url) return false;
+  if (url.startsWith("chrome-extension://")) return true;
+  if (url.includes("npmjs.com/package/")) return true;
+  if (
+    url.includes("github.com") &&
+    url.endsWith("package.json") &&
+    url.includes("/blob/")
+  ) {
+    return true;
+  }
+  return false;
+};
 
 export const usePackageStats = () => {
   const [loading, setLoading] = useState(true);
@@ -22,6 +63,8 @@ export const usePackageStats = () => {
   const [isOptionsPage, setIsOptionsPage] = useState(false);
   const [isComparisonPage, setIsComparisonPage] = useState(false);
   const [stats, setStats] = useState<PackageStats | null>(null);
+  const [packageJsonDependencies, setPackageJsonDependencies] =
+    useState<PackageJsonDependencies | null>(null);
   const [comparisonBucket, setComparisonBucket] = useState<any[]>([]);
   const [addingRecommendations, setAddingRecommendations] = useState<
     Set<string>
@@ -63,6 +106,7 @@ export const usePackageStats = () => {
           setIsOptionsPage(true);
           setIsComparisonPage(url.includes("#comparison"));
           setStats(null);
+          setPackageJsonDependencies(null);
           setError(null);
           setIsNavigationMessage(false);
           setLoading(false);
@@ -76,6 +120,7 @@ export const usePackageStats = () => {
           const cached = urlCache.get(url)!;
           setStats(cached.stats);
           setError(cached.error);
+          setPackageJsonDependencies(cached.packageJsonDependencies);
           setIsNavigationMessage(!cached.stats && !cached.error);
           setLoading(false);
           return;
@@ -83,8 +128,10 @@ export const usePackageStats = () => {
         setLoading(true);
         setError(null);
         setIsNavigationMessage(false);
+        setPackageJsonDependencies(null);
 
         let packageName: string | null = null;
+        let parsedDependencies: PackageJsonDependencies | null = null;
         if (url.includes("npmjs.com/package/")) {
           const match = url.match(/npmjs\.com\/package\/([^?#]+)/);
           if (match && match[1]) {
@@ -102,11 +149,26 @@ export const usePackageStats = () => {
             if (pkg && pkg.name) {
               packageName = pkg.name;
             }
+            parsedDependencies = extractDependencies(pkg);
           }
         }
 
+        const hasAnyDeclaredDep =
+          !!parsedDependencies &&
+          (parsedDependencies.dependencies.length > 0 ||
+            parsedDependencies.devDependencies.length > 0 ||
+            parsedDependencies.peerDependencies.length > 0);
+        const dependenciesToExpose = hasAnyDeclaredDep
+          ? parsedDependencies
+          : null;
+        setPackageJsonDependencies(dependenciesToExpose);
+
         if (!packageName) {
-          urlCache.set(url, { stats: null, error: null });
+          urlCache.set(url, {
+            stats: null,
+            error: null,
+            packageJsonDependencies: dependenciesToExpose,
+          });
           setIsNavigationMessage(true);
           setStats(null);
           setLoading(false);
@@ -121,25 +183,48 @@ export const usePackageStats = () => {
               const errorMessage =
                 chrome.runtime.lastError.message ||
                 "Failed to communicate with background script.";
-              urlCache.set(url, { stats: null, error: errorMessage });
+              urlCache.set(url, {
+                stats: null,
+                error: errorMessage,
+                packageJsonDependencies: dependenciesToExpose,
+              });
               setLoading(false);
               return setError(errorMessage);
             }
             if (response && response.success) {
               if (response.data) {
-                urlCache.set(url, { stats: response.data, error: null });
+                // Don't cache a rate-limited result so the next visit retries
+                // once the limit resets or the user adds a token. The toast
+                // for the rate limit is fired from a useEffect below so it
+                // always emits inside a render cycle where the Toaster is
+                // guaranteed to be mounted.
+                if (!response.data.githubRateLimited) {
+                  urlCache.set(url, {
+                    stats: response.data,
+                    error: null,
+                    packageJsonDependencies: dependenciesToExpose,
+                  });
+                }
                 setStats(response.data);
               } else {
                 const errorMessage =
-                  "Failed to load statistics for this package.";
-                urlCache.set(url, { stats: null, error: errorMessage });
+                  "This package was not found on npmjs.com. It may not be published.";
+                urlCache.set(url, {
+                  stats: null,
+                  error: errorMessage,
+                  packageJsonDependencies: dependenciesToExpose,
+                });
                 setError(errorMessage);
               }
             } else {
               const errorMessage =
                 response?.error ||
                 "Failed to load statistics for this package.";
-              urlCache.set(url, { stats: null, error: errorMessage });
+              urlCache.set(url, {
+                stats: null,
+                error: errorMessage,
+                packageJsonDependencies: dependenciesToExpose,
+              });
               setError(errorMessage);
             }
             setLoading(false);
@@ -171,18 +256,27 @@ export const usePackageStats = () => {
         return;
       }
 
+      // Only react to navigations that land on a URL the panel actually
+      // shows stats for. Otherwise switching to e.g. a docs tab tears down
+      // the loaded Report and forces a full refetch on switch-back.
+      if (!isPanelRelevantUrl(url)) return;
+
       fetchCurrentTabStats(url);
     };
 
     const handleTabActivated = (activeInfo: { tabId: number }) => {
       chrome.tabs.get(activeInfo.tabId, (tab) => {
-        if (tab) fetchCurrentTabStats(tab.url);
+        if (tab && isPanelRelevantUrl(tab.url)) {
+          fetchCurrentTabStats(tab.url);
+        }
       });
     };
 
     const handleTabUpdated = (tabId: number) => {
       chrome.tabs.get(tabId, (tab) => {
-        if (tab) fetchCurrentTabStats(tab.url);
+        if (tab && isPanelRelevantUrl(tab.url)) {
+          fetchCurrentTabStats(tab.url);
+        }
       });
     };
 
@@ -234,6 +328,17 @@ export const usePackageStats = () => {
     [],
   );
 
+  // Surface the rate-limit toast in a render-driven effect so it always
+  // fires after the Toaster has mounted. Firing from inside the
+  // chrome.runtime.sendMessage callback was unreliable: on the very first
+  // render the callback could resolve before any Toaster instance had
+  // registered with sonner, and the toast would silently drop.
+  useEffect(() => {
+    if (stats?.githubRateLimited) {
+      showGithubRateLimitToastOnce();
+    }
+  }, [stats?.githubRateLimited]);
+
   const isAddedToCompare = comparisonBucket.some(
     (item) => item?.packageName === stats?.packageName,
   );
@@ -256,5 +361,6 @@ export const usePackageStats = () => {
     comparisonBucketNames,
     addingRecommendations,
     currentTabUrl,
+    packageJsonDependencies,
   };
 };

@@ -7,15 +7,8 @@ import React from "react";
  * Internal dependencies.
  */
 import { type PackageStats } from "../../../../lib";
-import {
-  Header,
-  LicenseCheck,
-  Responsiveness,
-  BundleFootprint,
-  SecurityAdvisories,
-  Recommendations,
-  DependencyTree,
-} from "../../widgets";
+import { Header } from "../../widgets";
+import { PackageInsightsBody } from "./packageInsightsBody";
 
 interface InsightsTabProps {
   stats: PackageStats;
@@ -40,13 +33,7 @@ export const InsightsTab: React.FC<InsightsTabProps> = ({
     stars,
     collaboratorsCount,
     lastCommitDate,
-    responsiveness,
-    securityAdvisories,
-    bundle,
     license,
-    licenseCompatibility,
-    recommendations,
-    dependencyTree,
   } = stats;
 
   return (
@@ -61,22 +48,17 @@ export const InsightsTab: React.FC<InsightsTabProps> = ({
         onAddToCompare={onAddToCompare}
         isAddedToCompare={isAddedToCompare}
         score={stats.score}
+        scoreBreakdown={stats.scoreBreakdown}
+        scoreMaxPoints={stats.scoreMaxPoints}
+        githubRateLimited={stats.githubRateLimited}
       />
 
-      <div className="grid grid-cols-2 gap-4">
-        <LicenseCheck licenseCompatibility={licenseCompatibility} />
-        <Responsiveness responsiveness={responsiveness as any} />
-      </div>
-
-      <BundleFootprint bundle={bundle} />
-      <SecurityAdvisories securityAdvisories={securityAdvisories} />
-      <Recommendations
-        recommendations={recommendations}
-        onAddToCompare={onAddRecommendationToCompare}
+      <PackageInsightsBody
+        stats={stats}
+        onAddRecommendationToCompare={onAddRecommendationToCompare}
         comparisonBucketNames={comparisonBucketNames}
         addingRecommendations={addingRecommendations}
       />
-      <DependencyTree dependencyTree={dependencyTree} />
     </div>
   );
 };

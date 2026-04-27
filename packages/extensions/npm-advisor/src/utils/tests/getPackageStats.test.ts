@@ -9,12 +9,17 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { getPackageStats } from "../../lib/getPackageStats";
 import { fetchNpmPackage } from "../fetchNpmPackage";
 import { fetchBundlephobiaData } from "../fetchBundlephobiaData";
-import { getDependencyTree } from "../getDependencyTree";
+import { getDependencyTree } from "../../lib/getDependencyTree";
 import { fetchModuleReplacements } from "../fetchModuleReplacements";
+import { fetchGithubRepo } from "../fetchGithubRepo";
+import { fetchGithubIssues } from "../fetchGithubIssues";
+import { fetchGithubSecurityAdvisories } from "../fetchGithubSecurityAdvisories";
+import { parseGithubUrl } from "../parseGithubUrl";
+import { GithubRateLimitError } from "../githubFetch";
 
 vi.mock("../fetchNpmPackage", () => ({ fetchNpmPackage: vi.fn() }));
 vi.mock("../fetchBundlephobiaData", () => ({ fetchBundlephobiaData: vi.fn() }));
-vi.mock("../getDependencyTree", () => ({ getDependencyTree: vi.fn() }));
+vi.mock("../../lib/getDependencyTree", () => ({ getDependencyTree: vi.fn() }));
 vi.mock("../fetchModuleReplacements", () => ({
   fetchModuleReplacements: vi.fn(),
 }));
@@ -23,7 +28,7 @@ vi.mock("../fetchGithubIssues", () => ({ fetchGithubIssues: vi.fn() }));
 vi.mock("../fetchGithubSecurityAdvisories", () => ({
   fetchGithubSecurityAdvisories: vi.fn(),
 }));
-vi.mock("../checkLicenseCompatibility", () => ({
+vi.mock("../../lib/checkLicenseCompatibility", () => ({
   checkLicenseCompatibility: vi.fn(),
 }));
 vi.mock("../parseGithubUrl", () => ({ parseGithubUrl: vi.fn() }));
@@ -40,6 +45,16 @@ describe("getPackageStats", () => {
     vi.mocked(fetchModuleReplacements).mockRejectedValue(new Error("err"));
 
     const result = await getPackageStats("unknown-pkg");
+    expect(result).toBeNull();
+  });
+
+  it("should return null when the package is not published on npmjs.com", async () => {
+    vi.mocked(fetchNpmPackage).mockResolvedValueOnce(null);
+    vi.mocked(fetchBundlephobiaData).mockResolvedValueOnce(null);
+    vi.mocked(getDependencyTree).mockResolvedValueOnce(null as any);
+    vi.mocked(fetchModuleReplacements).mockResolvedValue(null);
+
+    const result = await getPackageStats("floating-ui");
     expect(result).toBeNull();
   });
 
@@ -137,5 +152,115 @@ describe("getPackageStats", () => {
     expect(
       lodashStats?.recommendations.microUtilityReplacements?.[0].description,
     ).toContain("typeof val ===");
+  });
+
+  describe("GitHub rate-limit handling", () => {
+    // Configure the GitHub branch so the three GitHub fetchers actually run.
+    function setupNpmDataWithRepo() {
+      vi.mocked(fetchNpmPackage).mockResolvedValueOnce({
+        maintainers: [{ name: "test" }],
+        license: "MIT",
+        repository: { url: "git+https://github.com/foo/bar.git" },
+      });
+      vi.mocked(parseGithubUrl).mockReturnValueOnce({
+        owner: "foo",
+        repo: "bar",
+      });
+      vi.mocked(fetchBundlephobiaData).mockResolvedValueOnce(null);
+      vi.mocked(getDependencyTree).mockResolvedValueOnce(null as any);
+      vi.mocked(fetchModuleReplacements).mockResolvedValue(null);
+    }
+
+    // Rate-limit errors used to be fatal (re-thrown to the caller). Now we
+    // flag the partial result with `githubRateLimited: true` and let the UI
+    // render whatever non-GitHub signals we have, with warning icons next to
+    // the affected fields. The toast still fires from the hook layer.
+    it("flags githubRateLimited and leaves advisories null when advisories hits the limit", async () => {
+      setupNpmDataWithRepo();
+      vi.mocked(fetchGithubRepo).mockResolvedValueOnce({
+        repo: { stars: 100, pushedAt: "2024-01-01" },
+      } as any);
+      vi.mocked(fetchGithubIssues).mockResolvedValueOnce({
+        items: [],
+        openTotalCount: 0,
+      });
+      vi.mocked(fetchGithubSecurityAdvisories).mockRejectedValueOnce(
+        new GithubRateLimitError("https://api.github.com/x"),
+      );
+
+      const result = await getPackageStats("foo");
+
+      expect(result).not.toBeNull();
+      expect(result?.githubRateLimited).toBe(true);
+      expect(result?.securityAdvisories).toBeNull();
+      // The non-rate-limited fields stayed populated.
+      expect(result?.stars).toBe(100);
+    });
+
+    it("flags githubIssuesUnavailable (not githubRateLimited) when the Search API hits the limit", async () => {
+      // Issues queries hit GitHub's Search API which has a much tighter
+      // per-minute quota (30 req/min even authenticated). We track that
+      // separately from the user-actionable Core API rate limit so the
+      // toast and global "rate limit reached" warnings don't fire for a
+      // routine, non-PAT-able throttle.
+      setupNpmDataWithRepo();
+      vi.mocked(fetchGithubRepo).mockResolvedValueOnce({
+        repo: { stars: 100, pushedAt: "2024-01-01" },
+      } as any);
+      vi.mocked(fetchGithubIssues).mockRejectedValueOnce(
+        new GithubRateLimitError("https://api.github.com/search/issues?q=foo"),
+      );
+      vi.mocked(fetchGithubSecurityAdvisories).mockResolvedValueOnce([] as any);
+
+      const result = await getPackageStats("foo");
+
+      expect(result).not.toBeNull();
+      expect(result?.githubIssuesUnavailable).toBe(true);
+      expect(result?.githubRateLimited).toBe(false);
+      expect(result?.responsiveness).toBeNull();
+    });
+
+    it("flags githubRateLimited when repo metadata hits the limit", async () => {
+      setupNpmDataWithRepo();
+      vi.mocked(fetchGithubRepo).mockRejectedValueOnce(
+        new GithubRateLimitError("https://ungh.cc/z"),
+      );
+      vi.mocked(fetchGithubIssues).mockResolvedValueOnce({
+        items: [],
+        openTotalCount: 0,
+      });
+      vi.mocked(fetchGithubSecurityAdvisories).mockResolvedValueOnce([] as any);
+
+      const result = await getPackageStats("foo");
+
+      expect(result).not.toBeNull();
+      expect(result?.githubRateLimited).toBe(true);
+      expect(result?.stars).toBeNull();
+      expect(result?.lastCommitDate).toBeNull();
+    });
+
+    it("still returns partial stats for non-rate-limit GitHub errors", async () => {
+      setupNpmDataWithRepo();
+      vi.mocked(fetchGithubRepo).mockResolvedValueOnce({
+        repo: { stars: 100, pushedAt: "2024-01-01" },
+      } as any);
+      vi.mocked(fetchGithubIssues).mockResolvedValueOnce({
+        items: [],
+        openTotalCount: 0,
+      });
+      // A non-rate-limit failure (network blip, 5xx, etc.) should be
+      // swallowed so we still return what we have.
+      vi.mocked(fetchGithubSecurityAdvisories).mockRejectedValueOnce(
+        new Error("Network error"),
+      );
+
+      const result = await getPackageStats("foo");
+
+      expect(result).not.toBeNull();
+      expect(result?.securityAdvisories).toBeNull();
+      expect(result?.stars).toBe(100);
+      // Non-rate-limit failures don't flip the rate-limit flag.
+      expect(result?.githubRateLimited).toBe(false);
+    });
   });
 });

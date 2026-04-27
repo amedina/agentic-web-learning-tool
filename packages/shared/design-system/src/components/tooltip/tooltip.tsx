@@ -25,6 +25,8 @@ export interface TooltipProps {
   placement?: TooltipPlacement;
   disabled?: boolean;
   contentClassName?: string;
+  /** Milliseconds before the tooltip shows on hover. Pass 0 for instant. */
+  delayDuration?: number;
 }
 
 const TooltipComponent: React.FC<TooltipProps> = ({
@@ -34,6 +36,7 @@ const TooltipComponent: React.FC<TooltipProps> = ({
   placement = 'top',
   disabled = false,
   contentClassName = '',
+  delayDuration,
 }) => {
   const tooltipContent = useMemo(() => {
     if (body) {
@@ -56,8 +59,8 @@ const TooltipComponent: React.FC<TooltipProps> = ({
   }
 
   return (
-    <TooltipProvider data-slot="tooltip-provider">
-      <Root data-slot="tooltip">
+    <TooltipProvider data-slot="tooltip-provider" delayDuration={delayDuration}>
+      <Root data-slot="tooltip" delayDuration={delayDuration}>
         <TooltipTrigger asChild data-slot="tooltip-trigger">
           {children}
         </TooltipTrigger>

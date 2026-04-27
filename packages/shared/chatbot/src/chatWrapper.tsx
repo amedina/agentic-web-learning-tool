@@ -97,9 +97,18 @@ const SidePanel = () => {
 
   const tabbedUI = useMemo(() => {
     if (tabsList.length > 1) {
+      // The persisted `activeTab` can refer to a tab that isn't present in
+      // the current `tabsList` (e.g. "report" was persisted on a github
+      // package.json but the user opened an npm package page where no Report
+      // tab is rendered). Fall back to the first tab so the content area
+      // never ends up pointing at a non-existent tab.
+      const resolvedActiveTab =
+        tabsList.find((t) => t.value === activeTab)?.value ??
+        tabsList[0]?.value;
+
       return (
         <Tabs
-          value={activeTab || tabsList[0]?.value}
+          value={resolvedActiveTab}
           onValueChange={setActiveTab}
           className="flex flex-col h-full w-full bg-background"
         >
@@ -122,9 +131,7 @@ const SidePanel = () => {
                 left: `${
                   Math.max(
                     0,
-                    tabsList.findIndex(
-                      (t) => t.value === (activeTab || tabsList[0]?.value)
-                    )
+                    tabsList.findIndex((t) => t.value === resolvedActiveTab)
                   ) *
                   (100 / tabsList.length)
                 }%`,
@@ -133,11 +140,28 @@ const SidePanel = () => {
           </TabsList>
           {subHeaderNode}
           {tabsList.map((tab) => {
+            // Force-mount every tab except `chat` so consumer-provided tabs
+            // (e.g. npm-advisor's Report tab, which fans out 30+ dep stat
+            // fetches) retain their in-component state when the user
+            // switches away and back. Without this, Radix unmounts the
+            // inactive TabsContent and the Report's worker pool re-queues
+            // every uncached entry on every switch, wasting GitHub API
+            // quota. The chat tab stays lazy-mounted because its assistant
+            // runtime is heavy and not safe to instantiate before needed.
+            //
+            // Inactive force-mounted tabs are hidden via Radix's
+            // `data-state="inactive"` (Tailwind's data-attribute variant
+            // collapses them to display:none). Using a class is more
+            // robust than the `hidden` HTML attribute, which loses to the
+            // surrounding flex-1 layout in some browser/CSS combinations
+            // and leaves an inactive tab's content occupying flex space.
+            const shouldForceMount = tab.value !== 'chat';
             return (
               <TabsContent
                 key={tab.value}
                 value={tab.value}
-                className={`flex-1 p-0 border-none mt-0 ${activeTab !== 'chat' ? 'overflow-y-auto' : 'overflow-hidden'}`}
+                forceMount={shouldForceMount ? true : undefined}
+                className={`flex-1 p-0 border-none mt-0 data-[state=inactive]:hidden ${activeTab !== 'chat' ? 'overflow-y-auto' : 'overflow-hidden'}`}
               >
                 {tab.content}
               </TabsContent>

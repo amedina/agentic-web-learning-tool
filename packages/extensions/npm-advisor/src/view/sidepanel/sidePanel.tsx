@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { PropProvider, SidepanelChatbot } from "@google-awlt/chatbot";
-import { SidebarProvider } from "@google-awlt/design-system";
+import { SidebarProvider, Toaster } from "@google-awlt/design-system";
 /**
  * Internal dependencies
  */
@@ -11,6 +11,7 @@ import {
   ErrorState,
   NavigationMessage,
   InsightsTab,
+  ReportTab,
   ComparisonTab,
   AssistantMessage,
   UserMessage,
@@ -39,22 +40,61 @@ const SidePanel = () => {
     comparisonBucketNames,
     addingRecommendations,
     currentTabUrl,
+    packageJsonDependencies,
   } = usePackageStats();
 
-  if (loading) return <LoadingState />;
-  if (isNavigationMessage) return <NavigationMessage url={currentTabUrl} />;
+  const hasAnalysableDependencies =
+    !!packageJsonDependencies &&
+    (packageJsonDependencies.dependencies.length > 0 ||
+      packageJsonDependencies.devDependencies.length > 0 ||
+      packageJsonDependencies.peerDependencies.length > 0);
+
+  if (loading) {
+    return (
+      <>
+        <Toaster position="bottom-center" />
+        <LoadingState />
+      </>
+    );
+  }
+  if (isNavigationMessage) {
+    return (
+      <>
+        <Toaster position="bottom-center" />
+        <NavigationMessage url={currentTabUrl} />
+      </>
+    );
+  }
 
   if (isOptionsPage) {
     if (isComparisonPage) {
-      return <ComparisonPageSidePanel comparisonBucket={comparisonBucket} />;
+      return (
+        <>
+          <Toaster position="bottom-center" />
+          <ComparisonPageSidePanel comparisonBucket={comparisonBucket} />
+        </>
+      );
     }
-    return <OptionsPageSidePanel />;
+    return (
+      <>
+        <Toaster position="bottom-center" />
+        <OptionsPageSidePanel />
+      </>
+    );
   }
 
-  if (error || !stats) return <ErrorState error={error} />;
+  if (error || !stats) {
+    return (
+      <>
+        <Toaster position="bottom-center" />
+        <ErrorState error={error} />
+      </>
+    );
+  }
 
   return (
     <ErrorBoundary>
+      <Toaster position="bottom-center" />
       <ThemeProvider>
         <PropProvider
           allowToolCalling={false}
@@ -77,6 +117,24 @@ const SidePanel = () => {
                 />
               ),
             },
+            ...(hasAnalysableDependencies && packageJsonDependencies
+              ? [
+                  {
+                    value: "report",
+                    label: "Report",
+                    content: (
+                      <ReportTab
+                        packageJsonDependencies={packageJsonDependencies}
+                        onAddRecommendationToCompare={
+                          handleAddRecommendationToCompare
+                        }
+                        comparisonBucketNames={comparisonBucketNames}
+                        addingRecommendations={addingRecommendations}
+                      />
+                    ),
+                  },
+                ]
+              : []),
           ]}
           suffixTabs={
             comparisonBucket.length > 0

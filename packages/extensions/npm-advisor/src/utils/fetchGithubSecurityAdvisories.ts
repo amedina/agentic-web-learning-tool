@@ -1,7 +1,7 @@
 /**
  * Internal dependencies.
  */
-import { fetchWithCache } from "./fetchWithCache";
+import { githubFetch } from "./githubFetch";
 
 /**
  * Fetch Github Security Advisories.
@@ -11,5 +11,5 @@ export async function fetchGithubSecurityAdvisories(
   repo: string,
 ) {
   const url = `https://api.github.com/repos/${owner}/${repo}/security-advisories`;
-  return fetchWithCache(url);
+  return githubFetch(url);
 }

@@ -12,6 +12,7 @@ import {
  */
 import ThemeToggleSection from "./themeToggleSection";
 import DataManagementSection from "./dataManagementSection";
+import GithubAuthSection from "./githubAuthSection";
 import ResetConfirmationDialog from "./resetConfirmationDialog";
 import { toast } from "@google-awlt/design-system";
 
@@ -170,6 +171,8 @@ export default function SettingsTab() {
           </div>
         </div>
       </OptionsPageTabSection>
+
+      <GithubAuthSection />
 
       <DataManagementSection setIsResetModalOpen={setIsResetModalOpen} />
 

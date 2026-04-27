@@ -6,7 +6,7 @@ import { describe, it, expect, vi } from "vitest";
 /**
  * Internal dependencies.
  */
-import { checkLicenseCompatibility } from "../checkLicenseCompatibility";
+import { checkLicenseCompatibility } from "../../lib/checkLicenseCompatibility";
 
 vi.mock("../../assets/licence-comp-matrixseqexpl.json", () => ({
   default: {
