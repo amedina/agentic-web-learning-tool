@@ -197,20 +197,26 @@ describe("getPackageStats", () => {
       expect(result?.stars).toBe(100);
     });
 
-    it("flags githubRateLimited when issues hits the limit", async () => {
+    it("flags githubIssuesUnavailable (not githubRateLimited) when the Search API hits the limit", async () => {
+      // Issues queries hit GitHub's Search API which has a much tighter
+      // per-minute quota (30 req/min even authenticated). We track that
+      // separately from the user-actionable Core API rate limit so the
+      // toast and global "rate limit reached" warnings don't fire for a
+      // routine, non-PAT-able throttle.
       setupNpmDataWithRepo();
       vi.mocked(fetchGithubRepo).mockResolvedValueOnce({
         repo: { stars: 100, pushedAt: "2024-01-01" },
       } as any);
       vi.mocked(fetchGithubIssues).mockRejectedValueOnce(
-        new GithubRateLimitError("https://api.github.com/y"),
+        new GithubRateLimitError("https://api.github.com/search/issues?q=foo"),
       );
       vi.mocked(fetchGithubSecurityAdvisories).mockResolvedValueOnce([] as any);
 
       const result = await getPackageStats("foo");
 
       expect(result).not.toBeNull();
-      expect(result?.githubRateLimited).toBe(true);
+      expect(result?.githubIssuesUnavailable).toBe(true);
+      expect(result?.githubRateLimited).toBe(false);
       expect(result?.responsiveness).toBeNull();
     });
 

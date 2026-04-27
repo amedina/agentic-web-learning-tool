@@ -11,13 +11,24 @@ export interface ResponsivenessProps {
     openIssuesCount: number;
     issuesUrl: string;
   } | null;
-  /** True when a GitHub rate-limit prevented this signal from loading. */
+  /**
+   * True when a GitHub Core API rate-limit prevented signals from loading
+   * (PAT-actionable). Reused here as a fallback indicator when the more
+   * specific `githubIssuesUnavailable` flag isn't set.
+   */
   githubRateLimited?: boolean;
+  /**
+   * True when the GitHub Search API call for issue activity was throttled.
+   * The Search quota (30 req/min) trips routinely during a Report-tab
+   * scan and isn't user-actionable, so we surface a softer hint here.
+   */
+  githubIssuesUnavailable?: boolean;
 }
 
 export const Responsiveness: React.FC<ResponsivenessProps> = ({
   responsiveness,
   githubRateLimited = false,
+  githubIssuesUnavailable = false,
 }) => {
   return (
     <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4 flex flex-col justify-between">
@@ -52,13 +63,17 @@ export const Responsiveness: React.FC<ResponsivenessProps> = ({
               </div>
             </div>
           </>
-        ) : githubRateLimited ? (
+        ) : githubIssuesUnavailable || githubRateLimited ? (
           <p
             className="text-sm flex items-start gap-1.5 text-amber-700 dark:text-amber-400"
-            title="Couldn't fetch — GitHub API rate limit reached. Add a Personal Access Token in Options."
+            title={
+              githubRateLimited
+                ? "Couldn't fetch — GitHub API rate limit reached. Add a Personal Access Token in Options."
+                : "GitHub temporarily limited the issues query (Search API has a tight per-minute quota). Try again in a minute."
+            }
           >
             <AlertCircle size={14} className="mt-0.5 shrink-0" />
-            <span>Couldn&rsquo;t fetch — GitHub API rate limit reached.</span>
+            <span>Couldn&rsquo;t fetch issue activity right now.</span>
           </p>
         ) : (
           <p className="text-sm text-slate-500 dark:text-slate-400">

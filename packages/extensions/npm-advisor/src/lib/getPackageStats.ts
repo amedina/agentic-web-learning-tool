@@ -58,13 +58,21 @@ export interface PackageStats {
   scoreBreakdown: ScoreBreakdownItem[];
   scoreMaxPoints: number;
   /**
-   * True when at least one GitHub API call needed to populate the stats was
-   * rejected with a rate-limit error. The affected fields (responsiveness,
-   * security advisories, stars, last commit date) are left null and the UI
-   * surfaces a warning icon next to each so the user knows the gap is
-   * transient and not the package's actual state.
+   * True when a GitHub Core REST API call (repo metadata, security
+   * advisories) failed due to a rate limit — i.e. the kind of failure
+   * adding a Personal Access Token would mitigate. Drives the toast and
+   * the Header / SecurityAdvisories warning indicators.
    */
   githubRateLimited: boolean;
+  /**
+   * True when the GitHub Search API call used to gather issue activity
+   * was throttled. Tracked separately because Search has a much tighter
+   * per-minute quota (30 req/min even authenticated) that routinely
+   * trips during a multi-dep scan and is not user-actionable. We render
+   * a softer "couldn't fetch right now" hint on the Responsiveness
+   * widget rather than the alarming global rate-limit warning.
+   */
+  githubIssuesUnavailable: boolean;
 }
 
 export interface ScoreBreakdownItem {
@@ -231,35 +239,49 @@ export async function getPackageStats(
   let lastCommitDate = null;
   let responsiveness = null;
   let securityAdvisories = null;
-  // Set to true when any GitHub fetch returns a rate-limit error. The caller
-  // uses this to surface a toast and the UI uses it to mark the affected
-  // stats with a warning icon, instead of failing the whole stats call.
+  // GitHub has separate rate limits per resource. We track the
+  // user-actionable one (Core REST API, raised by adding a PAT) on
+  // `githubRateLimited`; that's what the toast and Header / Security
+  // advisory warnings key off of. The Search API has a much tighter
+  // per-minute quota (30 req/min even authenticated) which routinely
+  // throttles when scanning many deps in parallel; flagging that as a
+  // global "rate limit reached" was misleading — there's no PAT-able
+  // fix and the toast/warning suggested the whole scan was broken when
+  // typically only one or two deps' issue samples were affected. We
+  // keep the search-specific signal in its own flag so the
+  // Responsiveness widget can show a softer "couldn't fetch right now"
+  // hint without claiming a global rate limit.
   let githubRateLimited = false;
+  let githubIssuesUnavailable = false;
 
   if (githubInfo) {
     try {
       const { owner, repo } = githubInfo;
 
-      // GitHub rate-limit errors are flagged but not re-thrown — every other
-      // signal (npm data, bundlephobia, replacements) is unaffected, so we
-      // would rather render a partial result than an error screen. Other
-      // failures degrade silently to null as before.
-      const swallowGithubError = (label: string) => (error: unknown) => {
-        if (error instanceof GithubRateLimitError) {
-          githubRateLimited = true;
-        } else {
-          console.warn(
-            `[NPM Advisor] ${label} fetch failed:`,
-            (error as Error)?.message,
-          );
-        }
-        return null;
-      };
+      // Core API failures (repo / advisories) flip `githubRateLimited`.
+      // Search API failures (issues) flip the issues-specific flag only.
+      const swallowGithubError =
+        (label: string, isSearchApi = false) =>
+        (error: unknown) => {
+          if (error instanceof GithubRateLimitError) {
+            if (isSearchApi) {
+              githubIssuesUnavailable = true;
+            } else {
+              githubRateLimited = true;
+            }
+          } else {
+            console.warn(
+              `[NPM Advisor] ${label} fetch failed:`,
+              (error as Error)?.message,
+            );
+          }
+          return null;
+        };
 
       const [repoData, issuesData, advisoriesData] = await Promise.all([
         fetchGithubRepo(owner, repo).catch(swallowGithubError("GitHub Repo")),
         fetchGithubIssues(owner, repo).catch(
-          swallowGithubError("GitHub Issues"),
+          swallowGithubError("GitHub Issues", true),
         ),
         fetchGithubSecurityAdvisories(owner, repo).catch(
           swallowGithubError("GitHub Advisories"),
@@ -468,9 +490,11 @@ export async function getPackageStats(
   let responsivenessStatus: ScoreBreakdownItem["status"] = "scored";
   const closedRatio = responsiveness?.closedIssuesRatio ?? null;
   if (!responsiveness || closedRatio === null) {
-    responsivenessReason = githubRateLimited
-      ? "GitHub rate limit reached — couldn't fetch issue activity"
-      : "Issue activity not available";
+    if (githubIssuesUnavailable || githubRateLimited) {
+      responsivenessReason = "Couldn't fetch issue activity right now";
+    } else {
+      responsivenessReason = "Issue activity not available";
+    }
     responsivenessStatus = "unavailable";
   } else {
     responsivenessPoints = Math.round(closedRatio * 30);
@@ -552,6 +576,7 @@ export async function getPackageStats(
     scoreBreakdown,
     scoreMaxPoints,
     githubRateLimited,
+    githubIssuesUnavailable,
   };
 
   return stats;
