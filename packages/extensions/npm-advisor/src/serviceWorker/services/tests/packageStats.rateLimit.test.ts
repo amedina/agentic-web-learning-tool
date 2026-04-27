@@ -10,18 +10,15 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
  * mid-scan caused partial-but-successful-looking PackageStats objects to be
  * cached, so a subsequent load showed fewer vulnerabilities than the first.
  *
- * The fix is two-fold:
- * 1. `getPackageStats` re-throws GithubRateLimitError instead of swallowing
- *    it into a partial result.
- * 2. `packageStatsService` deletes the cache key on any thrown error, so the
- *    next call retries from scratch.
- *
- * These tests exercise the full SW-side path:
- *   getStats → getPackageStats (mocked) → cache state → second getStats call.
+ * The current shape of the fix:
+ * 1. `getPackageStats` flags the result with `githubRateLimited: true`
+ *    instead of throwing — partial stats render with warning icons.
+ * 2. `packageStatsService` skips caching any result whose
+ *    `githubRateLimited` flag is true, so the next call retries from
+ *    scratch (e.g. once a PAT is added or the limit resets).
  */
 import { packageStatsService } from "../packageStats";
 import { getPackageStats } from "../../../lib";
-import { GithubRateLimitError } from "../../../utils/githubFetch";
 
 vi.mock("../../../lib", async () => {
   const actual =
@@ -52,14 +49,16 @@ describe("packageStatsService — rate-limit cache eviction", () => {
     freshService();
   });
 
-  it("getStats does not cache a rate-limit failure (next call retries)", async () => {
-    vi.mocked(getPackageStats).mockRejectedValueOnce(
-      new GithubRateLimitError("https://api.github.com/x"),
-    );
+  it("getStats does not cache a rate-limited result (next call retries)", async () => {
+    const partialStats = {
+      packageName: "express",
+      githubRateLimited: true,
+      securityAdvisories: null,
+    };
+    vi.mocked(getPackageStats).mockResolvedValueOnce(partialStats as any);
 
-    await expect(
-      packageStatsService.getStats("express"),
-    ).rejects.toBeInstanceOf(GithubRateLimitError);
+    const firstResult = await packageStatsService.getStats("express");
+    expect(firstResult).toEqual(partialStats);
 
     // The cache must be empty so the next call goes through to the network.
     expect((packageStatsService as any).statsCache.has("express")).toBe(false);
@@ -68,6 +67,7 @@ describe("packageStatsService — rate-limit cache eviction", () => {
     // getStats call should hit getPackageStats again, not return stale data.
     const realStats = {
       packageName: "express",
+      githubRateLimited: false,
       securityAdvisories: {
         critical: 0,
         high: 0,
@@ -84,14 +84,15 @@ describe("packageStatsService — rate-limit cache eviction", () => {
     expect(result).toEqual(realStats);
   });
 
-  it("getLightStats does not cache a rate-limit failure (next call retries)", async () => {
-    vi.mocked(getPackageStats).mockRejectedValueOnce(
-      new GithubRateLimitError("https://api.github.com/y"),
-    );
+  it("getLightStats does not cache a rate-limited result (next call retries)", async () => {
+    const partialStats = {
+      packageName: "body-parser",
+      githubRateLimited: true,
+      securityAdvisories: null,
+    };
+    vi.mocked(getPackageStats).mockResolvedValueOnce(partialStats as any);
 
-    await expect(
-      packageStatsService.getLightStats("body-parser", "runtime"),
-    ).rejects.toBeInstanceOf(GithubRateLimitError);
+    await packageStatsService.getLightStats("body-parser", "runtime");
 
     expect(
       (packageStatsService as any).lightStatsCache.has("body-parser::runtime"),
@@ -99,6 +100,7 @@ describe("packageStatsService — rate-limit cache eviction", () => {
 
     const realStats = {
       packageName: "body-parser",
+      githubRateLimited: false,
       securityAdvisories: {
         critical: 1,
         high: 0,

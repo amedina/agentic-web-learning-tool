@@ -57,6 +57,14 @@ export interface PackageStats {
   score: number;
   scoreBreakdown: ScoreBreakdownItem[];
   scoreMaxPoints: number;
+  /**
+   * True when at least one GitHub API call needed to populate the stats was
+   * rejected with a rate-limit error. The affected fields (responsiveness,
+   * security advisories, stars, last commit date) are left null and the UI
+   * surfaces a warning icon next to each so the user knows the gap is
+   * transient and not the package's actual state.
+   */
+  githubRateLimited: boolean;
 }
 
 export interface ScoreBreakdownItem {
@@ -210,34 +218,38 @@ export async function getPackageStats(
   let lastCommitDate = null;
   let responsiveness = null;
   let securityAdvisories = null;
+  // Set to true when any GitHub fetch returns a rate-limit error. The caller
+  // uses this to surface a toast and the UI uses it to mark the affected
+  // stats with a warning icon, instead of failing the whole stats call.
+  let githubRateLimited = false;
 
   if (githubInfo) {
     try {
       const { owner, repo } = githubInfo;
 
-      // Rate-limit errors must propagate so the caller can invalidate caches
-      // and surface a toast. Other failures degrade silently to null so a
-      // missing optional signal doesn't fail the whole stats call.
-      const swallowExceptRateLimit = (label: string) => (error: unknown) => {
+      // GitHub rate-limit errors are flagged but not re-thrown — every other
+      // signal (npm data, bundlephobia, replacements) is unaffected, so we
+      // would rather render a partial result than an error screen. Other
+      // failures degrade silently to null as before.
+      const swallowGithubError = (label: string) => (error: unknown) => {
         if (error instanceof GithubRateLimitError) {
-          throw error;
+          githubRateLimited = true;
+        } else {
+          console.warn(
+            `[NPM Advisor] ${label} fetch failed:`,
+            (error as Error)?.message,
+          );
         }
-        console.warn(
-          `[NPM Advisor] ${label} fetch failed:`,
-          (error as Error)?.message,
-        );
         return null;
       };
 
       const [repoData, issuesData, advisoriesData] = await Promise.all([
-        fetchGithubRepo(owner, repo).catch(
-          swallowExceptRateLimit("GitHub Repo"),
-        ),
+        fetchGithubRepo(owner, repo).catch(swallowGithubError("GitHub Repo")),
         fetchGithubIssues(owner, repo).catch(
-          swallowExceptRateLimit("GitHub Issues"),
+          swallowGithubError("GitHub Issues"),
         ),
         fetchGithubSecurityAdvisories(owner, repo).catch(
-          swallowExceptRateLimit("GitHub Advisories"),
+          swallowGithubError("GitHub Advisories"),
         ),
       ]);
 
@@ -295,15 +307,18 @@ export async function getPackageStats(
         };
       }
     } catch (e) {
-      // Rate-limit errors must surface to the caller so the stats request
-      // fails fast and isn't cached as a partial-but-successful result.
+      // Per-fetch errors are already swallowed by `swallowGithubError`. This
+      // outer catch only triggers if something synchronous in the GitHub
+      // block threw, which we don't want to be fatal either — flag it as a
+      // rate-limit for any GithubRateLimitError that escaped, otherwise log.
       if (e instanceof GithubRateLimitError) {
-        throw e;
+        githubRateLimited = true;
+      } else {
+        console.error(
+          `[NPM Advisor] Failed to fetch some Github data for ${githubInfo.owner}/${githubInfo.repo}`,
+          e,
+        );
       }
-      console.error(
-        `[NPM Advisor] Failed to fetch some Github data for ${githubInfo.owner}/${githubInfo.repo}`,
-        e,
-      );
     }
   } else {
     console.warn(
@@ -435,7 +450,9 @@ export async function getPackageStats(
   let responsivenessStatus: ScoreBreakdownItem["status"] = "scored";
   const closedRatio = responsiveness?.closedIssuesRatio ?? null;
   if (!responsiveness || closedRatio === null) {
-    responsivenessReason = "Issue activity not available";
+    responsivenessReason = githubRateLimited
+      ? "GitHub rate limit reached — couldn't fetch issue activity"
+      : "Issue activity not available";
     responsivenessStatus = "unavailable";
   } else {
     responsivenessPoints = Math.round(closedRatio * 30);
@@ -516,6 +533,7 @@ export async function getPackageStats(
     score,
     scoreBreakdown,
     scoreMaxPoints,
+    githubRateLimited,
   };
 
   return stats;

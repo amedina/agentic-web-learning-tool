@@ -71,7 +71,14 @@ class PackageStatsService {
               : DEFAULT_TARGET_PROJECT_LICENSE;
 
           const stats = await getPackageStats(packageName, targetLicense);
-          this.statsCache.set(packageName, stats);
+          if (stats?.githubRateLimited) {
+            // Don't cache a rate-limited result — once the limit resets or
+            // the user adds a PAT we want the next read to retry, not
+            // re-display the same partial answer.
+            this.statsCache.delete(packageName);
+          } else {
+            this.statsCache.set(packageName, stats);
+          }
           return stats;
         } catch (err) {
           this.statsCache.delete(packageName);
@@ -127,7 +134,11 @@ class PackageStatsService {
             includeDependencyTree: false,
             dependencyCategory,
           });
-          this.lightStatsCache.set(cacheKey, stats);
+          if (stats?.githubRateLimited) {
+            this.lightStatsCache.delete(cacheKey);
+          } else {
+            this.lightStatsCache.set(cacheKey, stats);
+          }
           return stats;
         } catch (err) {
           this.lightStatsCache.delete(cacheKey);
