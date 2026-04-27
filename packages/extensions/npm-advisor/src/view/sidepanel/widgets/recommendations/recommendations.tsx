@@ -94,41 +94,44 @@ export const Recommendations: React.FC<RecommendationsProps> = ({
   const renderItem = (r: any, idx: number, showExample = true) => {
     const linkUrl = getRecommendationUrl(r);
     const npmPackageName = getNpmPackageName(r);
-    const isNpmLink = npmPackageName !== null;
     const label = r.description || r.replacementModule || r.id;
 
     return (
-      <div key={idx} className="mb-3 last:mb-0">
-        <div className="flex items-center">
-          {linkUrl ? (
-            <a
-              href={linkUrl}
-              {...(!isNpmLink ? { target: "_blank", rel: "noreferrer" } : {})}
-              className="text-[13px] leading-snug text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline transition-colors inline-flex items-center gap-1"
-              title={`View ${label}`}
-            >
-              {label}
-              {!isNpmLink && (
-                <ExternalLink
-                  size={10}
-                  className="text-slate-400 dark:text-slate-500 shrink-0"
-                />
-              )}
-            </a>
-          ) : (
-            <p className="text-[13px] leading-snug">{label}</p>
-          )}
-          {npmPackageName && onAddToCompare && (
-            <AddToCompareButton
-              packageName={npmPackageName}
-              onAddToCompare={onAddToCompare}
-              isAdded={comparisonBucketNames.has(npmPackageName)}
-              isAdding={addingRecommendations.has(npmPackageName)}
-            />
-          )}
+      <div
+        key={idx}
+        className="py-2 border-b border-slate-200/80 dark:border-slate-600 last:border-b-0"
+      >
+        <div className="flex items-center justify-between gap-2">
+          <span
+            className="text-[13px] font-mono font-medium text-slate-800 dark:text-slate-200 truncate"
+            title={label}
+          >
+            {label}
+          </span>
+          <div className="flex items-center shrink-0">
+            {linkUrl && (
+              <a
+                href={linkUrl}
+                target="_blank"
+                rel="noreferrer"
+                title={`View ${label}`}
+                className="inline-flex items-center justify-center w-5 h-5 rounded-md border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+              >
+                <ExternalLink size={10} />
+              </a>
+            )}
+            {npmPackageName && onAddToCompare && (
+              <AddToCompareButton
+                packageName={npmPackageName}
+                onAddToCompare={onAddToCompare}
+                isAdded={comparisonBucketNames.has(npmPackageName)}
+                isAdding={addingRecommendations.has(npmPackageName)}
+              />
+            )}
+          </div>
         </div>
         {showExample && r.example && (
-          <code className="block bg-slate-100 dark:bg-slate-600 px-2 py-1.5 rounded text-xs font-mono text-slate-800 dark:text-slate-200 mt-1.5 border border-slate-200/60 dark:border-slate-500 overflow-x-auto">
+          <code className="block bg-slate-100 dark:bg-slate-600 px-2 py-1.5 rounded text-xs font-mono text-slate-800 dark:text-slate-200 mt-2 border border-slate-200/60 dark:border-slate-500 overflow-x-auto">
             {r.example}
           </code>
         )}
