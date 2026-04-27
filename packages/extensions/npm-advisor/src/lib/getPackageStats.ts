@@ -8,6 +8,7 @@ import { fetchGithubSecurityAdvisories } from "../utils/fetchGithubSecurityAdvis
 import { fetchBundlephobiaData } from "../utils/fetchBundlephobiaData";
 import { getDependencyTree, type DependencyTree } from "./getDependencyTree";
 import { fetchModuleReplacements } from "../utils/fetchModuleReplacements";
+import { GithubRateLimitError } from "../utils/githubFetch";
 
 /**
  * External dependencies.
@@ -214,22 +215,30 @@ export async function getPackageStats(
     try {
       const { owner, repo } = githubInfo;
 
+      // Rate-limit errors must propagate so the caller can invalidate caches
+      // and surface a toast. Other failures degrade silently to null so a
+      // missing optional signal doesn't fail the whole stats call.
+      const swallowExceptRateLimit = (label: string) => (error: unknown) => {
+        if (error instanceof GithubRateLimitError) {
+          throw error;
+        }
+        console.warn(
+          `[NPM Advisor] ${label} fetch failed:`,
+          (error as Error)?.message,
+        );
+        return null;
+      };
+
       const [repoData, issuesData, advisoriesData] = await Promise.all([
-        fetchGithubRepo(owner, repo).catch((e) => {
-          console.warn(`[NPM Advisor] GitHub Repo fetch failed:`, e.message);
-          return null;
-        }),
-        fetchGithubIssues(owner, repo).catch((e) => {
-          console.warn(`[NPM Advisor] GitHub Issues fetch failed:`, e.message);
-          return null;
-        }),
-        fetchGithubSecurityAdvisories(owner, repo).catch((e) => {
-          console.warn(
-            `[NPM Advisor] GitHub Advisories fetch failed:`,
-            e.message,
-          );
-          return null;
-        }),
+        fetchGithubRepo(owner, repo).catch(
+          swallowExceptRateLimit("GitHub Repo"),
+        ),
+        fetchGithubIssues(owner, repo).catch(
+          swallowExceptRateLimit("GitHub Issues"),
+        ),
+        fetchGithubSecurityAdvisories(owner, repo).catch(
+          swallowExceptRateLimit("GitHub Advisories"),
+        ),
       ]);
 
       if (repoData && repoData.repo) {
@@ -286,6 +295,11 @@ export async function getPackageStats(
         };
       }
     } catch (e) {
+      // Rate-limit errors must surface to the caller so the stats request
+      // fails fast and isn't cached as a partial-but-successful result.
+      if (e instanceof GithubRateLimitError) {
+        throw e;
+      }
       console.error(
         `[NPM Advisor] Failed to fetch some Github data for ${githubInfo.owner}/${githubInfo.repo}`,
         e,

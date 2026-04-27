@@ -11,6 +11,11 @@ import { fetchNpmPackage } from "../fetchNpmPackage";
 import { fetchBundlephobiaData } from "../fetchBundlephobiaData";
 import { getDependencyTree } from "../getDependencyTree";
 import { fetchModuleReplacements } from "../fetchModuleReplacements";
+import { fetchGithubRepo } from "../fetchGithubRepo";
+import { fetchGithubIssues } from "../fetchGithubIssues";
+import { fetchGithubSecurityAdvisories } from "../fetchGithubSecurityAdvisories";
+import { parseGithubUrl } from "../parseGithubUrl";
+import { GithubRateLimitError } from "../githubFetch";
 
 vi.mock("../fetchNpmPackage", () => ({ fetchNpmPackage: vi.fn() }));
 vi.mock("../fetchBundlephobiaData", () => ({ fetchBundlephobiaData: vi.fn() }));
@@ -147,5 +152,97 @@ describe("getPackageStats", () => {
     expect(
       lodashStats?.recommendations.microUtilityReplacements?.[0].description,
     ).toContain("typeof val ===");
+  });
+
+  describe("GitHub rate-limit handling", () => {
+    // Configure the GitHub branch so the three GitHub fetchers actually run.
+    function setupNpmDataWithRepo() {
+      vi.mocked(fetchNpmPackage).mockResolvedValueOnce({
+        maintainers: [{ name: "test" }],
+        license: "MIT",
+        repository: { url: "git+https://github.com/foo/bar.git" },
+      });
+      vi.mocked(parseGithubUrl).mockReturnValueOnce({
+        owner: "foo",
+        repo: "bar",
+      });
+      vi.mocked(fetchBundlephobiaData).mockResolvedValueOnce(null);
+      vi.mocked(getDependencyTree).mockResolvedValueOnce(null as any);
+      vi.mocked(fetchModuleReplacements).mockResolvedValue(null);
+    }
+
+    it("rejects with GithubRateLimitError when advisories hits the limit", async () => {
+      setupNpmDataWithRepo();
+      vi.mocked(fetchGithubRepo).mockResolvedValueOnce({
+        repo: { stars: 100, pushedAt: "2024-01-01" },
+      } as any);
+      vi.mocked(fetchGithubIssues).mockResolvedValueOnce({
+        items: [],
+        openTotalCount: 0,
+      });
+      vi.mocked(fetchGithubSecurityAdvisories).mockRejectedValueOnce(
+        new GithubRateLimitError("https://api.github.com/x"),
+      );
+
+      // Critical: must reject, NOT resolve to a partial PackageStats with
+      // securityAdvisories: null. Caching that partial would cause the bug
+      // where a re-load shows fewer vulnerabilities than the first load.
+      await expect(getPackageStats("foo")).rejects.toBeInstanceOf(
+        GithubRateLimitError,
+      );
+    });
+
+    it("rejects with GithubRateLimitError when issues hits the limit", async () => {
+      setupNpmDataWithRepo();
+      vi.mocked(fetchGithubRepo).mockResolvedValueOnce({
+        repo: { stars: 100, pushedAt: "2024-01-01" },
+      } as any);
+      vi.mocked(fetchGithubIssues).mockRejectedValueOnce(
+        new GithubRateLimitError("https://api.github.com/y"),
+      );
+      vi.mocked(fetchGithubSecurityAdvisories).mockResolvedValueOnce([] as any);
+
+      await expect(getPackageStats("foo")).rejects.toBeInstanceOf(
+        GithubRateLimitError,
+      );
+    });
+
+    it("rejects with GithubRateLimitError when repo metadata hits the limit", async () => {
+      setupNpmDataWithRepo();
+      vi.mocked(fetchGithubRepo).mockRejectedValueOnce(
+        new GithubRateLimitError("https://ungh.cc/z"),
+      );
+      vi.mocked(fetchGithubIssues).mockResolvedValueOnce({
+        items: [],
+        openTotalCount: 0,
+      });
+      vi.mocked(fetchGithubSecurityAdvisories).mockResolvedValueOnce([] as any);
+
+      await expect(getPackageStats("foo")).rejects.toBeInstanceOf(
+        GithubRateLimitError,
+      );
+    });
+
+    it("still returns partial stats for non-rate-limit GitHub errors", async () => {
+      setupNpmDataWithRepo();
+      vi.mocked(fetchGithubRepo).mockResolvedValueOnce({
+        repo: { stars: 100, pushedAt: "2024-01-01" },
+      } as any);
+      vi.mocked(fetchGithubIssues).mockResolvedValueOnce({
+        items: [],
+        openTotalCount: 0,
+      });
+      // A non-rate-limit failure (network blip, 5xx, etc.) should be
+      // swallowed so we still return what we have.
+      vi.mocked(fetchGithubSecurityAdvisories).mockRejectedValueOnce(
+        new Error("Network error"),
+      );
+
+      const result = await getPackageStats("foo");
+
+      expect(result).not.toBeNull();
+      expect(result?.securityAdvisories).toBeNull();
+      expect(result?.stars).toBe(100);
+    });
   });
 });
