@@ -7,11 +7,7 @@ import { useState, useEffect, useCallback } from "react";
  * Internal dependencies.
  */
 import { type PackageStats } from "../../../lib";
-import {
-  GITHUB_RATE_LIMIT_USER_MESSAGE,
-  isGithubRateLimitError,
-  showGithubRateLimitToastOnce,
-} from "../utils/githubRateLimitToast";
+import { showGithubRateLimitToastOnce } from "../utils/githubRateLimitToast";
 
 export interface PackageJsonDependencies {
   dependencies: string[];
@@ -175,11 +171,18 @@ export const usePackageStats = () => {
             }
             if (response && response.success) {
               if (response.data) {
-                urlCache.set(url, {
-                  stats: response.data,
-                  error: null,
-                  packageJsonDependencies: dependenciesToExpose,
-                });
+                // Don't cache a rate-limited result so the next visit retries
+                // once the limit resets or the user adds a token. The toast
+                // for the rate limit is fired from a useEffect below so it
+                // always emits inside a render cycle where the Toaster is
+                // guaranteed to be mounted.
+                if (!response.data.githubRateLimited) {
+                  urlCache.set(url, {
+                    stats: response.data,
+                    error: null,
+                    packageJsonDependencies: dependenciesToExpose,
+                  });
+                }
                 setStats(response.data);
               } else {
                 const errorMessage =
@@ -192,24 +195,14 @@ export const usePackageStats = () => {
                 setError(errorMessage);
               }
             } else {
-              const rawError = response?.error;
-              const isRateLimit = isGithubRateLimitError(rawError);
-              if (isRateLimit) {
-                showGithubRateLimitToastOnce();
-              }
-              const errorMessage = isRateLimit
-                ? GITHUB_RATE_LIMIT_USER_MESSAGE
-                : rawError || "Failed to load statistics for this package.";
-              // Don't cache a rate-limit error: if the user adds a token (or
-              // the limit resets) we want the next visit to actually retry,
-              // not re-display the same stale error.
-              if (!isRateLimit) {
-                urlCache.set(url, {
-                  stats: null,
-                  error: errorMessage,
-                  packageJsonDependencies: dependenciesToExpose,
-                });
-              }
+              const errorMessage =
+                response?.error ||
+                "Failed to load statistics for this package.";
+              urlCache.set(url, {
+                stats: null,
+                error: errorMessage,
+                packageJsonDependencies: dependenciesToExpose,
+              });
               setError(errorMessage);
             }
             setLoading(false);
@@ -303,6 +296,17 @@ export const usePackageStats = () => {
     },
     [],
   );
+
+  // Surface the rate-limit toast in a render-driven effect so it always
+  // fires after the Toaster has mounted. Firing from inside the
+  // chrome.runtime.sendMessage callback was unreliable: on the very first
+  // render the callback could resolve before any Toaster instance had
+  // registered with sonner, and the toast would silently drop.
+  useEffect(() => {
+    if (stats?.githubRateLimited) {
+      showGithubRateLimitToastOnce();
+    }
+  }, [stats?.githubRateLimited]);
 
   const isAddedToCompare = comparisonBucket.some(
     (item) => item?.packageName === stats?.packageName,

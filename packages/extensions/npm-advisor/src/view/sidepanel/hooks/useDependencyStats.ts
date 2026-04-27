@@ -8,11 +8,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
  */
 import { type DependencyCategory, type PackageStats } from "../../../lib";
 import { type PackageJsonDependencies } from "./usePackageStats";
-import {
-  GITHUB_RATE_LIMIT_USER_MESSAGE,
-  isGithubRateLimitError,
-  showGithubRateLimitToastOnce,
-} from "../utils/githubRateLimitToast";
+import { showGithubRateLimitToastOnce } from "../utils/githubRateLimitToast";
 
 export type DependencyStatsState =
   | { status: "pending" }
@@ -60,17 +56,9 @@ const fetchLightStats = (
           }
           return;
         }
-        const rawError = response?.error;
-        if (isGithubRateLimitError(rawError)) {
-          resolve({
-            status: "error",
-            error: GITHUB_RATE_LIMIT_USER_MESSAGE,
-          });
-          return;
-        }
         resolve({
           status: "error",
-          error: rawError || "Failed to load package stats.",
+          error: response?.error || "Failed to load package stats.",
         });
       },
     );
@@ -166,18 +154,15 @@ export const useDependencyStats = (
 
         const result = await fetchLightStats(name, category);
 
-        // Don't cache rate-limit errors: caching them would mean the next
-        // load shows the same incomplete data instead of retrying. Bug
-        // observed when scanning a 44-dep package.json — the limit was hit
-        // mid-scan, partial nulls got cached, and a subsequent load showed
-        // 1/4 vulnerabilities.
+        // Don't cache rate-limited results — caching would mean the next
+        // load shows the same incomplete data instead of retrying once the
+        // limit resets or a token is added. The toast itself is fired from
+        // a useEffect below so it always emits in a render cycle where the
+        // Toaster is mounted.
         const isRateLimited =
-          result.status === "error" &&
-          result.error === GITHUB_RATE_LIMIT_USER_MESSAGE;
+          result.status === "loaded" && result.stats.githubRateLimited;
 
-        if (isRateLimited) {
-          showGithubRateLimitToastOnce();
-        } else {
+        if (!isRateLimited) {
           dependencyStatsCache.set(cacheKey(name, category), result);
         }
 
@@ -215,6 +200,24 @@ export const useDependencyStats = (
       isComplete,
     };
   }, [statsByName]);
+
+  // True once any loaded dep has come back flagged as GitHub-rate-limited.
+  // Driving the toast off this derived value (rather than firing inline
+  // inside the worker callback) ensures the toast emits during a render
+  // cycle where the Toaster has had a chance to mount.
+  const anyDependencyRateLimited = useMemo(
+    () =>
+      Object.values(statsByName).some(
+        (entry) => entry.status === "loaded" && entry.stats.githubRateLimited,
+      ),
+    [statsByName],
+  );
+
+  useEffect(() => {
+    if (anyDependencyRateLimited) {
+      showGithubRateLimitToastOnce();
+    }
+  }, [anyDependencyRateLimited]);
 
   return {
     statsByName,
