@@ -2,7 +2,7 @@
  * External dependencies.
  */
 import React from "react";
-import { Users, Info } from "lucide-react";
+import { Users, Info, AlertCircle } from "lucide-react";
 
 export interface ResponsivenessProps {
   responsiveness: {
@@ -11,10 +11,13 @@ export interface ResponsivenessProps {
     openIssuesCount: number;
     issuesUrl: string;
   } | null;
+  /** True when a GitHub rate-limit prevented this signal from loading. */
+  githubRateLimited?: boolean;
 }
 
 export const Responsiveness: React.FC<ResponsivenessProps> = ({
   responsiveness,
+  githubRateLimited = false,
 }) => {
   return (
     <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4 flex flex-col justify-between">
@@ -49,6 +52,14 @@ export const Responsiveness: React.FC<ResponsivenessProps> = ({
               </div>
             </div>
           </>
+        ) : githubRateLimited ? (
+          <p
+            className="text-sm flex items-start gap-1.5 text-amber-700 dark:text-amber-400"
+            title="Couldn't fetch — GitHub API rate limit reached. Add a Personal Access Token in Options."
+          >
+            <AlertCircle size={14} className="mt-0.5 shrink-0" />
+            <span>Couldn&rsquo;t fetch — GitHub API rate limit reached.</span>
+          </p>
         ) : (
           <p className="text-sm text-slate-500 dark:text-slate-400">
             Not enough data to determine.

@@ -38,17 +38,24 @@ export const PackageInsightsBody: React.FC<PackageInsightsBodyProps> = ({
     licenseCompatibility,
     recommendations,
     dependencyTree,
+    githubRateLimited,
   } = stats;
 
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
         <LicenseCheck licenseCompatibility={licenseCompatibility} />
-        <Responsiveness responsiveness={responsiveness as any} />
+        <Responsiveness
+          responsiveness={responsiveness as any}
+          githubRateLimited={githubRateLimited}
+        />
       </div>
 
       <BundleFootprint bundle={bundle} />
-      <SecurityAdvisories securityAdvisories={securityAdvisories} />
+      <SecurityAdvisories
+        securityAdvisories={securityAdvisories}
+        githubRateLimited={githubRateLimited}
+      />
       <Recommendations
         recommendations={recommendations}
         onAddToCompare={onAddRecommendationToCompare}

@@ -2,18 +2,38 @@
  * External dependencies.
  */
 import React, { useState } from "react";
-import { ShieldAlert } from "lucide-react";
+import { ShieldAlert, AlertCircle } from "lucide-react";
 
 export interface SecurityAdvisoriesProps {
   securityAdvisories: {
     issues: Array<{ summary: string; severity: string; url: string }>;
   } | null;
+  /** True when a GitHub rate-limit prevented this signal from loading. */
+  githubRateLimited?: boolean;
 }
 
 export const SecurityAdvisories: React.FC<SecurityAdvisoriesProps> = ({
   securityAdvisories,
+  githubRateLimited = false,
 }) => {
   const [showAll, setShowAll] = useState(false);
+
+  // Rate-limited but advisories never loaded — surface a small warning row
+  // so the user knows the gap is transient, not the package's actual state.
+  if (!securityAdvisories && githubRateLimited) {
+    return (
+      <div
+        className="bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-800 p-3 flex items-start gap-2 text-xs text-amber-800 dark:text-amber-300"
+        title="Couldn't fetch — GitHub API rate limit reached. Add a Personal Access Token in Options."
+      >
+        <AlertCircle size={14} className="mt-0.5 shrink-0" />
+        <span>
+          Couldn&rsquo;t fetch security advisories — GitHub API rate limit
+          reached.
+        </span>
+      </div>
+    );
+  }
 
   if (!securityAdvisories || securityAdvisories.issues.length === 0)
     return null;

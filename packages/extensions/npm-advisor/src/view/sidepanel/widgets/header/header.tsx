@@ -2,7 +2,15 @@
  * External dependencies.
  */
 import React from "react";
-import { Github, Star, Users, Clock, Activity, Info } from "lucide-react";
+import {
+  Github,
+  Star,
+  Users,
+  Clock,
+  Activity,
+  Info,
+  AlertCircle,
+} from "lucide-react";
 import { usePropProvider } from "@google-awlt/chatbot";
 import { Tooltip } from "@google-awlt/design-system";
 
@@ -23,7 +31,22 @@ export interface HeaderProps {
   score: number | null;
   scoreBreakdown?: ScoreBreakdownItem[];
   scoreMaxPoints?: number;
+  /** True when a GitHub rate-limit prevented stars / lastCommit from loading. */
+  githubRateLimited?: boolean;
 }
+
+const GITHUB_RATE_LIMIT_TITLE =
+  "Couldn't fetch — GitHub API rate limit reached. Add a Personal Access Token in Options.";
+
+const RateLimitedValue: React.FC = () => (
+  <span
+    className="inline-flex items-center gap-1 text-amber-600 dark:text-amber-400"
+    title={GITHUB_RATE_LIMIT_TITLE}
+  >
+    <AlertCircle size={12} />
+    N/A
+  </span>
+);
 
 export const Header: React.FC<HeaderProps> = ({
   packageName,
@@ -37,6 +60,7 @@ export const Header: React.FC<HeaderProps> = ({
   score,
   scoreBreakdown,
   scoreMaxPoints,
+  githubRateLimited = false,
 }) => {
   const { setActiveTab } = usePropProvider(({ actions }) => ({
     setActiveTab: actions.setActiveTab,
@@ -220,7 +244,13 @@ export const Header: React.FC<HeaderProps> = ({
             <Star size={12} className="mr-1 shadow-sm" /> Stars
           </div>
           <span className="font-medium text-slate-800 dark:text-slate-200">
-            {stars !== null ? stars.toLocaleString() : "N/A"}
+            {stars !== null ? (
+              stars.toLocaleString()
+            ) : githubRateLimited ? (
+              <RateLimitedValue />
+            ) : (
+              "N/A"
+            )}
           </span>
         </div>
         <div className="flex flex-col items-center space-y-1">
@@ -242,7 +272,13 @@ export const Header: React.FC<HeaderProps> = ({
             className="font-medium text-slate-800 dark:text-slate-200 text-center whitespace-nowrap"
             title={lastCommitDate || "N/A"}
           >
-            {lastCommitDate ? formatDate(lastCommitDate) : "N/A"}
+            {lastCommitDate ? (
+              formatDate(lastCommitDate)
+            ) : githubRateLimited ? (
+              <RateLimitedValue />
+            ) : (
+              "N/A"
+            )}
           </span>
         </div>
       </div>

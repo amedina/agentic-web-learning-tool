@@ -50,6 +50,7 @@ export const InsightsTab: React.FC<InsightsTabProps> = ({
         score={stats.score}
         scoreBreakdown={stats.scoreBreakdown}
         scoreMaxPoints={stats.scoreMaxPoints}
+        githubRateLimited={stats.githubRateLimited}
       />
 
       <PackageInsightsBody
