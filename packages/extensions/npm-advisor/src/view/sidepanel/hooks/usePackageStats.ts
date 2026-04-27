@@ -239,32 +239,26 @@ export const usePackageStats = () => {
 
     fetchCurrentTabStats();
 
-    const handleHistoryStateUpdated = async (
+    // Each side panel instance is bound to a specific tab via the hash
+    // configured by `configureTabPanel` (#tab=<id>). Without pinning the
+    // listeners to that tab id, opening an external link in a new tab
+    // (or any other tab gaining focus / updating its URL) would wipe this
+    // panel's loaded stats and start refetching for the unrelated URL.
+    const boundTabIdMatch = window.location.hash.match(/tab=(\d+)/);
+    const boundTabId = boundTabIdMatch ? Number(boundTabIdMatch[1]) : null;
+
+    const handleHistoryStateUpdated = (
       details: chrome.webNavigation.WebNavigationTransitionCallbackDetails,
     ) => {
       const { tabId, frameId, url } = details;
-      const currentTab = (
-        await chrome.tabs.query({
-          active: true,
-          currentWindow: true,
-        })
-      )?.[0];
-
-      if (chrome.runtime.lastError) return;
-
-      if (frameId !== 0 || tabId !== currentTab?.id) {
-        return;
-      }
-
-      // Only react to navigations that land on a URL the panel actually
-      // shows stats for. Otherwise switching to e.g. a docs tab tears down
-      // the loaded Report and forces a full refetch on switch-back.
+      if (frameId !== 0) return;
+      if (boundTabId !== null && tabId !== boundTabId) return;
       if (!isPanelRelevantUrl(url)) return;
-
       fetchCurrentTabStats(url);
     };
 
     const handleTabActivated = (activeInfo: { tabId: number }) => {
+      if (boundTabId !== null && activeInfo.tabId !== boundTabId) return;
       chrome.tabs.get(activeInfo.tabId, (tab) => {
         if (tab && isPanelRelevantUrl(tab.url)) {
           fetchCurrentTabStats(tab.url);
@@ -272,12 +266,17 @@ export const usePackageStats = () => {
       });
     };
 
-    const handleTabUpdated = (tabId: number) => {
-      chrome.tabs.get(tabId, (tab) => {
-        if (tab && isPanelRelevantUrl(tab.url)) {
-          fetchCurrentTabStats(tab.url);
-        }
-      });
+    const handleTabUpdated = (
+      tabId: number,
+      changeInfo: { url?: string },
+      tab: chrome.tabs.Tab,
+    ) => {
+      if (boundTabId !== null && tabId !== boundTabId) return;
+      // Skip non-navigation updates (title, favicon, loading state) so we
+      // don't refetch on every micro-update the active page emits.
+      if (!changeInfo.url) return;
+      if (!isPanelRelevantUrl(tab.url)) return;
+      fetchCurrentTabStats(tab.url);
     };
 
     chrome.webNavigation.onHistoryStateUpdated.addListener(
