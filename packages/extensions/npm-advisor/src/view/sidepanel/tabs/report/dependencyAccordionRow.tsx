@@ -19,7 +19,10 @@ import {
  * Internal dependencies.
  */
 import { type DependencyStatsState } from "../../hooks/useDependencyStats";
-import { type PackageStats, type DependencyTree } from "../../../../lib";
+import {
+  type PackageStats,
+  type DependencyTree,
+} from "@google-awlt/package-analyzer-core";
 import { PackageInsightsBody } from "../insights/packageInsightsBody";
 import { REPORT_COLORS } from "./reportColors";
 

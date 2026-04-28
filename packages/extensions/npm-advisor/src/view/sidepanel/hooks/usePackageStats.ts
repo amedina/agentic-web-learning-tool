@@ -6,7 +6,7 @@ import { useState, useEffect, useCallback } from "react";
 /**
  * Internal dependencies.
  */
-import { type PackageStats } from "../../../lib";
+import { type PackageStats } from "@google-awlt/package-analyzer-core";
 import { showGithubRateLimitToastOnce } from "../utils/githubRateLimitToast";
 
 export interface PackageJsonDependencies {

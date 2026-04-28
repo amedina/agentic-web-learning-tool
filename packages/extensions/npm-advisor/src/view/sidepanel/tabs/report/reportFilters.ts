@@ -1,7 +1,7 @@
 /**
  * Internal dependencies.
  */
-import { type PackageStats } from "../../../../lib";
+import { type PackageStats } from "@google-awlt/package-analyzer-core";
 import {
   type DependencyStatsByName,
   type DependencyStatsState,

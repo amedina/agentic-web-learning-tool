@@ -6,7 +6,7 @@ import React from "react";
 /**
  * Internal dependencies.
  */
-import { type PackageStats } from "../../../../lib";
+import { type PackageStats } from "@google-awlt/package-analyzer-core";
 import { Header } from "../../widgets";
 import { PackageInsightsBody } from "./packageInsightsBody";
 

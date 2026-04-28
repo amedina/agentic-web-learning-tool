@@ -617,6 +617,9 @@ importers:
       '@google-awlt/design-system':
         specifier: workspace:*
         version: link:../../shared/design-system
+      '@google-awlt/package-analyzer-core':
+        specifier: workspace:*
+        version: link:../../shared/package-analyzer-core
       '@tailwindcss/vite':
         specifier: ^4.1.13
         version: 4.2.2(vite@7.3.1(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(yaml@2.8.3))
@@ -1110,6 +1113,18 @@ importers:
       typescript:
         specifier: ~5.9.2
         version: 5.9.3
+
+  packages/shared/package-analyzer-core:
+    devDependencies:
+      '@google-awlt/shared-config':
+        specifier: workspace:*
+        version: link:../shared-config
+      typescript:
+        specifier: ~5.8.3
+        version: 5.8.3
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/debug@4.1.13)(@types/node@24.12.0)(@vitest/browser@3.2.4)(jiti@2.6.1)(jsdom@20.0.3)(lightningcss@1.32.0)(yaml@2.8.3)
 
   packages/shared/shared-config:
     dependencies:

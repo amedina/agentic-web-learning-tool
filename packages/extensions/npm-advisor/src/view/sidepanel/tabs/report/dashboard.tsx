@@ -11,7 +11,7 @@ import {
 /**
  * Internal dependencies.
  */
-import { type PackageStats } from "../../../../lib";
+import { type PackageStats } from "@google-awlt/package-analyzer-core";
 import { type PackageJsonDependencies } from "../../hooks/usePackageStats";
 import {
   type DependencyStatsByName,

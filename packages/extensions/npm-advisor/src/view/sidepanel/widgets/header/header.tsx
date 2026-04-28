@@ -17,7 +17,7 @@ import { Tooltip } from "@google-awlt/design-system";
 /**
  * Internal dependencies.
  */
-import { type ScoreBreakdownItem } from "../../../../lib";
+import { type ScoreBreakdownItem } from "@google-awlt/package-analyzer-core";
 
 export interface HeaderProps {
   packageName: string;

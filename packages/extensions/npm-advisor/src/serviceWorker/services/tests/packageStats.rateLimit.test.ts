@@ -18,11 +18,12 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
  *    scratch (e.g. once a PAT is added or the limit resets).
  */
 import { packageStatsService } from "../packageStats";
-import { getPackageStats } from "../../../lib";
+import { getPackageStats } from "@google-awlt/package-analyzer-core";
 
-vi.mock("../../../lib", async () => {
-  const actual =
-    await vi.importActual<typeof import("../../../lib")>("../../../lib");
+vi.mock("@google-awlt/package-analyzer-core", async () => {
+  const actual = await vi.importActual<
+    typeof import("@google-awlt/package-analyzer-core")
+  >("@google-awlt/package-analyzer-core");
   return {
     ...actual,
     getPackageStats: vi.fn(),

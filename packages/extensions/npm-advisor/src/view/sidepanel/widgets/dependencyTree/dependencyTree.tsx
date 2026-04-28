@@ -14,7 +14,7 @@ import {
 /**
  * Internal dependencies.
  */
-import type { DependencyTree as DependencyTreeType } from "../../../../lib";
+import type { DependencyTree as DependencyTreeType } from "@google-awlt/package-analyzer-core";
 import DependencyGraph from "./dependencyGraph";
 
 type DepNode = DependencyTreeType & { _loaded?: boolean };

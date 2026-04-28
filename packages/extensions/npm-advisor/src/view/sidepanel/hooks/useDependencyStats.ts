@@ -6,7 +6,10 @@ import { useEffect, useMemo, useRef, useState } from "react";
 /**
  * Internal dependencies.
  */
-import { type DependencyCategory, type PackageStats } from "../../../lib";
+import {
+  type DependencyCategory,
+  type PackageStats,
+} from "@google-awlt/package-analyzer-core";
 import { type PackageJsonDependencies } from "./usePackageStats";
 import { showGithubRateLimitToastOnce } from "../utils/githubRateLimitToast";
 
