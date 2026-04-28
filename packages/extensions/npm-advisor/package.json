@@ -21,6 +21,7 @@
     "@google-awlt/common": "workspace:*",
     "@google-awlt/design-system": "workspace:*",
     "@google-awlt/package-analyzer-core": "workspace:*",
+    "@google-awlt/package-analyzer-ui": "workspace:*",
     "@ai-sdk/provider": "^2.0.0",
     "@assistant-ui/react": "0.11.51",
     "@assistant-ui/react-ai-sdk": "1.1.19",
