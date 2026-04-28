@@ -3,6 +3,7 @@ import { readdirSync } from "fs";
 import { join, resolve } from "path";
 
 const isWatch = process.argv.includes("--watch");
+const isProduction = process.argv.includes("--production");
 
 const sharedDir = resolve("../../shared");
 const sharedPackageAliases = Object.fromEntries(
@@ -21,7 +22,8 @@ const options = {
   format: "cjs",
   platform: "node",
   target: "node18",
-  sourcemap: true,
+  sourcemap: !isProduction,
+  minify: isProduction,
   alias: sharedPackageAliases,
   logLevel: "info",
 };

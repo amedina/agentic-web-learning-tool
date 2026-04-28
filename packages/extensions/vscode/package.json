@@ -79,6 +79,8 @@
   },
   "scripts": {
     "build": "node esbuild.mjs",
+    "build:production": "node esbuild.mjs --production",
+    "package": "pnpm run build:production && vsce package --no-dependencies --out npm-advisor-vscode-0.1.0.vsix",
     "dev": "node esbuild.mjs --watch",
     "check-types": "tsc --noEmit"
   },
