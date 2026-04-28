@@ -200,12 +200,12 @@ export const usePackageStats = () => {
             }
             if (response && response.success) {
               if (response.data) {
-                // Don't cache a rate-limited result so the next visit retries
-                // once the limit resets or the user adds a token. The toast
-                // for the rate limit is fired from a useEffect below so it
-                // always emits inside a render cycle where the Toaster is
-                // guaranteed to be mounted.
-                if (!response.data.githubRateLimited) {
+                // Don't cache rate-limited or search-throttled results so the
+                // next visit retries once the limit resets or the user adds a token.
+                if (
+                  !response.data.githubRateLimited &&
+                  !response.data.githubIssuesUnavailable
+                ) {
                   urlCache.set(url, {
                     stats: response.data,
                     error: null,

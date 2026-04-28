@@ -8,7 +8,7 @@ import { fetchGithubSecurityAdvisories } from "../utils/fetchGithubSecurityAdvis
 import { fetchBundlephobiaData } from "../utils/fetchBundlephobiaData";
 import { getDependencyTree, type DependencyTree } from "./getDependencyTree";
 import { fetchModuleReplacements } from "../utils/fetchModuleReplacements";
-import { GithubRateLimitError } from "../utils/githubFetch";
+import { githubFetch, GithubRateLimitError } from "../utils/githubFetch";
 
 /**
  * External dependencies.
@@ -125,6 +125,13 @@ export interface GetPackageStatsOptions {
    */
   includeBundle?: boolean;
   /**
+   * Whether to fetch GitHub issue activity for the Responsiveness widget.
+   * Skipping it avoids draining the GitHub Search API quota when scanning many
+   * deps in parallel (e.g. Report tab). Default true; set false in light-stats
+   * calls that only need bundle / dep-tree data.
+   */
+  includeGithubIssues?: boolean;
+  /**
    * How this package is consumed in the user's project, if known. Defaults
    * to `unknown`, which scores as if the package will be shipped to a
    * client-side bundle.
@@ -144,6 +151,7 @@ export async function getPackageStats(
     includeDependencyTree = true,
     includeBundle = true,
     dependencyCategory = "unknown",
+    includeGithubIssues = true,
   } = options;
 
   console.log(
@@ -289,9 +297,11 @@ export async function getPackageStats(
 
       const [repoData, issuesData, advisoriesData] = await Promise.all([
         fetchGithubRepo(owner, repo).catch(swallowGithubError("GitHub Repo")),
-        fetchGithubIssues(owner, repo).catch(
-          swallowGithubError("GitHub Issues", true),
-        ),
+        includeGithubIssues
+          ? fetchGithubIssues(owner, repo).catch(
+              swallowGithubError("GitHub Issues", true),
+            )
+          : Promise.resolve(null),
         fetchGithubSecurityAdvisories(owner, repo).catch(
           swallowGithubError("GitHub Advisories"),
         ),
@@ -303,6 +313,27 @@ export async function getPackageStats(
       }
 
       const issuesList = issuesData?.items ?? null;
+
+      // GitHub silently returns { total_count: 0, items: [] } with HTTP 200
+      // under secondary rate-limiting. Cross-check against the repo's
+      // open_issues_count so we can surface "Couldn't fetch" instead of the
+      // misleading "Not enough data to determine."
+      if (
+        includeGithubIssues &&
+        !githubIssuesUnavailable &&
+        (!issuesList || issuesList.length === 0)
+      ) {
+        const ghRepo = await githubFetch(
+          `https://api.github.com/repos/${owner}/${repo}`,
+        ).catch(() => null);
+        if (
+          ghRepo &&
+          (ghRepo as any).has_issues &&
+          (ghRepo as any).open_issues_count > 0
+        ) {
+          githubIssuesUnavailable = true;
+        }
+      }
 
       if (issuesList && Array.isArray(issuesList) && issuesList.length > 0) {
         const totalSample = issuesList.length;
