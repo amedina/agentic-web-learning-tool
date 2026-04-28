@@ -11,7 +11,7 @@ import { FilterSidebar } from "./components/filterSidebar";
 import { ResultCard } from "./components/resultCard";
 import { ResultsHeader } from "./components/resultsHeader";
 import { useThemeSync } from "../hooks/useThemeSync";
-import { calculateScore } from "../../lib";
+import { calculateScore } from "@google-awlt/package-analyzer-core";
 import type { AlgoliaHit, SearchFilters } from "../types";
 
 const DEFAULT_FILTERS: SearchFilters = {

@@ -6,7 +6,7 @@ import {
   type PackageStats,
   type DependencyCategory,
   DEFAULT_TARGET_PROJECT_LICENSE,
-} from "../../lib";
+} from "@google-awlt/package-analyzer-core";
 import { storageService } from "./storage";
 
 /**

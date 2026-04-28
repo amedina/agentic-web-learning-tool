@@ -617,6 +617,12 @@ importers:
       '@google-awlt/design-system':
         specifier: workspace:*
         version: link:../../shared/design-system
+      '@google-awlt/package-analyzer-core':
+        specifier: workspace:*
+        version: link:../../shared/package-analyzer-core
+      '@google-awlt/package-analyzer-ui':
+        specifier: workspace:*
+        version: link:../../shared/package-analyzer-ui
       '@tailwindcss/vite':
         specifier: ^4.1.13
         version: 4.2.2(vite@7.3.1(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(yaml@2.8.3))
@@ -1110,6 +1116,46 @@ importers:
       typescript:
         specifier: ~5.9.2
         version: 5.9.3
+
+  packages/shared/package-analyzer-core:
+    devDependencies:
+      '@google-awlt/shared-config':
+        specifier: workspace:*
+        version: link:../shared-config
+      typescript:
+        specifier: ~5.8.3
+        version: 5.8.3
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/debug@4.1.13)(@types/node@24.12.0)(@vitest/browser@3.2.4)(jiti@2.6.1)(jsdom@20.0.3)(lightningcss@1.32.0)(yaml@2.8.3)
+
+  packages/shared/package-analyzer-ui:
+    dependencies:
+      '@google-awlt/design-system':
+        specifier: workspace:*
+        version: link:../design-system
+      '@google-awlt/package-analyzer-core':
+        specifier: workspace:*
+        version: link:../package-analyzer-core
+      d3:
+        specifier: ^7.9.0
+        version: 7.9.0
+      lucide-react:
+        specifier: ^0.468.0
+        version: 0.468.0(react@19.2.4)
+    devDependencies:
+      '@google-awlt/shared-config':
+        specifier: workspace:*
+        version: link:../shared-config
+      '@types/react':
+        specifier: ^19.1.8
+        version: 19.2.14
+      react:
+        specifier: ^19.2.4
+        version: 19.2.4
+      typescript:
+        specifier: ~5.8.3
+        version: 5.8.3
 
   packages/shared/shared-config:
     dependencies:
@@ -6207,6 +6253,11 @@ packages:
 
   lru-cache@5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
+
+  lucide-react@0.468.0:
+    resolution: {integrity: sha512-6koYRhnM2N0GGZIdXzSeiNwguv1gt/FAjZOiPl76roBi3xKEXa4WmfpxgQwTTL4KipXjefrnf3oV4IsYhi4JFA==}
+    peerDependencies:
+      react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0-rc
 
   lucide-react@0.577.0:
     resolution: {integrity: sha512-4LjoFv2eEPwYDPg/CUdBJQSDfPyzXCRrVW1X7jrx/trgxnxkHFjnVZINbzvzxjN70dxychOfg+FTYwBiS3pQ5A==}
@@ -13737,6 +13788,10 @@ snapshots:
   lru-cache@5.1.1:
     dependencies:
       yallist: 3.1.1
+
+  lucide-react@0.468.0(react@19.2.4):
+    dependencies:
+      react: 19.2.4
 
   lucide-react@0.577.0(react@19.2.4):
     dependencies:
