@@ -124,6 +124,12 @@ export class DiagnosticsProvider implements vscode.Disposable {
 
           const critical = stats.securityAdvisories?.critical ?? 0;
           const high = stats.securityAdvisories?.high ?? 0;
+          const hasNative =
+            (stats.recommendations?.nativeReplacements as unknown[])?.length >
+            0;
+          const hasPreferred =
+            (stats.recommendations?.preferredReplacements as unknown[])
+              ?.length > 0;
 
           if (critical > 0) {
             const diag = new vscode.Diagnostic(
@@ -138,52 +144,31 @@ export class DiagnosticsProvider implements vscode.Disposable {
             };
             diagnostics.push(diag);
             issueCount++;
-          } else if (high > 0 || stats.score < 40) {
-            const reasons: string[] = [];
-            if (high > 0) {
-              reasons.push(
-                `${high} high-severity advisor${high === 1 ? "y" : "ies"}`,
-              );
-            }
-            if (stats.score < 40) {
-              reasons.push(
-                `low score (${stats.score}/${stats.scoreMaxPoints})`,
-              );
-            }
+          } else if (high > 0) {
             const diag = new vscode.Diagnostic(
               range,
-              `${name}: ${reasons.join(", ")}.`,
+              `${name}: ${high} high-severity advisor${high === 1 ? "y" : "ies"}.`,
               vscode.DiagnosticSeverity.Warning,
             );
             diag.source = "NPM Advisor";
             diag.code = {
-              value: "low-score",
+              value: "security-high",
               target: vscode.Uri.parse(`https://www.npmjs.com/package/${name}`),
             };
             diagnostics.push(diag);
             issueCount++;
-          } else {
-            const hasNative =
-              (stats.recommendations?.nativeReplacements as unknown[])?.length >
-              0;
-            const hasPreferred =
-              (stats.recommendations?.preferredReplacements as unknown[])
-                ?.length > 0;
-            if (hasNative || hasPreferred) {
-              const diag = new vscode.Diagnostic(
-                range,
-                `${name}: better alternatives or native replacements are available.`,
-                vscode.DiagnosticSeverity.Information,
-              );
-              diag.source = "NPM Advisor";
-              diag.code = {
-                value: "alternatives-available",
-                target: vscode.Uri.parse(
-                  `https://www.npmjs.com/package/${name}`,
-                ),
-              };
-              diagnostics.push(diag);
-            }
+          } else if (hasNative || hasPreferred) {
+            const diag = new vscode.Diagnostic(
+              range,
+              `${name}: better alternatives or native replacements are available.`,
+              vscode.DiagnosticSeverity.Information,
+            );
+            diag.source = "NPM Advisor";
+            diag.code = {
+              value: "alternatives-available",
+              target: vscode.Uri.parse(`https://www.npmjs.com/package/${name}`),
+            };
+            diagnostics.push(diag);
           }
         } catch {
           // Network/API errors are silent — we don't want false negatives.
