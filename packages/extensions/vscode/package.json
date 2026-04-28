@@ -1,0 +1,95 @@
+{
+  "name": "npm-advisor-vscode",
+  "displayName": "NPM Advisor",
+  "description": "Analyse npm packages directly in your editor — scores, security advisories, license checks, and smarter alternatives.",
+  "version": "0.1.0",
+  "private": true,
+  "publisher": "google-awlt",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Linters",
+    "Other"
+  ],
+  "activationEvents": [
+    "workspaceContains:package.json",
+    "onLanguage:json"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "configuration": {
+      "title": "NPM Advisor",
+      "properties": {
+        "npmAdvisor.githubToken": {
+          "type": "string",
+          "default": "",
+          "description": "Personal Access Token for GitHub API (increases rate limits). Leave empty to use VS Code's built-in GitHub session."
+        },
+        "npmAdvisor.targetLicense": {
+          "type": "string",
+          "default": "MIT",
+          "description": "Target project license used for compatibility checks."
+        },
+        "npmAdvisor.diagnosticsEnabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable inline diagnostics (squiggles) in package.json files."
+        }
+      }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "npmAdvisor",
+          "title": "NPM Advisor",
+          "icon": "$(package)"
+        }
+      ]
+    },
+    "views": {
+      "explorer": [
+        {
+          "id": "npmAdvisorDependencies",
+          "name": "NPM Advisor",
+          "when": "npmAdvisor.hasPackageJson"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "npmAdvisor.refresh",
+        "title": "NPM Advisor: Refresh Analysis",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "npmAdvisor.openOnNpm",
+        "title": "NPM Advisor: Open on npmjs.com"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "npmAdvisor.refresh",
+          "when": "view == npmAdvisorDependencies",
+          "group": "navigation"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "build": "node esbuild.mjs",
+    "dev": "node esbuild.mjs --watch",
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@google-awlt/package-analyzer-core": "workspace:*"
+  },
+  "devDependencies": {
+    "@google-awlt/shared-config": "workspace:*",
+    "@types/node": "^22.0.0",
+    "@types/vscode": "^1.85.0",
+    "esbuild": "^0.25.0",
+    "typescript": "~5.8.3"
+  }
+}

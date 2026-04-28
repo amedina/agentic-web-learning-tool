@@ -56,6 +56,7 @@
     "build:mcp-inspector": "pnpm --filter mcp-inspector build",
     "build:awl": "pnpm --filter awl build",
     "build:npm-advisor": "pnpm --filter npm-advisor build",
+    "build:vscode": "pnpm --filter npm-advisor-vscode build",
     "build:design-system": "pnpm --filter design-system build",
     "build:common": "pnpm --filter common build",
     "build": "pnpm run build:common && pnpm run build:table && pnpm run build:chrome-ai-playground && pnpm run build:mcp-inspector && pnpm run build:design-system && pnpm run build:chatbot && pnpm run build:npm-advisor && pnpm run build:awl",
