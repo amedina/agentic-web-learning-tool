@@ -12,12 +12,13 @@ import { githubFetch } from "./githubFetch";
 export async function fetchGithubIssues(owner: string, repo: string) {
   // Fetching a sample of open and closed issues/PRs to gauge responsiveness
   // Using Search API has a 10req/min (600/hr) unauthenticated rate limit, dodging the basic 60/hr Core API limit.
-  const sampleQuery = `repo:${owner}/${repo} is:issue`;
-  const sampleUrl = `https://api.github.com/search/issues?q=${sampleQuery}&per_page=100`;
+  // GitHub Search requires field qualifiers like `repo:` to have unencoded colons/slashes.
+  // Only the space separators need encoding (%20). encodeURIComponent would encode `:` and `/`
+  // as %3A and %2F, which breaks the qualifier syntax and returns 0 results.
+  const sampleUrl = `https://api.github.com/search/issues?q=repo:${owner}/${repo}%20is:issue&per_page=100`;
 
   // Separate query for the true total open issue count via total_count field.
-  const openCountQuery = `repo:${owner}/${repo} is:issue is:open`;
-  const openCountUrl = `https://api.github.com/search/issues?q=${openCountQuery}&per_page=1`;
+  const openCountUrl = `https://api.github.com/search/issues?q=repo:${owner}/${repo}%20is:issue%20is:open&per_page=1`;
 
   const [sampleData, openCountData] = (await Promise.all([
     githubFetch(sampleUrl),

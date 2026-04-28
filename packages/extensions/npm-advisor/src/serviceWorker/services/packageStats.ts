@@ -71,10 +71,9 @@ class PackageStatsService {
               : DEFAULT_TARGET_PROJECT_LICENSE;
 
           const stats = await getPackageStats(packageName, targetLicense);
-          if (stats?.githubRateLimited) {
-            // Don't cache a rate-limited result — once the limit resets or
-            // the user adds a PAT we want the next read to retry, not
-            // re-display the same partial answer.
+          if (stats?.githubRateLimited || stats?.githubIssuesUnavailable) {
+            // Don't cache rate-limited or search-throttled results — once the
+            // limit resets the next read should retry, not replay the partial answer.
             this.statsCache.delete(packageName);
           } else {
             this.statsCache.set(packageName, stats);
@@ -135,9 +134,13 @@ class PackageStatsService {
             // Defer bundlephobia until the user actually expands the row.
             // Avoids a network round-trip per dep when most aren't opened.
             includeBundle: false,
+            // Skip GitHub issues for Report-tab dep scans — the Search API
+            // quota (10 req/min unauth) is exhausted quickly when 30+ deps
+            // are fetched in parallel, causing silent 0-result responses.
+            includeGithubIssues: false,
             dependencyCategory,
           });
-          if (stats?.githubRateLimited) {
+          if (stats?.githubRateLimited || stats?.githubIssuesUnavailable) {
             this.lightStatsCache.delete(cacheKey);
           } else {
             this.lightStatsCache.set(cacheKey, stats);

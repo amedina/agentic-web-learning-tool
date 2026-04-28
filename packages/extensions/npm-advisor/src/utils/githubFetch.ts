@@ -76,7 +76,18 @@ export async function githubFetch(url: string): Promise<unknown> {
   }
 
   const data = await response.json();
-  cache.set(url, data);
+  // GitHub silently returns empty results with HTTP 200 under secondary rate-limiting.
+  // Don't cache those so the next request can retry against a fresh API call.
+  const isEmptySearchResult =
+    data &&
+    typeof data.total_count === "number" &&
+    data.total_count === 0 &&
+    Array.isArray(data.items) &&
+    data.items.length === 0;
+  const isEmptyArrayResult = Array.isArray(data) && data.length === 0;
+  if (!isEmptySearchResult && !isEmptyArrayResult) {
+    cache.set(url, data);
+  }
   return data;
 }
 

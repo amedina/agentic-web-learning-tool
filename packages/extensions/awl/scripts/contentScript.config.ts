@@ -29,10 +29,7 @@ const aliases = [
   },
 ];
 
-const distDir = path.resolve(
-  __dirname,
-  '../../../../dist/extension/contentScript'
-);
+const distDir = path.resolve(__dirname, '../../../../dist/awl/contentScript');
 const srcDir = resolve(__dirname, '../src');
 
 const entries = {

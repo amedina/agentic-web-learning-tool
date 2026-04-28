@@ -134,9 +134,16 @@ const npmAdvisor = {
     const searchFormParent = searchInput.parentElement;
     if (!searchFormParent) return;
 
-    // Hide native input
+    // Hide native input and submit button immediately to prevent flicker
     searchInput.style.opacity = "0";
     searchInput.style.pointerEvents = "none";
+    const nativeSubmitButton = searchForm.querySelector(
+      'button[type="submit"]',
+    ) as HTMLElement | null;
+    if (nativeSubmitButton) {
+      nativeSubmitButton.style.opacity = "0";
+      nativeSubmitButton.style.pointerEvents = "none";
+    }
     searchFormParent.style.position = "relative";
 
     if (!document.getElementById("npm-advisor-overlay-host")) {

@@ -263,7 +263,7 @@ export const SearchBar: React.FC = () => {
                 window.location.href = `https://www.npmjs.com/search?q=${encodeURIComponent(query)}`;
               }
             }}
-            className="h-full px-4 flex items-center justify-center text-zinc-400 hover:text-orange-600 transition-colors border-l border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800/80"
+            className="h-full px-4 flex items-center justify-center text-zinc-400 hover:text-orange-600 transition-colors border-l border-zinc-200 dark:border-zinc-700"
             title="Search NPM"
           >
             <Search size={18} />

@@ -220,6 +220,28 @@ describe("getPackageStats", () => {
       expect(result?.responsiveness).toBeNull();
     });
 
+    it("flags githubIssuesUnavailable for non-rate-limit Search API errors (secondary rate limit)", async () => {
+      // GitHub's secondary rate limit returns 403 without x-ratelimit-remaining:0,
+      // so it doesn't qualify as GithubRateLimitError. Any non-rate-limit error
+      // from the Search API should still set githubIssuesUnavailable so the widget
+      // shows "Couldn't fetch right now" instead of "Not enough data to determine."
+      setupNpmDataWithRepo();
+      vi.mocked(fetchGithubRepo).mockResolvedValueOnce({
+        repo: { stars: 100, pushedAt: "2024-01-01" },
+      } as any);
+      vi.mocked(fetchGithubIssues).mockRejectedValueOnce(
+        new Error("Failed to fetch: Forbidden"),
+      );
+      vi.mocked(fetchGithubSecurityAdvisories).mockResolvedValueOnce([] as any);
+
+      const result = await getPackageStats("foo");
+
+      expect(result).not.toBeNull();
+      expect(result?.githubIssuesUnavailable).toBe(true);
+      expect(result?.githubRateLimited).toBe(false);
+      expect(result?.responsiveness).toBeNull();
+    });
+
     it("flags githubRateLimited when repo metadata hits the limit", async () => {
       setupNpmDataWithRepo();
       vi.mocked(fetchGithubRepo).mockRejectedValueOnce(
