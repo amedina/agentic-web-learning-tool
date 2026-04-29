@@ -7,7 +7,7 @@ import { Award, Trash2, X } from "lucide-react";
 /**
  * Internal dependencies.
  */
-import { calculateScore } from "../../lib/calculateScore";
+import { calculateScore } from "@google-awlt/package-analyzer-core";
 
 interface SidepanelComparisonTableProps {
   onClear?: () => void;

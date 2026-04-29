@@ -1,0 +1,29 @@
+{
+  "name": "@google-awlt/package-analyzer-ui",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0"
+  },
+  "devDependencies": {
+    "@google-awlt/shared-config": "workspace:*",
+    "@types/react": "^19.1.8",
+    "react": "^19.2.4",
+    "typescript": "~5.8.3"
+  },
+  "dependencies": {
+    "@google-awlt/design-system": "workspace:*",
+    "@google-awlt/package-analyzer-core": "workspace:*",
+    "d3": "^7.9.0",
+    "lucide-react": "^0.468.0"
+  }
+}

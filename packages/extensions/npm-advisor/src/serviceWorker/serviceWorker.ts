@@ -3,9 +3,15 @@
  */
 import { packageStatsService } from "./services/packageStats";
 import { npmSearchService } from "./services/npmSearch";
-import { fetchBundlephobiaData } from "../utils/fetchBundlephobiaData";
-import { getDependencyTree } from "../lib/getDependencyTree";
+import {
+  fetchBundlephobiaData,
+  getDependencyTree,
+  configureGithubAuth,
+} from "@google-awlt/package-analyzer-core";
+import { githubAuthService } from "./services/githubAuth";
 import "./chromeListeners";
+
+configureGithubAuth({ getToken: () => githubAuthService.getToken() });
 
 // Tiny in-memory caches for deferred fetches. Live on the service worker,
 // so the same package only hits the upstream once per service-worker

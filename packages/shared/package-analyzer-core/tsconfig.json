@@ -1,0 +1,13 @@
+{
+  "extends": "@google-awlt/shared-config/typescript/library",
+  "compilerOptions": {
+    "lib": ["ESNext", "DOM"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "noEmit": true,
+    "rootDir": "./src"
+  },
+  "include": ["src", "**/*.test.ts"],
+  "exclude": ["dist", "node_modules"]
+}

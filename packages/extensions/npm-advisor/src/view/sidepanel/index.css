@@ -2,6 +2,7 @@
 
 @source "../../../../../shared/design-system";
 @source "../../../../../shared/chatbot";
+@source "../../../../../shared/package-analyzer-ui";
 
 html, body, #root {
   height: 100%;

@@ -1,0 +1,13 @@
+{
+  "extends": "@google-awlt/shared-config/typescript/library",
+  "compilerOptions": {
+    "lib": ["ESNext", "DOM"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "noEmit": true,
+    "rootDir": "./src"
+  },
+  "include": ["src"],
+  "exclude": ["dist", "node_modules"]
+}

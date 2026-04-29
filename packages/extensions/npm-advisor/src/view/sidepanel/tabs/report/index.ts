@@ -1,1 +1,1 @@
-export * from "./reportTab";
+export { ChromeReportTab as ReportTab } from "./reportTab";

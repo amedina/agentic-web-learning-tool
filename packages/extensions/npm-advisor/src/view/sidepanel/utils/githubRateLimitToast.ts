@@ -6,7 +6,7 @@ import { toast } from "@google-awlt/design-system";
 /**
  * Internal dependencies.
  */
-import { GITHUB_RATE_LIMIT_ERROR_MARKER } from "../../../utils/githubFetch";
+import { GITHUB_RATE_LIMIT_ERROR_MARKER } from "@google-awlt/package-analyzer-core";
 import { GITHUB_PAT_STORAGE_KEY } from "../../../serviceWorker/services/githubAuth";
 
 export const GITHUB_RATE_LIMIT_USER_MESSAGE =
