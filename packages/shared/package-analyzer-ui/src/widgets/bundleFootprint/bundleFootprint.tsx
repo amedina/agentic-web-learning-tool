@@ -4,6 +4,11 @@
 import React from "react";
 import { Zap, HardDrive, Leaf, Info, Box, Loader2 } from "lucide-react";
 
+/**
+ * Internal dependencies.
+ */
+import { useCountUp } from "../../hooks/useCountUp";
+
 const formatBytes = (bytes: number, decimals = 2) => {
   if (!+bytes) return "0 Bytes";
   const k = 1024;
@@ -32,6 +37,9 @@ export const BundleFootprint: React.FC<BundleFootprintProps> = ({
   bundle,
   isLoading = false,
 }) => {
+  const animatedSize = useCountUp(bundle?.size ?? 0);
+  const animatedGzip = useCountUp(bundle?.gzip ?? 0);
+
   if (!bundle && isLoading) {
     return (
       <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
@@ -69,7 +77,7 @@ export const BundleFootprint: React.FC<BundleFootprintProps> = ({
             Minified
           </span>
           <span className="text-lg font-semibold text-slate-800 dark:text-slate-200">
-            {formatBytes(bundle.size)}
+            {formatBytes(animatedSize)}
           </span>
         </div>
         <div className="flex-1 bg-slate-50 dark:bg-slate-700 rounded-lg p-3 border border-slate-100 dark:border-slate-600 flex flex-col items-center justify-center">
@@ -78,7 +86,7 @@ export const BundleFootprint: React.FC<BundleFootprintProps> = ({
             GZipped
           </span>
           <span className="text-lg font-semibold text-slate-800 dark:text-slate-200">
-            {formatBytes(bundle.gzip)}
+            {formatBytes(animatedGzip)}
           </span>
         </div>
       </div>
