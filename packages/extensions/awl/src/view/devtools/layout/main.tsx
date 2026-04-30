@@ -1,7 +1,7 @@
 /**
  * External dependencies.
  */
-import { useSidebar } from '@google-awlt/design-system';
+import { useSidebar } from '@agentic-web-labs/design-system';
 
 /**
  * Internal dependencies.

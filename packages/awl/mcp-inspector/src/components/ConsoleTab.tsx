@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { TabsContent } from "@google-awlt/design-system";
+import { TabsContent } from "@agentic-web-labs/design-system";
 
 const ConsoleTab = () => (
   <TabsContent value="console" className="h-96">

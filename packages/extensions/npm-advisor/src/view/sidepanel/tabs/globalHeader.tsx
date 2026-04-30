@@ -11,8 +11,12 @@ import {
   Download,
   PlusCircle,
 } from "lucide-react";
-import { SidebarTrigger, Tooltip, Button } from "@google-awlt/design-system";
-import { usePropProvider } from "@google-awlt/chatbot";
+import {
+  SidebarTrigger,
+  Tooltip,
+  Button,
+} from "@agentic-web-labs/design-system";
+import { usePropProvider } from "@agentic-web-labs/chatbot";
 import { useThread } from "@assistant-ui/react";
 
 /**

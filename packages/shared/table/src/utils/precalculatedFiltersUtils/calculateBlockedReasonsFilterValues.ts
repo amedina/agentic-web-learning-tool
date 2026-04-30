@@ -17,7 +17,7 @@
 /**
  * External dependencies
  */
-import { getValueByKey } from "@google-awlt/common";
+import { getValueByKey } from "@agentic-web-labs/common";
 
 /**
  * Internal dependencies

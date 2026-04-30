@@ -7,7 +7,7 @@ import type {
   WorkflowJSON,
   ExecutionContext,
   NodeOutput,
-} from '@google-awlt/engine-core';
+} from '@agentic-web-labs/engine-core';
 
 // Service Worker -> Content Script Messages
 

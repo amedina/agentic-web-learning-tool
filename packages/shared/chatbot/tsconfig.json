@@ -1,5 +1,5 @@
 {
-  "extends": "@google-awlt/shared-config/typescript/react-library",
+  "extends": "@agentic-web-labs/shared-config/typescript/react-library",
   "compilerOptions": {
     "allowJs": true,
     "checkJs": true,

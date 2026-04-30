@@ -4,12 +4,12 @@
 import {
   type StatsClient,
   type BundleData,
-} from "@google-awlt/package-analyzer-ui";
+} from "@agentic-web-labs/package-analyzer-ui";
 import {
   type DependencyCategory,
   type PackageStats,
   type DependencyTree,
-} from "@google-awlt/package-analyzer-core";
+} from "@agentic-web-labs/package-analyzer-core";
 
 function sendChromeMessage<T>(
   message: object,

@@ -8,8 +8,8 @@ import {
   LogDetail,
   Toaster,
   type TableRow,
-} from '@google-awlt/design-system';
-import { noop } from '@google-awlt/common';
+} from '@agentic-web-labs/design-system';
+import { noop } from '@agentic-web-labs/common';
 import { Ban } from 'lucide-react';
 
 /**

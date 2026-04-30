@@ -9,7 +9,7 @@ import {
 import { CheckIcon, CopyIcon, ReloadIcon } from '@radix-ui/react-icons';
 import { Bot } from 'lucide-react';
 import { useCallback, type FC } from 'react';
-import { MarkdownText, ToolFallback } from '@google-awlt/design-system';
+import { MarkdownText, ToolFallback } from '@agentic-web-labs/design-system';
 
 /**
  * Internal dependencies

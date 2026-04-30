@@ -1,5 +1,5 @@
 {
-  "name": "@google-awlt/engine-extension",
+  "name": "@agentic-web-labs/engine-extension",
   "private": true,
   "version": "1.0.3",
   "type": "module",
@@ -14,11 +14,11 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@google-awlt/engine-core": "workspace:*",
+    "@agentic-web-labs/engine-core": "workspace:*",
     "loglevel": "^1.9.2"
   },
   "devDependencies": {
-    "@google-awlt/shared-config": "workspace:*",
+    "@agentic-web-labs/shared-config": "workspace:*",
     "@types/chrome": "^0.1.27",
     "@types/jest": "^29.5.14",
     "@types/node": "^24.3.0",

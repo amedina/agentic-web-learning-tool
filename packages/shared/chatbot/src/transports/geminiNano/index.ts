@@ -14,8 +14,8 @@ import {
 } from 'ai';
 import { type LanguageModelV2 } from '@ai-sdk/provider';
 import type { AssistantRuntime } from '@assistant-ui/react';
-import { getToolNameWithoutPrefix } from '@google-awlt/design-system';
-import { logger } from '@google-awlt/common';
+import { getToolNameWithoutPrefix } from '@agentic-web-labs/design-system';
+import { logger } from '@agentic-web-labs/common';
 /**
  * Internal dependencies
  */

@@ -13,7 +13,7 @@ import type { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
 import {
   listWorkflows,
   transformWorkflowToTool,
-} from '@google-awlt/engine-extension';
+} from '@agentic-web-labs/engine-extension';
 import {
   DOM_TOOL_NAME_PREFIX,
   EXTENSION_TOOL_PREFIX,
@@ -21,9 +21,9 @@ import {
   type CustomHeaders,
   type MCPConfig,
   type MCPServerConfig,
-} from '@google-awlt/common';
-import type { WebMCPTool } from '@google-awlt/design-system';
-import { jsonSchemaToZod } from '@google-awlt/chatbot';
+} from '@agentic-web-labs/common';
+import type { WebMCPTool } from '@agentic-web-labs/design-system';
+import { jsonSchemaToZod } from '@agentic-web-labs/chatbot';
 /**
  * Internal dependencies
  */

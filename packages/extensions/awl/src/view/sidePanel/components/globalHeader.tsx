@@ -2,8 +2,12 @@
  * External dependencies
  */
 import { Menu, Share2, PlusCircle, Settings } from 'lucide-react';
-import { SidebarTrigger, Tooltip, Button } from '@google-awlt/design-system';
-import { usePropProvider, openOptionsPage } from '@google-awlt/chatbot';
+import {
+  SidebarTrigger,
+  Tooltip,
+  Button,
+} from '@agentic-web-labs/design-system';
+import { usePropProvider, openOptionsPage } from '@agentic-web-labs/chatbot';
 import { useThread } from '@assistant-ui/react';
 
 export const GlobalHeader = () => {

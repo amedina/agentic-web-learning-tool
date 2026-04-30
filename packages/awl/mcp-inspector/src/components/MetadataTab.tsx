@@ -8,7 +8,7 @@ import {
   Input,
   Label,
   cn,
-} from "@google-awlt/design-system";
+} from "@agentic-web-labs/design-system";
 import { Trash2, Plus } from "lucide-react";
 
 /**

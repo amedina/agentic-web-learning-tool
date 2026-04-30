@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { useCallback, useMemo, useState } from "react";
-import { Button } from "@google-awlt/design-system";
+import { Button } from "@agentic-web-labs/design-system";
 import {
   type CreateMessageResult,
   CreateMessageResultSchema,

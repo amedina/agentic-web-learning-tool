@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { logger } from '@google-awlt/common';
+import { logger } from '@agentic-web-labs/common';
 
 /**
  * Ensure a tab-specific side panel is configured before opening

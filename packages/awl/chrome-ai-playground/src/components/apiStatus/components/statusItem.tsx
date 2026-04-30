@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React from "react";
-import { cn } from "@google-awlt/design-system";
+import { cn } from "@agentic-web-labs/design-system";
 
 interface StatusItemProps {
   label: React.ReactNode;

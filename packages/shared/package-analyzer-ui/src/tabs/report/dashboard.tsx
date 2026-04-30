@@ -6,12 +6,12 @@ import {
   CirclePieChart,
   Matrix,
   type MatrixComponentProps,
-} from "@google-awlt/design-system";
+} from "@agentic-web-labs/design-system";
 
 /**
  * Internal dependencies.
  */
-import { type PackageStats } from "@google-awlt/package-analyzer-core";
+import { type PackageStats } from "@agentic-web-labs/package-analyzer-core";
 import { type PackageJsonDependencies } from "../../types/statsClient";
 import {
   type DependencyStatsByName,

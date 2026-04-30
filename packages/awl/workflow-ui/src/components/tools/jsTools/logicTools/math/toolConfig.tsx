@@ -3,7 +3,10 @@
  */
 import { useEffect, useImperativeHandle, useState } from "react";
 import { Settings } from "lucide-react";
-import { MathConfigSchema, type MathConfig } from "@google-awlt/engine-core";
+import {
+  MathConfigSchema,
+  type MathConfig,
+} from "@agentic-web-labs/engine-core";
 
 /**
  * Internal dependencies

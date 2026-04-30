@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback } from 'react';
 import {
   PromptCommandsTab as PromptCommandsUI,
   type PromptCommand,
-} from '@google-awlt/design-system';
+} from '@agentic-web-labs/design-system';
 
 /**
  * Internal dependencies

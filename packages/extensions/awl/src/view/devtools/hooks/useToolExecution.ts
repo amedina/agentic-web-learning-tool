@@ -4,7 +4,7 @@
 import { useState, useCallback } from 'react';
 import { useMcpClient } from '@mcp-b/react-webmcp';
 import type { Tool } from '@modelcontextprotocol/sdk/types.js';
-import { toast } from '@google-awlt/design-system';
+import { toast } from '@agentic-web-labs/design-system';
 
 /**
  * Internal dependencies.

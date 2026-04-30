@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import { createContext, noop } from '@google-awlt/common';
-import { type TableData } from '@google-awlt/design-system';
+import { createContext, noop } from '@agentic-web-labs/common';
+import { type TableData } from '@agentic-web-labs/design-system';
 
 export type EventLogsContextProps = {
   state: {

@@ -1,4 +1,4 @@
-import { initWebWorkflow } from '@google-awlt/engine-web';
+import { initWebWorkflow } from '@agentic-web-labs/engine-web';
 
 (() => {
   const client = initWebWorkflow();

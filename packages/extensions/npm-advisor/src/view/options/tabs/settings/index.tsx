@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import {
   OptionsPageTab,
   OptionsPageTabSection,
-} from "@google-awlt/design-system";
+} from "@agentic-web-labs/design-system";
 
 /**
  * Internal dependencies
@@ -14,7 +14,7 @@ import ThemeToggleSection from "./themeToggleSection";
 import DataManagementSection from "./dataManagementSection";
 import GithubAuthSection from "./githubAuthSection";
 import ResetConfirmationDialog from "./resetConfirmationDialog";
-import { toast } from "@google-awlt/design-system";
+import { toast } from "@agentic-web-labs/design-system";
 
 type ThemeMode = "light" | "dark" | "auto";
 

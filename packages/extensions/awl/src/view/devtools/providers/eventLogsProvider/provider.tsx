@@ -8,7 +8,7 @@ import {
   type PropsWithChildren,
   useCallback,
 } from 'react';
-import { type TableData } from '@google-awlt/design-system';
+import { type TableData } from '@agentic-web-labs/design-system';
 
 /**
  * Internal dependencies

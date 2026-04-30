@@ -1,5 +1,5 @@
 {
-  "name": "@google-awlt/table",
+  "name": "@agentic-web-labs/table",
   "version": "0.0.1",
   "description": "Standalone Table component extracted from PSAT",
   "type": "module",
@@ -18,21 +18,21 @@
   "publishConfig": {
     "access": "public"
   },
-  "author": "Google",
+  "author": "Agentic Web Labs",
   "license": "Apache-2.0",
   "peerDependencies": {
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },
   "dependencies": {
-    "@google-awlt/common": "workspace:*",
+    "@agentic-web-labs/common": "workspace:*",
     "classnames": "^2.3.2",
     "p-queue": "^7.3.4",
     "re-resizable": "^6.11.2",
     "use-context-selector": "^2.0.0"
   },
   "devDependencies": {
-    "@google-awlt/shared-config": "workspace:*",
+    "@agentic-web-labs/shared-config": "workspace:*",
     "@storybook/react": "^9.1.13",
     "@testing-library/react": "^16.3.1",
     "@types/chrome": "^0.1.33",

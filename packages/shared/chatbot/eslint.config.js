@@ -5,8 +5,8 @@ import globals from 'globals';
 /**
  * Imports.
  */
-import { config as baseConfig } from '@google-awlt/shared-config/eslint';
-import { config as reactConfig } from '@google-awlt/shared-config/eslint/react';
+import { config as baseConfig } from '@agentic-web-labs/shared-config/eslint';
+import { config as reactConfig } from '@agentic-web-labs/shared-config/eslint/react';
 import reactRefresh from 'eslint-plugin-react-refresh';
 import { globalIgnores, defineConfig } from 'eslint/config';
 

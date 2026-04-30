@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import type { WebMCPTool } from '@google-awlt/design-system';
-import { logger } from '@google-awlt/common';
+import type { WebMCPTool } from '@agentic-web-labs/design-system';
+import { logger } from '@agentic-web-labs/common';
 /**
  * Internal dependencies
  */

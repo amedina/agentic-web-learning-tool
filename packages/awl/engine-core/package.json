@@ -1,5 +1,5 @@
 {
-  "name": "@google-awlt/engine-core",
+  "name": "@agentic-web-labs/engine-core",
   "private": true,
   "version": "1.0.3",
   "type": "module",
@@ -14,7 +14,7 @@
     "test": "jest"
   },
   "devDependencies": {
-    "@google-awlt/shared-config": "workspace:*",
+    "@agentic-web-labs/shared-config": "workspace:*",
     "@types/jest": "^29.5.14",
     "@types/node": "^24.3.0",
     "eslint": "^9.33.0",

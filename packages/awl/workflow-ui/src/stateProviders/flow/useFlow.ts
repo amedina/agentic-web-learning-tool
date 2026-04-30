@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { useContextSelector } from "@google-awlt/common";
+import { useContextSelector } from "@agentic-web-labs/common";
 import FlowContext, { type FlowStoreContext } from "./context";
 
 export function useFlow(): FlowStoreContext;

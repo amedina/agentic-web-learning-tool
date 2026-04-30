@@ -6,7 +6,7 @@ import { Settings } from "lucide-react";
 import {
   RewriterApiConfigSchema,
   type RewriterApiConfig,
-} from "@google-awlt/engine-core";
+} from "@agentic-web-labs/engine-core";
 
 /**
  * Internal dependencies

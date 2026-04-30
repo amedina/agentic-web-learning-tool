@@ -1,7 +1,7 @@
 /**
  * External dependencies.
  */
-import { Button } from '@google-awlt/design-system';
+import { Button } from '@agentic-web-labs/design-system';
 
 interface ExtensionReloadNotificationProps {
   tabId?: number;

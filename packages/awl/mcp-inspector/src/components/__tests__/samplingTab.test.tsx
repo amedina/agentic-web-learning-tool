@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { Tabs } from "@google-awlt/design-system";
+import { Tabs } from "@agentic-web-labs/design-system";
 import SamplingTab, { type PendingRequest } from "../SamplingTab";
 
 describe("Sampling tab", () => {

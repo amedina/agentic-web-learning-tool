@@ -10,7 +10,7 @@ import { MousePointer2 } from "lucide-react";
  */
 import { ToolNodeContainer } from "../../../../ui";
 import { useApi, useFlow } from "../../../../../stateProviders";
-import type { SelectionToolConfig } from "@google-awlt/engine-core";
+import type { SelectionToolConfig } from "@agentic-web-labs/engine-core";
 
 const ToolNode = () => {
   const nodeId = useNodeId();

@@ -6,7 +6,7 @@ import { Settings } from "lucide-react";
 import {
   WriterApiConfigSchema,
   type WriterApiConfig,
-} from "@google-awlt/engine-core";
+} from "@agentic-web-labs/engine-core";
 
 /**
  * Internal dependencies

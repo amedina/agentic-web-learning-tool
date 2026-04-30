@@ -10,7 +10,7 @@ import { Database } from "lucide-react";
  */
 import { ToolNodeContainer } from "../../../../ui";
 import { useApi, useFlow } from "../../../../../stateProviders";
-import type { DataTransformerConfig } from "@google-awlt/engine-core";
+import type { DataTransformerConfig } from "@agentic-web-labs/engine-core";
 
 const DataTransformerToolNode = () => {
   const nodeId = useNodeId();

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import type { WebMCPTool } from '@google-awlt/design-system';
+import type { WebMCPTool } from '@agentic-web-labs/design-system';
 
 const tabOnClosedCallback = async (tabId: number) => {
   //@ts-expect-error -- PromiseQueue is added to globalThis in service worker

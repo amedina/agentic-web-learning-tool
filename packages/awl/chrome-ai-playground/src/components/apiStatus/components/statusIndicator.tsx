@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { Circle, AlertTriangle, XCircle, CheckCircle2 } from "lucide-react";
-import { cn } from "@google-awlt/design-system";
+import { cn } from "@agentic-web-labs/design-system";
 
 export type StatusType = "ready" | "warning" | "error" | "loading" | "info";
 

@@ -1,5 +1,5 @@
 {
-  "name": "@google-awlt/storybook-config",
+  "name": "@agentic-web-labs/storybook-config",
   "private": true,
   "version": "1.0.3",
   "type": "module",
@@ -9,7 +9,7 @@
     "format": "prettier . --write"
   },
   "dependencies": {
-    "@google-awlt/design-system": "workspace:*",
+    "@agentic-web-labs/design-system": "workspace:*",
     "@tailwindcss/vite": "^4.1.12",
     "lucide-react": "^0.577.0",
     "react": "^19.1.1",
@@ -18,7 +18,7 @@
   "devDependencies": {
     "@chromatic-com/storybook": "^4.1.1",
     "@eslint/js": "^9.33.0",
-    "@google-awlt/shared-config": "workspace:*",
+    "@agentic-web-labs/shared-config": "workspace:*",
     "@storybook/addon-a11y": "^9.1.3",
     "@storybook/addon-docs": "^9.1.3",
     "@storybook/addon-onboarding": "^9.1.3",

@@ -28,7 +28,7 @@ import {
 } from "../tools";
 import { WorkflowConfig } from "./workflowConfig";
 import { ToolsConfig } from "../ui";
-import { NodeType } from "@google-awlt/engine-core";
+import { NodeType } from "@agentic-web-labs/engine-core";
 
 const TOOLS = {
   [NodeType.PROMPT_API]: PromptApiToolConfig,

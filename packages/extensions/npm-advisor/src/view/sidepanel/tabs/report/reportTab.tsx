@@ -2,13 +2,13 @@
  * External dependencies.
  */
 import React from "react";
-import { usePropProvider } from "@google-awlt/chatbot";
-import { ReportTab } from "@google-awlt/package-analyzer-ui";
+import { usePropProvider } from "@agentic-web-labs/chatbot";
+import { ReportTab } from "@agentic-web-labs/package-analyzer-ui";
 
 /**
  * Internal dependencies.
  */
-import { type PackageJsonDependencies } from "@google-awlt/package-analyzer-ui";
+import { type PackageJsonDependencies } from "@agentic-web-labs/package-analyzer-ui";
 import { showGithubRateLimitToastOnce } from "../../utils/githubRateLimitToast";
 
 interface ReportTabProps {

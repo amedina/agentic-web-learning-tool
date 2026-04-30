@@ -2,7 +2,7 @@ import { render, screen, fireEvent, act } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import ToolsTab from "../ToolsTab";
 import { type Tool } from "@modelcontextprotocol/sdk/types.js";
-import { Tabs } from "@google-awlt/design-system";
+import { Tabs } from "@agentic-web-labs/design-system";
 import { cacheToolOutputSchemas } from "../../utils/schemaUtils";
 import { within } from "@testing-library/react";
 import {

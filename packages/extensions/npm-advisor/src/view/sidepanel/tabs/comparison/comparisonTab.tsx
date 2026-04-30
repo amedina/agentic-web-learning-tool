@@ -2,7 +2,7 @@
  * External dependencies.
  */
 import React, { useEffect, useRef } from "react";
-import { usePropProvider } from "@google-awlt/chatbot";
+import { usePropProvider } from "@agentic-web-labs/chatbot";
 
 /**
  * Internal dependencies.

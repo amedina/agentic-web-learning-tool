@@ -30,7 +30,7 @@ import {
   TabsList,
   TabsTrigger,
   Button,
-} from "@google-awlt/design-system";
+} from "@agentic-web-labs/design-system";
 import {
   Bell,
   Files,

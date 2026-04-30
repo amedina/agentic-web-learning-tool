@@ -5,9 +5,9 @@ import {
   listWorkflows,
   loadWorkflow,
   handleRunWorkflow,
-} from '@google-awlt/engine-extension';
-import type { WorkflowJSON } from '@google-awlt/engine-core';
-import { logger } from '@google-awlt/common';
+} from '@agentic-web-labs/engine-extension';
+import type { WorkflowJSON } from '@agentic-web-labs/engine-core';
+import { logger } from '@agentic-web-labs/common';
 /**
  * Internal dependencies
  */

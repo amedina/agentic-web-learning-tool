@@ -9,7 +9,7 @@ import {
   useState,
   type PropsWithChildren,
 } from 'react';
-import { type LogLevelDesc, Logger } from '@google-awlt/common';
+import { type LogLevelDesc, Logger } from '@agentic-web-labs/common';
 /**
  * Internal dependencies
  */

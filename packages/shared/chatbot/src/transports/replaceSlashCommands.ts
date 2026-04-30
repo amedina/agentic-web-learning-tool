@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import type { PromptCommand } from '@google-awlt/design-system';
+import type { PromptCommand } from '@agentic-web-labs/design-system';
 import { createUIMessageStream } from 'ai';
 import type { AssistantRuntime } from '@assistant-ui/react';
 /**

@@ -1,5 +1,5 @@
 {
-  "name": "@google-awlt/npm-advisor",
+  "name": "@agentic-web-labs/npm-advisor",
   "private": true,
   "version": "0.2.0",
   "type": "module",
@@ -17,11 +17,11 @@
     "test": "vitest run --root . --silent"
   },
   "dependencies": {
-    "@google-awlt/chatbot": "workspace:*",
-    "@google-awlt/common": "workspace:*",
-    "@google-awlt/design-system": "workspace:*",
-    "@google-awlt/package-analyzer-core": "workspace:*",
-    "@google-awlt/package-analyzer-ui": "workspace:*",
+    "@agentic-web-labs/chatbot": "workspace:*",
+    "@agentic-web-labs/common": "workspace:*",
+    "@agentic-web-labs/design-system": "workspace:*",
+    "@agentic-web-labs/package-analyzer-core": "workspace:*",
+    "@agentic-web-labs/package-analyzer-ui": "workspace:*",
     "@ai-sdk/provider": "^2.0.0",
     "@assistant-ui/react": "0.11.51",
     "@assistant-ui/react-ai-sdk": "1.1.19",
@@ -40,7 +40,7 @@
     "d3": "^7.9.0"
   },
   "devDependencies": {
-    "@google-awlt/shared-config": "workspace:*",
+    "@agentic-web-labs/shared-config": "workspace:*",
     "@types/chrome": "^0.1.27",
     "@types/d3": "^7.4.3",
     "@types/node": "^24.3.0",

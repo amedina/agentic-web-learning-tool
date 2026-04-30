@@ -23,7 +23,7 @@ import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from '@google-awlt/design-system';
+} from '@agentic-web-labs/design-system';
 const ANIMATION_DURATION = 200;
 const SHIMMER_DURATION = 1000;
 

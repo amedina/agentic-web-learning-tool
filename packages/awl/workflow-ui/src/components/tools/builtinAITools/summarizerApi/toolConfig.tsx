@@ -6,7 +6,7 @@ import { Settings } from "lucide-react";
 import {
   SummarizerApiConfigSchema,
   type SummarizerApiConfig,
-} from "@google-awlt/engine-core";
+} from "@agentic-web-labs/engine-core";
 
 /**
  * Internal dependencies

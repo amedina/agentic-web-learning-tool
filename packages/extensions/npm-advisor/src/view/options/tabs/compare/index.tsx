@@ -2,13 +2,13 @@
  * External dependencies
  */
 import { useEffect, useState, useMemo } from "react";
-import { OptionsPageTab } from "@google-awlt/design-system";
+import { OptionsPageTab } from "@agentic-web-labs/design-system";
 
 /**
  * Internal dependencies
  */
 import { ComparisonTab } from "./comparisonTab";
-import { calculateScore } from "@google-awlt/package-analyzer-core";
+import { calculateScore } from "@agentic-web-labs/package-analyzer-core";
 
 export default function ComparisonPage() {
   const [comparisonBucket, setComparisonBucket] = useState<any[]>([]);

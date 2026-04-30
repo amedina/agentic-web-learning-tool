@@ -8,7 +8,7 @@ import {
   Button,
   Input,
   TabsContent,
-} from "@google-awlt/design-system";
+} from "@agentic-web-labs/design-system";
 import type { Root } from "@modelcontextprotocol/sdk/types.js";
 import { Plus, Minus, Save } from "lucide-react";
 

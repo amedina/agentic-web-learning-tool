@@ -1,7 +1,11 @@
 /**
  * External dependencies
  */
-import { createContext, noop, type MCPServerConfig } from '@google-awlt/common';
+import {
+  createContext,
+  noop,
+  type MCPServerConfig,
+} from '@agentic-web-labs/common';
 import type { Client } from '@modelcontextprotocol/sdk/client';
 import type { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
 import type { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';

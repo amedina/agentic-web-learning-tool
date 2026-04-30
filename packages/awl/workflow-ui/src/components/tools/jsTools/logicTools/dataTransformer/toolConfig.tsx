@@ -6,7 +6,7 @@ import { Settings } from "lucide-react";
 import {
   DataTransformerConfigSchema,
   type DataTransformerConfig,
-} from "@google-awlt/engine-core";
+} from "@agentic-web-labs/engine-core";
 
 /**
  * Internal dependencies

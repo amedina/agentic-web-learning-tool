@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { logger } from '@google-awlt/common';
+import { logger } from '@agentic-web-labs/common';
 import { createOpenAI } from '@ai-sdk/openai';
 import { createAnthropic } from '@ai-sdk/anthropic';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';

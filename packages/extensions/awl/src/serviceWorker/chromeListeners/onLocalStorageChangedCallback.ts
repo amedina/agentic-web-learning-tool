@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import type { MCPConfig } from '@google-awlt/common';
+import type { MCPConfig } from '@agentic-web-labs/common';
 /**
  * Internal dependencies
  */

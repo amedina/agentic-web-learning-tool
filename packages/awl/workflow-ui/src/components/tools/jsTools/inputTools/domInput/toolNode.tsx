@@ -10,7 +10,7 @@ import { FileSearch } from "lucide-react";
  */
 import { useApi, useFlow } from "../../../../../stateProviders";
 import { ToolNodeContainer } from "../../../../ui";
-import type { DomInputConfig } from "@google-awlt/engine-core";
+import type { DomInputConfig } from "@agentic-web-labs/engine-core";
 
 const ToolNode = () => {
   const nodeId = useNodeId();

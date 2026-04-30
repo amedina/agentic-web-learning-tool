@@ -6,7 +6,7 @@ import {
   registerBuiltinExecutors,
   type WorkflowJSON,
   type ExecutionContext,
-} from "@google-awlt/engine-core";
+} from "@agentic-web-labs/engine-core";
 
 /**
  * Internal dependencies

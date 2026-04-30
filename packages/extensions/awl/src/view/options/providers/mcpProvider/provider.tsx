@@ -16,14 +16,14 @@ import {
   type MCPConfig,
   type MCPServerConfig,
   logger,
-} from '@google-awlt/common';
+} from '@agentic-web-labs/common';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
-import { toast } from '@google-awlt/design-system';
+import { toast } from '@agentic-web-labs/design-system';
 import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
 import {
   InspectorOAuthClientProvider,
   McpConnectionProvider,
-} from '@google-awlt/mcp-inspector';
+} from '@agentic-web-labs/mcp-inspector';
 /**
  * Internal dependencies
  */

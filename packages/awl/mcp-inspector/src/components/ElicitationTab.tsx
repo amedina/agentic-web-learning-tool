@@ -5,7 +5,7 @@ import {
   Alert,
   AlertDescription,
   TabsContent,
-} from "@google-awlt/design-system";
+} from "@agentic-web-labs/design-system";
 
 /**
  * Internal dependencies

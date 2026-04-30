@@ -3,7 +3,7 @@
  */
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { CheckCircle2, Circle, ExternalLink } from "lucide-react";
-import { Button } from "@google-awlt/design-system";
+import { Button } from "@agentic-web-labs/design-system";
 import type { OAuthClientInformation } from "@modelcontextprotocol/sdk/shared/auth.js";
 
 /**

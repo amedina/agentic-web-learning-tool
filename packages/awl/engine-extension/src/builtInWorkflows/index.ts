@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { type WorkflowJSON, NodeType } from '@google-awlt/engine-core';
+import { type WorkflowJSON, NodeType } from '@agentic-web-labs/engine-core';
 
 export const PREDEFINED_WORKFLOWS: WorkflowJSON[] = [
   {

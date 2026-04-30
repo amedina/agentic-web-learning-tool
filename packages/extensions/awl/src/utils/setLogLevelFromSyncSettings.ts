@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Logger } from '@google-awlt/common';
+import { Logger } from '@agentic-web-labs/common';
 /**
  * Internal dependencies
  */

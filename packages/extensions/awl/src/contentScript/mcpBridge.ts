@@ -8,7 +8,7 @@ import {
   ToolListChangedNotificationSchema,
   type Tool,
 } from '@modelcontextprotocol/sdk/types.js';
-import { logger } from '@google-awlt/common';
+import { logger } from '@agentic-web-labs/common';
 /**
  * Internal dependencies
  */

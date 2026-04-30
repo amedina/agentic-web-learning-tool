@@ -34,7 +34,7 @@ import {
   type GoogleGenerativeAIProviderSettings,
 } from '@ai-sdk/google';
 import z from 'zod';
-import { logger } from '@google-awlt/common';
+import { logger } from '@agentic-web-labs/common';
 /**
  * Internal dependencies
  */

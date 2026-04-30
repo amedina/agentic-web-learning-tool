@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { EXTENSION_TOOL_PREFIX } from '@google-awlt/common';
+import { EXTENSION_TOOL_PREFIX } from '@agentic-web-labs/common';
 
 /**
  * Extracts the user-facing tool name from a fully qualified internal tool identifier.

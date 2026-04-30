@@ -3,7 +3,7 @@
  */
 import { useState, useMemo, useRef, useCallback } from "react";
 import { Search } from "lucide-react";
-import { Button, Input } from "@google-awlt/design-system";
+import { Button, Input } from "@agentic-web-labs/design-system";
 
 type ListPaneProps<T> = {
   items: T[];

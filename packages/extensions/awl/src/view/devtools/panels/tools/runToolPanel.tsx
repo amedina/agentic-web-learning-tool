@@ -3,7 +3,7 @@
  */
 import { useState, useEffect, useCallback, useRef } from 'react';
 import type { Tool } from '@modelcontextprotocol/sdk/types.js';
-import { RunToolPanel as RunToolPanelView } from '@google-awlt/design-system';
+import { RunToolPanel as RunToolPanelView } from '@agentic-web-labs/design-system';
 
 /**
  * Internal dependencies.

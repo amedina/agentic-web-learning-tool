@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
   cn,
-} from "@google-awlt/design-system";
+} from "@agentic-web-labs/design-system";
 import {
   type CompatibilityCallToolResult,
   type ListToolsResult,

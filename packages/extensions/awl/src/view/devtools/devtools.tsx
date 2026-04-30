@@ -3,7 +3,7 @@
  */
 import { ExtensionClientTransport } from '@mcp-b/transports';
 import { Client } from '@modelcontextprotocol/sdk/client';
-import { SidebarProvider } from '@google-awlt/design-system';
+import { SidebarProvider } from '@agentic-web-labs/design-system';
 import { useEffect } from 'react';
 /**
  * Internal dependencies

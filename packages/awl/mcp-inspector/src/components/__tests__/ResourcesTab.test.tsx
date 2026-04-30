@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import { Tabs } from "@google-awlt/design-system";
+import { Tabs } from "@agentic-web-labs/design-system";
 import ResourcesTab from "../ResourcesTab";
 import {
   type ResourceTemplate,

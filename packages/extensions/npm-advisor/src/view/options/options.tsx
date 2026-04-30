@@ -10,7 +10,7 @@ import {
   Toaster,
   useSidebar,
   type MenuItem,
-} from "@google-awlt/design-system";
+} from "@agentic-web-labs/design-system";
 import { CpuIcon, Settings2, BarChart2 } from "lucide-react";
 /**
  * Internal dependencies

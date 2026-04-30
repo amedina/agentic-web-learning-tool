@@ -1,5 +1,5 @@
 {
-  "extends": "@google-awlt/shared-config/typescript/library",
+  "extends": "@agentic-web-labs/shared-config/typescript/library",
   "compilerOptions": {
     "lib": ["ESNext", "DOM"],
     "module": "ESNext",
