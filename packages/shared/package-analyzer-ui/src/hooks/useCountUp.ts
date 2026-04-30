@@ -1,19 +1,21 @@
 /**
  * External dependencies.
  */
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 /**
- * Animates a numeric value from 0 up to `target` over `durationMs` using
- * an ease-out cubic curve. Used by the Insights widgets so headline
- * numbers (Fitness Score, bundle size, responsiveness %, etc.) look like
- * they're filling in as data lands rather than snapping into place after
- * the skeleton — a perception-only fix while the underlying fetch stays
- * a single Promise.all.
+ * Animates a numeric value from its current displayed value up to `target`
+ * over `durationMs` using an ease-out cubic curve. Used by the Insights
+ * widgets so headline numbers (Fitness Score, bundle size, responsiveness
+ * %, etc.) look like they're filling in as data lands rather than
+ * snapping into place after the skeleton — a perception-only fix while
+ * the underlying fetch stays a single Promise.all.
  *
- * Restarts from 0 whenever `target` changes (e.g. user navigates to a
- * different package) so the animation is consistent per-package rather
- * than tweening between two real values.
+ * Skips the animation on the very first effect run so a remount with
+ * already-cached data (e.g. user re-opens the side panel for a package
+ * they've already analysed) snaps to the final value instead of
+ * counting up again. Subsequent target changes — fresh fetches, package
+ * switches — animate as expected.
  */
 const DEFAULT_DURATION_MS = 800;
 
@@ -21,9 +23,16 @@ export const useCountUp = (
   target: number,
   durationMs: number = DEFAULT_DURATION_MS,
 ): number => {
-  const [value, setValue] = useState(0);
+  const [value, setValue] = useState(target);
+  const hasMountedRef = useRef(false);
 
   useEffect(() => {
+    if (!hasMountedRef.current) {
+      hasMountedRef.current = true;
+      setValue(target);
+      return;
+    }
+
     if (target <= 0) {
       setValue(target);
       return;
