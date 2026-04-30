@@ -19,6 +19,7 @@ import { Tooltip } from "@agentic-web-labs/design-system";
 import { type ScoreBreakdownItem } from "@agentic-web-labs/package-analyzer-core";
 import { DEPENDENCIES_COLORS } from "../../tabs/dependencies/dependenciesColors";
 import { BRAND_PRIMARY_COLOR } from "../../theme/brandColors";
+import { useCountUp } from "../../hooks/useCountUp";
 
 /**
  * Picks a Fitness Score color based on the score's percentage of the
@@ -129,6 +130,10 @@ export const Header: React.FC<HeaderProps> = ({
   isLoading = false,
   onNavigateToComparison,
 }) => {
+  const animatedScore = useCountUp(score ?? 0);
+  const animatedStars = useCountUp(stars ?? 0);
+  const animatedCollabs = useCountUp(collaboratorsCount ?? 0);
+
   const formatDate = (dateString: string) => {
     const d = new Date(dateString);
     const day = d.getDate();
@@ -311,10 +316,15 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
             <span
               className="font-bold text-lg leading-none text-center"
-              style={{ color: getFitnessColor(score, scoreMaxPoints) }}
+              style={{
+                color: getFitnessColor(
+                  score === null ? null : animatedScore,
+                  scoreMaxPoints,
+                ),
+              }}
             >
               {score !== null ? (
-                score
+                animatedScore
               ) : isLoading ? (
                 <SkeletonValue width="w-8" />
               ) : (
@@ -329,7 +339,7 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
           <span className="font-medium text-slate-800 dark:text-slate-200">
             {stars !== null ? (
-              stars.toLocaleString()
+              animatedStars.toLocaleString()
             ) : githubRateLimited ? (
               <RateLimitedValue />
             ) : isLoading ? (
@@ -348,7 +358,7 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
           <span className="font-medium text-slate-800 dark:text-slate-200">
             {collaboratorsCount !== null && collaboratorsCount !== undefined ? (
-              collaboratorsCount
+              animatedCollabs
             ) : isLoading ? (
               <SkeletonValue width="w-8" />
             ) : (

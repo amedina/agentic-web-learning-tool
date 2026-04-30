@@ -1,6 +1,7 @@
 export * from "./types/statsClient";
 export * from "./context/statsClientContext";
 export * from "./hooks/useDependencyStats";
+export * from "./hooks/useCountUp";
 export * from "./widgets";
 export * from "./tabs/dependencies/dependenciesTab";
 export * from "./tabs/dependencies/dependencySection";
