@@ -19,7 +19,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "author": "Google",
+  "author": "Agentic Web Labs",
   "license": "Apache-2.0",
   "peerDependencies": {
     "react": "^19.1.0",
