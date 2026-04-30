@@ -1,6 +1,6 @@
 export * from "./askAI";
 export * from "./insights";
-export * from "./report";
+export * from "./dependencies";
 export * from "./comparison";
 export * from "./globalHeader";
 export * from "./errorBoundary";

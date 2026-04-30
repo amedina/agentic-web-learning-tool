@@ -11,9 +11,12 @@ import { useDependencyStats } from "../../hooks/useDependencyStats";
 import { Dashboard } from "./dashboard";
 import { DependencySection } from "./dependencySection";
 import { FilterPills } from "./filterPills";
-import { computeFilterCounts, type ReportFilterKey } from "./reportFilters";
+import {
+  computeFilterCounts,
+  type DependenciesFilterKey,
+} from "./dependenciesFilters";
 
-interface ReportTabProps {
+interface DependenciesTabProps {
   packageJsonDependencies: PackageJsonDependencies;
   onAddRecommendationToCompare: (packageName: string) => void;
   comparisonBucketNames: Set<string>;
@@ -24,7 +27,7 @@ interface ReportTabProps {
   onNavigateToComparison?: () => void;
 }
 
-export const ReportTab: React.FC<ReportTabProps> = ({
+export const DependenciesTab: React.FC<DependenciesTabProps> = ({
   packageJsonDependencies,
   onAddRecommendationToCompare,
   comparisonBucketNames,
@@ -36,9 +39,9 @@ export const ReportTab: React.FC<ReportTabProps> = ({
     onRateLimited,
   });
 
-  const [activeFilters, setActiveFilters] = useState<Set<ReportFilterKey>>(
-    () => new Set(),
-  );
+  const [activeFilters, setActiveFilters] = useState<
+    Set<DependenciesFilterKey>
+  >(() => new Set());
 
   const allPackageNames = useMemo(
     () => [
@@ -54,7 +57,7 @@ export const ReportTab: React.FC<ReportTabProps> = ({
     [allPackageNames, statsByName],
   );
 
-  const toggleFilter = useCallback((key: ReportFilterKey) => {
+  const toggleFilter = useCallback((key: DependenciesFilterKey) => {
     setActiveFilters((previous) => {
       const next = new Set(previous);
       if (next.has(key)) {
@@ -68,7 +71,7 @@ export const ReportTab: React.FC<ReportTabProps> = ({
 
   // Matrix tiles act as set-on triggers (additive). Clicking the same tile
   // twice keeps the filter on — use the pill's X to remove it.
-  const setFilterOn = useCallback((key: ReportFilterKey) => {
+  const setFilterOn = useCallback((key: DependenciesFilterKey) => {
     setActiveFilters((previous) => {
       if (previous.has(key)) {
         return previous;

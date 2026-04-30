@@ -1,5 +1,5 @@
 /**
- * Canonical colors for the Report tab.
+ * Canonical colors for the Dependencies tab.
  *
  * Each metric and dependency category has a single dedicated color used
  * everywhere it appears (pie segments, matrix swatches, accordion badges,
@@ -18,7 +18,7 @@
  * | unanalysed        | rgb(148, 163, 184)        | not on npm / fetch failed  |
  * | neutral           | rgb(226, 232, 240)        | empty pie remainder        |
  */
-export const REPORT_COLORS = {
+export const DEPENDENCIES_COLORS = {
   prod: "#4C79F4",
   dev: "#22C55E",
   peer: "#A855F7",
@@ -42,10 +42,10 @@ export function dominantDependencyColor(counts: {
 }): string {
   const { prod, dev, peer } = counts;
   if (peer > prod && peer > dev) {
-    return REPORT_COLORS.peer;
+    return DEPENDENCIES_COLORS.peer;
   }
   if (dev > prod && dev > peer) {
-    return REPORT_COLORS.dev;
+    return DEPENDENCIES_COLORS.dev;
   }
-  return REPORT_COLORS.prod;
+  return DEPENDENCIES_COLORS.prod;
 }

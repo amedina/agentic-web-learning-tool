@@ -24,7 +24,7 @@ import {
   type DependencyTree,
 } from "@agentic-web-labs/package-analyzer-core";
 import { PackageInsightsBody } from "../insights/packageInsightsBody";
-import { REPORT_COLORS } from "./reportColors";
+import { DEPENDENCIES_COLORS } from "./dependenciesColors";
 import { useStatsClient } from "../../context/statsClientContext";
 import { type BundleData } from "../../types/statsClient";
 
@@ -79,7 +79,7 @@ const StatusSummary: React.FC<{ state: DependencyStatsState }> = ({
     (recommendations?.preferredReplacements?.length ?? 0) > 0 ||
     (recommendations?.microUtilityReplacements?.length ?? 0) > 0;
 
-  // The Fitness score is intentionally not shown on Report rows. Fitness
+  // The Fitness score is intentionally not shown on Dependencies rows. Fitness
   // is a composite that includes Responsiveness, which we don't load for
   // dep rows because the Search API quota that powers it routinely
   // throttles during a multi-dep scan. Showing a partial-coverage score
@@ -88,7 +88,7 @@ const StatusSummary: React.FC<{ state: DependencyStatsState }> = ({
     <div className="flex items-center gap-1.5">
       {vulnerabilityCount > 0 && (
         <Badge
-          color={REPORT_COLORS.vulnerable}
+          color={DEPENDENCIES_COLORS.vulnerable}
           icon={<ShieldAlert size={10} />}
           title={`${vulnerabilityCount} vulnerabilit${vulnerabilityCount === 1 ? "y" : "ies"}`}
         >
@@ -97,14 +97,14 @@ const StatusSummary: React.FC<{ state: DependencyStatsState }> = ({
       )}
       {hasLicenseIssue && (
         <Badge
-          color={REPORT_COLORS.licenseIssue}
+          color={DEPENDENCIES_COLORS.licenseIssue}
           icon={<Scale size={10} />}
           title="License incompatible with target"
         />
       )}
       {isReplaceable && (
         <Badge
-          color={REPORT_COLORS.replaceable}
+          color={DEPENDENCIES_COLORS.replaceable}
           icon={<Sparkles size={10} />}
           title="Modern replacement available"
         />
@@ -121,9 +121,9 @@ interface BadgeProps {
 }
 
 /**
- * Compact pill that signals one of the report's key parameters
+ * Compact pill that signals one of the tab's key parameters
  * (vulnerabilities / license issues / replaceable) on an accordion trigger.
- * Uses the canonical color from `REPORT_COLORS` so the same parameter looks
+ * Uses the canonical color from `DEPENDENCIES_COLORS` so the same parameter looks
  * the same in the dashboard pie/matrix and in the accordion row badge.
  */
 const Badge: React.FC<BadgeProps> = ({ color, icon, title, children }) => (

@@ -123,7 +123,7 @@ export interface DependencyTreeProps {
   dependencyTree: DependencyTreeType | null;
   /**
    * When true, renders the widget shell with a centered loader. Used by
-   * the Report tab where the transitive dep tree is fetched lazily on
+   * the Dependencies tab where the transitive dep tree is fetched lazily on
    * accordion expand to avoid hammering npm with recursive fetches up front.
    */
   isLoading?: boolean;

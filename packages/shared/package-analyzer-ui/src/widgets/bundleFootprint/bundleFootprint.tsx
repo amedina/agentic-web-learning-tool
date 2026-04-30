@@ -22,7 +22,7 @@ export interface BundleFootprintProps {
   } | null;
   /**
    * When true, renders the widget shell with a centered loader instead of
-   * hiding it. Used by the Report tab where bundle data is fetched lazily
+   * hiding it. Used by the Dependencies tab where bundle data is fetched lazily
    * on accordion expand to avoid hammering bundlephobia upfront.
    */
   isLoading?: boolean;

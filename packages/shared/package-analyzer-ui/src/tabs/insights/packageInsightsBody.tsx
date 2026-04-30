@@ -24,7 +24,7 @@ interface PackageInsightsBodyProps {
   addingRecommendations?: Set<string>;
   showDependencyTree?: boolean;
   /**
-   * Renders BundleFootprint in a loading state. Used by the Report tab,
+   * Renders BundleFootprint in a loading state. Used by the Dependencies tab,
    * where the bundle is fetched lazily on accordion expand.
    */
   bundleLoading?: boolean;
@@ -38,17 +38,17 @@ interface PackageInsightsBodyProps {
   /**
    * When true, prepends the full Header widget (package name, github link,
    * stars, collabs, last commit, fitness score) to the body. Used by the
-   * Report tab's accordion rows so each expanded dep shows the same set
+   * Dependencies tab's accordion rows so each expanded dep shows the same set
    * of stats as the main Insights tab, not just the bottom widgets.
    */
   showHeader?: boolean;
   /**
    * Renders the DependencyTree widget in a loading state. Used by the
-   * Report tab when the tree is fetched lazily on accordion expand.
+   * Dependencies tab when the tree is fetched lazily on accordion expand.
    */
   dependencyTreeLoading?: boolean;
   /**
-   * Hide the Responsiveness widget. Used by the Report tab where the
+   * Hide the Responsiveness widget. Used by the Dependencies tab where the
    * issues data isn't loaded for individual deps (Search API quota), so
    * showing the widget would be misleading.
    */

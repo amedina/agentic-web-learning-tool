@@ -33,7 +33,7 @@ export interface HeaderProps {
   /** True when a GitHub rate-limit prevented stars / lastCommit from loading. */
   githubRateLimited?: boolean;
   /**
-   * Hide the Fitness column. Used by the Report tab accordion rows where
+   * Hide the Fitness column. Used by the Dependencies tab accordion rows where
    * the Responsiveness signal is intentionally not loaded (Search API
    * quota), so the Fitness composite would be misleading.
    */

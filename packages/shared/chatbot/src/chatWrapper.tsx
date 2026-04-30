@@ -98,10 +98,10 @@ const SidePanel = () => {
   const tabbedUI = useMemo(() => {
     if (tabsList.length > 1) {
       // The persisted `activeTab` can refer to a tab that isn't present in
-      // the current `tabsList` (e.g. "report" was persisted on a github
-      // package.json but the user opened an npm package page where no Report
-      // tab is rendered). Fall back to the first tab so the content area
-      // never ends up pointing at a non-existent tab.
+      // the current `tabsList` (e.g. "dependencies" was persisted on a github
+      // package.json but the user opened an npm package page where no
+      // Dependencies tab is rendered). Fall back to the first tab so the
+      // content area never ends up pointing at a non-existent tab.
       const resolvedActiveTab =
         tabsList.find((t) => t.value === activeTab)?.value ??
         tabsList[0]?.value;
