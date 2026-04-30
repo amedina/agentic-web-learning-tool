@@ -3,11 +3,11 @@
  */
 import { useEffect, useImperativeHandle, useState } from "react";
 import { Settings } from "lucide-react";
-import { getWorkflowClient } from "@agentic-labs/engine-extension";
+import { getWorkflowClient } from "@agentic-web-labs/engine-extension";
 import {
   TranslatorApiConfigSchema,
   type TranslatorApiConfig,
-} from "@agentic-labs/engine-core";
+} from "@agentic-web-labs/engine-core";
 
 /**
  * Internal dependencies

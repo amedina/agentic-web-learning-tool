@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import { WorkflowEngine } from '@agentic-labs/engine-core';
-import * as engineCore from '@agentic-labs/engine-core';
+import { WorkflowEngine } from '@agentic-web-labs/engine-core';
+import * as engineCore from '@agentic-web-labs/engine-core';
 
 /**
  * Internal dependencies
@@ -11,8 +11,8 @@ import { WorkflowRunner, getWorkflowRunner } from '../runner';
 import { ServiceWorkerRuntime } from '../runtime';
 
 jest.mock('./runtime');
-jest.mock('@agentic-labs/engine-core', () => {
-  const original = jest.requireActual('@agentic-labs/engine-core');
+jest.mock('@agentic-web-labs/engine-core', () => {
+  const original = jest.requireActual('@agentic-web-labs/engine-core');
   return {
     ...original,
     WorkflowEngine: jest.fn().mockImplementation(() => ({

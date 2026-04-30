@@ -1,4 +1,4 @@
-import baseConfig from '@agentic-labs/shared-config/jest/react';
+import baseConfig from '@agentic-web-labs/shared-config/jest/react';
 import { resolve, join } from 'path';
 
 /** @type {import('jest').Config} */

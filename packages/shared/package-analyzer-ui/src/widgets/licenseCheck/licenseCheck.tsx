@@ -7,7 +7,7 @@ import { ShieldAlert, CheckCircle, XCircle } from "lucide-react";
 /**
  * Internal dependencies.
  */
-import type { LicenseCompatibilityResult } from "@agentic-labs/package-analyzer-core";
+import type { LicenseCompatibilityResult } from "@agentic-web-labs/package-analyzer-core";
 
 export interface LicenseCheckProps {
   licenseCompatibility: LicenseCompatibilityResult | null;

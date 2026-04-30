@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import type { WorkflowMeta } from '@agentic-labs/engine-core';
+import type { WorkflowMeta } from '@agentic-web-labs/engine-core';
 
 /**
  * Transforms a workflow JSON object into a WebMCPTool object.

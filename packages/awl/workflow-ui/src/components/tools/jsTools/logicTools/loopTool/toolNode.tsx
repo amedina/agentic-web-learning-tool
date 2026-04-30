@@ -10,7 +10,7 @@ import { Repeat } from "lucide-react";
  */
 import { ToolNodeContainer } from "../../../../ui";
 import { useApi, useFlow } from "../../../../../stateProviders";
-import type { LoopConfig } from "@agentic-labs/engine-core";
+import type { LoopConfig } from "@agentic-web-labs/engine-core";
 
 const ToolNode = () => {
   const nodeId = useNodeId();

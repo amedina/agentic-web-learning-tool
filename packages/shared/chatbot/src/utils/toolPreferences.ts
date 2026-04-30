@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { z } from 'zod';
-import { logger } from '@agentic-labs/common';
+import { logger } from '@agentic-web-labs/common';
 
 // Zod schemas for validation
 export const ThreadToolPreferencesSchema = z.record(

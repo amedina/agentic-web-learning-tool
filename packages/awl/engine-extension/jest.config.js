@@ -6,8 +6,8 @@ const config = {
   rootDir: '.',
   testMatch: ['<rootDir>/src/**/*.test.ts'],
   moduleNameMapper: {
-    '^@agentic-labs/engine-core$': '<rootDir>/../engine-core/src/index.ts',
-    '^@agentic-labs/engine-core/(.*)$': '<rootDir>/../engine-core/src/$1',
+    '^@agentic-web-labs/engine-core$': '<rootDir>/../engine-core/src/index.ts',
+    '^@agentic-web-labs/engine-core/(.*)$': '<rootDir>/../engine-core/src/$1',
   },
 };
 

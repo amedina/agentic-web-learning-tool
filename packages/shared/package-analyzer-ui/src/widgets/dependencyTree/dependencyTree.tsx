@@ -14,7 +14,7 @@ import {
 /**
  * Internal dependencies.
  */
-import type { DependencyTree as DependencyTreeType } from "@agentic-labs/package-analyzer-core";
+import type { DependencyTree as DependencyTreeType } from "@agentic-web-labs/package-analyzer-core";
 import DependencyGraph from "./dependencyGraph";
 import { useStatsClient } from "../../context/statsClientContext";
 

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { toast as sonnerToast } from "@agentic-labs/design-system";
+import { toast as sonnerToast } from "@agentic-web-labs/design-system";
 
 /**
  * Internal dependencies

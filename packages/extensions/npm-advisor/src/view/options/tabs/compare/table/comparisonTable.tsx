@@ -8,7 +8,7 @@ import { X } from "lucide-react";
 /**
  * Internal dependencies.
  */
-import { calculateScore } from "@agentic-labs/package-analyzer-core";
+import { calculateScore } from "@agentic-web-labs/package-analyzer-core";
 
 interface ComparisonTableProps {
   comparisonBucket: any[];

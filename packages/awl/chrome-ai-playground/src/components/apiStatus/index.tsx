@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { OptionsPageTab } from "@agentic-labs/design-system";
+import { OptionsPageTab } from "@agentic-web-labs/design-system";
 
 /**
  * Internal dependencies

@@ -4,7 +4,7 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
 import type React from "react";
 import { Copy, CheckCheck } from "lucide-react";
-import { Button, cn } from "@agentic-labs/design-system";
+import { Button, cn } from "@agentic-web-labs/design-system";
 
 /**
  * Internal dependencies

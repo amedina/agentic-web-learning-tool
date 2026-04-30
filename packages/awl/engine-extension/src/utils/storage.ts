@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import type { WorkflowJSON } from '@agentic-labs/engine-core';
+import type { WorkflowJSON } from '@agentic-web-labs/engine-core';
 
 /**
  * Internal dependencies

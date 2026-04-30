@@ -9,8 +9,8 @@ import {
   deleteWorkflow,
   type WorkflowMetadata,
   PREDEFINED_WORKFLOWS,
-} from "@agentic-labs/engine-extension";
-import { type WorkflowJSON } from "@agentic-labs/engine-core";
+} from "@agentic-web-labs/engine-extension";
+import { type WorkflowJSON } from "@agentic-web-labs/engine-core";
 
 /**
  * Internal dependencies

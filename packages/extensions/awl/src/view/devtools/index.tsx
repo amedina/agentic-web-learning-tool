@@ -3,7 +3,7 @@
  */
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { TablePersistentSettingsProvider } from '@agentic-labs/design-system';
+import { TablePersistentSettingsProvider } from '@agentic-web-labs/design-system';
 /**
  * Internal dependencies
  */

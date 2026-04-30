@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import MetadataTab from "../MetadataTab";
-import { Tabs } from "@agentic-labs/design-system";
+import { Tabs } from "@agentic-web-labs/design-system";
 import {
   META_NAME_RULES_MESSAGE,
   META_PREFIX_RULES_MESSAGE,

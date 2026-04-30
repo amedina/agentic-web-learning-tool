@@ -9,7 +9,7 @@ import {
   useMemo,
   useRef,
 } from 'react';
-import { toast, type WebMCPTool } from '@agentic-labs/design-system';
+import { toast, type WebMCPTool } from '@agentic-web-labs/design-system';
 /**
  * Internal dependencies.
  */

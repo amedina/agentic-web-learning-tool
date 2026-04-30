@@ -24,16 +24,19 @@ const config: StorybookConfig = {
       plugins: [svgr()],
       resolve: {
         alias: {
-          '@agentic-labs/design-system': path.resolve(
+          '@agentic-web-labs/design-system': path.resolve(
             __dirname,
             '../../design-system/src'
           ),
-          '@agentic-labs/awl': path.resolve(
+          '@agentic-web-labs/awl': path.resolve(
             __dirname,
             '../../../extensions/awl/src'
           ),
-          '@agentic-labs/table': path.resolve(__dirname, '../../table/src'),
-          '@agentic-labs/common': path.resolve(__dirname, '../../common/src'),
+          '@agentic-web-labs/table': path.resolve(__dirname, '../../table/src'),
+          '@agentic-web-labs/common': path.resolve(
+            __dirname,
+            '../../common/src'
+          ),
         },
       },
     });

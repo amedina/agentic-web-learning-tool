@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import { noop, createContext } from '@agentic-labs/common';
-import type { PromptCommand } from '@agentic-labs/design-system';
+import { noop, createContext } from '@agentic-web-labs/common';
+import type { PromptCommand } from '@agentic-web-labs/design-system';
 
 export interface CommandProviderContextType {
   state: {

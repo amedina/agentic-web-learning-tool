@@ -16,7 +16,7 @@
 /**
  * External dependencies.
  */
-import { useContextSelector } from "@agentic-labs/common";
+import { useContextSelector } from "@agentic-web-labs/common";
 
 /**
  * Internal dependencies.

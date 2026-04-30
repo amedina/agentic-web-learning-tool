@@ -10,7 +10,7 @@ import { Calculator } from "lucide-react";
  */
 import { ToolNodeContainer } from "../../../../ui";
 import { useApi, useFlow } from "../../../../../stateProviders";
-import type { MathConfig } from "@agentic-labs/engine-core";
+import type { MathConfig } from "@agentic-web-labs/engine-core";
 
 const MathToolNode = () => {
   const nodeId = useNodeId();

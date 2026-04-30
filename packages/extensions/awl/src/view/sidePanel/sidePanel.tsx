@@ -2,8 +2,8 @@
  * External dependencies
  */
 import { useEffect, useState } from 'react';
-import { PropProvider, SidepanelChatbot } from '@agentic-labs/chatbot';
-import { SidebarProvider } from '@agentic-labs/design-system';
+import { PropProvider, SidepanelChatbot } from '@agentic-web-labs/chatbot';
+import { SidebarProvider } from '@agentic-web-labs/design-system';
 /**
  * Internal dependencies
  */

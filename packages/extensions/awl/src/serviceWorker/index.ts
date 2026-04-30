@@ -4,9 +4,9 @@
 import { z } from 'zod';
 z.config({ jitless: true });
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import type { WebMCPTool } from '@agentic-labs/design-system';
+import type { WebMCPTool } from '@agentic-web-labs/design-system';
 import PQueue from 'p-queue';
-import { isUrl, logger } from '@agentic-labs/common';
+import { isUrl, logger } from '@agentic-web-labs/common';
 /**
  * Internal dependencies
  */

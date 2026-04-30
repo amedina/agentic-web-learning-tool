@@ -9,7 +9,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import {
   type DependencyCategory,
   type PackageStats,
-} from "@agentic-labs/package-analyzer-core";
+} from "@agentic-web-labs/package-analyzer-core";
 import { type PackageJsonDependencies } from "../types/statsClient";
 import { useStatsClient } from "../context/statsClientContext";
 

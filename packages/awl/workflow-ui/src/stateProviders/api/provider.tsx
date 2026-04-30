@@ -10,8 +10,8 @@ import {
 import {
   getWorkflowClient,
   setLastOpenedWorkflowId,
-} from "@agentic-labs/engine-extension";
-import { type WorkflowMeta } from "@agentic-labs/engine-core";
+} from "@agentic-web-labs/engine-extension";
+import { type WorkflowMeta } from "@agentic-web-labs/engine-core";
 
 /**
  * Internal dependencies

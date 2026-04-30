@@ -5,8 +5,8 @@ import { useCallback, useState } from 'react';
 import {
   OptionsPageTab,
   type PromptCommand,
-} from '@agentic-labs/design-system';
-import { listWorkflows } from '@agentic-labs/engine-extension';
+} from '@agentic-web-labs/design-system';
+import { listWorkflows } from '@agentic-web-labs/engine-extension';
 
 /**
  * Internal dependencies

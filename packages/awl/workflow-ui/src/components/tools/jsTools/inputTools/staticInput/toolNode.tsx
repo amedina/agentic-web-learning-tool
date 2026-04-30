@@ -10,7 +10,7 @@ import { FormInput } from "lucide-react";
  */
 import { ToolNodeContainer } from "../../../../ui";
 import { useApi, useFlow } from "../../../../../stateProviders";
-import type { StaticInputConfig } from "@agentic-labs/engine-core";
+import type { StaticInputConfig } from "@agentic-web-labs/engine-core";
 
 const ToolNode = () => {
   const nodeId = useNodeId();

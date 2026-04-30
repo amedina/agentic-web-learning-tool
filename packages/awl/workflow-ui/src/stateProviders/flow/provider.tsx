@@ -10,7 +10,7 @@ import {
   type EdgeChange,
   type NodeChange,
 } from "@xyflow/react";
-import { NodeType } from "@agentic-labs/engine-core";
+import { NodeType } from "@agentic-web-labs/engine-core";
 
 /**
  * Internal dependencies

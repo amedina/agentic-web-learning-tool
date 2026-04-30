@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Logger } from '@agentic-labs/common';
+import { Logger } from '@agentic-web-labs/common';
 /**
  * Internal dependencies
  */

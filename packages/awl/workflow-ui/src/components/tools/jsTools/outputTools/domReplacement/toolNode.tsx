@@ -10,7 +10,7 @@ import { Pencil } from "lucide-react";
  */
 import { ToolNodeContainer } from "../../../../ui";
 import { useApi, useFlow } from "../../../../../stateProviders";
-import type { DomReplacementConfig } from "@agentic-labs/engine-core";
+import type { DomReplacementConfig } from "@agentic-web-labs/engine-core";
 
 const ToolNode = () => {
   const nodeId = useNodeId();

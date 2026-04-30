@@ -6,7 +6,7 @@ import { FileDown } from "lucide-react";
 import {
   FileCreatorConfigSchema,
   type FileCreatorConfig,
-} from "@agentic-labs/engine-core";
+} from "@agentic-web-labs/engine-core";
 
 /**
  * Internal dependencies

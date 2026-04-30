@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import type { TableColumn, InfoType } from '@agentic-labs/design-system';
+import type { TableColumn, InfoType } from '@agentic-web-labs/design-system';
 
 export const TABLE_SEARCH_KEYS = ['name', 'type'];
 

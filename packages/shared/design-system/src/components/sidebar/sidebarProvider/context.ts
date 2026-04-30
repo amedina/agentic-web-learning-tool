@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { type Dispatch, type ReactNode, type SetStateAction } from 'react';
-import { createContext, noop } from '@agentic-labs/common';
+import { createContext, noop } from '@agentic-web-labs/common';
 
 export interface SidebarContextProps {
   state: {

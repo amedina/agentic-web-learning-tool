@@ -6,7 +6,7 @@ import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "@agentic-labs/design-system";
+} from "@agentic-web-labs/design-system";
 import {
   ChevronDown,
   Loader2,
@@ -22,7 +22,7 @@ import { type DependencyStatsState } from "../../hooks/useDependencyStats";
 import {
   type PackageStats,
   type DependencyTree,
-} from "@agentic-labs/package-analyzer-core";
+} from "@agentic-web-labs/package-analyzer-core";
 import { PackageInsightsBody } from "../insights/packageInsightsBody";
 import { REPORT_COLORS } from "./reportColors";
 import { useStatsClient } from "../../context/statsClientContext";

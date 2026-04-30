@@ -6,7 +6,7 @@ import { Settings } from "lucide-react";
 import {
   StaticInputConfigSchema,
   type StaticInputConfig,
-} from "@agentic-labs/engine-core";
+} from "@agentic-web-labs/engine-core";
 
 /**
  * Internal dependencies

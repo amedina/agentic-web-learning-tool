@@ -6,7 +6,7 @@ import { MessageSquare } from "lucide-react";
 import {
   TooltipConfigSchema,
   type TooltipConfig,
-} from "@agentic-labs/engine-core";
+} from "@agentic-web-labs/engine-core";
 
 /**
  * Internal dependencies

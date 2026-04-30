@@ -1,5 +1,5 @@
 {
-  "name": "@agentic-labs/mcp-inspector",
+  "name": "@agentic-web-labs/mcp-inspector",
   "version": "1.0.3",
   "private": true,
   "type": "module",
@@ -23,7 +23,7 @@
     "test": "jest --config jest.config.cjs"
   },
   "dependencies": {
-    "@agentic-labs/common": "workspace:*",
+    "@agentic-web-labs/common": "workspace:*",
     "@modelcontextprotocol/sdk": "^1.25.2",
     "ajv": "6.12.6",
     "class-variance-authority": "^0.7.0",
@@ -40,14 +40,14 @@
     "zod": "^4.3.5"
   },
   "peerDependencies": {
-    "@agentic-labs/design-system": "workspace:*"
+    "@agentic-web-labs/design-system": "workspace:*"
   },
   "devDependencies": {
     "@babel/plugin-transform-react-jsx": "^7.27.1",
     "@babel/preset-env": "^7.28.5",
     "@babel/preset-react": "^7.28.5",
     "@babel/preset-typescript": "^7.28.5",
-    "@agentic-labs/shared-config": "workspace:*",
+    "@agentic-web-labs/shared-config": "workspace:*",
     "@jest/globals": "^29.7.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.1",

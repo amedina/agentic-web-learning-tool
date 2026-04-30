@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import type { PromptCommand } from '@agentic-labs/design-system';
-import type { WorkflowJSON } from '@agentic-labs/engine-core';
+import type { PromptCommand } from '@agentic-web-labs/design-system';
+import type { WorkflowJSON } from '@agentic-web-labs/engine-core';
 /**
  * Internal dependencies
  */

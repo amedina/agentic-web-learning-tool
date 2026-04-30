@@ -55,7 +55,7 @@ importers:
 
   packages/awl/chrome-ai-playground:
     dependencies:
-      '@agentic-labs/design-system':
+      '@agentic-web-labs/design-system':
         specifier: workspace:*
         version: link:../../shared/design-system
       lucide-react:
@@ -68,7 +68,7 @@ importers:
         specifier: ^19.1.1
         version: 19.2.4(react@19.2.4)
     devDependencies:
-      '@agentic-labs/shared-config':
+      '@agentic-web-labs/shared-config':
         specifier: workspace:*
         version: link:../../shared/shared-config
       '@storybook/react-vite':
@@ -93,7 +93,7 @@ importers:
         specifier: 4.3.5
         version: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
     devDependencies:
-      '@agentic-labs/shared-config':
+      '@agentic-web-labs/shared-config':
         specifier: workspace:*
         version: link:../../shared/shared-config
       '@types/jest':
@@ -129,14 +129,14 @@ importers:
 
   packages/awl/engine-extension:
     dependencies:
-      '@agentic-labs/engine-core':
+      '@agentic-web-labs/engine-core':
         specifier: workspace:*
         version: link:../engine-core
       loglevel:
         specifier: ^1.9.2
         version: 1.9.2
     devDependencies:
-      '@agentic-labs/shared-config':
+      '@agentic-web-labs/shared-config':
         specifier: workspace:*
         version: link:../../shared/shared-config
       '@types/chrome':
@@ -181,7 +181,7 @@ importers:
 
   packages/awl/engine-web:
     dependencies:
-      '@agentic-labs/engine-core':
+      '@agentic-web-labs/engine-core':
         specifier: workspace:*
         version: link:../engine-core
     devDependencies:
@@ -212,10 +212,10 @@ importers:
 
   packages/awl/mcp-inspector:
     dependencies:
-      '@agentic-labs/common':
+      '@agentic-web-labs/common':
         specifier: workspace:*
         version: link:../../shared/common
-      '@agentic-labs/design-system':
+      '@agentic-web-labs/design-system':
         specifier: workspace:*
         version: link:../../shared/design-system
       '@modelcontextprotocol/sdk':
@@ -261,7 +261,7 @@ importers:
         specifier: 4.3.5
         version: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
     devDependencies:
-      '@agentic-labs/shared-config':
+      '@agentic-web-labs/shared-config':
         specifier: workspace:*
         version: link:../../shared/shared-config
       '@babel/plugin-transform-react-jsx':
@@ -318,16 +318,16 @@ importers:
 
   packages/awl/workflow-ui:
     dependencies:
-      '@agentic-labs/common':
+      '@agentic-web-labs/common':
         specifier: workspace:*
         version: link:../../shared/common
-      '@agentic-labs/design-system':
+      '@agentic-web-labs/design-system':
         specifier: workspace:*
         version: link:../../shared/design-system
-      '@agentic-labs/engine-core':
+      '@agentic-web-labs/engine-core':
         specifier: workspace:*
         version: link:../engine-core
-      '@agentic-labs/engine-extension':
+      '@agentic-web-labs/engine-extension':
         specifier: workspace:*
         version: link:../engine-extension
       '@xyflow/react':
@@ -361,7 +361,7 @@ importers:
         specifier: 4.3.5
         version: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
     devDependencies:
-      '@agentic-labs/shared-config':
+      '@agentic-web-labs/shared-config':
         specifier: workspace:*
         version: link:../../shared/shared-config
       '@storybook/react-vite':
@@ -391,34 +391,34 @@ importers:
 
   packages/extensions/awl:
     dependencies:
-      '@agentic-labs/chatbot':
+      '@agentic-web-labs/chatbot':
         specifier: workspace:*
         version: link:../../shared/chatbot
-      '@agentic-labs/chrome-ai-playground':
+      '@agentic-web-labs/chrome-ai-playground':
         specifier: workspace:*
         version: link:../../awl/chrome-ai-playground
-      '@agentic-labs/common':
+      '@agentic-web-labs/common':
         specifier: workspace:*
         version: link:../../shared/common
-      '@agentic-labs/design-system':
+      '@agentic-web-labs/design-system':
         specifier: workspace:*
         version: link:../../shared/design-system
-      '@agentic-labs/engine-core':
+      '@agentic-web-labs/engine-core':
         specifier: workspace:*
         version: link:../../awl/engine-core
-      '@agentic-labs/engine-extension':
+      '@agentic-web-labs/engine-extension':
         specifier: workspace:*
         version: link:../../awl/engine-extension
-      '@agentic-labs/engine-web':
+      '@agentic-web-labs/engine-web':
         specifier: workspace:*
         version: link:../../awl/engine-web
-      '@agentic-labs/mcp-inspector':
+      '@agentic-web-labs/mcp-inspector':
         specifier: workspace:*
         version: link:../../awl/mcp-inspector
-      '@agentic-labs/table':
+      '@agentic-web-labs/table':
         specifier: workspace:*
         version: link:../../shared/table
-      '@agentic-labs/workflow-ui':
+      '@agentic-web-labs/workflow-ui':
         specifier: workspace:*
         version: link:../../awl/workflow-ui
       '@assistant-ui/react':
@@ -461,7 +461,7 @@ importers:
         specifier: 4.3.5
         version: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
     devDependencies:
-      '@agentic-labs/shared-config':
+      '@agentic-web-labs/shared-config':
         specifier: workspace:*
         version: link:../../shared/shared-config
       '@babel/plugin-transform-react-jsx':
@@ -599,19 +599,19 @@ importers:
 
   packages/extensions/npm-advisor:
     dependencies:
-      '@agentic-labs/chatbot':
+      '@agentic-web-labs/chatbot':
         specifier: workspace:*
         version: link:../../shared/chatbot
-      '@agentic-labs/common':
+      '@agentic-web-labs/common':
         specifier: workspace:*
         version: link:../../shared/common
-      '@agentic-labs/design-system':
+      '@agentic-web-labs/design-system':
         specifier: workspace:*
         version: link:../../shared/design-system
-      '@agentic-labs/package-analyzer-core':
+      '@agentic-web-labs/package-analyzer-core':
         specifier: workspace:*
         version: link:../../shared/package-analyzer-core
-      '@agentic-labs/package-analyzer-ui':
+      '@agentic-web-labs/package-analyzer-ui':
         specifier: workspace:*
         version: link:../../shared/package-analyzer-ui
       '@ai-sdk/provider':
@@ -663,7 +663,7 @@ importers:
         specifier: 4.3.5
         version: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
     devDependencies:
-      '@agentic-labs/shared-config':
+      '@agentic-web-labs/shared-config':
         specifier: workspace:*
         version: link:../../shared/shared-config
       '@types/chrome':
@@ -708,10 +708,10 @@ importers:
 
   packages/shared/chatbot:
     dependencies:
-      '@agentic-labs/common':
+      '@agentic-web-labs/common':
         specifier: workspace:*
         version: link:../common
-      '@agentic-labs/design-system':
+      '@agentic-web-labs/design-system':
         specifier: workspace:*
         version: link:../design-system
       '@ai-sdk/anthropic':
@@ -766,7 +766,7 @@ importers:
         specifier: 4.3.5
         version: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
     devDependencies:
-      '@agentic-labs/shared-config':
+      '@agentic-web-labs/shared-config':
         specifier: workspace:*
         version: link:../shared-config
       '@babel/plugin-transform-react-jsx':
@@ -860,7 +860,7 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0(react@19.2.4)(scheduler@0.27.0)
     devDependencies:
-      '@agentic-labs/shared-config':
+      '@agentic-web-labs/shared-config':
         specifier: workspace:*
         version: link:../shared-config
       '@babel/plugin-transform-react-jsx':
@@ -929,10 +929,10 @@ importers:
 
   packages/shared/design-system:
     dependencies:
-      '@agentic-labs/common':
+      '@agentic-web-labs/common':
         specifier: workspace:*
         version: link:../common
-      '@agentic-labs/table':
+      '@agentic-web-labs/table':
         specifier: workspace:*
         version: link:../table
       '@assistant-ui/react':
@@ -1026,7 +1026,7 @@ importers:
         specifier: '>=37'
         version: 37.3.6(react@19.2.4)
     devDependencies:
-      '@agentic-labs/shared-config':
+      '@agentic-web-labs/shared-config':
         specifier: workspace:*
         version: link:../shared-config
       '@babel/plugin-transform-react-jsx':
@@ -1119,7 +1119,7 @@ importers:
 
   packages/shared/package-analyzer-core:
     devDependencies:
-      '@agentic-labs/shared-config':
+      '@agentic-web-labs/shared-config':
         specifier: workspace:*
         version: link:../shared-config
       typescript:
@@ -1131,10 +1131,10 @@ importers:
 
   packages/shared/package-analyzer-ui:
     dependencies:
-      '@agentic-labs/design-system':
+      '@agentic-web-labs/design-system':
         specifier: workspace:*
         version: link:../design-system
-      '@agentic-labs/package-analyzer-core':
+      '@agentic-web-labs/package-analyzer-core':
         specifier: workspace:*
         version: link:../package-analyzer-core
       d3:
@@ -1144,7 +1144,7 @@ importers:
         specifier: ^0.468.0
         version: 0.468.0(react@19.2.4)
     devDependencies:
-      '@agentic-labs/shared-config':
+      '@agentic-web-labs/shared-config':
         specifier: workspace:*
         version: link:../shared-config
       '@types/react':
@@ -1232,7 +1232,7 @@ importers:
 
   packages/shared/storybook-config:
     dependencies:
-      '@agentic-labs/design-system':
+      '@agentic-web-labs/design-system':
         specifier: workspace:*
         version: link:../design-system
       '@tailwindcss/vite':
@@ -1248,7 +1248,7 @@ importers:
         specifier: ^19.1.1
         version: 19.2.4(react@19.2.4)
     devDependencies:
-      '@agentic-labs/shared-config':
+      '@agentic-web-labs/shared-config':
         specifier: workspace:*
         version: link:../shared-config
       '@chromatic-com/storybook':
@@ -1338,7 +1338,7 @@ importers:
 
   packages/shared/table:
     dependencies:
-      '@agentic-labs/common':
+      '@agentic-web-labs/common':
         specifier: workspace:*
         version: link:../common
       classnames:
@@ -1360,7 +1360,7 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0(react@19.2.4)(scheduler@0.27.0)
     devDependencies:
-      '@agentic-labs/shared-config':
+      '@agentic-web-labs/shared-config':
         specifier: workspace:*
         version: link:../shared-config
       '@storybook/react':

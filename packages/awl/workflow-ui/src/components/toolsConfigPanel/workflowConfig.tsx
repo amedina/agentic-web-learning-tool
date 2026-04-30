@@ -3,7 +3,7 @@
  */
 import { AlertCircle, Plus, X } from "lucide-react";
 import { useCallback, useState, useEffect } from "react";
-import { listWorkflows } from "@agentic-labs/engine-extension";
+import { listWorkflows } from "@agentic-web-labs/engine-extension";
 
 /**
  * Internal dependencies

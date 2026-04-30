@@ -1,5 +1,5 @@
 {
-  "name": "@agentic-labs/chrome-ai-playground",
+  "name": "@agentic-web-labs/chrome-ai-playground",
   "version": "1.0.3",
   "description": "Chrome AI Playground for build-in AI and API status",
   "type": "module",
@@ -26,13 +26,13 @@
     "react-dom": "^19.1.0"
   },
   "dependencies": {
-    "@agentic-labs/design-system": "workspace:*",
+    "@agentic-web-labs/design-system": "workspace:*",
     "lucide-react": "^0.577.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
   },
   "devDependencies": {
-    "@agentic-labs/shared-config": "workspace:*",
+    "@agentic-web-labs/shared-config": "workspace:*",
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",
     "typescript": "~5.9.2",

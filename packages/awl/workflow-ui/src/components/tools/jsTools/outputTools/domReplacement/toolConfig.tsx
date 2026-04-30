@@ -6,7 +6,7 @@ import { Pencil } from "lucide-react";
 import {
   DomReplacementConfigSchema,
   type DomReplacementConfig,
-} from "@agentic-labs/engine-core";
+} from "@agentic-web-labs/engine-core";
 /**
  * Internal dependencies
  */

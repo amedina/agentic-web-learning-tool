@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import type { PromptCommand } from '@agentic-labs/design-system';
+import type { PromptCommand } from '@agentic-web-labs/design-system';
 /**
  * Internal dependencies
  */

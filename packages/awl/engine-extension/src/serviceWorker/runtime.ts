@@ -1,7 +1,10 @@
 /**
  * External dependencies
  */
-import type { RuntimeInterface, NodeOutput } from '@agentic-labs/engine-core';
+import type {
+  RuntimeInterface,
+  NodeOutput,
+} from '@agentic-web-labs/engine-core';
 
 /**
  * Internal dependencies

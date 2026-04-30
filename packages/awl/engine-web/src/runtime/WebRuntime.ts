@@ -5,7 +5,7 @@ import {
   type RuntimeInterface,
   type NodeOutput,
   userActivationManager,
-} from "@agentic-labs/engine-core";
+} from "@agentic-web-labs/engine-core";
 
 export interface ExecutionCallbacks {
   onNodeStart?: (nodeId: string) => void;

@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React from "react";
-import { cn } from "@agentic-labs/design-system";
+import { cn } from "@agentic-web-labs/design-system";
 
 interface StatusCardProps {
   title: string;

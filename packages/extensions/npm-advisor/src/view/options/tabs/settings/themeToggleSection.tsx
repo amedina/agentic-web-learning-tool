@@ -2,7 +2,11 @@
  * External dependencies
  */
 import { Monitor, Moon, Sun } from "lucide-react";
-import { Button, cn, OptionsPageTabSection } from "@agentic-labs/design-system";
+import {
+  Button,
+  cn,
+  OptionsPageTabSection,
+} from "@agentic-web-labs/design-system";
 
 type ThemeMode = "light" | "dark" | "auto";
 

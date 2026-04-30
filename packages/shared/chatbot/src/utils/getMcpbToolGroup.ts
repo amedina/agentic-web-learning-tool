@@ -4,7 +4,7 @@
 import {
   EXTENSION_TOOL_PREFIX,
   DOM_TOOL_NAME_PREFIX,
-} from '@agentic-labs/common';
+} from '@agentic-web-labs/common';
 
 /**
  * Internal dependencies

@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { useContextSelector } from "@agentic-labs/common";
+import { useContextSelector } from "@agentic-web-labs/common";
 import ApiContext, { type ApiStoreContext } from "./context";
 
 export function useApi(): ApiStoreContext;

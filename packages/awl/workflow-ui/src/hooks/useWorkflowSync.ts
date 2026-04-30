@@ -5,8 +5,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import {
   getWorkflowClient,
   type GlobalWorkflowState,
-} from "@agentic-labs/engine-extension";
-import type { WorkflowJSON } from "@agentic-labs/engine-core";
+} from "@agentic-web-labs/engine-extension";
+import type { WorkflowJSON } from "@agentic-web-labs/engine-core";
 
 /**
  * Internal dependencies

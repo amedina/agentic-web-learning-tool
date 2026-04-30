@@ -21,11 +21,11 @@ import {
   Button,
   OptionsPageTabSection,
   toast,
-} from '@agentic-labs/design-system';
-import { saveWorkflow } from '@agentic-labs/engine-extension';
-import { WorkflowJSONSchema } from '@agentic-labs/engine-core';
-import { getUniqueNames } from '@agentic-labs/workflow-ui';
-import { logger } from '@agentic-labs/common';
+} from '@agentic-web-labs/design-system';
+import { saveWorkflow } from '@agentic-web-labs/engine-extension';
+import { WorkflowJSONSchema } from '@agentic-web-labs/engine-core';
+import { getUniqueNames } from '@agentic-web-labs/workflow-ui';
+import { logger } from '@agentic-web-labs/common';
 /**
  * Internal dependencies
  */

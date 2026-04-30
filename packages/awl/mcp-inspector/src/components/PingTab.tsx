@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { TabsContent, Button } from "@agentic-labs/design-system";
+import { TabsContent, Button } from "@agentic-web-labs/design-system";
 /**
  * Internal dependencies
  */

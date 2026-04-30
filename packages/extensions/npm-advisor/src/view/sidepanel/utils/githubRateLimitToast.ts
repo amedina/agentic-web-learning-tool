@@ -1,12 +1,12 @@
 /**
  * External dependencies.
  */
-import { toast } from "@agentic-labs/design-system";
+import { toast } from "@agentic-web-labs/design-system";
 
 /**
  * Internal dependencies.
  */
-import { GITHUB_RATE_LIMIT_ERROR_MARKER } from "@agentic-labs/package-analyzer-core";
+import { GITHUB_RATE_LIMIT_ERROR_MARKER } from "@agentic-web-labs/package-analyzer-core";
 import { GITHUB_PAT_STORAGE_KEY } from "../../../serviceWorker/services/githubAuth";
 
 export const GITHUB_RATE_LIMIT_USER_MESSAGE =

@@ -6,8 +6,8 @@ import {
   NodeType,
   type EdgeConfig,
   type NodeUIConfig,
-} from "@agentic-labs/engine-core";
-import { createContext } from "@agentic-labs/common";
+} from "@agentic-web-labs/engine-core";
+import { createContext } from "@agentic-web-labs/common";
 
 export type FlowNodeType = {
   id: string;

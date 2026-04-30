@@ -26,7 +26,7 @@ import {
   Tabs,
   TabsList,
   TabsTrigger,
-} from "@agentic-labs/design-system";
+} from "@agentic-web-labs/design-system";
 
 /**
  * Internal dependencies

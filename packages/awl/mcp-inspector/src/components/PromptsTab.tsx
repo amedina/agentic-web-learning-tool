@@ -10,7 +10,7 @@ import {
   Combobox,
   Label,
   TabsContent,
-} from "@agentic-labs/design-system";
+} from "@agentic-web-labs/design-system";
 import {
   type ListPromptsResult,
   type ResourceTemplateReference,

@@ -18,7 +18,7 @@
  * External dependencies.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { getValueByKey } from "@agentic-labs/common";
+import { getValueByKey } from "@agentic-web-labs/common";
 
 /**
  * Internal dependencies.

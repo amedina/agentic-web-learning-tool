@@ -1,9 +1,9 @@
 /**
  * External dependencies
  */
-import { PropProvider, SidepanelChatbot } from "@agentic-labs/chatbot";
-import { SidebarProvider, Toaster } from "@agentic-labs/design-system";
-import { StatsClientProvider } from "@agentic-labs/package-analyzer-ui";
+import { PropProvider, SidepanelChatbot } from "@agentic-web-labs/chatbot";
+import { SidebarProvider, Toaster } from "@agentic-web-labs/design-system";
+import { StatsClientProvider } from "@agentic-web-labs/package-analyzer-ui";
 /**
  * Internal dependencies
  */

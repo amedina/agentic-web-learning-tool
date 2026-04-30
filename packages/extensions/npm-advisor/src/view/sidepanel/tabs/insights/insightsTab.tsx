@@ -2,13 +2,13 @@
  * External dependencies.
  */
 import React from "react";
-import { usePropProvider } from "@agentic-labs/chatbot";
-import { InsightsTab } from "@agentic-labs/package-analyzer-ui";
+import { usePropProvider } from "@agentic-web-labs/chatbot";
+import { InsightsTab } from "@agentic-web-labs/package-analyzer-ui";
 
 /**
  * Internal dependencies.
  */
-import { type PackageStats } from "@agentic-labs/package-analyzer-core";
+import { type PackageStats } from "@agentic-web-labs/package-analyzer-core";
 
 interface InsightsTabProps {
   stats: PackageStats | null;

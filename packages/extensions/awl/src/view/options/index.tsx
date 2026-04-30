@@ -1,7 +1,7 @@
 /**
  * External dependecies
  */
-import { SidebarProvider } from '@agentic-labs/design-system';
+import { SidebarProvider } from '@agentic-web-labs/design-system';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 // Internal dependencies

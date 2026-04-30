@@ -166,9 +166,9 @@ pnpm test
 
 This package depends on three sibling workspace packages:
 
-- `@agentic-labs/chatbot` — Shared chatbot UI components and runtime.
-- `@agentic-labs/common` — Shared utilities and types.
-- `@agentic-labs/design-system` — Shared UI component library.
+- `@agentic-web-labs/chatbot` — Shared chatbot UI components and runtime.
+- `@agentic-web-labs/common` — Shared utilities and types.
+- `@agentic-web-labs/design-system` — Shared UI component library.
 
 ## Privacy
 

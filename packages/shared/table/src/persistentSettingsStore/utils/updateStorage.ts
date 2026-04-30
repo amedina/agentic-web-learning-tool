@@ -16,7 +16,7 @@
 /**
  * External dependencies
  */
-import { mergeDeep } from "@agentic-labs/common";
+import { mergeDeep } from "@agentic-web-labs/common";
 
 /**
  * Internal dependencies

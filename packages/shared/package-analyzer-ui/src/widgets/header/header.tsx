@@ -11,12 +11,12 @@ import {
   Info,
   AlertCircle,
 } from "lucide-react";
-import { Tooltip } from "@agentic-labs/design-system";
+import { Tooltip } from "@agentic-web-labs/design-system";
 
 /**
  * Internal dependencies.
  */
-import { type ScoreBreakdownItem } from "@agentic-labs/package-analyzer-core";
+import { type ScoreBreakdownItem } from "@agentic-web-labs/package-analyzer-core";
 
 export interface HeaderProps {
   packageName: string;

@@ -1,5 +1,5 @@
 {
-  "name": "@agentic-labs/engine-web",
+  "name": "@agentic-web-labs/engine-web",
   "private": true,
   "version": "1.0.3",
   "type": "module",
@@ -19,7 +19,7 @@
     "build:web": "vite build"
   },
   "dependencies": {
-    "@agentic-labs/engine-core": "workspace:*"
+    "@agentic-web-labs/engine-core": "workspace:*"
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",

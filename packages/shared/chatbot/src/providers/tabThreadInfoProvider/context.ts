@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { createContext } from '@agentic-labs/common';
+import { createContext } from '@agentic-web-labs/common';
 
 export type TabThreadContextProps = {
   state: {

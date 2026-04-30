@@ -5,7 +5,7 @@ import {
   type DependencyCategory,
   type PackageStats,
   type DependencyTree,
-} from "@agentic-labs/package-analyzer-core";
+} from "@agentic-web-labs/package-analyzer-core";
 
 export type BundleData = NonNullable<PackageStats["bundle"]>;
 

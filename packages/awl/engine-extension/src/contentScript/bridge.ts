@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { userActivationManager } from '@agentic-labs/engine-core';
+import { userActivationManager } from '@agentic-web-labs/engine-core';
 
 /**
  * Internal dependencies

@@ -3,7 +3,7 @@
  */
 import { useState, useCallback } from "react";
 import type { ServerNotification } from "@modelcontextprotocol/sdk/types.js";
-import { Button } from "@agentic-labs/design-system";
+import { Button } from "@agentic-web-labs/design-system";
 
 /**
  * Internal dependencies

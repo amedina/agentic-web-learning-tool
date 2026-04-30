@@ -7,11 +7,11 @@ import {
   Toaster,
   useSidebar,
   type MenuItem,
-} from '@agentic-labs/design-system';
+} from '@agentic-web-labs/design-system';
 import {
   APIStatusTab,
   APIPlaygroundsTab,
-} from '@agentic-labs/chrome-ai-playground';
+} from '@agentic-web-labs/chrome-ai-playground';
 import {
   CpuIcon,
   CodeIcon,

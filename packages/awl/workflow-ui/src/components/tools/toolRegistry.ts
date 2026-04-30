@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { NodeType, type NodeConfig } from "@agentic-labs/engine-core";
+import { NodeType, type NodeConfig } from "@agentic-web-labs/engine-core";
 
 export const TOOL_CONFIGS: Record<
   NodeType,

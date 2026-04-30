@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Button, Tooltip, cn } from '@agentic-labs/design-system';
+import { Button, Tooltip, cn } from '@agentic-web-labs/design-system';
 import type { ComponentPropsWithoutRef, FC } from 'react';
 
 type ActionButtonProps = ComponentPropsWithoutRef<typeof Button> & {

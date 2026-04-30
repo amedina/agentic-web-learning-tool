@@ -18,7 +18,7 @@ import {
   Toaster,
   toast,
   Checkbox,
-} from "@agentic-labs/design-system";
+} from "@agentic-web-labs/design-system";
 
 /**
  * Internal dependencies

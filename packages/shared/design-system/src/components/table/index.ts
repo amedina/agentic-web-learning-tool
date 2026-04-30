@@ -8,7 +8,7 @@ export {
   useFiltering,
   useSearch,
   useColumnSorting,
-} from '@agentic-labs/table';
+} from '@agentic-web-labs/table';
 
 export type {
   TableColumn,
@@ -16,4 +16,4 @@ export type {
   InfoType,
   TableRow,
   TableProviderProps,
-} from '@agentic-labs/table';
+} from '@agentic-web-labs/table';

@@ -3,7 +3,7 @@
  */
 import { useCallback, type Dispatch, type SetStateAction } from 'react';
 import { AlertOctagon } from 'lucide-react';
-import { Button } from '@agentic-labs/design-system';
+import { Button } from '@agentic-web-labs/design-system';
 /**
  * Internal dependencies
  */

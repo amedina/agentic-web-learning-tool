@@ -10,7 +10,7 @@ import { MessageSquare } from "lucide-react";
  */
 import { ToolNodeContainer } from "../../../../ui";
 import { useApi, useFlow } from "../../../../../stateProviders";
-import type { TooltipConfig } from "@agentic-labs/engine-core";
+import type { TooltipConfig } from "@agentic-web-labs/engine-core";
 
 const ToolNode = () => {
   const nodeId = useNodeId();

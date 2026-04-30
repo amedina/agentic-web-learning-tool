@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import type { WorkflowJSON, WorkflowMeta } from '@agentic-labs/engine-core';
+import type { WorkflowJSON, WorkflowMeta } from '@agentic-web-labs/engine-core';
 
 export const STORAGE_PREFIX = 'workflow-';
 

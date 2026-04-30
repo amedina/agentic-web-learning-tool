@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { noop, createContext } from '@agentic-labs/common';
+import { noop, createContext } from '@agentic-web-labs/common';
 /**
  * Internal dependencies.
  */

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import type { NodeOutput } from '@agentic-labs/engine-core';
+import type { NodeOutput } from '@agentic-web-labs/engine-core';
 
 /**
  * Internal dependencies

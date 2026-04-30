@@ -4,7 +4,7 @@
 import {
   listWorkflows,
   type WorkflowMetadata,
-} from "@agentic-labs/engine-extension";
+} from "@agentic-web-labs/engine-extension";
 
 /**
  * Get unique name and sanitized name for a workflow to avoid collisions.

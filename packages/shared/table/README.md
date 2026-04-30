@@ -1,4 +1,4 @@
-# @agentic-labs/table
+# @agentic-web-labs/table
 
 A powerful, standalone React table component extracted from the Google PSAT design system. This package provides a feature-rich data table with support for sorting, filtering, searching, column resizing, column visibility, and persistent settings.
 
@@ -15,7 +15,7 @@ A powerful, standalone React table component extracted from the Google PSAT desi
 ## Installation
 
 ```bash
-npm install @agentic-labs/table
+npm install @agentic-web-labs/table
 ```
 
 ## Styling Setup
@@ -23,7 +23,7 @@ npm install @agentic-labs/table
 This package uses Tailwind CSS. To ensure styles are applied correctly, you must import the provided CSS file in your application's entry point (e.g., `App.tsx` or `index.ts`):
 
 ```typescript
-import '@agentic-labs/table/theme.css';
+import '@agentic-web-labs/table/theme.css';
 ```
 
 If you are using Tailwind CSS in your project, the table's styles are scoped and should not conflict. The package includes a `tailwind.config.cjs` which is utilized by the internal `theme.css`.
@@ -34,8 +34,8 @@ Here is a minimal example of how to use the `Table` component.
 
 ```tsx
 import React from 'react';
-import { Table, TableColumn, TableData } from '@agentic-labs/table';
-import '@agentic-labs/table/theme.css'; // Import styles
+import { Table, TableColumn, TableData } from '@agentic-web-labs/table';
+import '@agentic-web-labs/table/theme.css'; // Import styles
 
 const MyTable = () => {
   // 1. Define your data

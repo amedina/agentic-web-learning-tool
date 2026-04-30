@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import type { MCPServerConfig } from '@agentic-labs/common';
+import type { MCPServerConfig } from '@agentic-web-labs/common';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from '@storybook/test';
 import { useState } from 'react';

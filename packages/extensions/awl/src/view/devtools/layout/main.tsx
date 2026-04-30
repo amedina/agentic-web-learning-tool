@@ -1,7 +1,7 @@
 /**
  * External dependencies.
  */
-import { useSidebar } from '@agentic-labs/design-system';
+import { useSidebar } from '@agentic-web-labs/design-system';
 
 /**
  * Internal dependencies.

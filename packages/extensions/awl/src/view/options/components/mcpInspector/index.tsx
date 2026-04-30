@@ -1,9 +1,9 @@
 /**
  * External dependencies
  */
-import { MCPInspectorTab as MCPInspectorTabComponent } from '@agentic-labs/mcp-inspector';
+import { MCPInspectorTab as MCPInspectorTabComponent } from '@agentic-web-labs/mcp-inspector';
 import { useEffect } from 'react';
-import { useSidebar } from '@agentic-labs/design-system';
+import { useSidebar } from '@agentic-web-labs/design-system';
 /**
  * Internal dependencies
  */

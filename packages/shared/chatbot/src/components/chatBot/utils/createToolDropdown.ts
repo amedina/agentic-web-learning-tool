@@ -1,9 +1,9 @@
 /**
  * External dependencies
  */
-import { getToolNameWithoutPrefix } from '@agentic-labs/design-system';
+import { getToolNameWithoutPrefix } from '@agentic-web-labs/design-system';
 import type { Tool as McpTool } from '@modelcontextprotocol/sdk/types.js';
-import { isUrl } from '@agentic-labs/common';
+import { isUrl } from '@agentic-web-labs/common';
 /**
  * Internal dependencies
  */
