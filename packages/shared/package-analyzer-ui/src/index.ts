@@ -11,3 +11,4 @@ export * from "./tabs/dependencies/dependenciesFilters";
 export * from "./tabs/dependencies/dependenciesColors";
 export * from "./tabs/insights/insightsTab";
 export * from "./tabs/insights/packageInsightsBody";
+export * from "./theme/brandColors";
