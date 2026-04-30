@@ -18,7 +18,7 @@ import {
   Toaster,
   toast,
   Checkbox,
-} from "@google-awlt/design-system";
+} from "@agentic-labs/design-system";
 
 /**
  * Internal dependencies

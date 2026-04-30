@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Workflow as Panel } from '@google-awlt/workflow-ui';
+import { Workflow as Panel } from '@agentic-labs/workflow-ui';
 
 /**
  * Internal depedencies

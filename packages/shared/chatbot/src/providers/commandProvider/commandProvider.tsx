@@ -10,7 +10,7 @@ import {
   useMemo,
 } from 'react';
 import { useAssistantApi } from '@assistant-ui/react';
-import type { PromptCommand } from '@google-awlt/design-system';
+import type { PromptCommand } from '@agentic-labs/design-system';
 
 /**
  * Internal dependencies.

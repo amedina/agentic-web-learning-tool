@@ -8,7 +8,7 @@ import type {
   CallToolResult,
 } from '@modelcontextprotocol/sdk/types.js';
 import { useEffect, useMemo } from 'react';
-import { logger } from '@google-awlt/common';
+import { logger } from '@agentic-labs/common';
 /**
  * Internal dependencies
  */

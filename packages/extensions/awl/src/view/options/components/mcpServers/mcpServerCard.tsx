@@ -10,9 +10,9 @@ import {
   RotateCcw,
   RefreshCwOff,
 } from 'lucide-react';
-import { Button, TooltipIconButton } from '@google-awlt/design-system';
+import { Button, TooltipIconButton } from '@agentic-labs/design-system';
 import type { Tool } from '@modelcontextprotocol/sdk/types.js';
-import type { MCPServerConfig } from '@google-awlt/common';
+import type { MCPServerConfig } from '@agentic-labs/common';
 import { useMemo } from 'react';
 
 interface MCPServerCardProps {

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { createContext, noop } from '@google-awlt/common';
+import { createContext, noop } from '@agentic-labs/common';
 /**
  * Internal dependencies
  */

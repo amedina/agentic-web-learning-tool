@@ -15,7 +15,7 @@ import type {
   CustomHeaders as CustomHeadersType,
   InspectorConfig,
   MCPServerConfig,
-} from '@google-awlt/common';
+} from '@agentic-labs/common';
 import { useCallback, useState } from 'react';
 
 /**

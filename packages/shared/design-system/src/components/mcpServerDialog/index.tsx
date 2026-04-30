@@ -4,7 +4,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { X, TrashIcon, SaveIcon, Loader2, View } from 'lucide-react';
-import { isEqual, type MCPServerConfig } from '@google-awlt/common';
+import { isEqual, type MCPServerConfig } from '@agentic-labs/common';
 import { toast } from 'sonner';
 
 /**

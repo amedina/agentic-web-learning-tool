@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { Tabs } from "@google-awlt/design-system";
+import { Tabs } from "@agentic-labs/design-system";
 import ElicitationTab, {
   type PendingElicitationRequest,
 } from "../ElicitationTab";

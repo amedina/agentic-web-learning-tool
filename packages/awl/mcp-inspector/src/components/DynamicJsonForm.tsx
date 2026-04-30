@@ -10,7 +10,7 @@ import {
   useImperativeHandle,
 } from "react";
 import { CheckCheck, Copy } from "lucide-react";
-import { Button, Input } from "@google-awlt/design-system";
+import { Button, Input } from "@agentic-labs/design-system";
 
 /**
  * Internal dependencies

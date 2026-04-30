@@ -1,7 +1,7 @@
 /**
  * External dependencies.
  */
-import { SidebarTrigger, useSidebar } from '@google-awlt/design-system';
+import { SidebarTrigger, useSidebar } from '@agentic-labs/design-system';
 import type { JSONRPCMessage } from '@modelcontextprotocol/sdk/types.js';
 import { useEffect, useRef, useState } from 'react';
 import { useMcpClient } from '@mcp-b/react-webmcp';

@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { useState } from 'react';
-import { Button } from '@google-awlt/design-system';
+import { Button } from '@agentic-labs/design-system';
 /**
  * Internal dependencies
  */

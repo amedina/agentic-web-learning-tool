@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { OptionsPageTab } from '@google-awlt/design-system';
+import { OptionsPageTab } from '@agentic-labs/design-system';
 
 /**
  * Internal dependencies

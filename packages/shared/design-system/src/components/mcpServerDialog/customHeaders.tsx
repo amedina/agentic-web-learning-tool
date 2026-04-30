@@ -7,12 +7,12 @@ import {
   Input,
   Textarea,
   ToggleSwitch as Switch,
-} from '@google-awlt/design-system';
+} from '@agentic-labs/design-system';
 import { Plus, Trash2, Eye, EyeOff } from 'lucide-react';
 import {
   type CustomHeaders as CustomHeadersType,
   type CustomHeader,
-} from '@google-awlt/common';
+} from '@agentic-labs/common';
 /**
  * Internal dependencies
  */

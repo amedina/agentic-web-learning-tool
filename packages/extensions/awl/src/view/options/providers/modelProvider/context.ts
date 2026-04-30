@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { createContext } from '@google-awlt/common';
+import { createContext } from '@agentic-labs/common';
 /**
  * Internal dependencies.
  */

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { logger } from '@google-awlt/common';
+import { logger } from '@agentic-labs/common';
 
 const openOptionsPage = async () => {
   try {

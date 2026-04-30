@@ -6,7 +6,7 @@ import { Settings } from "lucide-react";
 import {
   AlertNotificationConfigSchema,
   type AlertNotificationConfig,
-} from "@google-awlt/engine-core";
+} from "@agentic-labs/engine-core";
 
 /**
  * Internal dependencies

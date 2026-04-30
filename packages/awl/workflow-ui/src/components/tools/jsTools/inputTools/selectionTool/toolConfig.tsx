@@ -5,7 +5,7 @@ import { useImperativeHandle } from "react";
 import {
   SelectionToolConfigSchema,
   type SelectionToolConfig,
-} from "@google-awlt/engine-core";
+} from "@agentic-labs/engine-core";
 
 /**
  * Internal dependencies

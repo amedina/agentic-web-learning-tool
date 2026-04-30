@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { Check } from 'lucide-react';
-import { Button, cn, OptionsPageTabSection } from '@google-awlt/design-system';
+import { Button, cn, OptionsPageTabSection } from '@agentic-labs/design-system';
 
 /**
  * Internal dependencies

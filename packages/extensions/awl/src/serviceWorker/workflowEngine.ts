@@ -1,4 +1,4 @@
-import { initServiceWorkerBridge } from '@google-awlt/engine-extension';
+import { initServiceWorkerBridge } from '@agentic-labs/engine-extension';
 
 console.log('Service Worker initializing...');
 initServiceWorkerBridge();

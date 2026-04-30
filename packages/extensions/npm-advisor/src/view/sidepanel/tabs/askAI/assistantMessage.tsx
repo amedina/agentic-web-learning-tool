@@ -2,7 +2,7 @@
  * External dependencies.
  */
 import { MessagePrimitive } from "@assistant-ui/react";
-import { MarkdownText, ToolFallback } from "@google-awlt/design-system";
+import { MarkdownText, ToolFallback } from "@agentic-labs/design-system";
 /**
  * Internal dependencies.
  */

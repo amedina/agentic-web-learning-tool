@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import { createContext, noop } from '@google-awlt/common';
-import type { WebMCPTool } from '@google-awlt/design-system';
+import { createContext, noop } from '@agentic-labs/common';
+import type { WebMCPTool } from '@agentic-labs/design-system';
 import type { Dispatch, SetStateAction } from 'react';
 
 export interface ToolProviderStoreContext {

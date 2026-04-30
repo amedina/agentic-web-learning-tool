@@ -1,9 +1,9 @@
 /**
  * External dependencies
  */
-import { Sidebar as DevtoolsSidebar } from '@google-awlt/design-system';
+import { Sidebar as DevtoolsSidebar } from '@agentic-labs/design-system';
 import { Hammer, Settings, Activity } from 'lucide-react';
-import { openOptionsPage } from '@google-awlt/chatbot';
+import { openOptionsPage } from '@agentic-labs/chatbot';
 /**
  * Internal dependencies
  */

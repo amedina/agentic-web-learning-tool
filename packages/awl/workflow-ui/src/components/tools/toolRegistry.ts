@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { NodeType, type NodeConfig } from "@google-awlt/engine-core";
+import { NodeType, type NodeConfig } from "@agentic-labs/engine-core";
 
 export const TOOL_CONFIGS: Record<
   NodeType,

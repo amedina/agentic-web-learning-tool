@@ -4,8 +4,8 @@
 import {
   EXTENSION_TOOL_PREFIX,
   DOM_TOOL_NAME_PREFIX,
-} from '@google-awlt/common';
-import { PREDEFINED_WORKFLOWS } from '@google-awlt/engine-extension';
+} from '@agentic-labs/common';
+import { PREDEFINED_WORKFLOWS } from '@agentic-labs/engine-extension';
 
 /**
  * Internal dependencies.

@@ -12,7 +12,7 @@ import {
 import { McpClientProvider } from '@mcp-b/react-webmcp';
 import { ExtensionClientTransport } from '@mcp-b/transports';
 import { Client } from '@modelcontextprotocol/sdk/client';
-import { type MCPServerConfig } from '@google-awlt/common';
+import { type MCPServerConfig } from '@agentic-labs/common';
 /**
  * Internal dependencies.
  */

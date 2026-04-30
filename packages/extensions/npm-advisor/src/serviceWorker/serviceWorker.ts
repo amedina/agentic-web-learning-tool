@@ -7,7 +7,7 @@ import {
   fetchBundlephobiaData,
   getDependencyTree,
   configureGithubAuth,
-} from "@google-awlt/package-analyzer-core";
+} from "@agentic-labs/package-analyzer-core";
 import { githubAuthService } from "./services/githubAuth";
 import "./chromeListeners";
 

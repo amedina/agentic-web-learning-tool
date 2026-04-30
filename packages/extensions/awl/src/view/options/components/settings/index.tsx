@@ -2,8 +2,11 @@
  * External dependencies
  */
 import { useCallback, useState } from 'react';
-import { OptionsPageTab, type PromptCommand } from '@google-awlt/design-system';
-import { listWorkflows } from '@google-awlt/engine-extension';
+import {
+  OptionsPageTab,
+  type PromptCommand,
+} from '@agentic-labs/design-system';
+import { listWorkflows } from '@agentic-labs/engine-extension';
 
 /**
  * Internal dependencies

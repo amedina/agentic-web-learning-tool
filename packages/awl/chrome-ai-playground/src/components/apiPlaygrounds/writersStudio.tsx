@@ -27,7 +27,7 @@ import {
   Tabs,
   TabsList,
   TabsTrigger,
-} from "@google-awlt/design-system";
+} from "@agentic-labs/design-system";
 
 /**
  * Internal dependencies

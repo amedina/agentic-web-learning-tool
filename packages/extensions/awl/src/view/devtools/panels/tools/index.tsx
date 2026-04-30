@@ -15,9 +15,9 @@ import {
   type TableRow,
   getToolNameWithoutPrefix,
   type WebMCPTool,
-} from '@google-awlt/design-system';
+} from '@agentic-labs/design-system';
 import type { Tool } from '@modelcontextprotocol/sdk/types.js';
-import { noop, logger } from '@google-awlt/common';
+import { noop, logger } from '@agentic-labs/common';
 import { RefreshCcw } from 'lucide-react';
 /**
  * Internal Dependencies

@@ -5,7 +5,7 @@ import {
   CallToolResultSchema,
   type CallToolResult,
 } from '@modelcontextprotocol/sdk/types.js';
-import { logger } from '@google-awlt/common';
+import { logger } from '@agentic-labs/common';
 
 /**
  * Processes the raw MCP result content into a format compatible with Assistant UI.

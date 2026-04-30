@@ -10,14 +10,14 @@ import {
   deleteWorkflow,
   setLastOpenedWorkflowId,
   listWorkflows,
-} from "@google-awlt/engine-extension";
+} from "@agentic-labs/engine-extension";
 import {
   type NodeConfig,
   NodeType,
   type WorkflowJSON,
   WorkflowJSONSchema,
   type WorkflowMeta,
-} from "@google-awlt/engine-core";
+} from "@agentic-labs/engine-core";
 
 /**
  * Internal dependencies

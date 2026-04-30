@@ -2,4 +2,4 @@ export {
   useDependencyStats,
   type DependencyStatsState,
   type DependencyStatsByName,
-} from "@google-awlt/package-analyzer-ui";
+} from "@agentic-labs/package-analyzer-ui";

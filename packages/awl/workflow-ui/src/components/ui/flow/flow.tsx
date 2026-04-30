@@ -24,7 +24,7 @@ import {
   GalleryHorizontalEnd,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Tabs, TabsList, TabsTrigger } from "@google-awlt/design-system";
+import { Tabs, TabsList, TabsTrigger } from "@agentic-labs/design-system";
 
 /**
  * Internal dependencies

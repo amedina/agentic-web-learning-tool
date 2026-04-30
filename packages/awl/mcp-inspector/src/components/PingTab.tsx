@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { TabsContent, Button } from "@google-awlt/design-system";
+import { TabsContent, Button } from "@agentic-labs/design-system";
 /**
  * Internal dependencies
  */

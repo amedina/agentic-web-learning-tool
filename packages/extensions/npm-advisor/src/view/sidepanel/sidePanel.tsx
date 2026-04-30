@@ -1,9 +1,9 @@
 /**
  * External dependencies
  */
-import { PropProvider, SidepanelChatbot } from "@google-awlt/chatbot";
-import { SidebarProvider, Toaster } from "@google-awlt/design-system";
-import { StatsClientProvider } from "@google-awlt/package-analyzer-ui";
+import { PropProvider, SidepanelChatbot } from "@agentic-labs/chatbot";
+import { SidebarProvider, Toaster } from "@agentic-labs/design-system";
+import { StatsClientProvider } from "@agentic-labs/package-analyzer-ui";
 /**
  * Internal dependencies
  */

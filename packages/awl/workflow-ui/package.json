@@ -1,5 +1,5 @@
 {
-  "name": "@google-awlt/workflow-ui",
+  "name": "@agentic-labs/workflow-ui",
   "version": "1.0.3",
   "private": true,
   "type": "module",
@@ -22,10 +22,10 @@
     "format": "prettier . --write"
   },
   "dependencies": {
-    "@google-awlt/common": "workspace:*",
-    "@google-awlt/design-system": "workspace:*",
-    "@google-awlt/engine-core": "workspace:*",
-    "@google-awlt/engine-extension": "workspace:*",
+    "@agentic-labs/common": "workspace:*",
+    "@agentic-labs/design-system": "workspace:*",
+    "@agentic-labs/engine-core": "workspace:*",
+    "@agentic-labs/engine-extension": "workspace:*",
     "@xyflow/react": "^12.9.3",
     "clsx": "^2.1.1",
     "immer": "^9.0.21",
@@ -38,7 +38,7 @@
     "zod": "4.1.13"
   },
   "devDependencies": {
-    "@google-awlt/shared-config": "workspace:*",
+    "@agentic-labs/shared-config": "workspace:*",
     "@storybook/react-vite": "^9.1.5",
     "@types/chrome": "^0.1.33",
     "@types/react": "^19.0.0",

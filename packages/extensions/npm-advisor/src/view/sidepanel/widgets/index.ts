@@ -1,1 +1,1 @@
-export * from "@google-awlt/package-analyzer-ui";
+export * from "@agentic-labs/package-analyzer-ui";

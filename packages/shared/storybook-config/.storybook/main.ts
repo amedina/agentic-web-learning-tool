@@ -24,16 +24,16 @@ const config: StorybookConfig = {
       plugins: [svgr()],
       resolve: {
         alias: {
-          '@google-awlt/design-system': path.resolve(
+          '@agentic-labs/design-system': path.resolve(
             __dirname,
             '../../design-system/src'
           ),
-          '@google-awlt/awl': path.resolve(
+          '@agentic-labs/awl': path.resolve(
             __dirname,
             '../../../extensions/awl/src'
           ),
-          '@google-awlt/table': path.resolve(__dirname, '../../table/src'),
-          '@google-awlt/common': path.resolve(__dirname, '../../common/src'),
+          '@agentic-labs/table': path.resolve(__dirname, '../../table/src'),
+          '@agentic-labs/common': path.resolve(__dirname, '../../common/src'),
         },
       },
     });

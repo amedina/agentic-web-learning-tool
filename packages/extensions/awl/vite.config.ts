@@ -16,17 +16,17 @@ const awlDir = resolve(packagesDir, 'awl');
 const sharedDir = resolve(packagesDir, 'shared');
 const aliases = [
   ...readdirSync(awlDir).map((name) => ({
-    find: `@google-awlt/${name}`,
+    find: `@agentic-labs/${name}`,
     replacement: resolve(awlDir, name, 'src'),
   })),
   ...readdirSync(sharedDir)
     .filter((name) => name !== 'shared-config' && name !== 'storybook-config')
     .map((name) => ({
-      find: `@google-awlt/${name}`,
+      find: `@agentic-labs/${name}`,
       replacement: resolve(sharedDir, name, 'src'),
     })),
   {
-    find: '@google-awlt/common',
+    find: '@agentic-labs/common',
     replacement: resolve(sharedDir, 'common', 'src'),
   },
 ];

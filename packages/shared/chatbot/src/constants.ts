@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import type { PromptCommand } from '@google-awlt/design-system';
+import type { PromptCommand } from '@agentic-labs/design-system';
 
 export const START_MCP_CONNECTION = 'START_MCP_CONNECTION';
 

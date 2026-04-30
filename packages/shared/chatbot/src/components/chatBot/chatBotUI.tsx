@@ -25,7 +25,7 @@ import {
   OwlIcon,
   SidebarInset,
   ThreadListSidebar,
-} from '@google-awlt/design-system';
+} from '@agentic-labs/design-system';
 /**
  * Internal dependencies
  */

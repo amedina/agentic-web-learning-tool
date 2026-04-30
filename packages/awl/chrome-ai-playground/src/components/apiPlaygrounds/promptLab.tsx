@@ -25,7 +25,7 @@ import {
   SelectContent,
   SelectItem,
   Label,
-} from "@google-awlt/design-system";
+} from "@agentic-labs/design-system";
 
 /**
  * Internal dependencies

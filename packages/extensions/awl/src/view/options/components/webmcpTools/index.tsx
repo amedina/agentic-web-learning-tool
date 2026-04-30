@@ -1,10 +1,10 @@
 /**
  * External dependencies
  */
-import { WebMCPToolsTab as WebMCPToolsUI } from '@google-awlt/design-system';
+import { WebMCPToolsTab as WebMCPToolsUI } from '@agentic-labs/design-system';
 import { useMemo, useState, useEffect, useCallback } from 'react';
-import { listWorkflows, saveWorkflow } from '@google-awlt/engine-extension';
-import type { WorkflowJSON } from '@google-awlt/engine-core';
+import { listWorkflows, saveWorkflow } from '@agentic-labs/engine-extension';
+import type { WorkflowJSON } from '@agentic-labs/engine-core';
 /**
  * Internal Dependencies.
  */

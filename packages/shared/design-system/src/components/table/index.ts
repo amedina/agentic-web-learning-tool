@@ -8,7 +8,7 @@ export {
   useFiltering,
   useSearch,
   useColumnSorting,
-} from '@google-awlt/table';
+} from '@agentic-labs/table';
 
 export type {
   TableColumn,
@@ -16,4 +16,4 @@ export type {
   InfoType,
   TableRow,
   TableProviderProps,
-} from '@google-awlt/table';
+} from '@agentic-labs/table';

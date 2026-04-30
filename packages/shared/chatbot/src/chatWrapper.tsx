@@ -8,7 +8,7 @@ import {
   TabsList,
   TabsTrigger,
   TabsContent,
-} from '@google-awlt/design-system';
+} from '@agentic-labs/design-system';
 /**
  * Internal dependencies
  */

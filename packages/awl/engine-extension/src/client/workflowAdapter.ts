@@ -5,7 +5,7 @@ import {
   ExecutionContext,
   NodeOutput,
   WorkflowJSON,
-} from '@google-awlt/engine-core';
+} from '@agentic-labs/engine-core';
 
 /**
  * Internal dependencies

@@ -10,7 +10,7 @@ import {
   Label,
   Combobox,
   TabsContent,
-} from "@google-awlt/design-system";
+} from "@agentic-labs/design-system";
 import {
   type ListResourcesResult,
   type Resource,

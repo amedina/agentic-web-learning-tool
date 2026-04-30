@@ -5,7 +5,7 @@ A React component library for visualizing and interacting with Chrome's built-in
 ## Installation
 
 ```bash
-pnpm add @google-awlt/chrome-ai-playground
+pnpm add @agentic-labs/chrome-ai-playground
 ```
 
 ## Features
@@ -26,7 +26,7 @@ Import the components and use them in your React application:
 import {
   APIPlaygroundsTab,
   APIStatusTab,
-} from '@google-awlt/chrome-ai-playground';
+} from '@agentic-labs/chrome-ai-playground';
 
 function App() {
   return (

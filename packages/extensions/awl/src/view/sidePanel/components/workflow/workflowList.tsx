@@ -3,8 +3,8 @@
  */
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import { TerminalIcon } from 'lucide-react';
-import { listWorkflows } from '@google-awlt/engine-extension';
-import type { WorkflowJSON } from '@google-awlt/engine-core';
+import { listWorkflows } from '@agentic-labs/engine-extension';
+import type { WorkflowJSON } from '@agentic-labs/engine-core';
 
 /**
  * Internal dependencies

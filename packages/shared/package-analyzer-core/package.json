@@ -1,5 +1,5 @@
 {
-  "name": "@google-awlt/package-analyzer-core",
+  "name": "@agentic-labs/package-analyzer-core",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -13,7 +13,7 @@
     "test": "vitest run --root . --silent"
   },
   "devDependencies": {
-    "@google-awlt/shared-config": "workspace:*",
+    "@agentic-labs/shared-config": "workspace:*",
     "typescript": "~5.8.3",
     "vitest": "^3.2.4"
   }

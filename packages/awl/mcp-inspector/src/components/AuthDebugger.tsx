@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { useCallback, useMemo, useEffect } from "react";
-import { Button } from "@google-awlt/design-system";
+import { Button } from "@agentic-labs/design-system";
 import { AlertCircle } from "lucide-react";
 
 /**

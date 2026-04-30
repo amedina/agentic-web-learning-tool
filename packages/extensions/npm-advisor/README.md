@@ -166,9 +166,9 @@ pnpm test
 
 This package depends on three sibling workspace packages:
 
-- `@google-awlt/chatbot` — Shared chatbot UI components and runtime.
-- `@google-awlt/common` — Shared utilities and types.
-- `@google-awlt/design-system` — Shared UI component library.
+- `@agentic-labs/chatbot` — Shared chatbot UI components and runtime.
+- `@agentic-labs/common` — Shared utilities and types.
+- `@agentic-labs/design-system` — Shared UI component library.
 
 ## Privacy
 

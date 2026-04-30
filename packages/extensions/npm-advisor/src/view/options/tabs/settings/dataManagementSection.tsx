@@ -21,7 +21,7 @@ import {
   Button,
   OptionsPageTabSection,
   toast,
-} from "@google-awlt/design-system";
+} from "@agentic-labs/design-system";
 
 type DataManagementSectionProps = {
   setIsResetModalOpen: Dispatch<SetStateAction<boolean>>;

@@ -3,7 +3,7 @@
  */
 import { useImperativeHandle, useState } from "react";
 import { Settings } from "lucide-react";
-import { LoopConfigSchema, type LoopConfig } from "@google-awlt/engine-core";
+import { LoopConfigSchema, type LoopConfig } from "@agentic-labs/engine-core";
 
 /**
  * Internal dependencies

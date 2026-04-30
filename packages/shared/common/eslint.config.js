@@ -2,8 +2,8 @@
  * External dependencies.
  */
 import globals from 'globals';
-import { config as baseConfig } from '@google-awlt/shared-config/eslint';
-import { config as reactConfig } from '@google-awlt/shared-config/eslint/react';
+import { config as baseConfig } from '@agentic-labs/shared-config/eslint';
+import { config as reactConfig } from '@agentic-labs/shared-config/eslint/react';
 import { globalIgnores, defineConfig } from 'eslint/config';
 
 /**

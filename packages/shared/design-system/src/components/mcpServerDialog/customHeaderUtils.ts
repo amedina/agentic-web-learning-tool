@@ -1,4 +1,4 @@
-import type { CustomHeader, CustomHeaders } from '@google-awlt/common';
+import type { CustomHeader, CustomHeaders } from '@agentic-labs/common';
 
 export const createEmptyHeader = (): CustomHeader => ({
   name: '',

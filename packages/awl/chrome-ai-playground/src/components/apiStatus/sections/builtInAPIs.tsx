@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { useState, useEffect } from "react";
-import { Button, TooltipIconButton } from "@google-awlt/design-system";
+import { Button, TooltipIconButton } from "@agentic-labs/design-system";
 import { RefreshCw, Download, ExternalLink, BookOpen } from "lucide-react";
 
 declare const chrome: any;

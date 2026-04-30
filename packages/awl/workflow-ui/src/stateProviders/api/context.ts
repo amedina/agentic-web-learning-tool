@@ -1,9 +1,9 @@
 /**
  * External dependencies
  */
-import { type NodeConfig, NodeType } from "@google-awlt/engine-core";
-import { type WorkflowMeta } from "@google-awlt/engine-core";
-import { createContext } from "@google-awlt/common";
+import { type NodeConfig, NodeType } from "@agentic-labs/engine-core";
+import { type WorkflowMeta } from "@agentic-labs/engine-core";
+import { createContext } from "@agentic-labs/common";
 
 /**
  * Internal dependencies

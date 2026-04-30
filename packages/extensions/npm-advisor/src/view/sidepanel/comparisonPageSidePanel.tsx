@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import { PropProvider, SidepanelChatbot } from "@google-awlt/chatbot";
-import { SidebarProvider } from "@google-awlt/design-system";
+import { PropProvider, SidepanelChatbot } from "@agentic-labs/chatbot";
+import { SidebarProvider } from "@agentic-labs/design-system";
 /**
  * Internal dependencies
  */

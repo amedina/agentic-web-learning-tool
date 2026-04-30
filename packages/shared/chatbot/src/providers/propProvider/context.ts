@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { createContext } from '@google-awlt/common';
+import { createContext } from '@agentic-labs/common';
 import type { RefObject } from 'react';
 /**
  * Internal dependencies

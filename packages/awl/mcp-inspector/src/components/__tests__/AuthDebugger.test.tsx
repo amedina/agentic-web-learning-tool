@@ -7,7 +7,7 @@ import {
 } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import AuthDebugger, { type AuthDebuggerProps } from "../AuthDebugger";
-import { TooltipProvider } from "@google-awlt/design-system";
+import { TooltipProvider } from "@agentic-labs/design-system";
 import { SESSION_KEYS } from "../../lib/constants";
 
 const mockOAuthTokens = {

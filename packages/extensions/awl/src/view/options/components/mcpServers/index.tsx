@@ -7,7 +7,7 @@ import {
   OptionsPageTab,
   OptionsPageTabSection,
   useSidebar,
-} from '@google-awlt/design-system';
+} from '@agentic-labs/design-system';
 import { PlusIcon } from 'lucide-react';
 import { useState } from 'react';
 /**
@@ -15,7 +15,7 @@ import { useState } from 'react';
  */
 import { useMcpProvider } from '../../providers';
 import { MCPServerCard } from './mcpServerCard';
-import { useMCPClientProvider } from '@google-awlt/mcp-inspector';
+import { useMCPClientProvider } from '@agentic-labs/mcp-inspector';
 
 export default function MCPServersTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);

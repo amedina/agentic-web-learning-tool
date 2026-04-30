@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import { Button, cn } from '@google-awlt/design-system';
-import type { WorkflowJSON } from '@google-awlt/engine-core';
+import { Button, cn } from '@agentic-labs/design-system';
+import type { WorkflowJSON } from '@agentic-labs/engine-core';
 import { PlayIcon, Square, Loader2 } from 'lucide-react';
 
 interface WorkflowCardProps {

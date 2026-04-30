@@ -3,7 +3,7 @@
  */
 import { useCallback, type Dispatch, type SetStateAction } from "react";
 import { AlertOctagon } from "lucide-react";
-import { Button } from "@google-awlt/design-system";
+import { Button } from "@agentic-labs/design-system";
 
 type ResetConfirmationDialogProps = {
   setIsResetModalOpen: Dispatch<SetStateAction<boolean>>;

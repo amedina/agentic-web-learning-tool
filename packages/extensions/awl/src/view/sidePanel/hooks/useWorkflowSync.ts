@@ -5,8 +5,8 @@ import { useState, useEffect, useCallback } from 'react';
 import {
   getWorkflowClient,
   type GlobalWorkflowState,
-} from '@google-awlt/engine-extension';
-import type { WorkflowJSON } from '@google-awlt/engine-core';
+} from '@agentic-labs/engine-extension';
+import type { WorkflowJSON } from '@agentic-labs/engine-core';
 
 /**
  * useWorkflowSync Hook
