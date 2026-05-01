@@ -1,0 +1,162 @@
+/**
+ * Internal dependencies.
+ */
+import { StatsCache } from "./statsCache";
+
+/**
+ * External dependencies.
+ */
+import { describe, expect, it, vi } from "vitest";
+import type * as vscode from "vscode";
+import type { PackageStats } from "@agentic-web-labs/package-analyzer-core";
+
+function createMemento(): vscode.Memento {
+  const store = new Map<string, unknown>();
+  return {
+    get: <T>(key: string, defaultValue?: T) =>
+      (store.has(key) ? (store.get(key) as T) : defaultValue) as T,
+    update: async (key: string, value: unknown) => {
+      if (value === undefined) {
+        store.delete(key);
+      } else {
+        store.set(key, value);
+      }
+    },
+    keys: () => Array.from(store.keys()),
+  };
+}
+
+function makeStats(name: string, score = 80): PackageStats {
+  return { packageName: name, score } as unknown as PackageStats;
+}
+
+function createClock(initial: number) {
+  let now = initial;
+  return {
+    now: () => now,
+    advance: (deltaMs: number) => {
+      now += deltaMs;
+    },
+  };
+}
+
+describe("StatsCache", () => {
+  it("fetches and stores on a miss", async () => {
+    const fetcher = vi.fn().mockResolvedValue(makeStats("lodash"));
+    const cache = new StatsCache({ storage: createMemento(), fetcher });
+    const result = await cache.get("lodash", "^4.17.21");
+    expect(result?.packageName).toBe("lodash");
+    expect(fetcher).toHaveBeenCalledTimes(1);
+  });
+
+  it("returns the cached value without re-fetching when fresh", async () => {
+    const fetcher = vi.fn().mockResolvedValue(makeStats("lodash"));
+    const cache = new StatsCache({ storage: createMemento(), fetcher });
+    await cache.get("lodash", "^4.17.21");
+    await cache.get("lodash", "^4.17.21");
+    await cache.get("lodash", "^4.17.21");
+    expect(fetcher).toHaveBeenCalledTimes(1);
+  });
+
+  it("returns the stale value immediately and refreshes in the background", async () => {
+    const clock = createClock(1_000);
+    const fetcher = vi
+      .fn()
+      .mockResolvedValueOnce(makeStats("lodash", 50))
+      .mockResolvedValueOnce(makeStats("lodash", 90));
+    const cache = new StatsCache({
+      storage: createMemento(),
+      fetcher,
+      options: { ttlMs: 1_000, clock: clock.now },
+    });
+    const changes: { name: string; version: string }[] = [];
+    cache.onDidChange((change) => changes.push(change));
+
+    const first = await cache.get("lodash", "^4");
+    expect(first?.score).toBe(50);
+
+    clock.advance(2_000);
+
+    const second = await cache.get("lodash", "^4");
+    expect(second?.score).toBe(50); // stale value returned immediately
+    expect(fetcher).toHaveBeenCalledTimes(2);
+
+    // Let the background refresh settle.
+    await vi.waitFor(() => expect(changes).toHaveLength(2));
+
+    const third = await cache.get("lodash", "^4");
+    expect(third?.score).toBe(90);
+  });
+
+  it("treats a null fetcher result as a negative cache entry", async () => {
+    const clock = createClock(1_000);
+    const fetcher = vi.fn().mockResolvedValue(null);
+    const cache = new StatsCache({
+      storage: createMemento(),
+      fetcher,
+      options: { failureTtlMs: 5_000, clock: clock.now },
+    });
+
+    expect(await cache.get("missing", "*")).toBeNull();
+    expect(await cache.get("missing", "*")).toBeNull();
+    expect(fetcher).toHaveBeenCalledTimes(1);
+
+    clock.advance(6_000);
+
+    expect(await cache.get("missing", "*")).toBeNull();
+    expect(fetcher).toHaveBeenCalledTimes(2);
+  });
+
+  it("treats a thrown fetcher as a negative cache entry", async () => {
+    const fetcher = vi.fn().mockRejectedValue(new Error("network down"));
+    const cache = new StatsCache({ storage: createMemento(), fetcher });
+    expect(await cache.get("flaky", "1")).toBeNull();
+    expect(await cache.get("flaky", "1")).toBeNull();
+    expect(fetcher).toHaveBeenCalledTimes(1);
+  });
+
+  it("dedupes concurrent calls for the same key", async () => {
+    let resolveFetch!: (value: PackageStats | null) => void;
+    const fetcher = vi.fn().mockReturnValue(
+      new Promise<PackageStats | null>((resolve) => {
+        resolveFetch = resolve;
+      }),
+    );
+    const cache = new StatsCache({ storage: createMemento(), fetcher });
+
+    const promises = [
+      cache.get("lodash", "^4"),
+      cache.get("lodash", "^4"),
+      cache.get("lodash", "^4"),
+    ];
+
+    expect(fetcher).toHaveBeenCalledTimes(1);
+    resolveFetch(makeStats("lodash"));
+    const results = await Promise.all(promises);
+    for (const result of results) {
+      expect(result?.packageName).toBe("lodash");
+    }
+  });
+
+  it("treats different version specs as separate cache keys", async () => {
+    const fetcher = vi
+      .fn()
+      .mockResolvedValueOnce(makeStats("lodash", 50))
+      .mockResolvedValueOnce(makeStats("lodash", 90));
+    const cache = new StatsCache({ storage: createMemento(), fetcher });
+    const a = await cache.get("lodash", "^4.17.0");
+    const b = await cache.get("lodash", "^4.18.0");
+    expect(a?.score).toBe(50);
+    expect(b?.score).toBe(90);
+    expect(fetcher).toHaveBeenCalledTimes(2);
+  });
+
+  it("emits onDidChange after a refresh", async () => {
+    const fetcher = vi.fn().mockResolvedValue(makeStats("lodash"));
+    const cache = new StatsCache({ storage: createMemento(), fetcher });
+    const changes: { name: string; version: string }[] = [];
+    cache.onDidChange((change) => changes.push(change));
+    await cache.get("lodash", "^4");
+    expect(changes).toEqual([{ name: "lodash", version: "^4" }]);
+  });
+});

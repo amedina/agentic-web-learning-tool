@@ -5,8 +5,6 @@
     "rootDir": "./src",
     "lib": ["ES2022"],
     "types": ["node", "vscode"],
-    "moduleResolution": "node",
-    "module": "commonjs",
     "verbatimModuleSyntax": false,
     "allowImportingTsExtensions": false
   },

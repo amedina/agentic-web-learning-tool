@@ -66,6 +66,7 @@
     "@types/vscode": "^1.96.0",
     "@vscode/vsce": "^3.2.1",
     "esbuild": "^0.24.0",
+    "jsonc-parser": "^3.3.1",
     "rimraf": "^5.0.5",
     "typescript": "~5.8.3",
     "vitest": "^3.2.4"
