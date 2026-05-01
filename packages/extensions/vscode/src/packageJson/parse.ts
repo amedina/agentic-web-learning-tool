@@ -1,8 +1,4 @@
 /**
- * Internal dependencies.
- */
-
-/**
  * External dependencies.
  */
 import * as jsonc from "jsonc-parser";
