@@ -4,10 +4,6 @@
 import React from "react";
 import { usePropProvider } from "@agentic-web-labs/chatbot";
 import { InsightsTab } from "@agentic-web-labs/package-analyzer-ui";
-
-/**
- * Internal dependencies.
- */
 import { type PackageStats } from "@agentic-web-labs/package-analyzer-core";
 
 interface InsightsTabProps {

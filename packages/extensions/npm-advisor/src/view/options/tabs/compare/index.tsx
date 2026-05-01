@@ -3,12 +3,12 @@
  */
 import { useEffect, useState, useMemo } from "react";
 import { OptionsPageTab } from "@agentic-web-labs/design-system";
+import { calculateScore } from "@agentic-web-labs/package-analyzer-core";
 
 /**
  * Internal dependencies
  */
 import { ComparisonTab } from "./comparisonTab";
-import { calculateScore } from "@agentic-web-labs/package-analyzer-core";
 
 export default function ComparisonPage() {
   const [comparisonBucket, setComparisonBucket] = useState<any[]>([]);

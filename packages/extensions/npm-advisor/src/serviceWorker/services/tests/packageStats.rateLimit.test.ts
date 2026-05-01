@@ -2,6 +2,7 @@
  * External dependencies.
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { getPackageStats } from "@agentic-web-labs/package-analyzer-core";
 
 /**
  * Internal dependencies.
@@ -18,7 +19,6 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
  *    scratch (e.g. once a PAT is added or the limit resets).
  */
 import { packageStatsService } from "../packageStats";
-import { getPackageStats } from "@agentic-web-labs/package-analyzer-core";
 
 vi.mock("@agentic-web-labs/package-analyzer-core", async () => {
   const actual = await vi.importActual<

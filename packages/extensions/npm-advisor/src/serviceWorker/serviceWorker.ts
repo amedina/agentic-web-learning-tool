@@ -1,13 +1,17 @@
 /**
- * Internal dependencies
+ * External dependencies
  */
-import { packageStatsService } from "./services/packageStats";
-import { npmSearchService } from "./services/npmSearch";
 import {
   fetchBundlephobiaData,
   getDependencyTree,
   configureGithubAuth,
 } from "@agentic-web-labs/package-analyzer-core";
+
+/**
+ * Internal dependencies
+ */
+import { packageStatsService } from "./services/packageStats";
+import { npmSearchService } from "./services/npmSearch";
 import { githubAuthService } from "./services/githubAuth";
 import "./chromeListeners";
 

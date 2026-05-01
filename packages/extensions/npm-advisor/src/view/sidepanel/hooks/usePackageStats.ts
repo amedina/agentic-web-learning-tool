@@ -2,11 +2,11 @@
  * External dependencies.
  */
 import { useState, useEffect, useCallback } from "react";
+import { type PackageStats } from "@agentic-web-labs/package-analyzer-core";
 
 /**
  * Internal dependencies.
  */
-import { type PackageStats } from "@agentic-web-labs/package-analyzer-core";
 import { showGithubRateLimitToastOnce } from "../utils/githubRateLimitToast";
 
 export interface PackageJsonDependencies {

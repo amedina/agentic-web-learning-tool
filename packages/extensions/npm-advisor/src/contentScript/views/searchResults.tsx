@@ -3,6 +3,7 @@
  */
 import React, { useState, useEffect, useCallback } from "react";
 import { X } from "lucide-react";
+import { calculateScore } from "@agentic-web-labs/package-analyzer-core";
 
 /**
  * Internal dependencies
@@ -11,7 +12,6 @@ import { FilterSidebar } from "./components/filterSidebar";
 import { ResultCard } from "./components/resultCard";
 import { ResultsHeader } from "./components/resultsHeader";
 import { useThemeSync } from "../hooks/useThemeSync";
-import { calculateScore } from "@agentic-web-labs/package-analyzer-core";
 import type { AlgoliaHit, SearchFilters } from "../types";
 
 const DEFAULT_FILTERS: SearchFilters = {
