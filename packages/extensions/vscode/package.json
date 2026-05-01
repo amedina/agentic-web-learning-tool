@@ -14,7 +14,7 @@
     "Linters",
     "Other"
   ],
-  "icon": "media/icon-128.png",
+  "icon": "media/icon-128-color.png",
   "main": "./dist/extension.js",
   "activationEvents": [
     "workspaceContains:**/package.json"
