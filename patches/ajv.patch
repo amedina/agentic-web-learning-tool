@@ -6,7 +6,7 @@ index a74adf2215795eef0e67f8c39bfa0af1467143fa..2cb83fc7f1d0421a1c6563a5b31ad513
          // console.log((codeSize += sourceCode.length), (nodeCount += gen.nodeCount))
          if (this.opts.code.process)
              sourceCode = this.opts.code.process(sourceCode, sch);
-+        if(chrome.runtime){
++        if(typeof chrome !== "undefined" && chrome.runtime){
 +        sch.validate = () => true;
 +        return sch;
 +        }
@@ -21,7 +21,7 @@ index aa0be5b30c6ff60888a48d165ad9e355d7715bc7..31359d8a258960a65dac2dbfcfc653fd
          gen.optimize(this.opts.code.optimize);
          const parseFuncCode = gen.toString();
          sourceCode = `${gen.scopeRefs(names_1.default.scope)}return ${parseFuncCode}`;
-+                if(chrome.runtime){
++                if(typeof chrome !== "undefined" && chrome.runtime){
 +        sch.parse = () => true;
 +        return sch;
 +        }
@@ -36,7 +36,7 @@ index 69f0f563c7f1285bdae327bc69ec3beb27494812..32a6c440fef51868ec96ad1136400eb4
          gen.optimize(this.opts.code.optimize);
          const serializeFuncCode = gen.toString();
          sourceCode = `${gen.scopeRefs(names_1.default.scope)}return ${serializeFuncCode}`;
-+                        if(chrome.runtime){
++                        if(typeof chrome !== "undefined" && chrome.runtime){
 +        sch.serialize = () => true;
 +        return sch;
 +        }
