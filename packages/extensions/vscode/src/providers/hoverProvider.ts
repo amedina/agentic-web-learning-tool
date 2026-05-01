@@ -4,23 +4,20 @@
 import type { StatsCache } from "../cache/statsCache";
 import { renderHover } from "../hover/render";
 import { parseDependencies } from "../packageJson/parse";
+import type { NpmAdvisorSettings } from "../diagnostics/settings";
 
 /**
  * External dependencies.
  */
 import * as vscode from "vscode";
 
-export interface PackageJsonHoverProviderOptions {
-  targetLicense: string;
-}
-
 export class PackageJsonHoverProvider implements vscode.HoverProvider {
   private readonly cache: StatsCache;
-  private readonly options: PackageJsonHoverProviderOptions;
+  private readonly settingsProvider: () => NpmAdvisorSettings;
 
-  constructor(cache: StatsCache, options: PackageJsonHoverProviderOptions) {
+  constructor(cache: StatsCache, settingsProvider: () => NpmAdvisorSettings) {
     this.cache = cache;
-    this.options = options;
+    this.settingsProvider = settingsProvider;
   }
 
   async provideHover(
@@ -40,8 +37,9 @@ export class PackageJsonHoverProvider implements vscode.HoverProvider {
       return undefined;
     }
 
+    const settings = this.settingsProvider();
     const markdown = new vscode.MarkdownString(
-      renderHover(stats, { targetLicense: this.options.targetLicense }),
+      renderHover(stats, { targetLicense: settings.targetLicense }),
     );
     markdown.isTrusted = true;
     markdown.supportHtml = false;

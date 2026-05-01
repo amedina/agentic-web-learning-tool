@@ -3,6 +3,7 @@
  */
 import type { StatsCache } from "../cache/statsCache";
 import { formatBadge } from "../codeLens/format";
+import type { NpmAdvisorSettings } from "../diagnostics/settings";
 import {
   parseDependencies,
   type PackageJsonDependency,
@@ -13,26 +14,30 @@ import {
  */
 import * as vscode from "vscode";
 
-export interface PackageJsonCodeLensProviderOptions {
-  targetLicense: string;
-}
-
 interface DependencyCodeLens extends vscode.CodeLens {
   dependency: PackageJsonDependency;
 }
 
 export class PackageJsonCodeLensProvider implements vscode.CodeLensProvider {
   private readonly cache: StatsCache;
-  private readonly options: PackageJsonCodeLensProviderOptions;
+  private readonly settingsProvider: () => NpmAdvisorSettings;
   private readonly emitter = new vscode.EventEmitter<void>();
   private readonly disposables: vscode.Disposable[] = [];
 
   readonly onDidChangeCodeLenses = this.emitter.event;
 
-  constructor(cache: StatsCache, options: PackageJsonCodeLensProviderOptions) {
+  constructor(cache: StatsCache, settingsProvider: () => NpmAdvisorSettings) {
     this.cache = cache;
-    this.options = options;
+    this.settingsProvider = settingsProvider;
     this.disposables.push(this.cache.onDidChange(() => this.emitter.fire()));
+  }
+
+  /**
+   * Force VSCode to re-resolve all visible CodeLenses. Used when a
+   * setting that affects badge contents changes.
+   */
+  refresh(): void {
+    this.emitter.fire();
   }
 
   provideCodeLenses(document: vscode.TextDocument): vscode.CodeLens[] {
@@ -55,8 +60,9 @@ export class PackageJsonCodeLensProvider implements vscode.CodeLensProvider {
     if (token.isCancellationRequested || !stats) {
       return undefined;
     }
+    const settings = this.settingsProvider();
     const title = formatBadge(stats, {
-      targetLicense: this.options.targetLicense,
+      targetLicense: settings.targetLicense,
     });
     if (!title) {
       return undefined;
