@@ -1,0 +1,15 @@
+{
+  "extends": "@agentic-web-labs/shared-config/typescript/library",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "lib": ["ES2022"],
+    "types": ["node", "vscode"],
+    "moduleResolution": "node",
+    "module": "commonjs",
+    "verbatimModuleSyntax": false,
+    "allowImportingTsExtensions": false
+  },
+  "include": ["src/**/*", "**/*.test.ts"],
+  "exclude": ["dist", "node_modules"]
+}
