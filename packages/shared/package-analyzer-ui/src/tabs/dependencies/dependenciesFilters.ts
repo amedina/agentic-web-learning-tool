@@ -7,13 +7,13 @@ import {
   type DependencyStatsState,
 } from "../../hooks/useDependencyStats";
 
-export type ReportFilterKey =
+export type DependenciesFilterKey =
   | "withIssues"
   | "vulnerable"
   | "licenseIssue"
   | "replaceable";
 
-export type ReportFilterSet = ReadonlySet<ReportFilterKey>;
+export type DependenciesFilterSet = ReadonlySet<DependenciesFilterKey>;
 
 const hasVulnerabilities = (stats: PackageStats): boolean =>
   (stats.securityAdvisories?.issues?.length ?? 0) > 0;
@@ -33,7 +33,10 @@ const hasReplaceable = (stats: PackageStats): boolean => {
   );
 };
 
-const PREDICATES: Record<ReportFilterKey, (stats: PackageStats) => boolean> = {
+const PREDICATES: Record<
+  DependenciesFilterKey,
+  (stats: PackageStats) => boolean
+> = {
   vulnerable: hasVulnerabilities,
   licenseIssue: hasLicenseIssue,
   replaceable: hasReplaceable,
@@ -51,7 +54,7 @@ const PREDICATES: Record<ReportFilterKey, (stats: PackageStats) => boolean> = {
  */
 export function matchesFilters(
   state: DependencyStatsState | undefined,
-  filters: ReportFilterSet,
+  filters: DependenciesFilterSet,
 ): boolean {
   if (filters.size === 0) {
     return true;
@@ -72,7 +75,7 @@ export function matchesFilters(
  * Shown on the pill so the user can see the universe size per filter
  * regardless of which other filters are currently active.
  */
-export interface ReportFilterCounts {
+export interface DependenciesFilterCounts {
   total: number;
   withIssues: number;
   vulnerable: number;
@@ -83,7 +86,7 @@ export interface ReportFilterCounts {
 export function computeFilterCounts(
   allPackageNames: string[],
   statsByName: DependencyStatsByName,
-): ReportFilterCounts {
+): DependenciesFilterCounts {
   let withIssues = 0;
   let vulnerable = 0;
   let licenseIssue = 0;

@@ -8,7 +8,10 @@ import React, { useMemo } from "react";
  */
 import { type DependencyStatsByName } from "../../hooks/useDependencyStats";
 import { DependencyAccordionRow } from "./dependencyAccordionRow";
-import { matchesFilters, type ReportFilterSet } from "./reportFilters";
+import {
+  matchesFilters,
+  type DependenciesFilterSet,
+} from "./dependenciesFilters";
 
 interface DependencySectionProps {
   title: string;
@@ -17,7 +20,7 @@ interface DependencySectionProps {
   onAddRecommendationToCompare: (packageName: string) => void;
   comparisonBucketNames: Set<string>;
   addingRecommendations: Set<string>;
-  activeFilters: ReportFilterSet;
+  activeFilters: DependenciesFilterSet;
   onNavigateToComparison?: () => void;
 }
 

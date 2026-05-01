@@ -11,7 +11,7 @@ import {
   ErrorState,
   NavigationMessage,
   InsightsTab,
-  ReportTab,
+  DependenciesTab,
   ComparisonTab,
   AssistantMessage,
   UserMessage,
@@ -125,10 +125,10 @@ const SidePanel = () => {
               ...(hasAnalysableDependencies && packageJsonDependencies
                 ? [
                     {
-                      value: "report",
-                      label: "Report",
+                      value: "dependencies",
+                      label: "Dependencies",
                       content: (
-                        <ReportTab
+                        <DependenciesTab
                           packageJsonDependencies={packageJsonDependencies}
                           onAddRecommendationToCompare={
                             handleAddRecommendationToCompare

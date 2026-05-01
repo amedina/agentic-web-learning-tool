@@ -4,6 +4,11 @@
 import React, { useState } from "react";
 import { ShieldAlert, AlertCircle } from "lucide-react";
 
+/**
+ * Internal dependencies.
+ */
+import { useCountUp } from "../../hooks/useCountUp";
+
 export interface SecurityAdvisoriesProps {
   securityAdvisories: {
     issues: Array<{ summary: string; severity: string; url: string }>;
@@ -24,6 +29,7 @@ export const SecurityAdvisories: React.FC<SecurityAdvisoriesProps> = ({
   isLoading = false,
 }) => {
   const [showAll, setShowAll] = useState(false);
+  const animatedIssueCount = useCountUp(securityAdvisories?.issues.length ?? 0);
 
   if (!securityAdvisories && isLoading && !githubRateLimited) {
     return (
@@ -74,7 +80,7 @@ export const SecurityAdvisories: React.FC<SecurityAdvisoriesProps> = ({
           size={16}
           className="mr-2 text-red-700 dark:text-red-400"
         />{" "}
-        Security Advisories ({securityAdvisories.issues.length})
+        Security Advisories ({animatedIssueCount})
       </h2>
       <ul className="space-y-2 mt-2">
         {visibleIssues.map((issue, idx) => (

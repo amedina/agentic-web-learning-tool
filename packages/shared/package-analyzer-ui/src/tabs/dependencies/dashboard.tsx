@@ -17,8 +17,11 @@ import {
   type DependencyStatsByName,
   type DependencyStatsState,
 } from "../../hooks/useDependencyStats";
-import { REPORT_COLORS, dominantDependencyColor } from "./reportColors";
-import { type ReportFilterKey } from "./reportFilters";
+import {
+  DEPENDENCIES_COLORS,
+  dominantDependencyColor,
+} from "./dependenciesColors";
+import { type DependenciesFilterKey } from "./dependenciesFilters";
 
 interface DashboardProps {
   statsByName: DependencyStatsByName;
@@ -36,7 +39,7 @@ interface DashboardProps {
    * Tiles do not toggle — they're a quick-add affordance; the user removes
    * a filter via the pill row's X.
    */
-  onSetFilter: (key: ReportFilterKey) => void;
+  onSetFilter: (key: DependenciesFilterKey) => void;
   /**
    * Clear all filters (used by the "Total Dependencies" tile, which acts
    * as the "show everything" shortcut).
@@ -49,7 +52,7 @@ interface DashboardProps {
  * a lookup so the Matrix `onClick` callback (which only receives `title`)
  * can dispatch without the Dashboard caring about the wiring.
  */
-const TILE_TITLE_TO_FILTER: Record<string, ReportFilterKey | "clear"> = {
+const TILE_TITLE_TO_FILTER: Record<string, DependenciesFilterKey | "clear"> = {
   "Total Dependencies": "clear",
   "With Vulnerabilities": "vulnerable",
   "License Issues": "licenseIssue",
@@ -65,7 +68,7 @@ interface ClickableCircleProps {
 /**
  * Wraps a CirclePieChart in a button so the same `handleTileClick` mapping
  * used by the Matrix tiles below also fires on circle clicks. Kept inline
- * because the wiring is specific to this report; the design-system
+ * because the wiring is specific to this tab; the design-system
  * CirclePieChart deliberately stays click-agnostic.
  */
 const ClickableCircle: React.FC<ClickableCircleProps> = ({
@@ -185,7 +188,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       onClick: handleTileClick,
     },
     {
-      color: REPORT_COLORS.vulnerable,
+      color: DEPENDENCIES_COLORS.vulnerable,
       title: "With Vulnerabilities",
       count: breakdown.vulnerableCount,
       countClassName: "font-semibold",
@@ -193,7 +196,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       onClick: handleTileClick,
     },
     {
-      color: REPORT_COLORS.licenseIssue,
+      color: DEPENDENCIES_COLORS.licenseIssue,
       title: "License Issues",
       count: breakdown.licenseIssueCount,
       countClassName: "font-semibold",
@@ -201,7 +204,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       onClick: handleTileClick,
     },
     {
-      color: REPORT_COLORS.replaceable,
+      color: DEPENDENCIES_COLORS.replaceable,
       title: "Replaceable",
       count: breakdown.replaceableCount,
       countClassName: "font-semibold",
@@ -241,9 +244,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
               title="Total Dependencies"
               tooltipText={`${prodCount} prod · ${devCount} dev · ${peerCount} peer`}
               data={[
-                { count: prodCount, color: REPORT_COLORS.prod },
-                { count: devCount, color: REPORT_COLORS.dev },
-                { count: peerCount, color: REPORT_COLORS.peer },
+                { count: prodCount, color: DEPENDENCIES_COLORS.prod },
+                { count: devCount, color: DEPENDENCIES_COLORS.dev },
+                { count: peerCount, color: DEPENDENCIES_COLORS.peer },
               ]}
             />
           </ClickableCircle>
@@ -258,14 +261,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
               data={[
                 {
                   count: breakdown.vulnerableCount,
-                  color: REPORT_COLORS.vulnerable,
+                  color: DEPENDENCIES_COLORS.vulnerable,
                 },
                 {
                   count: Math.max(
                     0,
                     breakdown.analysed - breakdown.vulnerableCount,
                   ),
-                  color: REPORT_COLORS.neutral,
+                  color: DEPENDENCIES_COLORS.neutral,
                 },
               ]}
             />
@@ -278,14 +281,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
               data={[
                 {
                   count: breakdown.licenseIssueCount,
-                  color: REPORT_COLORS.licenseIssue,
+                  color: DEPENDENCIES_COLORS.licenseIssue,
                 },
                 {
                   count: Math.max(
                     0,
                     breakdown.analysed - breakdown.licenseIssueCount,
                   ),
-                  color: REPORT_COLORS.neutral,
+                  color: DEPENDENCIES_COLORS.neutral,
                 },
               ]}
             />
@@ -298,14 +301,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
               data={[
                 {
                   count: breakdown.replaceableCount,
-                  color: REPORT_COLORS.replaceable,
+                  color: DEPENDENCIES_COLORS.replaceable,
                 },
                 {
                   count: Math.max(
                     0,
                     breakdown.analysed - breakdown.replaceableCount,
                   ),
-                  color: REPORT_COLORS.neutral,
+                  color: DEPENDENCIES_COLORS.neutral,
                 },
               ]}
             />

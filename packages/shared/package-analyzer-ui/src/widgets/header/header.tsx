@@ -17,6 +17,49 @@ import { Tooltip } from "@agentic-web-labs/design-system";
  * Internal dependencies.
  */
 import { type ScoreBreakdownItem } from "@agentic-web-labs/package-analyzer-core";
+import { DEPENDENCIES_COLORS } from "../../tabs/dependencies/dependenciesColors";
+import { BRAND_PRIMARY_COLOR } from "../../theme/brandColors";
+import { useCountUp } from "../../hooks/useCountUp";
+
+/**
+ * Picks a Fitness Score color based on the score's percentage of the
+ * available max. Percentage-based (rather than raw-number) because
+ * `scoreMaxPoints` varies — when an axis like Responsiveness is
+ * unavailable it's excluded from the denominator, so a raw 50 means
+ * "50 / 100" in some contexts and "50 / 70" in others.
+ *
+ * Thresholds:
+ *   - >= 70%   → green  (good)
+ *   - 40 – 69% → orange (moderate)
+ *   - <  40%   → red    (low)
+ *
+ * Low uses the extension brand red rather than the palette's `vulnerable`
+ * token, which is reserved for security-advisory signals so the two reds
+ * aren't conflated. Moderate uses a saturated darker orange (not the
+ * palette's lighter yellow-amber) so the three bands are visually distinct.
+ *
+ * Falls back to a muted slate when there's no score to color (N/A or no
+ * scored axes available) so the value doesn't read as "low" by accident.
+ */
+const FITNESS_COLOR_MODERATE = "#EA580C";
+const FITNESS_COLOR_NEUTRAL = DEPENDENCIES_COLORS.unanalysed;
+
+const getFitnessColor = (
+  score: number | null,
+  maxPoints: number | undefined,
+): string => {
+  if (score === null || !maxPoints || maxPoints <= 0) {
+    return FITNESS_COLOR_NEUTRAL;
+  }
+  const percentage = (score / maxPoints) * 100;
+  if (percentage >= 70) {
+    return DEPENDENCIES_COLORS.dev;
+  }
+  if (percentage >= 40) {
+    return FITNESS_COLOR_MODERATE;
+  }
+  return BRAND_PRIMARY_COLOR;
+};
 
 export interface HeaderProps {
   packageName: string;
@@ -33,7 +76,7 @@ export interface HeaderProps {
   /** True when a GitHub rate-limit prevented stars / lastCommit from loading. */
   githubRateLimited?: boolean;
   /**
-   * Hide the Fitness column. Used by the Report tab accordion rows where
+   * Hide the Fitness column. Used by the Dependencies tab accordion rows where
    * the Responsiveness signal is intentionally not loaded (Search API
    * quota), so the Fitness composite would be misleading.
    */
@@ -87,6 +130,10 @@ export const Header: React.FC<HeaderProps> = ({
   isLoading = false,
   onNavigateToComparison,
 }) => {
+  const animatedScore = useCountUp(score ?? 0);
+  const animatedStars = useCountUp(stars ?? 0);
+  const animatedCollabs = useCountUp(collaboratorsCount ?? 0);
+
   const formatDate = (dateString: string) => {
     const d = new Date(dateString);
     const day = d.getDate();
@@ -169,15 +216,15 @@ export const Header: React.FC<HeaderProps> = ({
                   scoreBreakdown && scoreBreakdown.length > 0 ? (
                     <div>
                       <p className="font-semibold text-sm">
-                        Frontend Fitness {score ?? 0}{" "}
+                        Fitness {score ?? 0}{" "}
                         <span className="text-slate-400">
                           / {scoreMaxPoints ?? 0}
                         </span>
                       </p>
                       <p className="text-[11px] text-slate-400 mb-2 leading-snug">
-                        How well this package fits into a client-side bundle.
-                        Server-side and dev-only packages may score low here by
-                        design.
+                        Fitness score compares similar packages. Server-side and
+                        dev-only packages score low by design, so cross-category
+                        comparisons aren&rsquo;t meaningful.
                       </p>
                       <ul className="space-y-2">
                         {scoreBreakdown.map((item) => {
@@ -267,9 +314,17 @@ export const Header: React.FC<HeaderProps> = ({
                 </button>
               </Tooltip>
             </div>
-            <span className="font-bold text-[#c94137] text-lg leading-none text-center">
+            <span
+              className="font-bold text-lg leading-none text-center"
+              style={{
+                color: getFitnessColor(
+                  score === null ? null : animatedScore,
+                  scoreMaxPoints,
+                ),
+              }}
+            >
               {score !== null ? (
-                score
+                animatedScore
               ) : isLoading ? (
                 <SkeletonValue width="w-8" />
               ) : (
@@ -284,7 +339,7 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
           <span className="font-medium text-slate-800 dark:text-slate-200">
             {stars !== null ? (
-              stars.toLocaleString()
+              animatedStars.toLocaleString()
             ) : githubRateLimited ? (
               <RateLimitedValue />
             ) : isLoading ? (
@@ -303,7 +358,7 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
           <span className="font-medium text-slate-800 dark:text-slate-200">
             {collaboratorsCount !== null && collaboratorsCount !== undefined ? (
-              collaboratorsCount
+              animatedCollabs
             ) : isLoading ? (
               <SkeletonValue width="w-8" />
             ) : (

@@ -4,6 +4,11 @@
 import React from "react";
 import { Users, Info, AlertCircle } from "lucide-react";
 
+/**
+ * Internal dependencies.
+ */
+import { useCountUp } from "../../hooks/useCountUp";
+
 export interface ResponsivenessProps {
   responsiveness: {
     description: string;
@@ -36,6 +41,12 @@ export const Responsiveness: React.FC<ResponsivenessProps> = ({
   githubIssuesUnavailable = false,
   isLoading = false,
 }) => {
+  const closedPercentage = Math.round(
+    (responsiveness?.closedIssuesRatio ?? 0) * 100,
+  );
+  const animatedClosedPercentage = useCountUp(closedPercentage);
+  const animatedOpenIssues = useCountUp(responsiveness?.openIssuesCount ?? 0);
+
   return (
     <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4 flex flex-col justify-between">
       <div>
@@ -75,7 +86,7 @@ export const Responsiveness: React.FC<ResponsivenessProps> = ({
                 </p>
               </div>
               <div className="text-lg font-bold text-slate-800 dark:text-slate-200">
-                {Math.round((responsiveness.closedIssuesRatio ?? 0) * 100)}%
+                {animatedClosedPercentage}%
               </div>
             </div>
           </>
@@ -109,7 +120,7 @@ export const Responsiveness: React.FC<ResponsivenessProps> = ({
             rel="noreferrer"
             className="inline-flex items-center px-2 py-1 rounded-md bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 text-xs font-semibold transition-colors"
           >
-            {responsiveness.openIssuesCount.toLocaleString()} Open
+            {animatedOpenIssues.toLocaleString()} Open
           </a>
         </div>
       )}

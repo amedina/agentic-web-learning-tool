@@ -7,22 +7,22 @@ import { X } from "lucide-react";
 /**
  * Internal dependencies.
  */
-import { REPORT_COLORS } from "./reportColors";
+import { DEPENDENCIES_COLORS } from "./dependenciesColors";
 import {
-  type ReportFilterKey,
-  type ReportFilterSet,
-  type ReportFilterCounts,
-} from "./reportFilters";
+  type DependenciesFilterKey,
+  type DependenciesFilterSet,
+  type DependenciesFilterCounts,
+} from "./dependenciesFilters";
 
 interface FilterPillsProps {
-  activeFilters: ReportFilterSet;
-  counts: ReportFilterCounts;
-  onToggle: (key: ReportFilterKey) => void;
+  activeFilters: DependenciesFilterSet;
+  counts: DependenciesFilterCounts;
+  onToggle: (key: DependenciesFilterKey) => void;
   onClear: () => void;
 }
 
 interface PillSpec {
-  key: ReportFilterKey;
+  key: DependenciesFilterKey;
   label: string;
   color: string;
   count: number;
@@ -51,19 +51,19 @@ export const FilterPills: React.FC<FilterPillsProps> = ({
     {
       key: "vulnerable",
       label: "Vulnerabilities",
-      color: REPORT_COLORS.vulnerable,
+      color: DEPENDENCIES_COLORS.vulnerable,
       count: counts.vulnerable,
     },
     {
       key: "licenseIssue",
       label: "License Issues",
-      color: REPORT_COLORS.licenseIssue,
+      color: DEPENDENCIES_COLORS.licenseIssue,
       count: counts.licenseIssue,
     },
     {
       key: "replaceable",
       label: "Replaceable",
-      color: REPORT_COLORS.replaceable,
+      color: DEPENDENCIES_COLORS.replaceable,
       count: counts.replaceable,
     },
   ].filter((pill) => pill.count > 0 || activeFilters.has(pill.key));
