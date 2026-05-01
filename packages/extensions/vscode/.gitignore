@@ -1,0 +1,4 @@
+dist/
+*.tsbuildinfo
+!.vscode/
+!.vscode/launch.json

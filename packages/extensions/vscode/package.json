@@ -1,0 +1,47 @@
+{
+  "name": "vscode-npm-advisor",
+  "displayName": "NPM Advisor",
+  "description": "Package intelligence, security insights, dependency analysis, and AI-powered evaluation for npm packages — directly inside VSCode.",
+  "version": "0.1.0",
+  "private": true,
+  "publisher": "agentic-web-labs",
+  "engines": {
+    "vscode": "^1.96.0",
+    "node": ">=20"
+  },
+  "categories": [
+    "Programming Languages",
+    "Linters",
+    "Other"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "workspaceContains:**/package.json"
+  ],
+  "contributes": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/amedina/agentic-web-learning-tool.git",
+    "directory": "packages/extensions/vscode"
+  },
+  "scripts": {
+    "prebuild": "rimraf ../../../dist/vscode-npm-advisor",
+    "build": "node esbuild.config.js --production && vsce package --no-dependencies --out ../../../dist/vscode-npm-advisor/",
+    "dev": "node esbuild.config.js --watch",
+    "check-types": "tsc --noEmit",
+    "format": "prettier . --write",
+    "test": "vitest run --root . --silent"
+  },
+  "devDependencies": {
+    "@agentic-web-labs/package-analyzer-core": "workspace:*",
+    "@agentic-web-labs/shared-config": "workspace:*",
+    "@e18e/cli": "^0.5.0",
+    "@types/node": "^24.3.0",
+    "@types/vscode": "^1.96.0",
+    "@vscode/vsce": "^3.2.1",
+    "esbuild": "^0.24.0",
+    "rimraf": "^5.0.5",
+    "typescript": "~5.8.3",
+    "vitest": "^3.2.4"
+  }
+}
