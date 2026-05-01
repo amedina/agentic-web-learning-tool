@@ -4,6 +4,7 @@ src/**
 node_modules/**
 esbuild.config.js
 tsconfig.json
+.gitignore
 **/*.map
 **/*.ts
 !dist/**

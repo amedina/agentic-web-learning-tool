@@ -14,11 +14,37 @@
     "Linters",
     "Other"
   ],
+  "icon": "media/icon-128.png",
   "main": "./dist/extension.js",
   "activationEvents": [
     "workspaceContains:**/package.json"
   ],
-  "contributes": {},
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "npm-advisor",
+          "title": "NPM Advisor",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "npm-advisor": [
+        {
+          "id": "npmAdvisor.welcome",
+          "name": "NPM Advisor",
+          "type": "tree"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "npmAdvisor.welcome",
+        "contents": "Open a workspace that contains a `package.json` to see dependency insights here.\n\n[Open Folder](command:vscode.openFolder)"
+      }
+    ]
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/amedina/agentic-web-learning-tool.git",
