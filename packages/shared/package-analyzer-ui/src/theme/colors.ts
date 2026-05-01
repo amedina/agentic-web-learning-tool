@@ -1,4 +1,10 @@
 /**
+ * Extension brand colors. Single source of truth for the npm-advisor
+ * theme so primary-color usages don't drift across surfaces.
+ */
+export const BRAND_PRIMARY_COLOR = "#c94137";
+
+/**
  * Canonical colors for the Dependencies tab.
  *
  * Each metric and dependency category has a single dedicated color used
@@ -28,6 +34,14 @@ export const DEPENDENCIES_COLORS = {
   unanalysed: "#94A3B8",
   neutral: "#E2E8F0",
 } as const;
+
+/**
+ * Dark slate accent used for the "With Issues" filter pill, which is
+ * intentionally not a category color (it aggregates across vulnerable /
+ * licenseIssue / replaceable, so painting it in any one of those would
+ * be misleading).
+ */
+export const WITH_ISSUES_PILL_COLOR = "#1E293B";
 
 /**
  * The "Total Dependencies" matrix swatch can take one of three colors

@@ -3,12 +3,14 @@
  */
 import React from "react";
 import { usePropProvider } from "@agentic-web-labs/chatbot";
-import { DependenciesTab } from "@agentic-web-labs/package-analyzer-ui";
+import {
+  DependenciesTab,
+  type PackageJsonDependencies,
+} from "@agentic-web-labs/package-analyzer-ui";
 
 /**
  * Internal dependencies.
  */
-import { type PackageJsonDependencies } from "@agentic-web-labs/package-analyzer-ui";
 import { showGithubRateLimitToastOnce } from "../../utils/githubRateLimitToast";
 
 interface DependenciesTabProps {

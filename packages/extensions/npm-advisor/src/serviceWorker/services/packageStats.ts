@@ -1,5 +1,5 @@
 /**
- * Internal dependencies
+ * External dependencies
  */
 import {
   getPackageStats,
@@ -7,6 +7,10 @@ import {
   type DependencyCategory,
   DEFAULT_TARGET_PROJECT_LICENSE,
 } from "@agentic-web-labs/package-analyzer-core";
+
+/**
+ * Internal dependencies
+ */
 import { storageService } from "./storage";
 
 /**

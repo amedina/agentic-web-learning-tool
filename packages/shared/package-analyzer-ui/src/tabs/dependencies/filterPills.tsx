@@ -7,7 +7,10 @@ import { X } from "lucide-react";
 /**
  * Internal dependencies.
  */
-import { DEPENDENCIES_COLORS } from "./dependenciesColors";
+import {
+  DEPENDENCIES_COLORS,
+  WITH_ISSUES_PILL_COLOR,
+} from "../../theme/colors";
 import {
   type DependenciesFilterKey,
   type DependenciesFilterSet,
@@ -45,7 +48,7 @@ export const FilterPills: React.FC<FilterPillsProps> = ({
     {
       key: "withIssues",
       label: "With Issues",
-      color: "#1e293b",
+      color: WITH_ISSUES_PILL_COLOR,
       count: counts.withIssues,
     },
     {

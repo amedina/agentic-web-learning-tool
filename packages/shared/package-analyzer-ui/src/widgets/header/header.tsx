@@ -12,13 +12,12 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { Tooltip } from "@agentic-web-labs/design-system";
+import { type ScoreBreakdownItem } from "@agentic-web-labs/package-analyzer-core";
 
 /**
  * Internal dependencies.
  */
-import { type ScoreBreakdownItem } from "@agentic-web-labs/package-analyzer-core";
-import { DEPENDENCIES_COLORS } from "../../tabs/dependencies/dependenciesColors";
-import { BRAND_PRIMARY_COLOR } from "../../theme/brandColors";
+import { DEPENDENCIES_COLORS, BRAND_PRIMARY_COLOR } from "../../theme/colors";
 import { useCountUp } from "../../hooks/useCountUp";
 
 /**

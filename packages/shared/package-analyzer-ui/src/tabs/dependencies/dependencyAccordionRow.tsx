@@ -24,7 +24,7 @@ import {
   type DependencyTree,
 } from "@agentic-web-labs/package-analyzer-core";
 import { PackageInsightsBody } from "../insights/packageInsightsBody";
-import { DEPENDENCIES_COLORS } from "./dependenciesColors";
+import { DEPENDENCIES_COLORS } from "../../theme/colors";
 import { useStatsClient } from "../../context/statsClientContext";
 import { type BundleData } from "../../types/statsClient";
 

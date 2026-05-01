@@ -3,10 +3,6 @@
  */
 import React, { useState, useEffect, useMemo } from "react";
 import { Award, Trash2, X } from "lucide-react";
-
-/**
- * Internal dependencies.
- */
 import { calculateScore } from "@agentic-web-labs/package-analyzer-core";
 
 interface SidepanelComparisonTableProps {

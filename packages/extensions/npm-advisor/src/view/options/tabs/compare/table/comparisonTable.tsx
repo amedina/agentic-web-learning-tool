@@ -4,10 +4,6 @@
 import React from "react";
 import { Trash2, Award } from "lucide-react";
 import { X } from "lucide-react";
-
-/**
- * Internal dependencies.
- */
 import { calculateScore } from "@agentic-web-labs/package-analyzer-core";
 
 interface ComparisonTableProps {

@@ -20,7 +20,7 @@ import {
 import {
   DEPENDENCIES_COLORS,
   dominantDependencyColor,
-} from "./dependenciesColors";
+} from "../../theme/colors";
 import { type DependenciesFilterKey } from "./dependenciesFilters";
 
 interface DashboardProps {
@@ -215,7 +215,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
   if (unanalysedCount > 0) {
     matrixComponents.push({
-      color: "#94a3b8",
+      color: DEPENDENCIES_COLORS.unanalysed,
       title: "Could Not Analyse",
       count: unanalysedCount,
       countClassName: "font-semibold",
