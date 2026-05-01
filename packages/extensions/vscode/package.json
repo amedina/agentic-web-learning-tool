@@ -43,6 +43,13 @@
         "view": "npmAdvisor.welcome",
         "contents": "Open a workspace that contains a `package.json` to see dependency insights here.\n\n[Open Folder](command:vscode.openFolder)"
       }
+    ],
+    "commands": [
+      {
+        "command": "npmAdvisor.viewPackage",
+        "title": "NPM Advisor: View package on npm",
+        "category": "NPM Advisor"
+      }
     ]
   },
   "repository": {

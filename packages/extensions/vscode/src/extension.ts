@@ -2,6 +2,8 @@
  * Internal dependencies.
  */
 import { StatsCache } from "./cache/statsCache";
+import { registerViewPackageCommand } from "./commands/viewPackage";
+import { PackageJsonCodeLensProvider } from "./providers/codeLensProvider";
 import { PackageJsonHoverProvider } from "./providers/hoverProvider";
 
 /**
@@ -46,6 +48,19 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.languages.registerHoverProvider(
       PACKAGE_JSON_SELECTOR,
       new PackageJsonHoverProvider(cache, { targetLicense: TARGET_LICENSE }),
+    ),
+  );
+
+  context.subscriptions.push(registerViewPackageCommand());
+
+  const codeLensProvider = new PackageJsonCodeLensProvider(cache, {
+    targetLicense: TARGET_LICENSE,
+  });
+  context.subscriptions.push(codeLensProvider);
+  context.subscriptions.push(
+    vscode.languages.registerCodeLensProvider(
+      PACKAGE_JSON_SELECTOR,
+      codeLensProvider,
     ),
   );
 }
