@@ -50,7 +50,34 @@
         "title": "NPM Advisor: View package on npm",
         "category": "NPM Advisor"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "NPM Advisor",
+      "properties": {
+        "npmAdvisor.targetLicense": {
+          "type": "string",
+          "default": "MIT",
+          "description": "Project license used to evaluate dependency license compatibility (e.g. MIT, Apache-2.0, GPL-3.0)."
+        },
+        "npmAdvisor.unmaintainedThresholdDays": {
+          "type": "number",
+          "default": 730,
+          "minimum": 1,
+          "description": "Number of days since the last commit to a dependency's GitHub repo before NPM Advisor flags it as unmaintained."
+        },
+        "npmAdvisor.advisorySeverityFloor": {
+          "type": "string",
+          "enum": [
+            "critical",
+            "high",
+            "moderate",
+            "low"
+          ],
+          "default": "high",
+          "description": "Lowest GitHub Security Advisory severity that produces a Problems-panel diagnostic. Lower-severity advisories are ignored."
+        }
+      }
+    }
   },
   "repository": {
     "type": "git",
