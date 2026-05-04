@@ -2,6 +2,7 @@
  * External dependencies.
  */
 import { useCallback, useEffect, useRef, useState, type FC } from "react";
+import { Loader2 } from "lucide-react";
 import {
   DependenciesTab,
   StatsClientProvider,
@@ -11,14 +12,17 @@ import {
 /**
  * Internal dependencies.
  */
+import { PackageJsonSwitcher } from "./PackageJsonSwitcher";
 import type {
   ExtensionMessage,
   PackageJsonDependenciesPayload,
+  PackageJsonFile,
 } from "./protocol";
 
 interface AppProps {
   client: StatsClient;
   onReady: () => void;
+  onOpenPackageJson: (uri: string) => void;
 }
 
 const EMPTY_DEPS: PackageJsonDependenciesPayload = {
@@ -27,14 +31,20 @@ const EMPTY_DEPS: PackageJsonDependenciesPayload = {
   peerDependencies: [],
 };
 
+const EMPTY_SET: Set<string> = new Set();
+
 /**
- * Webview root. Listens for `init` (initial dependency list) and
- * `focusPackage` (jump-to-detail trigger) from the extension host,
- * then renders DependenciesTab from the analyzer-ui package.
+ * Webview root. Listens for `init` (active file + available files +
+ * dependency lists) and `focusPackage` (jump-to-detail trigger) from
+ * the extension host, then renders the file switcher on top and
+ * DependenciesTab below when an active file is selected.
  */
-export const App: FC<AppProps> = ({ client, onReady }) => {
-  const [packageJsonDependencies, setPackageJsonDependencies] =
-    useState<PackageJsonDependenciesPayload | null>(null);
+export const App: FC<AppProps> = ({ client, onReady, onOpenPackageJson }) => {
+  const [initState, setInitState] = useState<{
+    activeFile: PackageJsonFile | null;
+    availableFiles: PackageJsonFile[];
+    packageJsonDependencies: PackageJsonDependenciesPayload;
+  } | null>(null);
   const [focusPackageName, setFocusPackageName] = useState<string | null>(null);
   const noopAddRef = useRef<(name: string) => void>(() => undefined);
   const onReadyRef = useRef(onReady);
@@ -47,7 +57,11 @@ export const App: FC<AppProps> = ({ client, onReady }) => {
         return;
       }
       if (data.type === "init") {
-        setPackageJsonDependencies(data.packageJsonDependencies);
+        setInitState({
+          activeFile: data.activeFile,
+          availableFiles: data.availableFiles,
+          packageJsonDependencies: data.packageJsonDependencies,
+        });
         if (data.focusPackageName) {
           setFocusPackageName(data.focusPackageName);
         }
@@ -72,46 +86,63 @@ export const App: FC<AppProps> = ({ client, onReady }) => {
       });
       cancelAnimationFrame(rafA);
     });
-  }, [focusPackageName, packageJsonDependencies]);
+  }, [focusPackageName, initState?.packageJsonDependencies]);
 
   const handleAddRecommendation = useCallback((name: string) => {
     noopAddRef.current(name);
   }, []);
 
-  if (!packageJsonDependencies) {
+  const handleSelectFile = useCallback(
+    (file: PackageJsonFile) => {
+      onOpenPackageJson(file.uri);
+    },
+    [onOpenPackageJson],
+  );
+
+  if (!initState) {
     return (
-      <div className="text-slate-500 dark:text-slate-400 p-4 text-sm">
-        Loading dependencies…
+      <div className="flex flex-col items-center justify-center gap-2 p-8 text-slate-500 dark:text-slate-400 text-sm h-full">
+        <Loader2 size={20} className="animate-spin" />
+        <span>Analyzing dependencies…</span>
       </div>
     );
   }
 
-  const total =
+  const { activeFile, availableFiles, packageJsonDependencies } = initState;
+  const hasDependencies =
     packageJsonDependencies.dependencies.length +
-    packageJsonDependencies.devDependencies.length +
-    packageJsonDependencies.peerDependencies.length;
-
-  if (total === 0) {
-    return (
-      <div className="text-slate-500 dark:text-slate-400 p-4 text-sm">
-        No dependencies found in this package.json.
-      </div>
-    );
-  }
+      packageJsonDependencies.devDependencies.length +
+      packageJsonDependencies.peerDependencies.length >
+    0;
 
   return (
     <StatsClientProvider client={client}>
-      <DependenciesTab
-        packageJsonDependencies={packageJsonDependencies ?? EMPTY_DEPS}
-        onAddRecommendationToCompare={handleAddRecommendation}
-        comparisonBucketNames={EMPTY_SET}
-        addingRecommendations={EMPTY_SET}
-      />
+      <div className="flex flex-col h-full">
+        <PackageJsonSwitcher
+          activeFile={activeFile}
+          availableFiles={availableFiles}
+          onSelect={handleSelectFile}
+        />
+        {activeFile ? (
+          hasDependencies ? (
+            <div className="flex-1 min-h-0 overflow-y-auto">
+              <DependenciesTab
+                packageJsonDependencies={packageJsonDependencies ?? EMPTY_DEPS}
+                onAddRecommendationToCompare={handleAddRecommendation}
+                comparisonBucketNames={EMPTY_SET}
+                addingRecommendations={EMPTY_SET}
+              />
+            </div>
+          ) : (
+            <div className="text-slate-500 dark:text-slate-400 p-4 text-sm">
+              No dependencies found in this package.json.
+            </div>
+          )
+        ) : null}
+      </div>
     </StatsClientProvider>
   );
 };
-
-const EMPTY_SET: Set<string> = new Set();
 
 /**
  * Locates the accordion trigger for the named package via its title

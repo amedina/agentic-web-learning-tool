@@ -28,6 +28,9 @@ if (container) {
     <App
       client={client}
       onReady={() => vscodeApi.postMessage({ type: "ready" })}
+      onOpenPackageJson={(uri) =>
+        vscodeApi.postMessage({ type: "openPackageJson", uri })
+      }
     />,
   );
 }
