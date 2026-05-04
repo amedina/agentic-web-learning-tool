@@ -24,6 +24,12 @@ export interface RecommendationsProps {
    * Consumers provide this to navigate to the comparison tab/view.
    */
   onNavigateToComparison?: () => void;
+  /**
+   * Hide the per-row + Compare button on each recommendation. Set by
+   * consumers (e.g. the VSCode side panel) that don't ship a
+   * comparison view.
+   */
+  hideCompare?: boolean;
 }
 
 import { getRecommendationUrl } from "./utils/getRecommendationUrl";
@@ -98,6 +104,7 @@ export const Recommendations: React.FC<RecommendationsProps> = ({
   addingRecommendations = new Set(),
   isLoading = false,
   onNavigateToComparison,
+  hideCompare = false,
 }) => {
   const hasAnyRec = Object.values(recommendations || {}).some((rec) => !!rec);
   if (!hasAnyRec && isLoading) {
@@ -145,7 +152,7 @@ export const Recommendations: React.FC<RecommendationsProps> = ({
                 <ExternalLink size={10} />
               </a>
             )}
-            {npmPackageName && onAddToCompare && (
+            {!hideCompare && npmPackageName && onAddToCompare && (
               <AddToCompareButton
                 packageName={npmPackageName}
                 onAddToCompare={onAddToCompare}

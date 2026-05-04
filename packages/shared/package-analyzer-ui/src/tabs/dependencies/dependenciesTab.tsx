@@ -25,6 +25,12 @@ interface DependenciesTabProps {
   onRateLimited?: () => void;
   /** Called to navigate to the comparison view. */
   onNavigateToComparison?: () => void;
+  /**
+   * Hide every Compare affordance inside the per-row insights bodies.
+   * Set by consumers (e.g. the VSCode side panel) that don't ship a
+   * comparison view.
+   */
+  hideCompare?: boolean;
 }
 
 export const DependenciesTab: React.FC<DependenciesTabProps> = ({
@@ -34,6 +40,7 @@ export const DependenciesTab: React.FC<DependenciesTabProps> = ({
   addingRecommendations,
   onRateLimited,
   onNavigateToComparison,
+  hideCompare = false,
 }) => {
   const { statsByName, summary } = useDependencyStats(packageJsonDependencies, {
     onRateLimited,
@@ -112,6 +119,7 @@ export const DependenciesTab: React.FC<DependenciesTabProps> = ({
         addingRecommendations={addingRecommendations}
         activeFilters={activeFilters}
         onNavigateToComparison={onNavigateToComparison}
+        hideCompare={hideCompare}
       />
       <DependencySection
         title="Dev Dependencies"
@@ -122,6 +130,7 @@ export const DependenciesTab: React.FC<DependenciesTabProps> = ({
         addingRecommendations={addingRecommendations}
         activeFilters={activeFilters}
         onNavigateToComparison={onNavigateToComparison}
+        hideCompare={hideCompare}
       />
       <DependencySection
         title="Peer Dependencies"
@@ -132,6 +141,7 @@ export const DependenciesTab: React.FC<DependenciesTabProps> = ({
         addingRecommendations={addingRecommendations}
         activeFilters={activeFilters}
         onNavigateToComparison={onNavigateToComparison}
+        hideCompare={hideCompare}
       />
     </div>
   );

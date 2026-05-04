@@ -22,6 +22,8 @@ interface DependencySectionProps {
   addingRecommendations: Set<string>;
   activeFilters: DependenciesFilterSet;
   onNavigateToComparison?: () => void;
+  /** Hide every Compare affordance inside the per-row insights bodies. */
+  hideCompare?: boolean;
 }
 
 export const DependencySection: React.FC<DependencySectionProps> = ({
@@ -33,6 +35,7 @@ export const DependencySection: React.FC<DependencySectionProps> = ({
   addingRecommendations,
   activeFilters,
   onNavigateToComparison,
+  hideCompare = false,
 }) => {
   const visibleNames = useMemo(
     () =>
@@ -68,6 +71,7 @@ export const DependencySection: React.FC<DependencySectionProps> = ({
             comparisonBucketNames={comparisonBucketNames}
             addingRecommendations={addingRecommendations}
             onNavigateToComparison={onNavigateToComparison}
+            hideCompare={hideCompare}
           />
         ))}
       </div>

@@ -42,6 +42,12 @@ interface DependencyAccordionRowProps {
   comparisonBucketNames: Set<string>;
   addingRecommendations: Set<string>;
   onNavigateToComparison?: () => void;
+  /**
+   * Hide every Compare affordance inside the expanded body — the
+   * inline header button and the per-recommendation badges. Used by
+   * consumers without a comparison view.
+   */
+  hideCompare?: boolean;
 }
 
 const StatusSummary: React.FC<{ state: DependencyStatsState }> = ({
@@ -147,6 +153,7 @@ export const DependencyAccordionRow: React.FC<DependencyAccordionRowProps> = ({
   comparisonBucketNames,
   addingRecommendations,
   onNavigateToComparison,
+  hideCompare = false,
 }) => {
   const statsClient = useStatsClient();
   const [open, setOpen] = useState(false);
@@ -264,6 +271,7 @@ export const DependencyAccordionRow: React.FC<DependencyAccordionRowProps> = ({
             dependencyTreeLoading={depTreeLoading}
             hideResponsiveness
             hideFitness
+            hideCompare={hideCompare}
           />
         ) : state.status === "not_found" ? (
           <p className="text-xs text-slate-500 dark:text-slate-400 italic">

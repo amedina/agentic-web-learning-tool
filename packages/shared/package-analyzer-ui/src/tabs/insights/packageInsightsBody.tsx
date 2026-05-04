@@ -59,6 +59,12 @@ interface PackageInsightsBodyProps {
    * Responsiveness — without that signal the score is misleading.
    */
   hideFitness?: boolean;
+  /**
+   * Hide every Compare / + Compare affordance — the inline header
+   * button and the per-recommendation badges. Used by consumers
+   * (e.g. the VSCode side panel) that don't ship a comparison view.
+   */
+  hideCompare?: boolean;
   /** Called to navigate to the comparison view. */
   onNavigateToComparison?: () => void;
 }
@@ -74,6 +80,7 @@ export const PackageInsightsBody: React.FC<PackageInsightsBodyProps> = ({
   dependencyTreeLoading = false,
   hideResponsiveness = false,
   hideFitness = false,
+  hideCompare = false,
   isLoading = false,
   onNavigateToComparison,
 }) => {
@@ -120,6 +127,7 @@ export const PackageInsightsBody: React.FC<PackageInsightsBodyProps> = ({
           isAddedToCompare={headerIsAddedToCompare}
           onAddToCompare={() => onAddRecommendationToCompare?.(packageName)}
           hideFitness={hideFitness}
+          hideCompare={hideCompare}
           isLoading={isLoading}
           onNavigateToComparison={onNavigateToComparison}
         />
@@ -158,6 +166,7 @@ export const PackageInsightsBody: React.FC<PackageInsightsBodyProps> = ({
         addingRecommendations={addingRecommendations}
         isLoading={isLoading}
         onNavigateToComparison={onNavigateToComparison}
+        hideCompare={hideCompare}
       />
       {showDependencyTree && (
         <DependencyTree

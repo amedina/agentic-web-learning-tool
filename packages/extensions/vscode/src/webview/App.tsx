@@ -24,6 +24,11 @@ interface AppProps {
   onReady: () => void;
   onOpenPackageJson: (uri: string) => void;
   onRefreshStats: () => void;
+  onNotify: (
+    level: "info" | "warning" | "error",
+    message: string,
+    dedupeKey?: string,
+  ) => void;
 }
 
 const EMPTY_DEPS: PackageJsonDependenciesPayload = {
@@ -45,6 +50,7 @@ export const App: FC<AppProps> = ({
   onReady,
   onOpenPackageJson,
   onRefreshStats,
+  onNotify,
 }) => {
   const [initState, setInitState] = useState<{
     activeFile: PackageJsonFile | null;
@@ -107,6 +113,14 @@ export const App: FC<AppProps> = ({
     [onOpenPackageJson],
   );
 
+  const handleRateLimited = useCallback(() => {
+    onNotify(
+      "warning",
+      "NPM Advisor: GitHub API rate limit reached. Some package stats (stars, last commit, security advisories) may be missing until the limit resets.",
+      "github-rate-limited",
+    );
+  }, [onNotify]);
+
   if (!initState) {
     return (
       <div className="flex flex-col items-center justify-center gap-2 p-8 text-slate-500 dark:text-slate-400 text-sm h-full">
@@ -142,6 +156,8 @@ export const App: FC<AppProps> = ({
                 onAddRecommendationToCompare={handleAddRecommendation}
                 comparisonBucketNames={EMPTY_SET}
                 addingRecommendations={EMPTY_SET}
+                hideCompare
+                onRateLimited={handleRateLimited}
               />
             </div>
           ) : (
