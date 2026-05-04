@@ -8,6 +8,12 @@ export interface RenderHoverOptions {
   now?: () => Date;
 }
 
+/**
+ * Builds the markdown shown inside a hover popover for a single
+ * dependency. Returns a string ready for vscode.MarkdownString. Any
+ * field the analyzer didn't populate is silently omitted so missing
+ * data never produces broken UI.
+ */
 export function renderHover(
   stats: PackageStats,
   options: RenderHoverOptions = {},
@@ -77,6 +83,10 @@ export function renderHover(
   return lines.join("\n");
 }
 
+/**
+ * Long-form byte formatter for hover text — picks Bytes / KB / MB / GB
+ * with up to two decimals so sizes display cleanly inside markdown.
+ */
 function formatBytes(bytes: number): string {
   if (!Number.isFinite(bytes) || bytes <= 0) {
     return "0 Bytes";
@@ -92,6 +102,11 @@ function formatBytes(bytes: number): string {
   return `${parseFloat(value.toFixed(decimals))} ${units[tier]}`;
 }
 
+/**
+ * Renders an ISO date as a relative time string ("3 weeks ago", "in
+ * 2 days") via Intl.RelativeTimeFormat. Returns null on unparseable
+ * input. The clock is injectable so tests can pin "now".
+ */
 function formatRelativeTime(
   isoDate: string,
   now: () => Date = () => new Date(),

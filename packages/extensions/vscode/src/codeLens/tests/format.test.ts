@@ -9,6 +9,10 @@ import type { PackageStats } from "@agentic-web-labs/package-analyzer-core";
  */
 import { formatBadge } from "../format";
 
+/**
+ * Builds a fully-populated PackageStats stub with sensible defaults so
+ * each test can override only the fields it cares about.
+ */
 function makeStats(overrides: Partial<PackageStats> = {}): PackageStats {
   return {
     packageName: "lodash",

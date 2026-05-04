@@ -22,6 +22,10 @@ const SETTINGS: NpmAdvisorSettings = {
   outdatedMajorThreshold: 2,
 };
 
+/**
+ * Builds a PackageJsonDependency stub pointing at a fake range, so
+ * each test can override just the dep name / version it needs.
+ */
 function makeDependency(
   overrides: Partial<PackageJsonDependency> = {},
 ): PackageJsonDependency {
@@ -37,6 +41,10 @@ function makeDependency(
   };
 }
 
+/**
+ * Builds a fully-populated PackageStats stub with every field nulled
+ * out so each test can override only the fields it needs.
+ */
 function makeStats(overrides: Partial<PackageStats> = {}): PackageStats {
   return {
     packageName: "lodash",

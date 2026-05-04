@@ -9,6 +9,10 @@ import type { PackageStats } from "@agentic-web-labs/package-analyzer-core";
  */
 import { renderHover } from "../render";
 
+/**
+ * Builds a PackageStats stub with everything nulled so each test can
+ * override just the fields its assertion cares about.
+ */
 function makeStats(overrides: Partial<PackageStats> = {}): PackageStats {
   return {
     packageName: "lodash",

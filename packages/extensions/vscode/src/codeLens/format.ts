@@ -52,6 +52,10 @@ export function formatBadge(
   return segments.join(" · ");
 }
 
+/**
+ * Compact byte formatter for badge text — picks B / KB / MB based on
+ * size, drops decimals at small/large extremes for tighter rendering.
+ */
 function formatBytesCompact(bytes: number): string {
   const k = 1024;
   if (bytes < k) {

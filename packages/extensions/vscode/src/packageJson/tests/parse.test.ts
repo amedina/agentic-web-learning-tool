@@ -10,6 +10,12 @@ import type * as vscode from "vscode";
 import { parseDependencies } from "../parse";
 import { Position } from "../../test/vscodeMock";
 
+/**
+ * Returns a fake vscode.TextDocument that exposes the bare minimum
+ * surface parseDependencies needs (getText + positionAt). positionAt
+ * walks the source text to convert an absolute character offset to a
+ * line / column.
+ */
 function mockDocument(text: string): vscode.TextDocument {
   return {
     getText: () => text,
@@ -27,6 +33,11 @@ function mockDocument(text: string): vscode.TextDocument {
   } as unknown as vscode.TextDocument;
 }
 
+/**
+ * Pulls the substring of `text` covered by a vscode.Range. Used so
+ * tests can assert ranges by their content rather than by raw
+ * line/character coordinates.
+ */
 function rangeText(text: string, range: vscode.Range): string {
   const lines = text.split("\n");
   if (range.start.line === range.end.line) {

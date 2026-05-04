@@ -10,6 +10,11 @@ import type { PackageStats } from "@agentic-web-labs/package-analyzer-core";
  */
 import { StatsCache } from "../statsCache";
 
+/**
+ * Builds an in-memory vscode.Memento that satisfies StatsCache's
+ * storage contract. Tests can inspect/seed the underlying Map by going
+ * through get/update/keys.
+ */
 function createMemento(): vscode.Memento {
   const store = new Map<string, unknown>();
   return {
@@ -26,10 +31,19 @@ function createMemento(): vscode.Memento {
   };
 }
 
+/**
+ * Returns a minimal PackageStats stub with just enough fields for
+ * tests that don't care about the rest of the payload.
+ */
 function makeStats(name: string, score = 80): PackageStats {
   return { packageName: name, score } as unknown as PackageStats;
 }
 
+/**
+ * Returns a deterministic clock whose `now()` is initialised to
+ * `initial` and can be advanced by `advance(deltaMs)`. Used to test
+ * TTL behavior without relying on real wall-clock time.
+ */
 function createClock(initial: number) {
   let now = initial;
   return {

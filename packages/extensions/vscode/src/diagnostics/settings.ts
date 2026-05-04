@@ -19,6 +19,12 @@ export interface NpmAdvisorSettings {
   outdatedMajorThreshold: number;
 }
 
+/**
+ * Reads the current npm-advisor settings from VSCode's workspace
+ * configuration, applying defaults for any missing values. Called
+ * fresh on every consumer that needs settings, so config changes take
+ * effect on the next call without re-instantiating providers.
+ */
 export function readSettings(): NpmAdvisorSettings {
   const config = vscode.workspace.getConfiguration("npmAdvisor");
   return {
@@ -35,6 +41,12 @@ export function readSettings(): NpmAdvisorSettings {
   };
 }
 
+/**
+ * True when an advisory severity meets or exceeds the configured
+ * floor. Used by the advisory rule to decide whether a given count
+ * level (critical / high / moderate / low) should produce a
+ * diagnostic.
+ */
 export function isAtOrAboveFloor(
   severity: AdvisorySeverity,
   floor: AdvisorySeverity,

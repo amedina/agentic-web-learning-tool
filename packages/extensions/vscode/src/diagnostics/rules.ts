@@ -25,6 +25,13 @@ const ADVISORY_SEVERITIES: AdvisorySeverity[] = [
   "low",
 ];
 
+/**
+ * Pure rules pipeline. Runs every rule against a (dependency, stats)
+ * pair under the user's settings and returns zero or more
+ * vscode.Diagnostic instances. Order of returned diagnostics matches
+ * the rule registration order: advisory, license, unmaintained,
+ * outdated.
+ */
 export function evaluateDiagnostics(
   dependency: PackageJsonDependency,
   stats: PackageStats,
@@ -99,6 +106,12 @@ export function extractMajor(spec: string): number | null {
   return match ? Number(match[1]) : null;
 }
 
+/**
+ * Information-severity diagnostic when the installed major version
+ * trails the latest published release by at least the configured
+ * threshold. Skipped when latest version is unknown or either side
+ * lacks a parseable major.
+ */
 function buildOutdatedDiagnostic(
   dependency: PackageJsonDependency,
   stats: PackageStats,
@@ -126,6 +139,11 @@ function buildOutdatedDiagnostic(
   return diagnostic;
 }
 
+/**
+ * Error-severity diagnostic when any GitHub Security Advisory at or
+ * above the configured floor (`critical`, `high`, etc.) applies to the
+ * package. Lower-severity advisories are not surfaced.
+ */
 function buildAdvisoryDiagnostic(
   dependency: PackageJsonDependency,
   stats: PackageStats,
@@ -159,6 +177,12 @@ function buildAdvisoryDiagnostic(
   return diagnostic;
 }
 
+/**
+ * Warning-severity diagnostic when the dependency's license is not
+ * compatible with the project's target license per the cached OSADL
+ * compatibility check. Includes the analyzer's explanation when one
+ * is available.
+ */
 function buildLicenseDiagnostic(
   dependency: PackageJsonDependency,
   stats: PackageStats,
@@ -181,6 +205,11 @@ function buildLicenseDiagnostic(
   return diagnostic;
 }
 
+/**
+ * Warning-severity diagnostic when GitHub reports no commits to the
+ * dependency's repository within the configured threshold (default
+ * 730 days). Skipped when last-commit data is missing or unparseable.
+ */
 function buildUnmaintainedDiagnostic(
   dependency: PackageJsonDependency,
   stats: PackageStats,

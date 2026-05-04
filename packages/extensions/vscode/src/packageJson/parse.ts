@@ -29,6 +29,14 @@ export interface PackageJsonDependency {
   fullRange: vscode.Range;
 }
 
+/**
+ * Walks the four dependency sections of a package.json document and
+ * returns one entry per dependency with name, version spec, category,
+ * and three vscode.Range objects (name only, value only, full line).
+ * Returns an empty array for malformed JSON or files with no
+ * dependencies. Powered by jsonc-parser, which tolerates partial /
+ * mid-edit JSON.
+ */
 export function parseDependencies(
   document: vscode.TextDocument,
 ): PackageJsonDependency[] {
@@ -81,6 +89,7 @@ export function parseDependencies(
   return result;
 }
 
+/** Converts a jsonc-parser node's offset/length to a vscode.Range. */
 function nodeToRange(
   document: vscode.TextDocument,
   node: jsonc.Node,
@@ -91,8 +100,11 @@ function nodeToRange(
   );
 }
 
-// jsonc-parser includes the surrounding quotes in a string node's offset/length.
-// Trim them so consumers (hover, diagnostics) can highlight just the value.
+/**
+ * Like nodeToRange, but trims the surrounding quote characters that
+ * jsonc-parser includes in a string node's offset/length so consumers
+ * (hover, diagnostics) can highlight just the value content.
+ */
 function stringContentRange(
   document: vscode.TextDocument,
   node: jsonc.Node,

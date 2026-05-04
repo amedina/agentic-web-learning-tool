@@ -30,6 +30,12 @@ export interface StatsCacheDeps {
   options?: StatsCacheOptions;
 }
 
+/**
+ * Persistent, stale-while-revalidate cache for PackageStats lookups.
+ * Backed by a vscode.Memento so entries survive across editor sessions,
+ * with in-memory dedup of concurrent fetches and a short negative-cache
+ * window for fetch failures.
+ */
 export class StatsCache {
   private readonly storage: vscode.Memento;
   private readonly fetcher: (name: string) => Promise<PackageStats | null>;
@@ -41,6 +47,10 @@ export class StatsCache {
 
   readonly onDidChange = this.emitter.event;
 
+  /**
+   * Wires the cache to its storage backend, network fetcher, and
+   * (optionally) custom TTL / clock for tests.
+   */
   constructor(deps: StatsCacheDeps) {
     this.storage = deps.storage;
     this.fetcher = deps.fetcher;
@@ -49,6 +59,13 @@ export class StatsCache {
     this.clock = deps.options?.clock ?? Date.now;
   }
 
+  /**
+   * Returns stats for a (name, version) pair. On a fresh cache hit,
+   * returns the cached value synchronously. On a stale hit, returns the
+   * stale value immediately and kicks off a background refresh that
+   * fires onDidChange when fresh data lands. On a miss, awaits the
+   * fetcher.
+   */
   async get(name: string, version: string): Promise<PackageStats | null> {
     const key = makeKey(name, version);
     const entry = this.storage.get<CacheEntry>(key);
@@ -82,10 +99,19 @@ export class StatsCache {
     return keys.length;
   }
 
+  /**
+   * Releases the onDidChange emitter. Call when the extension
+   * deactivates (typically via context.subscriptions).
+   */
   dispose(): void {
     this.emitter.dispose();
   }
 
+  /**
+   * Triggers a fetch for the given key, deduping against any in-flight
+   * call for the same key. Used by both the miss path and the SWR
+   * background-refresh path.
+   */
   private async refresh(
     name: string,
     version: string,
@@ -105,6 +131,11 @@ export class StatsCache {
     }
   }
 
+  /**
+   * Calls the configured fetcher, persists the result (treating throws
+   * as a null result so failures get negative-cached too), and fires
+   * onDidChange so SWR consumers can refresh.
+   */
   private async fetchAndStore(
     name: string,
     version: string,
@@ -123,6 +154,7 @@ export class StatsCache {
   }
 }
 
+/** Builds the storage key for a (name, version) pair. */
 function makeKey(name: string, version: string): string {
   return `${STORAGE_KEY_PREFIX}${name}::${version}`;
 }

@@ -20,16 +20,29 @@ const PACKAGE_JSON_SELECTOR: vscode.DocumentFilter[] = [
   { language: "jsonc", pattern: "**/package.json" },
 ];
 
+/**
+ * Tree provider that contributes no children, so the npm-advisor view
+ * always renders its viewsWelcome content. Will be replaced when Tier 2
+ * lands a real report tree.
+ */
 class WelcomeTreeProvider implements vscode.TreeDataProvider<never> {
+  /** Required by TreeDataProvider; never invoked because there are no children. */
   getTreeItem(element: never): vscode.TreeItem {
     return element;
   }
 
+  /** Always returns an empty list to keep the welcome view active. */
   getChildren(): vscode.ProviderResult<never[]> {
     return [];
   }
 }
 
+/**
+ * Extension entry point. VSCode invokes this once after the extension's
+ * activation event fires (workspaceContains:**\/package.json). Wires up
+ * the StatsCache, registers hover / CodeLens / diagnostics providers,
+ * registers commands, and binds workspace event listeners.
+ */
 export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(
     vscode.window.registerTreeDataProvider(
@@ -103,4 +116,10 @@ export function activate(context: vscode.ExtensionContext): void {
   void runner.refreshOpenPackageJsons();
 }
 
+/**
+ * Extension teardown hook. All disposables (cache, providers, command
+ * registrations, event listeners) are tracked on
+ * context.subscriptions, so VSCode disposes them automatically and
+ * this function has nothing extra to do.
+ */
 export function deactivate(): void {}
