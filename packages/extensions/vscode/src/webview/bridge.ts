@@ -184,6 +184,16 @@ export class WebviewBridge {
         );
         return;
       }
+      case "openPackageJson": {
+        try {
+          const uri = vscode.Uri.parse(message.uri);
+          await vscode.window.showTextDocument(uri, { preview: false });
+        } catch {
+          // Swallow — the workspace may have moved the file between
+          // discovery and click; the next scanner refresh will drop it.
+        }
+        return;
+      }
     }
   }
 

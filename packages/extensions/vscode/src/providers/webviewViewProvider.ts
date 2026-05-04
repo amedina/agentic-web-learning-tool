@@ -7,33 +7,44 @@ import * as vscode from "vscode";
  * Internal dependencies.
  */
 import { parseDependencies } from "../packageJson/parse";
+import type { ActivePackageJsonTracker } from "../workspace/activePackageJsonTracker";
+import type { PackageJsonScanner } from "../workspace/packageJsonScanner";
 import type { WebviewBridge } from "../webview/bridge";
-import type { PackageJsonDependenciesPayload } from "../webview/protocol";
+import type {
+  PackageJsonDependenciesPayload,
+  PackageJsonFile,
+} from "../webview/protocol";
 
 export const WEBVIEW_VIEW_ID = "npmAdvisor.welcome";
 
 interface NpmAdvisorWebviewProviderDeps {
   context: vscode.ExtensionContext;
   bridge: WebviewBridge;
+  tracker: ActivePackageJsonTracker;
+  scanner: PackageJsonScanner;
 }
 
 /**
  * Hosts the React analyzer-ui inside the npm-advisor activity-bar
  * view. Builds the webview HTML, wires its postMessage channel to
  * WebviewBridge, and re-sends the package.json snapshot whenever the
- * user opens or saves a package.json so the UI stays in sync.
+ * tracker / scanner / workspace events change relevant state.
  */
 export class NpmAdvisorWebviewProvider implements vscode.WebviewViewProvider {
   private readonly context: vscode.ExtensionContext;
   private readonly bridge: WebviewBridge;
+  private readonly tracker: ActivePackageJsonTracker;
+  private readonly scanner: PackageJsonScanner;
   private webviewView: vscode.WebviewView | null = null;
   private pendingFocusPackageName: string | null = null;
   private onReadySubscription: vscode.Disposable | null = null;
 
-  /** Stores the extension context (for asset URIs) and the bridge. */
+  /** Stores context, bridge, and the active-file / scanner sources. */
   constructor(deps: NpmAdvisorWebviewProviderDeps) {
     this.context = deps.context;
     this.bridge = deps.bridge;
+    this.tracker = deps.tracker;
+    this.scanner = deps.scanner;
   }
 
   /**
@@ -62,7 +73,7 @@ export class NpmAdvisorWebviewProvider implements vscode.WebviewViewProvider {
     this.onReadySubscription = this.bridge.onReady(() => {
       const focusPackageName = this.pendingFocusPackageName ?? undefined;
       this.pendingFocusPackageName = null;
-      this.sendInitMessage(focusPackageName);
+      void this.sendInitMessage(focusPackageName);
     });
     webviewView.onDidDispose(() => {
       this.onReadySubscription?.dispose();
@@ -77,7 +88,7 @@ export class NpmAdvisorWebviewProvider implements vscode.WebviewViewProvider {
    */
   refresh(): void {
     if (this.webviewView) {
-      this.sendInitMessage();
+      void this.sendInitMessage();
     }
   }
 
@@ -96,16 +107,25 @@ export class NpmAdvisorWebviewProvider implements vscode.WebviewViewProvider {
   }
 
   /**
-   * Reads the first package.json open in the workspace, extracts its
-   * three dependency lists, and posts them as the init payload. When
-   * no package.json is open, sends empty arrays so the UI shows its
-   * "no dependencies" state instead of hanging on the loader.
+   * Builds and posts the init payload: the active package.json (if any),
+   * the discovered file list for the switcher, and the parsed
+   * dependency arrays for the active file. Empty arrays are sent when
+   * no package.json is active so the React app shows the empty state.
    */
-  private sendInitMessage(focusPackageName?: string): void {
-    const payload = collectPackageJsonDependencies();
+  private async sendInitMessage(focusPackageName?: string): Promise<void> {
+    const activeDocument = this.tracker.document;
+    const [availableFiles, activeFile] = await Promise.all([
+      this.scanner.list(),
+      activeDocument ? buildActiveFile(activeDocument) : Promise.resolve(null),
+    ]);
+    const packageJsonDependencies = activeDocument
+      ? collectDependencies(activeDocument)
+      : EMPTY_DEPENDENCIES;
     this.bridge.post({
       type: "init",
-      packageJsonDependencies: payload,
+      activeFile,
+      availableFiles,
+      packageJsonDependencies,
       focusPackageName,
     });
   }
@@ -144,28 +164,48 @@ export class NpmAdvisorWebviewProvider implements vscode.WebviewViewProvider {
   }
 }
 
+const EMPTY_DEPENDENCIES: PackageJsonDependenciesPayload = {
+  dependencies: [],
+  devDependencies: [],
+  peerDependencies: [],
+};
+
 /**
- * Discovers package.json dependencies from the editor's open documents
- * and returns the three arrays the analyzer-ui expects. When more than
- * one package.json is open, the first one wins — picking the "active"
- * package.json is a Tier 2 follow-up.
+ * Builds a PackageJsonFile descriptor for a given open document by
+ * pulling its `name` field out of the parsed JSON. Falls back to a
+ * null name when the document isn't valid JSON or lacks a name.
  */
-function collectPackageJsonDependencies(): PackageJsonDependenciesPayload {
-  const empty: PackageJsonDependenciesPayload = {
+async function buildActiveFile(
+  document: vscode.TextDocument,
+): Promise<PackageJsonFile> {
+  let name: string | null = null;
+  try {
+    const parsed = JSON.parse(document.getText()) as { name?: unknown };
+    name = typeof parsed.name === "string" ? parsed.name : null;
+  } catch {
+    name = null;
+  }
+  return {
+    uri: document.uri.toString(),
+    relativePath: vscode.workspace.asRelativePath(document.uri, true),
+    name,
+  };
+}
+
+/**
+ * Walks the dependency / devDependencies / peerDependencies sections
+ * of a package.json document and returns the three name arrays the
+ * webview needs to render DependenciesTab.
+ */
+function collectDependencies(
+  document: vscode.TextDocument,
+): PackageJsonDependenciesPayload {
+  const parsed = parseDependencies(document);
+  const result: PackageJsonDependenciesPayload = {
     dependencies: [],
     devDependencies: [],
     peerDependencies: [],
   };
-  const document = vscode.workspace.textDocuments.find(
-    (candidate) =>
-      candidate.uri.path.endsWith("/package.json") &&
-      (candidate.languageId === "json" || candidate.languageId === "jsonc"),
-  );
-  if (!document) {
-    return empty;
-  }
-  const parsed = parseDependencies(document);
-  const result = { ...empty };
   for (const entry of parsed) {
     if (entry.category === "dependencies") {
       result.dependencies.push(entry.name);

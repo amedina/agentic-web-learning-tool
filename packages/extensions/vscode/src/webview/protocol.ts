@@ -29,11 +29,14 @@ export type WebviewRequest =
       packageName: string;
       version?: string;
     }
-  | { type: "viewPackage"; packageName: string };
+  | { type: "viewPackage"; packageName: string }
+  | { type: "openPackageJson"; uri: string };
 
 export type ExtensionMessage =
   | {
       type: "init";
+      activeFile: PackageJsonFile | null;
+      availableFiles: PackageJsonFile[];
       packageJsonDependencies: PackageJsonDependenciesPayload;
       focusPackageName?: string;
     }
@@ -64,4 +67,13 @@ export interface PackageJsonDependenciesPayload {
   dependencies: string[];
   devDependencies: string[];
   peerDependencies: string[];
+}
+
+export interface PackageJsonFile {
+  /** vscode.Uri.toString() so the host can route openPackageJson back. */
+  uri: string;
+  /** Workspace-relative path used for display, e.g. "packages/foo/package.json". */
+  relativePath: string;
+  /** Parsed `name` field from the manifest, null when missing or invalid. */
+  name: string | null;
 }

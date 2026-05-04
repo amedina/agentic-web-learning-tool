@@ -20,6 +20,8 @@ import {
   WEBVIEW_VIEW_ID,
 } from "./providers/webviewViewProvider";
 import { WebviewBridge } from "./webview/bridge";
+import { ActivePackageJsonTracker } from "./workspace/activePackageJsonTracker";
+import { PackageJsonScanner } from "./workspace/packageJsonScanner";
 
 const PACKAGE_JSON_SELECTOR: vscode.DocumentFilter[] = [
   { language: "json", pattern: "**/package.json" },
@@ -47,12 +49,25 @@ export function activate(context: vscode.ExtensionContext): void {
     settingsProvider: readSettings,
   });
 
+  const scanner = new PackageJsonScanner();
+  context.subscriptions.push(scanner);
+
+  const tracker = new ActivePackageJsonTracker();
+  context.subscriptions.push(tracker);
+
   const webviewProvider = new NpmAdvisorWebviewProvider({
     context,
     bridge,
+    tracker,
+    scanner,
   });
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider(WEBVIEW_VIEW_ID, webviewProvider),
+  );
+
+  context.subscriptions.push(
+    tracker.onDidChange(() => webviewProvider.refresh()),
+    scanner.onDidChange(() => webviewProvider.refresh()),
   );
 
   const hoverProvider = new PackageJsonHoverProvider(cache, readSettings);

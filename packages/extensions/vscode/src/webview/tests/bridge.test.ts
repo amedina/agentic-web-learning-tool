@@ -158,6 +158,33 @@ describe("WebviewBridge", () => {
     ]);
   });
 
+  it("opens the package.json document when the webview requests openPackageJson", async () => {
+    const showTextDocumentSpy = vi
+      .spyOn(vscode.window, "showTextDocument")
+      .mockResolvedValue(undefined as never);
+    const bridge = new WebviewBridge({
+      cache: { get: vi.fn() } as unknown as never,
+      settingsProvider: () => ({ targetLicense: "MIT" }) as never,
+    });
+    const fakeWebview = new FakeWebview();
+    bridge.attach(fakeWebview as unknown as vscode.Webview);
+    fakeWebview.dispatch({
+      type: "openPackageJson",
+      uri: "file:///workspace/packages/foo/package.json",
+    });
+    await flushAsync();
+    expect(showTextDocumentSpy).toHaveBeenCalledTimes(1);
+    const [uriArg, optionsArg] = showTextDocumentSpy.mock.calls[0] as [
+      { toString(): string },
+      { preview: boolean },
+    ];
+    expect(uriArg.toString()).toBe(
+      "file:///workspace/packages/foo/package.json",
+    );
+    expect(optionsArg).toEqual({ preview: false });
+    showTextDocumentSpy.mockRestore();
+  });
+
   it("forwards viewPackage messages to the npmAdvisor.viewPackage command", async () => {
     const bridge = new WebviewBridge({
       cache: { get: vi.fn() } as unknown as never,
