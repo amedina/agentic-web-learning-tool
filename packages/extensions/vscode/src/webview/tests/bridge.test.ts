@@ -158,6 +158,29 @@ describe("WebviewBridge", () => {
     ]);
   });
 
+  it("disposes the previous webview subscription when re-attached", () => {
+    const dispose1 = vi.fn();
+    const dispose2 = vi.fn();
+    const webview1 = {
+      postMessage: vi.fn().mockResolvedValue(true),
+      onDidReceiveMessage: vi.fn().mockReturnValue({ dispose: dispose1 }),
+    };
+    const webview2 = {
+      postMessage: vi.fn().mockResolvedValue(true),
+      onDidReceiveMessage: vi.fn().mockReturnValue({ dispose: dispose2 }),
+    };
+    const bridge = new WebviewBridge({
+      cache: { get: vi.fn() } as unknown as never,
+      settingsProvider: () => ({ targetLicense: "MIT" }) as never,
+    });
+    bridge.attach(webview1 as unknown as vscode.Webview);
+    expect(dispose1).not.toHaveBeenCalled();
+    bridge.attach(webview2 as unknown as vscode.Webview);
+    expect(dispose1).toHaveBeenCalledTimes(1);
+    bridge.dispose();
+    expect(dispose2).toHaveBeenCalledTimes(1);
+  });
+
   it("opens the package.json document when the webview requests openPackageJson", async () => {
     const showTextDocumentSpy = vi
       .spyOn(vscode.window, "showTextDocument")

@@ -48,6 +48,7 @@ export function activate(context: vscode.ExtensionContext): void {
     cache,
     settingsProvider: readSettings,
   });
+  context.subscriptions.push(bridge);
 
   const scanner = new PackageJsonScanner();
   context.subscriptions.push(scanner);

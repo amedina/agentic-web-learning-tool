@@ -31,10 +31,11 @@ export interface WebviewBridgeDeps {
  * for npmjs.com navigation). Posts ExtensionMessage responses back
  * over the same webview channel.
  */
-export class WebviewBridge {
+export class WebviewBridge implements vscode.Disposable {
   private readonly cache: StatsCache;
   private readonly settingsProvider: () => NpmAdvisorSettings;
   private webview: vscode.Webview | null = null;
+  private webviewSubscription: vscode.Disposable | null = null;
   private isReady = false;
   private pendingOutbound: ExtensionMessage[] = [];
   private readonly onReadyListeners = new Set<() => void>();
@@ -47,17 +48,36 @@ export class WebviewBridge {
 
   /**
    * Binds the bridge to a webview and starts handling its messages.
-   * Resets the ready handshake so each (re-)mount of the webview
-   * blocks outbound messages until the React app signals it's
-   * listening. Returns a Disposable that detaches the listener.
+   * Disposes any previous webview subscription so re-attaching to a
+   * fresh webview never leaks listeners on the old one. Resets the
+   * ready handshake so outbound messages buffer until the React app
+   * signals it's listening. Returns a Disposable that detaches the
+   * listener — duplicates the internal cleanup so callers that want
+   * fine-grained control can dispose without disposing the bridge.
    */
   attach(webview: vscode.Webview): vscode.Disposable {
+    this.webviewSubscription?.dispose();
     this.webview = webview;
     this.isReady = false;
     this.pendingOutbound = [];
-    return webview.onDidReceiveMessage((message) => {
+    this.webviewSubscription = webview.onDidReceiveMessage((message) => {
       void this.handle(message as WebviewRequest);
     });
+    return this.webviewSubscription;
+  }
+
+  /**
+   * Releases the message-handler subscription and clears every
+   * onReady listener. Called when the extension deactivates so the
+   * underlying webview-event subscriptions don't outlive the host.
+   */
+  dispose(): void {
+    this.webviewSubscription?.dispose();
+    this.webviewSubscription = null;
+    this.webview = null;
+    this.onReadyListeners.clear();
+    this.pendingOutbound = [];
+    this.isReady = false;
   }
 
   /**
