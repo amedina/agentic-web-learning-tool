@@ -38,6 +38,7 @@ export class NpmAdvisorWebviewProvider implements vscode.WebviewViewProvider {
   private webviewView: vscode.WebviewView | null = null;
   private pendingFocusPackageName: string | null = null;
   private onReadySubscription: vscode.Disposable | null = null;
+  private refreshKey = 0;
 
   /** Stores context, bridge, and the active-file / scanner sources. */
   constructor(deps: NpmAdvisorWebviewProviderDeps) {
@@ -93,6 +94,19 @@ export class NpmAdvisorWebviewProvider implements vscode.WebviewViewProvider {
   }
 
   /**
+   * Same as refresh(), but bumps the refreshKey so the webview tears
+   * down and re-mounts DependenciesTab. Used when the host clears
+   * the StatsCache so the React-side stats cache (held in module
+   * scope by useDependencyStats) also gets thrown away.
+   */
+  forceRefresh(): void {
+    this.refreshKey += 1;
+    if (this.webviewView) {
+      void this.sendInitMessage();
+    }
+  }
+
+  /**
    * Reveals the npm-advisor side panel and asks the webview to scroll
    * to the named package. If the webview hasn't mounted yet (cold
    * start), the focus name is queued and applied once init fires.
@@ -127,6 +141,7 @@ export class NpmAdvisorWebviewProvider implements vscode.WebviewViewProvider {
       availableFiles,
       packageJsonDependencies,
       focusPackageName,
+      refreshKey: this.refreshKey,
     });
   }
 

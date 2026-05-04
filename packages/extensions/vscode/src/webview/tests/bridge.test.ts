@@ -158,6 +158,20 @@ describe("WebviewBridge", () => {
     ]);
   });
 
+  it("calls cache.clearAll when the webview requests refreshStats", async () => {
+    const clearAll = vi.fn().mockResolvedValue(0);
+    const bridge = new WebviewBridge({
+      cache: { get: vi.fn(), clearAll } as unknown as never,
+      settingsProvider: () => ({ targetLicense: "MIT" }) as never,
+    });
+    const fakeWebview = new FakeWebview();
+    bridge.attach(fakeWebview as unknown as vscode.Webview);
+    fakeWebview.dispatch({ type: "ready" });
+    fakeWebview.dispatch({ type: "refreshStats" });
+    await flushAsync();
+    expect(clearAll).toHaveBeenCalledTimes(1);
+  });
+
   it("disposes the previous webview subscription when re-attached", () => {
     const dispose1 = vi.fn();
     const dispose2 = vi.fn();

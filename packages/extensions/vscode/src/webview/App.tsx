@@ -23,6 +23,7 @@ interface AppProps {
   client: StatsClient;
   onReady: () => void;
   onOpenPackageJson: (uri: string) => void;
+  onRefreshStats: () => void;
 }
 
 const EMPTY_DEPS: PackageJsonDependenciesPayload = {
@@ -39,11 +40,17 @@ const EMPTY_SET: Set<string> = new Set();
  * the extension host, then renders the file switcher on top and
  * DependenciesTab below when an active file is selected.
  */
-export const App: FC<AppProps> = ({ client, onReady, onOpenPackageJson }) => {
+export const App: FC<AppProps> = ({
+  client,
+  onReady,
+  onOpenPackageJson,
+  onRefreshStats,
+}) => {
   const [initState, setInitState] = useState<{
     activeFile: PackageJsonFile | null;
     availableFiles: PackageJsonFile[];
     packageJsonDependencies: PackageJsonDependenciesPayload;
+    refreshKey: number;
   } | null>(null);
   const [focusPackageName, setFocusPackageName] = useState<string | null>(null);
   const noopAddRef = useRef<(name: string) => void>(() => undefined);
@@ -61,6 +68,7 @@ export const App: FC<AppProps> = ({ client, onReady, onOpenPackageJson }) => {
           activeFile: data.activeFile,
           availableFiles: data.availableFiles,
           packageJsonDependencies: data.packageJsonDependencies,
+          refreshKey: data.refreshKey ?? 0,
         });
         if (data.focusPackageName) {
           setFocusPackageName(data.focusPackageName);
@@ -108,7 +116,8 @@ export const App: FC<AppProps> = ({ client, onReady, onOpenPackageJson }) => {
     );
   }
 
-  const { activeFile, availableFiles, packageJsonDependencies } = initState;
+  const { activeFile, availableFiles, packageJsonDependencies, refreshKey } =
+    initState;
   const hasDependencies =
     packageJsonDependencies.dependencies.length +
       packageJsonDependencies.devDependencies.length +
@@ -122,11 +131,13 @@ export const App: FC<AppProps> = ({ client, onReady, onOpenPackageJson }) => {
           activeFile={activeFile}
           availableFiles={availableFiles}
           onSelect={handleSelectFile}
+          onRefresh={onRefreshStats}
         />
         {activeFile ? (
           hasDependencies ? (
             <div className="flex-1 min-h-0 overflow-y-auto">
               <DependenciesTab
+                key={`${activeFile.uri}#${refreshKey}`}
                 packageJsonDependencies={packageJsonDependencies ?? EMPTY_DEPS}
                 onAddRecommendationToCompare={handleAddRecommendation}
                 comparisonBucketNames={EMPTY_SET}

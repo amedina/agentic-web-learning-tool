@@ -214,6 +214,14 @@ export class WebviewBridge implements vscode.Disposable {
         }
         return;
       }
+      case "refreshStats": {
+        // Cache change emits onDidChange; provider's downstream
+        // listeners + the diagnostics runner pick that up and re-init
+        // the webview with empty stats so each row goes back to the
+        // loading spinner while fresh data is fetched.
+        await this.cache.clearAll();
+        return;
+      }
     }
   }
 

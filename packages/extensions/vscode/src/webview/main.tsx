@@ -31,6 +31,7 @@ if (container) {
       onOpenPackageJson={(uri) =>
         vscodeApi.postMessage({ type: "openPackageJson", uri })
       }
+      onRefreshStats={() => vscodeApi.postMessage({ type: "refreshStats" })}
     />,
   );
 }

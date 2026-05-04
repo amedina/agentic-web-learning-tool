@@ -125,8 +125,11 @@ export function activate(context: vscode.ExtensionContext): void {
       codeLensProvider.refresh();
       void runner.refreshOpenPackageJsons();
     }),
-    cache.onDidChange(() => {
+    cache.onDidChange((change) => {
       void runner.refreshOpenPackageJsons();
+      if (change.name === "*" && change.version === "*") {
+        webviewProvider.forceRefresh();
+      }
     }),
   );
 

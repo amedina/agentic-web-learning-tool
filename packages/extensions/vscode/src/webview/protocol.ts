@@ -30,7 +30,8 @@ export type WebviewRequest =
       version?: string;
     }
   | { type: "viewPackage"; packageName: string }
-  | { type: "openPackageJson"; uri: string };
+  | { type: "openPackageJson"; uri: string }
+  | { type: "refreshStats" };
 
 export type ExtensionMessage =
   | {
@@ -39,6 +40,13 @@ export type ExtensionMessage =
       availableFiles: PackageJsonFile[];
       packageJsonDependencies: PackageJsonDependenciesPayload;
       focusPackageName?: string;
+      /**
+       * Bumped every time the host wants the React-side stats cache
+       * thrown away (e.g. after the user clicks Refresh). The webview
+       * uses it as a React `key` on DependenciesTab to force a full
+       * remount, which restarts every per-package fetch.
+       */
+      refreshKey?: number;
     }
   | {
       type: "lightStats";
