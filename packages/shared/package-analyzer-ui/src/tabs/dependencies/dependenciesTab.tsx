@@ -32,6 +32,13 @@ interface DependenciesTabProps {
    */
   hideCompare?: boolean;
   /**
+   * Show the Fitness column inside each row's expanded insights body.
+   * Defaults to false because the chrome extension's fetcher doesn't
+   * load Responsiveness for dep rows; consumers whose fetcher returns
+   * the full PackageStats can opt in.
+   */
+  showFitness?: boolean;
+  /**
    * When set and changed, the tab clears any active filters before the
    * caller scrolls to / expands the named package's row. Without this
    * a "Show full insights" jump can land on a row that the current
@@ -49,6 +56,7 @@ export const DependenciesTab: React.FC<DependenciesTabProps> = ({
   onRateLimited,
   onNavigateToComparison,
   hideCompare = false,
+  showFitness = false,
   forceVisiblePackageName,
 }) => {
   const { statsByName, summary } = useDependencyStats(packageJsonDependencies, {
@@ -139,6 +147,7 @@ export const DependenciesTab: React.FC<DependenciesTabProps> = ({
         activeFilters={activeFilters}
         onNavigateToComparison={onNavigateToComparison}
         hideCompare={hideCompare}
+        showFitness={showFitness}
       />
       <DependencySection
         title="Dev Dependencies"
@@ -150,6 +159,7 @@ export const DependenciesTab: React.FC<DependenciesTabProps> = ({
         activeFilters={activeFilters}
         onNavigateToComparison={onNavigateToComparison}
         hideCompare={hideCompare}
+        showFitness={showFitness}
       />
       <DependencySection
         title="Peer Dependencies"
@@ -161,6 +171,7 @@ export const DependenciesTab: React.FC<DependenciesTabProps> = ({
         activeFilters={activeFilters}
         onNavigateToComparison={onNavigateToComparison}
         hideCompare={hideCompare}
+        showFitness={showFitness}
       />
     </div>
   );

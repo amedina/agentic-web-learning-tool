@@ -157,6 +157,7 @@ export const App: FC<AppProps> = ({
                 comparisonBucketNames={EMPTY_SET}
                 addingRecommendations={EMPTY_SET}
                 hideCompare
+                showFitness
                 forceVisiblePackageName={focusPackageName ?? undefined}
                 onRateLimited={handleRateLimited}
               />

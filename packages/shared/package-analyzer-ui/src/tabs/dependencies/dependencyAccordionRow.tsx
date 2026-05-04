@@ -48,6 +48,15 @@ interface DependencyAccordionRowProps {
    * consumers without a comparison view.
    */
   hideCompare?: boolean;
+  /**
+   * When true, the embedded Header inside the expanded row renders the
+   * Fitness column. Defaults to false because the chrome extension's
+   * Dependencies-tab fetcher skips the Responsiveness signal (Search
+   * API quota), which makes the composite Fitness misleading there.
+   * Consumers (e.g. the VSCode side panel) whose fetcher returns the
+   * full PackageStats can opt in.
+   */
+  showFitness?: boolean;
 }
 
 const StatusSummary: React.FC<{ state: DependencyStatsState }> = ({
@@ -154,6 +163,7 @@ export const DependencyAccordionRow: React.FC<DependencyAccordionRowProps> = ({
   addingRecommendations,
   onNavigateToComparison,
   hideCompare = false,
+  showFitness = false,
 }) => {
   const statsClient = useStatsClient();
   const [open, setOpen] = useState(false);
@@ -270,7 +280,7 @@ export const DependencyAccordionRow: React.FC<DependencyAccordionRowProps> = ({
             bundleLoading={bundleLoading}
             dependencyTreeLoading={depTreeLoading}
             hideResponsiveness
-            hideFitness
+            hideFitness={!showFitness}
             hideCompare={hideCompare}
           />
         ) : state.status === "not_found" ? (

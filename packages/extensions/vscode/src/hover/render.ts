@@ -23,7 +23,7 @@ export function renderHover(
   lines.push(`$(extensions-view-icon) **NPM Advisor**`);
   lines.push("");
   lines.push(
-    `**${stats.packageName}** — Score ${stats.score}/${stats.scoreMaxPoints}`,
+    `**${stats.packageName}** — Fitness ${stats.score}/${stats.scoreMaxPoints}`,
   );
 
   const detailLines: string[] = [];

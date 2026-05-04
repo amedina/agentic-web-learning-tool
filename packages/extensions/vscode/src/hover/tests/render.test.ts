@@ -58,7 +58,7 @@ describe("renderHover", () => {
 
   it("renders the package name and score after the brand line", () => {
     const output = renderHover(makeStats({ score: 78, scoreMaxPoints: 100 }));
-    expect(output).toContain("**lodash** — Score 78/100");
+    expect(output).toContain("**lodash** — Fitness 78/100");
   });
 
   it("includes a bundle line when bundle data is present", () => {

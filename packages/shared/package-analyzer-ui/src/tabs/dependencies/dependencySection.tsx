@@ -24,6 +24,8 @@ interface DependencySectionProps {
   onNavigateToComparison?: () => void;
   /** Hide every Compare affordance inside the per-row insights bodies. */
   hideCompare?: boolean;
+  /** Show the Fitness column inside the per-row insights bodies. */
+  showFitness?: boolean;
 }
 
 export const DependencySection: React.FC<DependencySectionProps> = ({
@@ -36,6 +38,7 @@ export const DependencySection: React.FC<DependencySectionProps> = ({
   activeFilters,
   onNavigateToComparison,
   hideCompare = false,
+  showFitness = false,
 }) => {
   const visibleNames = useMemo(
     () =>
@@ -72,6 +75,7 @@ export const DependencySection: React.FC<DependencySectionProps> = ({
             addingRecommendations={addingRecommendations}
             onNavigateToComparison={onNavigateToComparison}
             hideCompare={hideCompare}
+            showFitness={showFitness}
           />
         ))}
       </div>
