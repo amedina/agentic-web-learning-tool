@@ -55,11 +55,6 @@
         "command": "npmAdvisor.clearCache",
         "title": "NPM Advisor: Clear cached package stats",
         "category": "NPM Advisor"
-      },
-      {
-        "command": "npmAdvisor.configureHover",
-        "title": "NPM Advisor: Use single-block hover (disable diagnostic-in-hover)",
-        "category": "NPM Advisor"
       }
     ],
     "configuration": {

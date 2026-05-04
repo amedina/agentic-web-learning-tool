@@ -9,10 +9,6 @@ import { getPackageStats } from "@agentic-web-labs/package-analyzer-core";
  */
 import { StatsCache } from "./cache/statsCache";
 import { registerClearCacheCommand } from "./commands/clearCache";
-import {
-  maybePromptToConfigureHover,
-  registerConfigureHoverCommand,
-} from "./commands/configureHover";
 import { registerViewPackageCommand } from "./commands/viewPackage";
 import { DiagnosticsRunner } from "./diagnostics/runner";
 import { readSettings } from "./diagnostics/settings";
@@ -74,7 +70,6 @@ export function activate(context: vscode.ExtensionContext): void {
 
   context.subscriptions.push(registerViewPackageCommand());
   context.subscriptions.push(registerClearCacheCommand(cache));
-  context.subscriptions.push(registerConfigureHoverCommand());
 
   const codeLensProvider = new PackageJsonCodeLensProvider(cache, readSettings);
   context.subscriptions.push(codeLensProvider);
@@ -119,10 +114,6 @@ export function activate(context: vscode.ExtensionContext): void {
 
   // Seed diagnostics for any package.json the user already has open.
   void runner.refreshOpenPackageJsons();
-
-  // First-run prompt to silence VSCode's diagnostic-in-hover so the
-  // hover renders as a single block. No-op after the user has answered.
-  void maybePromptToConfigureHover(context);
 }
 
 /**
