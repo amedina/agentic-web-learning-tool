@@ -1,8 +1,8 @@
 /**
  * Internal dependencies.
  */
-import { parseDependencies } from "./parse";
-import { Position } from "../test/vscodeMock";
+import { parseDependencies } from "../parse";
+import { Position } from "../../test/vscodeMock";
 
 /**
  * External dependencies.

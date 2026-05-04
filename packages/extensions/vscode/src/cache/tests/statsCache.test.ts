@@ -1,7 +1,7 @@
 /**
  * Internal dependencies.
  */
-import { StatsCache } from "./statsCache";
+import { StatsCache } from "../statsCache";
 
 /**
  * External dependencies.

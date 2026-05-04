@@ -1,7 +1,7 @@
 /**
  * Internal dependencies.
  */
-import { formatBadge } from "./format";
+import { formatBadge } from "../format";
 
 /**
  * External dependencies.

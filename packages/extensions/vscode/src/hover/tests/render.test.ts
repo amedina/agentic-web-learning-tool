@@ -1,7 +1,7 @@
 /**
  * Internal dependencies.
  */
-import { renderHover } from "./render";
+import { renderHover } from "../render";
 
 /**
  * External dependencies.

@@ -1,10 +1,10 @@
 /**
  * Internal dependencies.
  */
-import type { PackageJsonDependency } from "../packageJson/parse";
-import { Position, Range } from "../test/vscodeMock";
-import { evaluateDiagnostics, extractMajor } from "./rules";
-import type { NpmAdvisorSettings } from "./settings";
+import type { PackageJsonDependency } from "../../packageJson/parse";
+import { Position, Range } from "../../test/vscodeMock";
+import { evaluateDiagnostics, extractMajor } from "../rules";
+import type { NpmAdvisorSettings } from "../settings";
 
 /**
  * External dependencies.
