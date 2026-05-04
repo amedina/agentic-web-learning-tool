@@ -148,6 +148,13 @@ describe("renderHover", () => {
     );
   });
 
+  it("includes a Show full insights command link bound to the package name", () => {
+    const output = renderHover(makeStats({ packageName: "@types/node" }));
+    expect(output).toContain(
+      "[Show full insights](command:npmAdvisor.showInsights?%5B%22%40types%2Fnode%22%5D)",
+    );
+  });
+
   it("includes a Source link when githubUrl is present", () => {
     const output = renderHover(
       makeStats({ githubUrl: "https://github.com/lodash/lodash" }),

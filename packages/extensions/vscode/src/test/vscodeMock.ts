@@ -165,6 +165,15 @@ interface Disposable {
 }
 
 /**
+ * Test stand-in for vscode.commands. Tests can spy on
+ * `commands.executeCommand` to verify side-effect calls without
+ * touching the real extension host.
+ */
+export const commands = {
+  executeCommand: async (..._args: unknown[]): Promise<unknown> => undefined,
+};
+
+/**
  * Test stand-in for vscode.EventEmitter. Mirrors the listener-set /
  * fire / dispose API the real class exposes so source code that uses
  * `new vscode.EventEmitter()` works unchanged in tests.
