@@ -2,7 +2,7 @@
  * External dependencies.
  */
 import { useEffect, useState, type FC } from "react";
-import { ChevronDown, FileJson, RefreshCcw } from "lucide-react";
+import { ChevronDown, FileJson, Info, RefreshCcw } from "lucide-react";
 
 /**
  * Internal dependencies.
@@ -31,6 +31,7 @@ export const PackageJsonSwitcher: FC<PackageJsonSwitcherProps> = ({
   onRefresh,
 }) => {
   const [expanded, setExpanded] = useState(!activeFile);
+  const [legendOpen, setLegendOpen] = useState(false);
 
   // Collapse the file list whenever the active file changes (initial
   // load and after the user picks a file from the switcher), and
@@ -107,6 +108,20 @@ export const PackageJsonSwitcher: FC<PackageJsonSwitcherProps> = ({
         </button>
         <button
           type="button"
+          onClick={() => setLegendOpen((previous) => !previous)}
+          title="What do the package.json underline colors mean?"
+          aria-label="Show diagnostic color legend"
+          aria-pressed={legendOpen}
+          className={`shrink-0 p-1.5 rounded transition-colors ${
+            legendOpen
+              ? "bg-slate-200/80 dark:bg-slate-700/80 text-slate-700 dark:text-slate-200"
+              : "text-slate-500 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-700/60"
+          }`}
+        >
+          <Info size={14} />
+        </button>
+        <button
+          type="button"
           onClick={onRefresh}
           title="Refresh package stats (clears cache)"
           aria-label="Refresh package stats"
@@ -115,12 +130,74 @@ export const PackageJsonSwitcher: FC<PackageJsonSwitcherProps> = ({
           <RefreshCcw size={14} />
         </button>
       </div>
+      {legendOpen ? <DiagnosticLegend /> : null}
       {expanded && others.length > 0 ? (
         <FileList files={others} onSelect={onSelect} caption="Switch to" />
       ) : null}
     </div>
   );
 };
+
+/**
+ * Inline legend documenting what the squiggle colors under
+ * dependency entries in package.json mean. Lets users decode the
+ * Problems-panel diagnostics without reading the README, and keeps
+ * the contract in one place that any future rule additions update.
+ */
+const DiagnosticLegend: FC = () => (
+  <div className="border-t border-slate-200/70 dark:border-slate-700/70 px-3 py-3 text-xs space-y-2 text-slate-700 dark:text-slate-300">
+    <div className="font-medium text-[11px] uppercase tracking-wide text-slate-500 dark:text-slate-400">
+      Underline colors in package.json
+    </div>
+    <ul className="space-y-1.5">
+      <LegendRow
+        swatchClass="bg-red-500"
+        label="Red"
+        description="Security advisory at or above the configured severity floor"
+      />
+      <LegendRow
+        swatchClass="bg-amber-400"
+        label="Yellow"
+        description="License incompatible with the target license, or package appears unmaintained"
+      />
+      <LegendRow
+        swatchClass="bg-sky-400"
+        label="Blue"
+        description="Installed major version is several releases behind the latest"
+      />
+    </ul>
+    <div className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+      Hover any squiggle in the editor to see the full diagnostic message.
+      Configure thresholds under{" "}
+      <code className="text-[11px]">npmAdvisor.*</code> in Settings.
+    </div>
+  </div>
+);
+
+interface LegendRowProps {
+  swatchClass: string;
+  label: string;
+  description: string;
+}
+
+/** One row of the diagnostic legend: colored swatch + label + description. */
+const LegendRow: FC<LegendRowProps> = ({ swatchClass, label, description }) => (
+  <li className="flex items-start gap-2">
+    <span
+      className={`shrink-0 mt-1 inline-block w-2.5 h-2.5 rounded-full ${swatchClass}`}
+      aria-hidden
+    />
+    <div className="min-w-0">
+      <span className="font-medium text-slate-800 dark:text-slate-200">
+        {label}
+      </span>
+      <span className="text-slate-600 dark:text-slate-400">
+        {" "}
+        — {description}
+      </span>
+    </div>
+  </li>
+);
 
 interface FileListProps {
   files: PackageJsonFile[];
