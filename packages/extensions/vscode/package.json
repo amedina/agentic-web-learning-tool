@@ -75,6 +75,12 @@
           ],
           "default": "high",
           "description": "Lowest GitHub Security Advisory severity that produces a Problems-panel diagnostic. Lower-severity advisories are ignored."
+        },
+        "npmAdvisor.outdatedMajorThreshold": {
+          "type": "number",
+          "default": 2,
+          "minimum": 1,
+          "description": "Number of major versions a dependency can be behind the latest published release before NPM Advisor flags it as outdated."
         }
       }
     }

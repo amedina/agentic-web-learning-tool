@@ -16,6 +16,7 @@ export interface NpmAdvisorSettings {
   targetLicense: string;
   unmaintainedThresholdDays: number;
   advisorySeverityFloor: AdvisorySeverity;
+  outdatedMajorThreshold: number;
 }
 
 export function readSettings(): NpmAdvisorSettings {
@@ -30,6 +31,7 @@ export function readSettings(): NpmAdvisorSettings {
       "advisorySeverityFloor",
       "high",
     ),
+    outdatedMajorThreshold: config.get<number>("outdatedMajorThreshold", 2),
   };
 }
 

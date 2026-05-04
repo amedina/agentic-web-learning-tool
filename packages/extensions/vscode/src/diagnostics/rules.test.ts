@@ -3,7 +3,7 @@
  */
 import type { PackageJsonDependency } from "../packageJson/parse";
 import { Position, Range } from "../test/vscodeMock";
-import { evaluateDiagnostics } from "./rules";
+import { evaluateDiagnostics, extractMajor } from "./rules";
 import type { NpmAdvisorSettings } from "./settings";
 
 /**
@@ -19,6 +19,7 @@ const SETTINGS: NpmAdvisorSettings = {
   targetLicense: "MIT",
   unmaintainedThresholdDays: 730,
   advisorySeverityFloor: "high",
+  outdatedMajorThreshold: 2,
 };
 
 function makeDependency(
@@ -40,6 +41,7 @@ function makeStats(overrides: Partial<PackageStats> = {}): PackageStats {
   return {
     packageName: "lodash",
     description: null,
+    latestVersion: null,
     githubUrl: null,
     stars: null,
     collaboratorsCount: null,
@@ -221,6 +223,95 @@ describe("evaluateDiagnostics — unmaintained", () => {
         { now: NOW },
       ),
     ).toHaveLength(0);
+  });
+});
+
+describe("evaluateDiagnostics — outdated major", () => {
+  it("emits Information when installed major is at or beyond the threshold behind latest", () => {
+    const diagnostics = evaluateDiagnostics(
+      makeDependency({ version: "^3.0.0" }),
+      makeStats({ latestVersion: "5.4.1" }),
+      SETTINGS,
+      { now: NOW },
+    );
+    expect(diagnostics).toHaveLength(1);
+    expect(diagnostics[0].severity).toBe(vscode.DiagnosticSeverity.Information);
+    expect(diagnostics[0].code).toBe("outdated-major");
+    expect(diagnostics[0].message).toContain("2 major versions");
+    expect(diagnostics[0].message).toContain("5.4.1");
+  });
+
+  it("stays silent when only one major behind (below default threshold of 2)", () => {
+    const diagnostics = evaluateDiagnostics(
+      makeDependency({ version: "^4.17.21" }),
+      makeStats({ latestVersion: "5.0.0" }),
+      SETTINGS,
+      { now: NOW },
+    );
+    expect(diagnostics).toHaveLength(0);
+  });
+
+  it("respects a custom threshold of 1", () => {
+    const diagnostics = evaluateDiagnostics(
+      makeDependency({ version: "^4.17.21" }),
+      makeStats({ latestVersion: "5.0.0" }),
+      { ...SETTINGS, outdatedMajorThreshold: 1 },
+      { now: NOW },
+    );
+    expect(diagnostics).toHaveLength(1);
+  });
+
+  it("stays silent when latest version is unknown", () => {
+    const diagnostics = evaluateDiagnostics(
+      makeDependency({ version: "^1.0.0" }),
+      makeStats({ latestVersion: null }),
+      SETTINGS,
+      { now: NOW },
+    );
+    expect(diagnostics).toHaveLength(0);
+  });
+
+  it("stays silent for non-semver protocols (workspace, file, github, *)", () => {
+    for (const version of [
+      "workspace:*",
+      "file:../local",
+      "github:user/repo",
+      "*",
+      "latest",
+    ]) {
+      const diagnostics = evaluateDiagnostics(
+        makeDependency({ version }),
+        makeStats({ latestVersion: "5.0.0" }),
+        SETTINGS,
+        { now: NOW },
+      );
+      expect(
+        diagnostics.filter((d) => d.code === "outdated-major"),
+      ).toHaveLength(0);
+    }
+  });
+});
+
+describe("extractMajor", () => {
+  it("parses common npm specs", () => {
+    expect(extractMajor("^1.2.3")).toBe(1);
+    expect(extractMajor("~1.0.0")).toBe(1);
+    expect(extractMajor("1.2.3")).toBe(1);
+    expect(extractMajor(">=2.0.0")).toBe(2);
+    expect(extractMajor("1.x")).toBe(1);
+    expect(extractMajor("1.0.0-beta.1")).toBe(1);
+  });
+
+  it("returns null for non-semver protocols and tags", () => {
+    expect(extractMajor("workspace:*")).toBeNull();
+    expect(extractMajor("file:../local")).toBeNull();
+    expect(extractMajor("github:user/repo")).toBeNull();
+    expect(extractMajor("link:./local")).toBeNull();
+    expect(extractMajor("git+https://github.com/x/y")).toBeNull();
+    expect(extractMajor("https://example.com/pkg.tgz")).toBeNull();
+    expect(extractMajor("*")).toBeNull();
+    expect(extractMajor("latest")).toBeNull();
+    expect(extractMajor("")).toBeNull();
   });
 });
 

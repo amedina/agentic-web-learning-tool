@@ -62,7 +62,68 @@ export function evaluateDiagnostics(
     diagnostics.push(unmaintainedDiagnostic);
   }
 
+  const outdatedDiagnostic = buildOutdatedDiagnostic(
+    dependency,
+    stats,
+    settings.outdatedMajorThreshold,
+  );
+  if (outdatedDiagnostic) {
+    diagnostics.push(outdatedDiagnostic);
+  }
+
   return diagnostics;
+}
+
+/**
+ * Pull a major version number out of an npm spec like "^1.2.3", "~1.0",
+ * or ">=2.0.0". Returns null for ranges, tags, and non-semver protocols
+ * (workspace:*, file:, github:, "*", "latest", etc.) where a stable
+ * major comparison isn't meaningful.
+ */
+export function extractMajor(spec: string): number | null {
+  if (!spec || typeof spec !== "string") {
+    return null;
+  }
+  const trimmed = spec.trim();
+  if (
+    trimmed.startsWith("workspace:") ||
+    trimmed.startsWith("file:") ||
+    trimmed.startsWith("link:") ||
+    trimmed.startsWith("git+") ||
+    trimmed.startsWith("github:") ||
+    trimmed.startsWith("http")
+  ) {
+    return null;
+  }
+  const match = /^[\^~>=<\s]*(\d+)/.exec(trimmed);
+  return match ? Number(match[1]) : null;
+}
+
+function buildOutdatedDiagnostic(
+  dependency: PackageJsonDependency,
+  stats: PackageStats,
+  threshold: number,
+): vscode.Diagnostic | null {
+  if (!stats.latestVersion) {
+    return null;
+  }
+  const installedMajor = extractMajor(dependency.version);
+  const latestMajor = extractMajor(stats.latestVersion);
+  if (installedMajor === null || latestMajor === null) {
+    return null;
+  }
+  const behind = latestMajor - installedMajor;
+  if (behind < threshold) {
+    return null;
+  }
+  const diagnostic = new vscode.Diagnostic(
+    dependency.nameRange,
+    `${dependency.name} is ${behind} major versions behind latest (${stats.latestVersion}).`,
+    vscode.DiagnosticSeverity.Information,
+  );
+  diagnostic.source = "npm-advisor";
+  diagnostic.code = "outdated-major";
+  return diagnostic;
 }
 
 function buildAdvisoryDiagnostic(
