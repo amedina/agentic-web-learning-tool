@@ -37,7 +37,7 @@ export class WebviewBridge {
   private webview: vscode.Webview | null = null;
   private isReady = false;
   private pendingOutbound: ExtensionMessage[] = [];
-  private onReadyCallback: (() => void) | null = null;
+  private readonly onReadyListeners = new Set<() => void>();
 
   /** Stores the cache and settings provider to be used per-request. */
   constructor(deps: WebviewBridgeDeps) {
@@ -61,16 +61,20 @@ export class WebviewBridge {
   }
 
   /**
-   * Registers a one-shot callback that fires when the webview's React
-   * app has registered its message listener. Used by the view provider
-   * to seed init data right after the handshake instead of racing it.
+   * Subscribes to every ready handshake from the webview. Fires
+   * immediately if the webview is already ready, then again on each
+   * subsequent ready signal — essential for VSCode WebviewView, where
+   * the script context is destroyed and recreated on every visibility
+   * transition (no retainContextWhenHidden equivalent on this API),
+   * so the React app re-mounts and needs init pushed each time.
+   * Returns a Disposable that unsubscribes the listener.
    */
-  onReady(callback: () => void): void {
+  onReady(callback: () => void): vscode.Disposable {
+    this.onReadyListeners.add(callback);
     if (this.isReady) {
       callback();
-      return;
     }
-    this.onReadyCallback = callback;
+    return { dispose: () => this.onReadyListeners.delete(callback) };
   }
 
   /**
@@ -105,9 +109,9 @@ export class WebviewBridge {
         for (const queued of buffered) {
           void this.webview.postMessage(queued);
         }
-        const callback = this.onReadyCallback;
-        this.onReadyCallback = null;
-        callback?.();
+        for (const listener of this.onReadyListeners) {
+          listener();
+        }
         return;
       }
       case "getLightStats": {

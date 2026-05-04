@@ -28,6 +28,7 @@ export class NpmAdvisorWebviewProvider implements vscode.WebviewViewProvider {
   private readonly bridge: WebviewBridge;
   private webviewView: vscode.WebviewView | null = null;
   private pendingFocusPackageName: string | null = null;
+  private onReadySubscription: vscode.Disposable | null = null;
 
   /** Stores the extension context (for asset URIs) and the bridge. */
   constructor(deps: NpmAdvisorWebviewProviderDeps) {
@@ -36,9 +37,15 @@ export class NpmAdvisorWebviewProvider implements vscode.WebviewViewProvider {
   }
 
   /**
-   * VSCode invokes this once when the view becomes visible. We
-   * configure CSP / asset roots, render the HTML shell, attach the
-   * bridge's postMessage handler, and seed the initial deps payload.
+   * VSCode invokes this when the view becomes visible. We configure
+   * CSP / asset roots, render the HTML shell, attach the bridge, and
+   * subscribe to ready signals from the React app.
+   *
+   * VSCode WebviewView has no retainContextWhenHidden equivalent, so
+   * the script context tears down on every hide and rebuilds on every
+   * show. The React app remounts with empty state each time, so we
+   * push a fresh init payload on every ready handshake — not just the
+   * first one — otherwise re-shown panels stay stuck on "Loading…".
    */
   resolveWebviewView(webviewView: vscode.WebviewView): void {
     this.webviewView = webviewView;
@@ -51,8 +58,16 @@ export class NpmAdvisorWebviewProvider implements vscode.WebviewViewProvider {
     };
     webviewView.webview.html = this.renderHtml(webviewView.webview);
     this.bridge.attach(webviewView.webview);
-    this.sendInitMessage(this.pendingFocusPackageName ?? undefined);
-    this.pendingFocusPackageName = null;
+    this.onReadySubscription?.dispose();
+    this.onReadySubscription = this.bridge.onReady(() => {
+      const focusPackageName = this.pendingFocusPackageName ?? undefined;
+      this.pendingFocusPackageName = null;
+      this.sendInitMessage(focusPackageName);
+    });
+    webviewView.onDidDispose(() => {
+      this.onReadySubscription?.dispose();
+      this.onReadySubscription = null;
+    });
   }
 
   /**

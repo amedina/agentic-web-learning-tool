@@ -192,6 +192,38 @@ describe("WebviewBridge", () => {
     ]);
   });
 
+  it("fires onReady listeners on every ready handshake, not just the first", () => {
+    const bridge = new WebviewBridge({
+      cache: { get: vi.fn() } as unknown as never,
+      settingsProvider: () => ({ targetLicense: "MIT" }) as never,
+    });
+    const fakeWebview = new FakeWebview();
+    bridge.attach(fakeWebview as unknown as vscode.Webview);
+    const callback = vi.fn();
+    bridge.onReady(callback);
+    fakeWebview.dispatch({ type: "ready" });
+    expect(callback).toHaveBeenCalledTimes(1);
+
+    // Simulate WebviewView re-show: VSCode reloads the script context
+    // and the freshly-mounted React app posts ready again.
+    bridge.attach(fakeWebview as unknown as vscode.Webview);
+    fakeWebview.dispatch({ type: "ready" });
+    expect(callback).toHaveBeenCalledTimes(2);
+  });
+
+  it("invokes onReady immediately when the webview is already ready", () => {
+    const bridge = new WebviewBridge({
+      cache: { get: vi.fn() } as unknown as never,
+      settingsProvider: () => ({ targetLicense: "MIT" }) as never,
+    });
+    const fakeWebview = new FakeWebview();
+    bridge.attach(fakeWebview as unknown as vscode.Webview);
+    fakeWebview.dispatch({ type: "ready" });
+    const callback = vi.fn();
+    bridge.onReady(callback);
+    expect(callback).toHaveBeenCalledTimes(1);
+  });
+
   it("posts immediately once ready and resets the buffer on re-attach", () => {
     const bridge = new WebviewBridge({
       cache: { get: vi.fn() } as unknown as never,
