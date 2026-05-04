@@ -55,6 +55,7 @@ export class PackageJsonHoverProvider implements vscode.HoverProvider {
     );
     markdown.isTrusted = true;
     markdown.supportHtml = false;
+    markdown.supportThemeIcons = true;
     return new vscode.Hover(markdown, dependency.fullRange);
   }
 }

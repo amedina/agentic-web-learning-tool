@@ -38,9 +38,14 @@ function makeStats(overrides: Partial<PackageStats> = {}): PackageStats {
 }
 
 describe("renderHover", () => {
-  it("renders the package name and score on the first line", () => {
+  it("prefixes the hover with the NPM Advisor brand line", () => {
     const output = renderHover(makeStats({ score: 78, scoreMaxPoints: 100 }));
-    expect(output.split("\n")[0]).toBe("**lodash** — Score 78/100");
+    expect(output.split("\n")[0]).toBe("$(symbol-package) **NPM Advisor**");
+  });
+
+  it("renders the package name and score after the brand line", () => {
+    const output = renderHover(makeStats({ score: 78, scoreMaxPoints: 100 }));
+    expect(output).toContain("**lodash** — Score 78/100");
   });
 
   it("includes a bundle line when bundle data is present", () => {

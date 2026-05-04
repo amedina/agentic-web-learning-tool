@@ -20,6 +20,8 @@ export function renderHover(
 ): string {
   const lines: string[] = [];
 
+  lines.push(`$(symbol-package) **NPM Advisor**`);
+  lines.push("");
   lines.push(
     `**${stats.packageName}** — Score ${stats.score}/${stats.scoreMaxPoints}`,
   );
