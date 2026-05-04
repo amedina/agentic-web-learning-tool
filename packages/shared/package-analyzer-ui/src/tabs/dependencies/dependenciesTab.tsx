@@ -1,7 +1,7 @@
 /**
  * External dependencies.
  */
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 
 /**
  * Internal dependencies.
@@ -31,6 +31,14 @@ interface DependenciesTabProps {
    * comparison view.
    */
   hideCompare?: boolean;
+  /**
+   * When set and changed, the tab clears any active filters before the
+   * caller scrolls to / expands the named package's row. Without this
+   * a "Show full insights" jump can land on a row that the current
+   * filter set has hidden, leaving the user staring at a filtered list
+   * that doesn't include their target.
+   */
+  forceVisiblePackageName?: string;
 }
 
 export const DependenciesTab: React.FC<DependenciesTabProps> = ({
@@ -41,6 +49,7 @@ export const DependenciesTab: React.FC<DependenciesTabProps> = ({
   onRateLimited,
   onNavigateToComparison,
   hideCompare = false,
+  forceVisiblePackageName,
 }) => {
   const { statsByName, summary } = useDependencyStats(packageJsonDependencies, {
     onRateLimited,
@@ -94,6 +103,16 @@ export const DependenciesTab: React.FC<DependenciesTabProps> = ({
       previous.size === 0 ? previous : new Set(),
     );
   }, []);
+
+  // Drop active filters whenever an external "force visible" target
+  // changes, so a "Show full insights" jump from elsewhere in the host
+  // (e.g. a VSCode hover popover link) never lands on a row the user
+  // has filtered out of view.
+  useEffect(() => {
+    if (forceVisiblePackageName) {
+      clearFilters();
+    }
+  }, [forceVisiblePackageName, clearFilters]);
 
   return (
     <div className="text-slate-800 dark:text-slate-200 p-4 space-y-4 h-full overflow-y-auto">
