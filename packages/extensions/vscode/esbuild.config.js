@@ -14,6 +14,10 @@ const buildOptions = {
   format: "cjs",
   platform: "node",
   target: "node20",
+  // Prefer ESM entry points so dependencies that ship a UMD `main`
+  // (e.g. jsonc-parser) get bundled via their static-import ESM build
+  // instead of a UMD wrapper that uses dynamic require() for sub-modules.
+  mainFields: ["module", "main"],
   sourcemap: !production,
   minify: production,
   logLevel: "info",

@@ -5,6 +5,8 @@ node_modules/**
 esbuild.config.js
 tsconfig.json
 .gitignore
+CONTRIBUTING.md
+vitest.config.ts
 **/*.map
 **/*.ts
 !dist/**

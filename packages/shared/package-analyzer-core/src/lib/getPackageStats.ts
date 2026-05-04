@@ -22,6 +22,8 @@ import { parseGithubUrl } from "../utils/parseGithubUrl";
 export interface PackageStats {
   packageName: string;
   description: string | null;
+  /** Latest version published to the npm registry, taken from dist-tags.latest. */
+  latestVersion: string | null;
   githubUrl: string | null;
   stars: number | null;
   collaboratorsCount: number | null;
@@ -599,6 +601,7 @@ export async function getPackageStats(
   const stats: PackageStats = {
     packageName,
     description: npmData.description || null,
+    latestVersion: latestVersion ?? null,
     githubUrl: githubInfo
       ? `https://github.com/${githubInfo.owner}/${githubInfo.repo}`
       : null,

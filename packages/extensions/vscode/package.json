@@ -5,6 +5,7 @@
   "version": "0.1.0",
   "private": true,
   "publisher": "agentic-web-labs",
+  "license": "Apache-2.0",
   "engines": {
     "vscode": "^1.96.0",
     "node": ">=20"
@@ -43,7 +44,52 @@
         "view": "npmAdvisor.welcome",
         "contents": "Open a workspace that contains a `package.json` to see dependency insights here.\n\n[Open Folder](command:vscode.openFolder)"
       }
-    ]
+    ],
+    "commands": [
+      {
+        "command": "npmAdvisor.viewPackage",
+        "title": "NPM Advisor: View package on npm",
+        "category": "NPM Advisor"
+      },
+      {
+        "command": "npmAdvisor.clearCache",
+        "title": "NPM Advisor: Clear cached package stats",
+        "category": "NPM Advisor"
+      }
+    ],
+    "configuration": {
+      "title": "NPM Advisor",
+      "properties": {
+        "npmAdvisor.targetLicense": {
+          "type": "string",
+          "default": "MIT",
+          "description": "Project license used to evaluate dependency license compatibility (e.g. MIT, Apache-2.0, GPL-3.0)."
+        },
+        "npmAdvisor.unmaintainedThresholdDays": {
+          "type": "number",
+          "default": 730,
+          "minimum": 1,
+          "description": "Number of days since the last commit to a dependency's GitHub repo before NPM Advisor flags it as unmaintained."
+        },
+        "npmAdvisor.advisorySeverityFloor": {
+          "type": "string",
+          "enum": [
+            "critical",
+            "high",
+            "moderate",
+            "low"
+          ],
+          "default": "high",
+          "description": "Lowest GitHub Security Advisory severity that produces a Problems-panel diagnostic. Lower-severity advisories are ignored."
+        },
+        "npmAdvisor.outdatedMajorThreshold": {
+          "type": "number",
+          "default": 2,
+          "minimum": 1,
+          "description": "Number of major versions a dependency can be behind the latest published release before NPM Advisor flags it as outdated."
+        }
+      }
+    }
   },
   "repository": {
     "type": "git",
@@ -51,7 +97,7 @@
     "directory": "packages/extensions/vscode"
   },
   "scripts": {
-    "prebuild": "rimraf ../../../dist/vscode-npm-advisor",
+    "prebuild": "rimraf ../../../dist/vscode-npm-advisor dist",
     "build": "node esbuild.config.js --production",
     "dev": "node esbuild.config.js --watch",
     "check-types": "tsc --noEmit",
@@ -66,6 +112,7 @@
     "@types/vscode": "^1.96.0",
     "@vscode/vsce": "^3.2.1",
     "esbuild": "^0.24.0",
+    "jsonc-parser": "^3.3.1",
     "rimraf": "^5.0.5",
     "typescript": "~5.8.3",
     "vitest": "^3.2.4"
