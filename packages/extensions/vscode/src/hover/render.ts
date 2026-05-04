@@ -78,6 +78,7 @@ export function renderHover(
   }
 
   const linkParts: string[] = [
+    `[Show full insights](command:npmAdvisor.showInsights?${encodeURIComponent(JSON.stringify([stats.packageName]))})`,
     `[View on npm](https://www.npmjs.com/package/${encodeURIComponent(stats.packageName)})`,
   ];
   if (stats.githubUrl) {

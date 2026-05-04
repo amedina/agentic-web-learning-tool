@@ -35,16 +35,10 @@
         {
           "id": "npmAdvisor.welcome",
           "name": "NPM Advisor",
-          "type": "tree"
+          "type": "webview"
         }
       ]
     },
-    "viewsWelcome": [
-      {
-        "view": "npmAdvisor.welcome",
-        "contents": "Open a workspace that contains a `package.json` to see dependency insights here.\n\n[Open Folder](command:vscode.openFolder)"
-      }
-    ],
     "commands": [
       {
         "command": "npmAdvisor.viewPackage",
@@ -54,6 +48,11 @@
       {
         "command": "npmAdvisor.clearCache",
         "title": "NPM Advisor: Clear cached package stats",
+        "category": "NPM Advisor"
+      },
+      {
+        "command": "npmAdvisor.showInsights",
+        "title": "NPM Advisor: Show full insights for a package",
         "category": "NPM Advisor"
       }
     ],

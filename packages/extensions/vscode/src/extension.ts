@@ -9,11 +9,17 @@ import { getPackageStats } from "@agentic-web-labs/package-analyzer-core";
  */
 import { StatsCache } from "./cache/statsCache";
 import { registerClearCacheCommand } from "./commands/clearCache";
+import { registerShowInsightsCommand } from "./commands/showInsights";
 import { registerViewPackageCommand } from "./commands/viewPackage";
 import { DiagnosticsRunner } from "./diagnostics/runner";
 import { readSettings } from "./diagnostics/settings";
 import { PackageJsonCodeLensProvider } from "./providers/codeLensProvider";
 import { PackageJsonHoverProvider } from "./providers/hoverProvider";
+import {
+  NpmAdvisorWebviewProvider,
+  WEBVIEW_VIEW_ID,
+} from "./providers/webviewViewProvider";
+import { WebviewBridge } from "./webview/bridge";
 
 const PACKAGE_JSON_SELECTOR: vscode.DocumentFilter[] = [
   { language: "json", pattern: "**/package.json" },
@@ -21,36 +27,12 @@ const PACKAGE_JSON_SELECTOR: vscode.DocumentFilter[] = [
 ];
 
 /**
- * Tree provider that contributes no children, so the npm-advisor view
- * always renders its viewsWelcome content. Will be replaced when Tier 2
- * lands a real report tree.
- */
-class WelcomeTreeProvider implements vscode.TreeDataProvider<never> {
-  /** Required by TreeDataProvider; never invoked because there are no children. */
-  getTreeItem(element: never): vscode.TreeItem {
-    return element;
-  }
-
-  /** Always returns an empty list to keep the welcome view active. */
-  getChildren(): vscode.ProviderResult<never[]> {
-    return [];
-  }
-}
-
-/**
  * Extension entry point. VSCode invokes this once after the extension's
  * activation event fires (workspaceContains:**\/package.json). Wires up
- * the StatsCache, registers hover / CodeLens / diagnostics providers,
- * registers commands, and binds workspace event listeners.
+ * the StatsCache, registers hover / CodeLens / diagnostics / webview
+ * providers, registers commands, and binds workspace event listeners.
  */
 export function activate(context: vscode.ExtensionContext): void {
-  context.subscriptions.push(
-    vscode.window.registerTreeDataProvider(
-      "npmAdvisor.welcome",
-      new WelcomeTreeProvider(),
-    ),
-  );
-
   const cache = new StatsCache({
     storage: context.globalState,
     fetcher: (name) =>
@@ -59,6 +41,19 @@ export function activate(context: vscode.ExtensionContext): void {
       }),
   });
   context.subscriptions.push(cache);
+
+  const bridge = new WebviewBridge({
+    cache,
+    settingsProvider: readSettings,
+  });
+
+  const webviewProvider = new NpmAdvisorWebviewProvider({
+    context,
+    bridge,
+  });
+  context.subscriptions.push(
+    vscode.window.registerWebviewViewProvider(WEBVIEW_VIEW_ID, webviewProvider),
+  );
 
   const hoverProvider = new PackageJsonHoverProvider(cache, readSettings);
   context.subscriptions.push(
@@ -70,6 +65,7 @@ export function activate(context: vscode.ExtensionContext): void {
 
   context.subscriptions.push(registerViewPackageCommand());
   context.subscriptions.push(registerClearCacheCommand(cache));
+  context.subscriptions.push(registerShowInsightsCommand(webviewProvider));
 
   const codeLensProvider = new PackageJsonCodeLensProvider(cache, readSettings);
   context.subscriptions.push(codeLensProvider);
@@ -93,9 +89,15 @@ export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(
     vscode.workspace.onDidOpenTextDocument((document) => {
       void runner.refresh(document);
+      if (isPackageJsonDocument(document)) {
+        webviewProvider.refresh();
+      }
     }),
     vscode.workspace.onDidSaveTextDocument((document) => {
       void runner.refresh(document);
+      if (isPackageJsonDocument(document)) {
+        webviewProvider.refresh();
+      }
     }),
     vscode.workspace.onDidChangeTextDocument((event) => {
       runner.clear(event.document);
@@ -123,3 +125,11 @@ export function activate(context: vscode.ExtensionContext): void {
  * this function has nothing extra to do.
  */
 export function deactivate(): void {}
+
+/** True when the document is a workspace package.json. */
+function isPackageJsonDocument(document: vscode.TextDocument): boolean {
+  if (document.languageId !== "json" && document.languageId !== "jsonc") {
+    return false;
+  }
+  return document.uri.path.endsWith("/package.json");
+}
