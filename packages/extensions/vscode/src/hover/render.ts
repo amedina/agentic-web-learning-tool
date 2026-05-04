@@ -20,7 +20,7 @@ export function renderHover(
 ): string {
   const lines: string[] = [];
 
-  lines.push(`$(symbol-package) **NPM Advisor**`);
+  lines.push(`$(extensions-view-icon) **NPM Advisor**`);
   lines.push("");
   lines.push(
     `**${stats.packageName}** — Score ${stats.score}/${stats.scoreMaxPoints}`,
@@ -66,6 +66,10 @@ export function renderHover(
       licenseLine += ` (${tag} with ${options.targetLicense})`;
     }
     detailLines.push(licenseLine);
+  }
+
+  if (stats.latestVersion) {
+    detailLines.push(`- **Latest version:** ${stats.latestVersion}`);
   }
 
   if (detailLines.length > 0) {

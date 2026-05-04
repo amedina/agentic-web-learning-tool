@@ -17,6 +17,7 @@ function makeStats(overrides: Partial<PackageStats> = {}): PackageStats {
   return {
     packageName: "lodash",
     description: null,
+    latestVersion: null,
     githubUrl: null,
     stars: null,
     collaboratorsCount: null,
@@ -40,7 +41,19 @@ function makeStats(overrides: Partial<PackageStats> = {}): PackageStats {
 describe("renderHover", () => {
   it("prefixes the hover with the NPM Advisor brand line", () => {
     const output = renderHover(makeStats({ score: 78, scoreMaxPoints: 100 }));
-    expect(output.split("\n")[0]).toBe("$(symbol-package) **NPM Advisor**");
+    expect(output.split("\n")[0]).toBe(
+      "$(extensions-view-icon) **NPM Advisor**",
+    );
+  });
+
+  it("includes a latest-version line when available", () => {
+    const output = renderHover(makeStats({ latestVersion: "5.0.0" }));
+    expect(output).toContain("**Latest version:** 5.0.0");
+  });
+
+  it("omits the latest-version line when not available", () => {
+    const output = renderHover(makeStats({ latestVersion: null }));
+    expect(output).not.toContain("Latest version:");
   });
 
   it("renders the package name and score after the brand line", () => {
