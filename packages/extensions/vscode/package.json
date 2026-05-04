@@ -54,6 +54,16 @@
         "command": "npmAdvisor.showInsights",
         "title": "NPM Advisor: Show full insights for a package",
         "category": "NPM Advisor"
+      },
+      {
+        "command": "npmAdvisor.signInToGitHub",
+        "title": "NPM Advisor: Sign in to GitHub (lifts API rate limit)",
+        "category": "NPM Advisor"
+      },
+      {
+        "command": "npmAdvisor.signOutFromGitHub",
+        "title": "NPM Advisor: Disconnect GitHub session",
+        "category": "NPM Advisor"
       }
     ],
     "configuration": {

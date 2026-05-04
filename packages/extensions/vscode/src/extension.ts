@@ -2,13 +2,20 @@
  * External dependencies.
  */
 import * as vscode from "vscode";
-import { getPackageStats } from "@agentic-web-labs/package-analyzer-core";
+import {
+  configureGithubAuth,
+  getPackageStats,
+} from "@agentic-web-labs/package-analyzer-core";
 
 /**
  * Internal dependencies.
  */
 import { StatsCache } from "./cache/statsCache";
 import { registerClearCacheCommand } from "./commands/clearCache";
+import {
+  registerSignInToGithubCommand,
+  registerSignOutFromGithubCommand,
+} from "./commands/githubAuth";
 import { registerShowInsightsCommand } from "./commands/showInsights";
 import { registerViewPackageCommand } from "./commands/viewPackage";
 import { DiagnosticsRunner } from "./diagnostics/runner";
@@ -19,6 +26,7 @@ import {
   NpmAdvisorWebviewProvider,
   WEBVIEW_VIEW_ID,
 } from "./providers/webviewViewProvider";
+import { GithubAuthService } from "./services/githubAuthService";
 import { WebviewBridge } from "./webview/bridge";
 import { ActivePackageJsonTracker } from "./workspace/activePackageJsonTracker";
 import { PackageJsonScanner } from "./workspace/packageJsonScanner";
@@ -35,6 +43,13 @@ const PACKAGE_JSON_SELECTOR: vscode.DocumentFilter[] = [
  * providers, registers commands, and binds workspace event listeners.
  */
 export function activate(context: vscode.ExtensionContext): void {
+  const githubAuth = new GithubAuthService();
+  context.subscriptions.push(githubAuth);
+  // Lifts analyzer-core's githubFetch from the 60-req/hr unauthenticated
+  // limit to 5 000-req/hr by attaching the user's VSCode-managed
+  // GitHub session token (when available) on every API call.
+  configureGithubAuth({ getToken: () => githubAuth.getToken() });
+
   const cache = new StatsCache({
     storage: context.globalState,
     fetcher: (name) =>
@@ -47,6 +62,7 @@ export function activate(context: vscode.ExtensionContext): void {
   const bridge = new WebviewBridge({
     cache,
     settingsProvider: readSettings,
+    githubAuth,
   });
   context.subscriptions.push(bridge);
 
@@ -82,6 +98,8 @@ export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(registerViewPackageCommand());
   context.subscriptions.push(registerClearCacheCommand(cache));
   context.subscriptions.push(registerShowInsightsCommand(webviewProvider));
+  context.subscriptions.push(registerSignInToGithubCommand(githubAuth));
+  context.subscriptions.push(registerSignOutFromGithubCommand(githubAuth));
 
   const codeLensProvider = new PackageJsonCodeLensProvider(cache, readSettings);
   context.subscriptions.push(codeLensProvider);
@@ -130,6 +148,12 @@ export function activate(context: vscode.ExtensionContext): void {
       if (change.name === "*" && change.version === "*") {
         webviewProvider.forceRefresh();
       }
+    }),
+    // Sign-in / sign-out should retry every previously rate-limited
+    // request: clearAll fires the sentinel onDidChange, which the
+    // listener above already turns into a webview forceRefresh.
+    githubAuth.onDidChange(() => {
+      void cache.clearAll();
     }),
   );
 

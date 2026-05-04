@@ -71,6 +71,23 @@ const sampleStats: PackageStats = {
   githubIssuesUnavailable: false,
 } as PackageStats;
 
+/**
+ * Returns a stand-in for GithubAuthService that the bridge can call
+ * without touching VSCode's real authentication provider. By default
+ * reports no active session; pass `{ signedIn: true }` to flip the
+ * `hasActiveSession` branch the rate-limit toast checks.
+ */
+function makeFakeAuth(options: { signedIn?: boolean } = {}): never {
+  return {
+    getToken: vi.fn().mockResolvedValue(options.signedIn ? "tok" : null),
+    hasActiveSession: () => Boolean(options.signedIn),
+    signIn: vi.fn().mockResolvedValue(true),
+    signOut: vi.fn().mockReturnValue(false),
+    onDidChange: vi.fn().mockReturnValue({ dispose: () => undefined }),
+    dispose: vi.fn(),
+  } as unknown as never;
+}
+
 describe("WebviewBridge", () => {
   let executeCommandSpy: ReturnType<typeof vi.spyOn>;
 
@@ -91,6 +108,7 @@ describe("WebviewBridge", () => {
     const bridge = new WebviewBridge({
       cache: cache as unknown as never,
       settingsProvider: () => ({ targetLicense: "MIT" }) as never,
+      githubAuth: makeFakeAuth(),
     });
     const fakeWebview = new FakeWebview();
     bridge.attach(fakeWebview as unknown as vscode.Webview);
@@ -115,6 +133,7 @@ describe("WebviewBridge", () => {
     const bridge = new WebviewBridge({
       cache: cache as unknown as never,
       settingsProvider: () => ({ targetLicense: "MIT" }) as never,
+      githubAuth: makeFakeAuth(),
     });
     const fakeWebview = new FakeWebview();
     bridge.attach(fakeWebview as unknown as vscode.Webview);
@@ -138,6 +157,7 @@ describe("WebviewBridge", () => {
     const bridge = new WebviewBridge({
       cache: cache as unknown as never,
       settingsProvider: () => ({ targetLicense: "MIT" }) as never,
+      githubAuth: makeFakeAuth(),
     });
     const fakeWebview = new FakeWebview();
     bridge.attach(fakeWebview as unknown as vscode.Webview);
@@ -163,6 +183,7 @@ describe("WebviewBridge", () => {
     const bridge = new WebviewBridge({
       cache: { get: vi.fn(), clearAll } as unknown as never,
       settingsProvider: () => ({ targetLicense: "MIT" }) as never,
+      githubAuth: makeFakeAuth(),
     });
     const fakeWebview = new FakeWebview();
     bridge.attach(fakeWebview as unknown as vscode.Webview);
@@ -179,6 +200,7 @@ describe("WebviewBridge", () => {
     const bridge = new WebviewBridge({
       cache: { get: vi.fn() } as unknown as never,
       settingsProvider: () => ({ targetLicense: "MIT" }) as never,
+      githubAuth: makeFakeAuth(),
     });
     const fakeWebview = new FakeWebview();
     bridge.attach(fakeWebview as unknown as vscode.Webview);
@@ -193,6 +215,59 @@ describe("WebviewBridge", () => {
     showWarningSpy.mockRestore();
   });
 
+  it("appends a Sign in action when rate-limited and unauthenticated", async () => {
+    const showWarningSpy = vi
+      .spyOn(vscode.window, "showWarningMessage")
+      .mockResolvedValue("Sign in to GitHub" as never);
+    const bridge = new WebviewBridge({
+      cache: { get: vi.fn() } as unknown as never,
+      settingsProvider: () => ({ targetLicense: "MIT" }) as never,
+      githubAuth: makeFakeAuth({ signedIn: false }),
+    });
+    const fakeWebview = new FakeWebview();
+    bridge.attach(fakeWebview as unknown as vscode.Webview);
+    fakeWebview.dispatch({ type: "ready" });
+    fakeWebview.dispatch({
+      type: "notify",
+      level: "warning",
+      message: "rate limit",
+      dedupeKey: "github-rate-limited",
+    });
+    await flushAsync();
+    expect(showWarningSpy).toHaveBeenCalledWith(
+      "rate limit",
+      "Sign in to GitHub",
+    );
+    expect(executeCommandSpy).toHaveBeenCalledWith("npmAdvisor.signInToGitHub");
+    showWarningSpy.mockRestore();
+  });
+
+  it("omits the Sign in action when rate-limited but already authenticated", async () => {
+    const showWarningSpy = vi
+      .spyOn(vscode.window, "showWarningMessage")
+      .mockResolvedValue(undefined as never);
+    const bridge = new WebviewBridge({
+      cache: { get: vi.fn() } as unknown as never,
+      settingsProvider: () => ({ targetLicense: "MIT" }) as never,
+      githubAuth: makeFakeAuth({ signedIn: true }),
+    });
+    const fakeWebview = new FakeWebview();
+    bridge.attach(fakeWebview as unknown as vscode.Webview);
+    fakeWebview.dispatch({ type: "ready" });
+    fakeWebview.dispatch({
+      type: "notify",
+      level: "warning",
+      message: "rate limit",
+      dedupeKey: "github-rate-limited",
+    });
+    await flushAsync();
+    expect(showWarningSpy).toHaveBeenCalledWith("rate limit");
+    expect(executeCommandSpy).not.toHaveBeenCalledWith(
+      "npmAdvisor.signInToGitHub",
+    );
+    showWarningSpy.mockRestore();
+  });
+
   it("dedupes notify messages by key within a session", async () => {
     const showWarningSpy = vi
       .spyOn(vscode.window, "showWarningMessage")
@@ -200,6 +275,7 @@ describe("WebviewBridge", () => {
     const bridge = new WebviewBridge({
       cache: { get: vi.fn() } as unknown as never,
       settingsProvider: () => ({ targetLicense: "MIT" }) as never,
+      githubAuth: makeFakeAuth(),
     });
     const fakeWebview = new FakeWebview();
     bridge.attach(fakeWebview as unknown as vscode.Webview);
@@ -235,6 +311,7 @@ describe("WebviewBridge", () => {
     const bridge = new WebviewBridge({
       cache: { get: vi.fn() } as unknown as never,
       settingsProvider: () => ({ targetLicense: "MIT" }) as never,
+      githubAuth: makeFakeAuth(),
     });
     bridge.attach(webview1 as unknown as vscode.Webview);
     expect(dispose1).not.toHaveBeenCalled();
@@ -251,6 +328,7 @@ describe("WebviewBridge", () => {
     const bridge = new WebviewBridge({
       cache: { get: vi.fn() } as unknown as never,
       settingsProvider: () => ({ targetLicense: "MIT" }) as never,
+      githubAuth: makeFakeAuth(),
     });
     const fakeWebview = new FakeWebview();
     bridge.attach(fakeWebview as unknown as vscode.Webview);
@@ -275,6 +353,7 @@ describe("WebviewBridge", () => {
     const bridge = new WebviewBridge({
       cache: { get: vi.fn() } as unknown as never,
       settingsProvider: () => ({ targetLicense: "MIT" }) as never,
+      githubAuth: makeFakeAuth(),
     });
     const fakeWebview = new FakeWebview();
     bridge.attach(fakeWebview as unknown as vscode.Webview);
@@ -294,6 +373,7 @@ describe("WebviewBridge", () => {
     const bridge = new WebviewBridge({
       cache: { get: vi.fn() } as unknown as never,
       settingsProvider: () => ({ targetLicense: "MIT" }) as never,
+      githubAuth: makeFakeAuth(),
     });
     const fakeWebview = new FakeWebview();
     bridge.attach(fakeWebview as unknown as vscode.Webview);
@@ -309,6 +389,7 @@ describe("WebviewBridge", () => {
     const bridge = new WebviewBridge({
       cache: { get: vi.fn() } as unknown as never,
       settingsProvider: () => ({ targetLicense: "MIT" }) as never,
+      githubAuth: makeFakeAuth(),
     });
     const fakeWebview = new FakeWebview();
     bridge.attach(fakeWebview as unknown as vscode.Webview);
@@ -328,6 +409,7 @@ describe("WebviewBridge", () => {
     const bridge = new WebviewBridge({
       cache: { get: vi.fn() } as unknown as never,
       settingsProvider: () => ({ targetLicense: "MIT" }) as never,
+      githubAuth: makeFakeAuth(),
     });
     const fakeWebview = new FakeWebview();
     bridge.attach(fakeWebview as unknown as vscode.Webview);
@@ -341,6 +423,7 @@ describe("WebviewBridge", () => {
     const bridge = new WebviewBridge({
       cache: { get: vi.fn() } as unknown as never,
       settingsProvider: () => ({ targetLicense: "MIT" }) as never,
+      githubAuth: makeFakeAuth(),
     });
     const fakeWebview = new FakeWebview();
     bridge.attach(fakeWebview as unknown as vscode.Webview);

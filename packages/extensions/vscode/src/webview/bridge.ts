@@ -13,15 +13,20 @@ import type { BundleData } from "@agentic-web-labs/package-analyzer-ui";
  * Internal dependencies.
  */
 import type { StatsCache } from "../cache/statsCache";
+import { SIGN_IN_GITHUB_COMMAND } from "../commands/githubAuth";
 import { VIEW_PACKAGE_COMMAND } from "../commands/viewPackage";
 import type { NpmAdvisorSettings } from "../diagnostics/settings";
+import type { GithubAuthService } from "../services/githubAuthService";
 import type { ExtensionMessage, WebviewRequest } from "./protocol";
 
 const VERSION_KEY_FOR_WEBVIEW = "latest";
+const RATE_LIMITED_DEDUPE_KEY = "github-rate-limited";
+const SIGN_IN_ACTION_LABEL = "Sign in to GitHub";
 
 export interface WebviewBridgeDeps {
   cache: StatsCache;
   settingsProvider: () => NpmAdvisorSettings;
+  githubAuth: GithubAuthService;
 }
 
 /**
@@ -34,6 +39,7 @@ export interface WebviewBridgeDeps {
 export class WebviewBridge implements vscode.Disposable {
   private readonly cache: StatsCache;
   private readonly settingsProvider: () => NpmAdvisorSettings;
+  private readonly githubAuth: GithubAuthService;
   private webview: vscode.Webview | null = null;
   private webviewSubscription: vscode.Disposable | null = null;
   private isReady = false;
@@ -41,10 +47,11 @@ export class WebviewBridge implements vscode.Disposable {
   private readonly onReadyListeners = new Set<() => void>();
   private readonly shownNotifications = new Set<string>();
 
-  /** Stores the cache and settings provider to be used per-request. */
+  /** Stores the cache, settings provider, and GitHub auth service. */
   constructor(deps: WebviewBridgeDeps) {
     this.cache = deps.cache;
     this.settingsProvider = deps.settingsProvider;
+    this.githubAuth = deps.githubAuth;
   }
 
   /**
@@ -234,13 +241,24 @@ export class WebviewBridge implements vscode.Disposable {
           }
           this.shownNotifications.add(message.dedupeKey);
         }
+        const offerSignIn =
+          message.dedupeKey === RATE_LIMITED_DEDUPE_KEY &&
+          !this.githubAuth.hasActiveSession();
+        const actions = offerSignIn ? [SIGN_IN_ACTION_LABEL] : [];
         const surface =
           message.level === "error"
             ? vscode.window.showErrorMessage
             : message.level === "warning"
               ? vscode.window.showWarningMessage
               : vscode.window.showInformationMessage;
-        void surface.call(vscode.window, message.message);
+        const choice = await surface.call(
+          vscode.window,
+          message.message,
+          ...actions,
+        );
+        if (choice === SIGN_IN_ACTION_LABEL) {
+          await vscode.commands.executeCommand(SIGN_IN_GITHUB_COMMAND);
+        }
         return;
       }
     }

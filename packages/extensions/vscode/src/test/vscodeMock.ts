@@ -215,6 +215,18 @@ export const window = {
 };
 
 /**
+ * Test stand-in for vscode.authentication. Tests can spy on
+ * `getSession` to fake an existing session or simulate the
+ * interactive consent flow.
+ */
+export const authentication = {
+  getSession: async (..._args: unknown[]): Promise<unknown> => undefined,
+  onDidChangeSessions: (_listener: (event: unknown) => void): Disposable => ({
+    dispose: () => undefined,
+  }),
+};
+
+/**
  * Test stand-in for vscode.EventEmitter. Mirrors the listener-set /
  * fire / dispose API the real class exposes so source code that uses
  * `new vscode.EventEmitter()` works unchanged in tests.
