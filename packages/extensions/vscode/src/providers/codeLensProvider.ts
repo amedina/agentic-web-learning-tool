@@ -1,4 +1,9 @@
 /**
+ * External dependencies.
+ */
+import * as vscode from "vscode";
+
+/**
  * Internal dependencies.
  */
 import type { StatsCache } from "../cache/statsCache";
@@ -8,11 +13,6 @@ import {
   parseDependencies,
   type PackageJsonDependency,
 } from "../packageJson/parse";
-
-/**
- * External dependencies.
- */
-import * as vscode from "vscode";
 
 interface DependencyCodeLens extends vscode.CodeLens {
   dependency: PackageJsonDependency;

@@ -1,13 +1,13 @@
 /**
- * Internal dependencies.
- */
-import { formatBadge } from "../format";
-
-/**
  * External dependencies.
  */
 import { describe, expect, it } from "vitest";
 import type { PackageStats } from "@agentic-web-labs/package-analyzer-core";
+
+/**
+ * Internal dependencies.
+ */
+import { formatBadge } from "../format";
 
 function makeStats(overrides: Partial<PackageStats> = {}): PackageStats {
   return {

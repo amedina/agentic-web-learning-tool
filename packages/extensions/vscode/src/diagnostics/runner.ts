@@ -1,15 +1,15 @@
 /**
+ * External dependencies.
+ */
+import * as vscode from "vscode";
+
+/**
  * Internal dependencies.
  */
 import type { StatsCache } from "../cache/statsCache";
 import { parseDependencies } from "../packageJson/parse";
 import { evaluateDiagnostics } from "./rules";
 import type { NpmAdvisorSettings } from "./settings";
-
-/**
- * External dependencies.
- */
-import * as vscode from "vscode";
 
 export interface DiagnosticsRunnerDeps {
   cache: StatsCache;

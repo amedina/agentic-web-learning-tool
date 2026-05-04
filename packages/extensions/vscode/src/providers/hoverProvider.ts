@@ -1,15 +1,15 @@
 /**
+ * External dependencies.
+ */
+import * as vscode from "vscode";
+
+/**
  * Internal dependencies.
  */
 import type { StatsCache } from "../cache/statsCache";
 import { renderHover } from "../hover/render";
 import { parseDependencies } from "../packageJson/parse";
 import type { NpmAdvisorSettings } from "../diagnostics/settings";
-
-/**
- * External dependencies.
- */
-import * as vscode from "vscode";
 
 export class PackageJsonHoverProvider implements vscode.HoverProvider {
   private readonly cache: StatsCache;

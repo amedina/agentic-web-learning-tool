@@ -1,4 +1,10 @@
 /**
+ * External dependencies.
+ */
+import * as vscode from "vscode";
+import { getPackageStats } from "@agentic-web-labs/package-analyzer-core";
+
+/**
  * Internal dependencies.
  */
 import { StatsCache } from "./cache/statsCache";
@@ -8,12 +14,6 @@ import { DiagnosticsRunner } from "./diagnostics/runner";
 import { readSettings } from "./diagnostics/settings";
 import { PackageJsonCodeLensProvider } from "./providers/codeLensProvider";
 import { PackageJsonHoverProvider } from "./providers/hoverProvider";
-
-/**
- * External dependencies.
- */
-import * as vscode from "vscode";
-import { getPackageStats } from "@agentic-web-labs/package-analyzer-core";
 
 const PACKAGE_JSON_SELECTOR: vscode.DocumentFilter[] = [
   { language: "json", pattern: "**/package.json" },

@@ -1,14 +1,14 @@
 /**
- * Internal dependencies.
- */
-import { parseDependencies } from "../parse";
-import { Position } from "../../test/vscodeMock";
-
-/**
  * External dependencies.
  */
 import { describe, expect, it } from "vitest";
 import type * as vscode from "vscode";
+
+/**
+ * Internal dependencies.
+ */
+import { parseDependencies } from "../parse";
+import { Position } from "../../test/vscodeMock";
 
 function mockDocument(text: string): vscode.TextDocument {
   return {

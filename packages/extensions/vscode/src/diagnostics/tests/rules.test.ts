@@ -1,17 +1,17 @@
 /**
+ * External dependencies.
+ */
+import { describe, expect, it } from "vitest";
+import * as vscode from "vscode";
+import type { PackageStats } from "@agentic-web-labs/package-analyzer-core";
+
+/**
  * Internal dependencies.
  */
 import type { PackageJsonDependency } from "../../packageJson/parse";
 import { Position, Range } from "../../test/vscodeMock";
 import { evaluateDiagnostics, extractMajor } from "../rules";
 import type { NpmAdvisorSettings } from "../settings";
-
-/**
- * External dependencies.
- */
-import { describe, expect, it } from "vitest";
-import * as vscode from "vscode";
-import type { PackageStats } from "@agentic-web-labs/package-analyzer-core";
 
 const NOW = () => new Date("2026-05-01T00:00:00Z");
 

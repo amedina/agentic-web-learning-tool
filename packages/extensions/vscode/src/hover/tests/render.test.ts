@@ -1,13 +1,13 @@
 /**
- * Internal dependencies.
- */
-import { renderHover } from "../render";
-
-/**
  * External dependencies.
  */
 import { describe, expect, it } from "vitest";
 import type { PackageStats } from "@agentic-web-labs/package-analyzer-core";
+
+/**
+ * Internal dependencies.
+ */
+import { renderHover } from "../render";
 
 function makeStats(overrides: Partial<PackageStats> = {}): PackageStats {
   return {

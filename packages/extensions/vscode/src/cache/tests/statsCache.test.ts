@@ -1,14 +1,14 @@
 /**
- * Internal dependencies.
- */
-import { StatsCache } from "../statsCache";
-
-/**
  * External dependencies.
  */
 import { describe, expect, it, vi } from "vitest";
 import type * as vscode from "vscode";
 import type { PackageStats } from "@agentic-web-labs/package-analyzer-core";
+
+/**
+ * Internal dependencies.
+ */
+import { StatsCache } from "../statsCache";
 
 function createMemento(): vscode.Memento {
   const store = new Map<string, unknown>();

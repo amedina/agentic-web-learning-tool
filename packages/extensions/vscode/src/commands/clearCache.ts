@@ -1,12 +1,12 @@
 /**
- * Internal dependencies.
- */
-import type { StatsCache } from "../cache/statsCache";
-
-/**
  * External dependencies.
  */
 import * as vscode from "vscode";
+
+/**
+ * Internal dependencies.
+ */
+import type { StatsCache } from "../cache/statsCache";
 
 export const CLEAR_CACHE_COMMAND = "npmAdvisor.clearCache";
 
