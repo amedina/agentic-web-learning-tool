@@ -1,89 +1,44 @@
 # NPM Advisor for VSCode
 
-Package intelligence, security insights, dependency analysis, and AI-powered evaluation for npm packages — directly inside VSCode.
+Package intelligence, security insights, and dependency analysis for npm packages — directly inside VSCode.
 
-## What it is
+## What you get
 
-NPM Advisor for VSCode is the editor-side counterpart to the [NPM Advisor Chrome extension](../npm-advisor). The Chrome extension shines when you are *browsing* npm and GitHub. The VSCode extension shines when you are *coding* — it surfaces the same package intelligence right next to your `package.json`, your imports, and your lockfile, without making you leave the editor.
+NPM Advisor surfaces information about every dependency in your `package.json` without making you leave the editor:
 
-Both extensions share the analysis engine in [`@agentic-web-labs/package-analyzer-core`](../../shared/package-analyzer-core) and the UI primitives in [`@agentic-web-labs/package-analyzer-ui`](../../shared/package-analyzer-ui), so package scores and metrics are consistent across surfaces.
+- **Hover popover** — hover any dependency to see its advisor score, last commit date, bundle size, security advisory count, license, and links to npm and GitHub.
+- **CodeLens badge** — a compact one-line badge above each dependency, e.g. `Score 78 · 42KB · 2 advisories · MIT ✓`. Click it to open the package's npm page.
+- **Problems panel diagnostics** — vulnerable, license-incompatible, unmaintained, or out-of-date dependencies appear in the Problems panel:
+  - **Error** when a dependency has a security advisory at or above the configured severity floor.
+  - **Warning** when its license is incompatible with your project's target license.
+  - **Warning** when it appears unmaintained — no commits to its repository within the configured window.
+  - **Information** when its installed major version trails the latest published release by the configured threshold.
+- **Activity Bar entry** — a dedicated NPM Advisor side panel (a richer report view is coming in a future release).
 
-## Planned features
+The first lookup of any package takes a few seconds while NPM Advisor fetches data from npm, GitHub, and Bundlephobia. Subsequent lookups are instant — results are cached for 24 hours per package.
 
-The extension is being built in tiers. Tier 1 focuses on inline feedback inside `package.json`:
+## Settings
 
-- **Hover provider** — hover any dependency to see its advisor score, last commit date, bundle size, security advisory count, and license check.
-- **CodeLens** — a compact one-line badge above each dependency with the same data at a glance.
-- **Diagnostics** — vulnerable, license-incompatible, unmaintained, or out-of-date dependencies show up in the Problems panel.
+Configure NPM Advisor under **Settings → Extensions → NPM Advisor**:
 
-Later tiers add a side-panel webview that reuses the existing React dashboards, codemod-driven migrations powered by [`@e18e/cli`](https://github.com/e18e/cli), and an AI chat panel that is aware of your project's actual dependencies.
+| Setting | Default | What it does |
+|---|---|---|
+| `npmAdvisor.targetLicense` | `MIT` | Project license used for compatibility checks. |
+| `npmAdvisor.unmaintainedThresholdDays` | `730` | Days since last commit before a dependency is flagged as unmaintained. |
+| `npmAdvisor.advisorySeverityFloor` | `high` | Lowest advisory severity (`critical` / `high` / `moderate` / `low`) that produces a Problems-panel diagnostic. |
+| `npmAdvisor.outdatedMajorThreshold` | `2` | Major versions a dependency can be behind latest before being flagged as outdated. |
 
-## Build the `.vsix`
+## Commands
 
-From the **repository root**:
+Open the Command Palette (`⇧⌘P` on macOS, `Ctrl+Shift+P` elsewhere) and look under **NPM Advisor**:
 
-```sh
-pnpm build:vscode
-```
+- **NPM Advisor: View package on npm** — opens the npm page for a given dependency.
+- **NPM Advisor: Clear cached package stats** — drops every cached entry. Useful after changing `targetLicense`, since cached license-compatibility results stay until the 24-hour TTL expires otherwise.
 
-The packaged extension is written to:
+## Privacy
 
-```
-dist/vscode-npm-advisor/vscode-npm-advisor-<version>.vsix
-```
+NPM Advisor calls the public npm registry, GitHub REST API, and Bundlephobia from your machine to gather package metadata. It does not send your `package.json` contents, source code, or any other workspace data anywhere. Cached results are stored locally in VSCode's global state.
 
-Share that file with anyone who wants to install the extension without building it themselves.
+## Issues
 
-## Install the `.vsix`
-
-Either install from the command line:
-
-```sh
-code --install-extension dist/vscode-npm-advisor/vscode-npm-advisor-<version>.vsix
-```
-
-Or from inside VSCode:
-
-1. Open the **Extensions** view (`⇧⌘X` on macOS, `Ctrl+Shift+X` elsewhere).
-2. Click the `…` menu in the top-right of the Extensions view.
-3. Choose **Install from VSIX…** and pick the `.vsix` file.
-
-## Develop
-
-From the repository root, start an esbuild watcher in the background:
-
-```sh
-pnpm dev:vscode
-```
-
-Then open [`packages/extensions/vscode`](.) in VSCode and press `F5`. That launches an Extension Development Host — a second VSCode window with the extension loaded against the watched bundle. Edit any file under `src/`, esbuild rebuilds, and you can reload the host window (`⌘R` / `Ctrl+R`) to pick up changes.
-
-The launch configuration is in [`.vscode/launch.json`](.vscode/launch.json) and runs the `npm: build` task before launching to make sure `dist/extension.js` is up to date.
-
-## Other scripts
-
-```sh
-pnpm test:vscode         # run vitest unit tests
-pnpm format:vscode       # run prettier on the package
-pnpm --filter vscode-npm-advisor check-types   # type-check without emitting
-```
-
-## Layout
-
-```
-src/
-├── extension.ts          # activate / deactivate entry points
-└── ...                   # providers, commands, cache, parsers (added per Tier 1 task)
-
-esbuild.config.js         # bundles src/extension.ts → dist/extension.js (CJS, node20, vscode external)
-                          # in production mode, also calls vsce to package the .vsix
-.vscode/launch.json       # F5 → Extension Development Host
-.vscodeignore             # excluded from .vsix (everything except dist/)
-```
-
-## Related
-
-- [NPM Advisor Chrome extension](../npm-advisor) — browser side of the same project
-- [`@agentic-web-labs/package-analyzer-core`](../../shared/package-analyzer-core) — analysis engine
-- [`@agentic-web-labs/package-analyzer-ui`](../../shared/package-analyzer-ui) — shared React widgets
-- [`@e18e/cli`](https://github.com/e18e/cli) — project-wide audit and codemod tool that powers later tiers
+Report bugs and feature requests at <https://github.com/amedina/agentic-web-learning-tool/issues>.
