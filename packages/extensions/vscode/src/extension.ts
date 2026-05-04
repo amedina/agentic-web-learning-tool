@@ -2,6 +2,7 @@
  * Internal dependencies.
  */
 import { StatsCache } from "./cache/statsCache";
+import { registerClearCacheCommand } from "./commands/clearCache";
 import { registerViewPackageCommand } from "./commands/viewPackage";
 import { DiagnosticsRunner } from "./diagnostics/runner";
 import { readSettings } from "./diagnostics/settings";
@@ -55,6 +56,7 @@ export function activate(context: vscode.ExtensionContext): void {
   );
 
   context.subscriptions.push(registerViewPackageCommand());
+  context.subscriptions.push(registerClearCacheCommand(cache));
 
   const codeLensProvider = new PackageJsonCodeLensProvider(cache, readSettings);
   context.subscriptions.push(codeLensProvider);

@@ -49,6 +49,11 @@
         "command": "npmAdvisor.viewPackage",
         "title": "NPM Advisor: View package on npm",
         "category": "NPM Advisor"
+      },
+      {
+        "command": "npmAdvisor.clearCache",
+        "title": "NPM Advisor: Clear cached package stats",
+        "category": "NPM Advisor"
       }
     ],
     "configuration": {

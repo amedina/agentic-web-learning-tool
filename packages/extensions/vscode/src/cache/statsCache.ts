@@ -68,6 +68,20 @@ export class StatsCache {
     return this.refresh(name, version, key);
   }
 
+  /**
+   * Drop every entry written by this cache from persistent storage.
+   * Returns the number of entries removed. Fires onDidChange with a
+   * sentinel ("*", "*") so listeners can refresh affected views.
+   */
+  async clearAll(): Promise<number> {
+    const keys = this.storage
+      .keys()
+      .filter((key) => key.startsWith(STORAGE_KEY_PREFIX));
+    await Promise.all(keys.map((key) => this.storage.update(key, undefined)));
+    this.emitter.fire({ name: "*", version: "*" });
+    return keys.length;
+  }
+
   dispose(): void {
     this.emitter.dispose();
   }

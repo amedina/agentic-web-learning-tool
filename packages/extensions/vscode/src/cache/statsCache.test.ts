@@ -159,4 +159,34 @@ describe("StatsCache", () => {
     await cache.get("lodash", "^4");
     expect(changes).toEqual([{ name: "lodash", version: "^4" }]);
   });
+
+  it("clearAll removes only this cache's entries and fires a sentinel change", async () => {
+    const memento = createMemento();
+    const fetcher = vi.fn().mockResolvedValue(makeStats("lodash"));
+    const cache = new StatsCache({ storage: memento, fetcher });
+    await cache.get("lodash", "^4");
+    await cache.get("react", "^19");
+
+    // Plant an unrelated key that must survive.
+    await memento.update("unrelated.preference", "preserved");
+
+    const changes: { name: string; version: string }[] = [];
+    cache.onDidChange((change) => changes.push(change));
+
+    const removed = await cache.clearAll();
+    expect(removed).toBe(2);
+    expect(memento.get("unrelated.preference")).toBe("preserved");
+    expect(changes).toEqual([{ name: "*", version: "*" }]);
+  });
+
+  it("clearAll on an empty cache returns 0 and fires the sentinel change", async () => {
+    const cache = new StatsCache({
+      storage: createMemento(),
+      fetcher: vi.fn(),
+    });
+    const changes: { name: string; version: string }[] = [];
+    cache.onDidChange((change) => changes.push(change));
+    expect(await cache.clearAll()).toBe(0);
+    expect(changes).toEqual([{ name: "*", version: "*" }]);
+  });
 });

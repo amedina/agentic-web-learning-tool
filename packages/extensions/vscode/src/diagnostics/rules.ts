@@ -1,4 +1,10 @@
 /**
+ * External dependencies.
+ */
+import * as vscode from "vscode";
+import type { PackageStats } from "@agentic-web-labs/package-analyzer-core";
+
+/**
  * Internal dependencies.
  */
 import type { PackageJsonDependency } from "../packageJson/parse";
@@ -7,12 +13,6 @@ import {
   type AdvisorySeverity,
   type NpmAdvisorSettings,
 } from "./settings";
-
-/**
- * External dependencies.
- */
-import * as vscode from "vscode";
-import type { PackageStats } from "@agentic-web-labs/package-analyzer-core";
 
 export interface EvaluateOptions {
   now?: () => Date;
