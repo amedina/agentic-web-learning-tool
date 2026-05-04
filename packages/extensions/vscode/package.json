@@ -97,7 +97,7 @@
     "directory": "packages/extensions/vscode"
   },
   "scripts": {
-    "prebuild": "rimraf ../../../dist/vscode-npm-advisor",
+    "prebuild": "rimraf ../../../dist/vscode-npm-advisor dist",
     "build": "node esbuild.config.js --production",
     "dev": "node esbuild.config.js --watch",
     "check-types": "tsc --noEmit",
