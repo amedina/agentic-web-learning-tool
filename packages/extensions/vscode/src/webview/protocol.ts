@@ -31,7 +31,19 @@ export type WebviewRequest =
     }
   | { type: "viewPackage"; packageName: string }
   | { type: "openPackageJson"; uri: string }
-  | { type: "refreshStats" };
+  | { type: "refreshStats" }
+  | {
+      type: "notify";
+      level: "info" | "warning" | "error";
+      message: string;
+      /**
+       * Used by the host to dedupe — the same key never fires more
+       * than one toast per session, so transient signals like
+       * "GitHub rate limit hit" don't spam the user as more rows
+       * trigger them.
+       */
+      dedupeKey?: string;
+    };
 
 export type ExtensionMessage =
   | {

@@ -207,6 +207,11 @@ export const window = {
     _uri: unknown,
     _options?: unknown,
   ): Promise<unknown> => undefined,
+  showInformationMessage: async (..._args: unknown[]): Promise<unknown> =>
+    undefined,
+  showWarningMessage: async (..._args: unknown[]): Promise<unknown> =>
+    undefined,
+  showErrorMessage: async (..._args: unknown[]): Promise<unknown> => undefined,
 };
 
 /**

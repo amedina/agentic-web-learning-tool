@@ -39,6 +39,7 @@ export class WebviewBridge implements vscode.Disposable {
   private isReady = false;
   private pendingOutbound: ExtensionMessage[] = [];
   private readonly onReadyListeners = new Set<() => void>();
+  private readonly shownNotifications = new Set<string>();
 
   /** Stores the cache and settings provider to be used per-request. */
   constructor(deps: WebviewBridgeDeps) {
@@ -220,6 +221,26 @@ export class WebviewBridge implements vscode.Disposable {
         // the webview with empty stats so each row goes back to the
         // loading spinner while fresh data is fetched.
         await this.cache.clearAll();
+        // Reset the notification dedupe set too, otherwise the user
+        // wouldn't see the rate-limit toast again on a deliberate
+        // refresh even if the limit is still reached.
+        this.shownNotifications.clear();
+        return;
+      }
+      case "notify": {
+        if (message.dedupeKey) {
+          if (this.shownNotifications.has(message.dedupeKey)) {
+            return;
+          }
+          this.shownNotifications.add(message.dedupeKey);
+        }
+        const surface =
+          message.level === "error"
+            ? vscode.window.showErrorMessage
+            : message.level === "warning"
+              ? vscode.window.showWarningMessage
+              : vscode.window.showInformationMessage;
+        void surface.call(vscode.window, message.message);
         return;
       }
     }

@@ -32,6 +32,9 @@ if (container) {
         vscodeApi.postMessage({ type: "openPackageJson", uri })
       }
       onRefreshStats={() => vscodeApi.postMessage({ type: "refreshStats" })}
+      onNotify={(level, message, dedupeKey) =>
+        vscodeApi.postMessage({ type: "notify", level, message, dedupeKey })
+      }
     />,
   );
 }

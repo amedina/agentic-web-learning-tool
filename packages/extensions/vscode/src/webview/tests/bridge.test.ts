@@ -172,6 +172,55 @@ describe("WebviewBridge", () => {
     expect(clearAll).toHaveBeenCalledTimes(1);
   });
 
+  it("forwards notify to the matching vscode.window surface", async () => {
+    const showWarningSpy = vi
+      .spyOn(vscode.window, "showWarningMessage")
+      .mockResolvedValue(undefined as never);
+    const bridge = new WebviewBridge({
+      cache: { get: vi.fn() } as unknown as never,
+      settingsProvider: () => ({ targetLicense: "MIT" }) as never,
+    });
+    const fakeWebview = new FakeWebview();
+    bridge.attach(fakeWebview as unknown as vscode.Webview);
+    fakeWebview.dispatch({ type: "ready" });
+    fakeWebview.dispatch({
+      type: "notify",
+      level: "warning",
+      message: "test",
+    });
+    await flushAsync();
+    expect(showWarningSpy).toHaveBeenCalledWith("test");
+    showWarningSpy.mockRestore();
+  });
+
+  it("dedupes notify messages by key within a session", async () => {
+    const showWarningSpy = vi
+      .spyOn(vscode.window, "showWarningMessage")
+      .mockResolvedValue(undefined as never);
+    const bridge = new WebviewBridge({
+      cache: { get: vi.fn() } as unknown as never,
+      settingsProvider: () => ({ targetLicense: "MIT" }) as never,
+    });
+    const fakeWebview = new FakeWebview();
+    bridge.attach(fakeWebview as unknown as vscode.Webview);
+    fakeWebview.dispatch({ type: "ready" });
+    fakeWebview.dispatch({
+      type: "notify",
+      level: "warning",
+      message: "rate limit",
+      dedupeKey: "github-rate-limited",
+    });
+    fakeWebview.dispatch({
+      type: "notify",
+      level: "warning",
+      message: "rate limit",
+      dedupeKey: "github-rate-limited",
+    });
+    await flushAsync();
+    expect(showWarningSpy).toHaveBeenCalledTimes(1);
+    showWarningSpy.mockRestore();
+  });
+
   it("disposes the previous webview subscription when re-attached", () => {
     const dispose1 = vi.fn();
     const dispose2 = vi.fn();
