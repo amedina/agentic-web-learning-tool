@@ -1,0 +1,18 @@
+@import "@agentic-web-labs/shared-config/tailwind";
+
+@source "../../../../shared/design-system";
+@source "../../../../shared/package-analyzer-ui";
+@source "./";
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+}
+
+body {
+  color: var(--vscode-foreground);
+  font-family: var(--vscode-font-family);
+  font-size: var(--vscode-font-size);
+}
