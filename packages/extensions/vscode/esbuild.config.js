@@ -6,7 +6,7 @@ const path = require("node:path");
 const production = process.argv.includes("--production");
 const watch = process.argv.includes("--watch");
 
-const buildOptions = {
+const extensionBuildOptions = {
   entryPoints: ["src/extension.ts"],
   bundle: true,
   outfile: "dist/extension.js",
@@ -23,10 +23,80 @@ const buildOptions = {
   logLevel: "info",
 };
 
+/**
+ * Stubs Vite-svgr style `?react` imports (e.g. `import Icon from "./foo.svg?react"`)
+ * with a tiny React functional component that renders nothing. The
+ * webview UI doesn't actually render these icons (they live in
+ * `@agentic-web-labs/table`, which analyzer-ui only references via
+ * design-system's barrel re-export), so a noop is sufficient and keeps
+ * the bundle clean.
+ */
+const stubSvgQueryImportsPlugin = {
+  name: "stub-svg-query-imports",
+  setup(build) {
+    build.onResolve({ filter: /\.svg\?react$/ }, (args) => ({
+      path: args.path,
+      namespace: "svg-query-stub",
+      pluginData: { resolveDir: args.resolveDir },
+    }));
+    build.onLoad({ filter: /.*/, namespace: "svg-query-stub" }, (args) => ({
+      contents:
+        "import * as React from 'react';\n" +
+        "const StubSvg = (props) => React.createElement('svg', props);\n" +
+        "export default StubSvg;\n",
+      loader: "js",
+      resolveDir: args.pluginData?.resolveDir ?? __dirname,
+    }));
+  },
+};
+
+const webviewBuildOptions = {
+  entryPoints: ["src/webview/main.tsx"],
+  bundle: true,
+  outfile: "dist/webview.js",
+  format: "iife",
+  platform: "browser",
+  target: ["es2022"],
+  // Browser-first so packages like `debug` pick their browser entry
+  // and avoid pulling in node-builtins (`tty`, `util`).
+  mainFields: ["browser", "module", "main"],
+  conditions: ["browser", "import", "default"],
+  jsx: "automatic",
+  loader: { ".svg": "dataurl", ".png": "dataurl" },
+  define: {
+    "process.env.NODE_ENV": production ? '"production"' : '"development"',
+    "process.platform": '""',
+  },
+  plugins: [stubSvgQueryImportsPlugin],
+  sourcemap: !production,
+  minify: production,
+  logLevel: "info",
+};
+
 const VSIX_OUT_DIR = path.resolve(
   __dirname,
   "../../../dist/vscode-npm-advisor",
 );
+
+function buildWebviewCss() {
+  const args = [
+    "tailwindcss",
+    "-i",
+    "src/webview/index.css",
+    "-o",
+    "dist/webview.css",
+  ];
+  if (production) {
+    args.push("--minify");
+  }
+  const result = spawnSync("npx", args, {
+    stdio: "inherit",
+    shell: true,
+  });
+  if (result.status !== 0) {
+    process.exit(result.status ?? 1);
+  }
+}
 
 function packageExtension() {
   mkdirSync(VSIX_OUT_DIR, { recursive: true });
@@ -42,11 +112,30 @@ function packageExtension() {
 
 async function main() {
   if (watch) {
-    const context = await esbuild.context(buildOptions);
-    await context.watch();
+    const extensionContext = await esbuild.context(extensionBuildOptions);
+    const webviewContext = await esbuild.context(webviewBuildOptions);
+    await Promise.all([extensionContext.watch(), webviewContext.watch()]);
+    spawnSync(
+      "npx",
+      [
+        "tailwindcss",
+        "-i",
+        "src/webview/index.css",
+        "-o",
+        "dist/webview.css",
+        "--watch",
+      ],
+      { stdio: "inherit", shell: true },
+    );
     return;
   }
-  await esbuild.build(buildOptions);
+
+  await Promise.all([
+    esbuild.build(extensionBuildOptions),
+    esbuild.build(webviewBuildOptions),
+  ]);
+  buildWebviewCss();
+
   if (production) {
     packageExtension();
   }

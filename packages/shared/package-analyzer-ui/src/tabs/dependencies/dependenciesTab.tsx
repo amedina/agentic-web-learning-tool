@@ -1,7 +1,7 @@
 /**
  * External dependencies.
  */
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 
 /**
  * Internal dependencies.
@@ -25,6 +25,27 @@ interface DependenciesTabProps {
   onRateLimited?: () => void;
   /** Called to navigate to the comparison view. */
   onNavigateToComparison?: () => void;
+  /**
+   * Hide every Compare affordance inside the per-row insights bodies.
+   * Set by consumers (e.g. the VSCode side panel) that don't ship a
+   * comparison view.
+   */
+  hideCompare?: boolean;
+  /**
+   * Show the Fitness column inside each row's expanded insights body.
+   * Defaults to false because the chrome extension's fetcher doesn't
+   * load Responsiveness for dep rows; consumers whose fetcher returns
+   * the full PackageStats can opt in.
+   */
+  showFitness?: boolean;
+  /**
+   * When set and changed, the tab clears any active filters before the
+   * caller scrolls to / expands the named package's row. Without this
+   * a "Show full insights" jump can land on a row that the current
+   * filter set has hidden, leaving the user staring at a filtered list
+   * that doesn't include their target.
+   */
+  forceVisiblePackageName?: string;
 }
 
 export const DependenciesTab: React.FC<DependenciesTabProps> = ({
@@ -34,6 +55,9 @@ export const DependenciesTab: React.FC<DependenciesTabProps> = ({
   addingRecommendations,
   onRateLimited,
   onNavigateToComparison,
+  hideCompare = false,
+  showFitness = false,
+  forceVisiblePackageName,
 }) => {
   const { statsByName, summary } = useDependencyStats(packageJsonDependencies, {
     onRateLimited,
@@ -88,6 +112,16 @@ export const DependenciesTab: React.FC<DependenciesTabProps> = ({
     );
   }, []);
 
+  // Drop active filters whenever an external "force visible" target
+  // changes, so a "Show full insights" jump from elsewhere in the host
+  // (e.g. a VSCode hover popover link) never lands on a row the user
+  // has filtered out of view.
+  useEffect(() => {
+    if (forceVisiblePackageName) {
+      clearFilters();
+    }
+  }, [forceVisiblePackageName, clearFilters]);
+
   return (
     <div className="text-slate-800 dark:text-slate-200 p-4 space-y-4 h-full overflow-y-auto">
       <Dashboard
@@ -112,6 +146,8 @@ export const DependenciesTab: React.FC<DependenciesTabProps> = ({
         addingRecommendations={addingRecommendations}
         activeFilters={activeFilters}
         onNavigateToComparison={onNavigateToComparison}
+        hideCompare={hideCompare}
+        showFitness={showFitness}
       />
       <DependencySection
         title="Dev Dependencies"
@@ -122,6 +158,8 @@ export const DependenciesTab: React.FC<DependenciesTabProps> = ({
         addingRecommendations={addingRecommendations}
         activeFilters={activeFilters}
         onNavigateToComparison={onNavigateToComparison}
+        hideCompare={hideCompare}
+        showFitness={showFitness}
       />
       <DependencySection
         title="Peer Dependencies"
@@ -132,6 +170,8 @@ export const DependenciesTab: React.FC<DependenciesTabProps> = ({
         addingRecommendations={addingRecommendations}
         activeFilters={activeFilters}
         onNavigateToComparison={onNavigateToComparison}
+        hideCompare={hideCompare}
+        showFitness={showFitness}
       />
     </div>
   );

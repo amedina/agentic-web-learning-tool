@@ -707,6 +707,25 @@ importers:
         version: 3.2.4(@types/debug@4.1.13)(@types/node@24.12.0)(@vitest/browser@3.2.4)(jiti@2.6.1)(jsdom@20.0.3)(lightningcss@1.32.0)(yaml@2.8.3)
 
   packages/extensions/vscode:
+    dependencies:
+      '@agentic-web-labs/design-system':
+        specifier: workspace:*
+        version: link:../../shared/design-system
+      '@agentic-web-labs/package-analyzer-ui':
+        specifier: workspace:*
+        version: link:../../shared/package-analyzer-ui
+      '@agentic-web-labs/table':
+        specifier: workspace:*
+        version: link:../../shared/table
+      lucide-react:
+        specifier: ^0.468.0
+        version: 0.468.0(react@19.2.4)
+      react:
+        specifier: ^19.1.1
+        version: 19.2.4
+      react-dom:
+        specifier: ^19.1.1
+        version: 19.2.4(react@19.2.4)
     devDependencies:
       '@agentic-web-labs/package-analyzer-core':
         specifier: workspace:*
@@ -717,9 +736,21 @@ importers:
       '@e18e/cli':
         specifier: ^0.5.0
         version: 0.5.0(@babel/preset-env@7.29.2(@babel/core@7.29.0))(picomatch@4.0.4)
+      '@tailwindcss/cli':
+        specifier: ^4.1.13
+        version: 4.2.2
+      '@types/d3':
+        specifier: ^7.4.3
+        version: 7.4.3
       '@types/node':
         specifier: ^24.3.0
         version: 24.12.0
+      '@types/react':
+        specifier: ^19.1.10
+        version: 19.2.14
+      '@types/react-dom':
+        specifier: 19.1.9
+        version: 19.1.9(@types/react@19.2.14)
       '@types/vscode':
         specifier: ^1.96.0
         version: 1.118.0
@@ -735,6 +766,9 @@ importers:
       rimraf:
         specifier: ^5.0.5
         version: 5.0.10
+      tailwindcss:
+        specifier: ^4.1.13
+        version: 4.2.2
       typescript:
         specifier: ~5.8.3
         version: 5.8.3
@@ -1195,6 +1229,9 @@ importers:
 
   packages/shared/shared-config:
     dependencies:
+      '@agentic-web-labs/table':
+        specifier: workspace:*
+        version: link:../table
       prettier:
         specifier: '>=3'
         version: 3.8.1

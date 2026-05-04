@@ -165,6 +165,68 @@ interface Disposable {
 }
 
 /**
+ * Test stand-in for vscode.commands. Tests can spy on
+ * `commands.executeCommand` to verify side-effect calls without
+ * touching the real extension host.
+ */
+export const commands = {
+  executeCommand: async (..._args: unknown[]): Promise<unknown> => undefined,
+};
+
+/**
+ * Test stand-in for vscode.Uri. Stores the original string and
+ * exposes a `parse` factory (matching the real Uri.parse usage in
+ * the bridge) plus toString so equality assertions work.
+ */
+export class Uri {
+  private readonly value: string;
+
+  /** Stores the URI string verbatim. */
+  private constructor(value: string) {
+    this.value = value;
+  }
+
+  /** Parses an arbitrary URI string into a stub Uri. */
+  static parse(value: string): Uri {
+    return new Uri(value);
+  }
+
+  /** Returns the original URI string. */
+  toString(): string {
+    return this.value;
+  }
+}
+
+/**
+ * Test stand-in for vscode.window. Tests can spy on
+ * `window.showTextDocument` to verify the bridge opens a file
+ * without touching real editors.
+ */
+export const window = {
+  showTextDocument: async (
+    _uri: unknown,
+    _options?: unknown,
+  ): Promise<unknown> => undefined,
+  showInformationMessage: async (..._args: unknown[]): Promise<unknown> =>
+    undefined,
+  showWarningMessage: async (..._args: unknown[]): Promise<unknown> =>
+    undefined,
+  showErrorMessage: async (..._args: unknown[]): Promise<unknown> => undefined,
+};
+
+/**
+ * Test stand-in for vscode.authentication. Tests can spy on
+ * `getSession` to fake an existing session or simulate the
+ * interactive consent flow.
+ */
+export const authentication = {
+  getSession: async (..._args: unknown[]): Promise<unknown> => undefined,
+  onDidChangeSessions: (_listener: (event: unknown) => void): Disposable => ({
+    dispose: () => undefined,
+  }),
+};
+
+/**
  * Test stand-in for vscode.EventEmitter. Mirrors the listener-set /
  * fire / dispose API the real class exposes so source code that uses
  * `new vscode.EventEmitter()` works unchanged in tests.

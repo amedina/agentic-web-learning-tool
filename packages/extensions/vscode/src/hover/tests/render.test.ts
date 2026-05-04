@@ -58,7 +58,7 @@ describe("renderHover", () => {
 
   it("renders the package name and score after the brand line", () => {
     const output = renderHover(makeStats({ score: 78, scoreMaxPoints: 100 }));
-    expect(output).toContain("**lodash** — Score 78/100");
+    expect(output).toContain("**lodash** — Fitness 78/100");
   });
 
   it("includes a bundle line when bundle data is present", () => {
@@ -145,6 +145,13 @@ describe("renderHover", () => {
     const output = renderHover(makeStats({ packageName: "@types/node" }));
     expect(output).toContain(
       "[View on npm](https://www.npmjs.com/package/%40types%2Fnode)",
+    );
+  });
+
+  it("includes a Show full insights command link bound to the package name", () => {
+    const output = renderHover(makeStats({ packageName: "@types/node" }));
+    expect(output).toContain(
+      "[Show full insights](command:npmAdvisor.showInsights?%5B%22%40types%2Fnode%22%5D)",
     );
   });
 

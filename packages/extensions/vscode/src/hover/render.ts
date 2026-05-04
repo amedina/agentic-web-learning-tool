@@ -23,7 +23,7 @@ export function renderHover(
   lines.push(`$(extensions-view-icon) **NPM Advisor**`);
   lines.push("");
   lines.push(
-    `**${stats.packageName}** — Score ${stats.score}/${stats.scoreMaxPoints}`,
+    `**${stats.packageName}** — Fitness ${stats.score}/${stats.scoreMaxPoints}`,
   );
 
   const detailLines: string[] = [];
@@ -78,6 +78,7 @@ export function renderHover(
   }
 
   const linkParts: string[] = [
+    `[Show full insights](command:npmAdvisor.showInsights?${encodeURIComponent(JSON.stringify([stats.packageName]))})`,
     `[View on npm](https://www.npmjs.com/package/${encodeURIComponent(stats.packageName)})`,
   ];
   if (stats.githubUrl) {

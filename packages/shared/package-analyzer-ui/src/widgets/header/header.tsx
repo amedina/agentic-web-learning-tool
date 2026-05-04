@@ -81,6 +81,12 @@ export interface HeaderProps {
    */
   hideFitness?: boolean;
   /**
+   * Hide the Compare / View Comparison affordance entirely. Consumers
+   * (e.g. the VSCode side panel) that don't ship a comparison view set
+   * this so the inline button never appears.
+   */
+  hideCompare?: boolean;
+  /**
    * Renders skeleton bars in place of the stat values (stars / collabs /
    * last-commit / fitness / license) so the header keeps its full size
    * while the per-package fetch is still in flight.
@@ -126,6 +132,7 @@ export const Header: React.FC<HeaderProps> = ({
   scoreMaxPoints,
   githubRateLimited = false,
   hideFitness = false,
+  hideCompare = false,
   isLoading = false,
   onNavigateToComparison,
 }) => {
@@ -152,7 +159,7 @@ export const Header: React.FC<HeaderProps> = ({
             >
               {packageName}
             </h1>
-            {isAddedToCompare ? (
+            {hideCompare ? null : isAddedToCompare ? (
               <button
                 onClick={() => onNavigateToComparison?.()}
                 className={`px-2 py-1 text-xs font-semibold rounded-md border transition-colors bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800 hover:bg-green-100 dark:hover:bg-green-900/40 flex items-center space-x-1 cursor-pointer`}

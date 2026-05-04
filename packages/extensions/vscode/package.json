@@ -35,16 +35,10 @@
         {
           "id": "npmAdvisor.welcome",
           "name": "NPM Advisor",
-          "type": "tree"
+          "type": "webview"
         }
       ]
     },
-    "viewsWelcome": [
-      {
-        "view": "npmAdvisor.welcome",
-        "contents": "Open a workspace that contains a `package.json` to see dependency insights here.\n\n[Open Folder](command:vscode.openFolder)"
-      }
-    ],
     "commands": [
       {
         "command": "npmAdvisor.viewPackage",
@@ -54,6 +48,21 @@
       {
         "command": "npmAdvisor.clearCache",
         "title": "NPM Advisor: Clear cached package stats",
+        "category": "NPM Advisor"
+      },
+      {
+        "command": "npmAdvisor.showInsights",
+        "title": "NPM Advisor: Show full insights for a package",
+        "category": "NPM Advisor"
+      },
+      {
+        "command": "npmAdvisor.signInToGitHub",
+        "title": "NPM Advisor: Sign in to GitHub (lifts API rate limit)",
+        "category": "NPM Advisor"
+      },
+      {
+        "command": "npmAdvisor.signOutFromGitHub",
+        "title": "NPM Advisor: Disconnect GitHub session",
         "category": "NPM Advisor"
       }
     ],
@@ -104,16 +113,29 @@
     "format": "prettier . --write",
     "test": "vitest run --root . --silent"
   },
+  "dependencies": {
+    "@agentic-web-labs/design-system": "workspace:*",
+    "@agentic-web-labs/package-analyzer-ui": "workspace:*",
+    "@agentic-web-labs/table": "workspace:*",
+    "lucide-react": "^0.468.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  },
   "devDependencies": {
     "@agentic-web-labs/package-analyzer-core": "workspace:*",
     "@agentic-web-labs/shared-config": "workspace:*",
     "@e18e/cli": "^0.5.0",
+    "@tailwindcss/cli": "^4.1.13",
+    "@types/d3": "^7.4.3",
     "@types/node": "^24.3.0",
+    "@types/react": "^19.1.10",
+    "@types/react-dom": "^19.1.7",
     "@types/vscode": "^1.96.0",
     "@vscode/vsce": "^3.2.1",
     "esbuild": "^0.24.0",
     "jsonc-parser": "^3.3.1",
     "rimraf": "^5.0.5",
+    "tailwindcss": "^4.1.13",
     "typescript": "~5.8.3",
     "vitest": "^3.2.4"
   }
