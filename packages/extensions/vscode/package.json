@@ -5,6 +5,7 @@
   "version": "0.1.0",
   "private": true,
   "publisher": "agentic-web-labs",
+  "license": "Apache-2.0",
   "engines": {
     "vscode": "^1.96.0",
     "node": ">=20"
