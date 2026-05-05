@@ -17,6 +17,7 @@ import {
   registerSignInToGithubCommand,
   registerSignOutFromGithubCommand,
 } from "./commands/githubAuth";
+import { registerSetupMcpCommand } from "./commands/setupMcp";
 import { registerShowInsightsCommand } from "./commands/showInsights";
 import { registerViewPackageCommand } from "./commands/viewPackage";
 import { DiagnosticsRunner } from "./diagnostics/runner";
@@ -110,6 +111,9 @@ export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(registerShowInsightsCommand(webviewProvider));
   context.subscriptions.push(registerSignInToGithubCommand(githubAuth));
   context.subscriptions.push(registerSignOutFromGithubCommand(githubAuth));
+  context.subscriptions.push(
+    registerSetupMcpCommand({ extensionUri: context.extensionUri }),
+  );
   context.subscriptions.push(
     registerChatParticipant({
       cache,

@@ -1,5 +1,5 @@
 const esbuild = require("esbuild");
-const { mkdirSync } = require("node:fs");
+const { mkdirSync, copyFileSync, existsSync, chmodSync } = require("node:fs");
 const { spawnSync } = require("node:child_process");
 const path = require("node:path");
 
@@ -110,6 +110,42 @@ function packageExtension() {
   }
 }
 
+/**
+ * Builds (if needed) and copies the standalone MCP server bundle out
+ * of @agentic-web-labs/npm-advisor-mcp into dist/mcp/server.js so it
+ * ships inside the .vsix. The "Set up MCP for AI clients" command
+ * then writes config snippets for Claude Desktop / Cursor / Claude
+ * Code that point straight at this bundled binary, removing the
+ * need for users to install Node, npm, or any extra package.
+ */
+function bundleMcpServer() {
+  const mcpSource = path.resolve(
+    __dirname,
+    "../../shared/npm-advisor-mcp/dist/server.js",
+  );
+  if (!existsSync(mcpSource)) {
+    const buildResult = spawnSync(
+      "pnpm",
+      ["--filter", "@agentic-web-labs/npm-advisor-mcp", "build"],
+      {
+        stdio: "inherit",
+        shell: true,
+        cwd: path.resolve(__dirname, "../../.."),
+      },
+    );
+    if (buildResult.status !== 0) {
+      process.exit(buildResult.status ?? 1);
+    }
+  }
+  const mcpDest = path.resolve(__dirname, "dist/mcp/server.js");
+  mkdirSync(path.dirname(mcpDest), { recursive: true });
+  copyFileSync(mcpSource, mcpDest);
+  // Preserve the executable bit so Node's stdio launchers can spawn
+  // the file directly when "command": "node" isn't enough on some
+  // shells; harmless when consumers always go through `node`.
+  chmodSync(mcpDest, 0o755);
+}
+
 async function main() {
   if (watch) {
     const extensionContext = await esbuild.context(extensionBuildOptions);
@@ -135,6 +171,7 @@ async function main() {
     esbuild.build(webviewBuildOptions),
   ]);
   buildWebviewCss();
+  bundleMcpServer();
 
   if (production) {
     packageExtension();

@@ -66,6 +66,11 @@
         "command": "npmAdvisor.signOutFromGitHub",
         "title": "NPM Advisor: Disconnect GitHub session",
         "category": "NPM Advisor"
+      },
+      {
+        "command": "npmAdvisor.setupMcp",
+        "title": "NPM Advisor: Set up MCP server for AI clients (Claude Code, Cursor, …)",
+        "category": "NPM Advisor"
       }
     ],
     "chatParticipants": [
