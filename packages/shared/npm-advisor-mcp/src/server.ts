@@ -19,6 +19,7 @@ import { z } from "zod";
  */
 import { runAnalyzePackageJson } from "./tools/analyzePackageJson.ts";
 import { runGetPackageStats } from "./tools/getPackageStats.ts";
+import { runListKnownProjects } from "./tools/listKnownProjects.ts";
 import { runListWorkspaceDependencies } from "./tools/listWorkspaceDependencies.ts";
 
 const SERVER_NAME = "npm-advisor";
@@ -87,11 +88,25 @@ export async function createServer(): Promise<McpServer> {
   );
 
   server.registerTool(
+    "list_known_projects",
+    {
+      title: "List projects the user has opened in VSCode",
+      description:
+        "Returns every workspace folder the user has opened in VSCode (with the npm-advisor extension installed), each annotated with its absolute path, parsed package.json `name`, last-opened timestamp, and whether it's currently open. CALL THIS FIRST when the user asks about 'my project', 'this project', 'my dependencies', or anything else that implies a workspace context — Claude Desktop has no concept of a current project, but VSCode does, and this tool surfaces that context. If exactly one project is currently open, you can confidently use its absolute path with the other tools. If multiple are open, ask the user which one. If the list is empty, the user either hasn't installed the npm-advisor VSCode extension or hasn't opened any workspace in VSCode yet — tell them so.",
+      inputSchema: {},
+    },
+    async () => {
+      const result = runListKnownProjects();
+      return jsonResult(result);
+    },
+  );
+
+  server.registerTool(
     "list_workspace_dependencies",
     {
       title: "List package.json files in a workspace",
       description:
-        "Walks a directory looking for every package.json (skipping node_modules, dist, build, .git, etc.) and returns each file's name + dependency counts. Lightweight — no network calls. Use this to map a project's layout before drilling into specific packages.",
+        "Walks a directory looking for every package.json (skipping node_modules, dist, build, .git, etc.) and returns each file's name + dependency counts. Lightweight — no network calls. Use this to map a project's layout before drilling into specific packages. If the user hasn't given an explicit path, call list_known_projects first to find out which projects they've opened in VSCode.",
       inputSchema: {
         workspacePath: z
           .string()
@@ -114,7 +129,7 @@ export async function createServer(): Promise<McpServer> {
     {
       title: "Analyze every dependency in a package.json",
       description:
-        "Reads a package.json and fetches stats for every dep, devDep, and peerDep (concurrent + rate-aware). Returns per-package stats plus a roll-up summary (counts of vulnerable, license-incompatible, and replaceable packages). Use this when the user asks about the project as a whole — e.g. 'audit my dependencies' or 'which packages should I worry about'.",
+        "Reads a package.json and fetches stats for every dep, devDep, and peerDep (concurrent + rate-aware). Returns per-package stats plus a roll-up summary (counts of vulnerable, license-incompatible, and replaceable packages). Use this when the user asks about the project as a whole — e.g. 'audit my dependencies' or 'which packages should I worry about'. If the user hasn't given an explicit path, call list_known_projects first to discover which projects they have open in VSCode.",
       inputSchema: {
         packageJsonPath: z
           .string()
