@@ -7,7 +7,11 @@ import type { PackageStats } from "@agentic-web-labs/package-analyzer-core";
 /**
  * Internal dependencies.
  */
-import { buildPackageContext, type ContextDependency } from "../buildContext";
+import {
+  buildPackageContext,
+  extractCandidatePackageNames,
+  type ContextDependency,
+} from "../buildContext";
 
 /** Returns a sparse PackageStats for tests that only care about a few fields. */
 function makeStats(overrides: Partial<PackageStats> = {}): PackageStats {
@@ -196,7 +200,41 @@ describe("buildPackageContext", () => {
     });
     expect(output).toContain("Security advisories: none known");
   });
+});
 
+describe("extractCandidatePackageNames", () => {
+  it("returns lowercased npm-name tokens in first-appearance order", () => {
+    expect(
+      extractCandidatePackageNames("Compare LoDash and Underscore"),
+    ).toEqual(["lodash", "underscore"]);
+  });
+
+  it("filters common stop-words and intent verbs", () => {
+    expect(
+      extractCandidatePackageNames(
+        "tell me about lodash and show me alternatives",
+      ),
+    ).toEqual(["lodash"]);
+  });
+
+  it("dedupes repeated mentions", () => {
+    expect(
+      extractCandidatePackageNames("lodash, lodash again, plus react"),
+    ).toEqual(["lodash", "again", "plus", "react"]);
+  });
+
+  it("preserves scoped names like @types/node", () => {
+    expect(extractCandidatePackageNames("what about @types/node?")).toEqual([
+      "@types/node",
+    ]);
+  });
+
+  it("returns empty for prompts with only stop-words", () => {
+    expect(extractCandidatePackageNames("what should I do?")).toEqual([]);
+  });
+});
+
+describe("buildPackageContext (cap)", () => {
   it("caps Mentioned packages at 8 even when many deps match", () => {
     const dependencies = Array.from({ length: 15 }, (_, index) =>
       makeDep(

@@ -9,10 +9,15 @@ import * as vscode from "vscode";
 import type { StatsCache } from "../cache/statsCache";
 import { parseDependencies } from "../packageJson/parse";
 import type { ActivePackageJsonTracker } from "../workspace/activePackageJsonTracker";
-import { buildPackageContext, type ContextDependency } from "./buildContext";
+import {
+  buildPackageContext,
+  extractCandidatePackageNames,
+  type ContextDependency,
+} from "./buildContext";
 
 const CHAT_PARTICIPANT_ID = "agentic-web-labs.npm-advisor";
 const VERSION_KEY_FOR_CHAT = "latest";
+const MAX_ON_DEMAND_FETCHES = 5;
 
 const SYSTEM_PROMPT = `You are NPM Advisor, an assistant focused on npm package selection, security, licensing, and maintenance.
 
@@ -28,6 +33,7 @@ Output rules:
 interface ChatParticipantDeps {
   cache: StatsCache;
   tracker: ActivePackageJsonTracker;
+  extensionUri: vscode.Uri;
 }
 
 /**
@@ -51,8 +57,19 @@ export function registerChatParticipant(
     response,
     token,
   ) => {
-    const dependencies = collectDependencyContext(deps);
+    const workspaceDeps = collectDependencyContext(deps);
+    const onDemandDeps = await fetchOnDemandMentions(
+      request.prompt,
+      workspaceDeps,
+      deps.cache,
+      token,
+    );
+    const dependencies = [...workspaceDeps, ...onDemandDeps];
     const activeDocument = deps.tracker.document;
+
+    if (token.isCancellationRequested) {
+      return;
+    }
 
     const contextMarkdown = buildPackageContext({
       prompt: request.prompt,
@@ -104,10 +121,59 @@ export function registerChatParticipant(
     CHAT_PARTICIPANT_ID,
     handler,
   );
-  participant.iconPath = vscode.Uri.parse(
-    "https://raw.githubusercontent.com/amedina/agentic-web-learning-tool/main/packages/extensions/vscode/media/icon-128-color.png",
+  participant.iconPath = vscode.Uri.joinPath(
+    deps.extensionUri,
+    "media",
+    "icon-128-color.png",
   );
   return participant;
+}
+
+/**
+ * Fetches PackageStats for any npm-name-shaped tokens in the prompt
+ * that don't already appear in the workspace deps. Capped at
+ * MAX_ON_DEMAND_FETCHES so a noisy prompt can't fan out into an
+ * unbounded request burst. The cache.get path is used (not peek) so
+ * a real package gets fetched + persisted on first mention; a name
+ * that's not on npm resolves to null and the model is told plainly
+ * that no stats exist.
+ */
+async function fetchOnDemandMentions(
+  prompt: string,
+  workspaceDeps: ContextDependency[],
+  cache: StatsCache,
+  token: vscode.CancellationToken,
+): Promise<ContextDependency[]> {
+  const knownLowercased = new Set(
+    workspaceDeps.flatMap((dep) => {
+      const name = dep.name.toLowerCase();
+      return name.includes("/") ? [name, name.split("/")[1]] : [name];
+    }),
+  );
+  const candidates = extractCandidatePackageNames(prompt)
+    .filter((token) => !knownLowercased.has(token))
+    .slice(0, MAX_ON_DEMAND_FETCHES);
+  if (candidates.length === 0) {
+    return [];
+  }
+  const settled = await Promise.all(
+    candidates.map(async (name) => {
+      if (token.isCancellationRequested) {
+        return null;
+      }
+      try {
+        const stats = await cache.get(name, VERSION_KEY_FOR_CHAT);
+        return { name, category: "mentioned", stats } as ContextDependency;
+      } catch {
+        return {
+          name,
+          category: "mentioned",
+          stats: null,
+        } as ContextDependency;
+      }
+    }),
+  );
+  return settled.filter((entry): entry is ContextDependency => entry !== null);
 }
 
 /**

@@ -53,7 +53,62 @@ const STOP_WORDS = new Set([
   "in",
   "it",
   "be",
+  "an",
+  "a",
+  "as",
+  "at",
+  "if",
+  "so",
+  "i",
+  "u",
+  "r",
+  "y",
+  "tell",
+  "me",
+  "about",
+  "give",
+  "show",
+  "list",
+  "compare",
+  "vs",
+  "versus",
+  "score",
+  "scores",
+  "license",
+  "licenses",
+  "vulnerability",
+  "vulnerabilities",
+  "alternative",
+  "alternatives",
 ]);
+
+/**
+ * Extracts npm-name-shaped tokens from free-text user input. Returns
+ * lowercased candidates with stop-words filtered out; preserves order
+ * of first appearance and dedupes. Used both by the context builder
+ * (to know which deps to fully expand) and by the chat handler (to
+ * know which non-workspace packages to fetch on demand).
+ *
+ * Common English stop-words and intent words ("compare", "score",
+ * etc.) are filtered out so a question like "compare lodash vs
+ * underscore" yields ["lodash", "underscore"] rather than every word.
+ */
+export function extractCandidatePackageNames(prompt: string): string[] {
+  const seen = new Set<string>();
+  const ordered: string[] = [];
+  for (const match of prompt.toLowerCase().matchAll(NPM_NAME_PATTERN)) {
+    const token = match[0];
+    if (STOP_WORDS.has(token)) {
+      continue;
+    }
+    if (seen.has(token)) {
+      continue;
+    }
+    seen.add(token);
+    ordered.push(token);
+  }
+  return ordered;
+}
 
 /**
  * Builds the markdown context block handed to the chat model alongside
@@ -121,12 +176,7 @@ function mentionedPackages(
   prompt: string,
   dependencies: ContextDependency[],
 ): ContextDependency[] {
-  const tokens = new Set(
-    Array.from(
-      prompt.toLowerCase().matchAll(NPM_NAME_PATTERN),
-      (match) => match[0],
-    ).filter((token) => !STOP_WORDS.has(token)),
-  );
+  const tokens = new Set(extractCandidatePackageNames(prompt));
   const matches: ContextDependency[] = [];
   for (const dep of dependencies) {
     const name = dep.name.toLowerCase();

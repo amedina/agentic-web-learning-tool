@@ -110,7 +110,13 @@ export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(registerShowInsightsCommand(webviewProvider));
   context.subscriptions.push(registerSignInToGithubCommand(githubAuth));
   context.subscriptions.push(registerSignOutFromGithubCommand(githubAuth));
-  context.subscriptions.push(registerChatParticipant({ cache, tracker }));
+  context.subscriptions.push(
+    registerChatParticipant({
+      cache,
+      tracker,
+      extensionUri: context.extensionUri,
+    }),
+  );
 
   const codeLensProvider = new PackageJsonCodeLensProvider(cache, readSettings);
   context.subscriptions.push(codeLensProvider);
