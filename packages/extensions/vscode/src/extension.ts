@@ -29,6 +29,7 @@ import {
   WEBVIEW_VIEW_ID,
 } from "./providers/webviewViewProvider";
 import { GithubAuthService } from "./services/githubAuthService";
+import { RecentProjectsTracker } from "./services/recentProjectsTracker";
 import { WebviewBridge } from "./webview/bridge";
 import { ActivePackageJsonTracker } from "./workspace/activePackageJsonTracker";
 import { PackageJsonScanner } from "./workspace/packageJsonScanner";
@@ -47,6 +48,13 @@ const PACKAGE_JSON_SELECTOR: vscode.DocumentFilter[] = [
 export function activate(context: vscode.ExtensionContext): void {
   const githubAuth = new GithubAuthService();
   context.subscriptions.push(githubAuth);
+
+  // Records every workspace folder VSCode opens into a small
+  // shared registry file that the npm-advisor MCP server reads —
+  // gives Claude Desktop / Cursor / Claude Code a way to discover
+  // which projects the user actually has in flight when they ask
+  // about "their project".
+  context.subscriptions.push(new RecentProjectsTracker());
   // Lifts analyzer-core's githubFetch from the 60-req/hr unauthenticated
   // limit to 5 000-req/hr by attaching the user's VSCode-managed
   // GitHub session token (when available) on every API call.
