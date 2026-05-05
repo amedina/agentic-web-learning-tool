@@ -8,10 +8,12 @@ import { describe, expect, it } from "vitest";
  */
 import {
   buildClaudeCodeCommand,
+  buildClaudeCodeRemoveCommand,
   buildJsonMergePayload,
   buildServerEntry,
   getSupportedClients,
   mergeIntoExistingConfig,
+  removeFromExistingConfig,
   SERVER_KEY_NAME,
 } from "../clientConfigs";
 
@@ -53,9 +55,17 @@ describe("buildServerEntry", () => {
 });
 
 describe("buildClaudeCodeCommand", () => {
-  it("renders a `claude mcp add` command with the script path quoted and the mcpsrv_* tagged key", () => {
+  it("renders a `claude mcp add` command with the script path quoted", () => {
     expect(buildClaudeCodeCommand("/path with space/server.js")).toBe(
-      'claude mcp add mcpsrv_npm_advisor -- node "/path with space/server.js"',
+      'claude mcp add npm-advisor -- node "/path with space/server.js"',
+    );
+  });
+});
+
+describe("buildClaudeCodeRemoveCommand", () => {
+  it("renders the matching `claude mcp remove` command", () => {
+    expect(buildClaudeCodeRemoveCommand()).toBe(
+      "claude mcp remove npm-advisor",
     );
   });
 });
@@ -166,12 +176,15 @@ describe("mergeIntoExistingConfig", () => {
     });
   });
 
-  it("strips a legacy `npm-advisor` entry while writing the new mcpsrv_* key", () => {
+  it("strips a legacy `mcpsrv_npm_advisor` entry while writing the current key", () => {
     const merged = mergeIntoExistingConfig(
       "claude-desktop",
       {
         mcpServers: {
-          "npm-advisor": { command: "node", args: ["/legacy/server.js"] },
+          mcpsrv_npm_advisor: {
+            command: "node",
+            args: ["/legacy/server.js"],
+          },
           filesystem: { command: "node", args: ["/other/server.js"] },
         },
       },
@@ -181,10 +194,10 @@ describe("mergeIntoExistingConfig", () => {
       filesystem: { command: "node", args: ["/other/server.js"] },
       [SERVER_KEY_NAME]: { command: "node", args: ["/new/server.js"] },
     });
-    // Specifically: the legacy key is gone so Claude Desktop's UI
-    // doesn't have a second un-disconnectable entry to argue about.
+    // Specifically: the legacy key is gone so the user doesn't end
+    // up with two registrations of the same server after a rename.
     expect(
-      (merged.mcpServers as Record<string, unknown>)["npm-advisor"],
+      (merged.mcpServers as Record<string, unknown>).mcpsrv_npm_advisor,
     ).toBeUndefined();
   });
 
@@ -199,5 +212,90 @@ describe("mergeIntoExistingConfig", () => {
         [SERVER_KEY_NAME]: { command: "node", args: ["/x/server.js"] },
       },
     });
+  });
+});
+
+describe("removeFromExistingConfig", () => {
+  it("strips the current SERVER_KEY entry and reports removed=true", () => {
+    const result = removeFromExistingConfig("claude-desktop", {
+      mcpServers: {
+        [SERVER_KEY_NAME]: { command: "node", args: ["/x/server.js"] },
+      },
+    });
+    expect(result.removed).toBe(true);
+    expect(result.config.mcpServers).toEqual({});
+  });
+
+  it("strips the legacy mcpsrv_npm_advisor entry too", () => {
+    const result = removeFromExistingConfig("claude-desktop", {
+      mcpServers: {
+        mcpsrv_npm_advisor: { command: "node", args: ["/legacy/server.js"] },
+      },
+    });
+    expect(result.removed).toBe(true);
+    expect(result.config.mcpServers).toEqual({});
+  });
+
+  it("preserves every other MCP server entry alongside ours", () => {
+    const result = removeFromExistingConfig("claude-desktop", {
+      mcpServers: {
+        filesystem: { command: "node", args: ["/other/server.js"] },
+        [SERVER_KEY_NAME]: { command: "node", args: ["/x/server.js"] },
+      },
+    });
+    expect(result.removed).toBe(true);
+    expect(result.config.mcpServers).toEqual({
+      filesystem: { command: "node", args: ["/other/server.js"] },
+    });
+  });
+
+  it("preserves every other top-level key in the existing config", () => {
+    const result = removeFromExistingConfig("claude-desktop", {
+      defaultModel: "claude-3-5-sonnet",
+      mcpServers: {
+        [SERVER_KEY_NAME]: { command: "node", args: ["/x/server.js"] },
+      },
+    });
+    expect(result.config).toMatchObject({
+      defaultModel: "claude-3-5-sonnet",
+      mcpServers: {},
+    });
+  });
+
+  it("uses the `servers` map for vscode native MCP", () => {
+    const result = removeFromExistingConfig("vscode", {
+      servers: {
+        [SERVER_KEY_NAME]: { command: "node", args: ["/x/server.js"] },
+        other: { command: "x", args: [] },
+      },
+    });
+    expect(result.removed).toBe(true);
+    expect(result.config.servers).toEqual({
+      other: { command: "x", args: [] },
+    });
+  });
+
+  it("returns removed=false when no npm-advisor entry is present", () => {
+    const result = removeFromExistingConfig("claude-desktop", {
+      mcpServers: { other: { command: "x", args: [] } },
+    });
+    expect(result.removed).toBe(false);
+    expect(result.config.mcpServers).toEqual({
+      other: { command: "x", args: [] },
+    });
+  });
+
+  it("returns removed=false when the existing config has no MCP map at all", () => {
+    const result = removeFromExistingConfig("claude-desktop", {
+      defaultModel: "claude-3-5-sonnet",
+    });
+    expect(result.removed).toBe(false);
+    expect(result.config).toEqual({ defaultModel: "claude-3-5-sonnet" });
+  });
+
+  it("returns removed=false on a null (missing) existing config", () => {
+    const result = removeFromExistingConfig("claude-desktop", null);
+    expect(result.removed).toBe(false);
+    expect(result.config).toEqual({});
   });
 });

@@ -27,17 +27,22 @@ export interface McpClientDescriptor {
   strategy: McpClientStrategy;
 }
 
-// Claude Desktop's management UI requires server IDs to match either
-// a UUID or the `mcpsrv_*` tagged ID format. The bare key `npm-advisor`
-// works for the underlying MCP loader but fails the UI's disconnect /
-// uninstall flow with "Invalid server ID format. Expected UUID or
-// mcpsrv_* tagged ID." Using the prefix here keeps every other client
-// happy (their key validation is lax) while making Claude Desktop's
-// UI able to manage the entry.
-const SERVER_KEY = "mcpsrv_npm_advisor";
+// Claude Desktop's "Disconnect" UI rejects stdio MCP servers added
+// via direct config edits regardless of key shape (their UI is wired
+// to the newer Connectors flow), so renaming to `mcpsrv_*` didn't
+// help — and the readable key reads better in `claude mcp list`,
+// the .vscode/mcp.json file, etc. Reverted to the human-friendly
+// name. Uninstall is handled by our own wizard, not Claude Desktop's.
+const SERVER_KEY = "npm-advisor";
 
-/** Pre-migration key — used by the wizard to clean up old config entries. */
-const LEGACY_SERVER_KEYS = ["npm-advisor"] as const;
+/**
+ * Pre-migration keys — used by the wizard's install + uninstall paths
+ * to clean up entries written under earlier names. Add to this list
+ * (don't remove from it) every time SERVER_KEY changes so reinstalls
+ * always end up with exactly one entry across all of npm-advisor's
+ * historical names.
+ */
+const LEGACY_SERVER_KEYS = ["mcpsrv_npm_advisor"] as const;
 
 /**
  * Returns the canonical descriptor for every supported MCP client.
@@ -185,5 +190,55 @@ export function mergeIntoExistingConfig(
   return base;
 }
 
+/**
+ * Removes our server entry (current + every legacy name) from a
+ * user's existing config object. Returns the new config plus a flag
+ * indicating whether anything was actually removed, so the caller
+ * can show a "nothing to uninstall" message instead of writing an
+ * unchanged file. Empty `mcpServers` / `servers` maps are left in
+ * place because the user may want to keep their other entries
+ * intact even if we're the only one we manage.
+ */
+export function removeFromExistingConfig(
+  clientId: McpClientId,
+  existing: Record<string, unknown> | null,
+): { config: Record<string, unknown>; removed: boolean } {
+  const base: Record<string, unknown> = existing ? { ...existing } : {};
+  const mapKey = clientId === "vscode" ? "servers" : "mcpServers";
+  const existingMap =
+    base[mapKey] &&
+    typeof base[mapKey] === "object" &&
+    !Array.isArray(base[mapKey])
+      ? (base[mapKey] as Record<string, unknown>)
+      : null;
+  if (!existingMap) {
+    return { config: base, removed: false };
+  }
+  const obsoleteKeys = new Set<string>([SERVER_KEY, ...LEGACY_SERVER_KEYS]);
+  let removed = false;
+  const cleaned: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(existingMap)) {
+    if (obsoleteKeys.has(key)) {
+      removed = true;
+      continue;
+    }
+    cleaned[key] = value;
+  }
+  base[mapKey] = cleaned;
+  return { config: base, removed };
+}
+
+/**
+ * Builds the `claude mcp remove` invocation Claude Code users paste
+ * into a terminal. Mirrors buildClaudeCodeCommand for the install
+ * path so the wizard's two flows look symmetric.
+ */
+export function buildClaudeCodeRemoveCommand(): string {
+  return `claude mcp remove ${SERVER_KEY}`;
+}
+
 /** Server key written into every json-merge client's config — useful for tests. */
 export const SERVER_KEY_NAME = SERVER_KEY;
+
+/** Legacy keys we clean up alongside SERVER_KEY — exposed for tests. */
+export const LEGACY_SERVER_KEY_NAMES = LEGACY_SERVER_KEYS;
