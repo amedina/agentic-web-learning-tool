@@ -14,6 +14,7 @@ import type { BundleData } from "@agentic-web-labs/package-analyzer-ui";
  */
 import type { StatsCache } from "../cache/statsCache";
 import { SIGN_IN_GITHUB_COMMAND } from "../commands/githubAuth";
+import { SETUP_MCP_COMMAND } from "../commands/setupMcp";
 import { VIEW_PACKAGE_COMMAND } from "../commands/viewPackage";
 import type { NpmAdvisorSettings } from "../diagnostics/settings";
 import type { GithubAuthService } from "../services/githubAuthService";
@@ -220,6 +221,10 @@ export class WebviewBridge implements vscode.Disposable {
           // Swallow — the workspace may have moved the file between
           // discovery and click; the next scanner refresh will drop it.
         }
+        return;
+      }
+      case "setupMcp": {
+        await vscode.commands.executeCommand(SETUP_MCP_COMMAND);
         return;
       }
       case "refreshStats": {

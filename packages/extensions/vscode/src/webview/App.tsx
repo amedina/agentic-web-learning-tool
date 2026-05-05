@@ -25,6 +25,7 @@ interface AppProps {
   onReady: () => void;
   onOpenPackageJson: (uri: string) => void;
   onRefreshStats: () => void;
+  onSetupMcp: () => void;
   onNotify: (
     level: "info" | "warning" | "error",
     message: string,
@@ -51,6 +52,7 @@ export const App: FC<AppProps> = ({
   onReady,
   onOpenPackageJson,
   onRefreshStats,
+  onSetupMcp,
   onNotify,
 }) => {
   const [initState, setInitState] = useState<{
@@ -154,6 +156,7 @@ export const App: FC<AppProps> = ({
           availableFiles={availableFiles}
           onSelect={handleSelectFile}
           onRefresh={onRefreshStats}
+          onSetupMcp={onSetupMcp}
         />
         {activeFile ? (
           hasDependencies ? (
