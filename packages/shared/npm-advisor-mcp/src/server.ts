@@ -1,4 +1,12 @@
 /**
+ * Internal dependencies (must come first).
+ */
+// Side-effect import: rebinds console.* to stderr before anything else
+// loads, so analyzer-core's `console.log({...})` doesn't corrupt the
+// MCP JSON-RPC stream on stdout. See redirectConsoleToStderr.ts.
+import "./redirectConsoleToStderr.ts";
+
+/**
  * External dependencies.
  */
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
