@@ -86,6 +86,18 @@ export class StatsCache {
   }
 
   /**
+   * Synchronously returns the cached PackageStats for a (name, version)
+   * pair without triggering any fetch or refresh. Returns undefined when
+   * nothing is cached. Used by the webview provider to pre-populate the
+   * init payload so the React app doesn't have to round-trip back to
+   * the host for entries we already have on disk.
+   */
+  peek(name: string, version: string): PackageStats | null | undefined {
+    const entry = this.storage.get<CacheEntry>(makeKey(name, version));
+    return entry?.stats;
+  }
+
+  /**
    * Drop every entry written by this cache from persistent storage.
    * Returns the number of entries removed. Fires onDidChange with a
    * sentinel ("*", "*") so listeners can refresh affected views.

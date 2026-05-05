@@ -2,6 +2,7 @@
  * External dependencies.
  */
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import type { PackageStats } from "@agentic-web-labs/package-analyzer-core";
 
 /**
  * Internal dependencies.
@@ -46,6 +47,13 @@ interface DependenciesTabProps {
    * that doesn't include their target.
    */
   forceVisiblePackageName?: string;
+  /**
+   * Pre-resolved PackageStats keyed by dep name, threaded through to
+   * useDependencyStats so re-mounts (e.g. a VSCode webview reload on
+   * panel visibility change) skip the per-dep fetch round-trip for
+   * entries the host already has cached.
+   */
+  initialStatsByName?: Record<string, PackageStats | null>;
 }
 
 export const DependenciesTab: React.FC<DependenciesTabProps> = ({
@@ -58,9 +66,11 @@ export const DependenciesTab: React.FC<DependenciesTabProps> = ({
   hideCompare = false,
   showFitness = false,
   forceVisiblePackageName,
+  initialStatsByName,
 }) => {
   const { statsByName, summary } = useDependencyStats(packageJsonDependencies, {
     onRateLimited,
+    initialStatsByName,
   });
 
   const [activeFilters, setActiveFilters] = useState<

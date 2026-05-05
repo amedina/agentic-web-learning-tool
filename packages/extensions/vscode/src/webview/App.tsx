@@ -3,6 +3,7 @@
  */
 import { useCallback, useEffect, useRef, useState, type FC } from "react";
 import { Loader2 } from "lucide-react";
+import type { PackageStats } from "@agentic-web-labs/package-analyzer-core";
 import {
   DependenciesTab,
   StatsClientProvider,
@@ -57,6 +58,7 @@ export const App: FC<AppProps> = ({
     availableFiles: PackageJsonFile[];
     packageJsonDependencies: PackageJsonDependenciesPayload;
     refreshKey: number;
+    prefetchedStats: Record<string, PackageStats | null>;
   } | null>(null);
   const [focusPackageName, setFocusPackageName] = useState<string | null>(null);
   const noopAddRef = useRef<(name: string) => void>(() => undefined);
@@ -75,6 +77,7 @@ export const App: FC<AppProps> = ({
           availableFiles: data.availableFiles,
           packageJsonDependencies: data.packageJsonDependencies,
           refreshKey: data.refreshKey ?? 0,
+          prefetchedStats: data.prefetchedStats ?? {},
         });
         if (data.focusPackageName) {
           setFocusPackageName(data.focusPackageName);
@@ -130,8 +133,13 @@ export const App: FC<AppProps> = ({
     );
   }
 
-  const { activeFile, availableFiles, packageJsonDependencies, refreshKey } =
-    initState;
+  const {
+    activeFile,
+    availableFiles,
+    packageJsonDependencies,
+    refreshKey,
+    prefetchedStats,
+  } = initState;
   const hasDependencies =
     packageJsonDependencies.dependencies.length +
       packageJsonDependencies.devDependencies.length +
@@ -160,6 +168,7 @@ export const App: FC<AppProps> = ({
                 showFitness
                 forceVisiblePackageName={focusPackageName ?? undefined}
                 onRateLimited={handleRateLimited}
+                initialStatsByName={prefetchedStats}
               />
             </div>
           ) : (

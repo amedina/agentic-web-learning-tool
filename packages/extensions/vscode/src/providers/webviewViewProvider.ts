@@ -2,10 +2,12 @@
  * External dependencies.
  */
 import * as vscode from "vscode";
+import type { PackageStats } from "@agentic-web-labs/package-analyzer-core";
 
 /**
  * Internal dependencies.
  */
+import type { StatsCache } from "../cache/statsCache";
 import { parseDependencies } from "../packageJson/parse";
 import type { ActivePackageJsonTracker } from "../workspace/activePackageJsonTracker";
 import type { PackageJsonScanner } from "../workspace/packageJsonScanner";
@@ -15,6 +17,8 @@ import type {
   PackageJsonFile,
 } from "../webview/protocol";
 
+const VERSION_KEY_FOR_WEBVIEW = "latest";
+
 export const WEBVIEW_VIEW_ID = "npmAdvisor.welcome";
 
 interface NpmAdvisorWebviewProviderDeps {
@@ -22,6 +26,7 @@ interface NpmAdvisorWebviewProviderDeps {
   bridge: WebviewBridge;
   tracker: ActivePackageJsonTracker;
   scanner: PackageJsonScanner;
+  cache: StatsCache;
 }
 
 /**
@@ -35,6 +40,7 @@ export class NpmAdvisorWebviewProvider implements vscode.WebviewViewProvider {
   private readonly bridge: WebviewBridge;
   private readonly tracker: ActivePackageJsonTracker;
   private readonly scanner: PackageJsonScanner;
+  private readonly cache: StatsCache;
   private webviewView: vscode.WebviewView | null = null;
   private pendingFocusPackageName: string | null = null;
   private onReadySubscription: vscode.Disposable | null = null;
@@ -46,6 +52,7 @@ export class NpmAdvisorWebviewProvider implements vscode.WebviewViewProvider {
     this.bridge = deps.bridge;
     this.tracker = deps.tracker;
     this.scanner = deps.scanner;
+    this.cache = deps.cache;
   }
 
   /**
@@ -135,6 +142,10 @@ export class NpmAdvisorWebviewProvider implements vscode.WebviewViewProvider {
     const packageJsonDependencies = activeDocument
       ? collectDependencies(activeDocument)
       : EMPTY_DEPENDENCIES;
+    const prefetchedStats = collectPrefetchedStats(
+      packageJsonDependencies,
+      this.cache,
+    );
     this.bridge.post({
       type: "init",
       activeFile,
@@ -142,6 +153,7 @@ export class NpmAdvisorWebviewProvider implements vscode.WebviewViewProvider {
       packageJsonDependencies,
       focusPackageName,
       refreshKey: this.refreshKey,
+      prefetchedStats,
     });
   }
 
@@ -205,6 +217,34 @@ async function buildActiveFile(
     relativePath: vscode.workspace.asRelativePath(document.uri, true),
     name,
   };
+}
+
+/**
+ * Synchronously collects every PackageStats already in StatsCache for
+ * the deps in the payload, keyed by name. The webview seeds its
+ * React-side stats cache from this so a panel re-show / script reload
+ * doesn't re-issue a getLightStats round-trip per dep — entries listed
+ * here resolve locally inside useDependencyStats. Deps absent from the
+ * map (newly added since the last fetch) still go through the normal
+ * fetch path.
+ */
+function collectPrefetchedStats(
+  payload: PackageJsonDependenciesPayload,
+  cache: StatsCache,
+): Record<string, PackageStats | null> {
+  const result: Record<string, PackageStats | null> = {};
+  const allNames = new Set<string>([
+    ...payload.dependencies,
+    ...payload.devDependencies,
+    ...payload.peerDependencies,
+  ]);
+  for (const name of allNames) {
+    const cached = cache.peek(name, VERSION_KEY_FOR_WEBVIEW);
+    if (cached !== undefined) {
+      result[name] = cached;
+    }
+  }
+  return result;
 }
 
 /**

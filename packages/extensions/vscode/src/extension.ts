@@ -50,12 +50,20 @@ export function activate(context: vscode.ExtensionContext): void {
   // GitHub session token (when available) on every API call.
   configureGithubAuth({ getToken: () => githubAuth.getToken() });
 
+  // Hard cache: a year-long TTL effectively turns off the
+  // stale-while-revalidate background refresh so cached entries are
+  // returned forever without firing follow-up network calls. The
+  // Refresh button in the side panel is the only way to bust them
+  // (npmAdvisor.clearCache); a new dep added to package.json fetches
+  // because there's nothing cached for that name yet.
+  const ONE_YEAR_MS = 365 * 24 * 60 * 60 * 1000;
   const cache = new StatsCache({
     storage: context.globalState,
     fetcher: (name) =>
       getPackageStats(name, readSettings().targetLicense, {
         includeDependencyTree: false,
       }),
+    options: { ttlMs: ONE_YEAR_MS, failureTtlMs: ONE_YEAR_MS },
   });
   context.subscriptions.push(cache);
 
@@ -77,6 +85,7 @@ export function activate(context: vscode.ExtensionContext): void {
     bridge,
     tracker,
     scanner,
+    cache,
   });
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider(WEBVIEW_VIEW_ID, webviewProvider),
