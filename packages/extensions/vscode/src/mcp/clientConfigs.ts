@@ -27,7 +27,17 @@ export interface McpClientDescriptor {
   strategy: McpClientStrategy;
 }
 
-const SERVER_KEY = "npm-advisor";
+// Claude Desktop's management UI requires server IDs to match either
+// a UUID or the `mcpsrv_*` tagged ID format. The bare key `npm-advisor`
+// works for the underlying MCP loader but fails the UI's disconnect /
+// uninstall flow with "Invalid server ID format. Expected UUID or
+// mcpsrv_* tagged ID." Using the prefix here keeps every other client
+// happy (their key validation is lax) while making Claude Desktop's
+// UI able to manage the entry.
+const SERVER_KEY = "mcpsrv_npm_advisor";
+
+/** Pre-migration key — used by the wizard to clean up old config entries. */
+const LEGACY_SERVER_KEYS = ["npm-advisor"] as const;
 
 /**
  * Returns the canonical descriptor for every supported MCP client.
@@ -144,7 +154,11 @@ export function buildJsonMergePayload(
  * Merges our server entry into a user's existing config object,
  * preserving every other key the user already has set (other MCP
  * servers, top-level settings, comments-stripped JSON, etc.). The
- * `mcpServers` / `servers` map is created when missing.
+ * `mcpServers` / `servers` map is created when missing. Legacy
+ * `npm-advisor` entries from earlier installs are stripped so the
+ * client doesn't end up with two registrations of the same server
+ * — important for Claude Desktop, whose management UI rejects the
+ * legacy key shape.
  */
 export function mergeIntoExistingConfig(
   clientId: McpClientId,
@@ -159,7 +173,15 @@ export function mergeIntoExistingConfig(
     !Array.isArray(base[mapKey])
       ? (base[mapKey] as Record<string, unknown>)
       : {};
-  base[mapKey] = { ...existingMap, [SERVER_KEY]: entry };
+  const cleaned: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(existingMap)) {
+    if ((LEGACY_SERVER_KEYS as readonly string[]).includes(key)) {
+      continue;
+    }
+    cleaned[key] = value;
+  }
+  cleaned[SERVER_KEY] = entry;
+  base[mapKey] = cleaned;
   return base;
 }
 

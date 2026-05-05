@@ -109,7 +109,7 @@ async function applyClient(
   if (client.strategy.kind === "cli-snippet") {
     const command = buildClaudeCodeCommand(serverScriptPath);
     const action = await vscode.window.showInformationMessage(
-      `Copy the Claude Code command to your clipboard? Paste it into a terminal at any project root, then restart Claude Code.\n\n${command}`,
+      `Copy the Claude Code command to your clipboard? Paste it into a terminal at any project root, then restart Claude Code.\n\n${command}\n\nIf you previously installed under the legacy name, remove it first:\n\nclaude mcp remove npm-advisor`,
       { modal: true },
       "Copy command",
     );

@@ -53,9 +53,9 @@ describe("buildServerEntry", () => {
 });
 
 describe("buildClaudeCodeCommand", () => {
-  it("renders a `claude mcp add` command with the script path quoted", () => {
+  it("renders a `claude mcp add` command with the script path quoted and the mcpsrv_* tagged key", () => {
     expect(buildClaudeCodeCommand("/path with space/server.js")).toBe(
-      'claude mcp add npm-advisor -- node "/path with space/server.js"',
+      'claude mcp add mcpsrv_npm_advisor -- node "/path with space/server.js"',
     );
   });
 });
@@ -164,6 +164,28 @@ describe("mergeIntoExistingConfig", () => {
         [SERVER_KEY_NAME]: { command: "node", args: ["/x/server.js"] },
       },
     });
+  });
+
+  it("strips a legacy `npm-advisor` entry while writing the new mcpsrv_* key", () => {
+    const merged = mergeIntoExistingConfig(
+      "claude-desktop",
+      {
+        mcpServers: {
+          "npm-advisor": { command: "node", args: ["/legacy/server.js"] },
+          filesystem: { command: "node", args: ["/other/server.js"] },
+        },
+      },
+      buildServerEntry("/new/server.js"),
+    );
+    expect(merged.mcpServers).toEqual({
+      filesystem: { command: "node", args: ["/other/server.js"] },
+      [SERVER_KEY_NAME]: { command: "node", args: ["/new/server.js"] },
+    });
+    // Specifically: the legacy key is gone so Claude Desktop's UI
+    // doesn't have a second un-disconnectable entry to argue about.
+    expect(
+      (merged.mcpServers as Record<string, unknown>)["npm-advisor"],
+    ).toBeUndefined();
   });
 
   it("handles a null existing config (file not present) by returning a fresh object", () => {
