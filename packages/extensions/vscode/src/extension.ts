@@ -11,6 +11,7 @@ import {
  * Internal dependencies.
  */
 import { StatsCache } from "./cache/statsCache";
+import { registerChatParticipant } from "./chat/participant";
 import { registerClearCacheCommand } from "./commands/clearCache";
 import {
   registerSignInToGithubCommand,
@@ -109,6 +110,7 @@ export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(registerShowInsightsCommand(webviewProvider));
   context.subscriptions.push(registerSignInToGithubCommand(githubAuth));
   context.subscriptions.push(registerSignOutFromGithubCommand(githubAuth));
+  context.subscriptions.push(registerChatParticipant({ cache, tracker }));
 
   const codeLensProvider = new PackageJsonCodeLensProvider(cache, readSettings);
   context.subscriptions.push(codeLensProvider);

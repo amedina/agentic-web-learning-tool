@@ -13,12 +13,14 @@
   "categories": [
     "Programming Languages",
     "Linters",
+    "Chat",
     "Other"
   ],
   "icon": "media/icon-128-color.png",
   "main": "./dist/extension.js",
   "activationEvents": [
-    "workspaceContains:**/package.json"
+    "workspaceContains:**/package.json",
+    "onChatParticipant:agentic-web-labs.npm-advisor"
   ],
   "contributes": {
     "viewsContainers": {
@@ -64,6 +66,15 @@
         "command": "npmAdvisor.signOutFromGitHub",
         "title": "NPM Advisor: Disconnect GitHub session",
         "category": "NPM Advisor"
+      }
+    ],
+    "chatParticipants": [
+      {
+        "id": "agentic-web-labs.npm-advisor",
+        "name": "npm-advisor",
+        "fullName": "NPM Advisor",
+        "description": "Ask about your npm dependencies — security, licenses, alternatives, scores.",
+        "isSticky": true
       }
     ],
     "configuration": {
