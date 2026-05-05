@@ -203,4 +203,46 @@ describe("StatsCache", () => {
     expect(await cache.clearAll()).toBe(0);
     expect(changes).toEqual([{ name: "*", version: "*" }]);
   });
+
+  it("peek returns cached stats synchronously without triggering a fetch", async () => {
+    const fetcher = vi.fn().mockResolvedValue(makeStats("lodash"));
+    const cache = new StatsCache({ storage: createMemento(), fetcher });
+    await cache.get("lodash", "latest");
+    expect(fetcher).toHaveBeenCalledTimes(1);
+    const peeked = cache.peek("lodash", "latest");
+    expect(peeked).toEqual(makeStats("lodash"));
+    expect(fetcher).toHaveBeenCalledTimes(1);
+  });
+
+  it("peek returns null for a negatively cached entry", async () => {
+    const fetcher = vi.fn().mockResolvedValue(null);
+    const cache = new StatsCache({ storage: createMemento(), fetcher });
+    await cache.get("missing", "latest");
+    expect(cache.peek("missing", "latest")).toBeNull();
+  });
+
+  it("peek returns undefined for an entry that was never cached", () => {
+    const cache = new StatsCache({
+      storage: createMemento(),
+      fetcher: vi.fn(),
+    });
+    expect(cache.peek("ghost", "latest")).toBeUndefined();
+  });
+
+  it("does not fire a background refresh when ttlMs makes every entry fresh forever", async () => {
+    const fetcher = vi.fn().mockResolvedValue(makeStats("lodash"));
+    const clock = createClock(1_000);
+    const ONE_YEAR = 365 * 24 * 60 * 60 * 1000;
+    const cache = new StatsCache({
+      storage: createMemento(),
+      fetcher,
+      options: { ttlMs: ONE_YEAR, failureTtlMs: ONE_YEAR, clock: clock.now },
+    });
+    await cache.get("lodash", "latest");
+    expect(fetcher).toHaveBeenCalledTimes(1);
+    // Advance well past the previous default 24h TTL.
+    clock.advance(7 * 24 * 60 * 60 * 1000);
+    await cache.get("lodash", "latest");
+    expect(fetcher).toHaveBeenCalledTimes(1);
+  });
 });

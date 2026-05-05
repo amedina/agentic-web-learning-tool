@@ -59,6 +59,17 @@ export type ExtensionMessage =
        * remount, which restarts every per-package fetch.
        */
       refreshKey?: number;
+      /**
+       * Cached PackageStats keyed by dep name, pulled out of the host
+       * StatsCache without triggering any fetch. The webview seeds the
+       * analyzer-ui's module-scoped stats cache from this so a panel
+       * re-show / script reload doesn't fire a flurry of postMessage
+       * round-trips for every dep — every entry already in here resolves
+       * locally on the React side. Deps not present here (newly added
+       * to package.json since the last fetch) still go through the
+       * normal getLightStats round-trip.
+       */
+      prefetchedStats?: Record<string, PackageStats | null>;
     }
   | {
       type: "lightStats";

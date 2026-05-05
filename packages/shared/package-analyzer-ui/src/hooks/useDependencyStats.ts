@@ -46,6 +46,17 @@ interface UseDependencyStatsOptions {
    * extension).
    */
   onRateLimited?: () => void;
+  /**
+   * Caller-provided pre-resolved stats keyed by dep name. The hook seeds
+   * its module-scoped cache from this on mount so re-mounts that follow
+   * a host-side cache hit skip the per-dep fetch round-trip entirely.
+   * Use cases:
+   *   - VSCode side panel reload after the script context tears down on
+   *     a visibility change (the host pulls cached entries out of its
+   *     own stats cache and hands them in via init).
+   * Missing entries fetch as usual; `null` is treated as "not_found".
+   */
+  initialStatsByName?: Record<string, PackageStats | null>;
 }
 
 /**
@@ -58,7 +69,7 @@ export const useDependencyStats = (
   options: UseDependencyStatsOptions = {},
 ) => {
   const statsClient = useStatsClient();
-  const { onRateLimited } = options;
+  const { onRateLimited, initialStatsByName } = options;
 
   // Resolve each package to a single category for scoring. A package listed
   // in multiple sections (rare but legal) is treated as runtime if it
@@ -82,11 +93,26 @@ export const useDependencyStats = (
   const [statsByName, setStatsByName] = useState<DependencyStatsByName>(() => {
     const initial: DependencyStatsByName = {};
     for (const entry of dependencyEntries) {
-      initial[entry.name] = dependencyStatsCache.get(
-        cacheKey(entry.name, entry.category),
-      ) ?? {
-        status: "pending",
-      };
+      const key = cacheKey(entry.name, entry.category);
+      const cached = dependencyStatsCache.get(key);
+      if (cached) {
+        initial[entry.name] = cached;
+        continue;
+      }
+      const seedRaw = initialStatsByName?.[entry.name];
+      if (seedRaw !== undefined) {
+        const seedState: DependencyStatsState =
+          seedRaw === null
+            ? { status: "not_found" }
+            : { status: "loaded", stats: seedRaw };
+        // Store in the module cache so the useEffect path below also
+        // sees the seed, and so future remounts in the same session
+        // continue to short-circuit the fetch.
+        dependencyStatsCache.set(key, seedState);
+        initial[entry.name] = seedState;
+        continue;
+      }
+      initial[entry.name] = { status: "pending" };
     }
     return initial;
   });
