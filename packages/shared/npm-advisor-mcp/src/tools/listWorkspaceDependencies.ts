@@ -9,7 +9,7 @@ import { resolve } from "node:path";
 import {
   findPackageJsonFiles,
   type PackageJsonFile,
-} from "../workspace/findPackageJsonFiles.ts";
+} from "../workspace/findPackageJsonFiles";
 
 export interface ListWorkspaceDependenciesInput {
   /** Absolute or cwd-relative path to scan. Defaults to process.cwd(). */

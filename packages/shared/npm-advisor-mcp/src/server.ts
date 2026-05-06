@@ -4,7 +4,7 @@
 // Side-effect import: rebinds console.* to stderr before anything else
 // loads, so analyzer-core's `console.log({...})` doesn't corrupt the
 // MCP JSON-RPC stream on stdout. See redirectConsoleToStderr.ts.
-import "./redirectConsoleToStderr.ts";
+import "./redirectConsoleToStderr";
 
 /**
  * External dependencies.
@@ -17,10 +17,10 @@ import { z } from "zod";
 /**
  * Internal dependencies.
  */
-import { runAnalyzePackageJson } from "./tools/analyzePackageJson.ts";
-import { runGetPackageStats } from "./tools/getPackageStats.ts";
-import { runListKnownProjects } from "./tools/listKnownProjects.ts";
-import { runListWorkspaceDependencies } from "./tools/listWorkspaceDependencies.ts";
+import { runAnalyzePackageJson } from "./tools/analyzePackageJson";
+import { runGetPackageStats } from "./tools/getPackageStats";
+import { runListKnownProjects } from "./tools/listKnownProjects";
+import { runListWorkspaceDependencies } from "./tools/listWorkspaceDependencies";
 
 const SERVER_NAME = "npm-advisor";
 const SERVER_VERSION = "0.1.0";

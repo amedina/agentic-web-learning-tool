@@ -9,7 +9,7 @@ import { join } from "node:path";
 /**
  * Internal dependencies.
  */
-import { runListKnownProjects } from "../listKnownProjects.ts";
+import { runListKnownProjects } from "../listKnownProjects";
 
 /**
  * Re-roots the npm-advisor registry at a temp dir for the test, so

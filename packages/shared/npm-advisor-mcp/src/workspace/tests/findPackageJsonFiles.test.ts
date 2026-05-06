@@ -12,7 +12,7 @@ import { join } from "node:path";
 import {
   findPackageJsonFiles,
   readPackageJsonDependencies,
-} from "../findPackageJsonFiles.ts";
+} from "../findPackageJsonFiles";
 
 /** Builds a throwaway directory tree for a single test. */
 async function withTempDir<T>(fn: (root: string) => Promise<T>): Promise<T> {

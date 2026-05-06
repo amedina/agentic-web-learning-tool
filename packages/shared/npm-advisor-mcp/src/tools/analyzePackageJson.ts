@@ -10,7 +10,7 @@ import {
 /**
  * Internal dependencies.
  */
-import { readPackageJsonDependencies } from "../workspace/findPackageJsonFiles.ts";
+import { readPackageJsonDependencies } from "../workspace/findPackageJsonFiles";
 
 const DEFAULT_CONCURRENCY = 3;
 

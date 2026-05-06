@@ -5,7 +5,7 @@ import {
   getRecentProjectsFilePath,
   readRegistry,
   type RecentProjectEntry,
-} from "../lib/recentProjectsRegistry.ts";
+} from "../lib/recentProjectsRegistry";
 
 export interface ListKnownProjectsOutput {
   /**
