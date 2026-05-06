@@ -57,7 +57,7 @@ export async function createServer(): Promise<McpServer> {
     {
       title: "Get npm package stats",
       description:
-        "Fetches comprehensive stats for a single npm package: Fitness score, security advisories, license + compatibility verdict against the project's target license, bundle size, GitHub stars + last commit, and replacement recommendations from e18e. Use this when the user asks about a specific package by name.",
+        "Fetches comprehensive stats for a single npm package: Fitness score, security advisories, license + compatibility verdict against the project's target license, bundle size, GitHub stars + last commit, and replacement recommendations from e18e. Use this when the user asks about a specific package by name. When presenting results, render a rich visual artifact (HTML or React) with metric cards for the key stats (score, bundle size, license, last commit) and a score breakdown chart.",
       inputSchema: {
         name: z
           .string()
@@ -129,7 +129,7 @@ export async function createServer(): Promise<McpServer> {
     {
       title: "Analyze every dependency in a package.json",
       description:
-        "Reads a package.json and fetches stats for every dep, devDep, and peerDep (concurrent + rate-aware). Returns per-package stats plus a roll-up summary (counts of vulnerable, license-incompatible, and replaceable packages). Use this when the user asks about the project as a whole — e.g. 'audit my dependencies' or 'which packages should I worry about'. If the user hasn't given an explicit path, call list_known_projects first to discover which projects they have open in VSCode.",
+        "Reads a package.json and fetches stats for every dep, devDep, and peerDep (concurrent + rate-aware). Returns per-package stats plus a roll-up summary (counts of vulnerable, license-incompatible, and replaceable packages). Use this when the user asks about the project as a whole — e.g. 'audit my dependencies' or 'which packages should I worry about'. If the user hasn't given an explicit path, call list_known_projects first to discover which projects they have open in VSCode. When presenting results, render a rich visual artifact (HTML or React) with: metric cards for the summary counts (total deps, vulnerable, license issues, replaceable), a bar chart of package scores color-coded by health (green ≥ 70, amber 40–69, red < 40), and tabbed sections for vulnerabilities, license issues, and replacement recommendations.",
       inputSchema: {
         packageJsonPath: z
           .string()

@@ -6,15 +6,16 @@ It's the same analysis pipeline that powers the [NPM Advisor VSCode extension](.
 
 ## What it gives your AI
 
-Three tools:
+Four tools:
 
 | Tool | What it returns | When the model calls it |
 | --- | --- | --- |
 | `get_package_stats` | Full `PackageStats` for one package: Fitness score, security advisories, license + compatibility verdict, bundle size, GitHub stars + last commit, replacement recommendations. | "Tell me about lodash." "Is express maintained?" "Compare lodash and underscore." |
+| `list_known_projects` | Every VSCode workspace the npm-advisor extension has tracked, with open/closed status and last-opened time. | "Which project should I look at?" "What do I have open in VSCode?" |
 | `list_workspace_dependencies` | Every `package.json` in the workspace with its `name` and dep counts. No network. | "What does this project look like?" "Where do my dependencies live?" |
 | `analyze_package_json` | Per-dep stats for one `package.json` plus a roll-up summary (vulnerable / license-incompatible / replaceable counts). | "Audit this project." "Which dependencies should I worry about?" |
 
-Every tool returns plain JSON in the MCP `text` content slot, so the model can parse it deterministically.
+Every tool returns plain JSON in the MCP `text` content slot so any AI client can parse it deterministically. The `analyze_package_json` and `get_package_stats` tools include rendering hints in their descriptions that instruct Claude to present results as a rich visual artifact (metric cards, score bar chart, tabbed sections) when the client supports it.
 
 ## Quick install
 
@@ -51,7 +52,7 @@ Edit `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) o
 }
 ```
 
-Restart Claude Desktop. The three tools appear under the connector icon in the chat composer.
+Restart Claude Desktop. The four tools appear under the connector icon in the chat composer.
 
 ### Cursor
 
