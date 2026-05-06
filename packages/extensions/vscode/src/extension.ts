@@ -123,7 +123,9 @@ export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(
     registerSetupMcpCommand({ extensionUri: context.extensionUri }),
   );
-  context.subscriptions.push(registerUninstallMcpCommand());
+  context.subscriptions.push(
+    registerUninstallMcpCommand({ extensionUri: context.extensionUri }),
+  );
   context.subscriptions.push(
     registerChatParticipant({
       cache,

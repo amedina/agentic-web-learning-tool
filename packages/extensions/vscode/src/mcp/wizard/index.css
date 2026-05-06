@@ -1,0 +1,53 @@
+@import "@agentic-web-labs/shared-config/tailwind";
+
+@source "../../../../../shared/design-system";
+@source "./";
+
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+}
+
+body {
+  color: var(--vscode-foreground);
+  background-color: var(--vscode-editor-background);
+  font-family: var(--vscode-font-family);
+  font-size: var(--vscode-font-size);
+}
+
+/*
+ * Button styles use VSCode's CSS variables so the wizard matches the
+ * user's theme (button-background tracks the editor accent). Hover
+ * states need a real CSS rule because React inline styles can't
+ * express :hover.
+ */
+.mcp-button-primary {
+  background-color: var(--vscode-button-background);
+  color: var(--vscode-button-foreground);
+  border: 1px solid transparent;
+}
+
+.mcp-button-primary:hover:not(:disabled) {
+  background-color: var(--vscode-button-hoverBackground, var(--vscode-button-background));
+}
+
+.mcp-button-secondary {
+  background-color: var(--vscode-button-secondaryBackground, transparent);
+  color: var(--vscode-button-secondaryForeground, var(--vscode-foreground));
+  border: 1px solid var(--vscode-widget-border, var(--vscode-panel-border, var(--vscode-input-border, transparent)));
+}
+
+.mcp-button-secondary:hover:not(:disabled) {
+  background-color: var(--vscode-button-secondaryHoverBackground, var(--vscode-toolbar-hoverBackground, var(--vscode-button-secondaryBackground)));
+}
+
+.mcp-button-danger {
+  background-color: transparent;
+  color: var(--vscode-errorForeground, var(--vscode-editorError-foreground));
+  border: 1px solid color-mix(in srgb, var(--vscode-errorForeground, var(--vscode-editorError-foreground)) 50%, transparent);
+}
+
+.mcp-button-danger:hover:not(:disabled) {
+  background-color: color-mix(in srgb, var(--vscode-errorForeground, var(--vscode-editorError-foreground)) 12%, transparent);
+}
