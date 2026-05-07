@@ -27,32 +27,42 @@ export interface McpClientDescriptor {
   strategy: McpClientStrategy;
 }
 
-// Claude Desktop's Connectors UI accepts two ID shapes for stdio
-// servers: a bare UUID, or an `mcpsrv_<uuid>` "tagged" ID — the
-// disconnect handler validates the key against that pattern and
-// throws "Invalid server ID format. Expected UUID or mcpsrv_* tagged
-// ID" otherwise. A previous attempt used `mcpsrv_npm_advisor` (no
-// UUID suffix) and got rejected for the same reason; the human-
-// friendly `npm-advisor` failed the same check.
+// Claude Desktop's Connectors UI throws "Invalid server ID format.
+// Expected UUID or mcpsrv_* tagged ID" when you click Disconnect on
+// any stdio MCP server added via a direct edit to
+// claude_desktop_config.json. We've now confirmed that the format
+// error is misleading — the UI rejects every key shape we've tried:
 //
-// We hardcode a stable v4 UUID so the key is the same for every user
-// (no rotation per install) and Claude Desktop's Connectors UI can
-// disconnect our entry the same way it disconnects an officially-
-// installed connector. The UUID itself is meaningless — only its
-// shape matters to Claude Desktop's parser.
-const SERVER_KEY = "mcpsrv_ec050486-7167-4ee0-a12c-996bf7aa5dda";
+//   - `npm-advisor`              — rejected
+//   - `mcpsrv_npm_advisor`        — rejected
+//   - `mcpsrv_<v4-uuid>`          — also rejected
+//
+// So the underlying limitation isn't the key format; Claude Desktop's
+// Connectors UI is wired only to entries it owns through its own
+// installer flow, and disconnect for config-file servers is a no-op
+// regardless. Trying to satisfy the regex with a UUID-style key just
+// makes our entry uglier in `claude mcp list` and the user's config
+// file without buying anything.
+//
+// Reverted to the readable `npm-advisor` name. Uninstall is handled
+// by our own wizard (the Remove button on each card), not Claude
+// Desktop's Connectors UI.
+const SERVER_KEY = "npm-advisor";
 
 /**
  * Pre-migration keys — used by the wizard's install + uninstall paths
  * to clean up entries written under earlier names. Add to this list
  * (don't remove from it) every time SERVER_KEY changes so reinstalls
  * always end up with exactly one entry across all of npm-advisor's
- * historical names. Keeps both the readable `npm-advisor` form (used
- * before the Claude-Desktop UI compatibility fix) and the earlier
- * `mcpsrv_npm_advisor` attempt that got rejected by the format
- * checker.
+ * historical names. Keeps `mcpsrv_npm_advisor` (early attempt to
+ * satisfy Claude Desktop's regex) and the UUID-prefixed key (a
+ * second attempt with a v4 UUID) so anyone whose config still
+ * carries those names gets cleaned up automatically on next install.
  */
-const LEGACY_SERVER_KEYS = ["npm-advisor", "mcpsrv_npm_advisor"] as const;
+const LEGACY_SERVER_KEYS = [
+  "mcpsrv_npm_advisor",
+  "mcpsrv_ec050486-7167-4ee0-a12c-996bf7aa5dda",
+] as const;
 
 /**
  * Returns the canonical descriptor for every supported MCP client.

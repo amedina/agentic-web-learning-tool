@@ -68,12 +68,6 @@ describe("buildClaudeCodeRemoveCommand", () => {
       `claude mcp remove ${SERVER_KEY_NAME}`,
     );
   });
-
-  it("uses Claude Desktop's mcpsrv_<uuid> format for the server key", () => {
-    expect(SERVER_KEY_NAME).toMatch(
-      /^mcpsrv_[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
-    );
-  });
 });
 
 describe("buildJsonMergePayload", () => {
@@ -207,12 +201,12 @@ describe("mergeIntoExistingConfig", () => {
     ).toBeUndefined();
   });
 
-  it("strips a legacy `npm-advisor` entry while writing the current key", () => {
+  it("strips a legacy `mcpsrv_<uuid>` entry while writing the current key", () => {
     const merged = mergeIntoExistingConfig(
       "claude-desktop",
       {
         mcpServers: {
-          "npm-advisor": {
+          "mcpsrv_ec050486-7167-4ee0-a12c-996bf7aa5dda": {
             command: "node",
             args: ["/legacy/server.js"],
           },
@@ -226,7 +220,9 @@ describe("mergeIntoExistingConfig", () => {
       [SERVER_KEY_NAME]: { command: "node", args: ["/new/server.js"] },
     });
     expect(
-      (merged.mcpServers as Record<string, unknown>)["npm-advisor"],
+      (merged.mcpServers as Record<string, unknown>)[
+        "mcpsrv_ec050486-7167-4ee0-a12c-996bf7aa5dda"
+      ],
     ).toBeUndefined();
   });
 
@@ -265,10 +261,13 @@ describe("removeFromExistingConfig", () => {
     expect(result.config.mcpServers).toEqual({});
   });
 
-  it("strips the legacy `npm-advisor` entry too", () => {
+  it("strips the legacy `mcpsrv_<uuid>` entry too", () => {
     const result = removeFromExistingConfig("claude-desktop", {
       mcpServers: {
-        "npm-advisor": { command: "node", args: ["/legacy/server.js"] },
+        "mcpsrv_ec050486-7167-4ee0-a12c-996bf7aa5dda": {
+          command: "node",
+          args: ["/legacy/server.js"],
+        },
       },
     });
     expect(result.removed).toBe(true);
