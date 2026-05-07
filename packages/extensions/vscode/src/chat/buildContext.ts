@@ -22,8 +22,39 @@ export interface BuildContextInput {
   dependencies: ContextDependency[];
 }
 
+/**
+ * Regex used by {@link extractCandidatePackageNames} to pull
+ * npm-name-shaped tokens out of free-text prompts. Matches the npm
+ * registry's grammar for valid package names:
+ *   - Optional scope prefix `@scope/` (e.g. `@types/node`).
+ *   - Body characters: lowercase letters, digits, `-`, `_`, `.`, `~`.
+ *
+ * The `g` flag is required so `String.prototype.matchAll` can iterate
+ * every occurrence in the prompt rather than stopping at the first.
+ *
+ * Note: the regex is permissive on purpose — it matches anything
+ * *shaped* like an npm name, not anything that exists on npm. A token
+ * like `"foobar"` passes this filter and is only verified later when
+ * `cache.get()` actually queries the registry.
+ */
 const NPM_NAME_PATTERN =
   /(?:@[a-z0-9-_~][a-z0-9-_.~]*\/)?[a-z0-9-_~][a-z0-9-_.~]*/g;
+
+/**
+ * Stop-word set used by {@link extractCandidatePackageNames} to drop
+ * tokens that the regex would otherwise accept but that are obviously
+ * English words or chat intent verbs ("compare", "score", "alternatives"),
+ * not package mentions.
+ *
+ * Without this filter, a prompt like `"compare lodash vs underscore"`
+ * would return every word — which would then waste a `cache.get()` per
+ * stop-word in {@link "../participant".fetchOnDemandMentions}, each one
+ * resolving to `null`. Filtering here keeps the on-demand fetch budget
+ * (capped at 5) spent on real candidates.
+ *
+ * Membership is checked against the lowercased token, so entries are
+ * stored lowercased.
+ */
 const STOP_WORDS = new Set([
   "and",
   "are",
