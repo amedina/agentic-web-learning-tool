@@ -81,9 +81,12 @@ export const App: FC<AppProps> = ({
           refreshKey: data.refreshKey ?? 0,
           prefetchedStats: data.prefetchedStats ?? {},
         });
-        if (data.focusPackageName) {
-          setFocusPackageName(data.focusPackageName);
-        }
+        // Sync focus to whatever the host sent — including null. A plain
+        // refresh / file-switch init has no focusPackageName, and without
+        // this clear the previously-focused row would re-scroll into view
+        // every time its file is reactivated (because the second effect
+        // re-runs on each new packageJsonDependencies object reference).
+        setFocusPackageName(data.focusPackageName ?? null);
       } else if (data.type === "focusPackage") {
         setFocusPackageName(data.packageName);
       }
