@@ -32,6 +32,7 @@ export type WebviewRequest =
   | { type: "viewPackage"; packageName: string }
   | { type: "openPackageJson"; uri: string }
   | { type: "refreshStats" }
+  | { type: "setupMcp" }
   | {
       type: "notify";
       level: "info" | "warning" | "error";

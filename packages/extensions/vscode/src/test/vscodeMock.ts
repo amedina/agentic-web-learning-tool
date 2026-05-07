@@ -215,6 +215,18 @@ export const window = {
 };
 
 /**
+ * Test stand-in for vscode.workspace. Defaults to "no folders open"
+ * (matching VSCode's behavior when the user opens a stand-alone file)
+ * and lets tests overwrite `workspaceFolders` to exercise the
+ * folder-required code paths.
+ */
+export const workspace: {
+  workspaceFolders: { uri: { fsPath: string } }[] | undefined;
+} = {
+  workspaceFolders: undefined,
+};
+
+/**
  * Test stand-in for vscode.authentication. Tests can spy on
  * `getSession` to fake an existing session or simulate the
  * interactive consent flow.

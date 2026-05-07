@@ -32,6 +32,7 @@ if (container) {
         vscodeApi.postMessage({ type: "openPackageJson", uri })
       }
       onRefreshStats={() => vscodeApi.postMessage({ type: "refreshStats" })}
+      onSetupMcp={() => vscodeApi.postMessage({ type: "setupMcp" })}
       onNotify={(level, message, dedupeKey) =>
         vscodeApi.postMessage({ type: "notify", level, message, dedupeKey })
       }
