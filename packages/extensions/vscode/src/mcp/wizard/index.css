@@ -51,3 +51,74 @@ body {
 .mcp-button-danger:hover:not(:disabled) {
   background-color: color-mix(in srgb, var(--vscode-errorForeground, var(--vscode-editorError-foreground)) 12%, transparent);
 }
+
+/*
+ * Three-dots overflow trigger in the card header. Borderless, picks
+ * up a subtle hover background so it hints at being clickable
+ * without competing with the primary action buttons below.
+ */
+.mcp-overflow-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: 6px;
+  background-color: transparent;
+  color: var(--vscode-foreground);
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.1s ease;
+}
+
+.mcp-overflow-trigger:hover:not(:disabled),
+.mcp-overflow-trigger[aria-expanded="true"] {
+  background-color: var(--vscode-toolbar-hoverBackground, color-mix(in srgb, var(--vscode-foreground) 10%, transparent));
+}
+
+.mcp-overflow-trigger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/*
+ * Menu items inside the overflow dropdown. Use VSCode's menu
+ * selection variables so the hover highlight matches whatever
+ * theme is active.
+ */
+.mcp-overflow-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.375rem 0.75rem;
+  font-size: 12px;
+  text-align: left;
+  background: transparent;
+  color: inherit;
+  border: none;
+  cursor: pointer;
+}
+
+.mcp-overflow-item:hover:not(:disabled),
+.mcp-overflow-item:focus-visible:not(:disabled) {
+  background-color: var(--vscode-menu-selectionBackground, var(--vscode-list-hoverBackground));
+  color: var(--vscode-menu-selectionForeground, var(--vscode-foreground));
+  outline: none;
+}
+
+.mcp-overflow-item:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.mcp-overflow-item-danger {
+  color: var(--vscode-errorForeground, var(--vscode-editorError-foreground));
+}
+
+.mcp-overflow-item-danger:hover:not(:disabled),
+.mcp-overflow-item-danger:focus-visible:not(:disabled) {
+  background-color: color-mix(in srgb, var(--vscode-errorForeground, var(--vscode-editorError-foreground)) 18%, transparent);
+  color: var(--vscode-errorForeground, var(--vscode-editorError-foreground));
+}

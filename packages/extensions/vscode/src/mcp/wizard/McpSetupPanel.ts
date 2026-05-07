@@ -16,8 +16,10 @@ import {
   type McpClientId,
 } from "../clientConfigs";
 import {
+  cleanupBackups,
   getClientStatus,
   installForClient,
+  listBackups,
   removeForClient,
   type McpClientStatus,
 } from "../operations";
@@ -154,6 +156,14 @@ export class McpSetupPanel implements vscode.Disposable {
       }
       case "copyCommand": {
         await this.handleCopyCommand(message.clientId, message.command);
+        return;
+      }
+      case "viewBackups": {
+        await this.handleViewBackups(message.clientId);
+        return;
+      }
+      case "cleanupBackups": {
+        this.handleCleanupBackups(message.clientId);
         return;
       }
     }
@@ -439,6 +449,107 @@ export class McpSetupPanel implements vscode.Disposable {
     });
   }
 
+  /**
+   * Reveals the newest backup file for this client in the OS file
+   * manager (Finder / Explorer). The user can then browse the prior
+   * timestamped backups in the same folder. Refuses with an inline
+   * toast if the client has no backups yet so the button doesn't
+   * silently fail.
+   */
+  private async handleViewBackups(clientId: McpClientId): Promise<void> {
+    const client = findClient(clientId);
+    if (!client) {
+      return;
+    }
+    const { paths } = listBackups(client);
+    if (paths.length === 0) {
+      this.postActionResult({
+        type: "actionResult",
+        result: {
+          clientId,
+          action: "viewBackups",
+          ok: false,
+          message: "No backups yet — install or reinstall first.",
+        },
+      });
+      return;
+    }
+    try {
+      const uri = vscode.Uri.file(paths[0]);
+      await vscode.commands.executeCommand("revealFileInOS", uri);
+      this.postActionResult({
+        type: "actionResult",
+        result: {
+          clientId,
+          action: "viewBackups",
+          ok: true,
+          message: `Opened folder with ${paths.length} backup file${paths.length === 1 ? "" : "s"}.`,
+        },
+      });
+    } catch (error) {
+      this.postActionResult({
+        type: "actionResult",
+        result: {
+          clientId,
+          action: "viewBackups",
+          ok: false,
+          message: error instanceof Error ? error.message : String(error),
+        },
+      });
+    }
+  }
+
+  /**
+   * Deletes every `.bak` file the wizard has written for this client.
+   * The button itself uses a two-click confirm in the React layer
+   * (no modal), so by the time we get here the user has already
+   * acknowledged the destruction. Posts a status refresh + inline
+   * toast so the card's backup count drops to zero.
+   */
+  private handleCleanupBackups(clientId: McpClientId): void {
+    const client = findClient(clientId);
+    if (!client) {
+      return;
+    }
+    const { deleted, error } = cleanupBackups(client);
+    if (error && deleted === 0) {
+      this.postActionResult({
+        type: "actionResult",
+        result: {
+          clientId,
+          action: "cleanupBackups",
+          ok: false,
+          message: `Couldn't delete backups: ${error}`,
+        },
+      });
+      return;
+    }
+    this.postStatuses();
+    if (deleted === 0) {
+      this.postActionResult({
+        type: "actionResult",
+        result: {
+          clientId,
+          action: "cleanupBackups",
+          ok: true,
+          nothingToDo: true,
+          message: "No backups to delete.",
+        },
+      });
+      return;
+    }
+    const tail = error ? ` (one failed: ${error})` : "";
+    this.postActionResult({
+      type: "actionResult",
+      result: {
+        clientId,
+        action: "cleanupBackups",
+        ok: true,
+        message: `Deleted ${deleted} backup file${deleted === 1 ? "" : "s"}.${tail}`,
+      },
+    });
+  }
+
   /** Writes a string to the system clipboard and confirms inline. */
   private async handleCopyCommand(
     clientId: McpClientId,
@@ -466,12 +577,15 @@ export class McpSetupPanel implements vscode.Disposable {
     const serverScriptPath = this.serverScriptPath();
     return getSupportedClients().map((client) => {
       const status = getClientStatus(client, serverScriptPath);
+      const { paths: backupPaths } = listBackups(client);
       const view: McpClientView = {
         id: client.id,
         label: client.label,
         description: client.description,
         docsUrl: client.docsUrl,
         status,
+        backupCount: backupPaths.length,
+        latestBackupPath: backupPaths[0],
       };
       if (client.strategy.kind === "cli-snippet") {
         view.cliCommand = buildClaudeCodeCommand(serverScriptPath);

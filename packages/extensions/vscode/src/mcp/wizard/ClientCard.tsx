@@ -3,6 +3,7 @@
  */
 import {
   useEffect,
+  useRef,
   useState,
   type CSSProperties,
   type FC,
@@ -10,6 +11,7 @@ import {
 } from "react";
 import {
   AlertTriangle,
+  Archive,
   CheckCircle2,
   Circle,
   Copy,
@@ -18,6 +20,7 @@ import {
   FolderOpen,
   Info,
   Loader2,
+  MoreVertical,
   RefreshCcw,
   Terminal,
   Trash2,
@@ -158,6 +161,14 @@ export const ClientCard: FC<ClientCardProps> = ({
               </a>
             ) : null}
           </div>
+          {isCli ? null : (
+            <ClientCardOverflow
+              client={client}
+              pending={pending}
+              isWorkspaceBlocked={isWorkspaceBlocked}
+              dispatch={dispatchAction}
+            />
+          )}
         </div>
 
         <div className="flex flex-wrap items-center gap-2 mt-4">
@@ -190,6 +201,201 @@ export const ClientCard: FC<ClientCardProps> = ({
   );
 };
 
+interface ClientCardOverflowProps {
+  client: McpClientView;
+  pending: McpWizardRequest["type"] | null;
+  isWorkspaceBlocked: boolean;
+  dispatch: (message: McpWizardRequest) => void;
+}
+
+/**
+ * Three-dots overflow menu in the card's top-right corner. Hosts the
+ * less-frequently-used file-system actions (Open config, Reveal in
+ * OS) and the backup-management actions (View / Delete backups) so
+ * the primary action row stays tight.
+ *
+ * Click-outside / Escape close the menu. Disabled menu items render
+ * dimmed but stay readable so users can see what's possible (e.g.
+ * "View backups (0)" when there are no backups yet) instead of the
+ * options disappearing into thin air.
+ *
+ * Delete backups uses a two-click confirm: the first click flips the
+ * item's label to "Click again to confirm" and keeps the menu open
+ * for a 4-second window; a second click in that window dispatches
+ * the delete and closes the menu, anything else (timeout, click on a
+ * different item, click-outside) resets the confirm state.
+ */
+const ClientCardOverflow: FC<ClientCardOverflowProps> = ({
+  client,
+  pending,
+  isWorkspaceBlocked,
+  dispatch,
+}) => {
+  const [open, setOpen] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+    const handleMouseDown = (event: MouseEvent): void => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
+        setOpen(false);
+      }
+    };
+    const handleKey = (event: KeyboardEvent): void => {
+      if (event.key === "Escape") {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleMouseDown);
+    document.addEventListener("keydown", handleKey);
+    return () => {
+      document.removeEventListener("mousedown", handleMouseDown);
+      document.removeEventListener("keydown", handleKey);
+    };
+  }, [open]);
+
+  // Closing the menu — for any reason — should reset the delete
+  // confirm so a stray reopen doesn't fire a delete on first click.
+  useEffect(() => {
+    if (!open) {
+      setConfirmingDelete(false);
+    }
+  }, [open]);
+
+  // Auto-revert the confirm-pending state after 4 seconds so a
+  // forgotten armed Delete doesn't sit there indefinitely.
+  useEffect(() => {
+    if (!confirmingDelete) {
+      return;
+    }
+    const timeoutId = setTimeout(() => setConfirmingDelete(false), 4000);
+    return () => clearTimeout(timeoutId);
+  }, [confirmingDelete]);
+
+  const close = (): void => setOpen(false);
+  const hasBackups = client.backupCount > 0;
+
+  const items: OverflowItem[] = [
+    {
+      key: "openConfig",
+      label: "Open config",
+      icon: <FileCode size={14} />,
+      disabled: isWorkspaceBlocked,
+      onClick: () => {
+        close();
+        dispatch({ type: "openConfig", clientId: client.id });
+      },
+    },
+    {
+      key: "revealConfig",
+      label: "Reveal in OS",
+      icon: <FolderOpen size={14} />,
+      disabled: isWorkspaceBlocked,
+      onClick: () => {
+        close();
+        dispatch({ type: "revealConfig", clientId: client.id });
+      },
+    },
+    {
+      key: "viewBackups",
+      label: `View backups (${client.backupCount})`,
+      icon: <Archive size={14} />,
+      disabled: !hasBackups,
+      onClick: () => {
+        close();
+        dispatch({ type: "viewBackups", clientId: client.id });
+      },
+    },
+    {
+      key: "cleanupBackups",
+      label: confirmingDelete ? "Click again to confirm" : "Delete backups",
+      icon: <Trash2 size={14} />,
+      disabled: !hasBackups,
+      danger: true,
+      onClick: () => {
+        if (!confirmingDelete) {
+          setConfirmingDelete(true);
+          return;
+        }
+        setConfirmingDelete(false);
+        close();
+        dispatch({ type: "cleanupBackups", clientId: client.id });
+      },
+    },
+  ];
+
+  return (
+    <div className="relative shrink-0" ref={containerRef}>
+      <button
+        type="button"
+        onClick={() => setOpen((previous) => !previous)}
+        disabled={pending !== null}
+        aria-label="More actions"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        className="mcp-overflow-trigger"
+      >
+        <MoreVertical size={16} />
+      </button>
+      {open ? (
+        <div
+          role="menu"
+          className="absolute right-0 top-full mt-1 z-10 min-w-[200px] rounded-md border py-1 shadow-md"
+          style={{
+            backgroundColor:
+              "var(--vscode-menu-background, var(--vscode-editorWidget-background))",
+            color: "var(--vscode-menu-foreground, var(--vscode-foreground))",
+            borderColor:
+              "var(--vscode-menu-border, var(--vscode-widget-border, var(--vscode-panel-border)))",
+          }}
+        >
+          {items.map((item) => (
+            <OverflowMenuItem key={item.key} item={item} />
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+};
+
+interface OverflowItem {
+  key: string;
+  label: string;
+  icon: ReactNode;
+  disabled?: boolean;
+  danger?: boolean;
+  onClick: () => void;
+}
+
+interface OverflowMenuItemProps {
+  item: OverflowItem;
+}
+
+/**
+ * Single row inside `ClientCardOverflow`'s menu. Disabled items stay
+ * visible (dimmed) so users see every option even when it's not
+ * applicable yet — a "View backups (0)" tells the user backups
+ * exist as a concept on this card, just not yet for them.
+ */
+const OverflowMenuItem: FC<OverflowMenuItemProps> = ({ item }) => (
+  <button
+    type="button"
+    role="menuitem"
+    disabled={item.disabled}
+    onClick={item.onClick}
+    className={`mcp-overflow-item ${item.danger ? "mcp-overflow-item-danger" : ""}`}
+  >
+    <span className="shrink-0">{item.icon}</span>
+    <span className="flex-1 text-left">{item.label}</span>
+  </button>
+);
+
 interface JsonMergeActionsProps {
   client: McpClientView;
   status: McpClientView["status"];
@@ -200,10 +406,10 @@ interface JsonMergeActionsProps {
 }
 
 /**
- * Action row for the three json-merge clients. Renders the primary
- * Install/Reinstall/Remove button, plus the file-system buttons
- * (Open config, Reveal in OS) which we suppress when there's no
- * resolvable config path.
+ * Action row for the three json-merge clients. Only renders the
+ * primary install / reinstall / remove buttons — every other action
+ * (Open config, Reveal in OS, View / Delete backups) lives in the
+ * three-dots overflow menu in the card header to keep the row tight.
  */
 const JsonMergeActions: FC<JsonMergeActionsProps> = ({
   client,
@@ -222,48 +428,33 @@ const JsonMergeActions: FC<JsonMergeActionsProps> = ({
       <CheckCircle2 size={14} />
     );
 
+  if (!isInstalled) {
+    return (
+      <PrimaryButton
+        icon={installIcon}
+        label={installLabel}
+        loading={pending === "install"}
+        disabled={pending !== null || isWorkspaceBlocked}
+        onClick={() => dispatch({ type: "install", clientId: client.id })}
+      />
+    );
+  }
+
   return (
     <>
-      {isInstalled ? null : (
-        <PrimaryButton
-          icon={installIcon}
-          label={installLabel}
-          loading={pending === "install"}
-          disabled={pending !== null || isWorkspaceBlocked}
-          onClick={() => dispatch({ type: "install", clientId: client.id })}
-        />
-      )}
-      {isInstalled ? (
-        <>
-          <SecondaryButton
-            icon={<RefreshCcw size={14} />}
-            label="Reinstall"
-            loading={pending === "install"}
-            disabled={pending !== null}
-            onClick={() => dispatch({ type: "install", clientId: client.id })}
-          />
-          <DangerButton
-            icon={<Trash2 size={14} />}
-            label="Remove"
-            loading={pending === "remove"}
-            disabled={pending !== null}
-            onClick={() => dispatch({ type: "remove", clientId: client.id })}
-          />
-        </>
-      ) : null}
       <SecondaryButton
-        icon={<FileCode size={14} />}
-        label="Open config"
-        loading={pending === "openConfig"}
-        disabled={pending !== null || isWorkspaceBlocked}
-        onClick={() => dispatch({ type: "openConfig", clientId: client.id })}
+        icon={<RefreshCcw size={14} />}
+        label="Reinstall"
+        loading={pending === "install"}
+        disabled={pending !== null}
+        onClick={() => dispatch({ type: "install", clientId: client.id })}
       />
-      <SecondaryButton
-        icon={<FolderOpen size={14} />}
-        label="Reveal in OS"
-        loading={pending === "revealConfig"}
-        disabled={pending !== null || isWorkspaceBlocked}
-        onClick={() => dispatch({ type: "revealConfig", clientId: client.id })}
+      <DangerButton
+        icon={<Trash2 size={14} />}
+        label="Remove"
+        loading={pending === "remove"}
+        disabled={pending !== null}
+        onClick={() => dispatch({ type: "remove", clientId: client.id })}
       />
     </>
   );

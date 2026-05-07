@@ -2,7 +2,14 @@
  * External dependencies.
  */
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -11,8 +18,10 @@ import { join } from "node:path";
  */
 import { type McpClientDescriptor, SERVER_KEY_NAME } from "../clientConfigs";
 import {
+  cleanupBackups,
   getClientStatus,
   installForClient,
+  listBackups,
   removeForClient,
 } from "../operations";
 
@@ -270,5 +279,79 @@ describe("removeForClient", () => {
     expect(
       (written.mcpServers as Record<string, unknown>)[SERVER_KEY_NAME],
     ).toBeUndefined();
+  });
+});
+
+describe("listBackups", () => {
+  it("returns an empty list and the resolved configPath when no backups exist", () => {
+    writeFileSync(configPath, JSON.stringify({}));
+    const result = listBackups(makeClient("claude-desktop", configPath));
+    expect(result).toEqual({ paths: [], configPath });
+  });
+
+  it("lists `.bak` siblings of the config file, newest first", () => {
+    writeFileSync(configPath, "{}");
+    writeFileSync(`${configPath}.2026-01-01T00-00-00-000Z.bak`, "old");
+    writeFileSync(`${configPath}.2026-05-01T00-00-00-000Z.bak`, "newer");
+    writeFileSync(`${configPath}.2026-03-01T00-00-00-000Z.bak`, "middle");
+    const { paths } = listBackups(makeClient("claude-desktop", configPath));
+    expect(paths).toEqual([
+      `${configPath}.2026-05-01T00-00-00-000Z.bak`,
+      `${configPath}.2026-03-01T00-00-00-000Z.bak`,
+      `${configPath}.2026-01-01T00-00-00-000Z.bak`,
+    ]);
+  });
+
+  it("does not match unrelated `.bak` files in the same directory", () => {
+    writeFileSync(configPath, "{}");
+    writeFileSync(`${configPath}.2026-01-01T00-00-00-000Z.bak`, "ours");
+    writeFileSync(join(tempDir, "unrelated.json.bak"), "theirs");
+    writeFileSync(join(tempDir, "config.json.notatimestamp"), "no");
+    const { paths } = listBackups(makeClient("claude-desktop", configPath));
+    expect(paths).toEqual([`${configPath}.2026-01-01T00-00-00-000Z.bak`]);
+  });
+
+  it("returns an empty list for cli-snippet clients", () => {
+    const { paths, configPath: resolved } = listBackups({
+      id: "claude-code",
+      label: "Claude Code",
+      description: "test",
+      strategy: { kind: "cli-snippet" },
+    });
+    expect(paths).toEqual([]);
+    expect(resolved).toBeNull();
+  });
+});
+
+describe("cleanupBackups", () => {
+  it("returns deleted=0 when there are no backups to remove", () => {
+    writeFileSync(configPath, "{}");
+    expect(cleanupBackups(makeClient("claude-desktop", configPath))).toEqual({
+      deleted: 0,
+    });
+  });
+
+  it("deletes every matching backup and leaves the live config alone", () => {
+    writeFileSync(configPath, JSON.stringify({ keep: true }));
+    writeFileSync(`${configPath}.2026-01-01T00-00-00-000Z.bak`, "a");
+    writeFileSync(`${configPath}.2026-02-01T00-00-00-000Z.bak`, "b");
+    writeFileSync(`${configPath}.2026-03-01T00-00-00-000Z.bak`, "c");
+    expect(cleanupBackups(makeClient("claude-desktop", configPath))).toEqual({
+      deleted: 3,
+    });
+    const remaining = readdirSync(tempDir);
+    expect(remaining).toEqual(["config.json"]);
+    expect(existsSync(configPath)).toBe(true);
+  });
+
+  it("leaves unrelated `.bak` files untouched", () => {
+    writeFileSync(configPath, "{}");
+    writeFileSync(`${configPath}.2026-01-01T00-00-00-000Z.bak`, "ours");
+    const unrelatedBackup = join(tempDir, "unrelated.json.bak");
+    writeFileSync(unrelatedBackup, "theirs");
+    expect(cleanupBackups(makeClient("claude-desktop", configPath))).toEqual({
+      deleted: 1,
+    });
+    expect(existsSync(unrelatedBackup)).toBe(true);
   });
 });

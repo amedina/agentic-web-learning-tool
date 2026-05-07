@@ -2,8 +2,15 @@
  * External dependencies.
  */
 import * as vscode from "vscode";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, isAbsolute, resolve } from "node:path";
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  unlinkSync,
+  writeFileSync,
+} from "node:fs";
+import { basename, dirname, isAbsolute, join, resolve } from "node:path";
 
 /**
  * Internal dependencies.
@@ -177,6 +184,87 @@ export function removeForClient(
       error: error instanceof Error ? error.message : String(error),
     };
   }
+}
+
+/**
+ * Lists every timestamped backup file the wizard has written for the
+ * given client's config, sorted newest-first (lexicographic sort
+ * works because the timestamps embedded in the filename are ISO
+ * strings). Returns absolute paths. An empty array means the
+ * directory has no backups for this config — including the case
+ * where the config file itself doesn't exist yet, since we never
+ * write a backup without a prior file to back up.
+ */
+export function listBackups(client: McpClientDescriptor): {
+  paths: string[];
+  configPath: string | null;
+} {
+  if (client.strategy.kind === "cli-snippet") {
+    return { paths: [], configPath: null };
+  }
+  const configPath = resolveConfigPath(client.strategy.configPath);
+  if (!configPath) {
+    return { paths: [], configPath: null };
+  }
+  const directory = dirname(configPath);
+  if (!existsSync(directory)) {
+    return { paths: [], configPath };
+  }
+  const fileBasename = basename(configPath);
+  // The wizard writes ${configPath}.${ISO-ish-timestamp}.bak; match
+  // exactly that shape so unrelated `.bak` files in the same
+  // directory (other tools' backups, the user's manual backups,
+  // etc.) don't get listed or — much worse — deleted by cleanup.
+  const pattern = new RegExp(`^${escapeRegExp(fileBasename)}\\..+\\.bak$`);
+  let entries: string[];
+  try {
+    entries = readdirSync(directory);
+  } catch {
+    return { paths: [], configPath };
+  }
+  const matches = entries
+    .filter((name) => pattern.test(name))
+    .sort()
+    .reverse()
+    .map((name) => join(directory, name));
+  return { paths: matches, configPath };
+}
+
+/**
+ * Deletes every backup file `listBackups` would return for the given
+ * client. Returns the count actually removed plus an `error` string
+ * describing the first failure so the caller can surface it inline.
+ * Does not touch the live config file — only files matching the
+ * `<config>.<timestamp>.bak` shape we wrote ourselves.
+ */
+export function cleanupBackups(client: McpClientDescriptor): {
+  deleted: number;
+  error?: string;
+} {
+  const { paths } = listBackups(client);
+  let deleted = 0;
+  let firstError: string | null = null;
+  for (const path of paths) {
+    try {
+      unlinkSync(path);
+      deleted += 1;
+    } catch (error) {
+      if (!firstError) {
+        firstError = error instanceof Error ? error.message : String(error);
+      }
+    }
+  }
+  return firstError ? { deleted, error: firstError } : { deleted };
+}
+
+/**
+ * Escapes a string so it can be embedded literally inside a RegExp.
+ * Used by listBackups to match the per-client config filename
+ * exactly (e.g., `claude_desktop_config.json` has a literal dot that
+ * must not match any character).
+ */
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 /**

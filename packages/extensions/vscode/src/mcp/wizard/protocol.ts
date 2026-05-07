@@ -8,7 +8,9 @@ import type { McpClientStatus } from "../operations";
  * Per-client snapshot rendered as a card in the wizard. Built by the
  * host on each refresh and pushed to the webview as part of the init /
  * statuses message. `cliCommand` / `cliRemoveCommand` only set for
- * Claude Code (cli-snippet strategy).
+ * Claude Code (cli-snippet strategy). `backupCount` /
+ * `latestBackupPath` are 0 / undefined for cli-snippet clients (no
+ * config file → no backups).
  */
 export interface McpClientView {
   id: McpClientId;
@@ -18,6 +20,10 @@ export interface McpClientView {
   status: McpClientStatus;
   cliCommand?: string;
   cliRemoveCommand?: string;
+  /** Count of `<config>.<ts>.bak` files this client has accumulated. */
+  backupCount: number;
+  /** Newest backup's absolute path; the host reveals this in the OS file manager. */
+  latestBackupPath?: string;
 }
 
 /**
@@ -28,7 +34,14 @@ export interface McpClientView {
 export interface McpActionResult {
   clientId: McpClientId;
   /** Which action the result is for — keeps the card's UI honest. */
-  action: "install" | "remove" | "openConfig" | "revealConfig" | "runCommand";
+  action:
+    | "install"
+    | "remove"
+    | "openConfig"
+    | "revealConfig"
+    | "runCommand"
+    | "viewBackups"
+    | "cleanupBackups";
   ok: boolean;
   message: string;
   /** True for install/remove no-ops (e.g. "nothing to remove"). */
@@ -60,7 +73,11 @@ export type McpWizardRequest =
       command: string;
       label: string;
     }
-  | { type: "copyCommand"; clientId: McpClientId; command: string };
+  | { type: "copyCommand"; clientId: McpClientId; command: string }
+  /** Reveals the most recent `.bak` for this client in the OS file manager. */
+  | { type: "viewBackups"; clientId: McpClientId }
+  /** Deletes every `.bak` file the wizard has written for this client's config. */
+  | { type: "cleanupBackups"; clientId: McpClientId };
 
 /**
  * Host → webview messages.
