@@ -57,7 +57,7 @@ describe("buildServerEntry", () => {
 describe("buildClaudeCodeCommand", () => {
   it("renders a `claude mcp add` command with the script path quoted", () => {
     expect(buildClaudeCodeCommand("/path with space/server.js")).toBe(
-      'claude mcp add npm-advisor -- node "/path with space/server.js"',
+      `claude mcp add ${SERVER_KEY_NAME} -- node "/path with space/server.js"`,
     );
   });
 });
@@ -65,7 +65,13 @@ describe("buildClaudeCodeCommand", () => {
 describe("buildClaudeCodeRemoveCommand", () => {
   it("renders the matching `claude mcp remove` command", () => {
     expect(buildClaudeCodeRemoveCommand()).toBe(
-      "claude mcp remove npm-advisor",
+      `claude mcp remove ${SERVER_KEY_NAME}`,
+    );
+  });
+
+  it("uses Claude Desktop's mcpsrv_<uuid> format for the server key", () => {
+    expect(SERVER_KEY_NAME).toMatch(
+      /^mcpsrv_[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
     );
   });
 });
@@ -201,6 +207,29 @@ describe("mergeIntoExistingConfig", () => {
     ).toBeUndefined();
   });
 
+  it("strips a legacy `npm-advisor` entry while writing the current key", () => {
+    const merged = mergeIntoExistingConfig(
+      "claude-desktop",
+      {
+        mcpServers: {
+          "npm-advisor": {
+            command: "node",
+            args: ["/legacy/server.js"],
+          },
+          filesystem: { command: "node", args: ["/other/server.js"] },
+        },
+      },
+      buildServerEntry("/new/server.js"),
+    );
+    expect(merged.mcpServers).toEqual({
+      filesystem: { command: "node", args: ["/other/server.js"] },
+      [SERVER_KEY_NAME]: { command: "node", args: ["/new/server.js"] },
+    });
+    expect(
+      (merged.mcpServers as Record<string, unknown>)["npm-advisor"],
+    ).toBeUndefined();
+  });
+
   it("handles a null existing config (file not present) by returning a fresh object", () => {
     const merged = mergeIntoExistingConfig(
       "claude-desktop",
@@ -230,6 +259,16 @@ describe("removeFromExistingConfig", () => {
     const result = removeFromExistingConfig("claude-desktop", {
       mcpServers: {
         mcpsrv_npm_advisor: { command: "node", args: ["/legacy/server.js"] },
+      },
+    });
+    expect(result.removed).toBe(true);
+    expect(result.config.mcpServers).toEqual({});
+  });
+
+  it("strips the legacy `npm-advisor` entry too", () => {
+    const result = removeFromExistingConfig("claude-desktop", {
+      mcpServers: {
+        "npm-advisor": { command: "node", args: ["/legacy/server.js"] },
       },
     });
     expect(result.removed).toBe(true);

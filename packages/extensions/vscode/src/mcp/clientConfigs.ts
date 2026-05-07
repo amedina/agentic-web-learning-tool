@@ -27,22 +27,32 @@ export interface McpClientDescriptor {
   strategy: McpClientStrategy;
 }
 
-// Claude Desktop's "Disconnect" UI rejects stdio MCP servers added
-// via direct config edits regardless of key shape (their UI is wired
-// to the newer Connectors flow), so renaming to `mcpsrv_*` didn't
-// help — and the readable key reads better in `claude mcp list`,
-// the .vscode/mcp.json file, etc. Reverted to the human-friendly
-// name. Uninstall is handled by our own wizard, not Claude Desktop's.
-const SERVER_KEY = "npm-advisor";
+// Claude Desktop's Connectors UI accepts two ID shapes for stdio
+// servers: a bare UUID, or an `mcpsrv_<uuid>` "tagged" ID — the
+// disconnect handler validates the key against that pattern and
+// throws "Invalid server ID format. Expected UUID or mcpsrv_* tagged
+// ID" otherwise. A previous attempt used `mcpsrv_npm_advisor` (no
+// UUID suffix) and got rejected for the same reason; the human-
+// friendly `npm-advisor` failed the same check.
+//
+// We hardcode a stable v4 UUID so the key is the same for every user
+// (no rotation per install) and Claude Desktop's Connectors UI can
+// disconnect our entry the same way it disconnects an officially-
+// installed connector. The UUID itself is meaningless — only its
+// shape matters to Claude Desktop's parser.
+const SERVER_KEY = "mcpsrv_ec050486-7167-4ee0-a12c-996bf7aa5dda";
 
 /**
  * Pre-migration keys — used by the wizard's install + uninstall paths
  * to clean up entries written under earlier names. Add to this list
  * (don't remove from it) every time SERVER_KEY changes so reinstalls
  * always end up with exactly one entry across all of npm-advisor's
- * historical names.
+ * historical names. Keeps both the readable `npm-advisor` form (used
+ * before the Claude-Desktop UI compatibility fix) and the earlier
+ * `mcpsrv_npm_advisor` attempt that got rejected by the format
+ * checker.
  */
-const LEGACY_SERVER_KEYS = ["mcpsrv_npm_advisor"] as const;
+const LEGACY_SERVER_KEYS = ["npm-advisor", "mcpsrv_npm_advisor"] as const;
 
 /**
  * Returns the canonical descriptor for every supported MCP client.
