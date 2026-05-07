@@ -1,6 +1,6 @@
 const esbuild = require("esbuild");
-const { mkdirSync } = require("node:fs");
-const { spawnSync } = require("node:child_process");
+const { mkdirSync, copyFileSync, existsSync, chmodSync } = require("node:fs");
+const { spawn, spawnSync } = require("node:child_process");
 const path = require("node:path");
 
 const production = process.argv.includes("--production");
@@ -73,28 +73,37 @@ const webviewBuildOptions = {
   logLevel: "info",
 };
 
+// Separate bundle for the MCP-setup wizard webview. Lives in its own
+// entry point so the dependency-stats panel and the wizard can evolve
+// independently without dragging each other's bundle weight along.
+const mcpWizardBuildOptions = {
+  ...webviewBuildOptions,
+  entryPoints: ["src/mcp/wizard/main.tsx"],
+  outfile: "dist/mcpWizard.js",
+};
+
 const VSIX_OUT_DIR = path.resolve(
   __dirname,
   "../../../dist/vscode-npm-advisor",
 );
 
 function buildWebviewCss() {
-  const args = [
-    "tailwindcss",
-    "-i",
-    "src/webview/index.css",
-    "-o",
-    "dist/webview.css",
+  const sheets = [
+    { input: "src/webview/index.css", output: "dist/webview.css" },
+    { input: "src/mcp/wizard/index.css", output: "dist/mcpWizard.css" },
   ];
-  if (production) {
-    args.push("--minify");
-  }
-  const result = spawnSync("npx", args, {
-    stdio: "inherit",
-    shell: true,
-  });
-  if (result.status !== 0) {
-    process.exit(result.status ?? 1);
+  for (const sheet of sheets) {
+    const args = ["tailwindcss", "-i", sheet.input, "-o", sheet.output];
+    if (production) {
+      args.push("--minify");
+    }
+    const result = spawnSync("npx", args, {
+      stdio: "inherit",
+      shell: true,
+    });
+    if (result.status !== 0) {
+      process.exit(result.status ?? 1);
+    }
   }
 }
 
@@ -110,11 +119,68 @@ function packageExtension() {
   }
 }
 
+/**
+ * Builds (if needed) and copies the standalone MCP server bundle out
+ * of @agentic-web-labs/npm-advisor-mcp into dist/mcp/server.js so it
+ * ships inside the .vsix. The "Set up MCP for AI clients" command
+ * then writes config snippets for Claude Desktop / Cursor / Claude
+ * Code that point straight at this bundled binary, removing the
+ * need for users to install Node, npm, or any extra package.
+ */
+function bundleMcpServer() {
+  const mcpSource = path.resolve(
+    __dirname,
+    "../../shared/npm-advisor-mcp/dist/server.js",
+  );
+  if (!existsSync(mcpSource)) {
+    const buildResult = spawnSync(
+      "pnpm",
+      ["--filter", "@agentic-web-labs/npm-advisor-mcp", "build"],
+      {
+        stdio: "inherit",
+        shell: true,
+        cwd: path.resolve(__dirname, "../../.."),
+      },
+    );
+    if (buildResult.status !== 0) {
+      process.exit(buildResult.status ?? 1);
+    }
+  }
+  const mcpDest = path.resolve(__dirname, "dist/mcp/server.js");
+  mkdirSync(path.dirname(mcpDest), { recursive: true });
+  copyFileSync(mcpSource, mcpDest);
+  // Preserve the executable bit so Node's stdio launchers can spawn
+  // the file directly when "command": "node" isn't enough on some
+  // shells; harmless when consumers always go through `node`.
+  chmodSync(mcpDest, 0o755);
+}
+
 async function main() {
   if (watch) {
     const extensionContext = await esbuild.context(extensionBuildOptions);
     const webviewContext = await esbuild.context(webviewBuildOptions);
-    await Promise.all([extensionContext.watch(), webviewContext.watch()]);
+    const mcpWizardContext = await esbuild.context(mcpWizardBuildOptions);
+    await Promise.all([
+      extensionContext.watch(),
+      webviewContext.watch(),
+      mcpWizardContext.watch(),
+    ]);
+    // Tailwind's CLI doesn't accept multiple --input flags, so we run
+    // one watcher per stylesheet. The wizard watcher runs in the
+    // background and the webview watcher in the foreground keeps the
+    // dev process alive — exiting either kills the whole tree.
+    spawn(
+      "npx",
+      [
+        "tailwindcss",
+        "-i",
+        "src/mcp/wizard/index.css",
+        "-o",
+        "dist/mcpWizard.css",
+        "--watch",
+      ],
+      { stdio: "inherit", shell: true },
+    );
     spawnSync(
       "npx",
       [
@@ -133,8 +199,10 @@ async function main() {
   await Promise.all([
     esbuild.build(extensionBuildOptions),
     esbuild.build(webviewBuildOptions),
+    esbuild.build(mcpWizardBuildOptions),
   ]);
   buildWebviewCss();
+  bundleMcpServer();
 
   if (production) {
     packageExtension();

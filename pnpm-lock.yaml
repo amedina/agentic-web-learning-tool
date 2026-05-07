@@ -33,7 +33,7 @@ patchedDependencies:
     hash: 46a7cfa2f818f8cbd85e6a5a2dbabd025717a8972464c3d8a538756a169ec3ff
     path: patches/assistant-stream@0.2.46.patch
   zod@4.3.5:
-    hash: 1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567
+    hash: 83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d
     path: patches/zod@4.3.5.patch
 
 importers:
@@ -91,7 +91,7 @@ importers:
     dependencies:
       zod:
         specifier: 4.3.5
-        version: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
+        version: 4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)
     devDependencies:
       '@agentic-web-labs/shared-config':
         specifier: workspace:*
@@ -220,7 +220,7 @@ importers:
         version: link:../../shared/design-system
       '@modelcontextprotocol/sdk':
         specifier: 1.25.2
-        version: 1.25.2(@cfworker/json-schema@4.1.1)(hono@4.12.9)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+        version: 1.25.2(@cfworker/json-schema@4.1.1)(hono@4.12.9)(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))
       ajv:
         specifier: 6.12.6
         version: 6.12.6
@@ -259,7 +259,7 @@ importers:
         version: 0.14.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       zod:
         specifier: 4.3.5
-        version: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
+        version: 4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)
     devDependencies:
       '@agentic-web-labs/shared-config':
         specifier: workspace:*
@@ -359,7 +359,7 @@ importers:
         version: 2.0.0(react@19.2.4)(scheduler@0.27.0)
       zod:
         specifier: 4.3.5
-        version: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
+        version: 4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)
     devDependencies:
       '@agentic-web-labs/shared-config':
         specifier: workspace:*
@@ -429,13 +429,13 @@ importers:
         version: 0.2.3(patch_hash=de61710e62afdb10e9b1aa256f697615f6f694df3f7c35e4aa0ea8ee2eb930fd)(@cfworker/json-schema@4.1.1)(hono@4.12.9)
       '@mcp-b/react-webmcp':
         specifier: ^2.0.9
-        version: 2.2.0(patch_hash=001d8c830b8941fb836eccc8b4c36be4752a8753b8191d7bbfb65449257866bf)(react@19.2.4)(zod-to-json-schema@3.25.2(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+        version: 2.2.0(patch_hash=001d8c830b8941fb836eccc8b4c36be4752a8753b8191d7bbfb65449257866bf)(react@19.2.4)(zod-to-json-schema@3.25.2(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)))(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))
       '@mcp-b/transports':
         specifier: 2.2.0
-        version: 2.2.0(patch_hash=895810792e73f58dcd5b7e0e036da109be52e2edf6cdd54263351893072d447f)(zod-to-json-schema@3.25.2(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))
+        version: 2.2.0(patch_hash=895810792e73f58dcd5b7e0e036da109be52e2edf6cdd54263351893072d447f)(zod-to-json-schema@3.25.2(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)))
       '@modelcontextprotocol/sdk':
         specifier: 1.25.2
-        version: 1.25.2(@cfworker/json-schema@4.1.1)(hono@4.12.9)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+        version: 1.25.2(@cfworker/json-schema@4.1.1)(hono@4.12.9)(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))
       '@radix-ui/react-icons':
         specifier: ^1.3.2
         version: 1.3.2(react@19.2.4)
@@ -459,7 +459,7 @@ importers:
         version: 19.2.4(react@19.2.4)
       zod:
         specifier: 4.3.5
-        version: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
+        version: 4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)
     devDependencies:
       '@agentic-web-labs/shared-config':
         specifier: workspace:*
@@ -580,7 +580,7 @@ importers:
         version: 9.1.20(@testing-library/dom@10.4.1)(prettier@3.8.1)(vite@7.3.1(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(yaml@2.8.3))
       ts-jest:
         specifier: ^29.4.1
-        version: 29.4.6(@babel/core@7.29.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.29.0))(jest-util@29.7.0)(jest@29.7.0(@types/node@24.12.0))(typescript@5.8.3)
+        version: 29.4.6(@babel/core@7.29.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.29.0))(esbuild@0.24.2)(jest-util@29.7.0)(jest@29.7.0(@types/node@24.12.0))(typescript@5.8.3)
       typescript:
         specifier: ~5.8.3
         version: 5.8.3
@@ -628,7 +628,7 @@ importers:
         version: 4.2.2(vite@7.3.1(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(yaml@2.8.3))
       ai:
         specifier: ^5.0.104
-        version: 5.0.161(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+        version: 5.0.161(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))
       algoliasearch:
         specifier: ^5.50.0
         version: 5.50.0
@@ -661,7 +661,7 @@ importers:
         version: 4.2.2
       zod:
         specifier: 4.3.5
-        version: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
+        version: 4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)
     devDependencies:
       '@agentic-web-labs/shared-config':
         specifier: workspace:*
@@ -786,13 +786,13 @@ importers:
         version: link:../design-system
       '@ai-sdk/anthropic':
         specifier: ^2.0.53
-        version: 2.0.71(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+        version: 2.0.71(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))
       '@ai-sdk/google':
         specifier: 2.0.63
-        version: 2.0.63(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+        version: 2.0.63(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))
       '@ai-sdk/openai':
         specifier: ^2.0.77
-        version: 2.0.101(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+        version: 2.0.101(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))
       '@ai-sdk/provider':
         specifier: ^2.0.0
         version: 2.0.1
@@ -804,19 +804,19 @@ importers:
         version: 1.1.19(@assistant-ui/react@0.11.51(patch_hash=67df03cd2ce1371da3a413dd7f088ed189627bed887039984e53e03592e6ae44)(@types/react-dom@19.1.9(@types/react@19.2.14))(@types/react@19.2.14)(immer@9.0.21)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4)))(@types/react@19.2.14)(assistant-cloud@0.1.23)(immer@9.0.21)(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4))
       '@mcp-b/react-webmcp':
         specifier: ^2.0.9
-        version: 2.2.0(patch_hash=001d8c830b8941fb836eccc8b4c36be4752a8753b8191d7bbfb65449257866bf)(react@19.2.4)(zod-to-json-schema@3.25.2(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+        version: 2.2.0(patch_hash=001d8c830b8941fb836eccc8b4c36be4752a8753b8191d7bbfb65449257866bf)(react@19.2.4)(zod-to-json-schema@3.25.2(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)))(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))
       '@mcp-b/transports':
         specifier: 2.2.0
-        version: 2.2.0(patch_hash=895810792e73f58dcd5b7e0e036da109be52e2edf6cdd54263351893072d447f)(zod-to-json-schema@3.25.2(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))
+        version: 2.2.0(patch_hash=895810792e73f58dcd5b7e0e036da109be52e2edf6cdd54263351893072d447f)(zod-to-json-schema@3.25.2(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)))
       '@modelcontextprotocol/sdk':
         specifier: 1.25.2
-        version: 1.25.2(@cfworker/json-schema@4.1.1)(hono@4.12.9)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+        version: 1.25.2(@cfworker/json-schema@4.1.1)(hono@4.12.9)(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))
       '@radix-ui/react-icons':
         specifier: ^1.3.2
         version: 1.3.2(react@19.2.4)
       ai:
         specifier: ^5.0.104
-        version: 5.0.161(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+        version: 5.0.161(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))
       assistant-stream:
         specifier: 0.2.46
         version: 0.2.46(patch_hash=46a7cfa2f818f8cbd85e6a5a2dbabd025717a8972464c3d8a538756a169ec3ff)
@@ -834,7 +834,7 @@ importers:
         version: 19.2.4(react@19.2.4)
       zod:
         specifier: 4.3.5
-        version: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
+        version: 4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)
     devDependencies:
       '@agentic-web-labs/shared-config':
         specifier: workspace:*
@@ -1116,7 +1116,7 @@ importers:
         version: 7.29.0
       '@modelcontextprotocol/sdk':
         specifier: 1.25.2
-        version: 1.25.2(@cfworker/json-schema@4.1.1)(hono@4.12.9)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+        version: 1.25.2(@cfworker/json-schema@4.1.1)(hono@4.12.9)(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))
       '@storybook/react-vite':
         specifier: ^9.1.3
         version: 9.1.20(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(rollup@4.60.0)(storybook@9.1.20(@testing-library/dom@10.4.1)(prettier@3.8.1)(vite@7.3.1(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(yaml@2.8.3)))(typescript@5.9.3)(vite@7.3.1(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(yaml@2.8.3))
@@ -1186,6 +1186,37 @@ importers:
       typescript:
         specifier: ~5.9.2
         version: 5.9.3
+
+  packages/shared/npm-advisor-mcp:
+    dependencies:
+      '@agentic-web-labs/package-analyzer-core':
+        specifier: workspace:*
+        version: link:../package-analyzer-core
+      '@modelcontextprotocol/sdk':
+        specifier: 1.25.2
+        version: 1.25.2(@cfworker/json-schema@4.1.1)(hono@4.12.9)(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))
+      zod:
+        specifier: 4.3.5
+        version: 4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)
+    devDependencies:
+      '@agentic-web-labs/shared-config':
+        specifier: workspace:*
+        version: link:../shared-config
+      '@types/node':
+        specifier: ^24.3.0
+        version: 24.12.0
+      esbuild:
+        specifier: ^0.24.0
+        version: 0.24.2
+      rimraf:
+        specifier: ^5.0.5
+        version: 5.0.10
+      typescript:
+        specifier: ~5.8.3
+        version: 5.8.3
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/debug@4.1.13)(@types/node@24.12.0)(@vitest/browser@3.2.4)(jiti@2.6.1)(jsdom@20.0.3)(lightningcss@1.32.0)(yaml@2.8.3)
 
   packages/shared/package-analyzer-core:
     devDependencies:
@@ -9024,51 +9055,51 @@ snapshots:
 
   '@adobe/css-tools@4.4.4': {}
 
-  '@ai-sdk/anthropic@2.0.71(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))':
+  '@ai-sdk/anthropic@2.0.71(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))':
     dependencies:
       '@ai-sdk/provider': 2.0.1
-      '@ai-sdk/provider-utils': 3.0.22(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
-      zod: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
+      '@ai-sdk/provider-utils': 3.0.22(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))
+      zod: 4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)
 
-  '@ai-sdk/gateway@2.0.65(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))':
+  '@ai-sdk/gateway@2.0.65(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))':
     dependencies:
       '@ai-sdk/provider': 2.0.1
-      '@ai-sdk/provider-utils': 3.0.22(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+      '@ai-sdk/provider-utils': 3.0.22(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))
       '@vercel/oidc': 3.1.0
-      zod: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
+      zod: 4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)
 
-  '@ai-sdk/google@2.0.63(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))':
+  '@ai-sdk/google@2.0.63(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))':
     dependencies:
       '@ai-sdk/provider': 2.0.1
-      '@ai-sdk/provider-utils': 3.0.22(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
-      zod: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
+      '@ai-sdk/provider-utils': 3.0.22(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))
+      zod: 4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)
 
-  '@ai-sdk/openai@2.0.101(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))':
+  '@ai-sdk/openai@2.0.101(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))':
     dependencies:
       '@ai-sdk/provider': 2.0.1
-      '@ai-sdk/provider-utils': 3.0.22(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
-      zod: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
+      '@ai-sdk/provider-utils': 3.0.22(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))
+      zod: 4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)
 
-  '@ai-sdk/provider-utils@3.0.22(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))':
+  '@ai-sdk/provider-utils@3.0.22(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))':
     dependencies:
       '@ai-sdk/provider': 2.0.1
       '@standard-schema/spec': 1.1.0
       eventsource-parser: 3.0.6
-      zod: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
+      zod: 4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)
 
   '@ai-sdk/provider@2.0.1':
     dependencies:
       json-schema: 0.4.0
 
-  '@ai-sdk/react@2.0.163(react@19.2.4)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))':
+  '@ai-sdk/react@2.0.163(react@19.2.4)(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))':
     dependencies:
-      '@ai-sdk/provider-utils': 3.0.22(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
-      ai: 5.0.161(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+      '@ai-sdk/provider-utils': 3.0.22(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))
+      ai: 5.0.161(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))
       react: 19.2.4
       swr: 2.4.1(react@19.2.4)
       throttleit: 2.1.0
     optionalDependencies:
-      zod: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
+      zod: 4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)
 
   '@algolia/abtesting@1.16.0':
     dependencies:
@@ -9166,14 +9197,14 @@ snapshots:
   '@assistant-ui/react-ai-sdk@1.1.19(@assistant-ui/react@0.11.51(patch_hash=67df03cd2ce1371da3a413dd7f088ed189627bed887039984e53e03592e6ae44)(@types/react-dom@19.1.9(@types/react@19.2.14))(@types/react@19.2.14)(immer@9.0.21)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4)))(@types/react@19.2.14)(assistant-cloud@0.1.23)(immer@9.0.21)(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4))':
     dependencies:
       '@ai-sdk/provider': 2.0.1
-      '@ai-sdk/react': 2.0.163(react@19.2.4)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+      '@ai-sdk/react': 2.0.163(react@19.2.4)(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))
       '@assistant-ui/react': 0.11.51(patch_hash=67df03cd2ce1371da3a413dd7f088ed189627bed887039984e53e03592e6ae44)(@types/react-dom@19.1.9(@types/react@19.2.14))(@types/react@19.2.14)(immer@9.0.21)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4))
       '@radix-ui/react-use-callback-ref': 1.1.1(@types/react@19.2.14)(react@19.2.4)
       '@types/json-schema': 7.0.15
-      ai: 5.0.161(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+      ai: 5.0.161(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))
       assistant-stream: 0.2.46(patch_hash=46a7cfa2f818f8cbd85e6a5a2dbabd025717a8972464c3d8a538756a169ec3ff)
       react: 19.2.4
-      zod: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
+      zod: 4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)
       zustand: 5.0.12(@types/react@19.2.14)(immer@9.0.21)(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4))
     optionalDependencies:
       '@types/react': 19.2.14
@@ -9226,7 +9257,7 @@ snapshots:
       react: 19.2.4
       react-dom: 19.2.4(react@19.2.4)
       react-textarea-autosize: 8.5.9(@types/react@19.2.14)(react@19.2.4)
-      zod: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
+      zod: 4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)
       zustand: 5.0.12(@types/react@19.2.14)(immer@9.0.21)(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4))
     optionalDependencies:
       '@types/react': 19.2.14
@@ -10714,45 +10745,45 @@ snapshots:
 
   '@mcp-b/extension-tools@0.2.3(patch_hash=de61710e62afdb10e9b1aa256f697615f6f694df3f7c35e4aa0ea8ee2eb930fd)(@cfworker/json-schema@4.1.1)(hono@4.12.9)':
     dependencies:
-      '@mcp-b/smart-dom-reader': 1.0.2(@modelcontextprotocol/sdk@1.25.2(@cfworker/json-schema@4.1.1)(hono@4.12.9)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))
-      '@modelcontextprotocol/sdk': 1.25.2(@cfworker/json-schema@4.1.1)(hono@4.12.9)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
-      zod: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
-      zod-to-json-schema: 3.25.2(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+      '@mcp-b/smart-dom-reader': 1.0.2(@modelcontextprotocol/sdk@1.25.2(@cfworker/json-schema@4.1.1)(hono@4.12.9)(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)))
+      '@modelcontextprotocol/sdk': 1.25.2(@cfworker/json-schema@4.1.1)(hono@4.12.9)(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))
+      zod: 4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)
+      zod-to-json-schema: 3.25.2(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))
     transitivePeerDependencies:
       - '@cfworker/json-schema'
       - hono
       - supports-color
 
-  '@mcp-b/global@2.2.0(zod-to-json-schema@3.25.2(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))':
+  '@mcp-b/global@2.2.0(zod-to-json-schema@3.25.2(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)))(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))':
     dependencies:
-      '@mcp-b/transports': 2.2.0(patch_hash=895810792e73f58dcd5b7e0e036da109be52e2edf6cdd54263351893072d447f)(zod-to-json-schema@3.25.2(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))
+      '@mcp-b/transports': 2.2.0(patch_hash=895810792e73f58dcd5b7e0e036da109be52e2edf6cdd54263351893072d447f)(zod-to-json-schema@3.25.2(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)))
       '@mcp-b/webmcp-polyfill': 2.2.0
-      '@mcp-b/webmcp-ts-sdk': 2.2.0(zod-to-json-schema@3.25.2(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+      '@mcp-b/webmcp-ts-sdk': 2.2.0(zod-to-json-schema@3.25.2(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)))(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))
       '@mcp-b/webmcp-types': 2.2.0
     transitivePeerDependencies:
       - zod
       - zod-to-json-schema
 
-  '@mcp-b/react-webmcp@2.2.0(patch_hash=001d8c830b8941fb836eccc8b4c36be4752a8753b8191d7bbfb65449257866bf)(react@19.2.4)(zod-to-json-schema@3.25.2(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))':
+  '@mcp-b/react-webmcp@2.2.0(patch_hash=001d8c830b8941fb836eccc8b4c36be4752a8753b8191d7bbfb65449257866bf)(react@19.2.4)(zod-to-json-schema@3.25.2(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)))(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))':
     dependencies:
-      '@mcp-b/global': 2.2.0(zod-to-json-schema@3.25.2(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
-      '@mcp-b/transports': 2.2.0(patch_hash=895810792e73f58dcd5b7e0e036da109be52e2edf6cdd54263351893072d447f)(zod-to-json-schema@3.25.2(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))
+      '@mcp-b/global': 2.2.0(zod-to-json-schema@3.25.2(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)))(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))
+      '@mcp-b/transports': 2.2.0(patch_hash=895810792e73f58dcd5b7e0e036da109be52e2edf6cdd54263351893072d447f)(zod-to-json-schema@3.25.2(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)))
       '@mcp-b/webmcp-polyfill': 2.2.0
-      '@mcp-b/webmcp-ts-sdk': 2.2.0(zod-to-json-schema@3.25.2(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+      '@mcp-b/webmcp-ts-sdk': 2.2.0(zod-to-json-schema@3.25.2(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)))(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))
       '@mcp-b/webmcp-types': 2.2.0
       react: 19.2.4
     optionalDependencies:
-      zod: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
-      zod-to-json-schema: 3.25.2(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+      zod: 4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)
+      zod-to-json-schema: 3.25.2(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))
 
-  '@mcp-b/smart-dom-reader@1.0.2(@modelcontextprotocol/sdk@1.25.2(@cfworker/json-schema@4.1.1)(hono@4.12.9)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))':
+  '@mcp-b/smart-dom-reader@1.0.2(@modelcontextprotocol/sdk@1.25.2(@cfworker/json-schema@4.1.1)(hono@4.12.9)(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)))':
     optionalDependencies:
-      '@modelcontextprotocol/sdk': 1.25.2(@cfworker/json-schema@4.1.1)(hono@4.12.9)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+      '@modelcontextprotocol/sdk': 1.25.2(@cfworker/json-schema@4.1.1)(hono@4.12.9)(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))
 
-  '@mcp-b/transports@2.2.0(patch_hash=895810792e73f58dcd5b7e0e036da109be52e2edf6cdd54263351893072d447f)(zod-to-json-schema@3.25.2(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))':
+  '@mcp-b/transports@2.2.0(patch_hash=895810792e73f58dcd5b7e0e036da109be52e2edf6cdd54263351893072d447f)(zod-to-json-schema@3.25.2(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)))':
     dependencies:
-      '@mcp-b/webmcp-ts-sdk': 2.2.0(zod-to-json-schema@3.25.2(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
-      zod: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
+      '@mcp-b/webmcp-ts-sdk': 2.2.0(zod-to-json-schema@3.25.2(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)))(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))
+      zod: 4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)
     transitivePeerDependencies:
       - zod-to-json-schema
 
@@ -10762,13 +10793,13 @@ snapshots:
       '@mcp-b/webmcp-types': 2.2.0
       '@standard-schema/spec': 1.1.0
 
-  '@mcp-b/webmcp-ts-sdk@2.2.0(zod-to-json-schema@3.25.2(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)))(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))':
+  '@mcp-b/webmcp-ts-sdk@2.2.0(zod-to-json-schema@3.25.2(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)))(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))':
     dependencies:
       '@mcp-b/webmcp-polyfill': 2.2.0
       '@mcp-b/webmcp-types': 2.2.0
     optionalDependencies:
-      zod: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
-      zod-to-json-schema: 3.25.2(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+      zod: 4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)
+      zod-to-json-schema: 3.25.2(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))
 
   '@mcp-b/webmcp-types@2.2.0': {}
 
@@ -10778,7 +10809,7 @@ snapshots:
       '@types/react': 19.2.14
       react: 19.2.4
 
-  '@modelcontextprotocol/sdk@1.25.2(@cfworker/json-schema@4.1.1)(hono@4.12.9)(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))':
+  '@modelcontextprotocol/sdk@1.25.2(@cfworker/json-schema@4.1.1)(hono@4.12.9)(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))':
     dependencies:
       '@hono/node-server': 1.19.11(hono@4.12.9)
       ajv: 8.18.0(patch_hash=84c3a305686664860231f825d4c346fc6c9823c919ce398542ea12e2c0a132cd)
@@ -10794,8 +10825,8 @@ snapshots:
       json-schema-typed: 8.0.2
       pkce-challenge: 5.0.1
       raw-body: 3.0.2
-      zod: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
-      zod-to-json-schema: 3.25.2(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+      zod: 4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)
+      zod-to-json-schema: 3.25.2(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))
     optionalDependencies:
       '@cfworker/json-schema': 4.1.1
     transitivePeerDependencies:
@@ -12693,13 +12724,13 @@ snapshots:
 
   agent-base@7.1.4: {}
 
-  ai@5.0.161(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)):
+  ai@5.0.161(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)):
     dependencies:
-      '@ai-sdk/gateway': 2.0.65(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+      '@ai-sdk/gateway': 2.0.65(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))
       '@ai-sdk/provider': 2.0.1
-      '@ai-sdk/provider-utils': 3.0.22(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+      '@ai-sdk/provider-utils': 3.0.22(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))
       '@opentelemetry/api': 1.9.0
-      zod: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
+      zod: 4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)
 
   ajv-formats@3.0.1(ajv@8.18.0(patch_hash=84c3a305686664860231f825d4c346fc6c9823c919ce398542ea12e2c0a132cd)):
     optionalDependencies:
@@ -14591,8 +14622,8 @@ snapshots:
     dependencies:
       '@swc/helpers': 0.5.18
       markdown-to-jsx: 7.7.17(react@19.2.4)
-      zod: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
-      zod-to-json-schema: 3.24.6(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+      zod: 4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)
+      zod-to-json-schema: 3.24.6(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))
     transitivePeerDependencies:
       - react
 
@@ -14613,8 +14644,8 @@ snapshots:
       qs: 6.15.0
       react: 19.2.4
       search-insights: 2.17.3
-      zod: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
-      zod-to-json-schema: 3.24.6(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+      zod: 4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)
+      zod-to-json-schema: 3.24.6(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))
 
   internal-slot@1.1.0:
     dependencies:
@@ -16539,8 +16570,8 @@ snapshots:
       instantsearch.js: 4.92.1(algoliasearch@5.50.0)
       react: 19.2.4
       use-sync-external-store: 1.6.0(react@19.2.4)
-      zod: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
-      zod-to-json-schema: 3.24.6(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567))
+      zod: 4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)
+      zod-to-json-schema: 3.24.6(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))
 
   react-instantsearch@7.28.1(algoliasearch@5.50.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
     dependencies:
@@ -17406,7 +17437,7 @@ snapshots:
 
   ts-dedent@2.2.0: {}
 
-  ts-jest@29.4.6(@babel/core@7.29.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.29.0))(jest-util@29.7.0)(jest@29.7.0(@types/node@24.12.0))(typescript@5.8.3):
+  ts-jest@29.4.6(@babel/core@7.29.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.29.0))(esbuild@0.24.2)(jest-util@29.7.0)(jest@29.7.0(@types/node@24.12.0))(typescript@5.8.3):
     dependencies:
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
@@ -17424,6 +17455,7 @@ snapshots:
       '@jest/transform': 29.7.0
       '@jest/types': 29.6.3
       babel-jest: 29.7.0(@babel/core@7.29.0)
+      esbuild: 0.24.2
       jest-util: 29.7.0
 
   ts-jest@29.4.6(@babel/core@7.29.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.29.0))(jest-util@29.7.0)(jest@29.7.0(@types/node@24.12.0))(typescript@5.9.3):
@@ -18033,15 +18065,15 @@ snapshots:
 
   yocto-queue@1.2.2: {}
 
-  zod-to-json-schema@3.24.6(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)):
+  zod-to-json-schema@3.24.6(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)):
     dependencies:
-      zod: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
+      zod: 4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)
 
-  zod-to-json-schema@3.25.2(zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)):
+  zod-to-json-schema@3.25.2(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)):
     dependencies:
-      zod: 4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567)
+      zod: 4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)
 
-  zod@4.3.5(patch_hash=1630c2a099636994fa8fa23660a408fe5aab71520cfe5ce70c07f965571f1567): {}
+  zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d): {}
 
   zustand@4.5.7(@types/react@19.2.14)(immer@9.0.21)(react@19.2.4):
     dependencies:

@@ -2,7 +2,7 @@
  * External dependencies.
  */
 import { useEffect, useState, type FC } from "react";
-import { ChevronDown, FileJson, Info, RefreshCcw } from "lucide-react";
+import { ChevronDown, FileJson, Info, Plug, RefreshCcw } from "lucide-react";
 
 /**
  * Internal dependencies.
@@ -14,6 +14,7 @@ interface PackageJsonSwitcherProps {
   availableFiles: PackageJsonFile[];
   onSelect: (file: PackageJsonFile) => void;
   onRefresh: () => void;
+  onSetupMcp: () => void;
 }
 
 /**
@@ -29,6 +30,7 @@ export const PackageJsonSwitcher: FC<PackageJsonSwitcherProps> = ({
   availableFiles,
   onSelect,
   onRefresh,
+  onSetupMcp,
 }) => {
   const [expanded, setExpanded] = useState(!activeFile);
   const [legendOpen, setLegendOpen] = useState(false);
@@ -119,6 +121,15 @@ export const PackageJsonSwitcher: FC<PackageJsonSwitcherProps> = ({
           }`}
         >
           <Info size={14} />
+        </button>
+        <button
+          type="button"
+          onClick={onSetupMcp}
+          title="Set up the MCP server for Claude Code, Cursor, Claude Desktop"
+          aria-label="Set up MCP server for AI clients"
+          className="shrink-0 p-1.5 rounded text-slate-500 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-700/60 transition-colors"
+        >
+          <Plug size={14} />
         </button>
         <button
           type="button"
