@@ -1,0 +1,20 @@
+{
+  "name": "@agentic-web-labs/project-analyzer-core",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit",
+    "test": "vitest run --root . --silent"
+  },
+  "devDependencies": {
+    "@agentic-web-labs/shared-config": "workspace:*",
+    "typescript": "~5.8.3",
+    "vitest": "^3.2.4"
+  }
+}
