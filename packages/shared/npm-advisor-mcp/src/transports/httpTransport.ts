@@ -19,6 +19,40 @@ import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
 const MCP_ENDPOINT = "/mcp";
 
 /**
+ * MCP Streamable HTTP — request lifecycle for ONE client.
+ *
+ * HTTP itself is request/response (one trip = one request + one
+ * response, then done), but MCP is a stateful conversation. So a
+ * single MCP "session" spans many HTTP round-trips that all share a
+ * UUID carried in the `mcp-session-id` header.
+ *
+ *   1. POST /mcp   initialize          → 200 + Mcp-Session-Id: <uuid>
+ *                                        (handshake; server allocates a
+ *                                         Session entry in the map)
+ *
+ *   2. POST /mcp   tools/list          ┐
+ *      POST /mcp   tools/call X        │ usually MANY of these during
+ *      POST /mcp   tools/call Y        │ one MCP session — a typical
+ *      POST /mcp   resources/read …    │ Claude conversation makes
+ *                                      ┘ dozens. All carry the UUID.
+ *
+ *   3. GET  /mcp   (with the UUID)     → optional. Opens an SSE stream
+ *                                        the server uses to PUSH
+ *                                        notifications (tool progress,
+ *                                        "tools list changed", log
+ *                                        messages). Many clients open
+ *                                        one after step 1 and leave it
+ *                                        idle; clients that only do
+ *                                        request/response skip it.
+ *
+ *   4. DELETE /mcp (with the UUID)     → graceful shutdown. Server
+ *                                        tears down the Session entry.
+ *                                        If the client just hard-
+ *                                        disconnects we clean up via
+ *                                        transport.onclose instead.
+ */
+
+/**
  * Factory that mints a fresh {@link McpServer} for a new HTTP session.
  * Injected by the caller so this module stays decoupled from the
  * concrete server wiring in `server.ts`.
@@ -51,9 +85,24 @@ export type RunningHttpServer = {
 };
 
 /**
- * Bookkeeping for one active MCP client session — the transport, the
- * MCP server bound to it, and a re-entry guard that prevents the
- * transport.close → onclose → server.close → transport.close cycle.
+ * One MCP client's live protocol state. The server keeps a `Session`
+ * entry in the `sessions` map for every connected client until the
+ * client disconnects, sends DELETE, or the server itself shuts down.
+ *
+ * "Session" here is NOT a web-cookie/login session — it's MCP
+ * protocol state: capabilities negotiated at initialize, in-flight
+ * request IDs, push-notification subscriptions, etc.
+ *
+ * Example: three Claude Desktop windows pointed at this same server
+ * = three Session entries in the map, each with its own UUID, its
+ * own StreamableHTTPServerTransport, and its own McpServer instance
+ * (one per session is the spec-recommended pattern; the SDK isn't
+ * designed to multiplex multiple clients onto a single McpServer).
+ *
+ * `closing` is a re-entry guard: closing the transport fires
+ * onclose, which deletes the session, but McpServer.close() also
+ * closes the transport — without the flag we'd recurse and double-
+ * delete.
  */
 type Session = {
   transport: StreamableHTTPServerTransport;
@@ -190,6 +239,10 @@ async function handleRequest(
     ? sessionIdHeader[0]
     : sessionIdHeader;
 
+  // POST = every client-initiated JSON-RPC request: the initialize
+  // handshake AND every later tools/list, tools/call, resources/read,
+  // etc. A typical client makes many POSTs over the lifetime of one
+  // session — see the lifecycle comment above MCP_ENDPOINT.
   if (request.method === "POST") {
     await handlePost(
       request,
@@ -201,6 +254,17 @@ async function handleRequest(
     return;
   }
 
+  // GET = open an SSE stream so the server can PUSH notifications
+  // (tool-call progress, list-changed, log messages) without the
+  // client polling. Optional — clients that only do request/response
+  // never call GET.
+  //
+  // DELETE = client politely tearing down the session. We delegate
+  // to the SDK transport, which fires onclose and removes the entry
+  // from the sessions map.
+  //
+  // Both require a session id because both target an existing
+  // session — neither can mint a new one.
   if (request.method === "GET" || request.method === "DELETE") {
     const session = sessionId ? sessions.get(sessionId) : undefined;
     if (!session) {
@@ -334,9 +398,27 @@ async function readJsonBody(request: IncomingMessage): Promise<unknown> {
 }
 
 /**
- * Returns true when the request is allowed through. If no token is
- * configured every request passes; otherwise the caller must present
- * `Authorization: Bearer <token>` with a constant-time match.
+ * Returns true when the request is allowed through.
+ *
+ * Auth is a SHARED-SECRET bearer token check, not identity auth —
+ * there's no users table, no database lookup, no public-key crypto.
+ * The user sets `MCP_HTTP_TOKEN=<long-random-string>` in the
+ * server's environment and pastes the same string into the client's
+ * config as `Authorization: Bearer <long-random-string>`. We just
+ * compare the two strings: if they match, the request must have
+ * known the secret. Same model as GitHub PATs, Anthropic API keys,
+ * Stripe API keys, etc.
+ *
+ * The compare uses `timingSafeEqualString` so a network-side
+ * attacker can't time their way to discovering the token one
+ * character at a time. The wire itself should be TLS in any
+ * deployment that exposes the server beyond loopback, otherwise a
+ * sniffer would just read the token off the request.
+ *
+ * If no token is configured every request passes — auth is opt-in
+ * for hosted/remote deployments. The default 127.0.0.1 bind keeps
+ * unauthenticated mode safe by making the port unreachable from
+ * outside the machine.
  */
 function isAuthorized(request: IncomingMessage, expected?: string): boolean {
   if (!expected) {
