@@ -4,8 +4,35 @@
 import * as vscode from "vscode";
 import type { PackageStats } from "@agentic-web-labs/package-analyzer-core";
 
+/**
+ * Default freshness window for successful entries (24 hours). Within
+ * this window, `cache.get()` returns the cached value synchronously
+ * without any network call. After it elapses, the entry is treated as
+ * stale: the cached value is still returned immediately, but a
+ * background refresh is kicked off (stale-while-revalidate) so the
+ * next read sees fresh data. Override per-instance via
+ * {@link StatsCacheOptions.ttlMs}.
+ */
 const DEFAULT_TTL_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * Default freshness window for negative-cache entries — when the
+ * fetcher returned `null` or threw (5 minutes). Kept much shorter than
+ * {@link DEFAULT_TTL_MS} so transient registry/network blips recover on
+ * the next read instead of locking the user out of stats for a full
+ * day. Override per-instance via {@link StatsCacheOptions.failureTtlMs}.
+ */
 const DEFAULT_FAILURE_TTL_MS = 5 * 60 * 1000;
+
+/**
+ * Namespace prefix for every cache entry written into the shared
+ * `vscode.Memento` (`globalState`). Used both to scope reads/writes
+ * (see {@link makeKey}) and to enumerate keys safely in
+ * {@link StatsCache.clearAll} without touching unrelated extension
+ * state. The trailing `v1:` is a schema version — bumping it
+ * invalidates every previously stored entry without a migration
+ * (older keys simply stop being read).
+ */
 const STORAGE_KEY_PREFIX = "stats.v1:";
 
 export interface StatsCacheChange {
