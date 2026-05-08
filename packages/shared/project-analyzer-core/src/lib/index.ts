@@ -9,3 +9,4 @@
  * it's lib/. If removing it would only change *how* a utility works, it's utils/.
  */
 export * from "./runPublint";
+export * from "./findReplacementOpportunities";
