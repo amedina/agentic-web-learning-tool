@@ -270,6 +270,16 @@ Produces `packages/shared/npm-advisor-mcp/dist/server.js` with a shebang and the
 }
 ```
 
+To run the built server directly from the repo root for local testing (e.g. against the [MCP Inspector](https://github.com/modelcontextprotocol/inspector)):
+
+```sh
+# stdio mode
+pnpm start:npm-advisor-mcp
+
+# Streamable HTTP mode on http://127.0.0.1:3845/mcp
+pnpm start:npm-advisor-mcp:http
+```
+
 ## Related packages
 
 - [`@agentic-web-labs/package-analyzer-core`](../package-analyzer-core) — the analysis engine
