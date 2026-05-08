@@ -15,7 +15,7 @@ import { useState } from 'react';
  */
 import { useMcpProvider } from '../../providers';
 import { MCPServerCard } from './mcpServerCard';
-import { useMCPClientProvider } from '@agentic-web-labs/mcp-inspector';
+import { useMCPClientProvider } from '@agentic-web-labs/awl-mcp-inspector';
 
 export default function MCPServersTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);

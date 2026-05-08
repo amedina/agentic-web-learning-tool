@@ -38,7 +38,7 @@
     "@agentic-web-labs/engine-core": "workspace:*",
     "@agentic-web-labs/engine-extension": "workspace:*",
     "@agentic-web-labs/engine-web": "workspace:*",
-    "@agentic-web-labs/mcp-inspector": "workspace:*",
+    "@agentic-web-labs/awl-mcp-inspector": "workspace:*",
     "@agentic-web-labs/table": "workspace:*",
     "@agentic-web-labs/workflow-ui": "workspace:*",
     "@mcp-b/extension-tools": "0.2.3",
