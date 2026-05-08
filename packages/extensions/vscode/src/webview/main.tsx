@@ -36,6 +36,16 @@ if (container) {
       onNotify={(level, message, dedupeKey) =>
         vscodeApi.postMessage({ type: "notify", level, message, dedupeKey })
       }
+      onRunProjectAnalysis={(requestId, packageJsonUri) =>
+        vscodeApi.postMessage({
+          type: "runProjectAnalysis",
+          requestId,
+          packageJsonUri,
+        })
+      }
+      onRevealFinding={(fileUri, range) =>
+        vscodeApi.postMessage({ type: "revealFinding", fileUri, range })
+      }
     />,
   );
 }

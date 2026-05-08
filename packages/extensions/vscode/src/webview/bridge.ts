@@ -1,6 +1,7 @@
 /**
  * External dependencies.
  */
+import * as path from "node:path";
 import * as vscode from "vscode";
 import {
   getDependencyTree,
@@ -16,6 +17,7 @@ import type { StatsCache } from "../cache/statsCache";
 import { SIGN_IN_GITHUB_COMMAND } from "../commands/githubAuth";
 import { SETUP_MCP_COMMAND } from "../commands/setupMcp";
 import { VIEW_PACKAGE_COMMAND } from "../commands/viewPackage";
+import { runProjectAnalysis } from "../diagnostics/projectAnalysisRunner";
 import type { NpmAdvisorSettings } from "../diagnostics/settings";
 import type { GithubAuthService } from "../services/githubAuthService";
 import type { ExtensionMessage, WebviewRequest } from "./protocol";
@@ -28,6 +30,13 @@ export interface WebviewBridgeDeps {
   cache: StatsCache;
   settingsProvider: () => NpmAdvisorSettings;
   githubAuth: GithubAuthService;
+  /**
+   * DiagnosticCollection populated by project-level analysis (publint +
+   * replacement opportunities). The bridge writes to it whenever the
+   * webview triggers a run, so the Problems panel and the webview tab
+   * stay in sync.
+   */
+  projectAnalysisCollection: vscode.DiagnosticCollection;
 }
 
 /**
@@ -41,6 +50,7 @@ export class WebviewBridge implements vscode.Disposable {
   private readonly cache: StatsCache;
   private readonly settingsProvider: () => NpmAdvisorSettings;
   private readonly githubAuth: GithubAuthService;
+  private readonly projectAnalysisCollection: vscode.DiagnosticCollection;
   private webview: vscode.Webview | null = null;
   private webviewSubscription: vscode.Disposable | null = null;
   private isReady = false;
@@ -48,11 +58,16 @@ export class WebviewBridge implements vscode.Disposable {
   private readonly onReadyListeners = new Set<() => void>();
   private readonly shownNotifications = new Set<string>();
 
-  /** Stores the cache, settings provider, and GitHub auth service. */
+  /**
+   * Stores the cache, settings provider, GitHub auth service, and the
+   * project-analysis DiagnosticCollection so handlers don't need to
+   * pass them through individually.
+   */
   constructor(deps: WebviewBridgeDeps) {
     this.cache = deps.cache;
     this.settingsProvider = deps.settingsProvider;
     this.githubAuth = deps.githubAuth;
+    this.projectAnalysisCollection = deps.projectAnalysisCollection;
   }
 
   /**
@@ -237,6 +252,53 @@ export class WebviewBridge implements vscode.Disposable {
         // wouldn't see the rate-limit toast again on a deliberate
         // refresh even if the limit is still reached.
         this.shownNotifications.clear();
+        return;
+      }
+      case "runProjectAnalysis": {
+        try {
+          const packageJsonUri = vscode.Uri.parse(message.packageJsonUri);
+          const rootPath = path.dirname(packageJsonUri.fsPath);
+          const result = await runProjectAnalysis(
+            this.projectAnalysisCollection,
+            { rootPath },
+          );
+          this.post({
+            type: "projectAnalysisResult",
+            requestId: message.requestId,
+            ok: true,
+            data: result.analysis,
+          });
+        } catch (error) {
+          this.post({
+            type: "projectAnalysisResult",
+            requestId: message.requestId,
+            ok: false,
+            error: errorMessage(error),
+          });
+        }
+        return;
+      }
+      case "revealFinding": {
+        try {
+          const uri = vscode.Uri.parse(message.fileUri);
+          const options: vscode.TextDocumentShowOptions = { preview: false };
+          if (message.range) {
+            options.selection = new vscode.Range(
+              new vscode.Position(
+                message.range.startLine,
+                message.range.startColumn,
+              ),
+              new vscode.Position(
+                message.range.endLine,
+                message.range.endColumn,
+              ),
+            );
+          }
+          await vscode.window.showTextDocument(uri, options);
+        } catch {
+          // Swallow — the file may have been deleted between the
+          // analysis and the click; the user can re-run to refresh.
+        }
         return;
       }
       case "notify": {

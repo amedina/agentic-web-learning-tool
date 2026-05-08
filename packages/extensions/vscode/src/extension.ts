@@ -82,10 +82,16 @@ export function activate(context: vscode.ExtensionContext): void {
   });
   context.subscriptions.push(cache);
 
+  const projectAnalysisCollection = vscode.languages.createDiagnosticCollection(
+    "npm-advisor-project",
+  );
+  context.subscriptions.push(projectAnalysisCollection);
+
   const bridge = new WebviewBridge({
     cache,
     settingsProvider: readSettings,
     githubAuth,
+    projectAnalysisCollection,
   });
   context.subscriptions.push(bridge);
 
@@ -151,10 +157,6 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.languages.createDiagnosticCollection("npm-advisor");
   context.subscriptions.push(diagnosticCollection);
 
-  const projectAnalysisCollection = vscode.languages.createDiagnosticCollection(
-    "npm-advisor-project",
-  );
-  context.subscriptions.push(projectAnalysisCollection);
   context.subscriptions.push(
     registerRunProjectAnalysisCommand({
       collection: projectAnalysisCollection,
