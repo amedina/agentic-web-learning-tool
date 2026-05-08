@@ -10,3 +10,4 @@
  */
 export * from "./runPublint";
 export * from "./findReplacementOpportunities";
+export * from "./analyzeProject";
