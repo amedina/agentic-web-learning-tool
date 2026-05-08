@@ -160,13 +160,13 @@ async function pickPackagesToMigrate(
 ): Promise<string[] | undefined> {
   let intersection: string[] = [];
   try {
-    const supported = new Set(listSupportedCodemodPackages());
+    const supported = new Set(await listSupportedCodemodPackages());
     const projectDeps = await readTopLevelDependencyNames(rootPath);
     intersection = projectDeps.filter((name) => supported.has(name)).sort();
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     void vscode.window.showErrorMessage(
-      `NPM Advisor: could not read package.json — ${message}`,
+      `NPM Advisor: could not start migration wizard — ${message}`,
     );
     return undefined;
   }

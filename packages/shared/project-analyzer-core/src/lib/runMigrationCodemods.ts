@@ -1,9 +1,43 @@
 /**
  * External dependencies.
  */
-import { codemods } from "module-replacements-codemods";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
+
+/**
+ * Lazy reference to `module-replacements-codemods`. We resolve it via a
+ * dynamic import on first use so consumers that never call the codemod
+ * functions don't pay for loading `@ast-grep/napi`'s native binding,
+ * which is platform-specific and may not be available everywhere the
+ * package is consumed (e.g. a packaged VS Code extension that hasn't
+ * shipped a binary for the user's platform yet). The Promise is
+ * memoised so repeat calls don't re-import.
+ */
+type CodemodsModule = typeof import("module-replacements-codemods");
+let codemodsModulePromise: Promise<CodemodsModule> | null = null;
+
+/**
+ * Loads `module-replacements-codemods` on demand. Returns the imported
+ * module; throws a descriptive `Error` (with a `cause` chain) if the
+ * underlying native binding fails to load, so callers can surface a
+ * friendly message rather than a raw NAPI traceback.
+ */
+async function loadCodemodsModule(): Promise<CodemodsModule> {
+  if (!codemodsModulePromise) {
+    codemodsModulePromise = import("module-replacements-codemods").catch(
+      (cause) => {
+        codemodsModulePromise = null;
+        throw new Error(
+          "Could not load module-replacements-codemods. The migration codemods " +
+            "depend on @ast-grep/napi, which ships a platform-specific native " +
+            "binding; install the package locally before running this feature.",
+          { cause },
+        );
+      },
+    );
+  }
+  return codemodsModulePromise;
+}
 
 const DEFAULT_FILE_EXTENSIONS = [".js", ".jsx", ".ts", ".tsx", ".mjs", ".cjs"];
 
@@ -93,6 +127,7 @@ export async function runMigrationCodemods(
     skipDirectories = DEFAULT_SKIP_DIRECTORIES,
   } = options;
 
+  const { codemods } = await loadCodemodsModule();
   const supported: { name: string; codemod: (typeof codemods)[string] }[] = [];
   const unsupported: string[] = [];
   for (const name of packageNames) {
@@ -203,8 +238,10 @@ async function collectSourceFiles(
  * Returns the set of package names for which a codemod is available in
  * the currently-installed `module-replacements-codemods`. Useful for
  * UIs that want to disable the "Migrate" affordance on findings the
- * wrapper can't actually fix.
+ * wrapper can't actually fix. Async so it can lazy-load the catalog —
+ * see `loadCodemodsModule` for why.
  */
-export function listSupportedCodemodPackages(): string[] {
+export async function listSupportedCodemodPackages(): Promise<string[]> {
+  const { codemods } = await loadCodemodsModule();
   return Object.keys(codemods).sort();
 }

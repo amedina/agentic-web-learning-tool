@@ -41,8 +41,8 @@ describe("runMigrationCodemods", () => {
     }
   });
 
-  it("lists every package name that the installed catalog ships a codemod for", () => {
-    const supported = listSupportedCodemodPackages();
+  it("lists every package name that the installed catalog ships a codemod for", async () => {
+    const supported = await listSupportedCodemodPackages();
     expect(supported.length).toBeGreaterThan(0);
     expect(supported).toContain("chalk");
     expect(supported).toEqual([...supported].sort());
