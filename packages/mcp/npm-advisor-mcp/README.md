@@ -181,7 +181,7 @@ pnpm install
 pnpm build:npm-advisor-mcp
 ```
 
-Produces `packages/shared/npm-advisor-mcp/dist/server.js` with a shebang and the executable bit set, so you can also point your AI client straight at it during development:
+Produces `packages/mcp/npm-advisor-mcp/dist/server.js` with a shebang and the executable bit set, so you can also point your AI client straight at it during development:
 
 ```json
 {

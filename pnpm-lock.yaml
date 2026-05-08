@@ -776,6 +776,37 @@ importers:
         specifier: ^3.2.4
         version: 3.2.4(@types/debug@4.1.13)(@types/node@24.12.0)(@vitest/browser@3.2.4)(jiti@2.6.1)(jsdom@20.0.3)(lightningcss@1.32.0)(yaml@2.8.3)
 
+  packages/mcp/npm-advisor-mcp:
+    dependencies:
+      '@agentic-web-labs/package-analyzer-core':
+        specifier: workspace:*
+        version: link:../../shared/package-analyzer-core
+      '@modelcontextprotocol/sdk':
+        specifier: 1.25.2
+        version: 1.25.2(@cfworker/json-schema@4.1.1)(hono@4.12.9)(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))
+      zod:
+        specifier: 4.3.5
+        version: 4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)
+    devDependencies:
+      '@agentic-web-labs/shared-config':
+        specifier: workspace:*
+        version: link:../../shared/shared-config
+      '@types/node':
+        specifier: ^24.3.0
+        version: 24.12.0
+      esbuild:
+        specifier: ^0.24.0
+        version: 0.24.2
+      rimraf:
+        specifier: ^5.0.5
+        version: 5.0.10
+      typescript:
+        specifier: ~5.8.3
+        version: 5.8.3
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/debug@4.1.13)(@types/node@24.12.0)(@vitest/browser@3.2.4)(jiti@2.6.1)(jsdom@20.0.3)(lightningcss@1.32.0)(yaml@2.8.3)
+
   packages/shared/chatbot:
     dependencies:
       '@agentic-web-labs/common':
@@ -1186,37 +1217,6 @@ importers:
       typescript:
         specifier: ~5.9.2
         version: 5.9.3
-
-  packages/shared/npm-advisor-mcp:
-    dependencies:
-      '@agentic-web-labs/package-analyzer-core':
-        specifier: workspace:*
-        version: link:../package-analyzer-core
-      '@modelcontextprotocol/sdk':
-        specifier: 1.25.2
-        version: 1.25.2(@cfworker/json-schema@4.1.1)(hono@4.12.9)(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))
-      zod:
-        specifier: 4.3.5
-        version: 4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)
-    devDependencies:
-      '@agentic-web-labs/shared-config':
-        specifier: workspace:*
-        version: link:../shared-config
-      '@types/node':
-        specifier: ^24.3.0
-        version: 24.12.0
-      esbuild:
-        specifier: ^0.24.0
-        version: 0.24.2
-      rimraf:
-        specifier: ^5.0.5
-        version: 5.0.10
-      typescript:
-        specifier: ~5.8.3
-        version: 5.8.3
-      vitest:
-        specifier: ^3.2.4
-        version: 3.2.4(@types/debug@4.1.13)(@types/node@24.12.0)(@vitest/browser@3.2.4)(jiti@2.6.1)(jsdom@20.0.3)(lightningcss@1.32.0)(yaml@2.8.3)
 
   packages/shared/package-analyzer-core:
     devDependencies:
