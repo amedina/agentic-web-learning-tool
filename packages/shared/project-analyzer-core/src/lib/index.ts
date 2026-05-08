@@ -11,3 +11,4 @@
 export * from "./runPublint";
 export * from "./findReplacementOpportunities";
 export * from "./analyzeProject";
+export * from "./runMigrationCodemods";
