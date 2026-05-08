@@ -8,4 +8,4 @@
  * Rule of thumb: if removing it would change *what* the project analyzer does,
  * it's lib/. If removing it would only change *how* a utility works, it's utils/.
  */
-export {};
+export * from "./runPublint";

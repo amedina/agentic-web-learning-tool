@@ -16,5 +16,10 @@
     "@agentic-web-labs/shared-config": "workspace:*",
     "typescript": "~5.8.3",
     "vitest": "^3.2.4"
+  },
+  "dependencies": {
+    "@publint/pack": "^0.1.4",
+    "package-manager-detector": "^1.6.0",
+    "publint": "^0.3.18"
   }
 }
