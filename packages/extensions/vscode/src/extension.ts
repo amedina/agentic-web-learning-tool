@@ -17,6 +17,7 @@ import {
   registerSignInToGithubCommand,
   registerSignOutFromGithubCommand,
 } from "./commands/githubAuth";
+import { registerRunMigrationWizardCommand } from "./commands/runMigrationWizard";
 import {
   registerClearProjectAnalysisCommand,
   registerRunProjectAnalysisCommand,
@@ -164,6 +165,7 @@ export function activate(context: vscode.ExtensionContext): void {
     registerClearProjectAnalysisCommand({
       collection: projectAnalysisCollection,
     }),
+    registerRunMigrationWizardCommand(),
   );
 
   const runner = new DiagnosticsRunner({

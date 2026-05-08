@@ -86,6 +86,11 @@
         "command": "npmAdvisor.clearProjectAnalysis",
         "title": "NPM Advisor: Clear project-analysis diagnostics",
         "category": "NPM Advisor"
+      },
+      {
+        "command": "npmAdvisor.runMigrationWizard",
+        "title": "NPM Advisor: Run migration wizard (replace deps with lighter alternatives)",
+        "category": "NPM Advisor"
       }
     ],
     "chatParticipants": [
