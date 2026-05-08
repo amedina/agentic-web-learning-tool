@@ -25,7 +25,7 @@ The server runs as a Node binary. The recommended invocation is via `npx` so you
 npx -y @agentic-web-labs/npm-advisor-mcp
 ```
 
-It speaks MCP over stdio. Configure your AI client to spawn it as below.
+It speaks MCP over stdio by default. Configure your AI client to spawn it as below — or jump to [HTTP transport](#http-transport-host-it-on-localhost-or-a-remote-server) to run it as a long-lived local or remote server instead.
 
 ### Claude Code
 
@@ -108,6 +108,81 @@ In `~/.continue/config.json` (or the project-scoped `.continue/config.json`):
 }
 ```
 
+## HTTP transport (host it on localhost or a remote server)
+
+By default the binary speaks MCP over stdio so AI clients can spawn it as a subprocess. Pass `--http` to instead start a Streamable HTTP server — useful when you want one running instance shared between several clients on your machine, or when you want to host npm-advisor on a remote server and connect to it over the network.
+
+### Run locally
+
+```sh
+npx -y @agentic-web-labs/npm-advisor-mcp --http
+```
+
+This binds to `127.0.0.1:3845` (loopback only — not reachable from other machines) and serves MCP at `http://127.0.0.1:3845/mcp`.
+
+Override the port and host with flags:
+
+```sh
+npx -y @agentic-web-labs/npm-advisor-mcp --http --port 4000 --host 127.0.0.1
+```
+
+Point any MCP-aware client at the URL. For example, Claude Desktop:
+
+```json
+{
+  "mcpServers": {
+    "npm-advisor": {
+      "transport": "http",
+      "url": "http://127.0.0.1:3845/mcp"
+    }
+  }
+}
+```
+
+### Host it remotely
+
+To accept connections from other machines, bind to a non-loopback address (`0.0.0.0` for all interfaces, or a specific interface IP):
+
+```sh
+MCP_HTTP_TOKEN=your-long-random-token \
+  npx -y @agentic-web-labs/npm-advisor-mcp --http --host 0.0.0.0 --port 3845
+```
+
+When `MCP_HTTP_TOKEN` is set, every request must include:
+
+```
+Authorization: Bearer your-long-random-token
+```
+
+The server prints a warning to stderr if you bind to a non-loopback address without a token. Public deployments should also sit behind a reverse proxy that terminates TLS (`https://`) — the server itself only speaks plain HTTP.
+
+A typical Claude Desktop entry pointing at a hosted instance:
+
+```json
+{
+  "mcpServers": {
+    "npm-advisor": {
+      "transport": "http",
+      "url": "https://npm-advisor.example.com/mcp",
+      "headers": {
+        "Authorization": "Bearer your-long-random-token"
+      }
+    }
+  }
+}
+```
+
+### CLI flags
+
+| Flag | Default | Description |
+| --- | --- | --- |
+| `--http` | (off — stdio mode) | Switch to the Streamable HTTP transport. |
+| `--port <n>` | `3845` | TCP port to listen on. |
+| `--host <addr>` | `127.0.0.1` | Bind address. Use `0.0.0.0` to expose on all interfaces. |
+| `--transport stdio\|http` | `stdio` | Long form of `--http` / `--stdio`. |
+
+`--port`, `--host`, and `--transport` also accept the `--name=value` form.
+
 ## GitHub authentication (optional but recommended)
 
 Without a token GitHub rate-limits the server's API calls to **60 requests / hour / IP** — easy to exhaust during a workspace audit. Set a personal-access token in the environment your AI client launches the server in:
@@ -144,6 +219,7 @@ The token only needs **public read** scopes — the server never touches private
                 │  Continue / VSCode (MCP-aware AI)    │
                 └─────────────────┬────────────────────┘
                                   │ JSON-RPC over stdio
+                                  │   or Streamable HTTP (--http)
                                   ▼
             ┌───────────────────────────────────────────┐
             │  npm-advisor-mcp (this package)           │
@@ -168,7 +244,7 @@ The token only needs **public read** scopes — the server never touches private
             └───────────────────────────────────────────┘
 ```
 
-The AI client spawns this process as a subprocess. Tools register on startup, the client lists them, and the model invokes any tool at any time. Every tool result flows back as JSON the model can quote, summarize, or act on.
+The AI client either spawns this process as a subprocess (stdio mode, default) or connects to a long-running HTTP instance (Streamable HTTP mode, `--http`). Either way, tools register on startup, the client lists them, and the model invokes any tool at any time. Every tool result flows back as JSON the model can quote, summarize, or act on.
 
 ## Privacy
 
@@ -193,6 +269,40 @@ Produces `packages/shared/npm-advisor-mcp/dist/server.js` with a shebang and the
   }
 }
 ```
+
+To run the built server directly from the repo root for local testing (e.g. against the [MCP Inspector](https://github.com/modelcontextprotocol/inspector)):
+
+```sh
+# stdio mode
+pnpm start:npm-advisor-mcp
+
+# Streamable HTTP mode on http://127.0.0.1:3845/mcp
+pnpm start:npm-advisor-mcp:http
+```
+
+### Built-in CLI for the HTTP transport
+
+The package ships a tiny client CLI at `dist/cli.js` that talks to a running HTTP server using the same MCP SDK clients like Claude Desktop use — handy for invoking tools and inspecting responses without setting up the MCP Inspector or hand-rolling `curl` JSON-RPC calls.
+
+Start the server in one terminal, then from the repo root:
+
+```sh
+# List every tool the server advertises
+pnpm cli:npm-advisor-mcp list
+
+# Call a tool — pass arguments as a single JSON object
+pnpm cli:npm-advisor-mcp call get_package_stats '{"name":"lodash"}'
+pnpm cli:npm-advisor-mcp call list_known_projects
+```
+
+By default the CLI connects to `http://127.0.0.1:3845/mcp`. Override the URL or pass a bearer token (for servers started with `MCP_HTTP_TOKEN`) with global flags before the command:
+
+```sh
+pnpm cli:npm-advisor-mcp --url http://127.0.0.1:4000/mcp list
+pnpm cli:npm-advisor-mcp --token your-token call list_known_projects
+```
+
+`MCP_HTTP_TOKEN` is also read from the environment if `--token` is omitted. Run `pnpm cli:npm-advisor-mcp help` for the full usage block.
 
 ## Related packages
 

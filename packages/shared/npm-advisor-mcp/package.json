@@ -22,6 +22,9 @@
     "prebuild": "rimraf dist",
     "build": "node esbuild.config.js --production",
     "dev": "node esbuild.config.js --watch",
+    "start": "node dist/server.js",
+    "start:http": "node dist/server.js --http",
+    "cli": "node dist/cli.js",
     "check-types": "tsc --noEmit",
     "format": "prettier . --write",
     "test": "vitest run --root . --silent"
