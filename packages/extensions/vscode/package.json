@@ -161,7 +161,6 @@
     "@agentic-web-labs/package-analyzer-core": "workspace:*",
     "@agentic-web-labs/project-analyzer-core": "workspace:*",
     "@agentic-web-labs/shared-config": "workspace:*",
-    "@e18e/cli": "^0.5.0",
     "@tailwindcss/cli": "^4.1.13",
     "@types/d3": "^7.4.3",
     "@types/node": "^24.3.0",
