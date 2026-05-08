@@ -61,6 +61,8 @@
     "build:vscode": "pnpm --filter vscode-npm-advisor build",
     "build:npm-advisor-mcp": "pnpm --filter @agentic-web-labs/npm-advisor-mcp build",
     "dev:npm-advisor-mcp": "pnpm --filter @agentic-web-labs/npm-advisor-mcp dev",
+    "start:npm-advisor-mcp": "pnpm --filter @agentic-web-labs/npm-advisor-mcp start",
+    "start:npm-advisor-mcp:http": "pnpm --filter @agentic-web-labs/npm-advisor-mcp start:http",
     "test:npm-advisor-mcp": "pnpm --filter @agentic-web-labs/npm-advisor-mcp test",
     "format:npm-advisor-mcp": "pnpm --filter @agentic-web-labs/npm-advisor-mcp format",
     "build:design-system": "pnpm --filter design-system build",
