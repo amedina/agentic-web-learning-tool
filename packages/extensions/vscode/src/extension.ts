@@ -17,6 +17,10 @@ import {
   registerSignInToGithubCommand,
   registerSignOutFromGithubCommand,
 } from "./commands/githubAuth";
+import {
+  registerClearProjectAnalysisCommand,
+  registerRunProjectAnalysisCommand,
+} from "./commands/runProjectAnalysis";
 import { registerSetupMcpCommand } from "./commands/setupMcp";
 import { registerShowInsightsCommand } from "./commands/showInsights";
 import { registerUninstallMcpCommand } from "./commands/uninstallMcp";
@@ -146,6 +150,19 @@ export function activate(context: vscode.ExtensionContext): void {
   const diagnosticCollection =
     vscode.languages.createDiagnosticCollection("npm-advisor");
   context.subscriptions.push(diagnosticCollection);
+
+  const projectAnalysisCollection = vscode.languages.createDiagnosticCollection(
+    "npm-advisor-project",
+  );
+  context.subscriptions.push(projectAnalysisCollection);
+  context.subscriptions.push(
+    registerRunProjectAnalysisCommand({
+      collection: projectAnalysisCollection,
+    }),
+    registerClearProjectAnalysisCommand({
+      collection: projectAnalysisCollection,
+    }),
+  );
 
   const runner = new DiagnosticsRunner({
     cache,

@@ -730,6 +730,9 @@ importers:
       '@agentic-web-labs/package-analyzer-core':
         specifier: workspace:*
         version: link:../../shared/package-analyzer-core
+      '@agentic-web-labs/project-analyzer-core':
+        specifier: workspace:*
+        version: link:../../shared/project-analyzer-core
       '@agentic-web-labs/shared-config':
         specifier: workspace:*
         version: link:../../shared/shared-config
