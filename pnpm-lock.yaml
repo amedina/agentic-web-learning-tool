@@ -1192,6 +1192,9 @@ importers:
       '@agentic-web-labs/package-analyzer-core':
         specifier: workspace:*
         version: link:../package-analyzer-core
+      '@agentic-web-labs/project-analyzer-core':
+        specifier: workspace:*
+        version: link:../project-analyzer-core
       '@modelcontextprotocol/sdk':
         specifier: 1.25.2
         version: 1.25.2(@cfworker/json-schema@4.1.1)(hono@4.12.9)(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))

@@ -19,6 +19,7 @@ import { z } from "zod";
  */
 import { parseCliArgs } from "./lib/parseCliArgs";
 import { runAnalyzePackageJson } from "./tools/analyzePackageJson";
+import { runAnalyzeProject } from "./tools/analyzeProject";
 import { runGetPackageStats } from "./tools/getPackageStats";
 import { runListKnownProjects } from "./tools/listKnownProjects";
 import { runListWorkspaceDependencies } from "./tools/listWorkspaceDependencies";
@@ -161,6 +162,50 @@ export async function createServer(): Promise<McpServer> {
         packageJsonPath: input.packageJsonPath,
         targetLicense: input.targetLicense,
         concurrency: input.concurrency,
+      });
+      return jsonResult(result);
+    },
+  );
+
+  server.registerTool(
+    "analyze_project",
+    {
+      title: "Run project-level publint + replacement scan (e18e-style)",
+      description:
+        "Runs publint against the project at rootPath and scans its top-level dependencies against the e18e preferred-replacements manifest. Returns a unified ProjectAnalysis with one findings array (each entry tagged with source: 'publint' | 'replacements', a severity, a code, a message, the file it refers to, and rule-specific data) and a summary of counts. Read-only — never modifies files. Use this when the user asks about publishing hygiene ('is my package.json correctly configured to publish?', 'will my exports/types/files work?') or about cross-cutting dependency replacements at the project level ('which of my deps have lighter alternatives?'). For per-package fitness scores use get_package_stats; for a full per-dep audit with security/licenses use analyze_package_json. If the user hasn't given an explicit path, call list_known_projects first. When presenting results, group findings by source (publint findings as a publishing-readiness checklist, replacement findings as a recommendations list with the suggested alternatives and the e18e link).",
+      inputSchema: {
+        rootPath: z
+          .string()
+          .min(1)
+          .describe(
+            "Absolute or cwd-relative path to the project root (the directory containing package.json). Use list_workspace_dependencies first to discover candidates.",
+          ),
+        publintMode: z
+          .enum(["source", "pack"])
+          .optional()
+          .describe(
+            "'source' (default) lints the source directory directly — fast, suitable for repeated runs. 'pack' runs the project's package manager to produce a tarball first and lints that — slower but matches what publint.dev / e18e-cli report. Use 'pack' only when the user explicitly wants a pre-publish check.",
+          ),
+        skipPublint: z
+          .boolean()
+          .optional()
+          .describe(
+            "If true, skip the publint pass and only return replacement-opportunity findings. Default false.",
+          ),
+        skipReplacements: z
+          .boolean()
+          .optional()
+          .describe(
+            "If true, skip the replacement-opportunities pass and only return publint findings. Default false.",
+          ),
+      },
+    },
+    async (input) => {
+      const result = await runAnalyzeProject({
+        rootPath: input.rootPath,
+        publintMode: input.publintMode,
+        skipPublint: input.skipPublint,
+        skipReplacements: input.skipReplacements,
       });
       return jsonResult(result);
     },
