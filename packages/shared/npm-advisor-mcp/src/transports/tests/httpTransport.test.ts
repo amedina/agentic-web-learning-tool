@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 /**
  * Internal dependencies.
  */
+import { createServer as createMcpServer } from "../../server";
 import { startHttpServer, type RunningHttpServer } from "../httpTransport";
 
 const INITIALIZE_BODY = {
@@ -39,7 +40,11 @@ describe("startHttpServer", () => {
 
   describe("without auth token", () => {
     beforeEach(async () => {
-      server = await startHttpServer({ host: "127.0.0.1", port: 0 });
+      server = await startHttpServer({
+        host: "127.0.0.1",
+        port: 0,
+        createMcpServer,
+      });
       baseUrl = `http://127.0.0.1:${server.port}`;
     });
 
@@ -112,6 +117,7 @@ describe("startHttpServer", () => {
         host: "127.0.0.1",
         port: 0,
         authToken: "secret-token",
+        createMcpServer,
       });
       baseUrl = `http://127.0.0.1:${server.port}`;
     });

@@ -208,6 +208,7 @@ async function main(): Promise<void> {
       port: args.port,
       host: args.host,
       authToken: process.env.MCP_HTTP_TOKEN,
+      createMcpServer: createServer,
     });
     return;
   }

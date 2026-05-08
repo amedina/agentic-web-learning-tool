@@ -13,15 +13,17 @@ import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/
 import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
 
 /**
- * Internal dependencies.
- */
-import { createServer as createMcpServer } from "../server";
-
-/**
  * Endpoint path the MCP Streamable HTTP transport listens on. Fixed
  * here because the spec / clients expect a single well-known path.
  */
 const MCP_ENDPOINT = "/mcp";
+
+/**
+ * Factory that mints a fresh {@link McpServer} for a new HTTP session.
+ * Injected by the caller so this module stays decoupled from the
+ * concrete server wiring in `server.ts`.
+ */
+export type McpServerFactory = () => Promise<McpServer>;
 
 /**
  * Options accepted by {@link startHttpServer}.
@@ -31,6 +33,8 @@ export type HttpServerOptions = {
   port: number;
   /** Hostname / address to bind. Use 127.0.0.1 for loopback-only, 0.0.0.0 to expose on all interfaces. */
   host: string;
+  /** Builds the MCP server bound to each new session. */
+  createMcpServer: McpServerFactory;
   /** Optional bearer token. If set, every request must include `Authorization: Bearer <token>`. */
   authToken?: string;
 };
@@ -187,7 +191,13 @@ async function handleRequest(
     : sessionIdHeader;
 
   if (request.method === "POST") {
-    await handlePost(request, response, sessions, sessionId);
+    await handlePost(
+      request,
+      response,
+      sessions,
+      sessionId,
+      options.createMcpServer,
+    );
     return;
   }
 
@@ -220,6 +230,7 @@ async function handlePost(
   response: ServerResponse,
   sessions: Map<string, Session>,
   sessionId: string | undefined,
+  createMcpServer: McpServerFactory,
 ): Promise<void> {
   const body = await readJsonBody(request);
 
@@ -252,7 +263,7 @@ async function handlePost(
     return;
   }
 
-  const session = await createSession(sessions);
+  const session = await createSession(sessions, createMcpServer);
   await session.transport.handleRequest(request, response, body);
 }
 
@@ -263,7 +274,10 @@ async function handlePost(
  * transport, the McpServer, or removing the session entry only fires
  * the cleanup chain once.
  */
-async function createSession(sessions: Map<string, Session>): Promise<Session> {
+async function createSession(
+  sessions: Map<string, Session>,
+  createMcpServer: McpServerFactory,
+): Promise<Session> {
   let session: Session | undefined;
 
   const transport = new StreamableHTTPServerTransport({
