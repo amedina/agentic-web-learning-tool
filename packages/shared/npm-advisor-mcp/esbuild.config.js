@@ -8,10 +8,8 @@ const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const production = process.argv.includes("--production");
 const watch = process.argv.includes("--watch");
 
-const buildOptions = {
-  entryPoints: [resolve(__dirname, "src/server.ts")],
+const sharedOptions = {
   bundle: true,
-  outfile: resolve(__dirname, "dist/server.js"),
   format: "esm",
   platform: "node",
   target: "node20",
@@ -21,7 +19,7 @@ const buildOptions = {
   mainFields: ["module", "main"],
   banner: {
     // Shebang so `npx @agentic-web-labs/npm-advisor-mcp` and
-    // chmod +x dist/server.js both work as plain executables.
+    // chmod +x on the output both work as plain executables.
     js: "#!/usr/bin/env node",
   },
   sourcemap: !production,
@@ -29,21 +27,43 @@ const buildOptions = {
   logLevel: "info",
 };
 
-function markExecutable() {
+const entries = [
+  {
+    in: resolve(__dirname, "src/server.ts"),
+    out: resolve(__dirname, "dist/server.js"),
+  },
+  {
+    in: resolve(__dirname, "src/cli/index.ts"),
+    out: resolve(__dirname, "dist/cli.js"),
+  },
+];
+
+function buildOptionsFor(entry) {
+  return {
+    ...sharedOptions,
+    entryPoints: [entry.in],
+    outfile: entry.out,
+  };
+}
+
+function markExecutable(outfile) {
   // Bundlers strip the executable bit from the output file; restore
-  // it so the bin entry in package.json works without consumers
-  // having to chmod it themselves.
-  chmodSync(buildOptions.outfile, 0o755);
+  // it so the file is directly invokable as a script.
+  chmodSync(outfile, 0o755);
 }
 
 async function main() {
   if (watch) {
-    const ctx = await context(buildOptions);
-    await ctx.watch();
+    const contexts = await Promise.all(
+      entries.map((entry) => context(buildOptionsFor(entry))),
+    );
+    await Promise.all(contexts.map((ctx) => ctx.watch()));
     return;
   }
-  await build(buildOptions);
-  markExecutable();
+  for (const entry of entries) {
+    await build(buildOptionsFor(entry));
+    markExecutable(entry.out);
+  }
 }
 
 void main().catch((error) => {
