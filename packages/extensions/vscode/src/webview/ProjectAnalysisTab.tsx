@@ -24,7 +24,7 @@ import type { ExtensionMessage, PackageJsonFile } from "./protocol";
 interface ProjectAnalysisTabProps {
   activeFile: PackageJsonFile | null;
   postRunRequest: (requestId: string, packageJsonUri: string) => void;
-  postReveal: (fileUri: string, range?: ProjectFinding["range"]) => void;
+  postReveal: (filePath: string, range?: ProjectFinding["range"]) => void;
 }
 
 type Status =
@@ -150,13 +150,7 @@ interface BodyProps {
  */
 const Body: FC<BodyProps> = ({ status, postReveal }) => {
   if (status.kind === "idle") {
-    return (
-      <div className="text-slate-500 dark:text-slate-400 text-sm">
-        Click <span className="font-medium">Run analysis</span> to scan this
-        project for publishing-hygiene issues (publint) and dependencies that
-        have lighter alternatives (e18e).
-      </div>
-    );
+    return <IdleExplainer />;
   }
   if (status.kind === "running") {
     return (
@@ -223,6 +217,82 @@ const Results: FC<ResultsProps> = ({ analysis, postReveal }) => {
       {analysis.warnings.length > 0 && (
         <Warnings warnings={analysis.warnings} />
       )}
+    </div>
+  );
+};
+
+/**
+ * The empty-state explainer shown before the user kicks off the first
+ * run. Spells out what the two scanners actually do and what
+ * "actionable" output to expect, so users don't have to discover by
+ * running it that this is a publish-readiness + dependency-cleanup
+ * tool — not, say, a code linter or a security scanner.
+ */
+const IdleExplainer: FC = () => {
+  return (
+    <div className="flex flex-col gap-3 text-sm text-slate-600 dark:text-slate-300">
+      <p>
+        Click <span className="font-medium">Run analysis</span> to scan this
+        project for two kinds of issues. Read-only — never modifies files.
+      </p>
+      <div className="rounded border border-slate-200 dark:border-slate-800 p-3 space-y-3 bg-slate-50/40 dark:bg-slate-900/30">
+        <div>
+          <div className="font-semibold text-slate-700 dark:text-slate-200">
+            Publishing hygiene{" "}
+            <span className="text-xs font-normal text-slate-500">
+              (powered by{" "}
+              <a
+                href="https://publint.dev"
+                target="_blank"
+                rel="noreferrer"
+                className="underline-offset-2 hover:underline"
+              >
+                publint
+              </a>
+              )
+            </span>
+          </div>
+          <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            Catches mistakes that would break consumers of your package after
+            it&apos;s published: incorrect{" "}
+            <code className="font-mono">exports</code>, missing types, ESM/CJS
+            mismatches, files missing from{" "}
+            <code className="font-mono">files</code>, deprecated fields, etc.
+          </div>
+        </div>
+        <div>
+          <div className="font-semibold text-slate-700 dark:text-slate-200">
+            Lighter alternatives{" "}
+            <span className="text-xs font-normal text-slate-500">
+              (powered by{" "}
+              <a
+                href="https://e18e.dev"
+                target="_blank"
+                rel="noreferrer"
+                className="underline-offset-2 hover:underline"
+              >
+                e18e
+              </a>
+              )
+            </span>
+          </div>
+          <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            Surfaces top-level dependencies that have a recommended modern
+            replacement — e.g. <code className="font-mono">axios</code> →{" "}
+            <code className="font-mono">fetch</code>/
+            <code className="font-mono">ofetch</code>/
+            <code className="font-mono">ky</code>,{" "}
+            <code className="font-mono">chalk</code> →{" "}
+            <code className="font-mono">picocolors</code>. The{" "}
+            <span className="font-medium">Migration wizard</span> command can
+            apply the rewrite for you afterwards.
+          </div>
+        </div>
+      </div>
+      <p className="text-xs text-slate-500 dark:text-slate-400">
+        Results land here and in the Problems panel. Subsequent runs are manual
+        — analysis never fires on save.
+      </p>
     </div>
   );
 };
@@ -309,7 +379,7 @@ const FindingRow: FC<FindingRowProps> = ({ finding, postReveal }) => {
     if (!finding.file) {
       return;
     }
-    postReveal(`file://${finding.file}`, finding.range);
+    postReveal(finding.file, finding.range);
   }, [finding, postReveal]);
 
   const documentationUrl =

@@ -43,8 +43,8 @@ if (container) {
           packageJsonUri,
         })
       }
-      onRevealFinding={(fileUri, range) =>
-        vscodeApi.postMessage({ type: "revealFinding", fileUri, range })
+      onRevealFinding={(filePath, range) =>
+        vscodeApi.postMessage({ type: "revealFinding", filePath, range })
       }
     />,
   );

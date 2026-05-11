@@ -280,7 +280,7 @@ export class WebviewBridge implements vscode.Disposable {
       }
       case "revealFinding": {
         try {
-          const uri = vscode.Uri.parse(message.fileUri);
+          const uri = vscode.Uri.file(message.filePath);
           const options: vscode.TextDocumentShowOptions = { preview: false };
           if (message.range) {
             options.selection = new vscode.Range(
@@ -295,9 +295,10 @@ export class WebviewBridge implements vscode.Disposable {
             );
           }
           await vscode.window.showTextDocument(uri, options);
-        } catch {
-          // Swallow — the file may have been deleted between the
-          // analysis and the click; the user can re-run to refresh.
+        } catch (error) {
+          void vscode.window.showErrorMessage(
+            `NPM Advisor: could not open ${message.filePath} — ${errorMessage(error)}`,
+          );
         }
         return;
       }

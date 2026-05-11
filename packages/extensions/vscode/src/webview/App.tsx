@@ -34,7 +34,7 @@ interface AppProps {
   ) => void;
   onRunProjectAnalysis: (requestId: string, packageJsonUri: string) => void;
   onRevealFinding: (
-    fileUri: string,
+    filePath: string,
     range?: {
       startLine: number;
       startColumn: number;

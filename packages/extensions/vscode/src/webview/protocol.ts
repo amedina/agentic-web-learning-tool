@@ -48,8 +48,13 @@ export type WebviewRequest =
     }
   | {
       type: "revealFinding";
-      /** vscode.Uri.toString() of the file the finding refers to. */
-      fileUri: string;
+      /**
+       * Absolute filesystem path of the file the finding refers to.
+       * The host converts it to a Uri via `vscode.Uri.file()`, which
+       * applies the right percent-encoding for paths that contain
+       * spaces or other characters that break a hand-built file:// URI.
+       */
+      filePath: string;
       /**
        * Optional 0-based selection range to highlight when the editor
        * opens. Findings without a precise location omit this and the
