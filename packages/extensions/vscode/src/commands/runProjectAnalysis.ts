@@ -6,6 +6,7 @@ import * as vscode from "vscode";
 /**
  * Internal dependencies.
  */
+import type { ProjectAnalysisCache } from "../diagnostics/projectAnalysisCache";
 import {
   clearProjectAnalysis,
   runProjectAnalysis,
@@ -16,6 +17,13 @@ export const CLEAR_PROJECT_ANALYSIS_COMMAND = "npmAdvisor.clearProjectAnalysis";
 
 export interface RegisterRunProjectAnalysisCommandDeps {
   collection: vscode.DiagnosticCollection;
+  /**
+   * Shared result cache. The command-driven run writes to it on
+   * success and the companion clear-command invalidates the entry for
+   * every workspace root the user has analyzed so the webview tab
+   * also resets when diagnostics are dismissed.
+   */
+  cache: ProjectAnalysisCache;
 }
 
 /**
@@ -44,6 +52,7 @@ export function registerRunProjectAnalysisCommand(
           () =>
             runProjectAnalysis(deps.collection, {
               rootPath: folder.uri.fsPath,
+              cache: deps.cache,
             }),
         );
         await reportResult(result.analysis.findings.length, folder.name);
@@ -67,6 +76,7 @@ export function registerClearProjectAnalysisCommand(
 ): vscode.Disposable {
   return vscode.commands.registerCommand(CLEAR_PROJECT_ANALYSIS_COMMAND, () => {
     clearProjectAnalysis(deps.collection);
+    deps.cache.clear();
     void vscode.window.showInformationMessage(
       "NPM Advisor: cleared project-analysis diagnostics.",
     );

@@ -24,6 +24,7 @@ import type { ExtensionMessage, PackageJsonFile } from "./protocol";
 interface ProjectAnalysisTabProps {
   activeFile: PackageJsonFile | null;
   postRunRequest: (requestId: string, packageJsonUri: string) => void;
+  postCacheRequest: (requestId: string, packageJsonUri: string) => void;
   postReveal: (filePath: string, range?: ProjectFinding["range"]) => void;
 }
 
@@ -45,11 +46,13 @@ const newRequestId = (): string => `pa-${Date.now()}-${++nextRequestId}`;
 export const ProjectAnalysisTab: FC<ProjectAnalysisTabProps> = ({
   activeFile,
   postRunRequest,
+  postCacheRequest,
   postReveal,
 }) => {
   const [status, setStatus] = useState<Status>({ kind: "idle" });
   const statusRef = useRef(status);
   statusRef.current = status;
+  const pendingCacheRequestIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     const handle = (event: MessageEvent): void => {
@@ -57,32 +60,71 @@ export const ProjectAnalysisTab: FC<ProjectAnalysisTabProps> = ({
       if (!data || typeof data !== "object" || !("type" in data)) {
         return;
       }
-      if (data.type !== "projectAnalysisResult") {
+      if (data.type === "projectAnalysisResult") {
+        const current = statusRef.current;
+        if (
+          current.kind !== "running" ||
+          current.requestId !== data.requestId
+        ) {
+          return;
+        }
+        if (data.ok) {
+          setStatus({
+            kind: "ready",
+            analysis: data.data,
+            finishedAt: Date.now(),
+          });
+        } else {
+          setStatus({ kind: "error", message: data.error });
+        }
         return;
       }
-      const current = statusRef.current;
-      if (current.kind !== "running" || current.requestId !== data.requestId) {
-        return;
-      }
-      if (data.ok) {
+      if (data.type === "cachedProjectAnalysis") {
+        if (data.requestId !== pendingCacheRequestIdRef.current) {
+          return;
+        }
+        pendingCacheRequestIdRef.current = null;
+        if (!data.data) {
+          return;
+        }
+        // Only adopt a cached result if the user hasn't already
+        // kicked off a fresh run since we asked — otherwise we'd
+        // stomp on the in-flight request.
+        const current = statusRef.current;
+        if (current.kind === "running") {
+          return;
+        }
         setStatus({
           kind: "ready",
-          analysis: data.data,
-          finishedAt: Date.now(),
+          analysis: data.data.analysis,
+          finishedAt: data.data.finishedAt,
         });
-      } else {
-        setStatus({ kind: "error", message: data.error });
       }
     };
     window.addEventListener("message", handle);
     return () => window.removeEventListener("message", handle);
   }, []);
 
+  // Ask the host for any cached result every time the active file
+  // changes (including initial mount and tab re-mount). Survives the
+  // webview-script-context reset VSCode does on visibility flips.
+  useEffect(() => {
+    if (!activeFile) {
+      setStatus({ kind: "idle" });
+      pendingCacheRequestIdRef.current = null;
+      return;
+    }
+    const requestId = newRequestId();
+    pendingCacheRequestIdRef.current = requestId;
+    postCacheRequest(requestId, activeFile.uri);
+  }, [activeFile, postCacheRequest]);
+
   const handleRun = useCallback(() => {
     if (!activeFile) {
       return;
     }
     const requestId = newRequestId();
+    pendingCacheRequestIdRef.current = null;
     setStatus({ kind: "running", requestId, startedAt: Date.now() });
     postRunRequest(requestId, activeFile.uri);
   }, [activeFile, postRunRequest]);

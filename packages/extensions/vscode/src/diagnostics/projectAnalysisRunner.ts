@@ -13,6 +13,7 @@ import {
  */
 import { findRangeForJsonPath } from "../packageJson/findRangeForJsonPath";
 import { parseDependencies } from "../packageJson/parse";
+import type { ProjectAnalysisCache } from "./projectAnalysisCache";
 
 const DIAGNOSTIC_SOURCE = "npm-advisor (project)";
 
@@ -21,6 +22,13 @@ export interface ProjectAnalysisOptions {
   rootPath: string;
   /** Forwarded to the underlying publint run. Defaults to "source". */
   publintMode?: "source" | "pack";
+  /**
+   * Optional cache. When provided, the entry for `rootPath` is
+   * invalidated before the run starts and the fresh analysis is
+   * stored on success — so subsequent webview / command invocations
+   * for the same root re-use the cached object until the TTL expires.
+   */
+  cache?: ProjectAnalysisCache;
 }
 
 export interface ProjectAnalysisRunResult {
@@ -40,10 +48,14 @@ export async function runProjectAnalysis(
   collection: vscode.DiagnosticCollection,
   options: ProjectAnalysisOptions,
 ): Promise<ProjectAnalysisRunResult> {
+  options.cache?.invalidate(options.rootPath);
+
   const analysis = await analyzeProject({
     rootPath: options.rootPath,
     publintMode: options.publintMode ?? "source",
   });
+
+  options.cache?.set(options.rootPath, analysis);
 
   const packageJsonUri = vscode.Uri.file(`${options.rootPath}/package.json`);
   let document: vscode.TextDocument | undefined;

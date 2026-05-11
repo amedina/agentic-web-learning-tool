@@ -33,6 +33,10 @@ interface AppProps {
     dedupeKey?: string,
   ) => void;
   onRunProjectAnalysis: (requestId: string, packageJsonUri: string) => void;
+  onGetCachedProjectAnalysis: (
+    requestId: string,
+    packageJsonUri: string,
+  ) => void;
   onRevealFinding: (
     filePath: string,
     range?: {
@@ -68,6 +72,7 @@ export const App: FC<AppProps> = ({
   onSetupMcp,
   onNotify,
   onRunProjectAnalysis,
+  onGetCachedProjectAnalysis,
   onRevealFinding,
 }) => {
   const [activeTab, setActiveTab] = useState<ActiveTab>("dependencies");
@@ -179,8 +184,16 @@ export const App: FC<AppProps> = ({
         />
         <TabBar activeTab={activeTab} onChange={setActiveTab} />
         <div className="flex-1 min-h-0 overflow-y-auto">
-          {activeTab === "dependencies" ? (
-            activeFile ? (
+          {/*
+           * Both tab panels stay mounted and toggle via CSS so that
+           * switching tabs doesn't blow away each tab's component-local
+           * state (e.g. the in-progress / ready status of a project
+           * analysis run). Host-side caching backstops state across
+           * full webview re-mounts; this just makes intra-mount tab
+           * switches feel instant and stateful.
+           */}
+          <div className={activeTab === "dependencies" ? "" : "hidden"}>
+            {activeFile ? (
               hasDependencies ? (
                 <DependenciesTab
                   key={`${activeFile.uri}#${refreshKey}`}
@@ -201,14 +214,16 @@ export const App: FC<AppProps> = ({
                   No dependencies found in this package.json.
                 </div>
               )
-            ) : null
-          ) : (
+            ) : null}
+          </div>
+          <div className={activeTab === "project" ? "" : "hidden"}>
             <ProjectAnalysisTab
               activeFile={activeFile}
               postRunRequest={onRunProjectAnalysis}
+              postCacheRequest={onGetCachedProjectAnalysis}
               postReveal={onRevealFinding}
             />
-          )}
+          </div>
         </div>
       </div>
     </StatsClientProvider>

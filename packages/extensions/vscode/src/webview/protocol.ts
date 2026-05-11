@@ -47,6 +47,17 @@ export type WebviewRequest =
       packageJsonUri: string;
     }
   | {
+      /**
+       * Asks the host for the most recent cached analysis for the
+       * project containing `packageJsonUri`. Lets the webview restore
+       * its tab state after a tab switch or a full webview re-mount
+       * without having to re-run the (expensive) analyzer.
+       */
+      type: "getCachedProjectAnalysis";
+      requestId: string;
+      packageJsonUri: string;
+    }
+  | {
       type: "revealFinding";
       /**
        * Absolute filesystem path of the file the finding refers to.
@@ -139,6 +150,15 @@ export type ExtensionMessage =
       requestId: string;
       ok: false;
       error: string;
+    }
+  | {
+      type: "cachedProjectAnalysis";
+      requestId: string;
+      /**
+       * `null` when nothing's cached (first run, expired entry, or no
+       * package.json open). `finishedAt` is a `Date.now()` epoch.
+       */
+      data: { analysis: ProjectAnalysis; finishedAt: number } | null;
     };
 
 export interface PackageJsonDependenciesPayload {

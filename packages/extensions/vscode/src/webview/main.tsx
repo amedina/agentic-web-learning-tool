@@ -43,6 +43,13 @@ if (container) {
           packageJsonUri,
         })
       }
+      onGetCachedProjectAnalysis={(requestId, packageJsonUri) =>
+        vscodeApi.postMessage({
+          type: "getCachedProjectAnalysis",
+          requestId,
+          packageJsonUri,
+        })
+      }
       onRevealFinding={(filePath, range) =>
         vscodeApi.postMessage({ type: "revealFinding", filePath, range })
       }

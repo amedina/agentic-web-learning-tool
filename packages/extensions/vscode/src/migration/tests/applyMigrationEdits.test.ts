@@ -10,19 +10,26 @@ import { applyMigrationEdits } from "../applyMigrationEdits";
 
 vi.mock("vscode", () => {
   class Position {
-    constructor(
-      public readonly line: number,
-      public readonly character: number,
-    ) {}
+    readonly line: number;
+    readonly character: number;
+    constructor(line: number, character: number) {
+      this.line = line;
+      this.character = character;
+    }
   }
   class Range {
-    constructor(
-      public readonly start: Position,
-      public readonly end: Position,
-    ) {}
+    readonly start: Position;
+    readonly end: Position;
+    constructor(start: Position, end: Position) {
+      this.start = start;
+      this.end = end;
+    }
   }
   class Uri {
-    private constructor(private readonly value: string) {}
+    private readonly value: string;
+    private constructor(value: string) {
+      this.value = value;
+    }
     static file(path: string): Uri {
       return new Uri(path);
     }
