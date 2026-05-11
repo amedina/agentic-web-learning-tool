@@ -22,7 +22,6 @@ import {
 } from "lucide-react";
 import type {
   FindingSeverity,
-  FindingSource,
   ProjectAnalysis,
   ProjectFinding,
 } from "@agentic-web-labs/project-analyzer-core";
@@ -229,11 +228,9 @@ interface ResultsProps {
 }
 
 type SeverityFilter = FindingSeverity | "all";
-type SourceFilter = FindingSource | "all";
 
 interface FilterState {
   severity: SeverityFilter;
-  source: SourceFilter;
   query: string;
 }
 
@@ -241,25 +238,36 @@ const INITIAL_GROUP_LIMIT = 50;
 
 /**
  * Renders the summary header, the filter bar, and the grouped findings
- * list. Owns filter state locally — the analyzer always returns the
- * full result; filtering and capping happen in the view layer.
+ * list. The tab is scoped to publint (publishing-readiness) findings —
+ * replacement-opportunity findings live on the Dependencies tab per
+ * package, so surfacing them here too would duplicate the signal. The
+ * analyzer still produces both kinds for the Problems panel and the
+ * MCP `analyze_project` tool; we just filter to publint at this layer.
  */
 const Results: FC<ResultsProps> = ({ analysis, postReveal }) => {
+  const publintFindings = useMemo(
+    () => analysis.findings.filter((finding) => finding.source === "publint"),
+    [analysis.findings],
+  );
+  const publintSummary = useMemo(
+    () => summariseSeverity(publintFindings),
+    [publintFindings],
+  );
+
   const [filters, setFilters] = useState<FilterState>({
     severity: "all",
-    source: "all",
     query: "",
   });
 
   const filtered = useMemo(
-    () => filterFindings(analysis.findings, filters),
-    [analysis.findings, filters],
+    () => filterFindings(publintFindings, filters),
+    [publintFindings, filters],
   );
 
-  if (analysis.findings.length === 0) {
+  if (publintFindings.length === 0) {
     return (
       <div className="rounded border border-emerald-300 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950 p-3 text-sm text-emerald-700 dark:text-emerald-300">
-        No project-level issues found.
+        No publishing-readiness issues found.
         {analysis.warnings.length > 0 && (
           <Warnings warnings={analysis.warnings} />
         )}
@@ -267,19 +275,12 @@ const Results: FC<ResultsProps> = ({ analysis, postReveal }) => {
     );
   }
 
-  const publint = filtered.filter((finding) => finding.source === "publint");
-  const replacements = filtered.filter(
-    (finding) => finding.source === "replacements",
-  );
-  const isFiltered =
-    filters.severity !== "all" ||
-    filters.source !== "all" ||
-    filters.query.trim() !== "";
+  const isFiltered = filters.severity !== "all" || filters.query.trim() !== "";
 
   return (
     <div className="flex flex-col gap-3">
       <Summary
-        summary={analysis.summary}
+        summary={publintSummary}
         filters={filters}
         onChange={setFilters}
         filteredCount={filtered.length}
@@ -291,31 +292,18 @@ const Results: FC<ResultsProps> = ({ analysis, postReveal }) => {
           <button
             type="button"
             className="underline-offset-2 hover:underline text-slate-700 dark:text-slate-200"
-            onClick={() =>
-              setFilters({ severity: "all", source: "all", query: "" })
-            }
+            onClick={() => setFilters({ severity: "all", query: "" })}
           >
             Clear filters
           </button>
           .
         </div>
       ) : (
-        <>
-          {publint.length > 0 && (
-            <FindingGroup
-              title="Publishing hygiene (publint)"
-              findings={publint}
-              postReveal={postReveal}
-            />
-          )}
-          {replacements.length > 0 && (
-            <FindingGroup
-              title="Replacement opportunities"
-              findings={replacements}
-              postReveal={postReveal}
-            />
-          )}
-        </>
+        <FindingGroup
+          title="Publishing hygiene (publint)"
+          findings={filtered}
+          postReveal={postReveal}
+        />
       )}
       {analysis.warnings.length > 0 && (
         <Warnings warnings={analysis.warnings} />
@@ -325,9 +313,32 @@ const Results: FC<ResultsProps> = ({ analysis, postReveal }) => {
 };
 
 /**
+ * Tally of how many publint findings there are at each severity tier.
+ * Recomputed off the publint-only subset so the filter chips never
+ * include counts from sources the tab no longer shows.
+ */
+interface PublintSummary {
+  total: number;
+  bySeverity: Record<FindingSeverity, number>;
+}
+
+function summariseSeverity(findings: ProjectFinding[]): PublintSummary {
+  const bySeverity: Record<FindingSeverity, number> = {
+    error: 0,
+    warning: 0,
+    info: 0,
+    hint: 0,
+  };
+  for (const finding of findings) {
+    bySeverity[finding.severity] += 1;
+  }
+  return { total: findings.length, bySeverity };
+}
+
+/**
  * Returns the subset of `findings` that match every active filter.
- * Filters are AND-ed: a finding has to match severity AND source AND
- * (case-insensitive) substring on its message/code/package data.
+ * Filters are AND-ed: a finding has to match severity AND a
+ * case-insensitive substring on its message / code / file / data.
  */
 function filterFindings(
   findings: ProjectFinding[],
@@ -336,9 +347,6 @@ function filterFindings(
   const needle = filters.query.trim().toLowerCase();
   return findings.filter((finding) => {
     if (filters.severity !== "all" && finding.severity !== filters.severity) {
-      return false;
-    }
-    if (filters.source !== "all" && finding.source !== filters.source) {
       return false;
     }
     if (needle === "") {
@@ -359,71 +367,40 @@ function filterFindings(
 }
 
 /**
- * The empty-state explainer shown before the user kicks off the first
- * run. Spells out what the two scanners actually do and what
- * "actionable" output to expect, so users don't have to discover by
- * running it that this is a publish-readiness + dependency-cleanup
- * tool — not, say, a code linter or a security scanner.
+ * Empty-state explainer shown before the user kicks off the first run.
+ * Scoped to publint (publishing readiness) — dependency-replacement
+ * insights live on the Dependencies tab per package, so we don't
+ * duplicate them here.
  */
 const IdleExplainer: FC = () => {
   return (
     <div className="flex flex-col gap-3 text-sm text-slate-600 dark:text-slate-300">
       <p>
-        Click <span className="font-medium">Run analysis</span> to scan this
-        project for two kinds of issues. Read-only — never modifies files.
+        Click <span className="font-medium">Run analysis</span> to check this
+        project&apos;s publishing readiness. Read-only — never modifies files.
       </p>
-      <div className="rounded border border-slate-200 dark:border-slate-800 p-3 space-y-3 bg-slate-50/40 dark:bg-slate-900/30">
-        <div>
-          <div className="font-semibold text-slate-700 dark:text-slate-200">
-            Publishing hygiene{" "}
-            <span className="text-xs font-normal text-slate-500">
-              (powered by{" "}
-              <a
-                href="https://publint.dev"
-                target="_blank"
-                rel="noreferrer"
-                className="underline-offset-2 hover:underline"
-              >
-                publint
-              </a>
-              )
-            </span>
-          </div>
-          <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            Catches mistakes that would break consumers of your package after
-            it&apos;s published: incorrect{" "}
-            <code className="font-mono">exports</code>, missing types, ESM/CJS
-            mismatches, files missing from{" "}
-            <code className="font-mono">files</code>, deprecated fields, etc.
-          </div>
+      <div className="rounded border border-slate-200 dark:border-slate-800 p-3 bg-slate-50/40 dark:bg-slate-900/30">
+        <div className="font-semibold text-slate-700 dark:text-slate-200">
+          Publishing hygiene{" "}
+          <span className="text-xs font-normal text-slate-500">
+            (powered by{" "}
+            <a
+              href="https://publint.dev"
+              target="_blank"
+              rel="noreferrer"
+              className="underline-offset-2 hover:underline"
+            >
+              publint
+            </a>
+            )
+          </span>
         </div>
-        <div>
-          <div className="font-semibold text-slate-700 dark:text-slate-200">
-            Lighter alternatives{" "}
-            <span className="text-xs font-normal text-slate-500">
-              (powered by{" "}
-              <a
-                href="https://e18e.dev"
-                target="_blank"
-                rel="noreferrer"
-                className="underline-offset-2 hover:underline"
-              >
-                e18e
-              </a>
-              )
-            </span>
-          </div>
-          <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            Surfaces top-level dependencies that have a recommended modern
-            replacement — e.g. <code className="font-mono">axios</code> →{" "}
-            <code className="font-mono">fetch</code>/
-            <code className="font-mono">ofetch</code>/
-            <code className="font-mono">ky</code>,{" "}
-            <code className="font-mono">chalk</code> →{" "}
-            <code className="font-mono">picocolors</code>. The{" "}
-            <span className="font-medium">Migration wizard</span> command can
-            apply the rewrite for you afterwards.
-          </div>
+        <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+          Catches mistakes that would break consumers of your package after
+          it&apos;s published: incorrect{" "}
+          <code className="font-mono">exports</code>, missing types, ESM/CJS
+          mismatches, files missing from{" "}
+          <code className="font-mono">files</code>, deprecated fields, etc.
         </div>
       </div>
       <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -435,7 +412,7 @@ const IdleExplainer: FC = () => {
 };
 
 interface SummaryProps {
-  summary: ProjectAnalysis["summary"];
+  summary: PublintSummary;
   filters: FilterState;
   onChange: (next: FilterState) => void;
   filteredCount: number;
@@ -443,10 +420,11 @@ interface SummaryProps {
 }
 
 /**
- * Combined summary + filter bar. The severity and source counts double
- * as toggleable filter chips: clicking "5 errors" filters to just
- * errors; clicking it again clears that axis. A free-text search input
- * sits below for filtering by message, code, file, or package name.
+ * Combined summary + filter bar. The severity counts double as
+ * toggleable filter chips: clicking "5 errors" narrows the list to
+ * errors; clicking the active chip (or "total") clears the severity
+ * filter. A free-text search input sits below for filtering by
+ * message, code, file, or rule arguments.
  */
 const Summary: FC<SummaryProps> = ({
   summary,
@@ -455,11 +433,11 @@ const Summary: FC<SummaryProps> = ({
   filteredCount,
   isFiltered,
 }) => {
-  const togglePart = useCallback(
-    <K extends keyof FilterState>(key: K, value: FilterState[K]) => {
+  const toggleSeverity = useCallback(
+    (next: SeverityFilter) => {
       onChange({
         ...filters,
-        [key]: filters[key] === value ? ("all" as FilterState[K]) : value,
+        severity: filters.severity === next ? "all" : next,
       });
     },
     [filters, onChange],
@@ -471,17 +449,15 @@ const Summary: FC<SummaryProps> = ({
         <FilterChip
           label={`${summary.total} total`}
           tone="neutral"
-          isActive={filters.severity === "all" && filters.source === "all"}
-          onClick={() =>
-            onChange({ ...filters, severity: "all", source: "all" })
-          }
+          isActive={filters.severity === "all"}
+          onClick={() => onChange({ ...filters, severity: "all" })}
         />
         {summary.bySeverity.error > 0 && (
           <FilterChip
             label={`${summary.bySeverity.error} errors`}
             tone="error"
             isActive={filters.severity === "error"}
-            onClick={() => togglePart("severity", "error")}
+            onClick={() => toggleSeverity("error")}
           />
         )}
         {summary.bySeverity.warning > 0 && (
@@ -489,7 +465,7 @@ const Summary: FC<SummaryProps> = ({
             label={`${summary.bySeverity.warning} warnings`}
             tone="warning"
             isActive={filters.severity === "warning"}
-            onClick={() => togglePart("severity", "warning")}
+            onClick={() => toggleSeverity("warning")}
           />
         )}
         {summary.bySeverity.info > 0 && (
@@ -497,26 +473,7 @@ const Summary: FC<SummaryProps> = ({
             label={`${summary.bySeverity.info} info`}
             tone="info"
             isActive={filters.severity === "info"}
-            onClick={() => togglePart("severity", "info")}
-          />
-        )}
-      </div>
-      <div className="flex flex-wrap items-center gap-2 text-xs">
-        <span className="text-slate-500 dark:text-slate-400">Source:</span>
-        {summary.bySource.publint > 0 && (
-          <FilterChip
-            label={`publint (${summary.bySource.publint})`}
-            tone="neutral"
-            isActive={filters.source === "publint"}
-            onClick={() => togglePart("source", "publint")}
-          />
-        )}
-        {summary.bySource.replacements > 0 && (
-          <FilterChip
-            label={`replacements (${summary.bySource.replacements})`}
-            tone="neutral"
-            isActive={filters.source === "replacements"}
-            onClick={() => togglePart("source", "replacements")}
+            onClick={() => toggleSeverity("info")}
           />
         )}
       </div>
@@ -532,7 +489,7 @@ const Summary: FC<SummaryProps> = ({
             onChange={(event) =>
               onChange({ ...filters, query: event.target.value })
             }
-            placeholder="Filter by package, rule code, message…"
+            placeholder="Filter by rule code, file, message…"
             className="w-full pl-7 pr-2 py-1 text-xs rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-sky-500"
           />
         </div>
@@ -540,9 +497,7 @@ const Summary: FC<SummaryProps> = ({
           <button
             type="button"
             className="inline-flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
-            onClick={() =>
-              onChange({ severity: "all", source: "all", query: "" })
-            }
+            onClick={() => onChange({ severity: "all", query: "" })}
           >
             <X size={12} />
             Clear
