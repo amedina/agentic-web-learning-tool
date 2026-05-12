@@ -17,10 +17,12 @@ import { z } from "zod";
 /**
  * Internal dependencies.
  */
+import { parseCliArgs } from "./lib/parseCliArgs";
 import { runAnalyzePackageJson } from "./tools/analyzePackageJson";
 import { runGetPackageStats } from "./tools/getPackageStats";
 import { runListKnownProjects } from "./tools/listKnownProjects";
 import { runListWorkspaceDependencies } from "./tools/listWorkspaceDependencies";
+import { startHttpServer } from "./transports/httpTransport";
 
 const SERVER_NAME = "npm-advisor";
 const SERVER_VERSION = "0.1.0";
@@ -187,12 +189,30 @@ function jsonResult(value: unknown): {
 }
 
 /**
- * stdio entry point. MCP clients (Claude Desktop, Claude Code,
- * Cursor, Continue, VSCode 1.96+) spawn this process and speak the
- * MCP JSON-RPC framing over stdin / stdout. The handshake itself is
- * driven by the SDK; we just connect a transport.
+ * Entry point. By default speaks MCP over stdio (the canonical
+ * mode that Claude Desktop, Claude Code, Cursor, Continue, and
+ * VSCode 1.96+ all spawn the process for). Pass `--http` (with
+ * optional `--port` / `--host`) to instead boot a Streamable HTTP
+ * server — useful for hosting npm-advisor on a remote machine or
+ * sharing a single instance between several local AI clients.
+ *
+ * When the HTTP transport is bound to a non-loopback host, set the
+ * `MCP_HTTP_TOKEN` env var so requests must present
+ * `Authorization: Bearer <token>`.
  */
 async function main(): Promise<void> {
+  const args = parseCliArgs(process.argv.slice(2));
+
+  if (args.transport === "http") {
+    await startHttpServer({
+      port: args.port,
+      host: args.host,
+      authToken: process.env.MCP_HTTP_TOKEN,
+      createMcpServer: createServer,
+    });
+    return;
+  }
+
   const server = await createServer();
   const transport = new StdioServerTransport();
   await server.connect(transport);
