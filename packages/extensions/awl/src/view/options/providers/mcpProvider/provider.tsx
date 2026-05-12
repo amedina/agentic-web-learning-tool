@@ -23,7 +23,7 @@ import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
 import {
   InspectorOAuthClientProvider,
   McpConnectionProvider,
-} from '@agentic-web-labs/mcp-inspector';
+} from '@agentic-web-labs/awl-mcp-inspector';
 /**
  * Internal dependencies
  */

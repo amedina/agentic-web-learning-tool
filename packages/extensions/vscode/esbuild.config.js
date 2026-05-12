@@ -139,7 +139,7 @@ function packageExtension() {
 function bundleMcpServer() {
   const mcpSource = path.resolve(
     __dirname,
-    "../../shared/npm-advisor-mcp/dist/server.js",
+    "../../mcp/npm-advisor-mcp/dist/server.js",
   );
   if (!existsSync(mcpSource)) {
     const buildResult = spawnSync(
