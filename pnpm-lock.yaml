@@ -210,112 +210,6 @@ importers:
         specifier: ^2.5.0
         version: 2.5.3(rollup@4.60.0)
 
-  packages/awl/mcp-inspector:
-    dependencies:
-      '@agentic-web-labs/common':
-        specifier: workspace:*
-        version: link:../../shared/common
-      '@agentic-web-labs/design-system':
-        specifier: workspace:*
-        version: link:../../shared/design-system
-      '@modelcontextprotocol/sdk':
-        specifier: 1.25.2
-        version: 1.25.2(@cfworker/json-schema@4.1.1)(hono@4.12.9)(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))
-      ajv:
-        specifier: 6.12.6
-        version: 6.12.6
-      class-variance-authority:
-        specifier: ^0.7.0
-        version: 0.7.1
-      clsx:
-        specifier: ^2.1.1
-        version: 2.1.1
-      cmdk:
-        specifier: ^1.0.4
-        version: 1.1.1(@types/react-dom@19.1.9(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-      eslint-plugin-react-hooks:
-        specifier: ^5.2.0
-        version: 5.2.0(eslint@9.39.4(jiti@2.6.1))
-      eslint-plugin-react-refresh:
-        specifier: ^0.4.20
-        version: 0.4.26(eslint@9.39.4(jiti@2.6.1))
-      globals:
-        specifier: ^16.3.0
-        version: 16.5.0
-      lucide-react:
-        specifier: ^0.577.0
-        version: 0.577.0(react@19.2.4)
-      prismjs:
-        specifier: ^1.30.0
-        version: 1.30.0
-      react:
-        specifier: ^19.0.0
-        version: 19.2.4
-      react-dom:
-        specifier: ^19.0.0
-        version: 19.2.4(react@19.2.4)
-      react-simple-code-editor:
-        specifier: ^0.14.1
-        version: 0.14.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-      zod:
-        specifier: 4.3.5
-        version: 4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)
-    devDependencies:
-      '@agentic-web-labs/shared-config':
-        specifier: workspace:*
-        version: link:../../shared/shared-config
-      '@babel/plugin-transform-react-jsx':
-        specifier: ^7.27.1
-        version: 7.28.6(@babel/core@7.29.0)
-      '@babel/preset-env':
-        specifier: ^7.28.5
-        version: 7.29.2(@babel/core@7.29.0)
-      '@babel/preset-react':
-        specifier: ^7.28.5
-        version: 7.28.5(@babel/core@7.29.0)
-      '@babel/preset-typescript':
-        specifier: ^7.28.5
-        version: 7.28.5(@babel/core@7.29.0)
-      '@jest/globals':
-        specifier: ^29.7.0
-        version: 29.7.0
-      '@testing-library/jest-dom':
-        specifier: ^6.9.1
-        version: 6.9.1
-      '@testing-library/react':
-        specifier: ^16.3.1
-        version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@19.1.9(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-      '@types/jest':
-        specifier: ^29.5.14
-        version: 29.5.14
-      '@types/node':
-        specifier: ^22.17.0
-        version: 22.19.15
-      '@types/prismjs':
-        specifier: ^1.26.5
-        version: 1.26.6
-      '@types/react':
-        specifier: ^19.0.0
-        version: 19.2.14
-      '@types/react-dom':
-        specifier: 19.1.9
-        version: 19.1.9(@types/react@19.2.14)
-      '@types/serve-handler':
-        specifier: ^6.1.4
-        version: 6.1.4
-      eslint:
-        specifier: ^9.33.0
-        version: 9.39.4(jiti@2.6.1)
-      prettier:
-        specifier: ^3.6.2
-        version: 3.8.1
-      rimraf:
-        specifier: ^5.0.10
-        version: 5.0.10
-      typescript:
-        specifier: ~5.9.2
-        version: 5.9.3
-
   packages/awl/workflow-ui:
     dependencies:
       '@agentic-web-labs/common':
@@ -391,6 +285,9 @@ importers:
 
   packages/extensions/awl:
     dependencies:
+      '@agentic-web-labs/awl-mcp-inspector':
+        specifier: workspace:*
+        version: link:../../mcp/awl-mcp-inspector
       '@agentic-web-labs/chatbot':
         specifier: workspace:*
         version: link:../../shared/chatbot
@@ -412,9 +309,6 @@ importers:
       '@agentic-web-labs/engine-web':
         specifier: workspace:*
         version: link:../../awl/engine-web
-      '@agentic-web-labs/mcp-inspector':
-        specifier: workspace:*
-        version: link:../../awl/mcp-inspector
       '@agentic-web-labs/table':
         specifier: workspace:*
         version: link:../../shared/table
@@ -769,6 +663,143 @@ importers:
       tailwindcss:
         specifier: ^4.1.13
         version: 4.2.2
+      typescript:
+        specifier: ~5.8.3
+        version: 5.8.3
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/debug@4.1.13)(@types/node@24.12.0)(@vitest/browser@3.2.4)(jiti@2.6.1)(jsdom@20.0.3)(lightningcss@1.32.0)(yaml@2.8.3)
+
+  packages/mcp/awl-mcp-inspector:
+    dependencies:
+      '@agentic-web-labs/common':
+        specifier: workspace:*
+        version: link:../../shared/common
+      '@agentic-web-labs/design-system':
+        specifier: workspace:*
+        version: link:../../shared/design-system
+      '@modelcontextprotocol/sdk':
+        specifier: 1.25.2
+        version: 1.25.2(@cfworker/json-schema@4.1.1)(hono@4.12.9)(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))
+      ajv:
+        specifier: 6.12.6
+        version: 6.12.6
+      class-variance-authority:
+        specifier: ^0.7.0
+        version: 0.7.1
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
+      cmdk:
+        specifier: ^1.0.4
+        version: 1.1.1(@types/react-dom@19.1.9(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      eslint-plugin-react-hooks:
+        specifier: ^5.2.0
+        version: 5.2.0(eslint@9.39.4(jiti@2.6.1))
+      eslint-plugin-react-refresh:
+        specifier: ^0.4.20
+        version: 0.4.26(eslint@9.39.4(jiti@2.6.1))
+      globals:
+        specifier: ^16.3.0
+        version: 16.5.0
+      lucide-react:
+        specifier: ^0.577.0
+        version: 0.577.0(react@19.2.4)
+      prismjs:
+        specifier: ^1.30.0
+        version: 1.30.0
+      react:
+        specifier: ^19.0.0
+        version: 19.2.4
+      react-dom:
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
+      react-simple-code-editor:
+        specifier: ^0.14.1
+        version: 0.14.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      zod:
+        specifier: 4.3.5
+        version: 4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)
+    devDependencies:
+      '@agentic-web-labs/shared-config':
+        specifier: workspace:*
+        version: link:../../shared/shared-config
+      '@babel/plugin-transform-react-jsx':
+        specifier: ^7.27.1
+        version: 7.28.6(@babel/core@7.29.0)
+      '@babel/preset-env':
+        specifier: ^7.28.5
+        version: 7.29.2(@babel/core@7.29.0)
+      '@babel/preset-react':
+        specifier: ^7.28.5
+        version: 7.28.5(@babel/core@7.29.0)
+      '@babel/preset-typescript':
+        specifier: ^7.28.5
+        version: 7.28.5(@babel/core@7.29.0)
+      '@jest/globals':
+        specifier: ^29.7.0
+        version: 29.7.0
+      '@testing-library/jest-dom':
+        specifier: ^6.9.1
+        version: 6.9.1
+      '@testing-library/react':
+        specifier: ^16.3.1
+        version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@19.1.9(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      '@types/jest':
+        specifier: ^29.5.14
+        version: 29.5.14
+      '@types/node':
+        specifier: ^22.17.0
+        version: 22.19.15
+      '@types/prismjs':
+        specifier: ^1.26.5
+        version: 1.26.6
+      '@types/react':
+        specifier: ^19.0.0
+        version: 19.2.14
+      '@types/react-dom':
+        specifier: 19.1.9
+        version: 19.1.9(@types/react@19.2.14)
+      '@types/serve-handler':
+        specifier: ^6.1.4
+        version: 6.1.4
+      eslint:
+        specifier: ^9.33.0
+        version: 9.39.4(jiti@2.6.1)
+      prettier:
+        specifier: ^3.6.2
+        version: 3.8.1
+      rimraf:
+        specifier: ^5.0.10
+        version: 5.0.10
+      typescript:
+        specifier: ~5.9.2
+        version: 5.9.3
+
+  packages/mcp/npm-advisor-mcp:
+    dependencies:
+      '@agentic-web-labs/package-analyzer-core':
+        specifier: workspace:*
+        version: link:../../shared/package-analyzer-core
+      '@modelcontextprotocol/sdk':
+        specifier: 1.25.2
+        version: 1.25.2(@cfworker/json-schema@4.1.1)(hono@4.12.9)(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))
+      zod:
+        specifier: 4.3.5
+        version: 4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)
+    devDependencies:
+      '@agentic-web-labs/shared-config':
+        specifier: workspace:*
+        version: link:../../shared/shared-config
+      '@types/node':
+        specifier: ^24.3.0
+        version: 24.12.0
+      esbuild:
+        specifier: ^0.24.0
+        version: 0.24.2
+      rimraf:
+        specifier: ^5.0.5
+        version: 5.0.10
       typescript:
         specifier: ~5.8.3
         version: 5.8.3
@@ -1186,37 +1217,6 @@ importers:
       typescript:
         specifier: ~5.9.2
         version: 5.9.3
-
-  packages/shared/npm-advisor-mcp:
-    dependencies:
-      '@agentic-web-labs/package-analyzer-core':
-        specifier: workspace:*
-        version: link:../package-analyzer-core
-      '@modelcontextprotocol/sdk':
-        specifier: 1.25.2
-        version: 1.25.2(@cfworker/json-schema@4.1.1)(hono@4.12.9)(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))
-      zod:
-        specifier: 4.3.5
-        version: 4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)
-    devDependencies:
-      '@agentic-web-labs/shared-config':
-        specifier: workspace:*
-        version: link:../shared-config
-      '@types/node':
-        specifier: ^24.3.0
-        version: 24.12.0
-      esbuild:
-        specifier: ^0.24.0
-        version: 0.24.2
-      rimraf:
-        specifier: ^5.0.5
-        version: 5.0.10
-      typescript:
-        specifier: ~5.8.3
-        version: 5.8.3
-      vitest:
-        specifier: ^3.2.4
-        version: 3.2.4(@types/debug@4.1.13)(@types/node@24.12.0)(@vitest/browser@3.2.4)(jiti@2.6.1)(jsdom@20.0.3)(lightningcss@1.32.0)(yaml@2.8.3)
 
   packages/shared/package-analyzer-core:
     devDependencies:
