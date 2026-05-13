@@ -145,22 +145,12 @@ export async function createServer(): Promise<McpServer> {
           .describe(
             "SPDX license id of the consuming project (defaults to MIT). Each dep's license-compatibility verdict is computed against this.",
           ),
-        concurrency: z
-          .number()
-          .int()
-          .min(1)
-          .max(10)
-          .optional()
-          .describe(
-            "Maximum simultaneous package fetches (default 3). Higher values speed up large workspaces but risk hitting npm/GitHub secondary rate limits.",
-          ),
       },
     },
     async (input) => {
       const result = await runAnalyzePackageJson({
         packageJsonPath: input.packageJsonPath,
         targetLicense: input.targetLicense,
-        concurrency: input.concurrency,
       });
       return jsonResult(result);
     },
