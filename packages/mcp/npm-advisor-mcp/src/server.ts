@@ -114,7 +114,7 @@ export async function createServer(): Promise<McpServer> {
           .string()
           .optional()
           .describe(
-            "Directory to scan. Defaults to the server process's current working directory (which is typically the project root when launched by an MCP-aware editor).",
+            "Absolute path to a project or monorepo root directory (example: /Users/you/projects/my-app). Leave empty to auto-detect from the server's current working directory — the tool will ascend to the surrounding pnpm/yarn/npm workspace root.",
           ),
       },
     },
@@ -137,7 +137,7 @@ export async function createServer(): Promise<McpServer> {
           .string()
           .min(1)
           .describe(
-            "Absolute or cwd-relative path to the package.json file. Use list_workspace_dependencies first to discover candidates.",
+            "Absolute path to a package.json file (example: /Users/you/projects/my-app/package.json). Call list_workspace_dependencies first to discover candidate paths.",
           ),
         targetLicense: z
           .string()
