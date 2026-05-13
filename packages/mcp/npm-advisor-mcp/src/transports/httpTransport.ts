@@ -376,17 +376,15 @@ async function createSession(
 
 /**
  * Reads the full request body and parses it as JSON. Returns
- * `undefined` for empty bodies.
+ * `undefined` for empty bodies. Sets utf8 encoding so the stream
+ * yields strings, skipping the Buffer concat dance.
  */
 async function readJsonBody(request: IncomingMessage): Promise<unknown> {
-  const chunks: Buffer[] = [];
+  request.setEncoding("utf8");
+  let raw = "";
   for await (const chunk of request) {
-    chunks.push(typeof chunk === "string" ? Buffer.from(chunk) : chunk);
+    raw += chunk;
   }
-  if (chunks.length === 0) {
-    return undefined;
-  }
-  const raw = Buffer.concat(chunks).toString("utf8");
   if (raw.length === 0) {
     return undefined;
   }
