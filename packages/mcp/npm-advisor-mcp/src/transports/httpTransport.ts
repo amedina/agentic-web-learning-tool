@@ -129,15 +129,11 @@ export async function startHttpServer(
         `npm-advisor-mcp http error: ${formatError(error)}\n`,
       );
       if (!response.headersSent) {
-        response.statusCode = 500;
-        response.setHeader("content-type", "application/json");
-        response.end(
-          JSON.stringify({
-            jsonrpc: "2.0",
-            error: { code: -32603, message: "Internal server error" },
-            id: null,
-          }),
-        );
+        sendJson(response, 500, {
+          jsonrpc: "2.0",
+          error: { code: -32603, message: "Internal server error" },
+          id: null,
+        });
       }
     });
   });
@@ -216,21 +212,15 @@ async function handleRequest(
     request.url !== MCP_ENDPOINT &&
     !request.url?.startsWith(`${MCP_ENDPOINT}?`)
   ) {
-    response.statusCode = 404;
-    response.setHeader("content-type", "application/json");
-    response.end(
-      JSON.stringify({
-        error: `Not found. MCP endpoint is ${MCP_ENDPOINT}.`,
-      }),
-    );
+    sendJson(response, 404, {
+      error: `Not found. MCP endpoint is ${MCP_ENDPOINT}.`,
+    });
     return;
   }
 
   if (!isAuthorized(request, options.authToken)) {
-    response.statusCode = 401;
-    response.setHeader("content-type", "application/json");
     response.setHeader("www-authenticate", 'Bearer realm="npm-advisor-mcp"');
-    response.end(JSON.stringify({ error: "Unauthorized" }));
+    sendJson(response, 401, { error: "Unauthorized" });
     return;
   }
 
@@ -268,11 +258,7 @@ async function handleRequest(
   if (request.method === "GET" || request.method === "DELETE") {
     const session = sessionId ? sessions.get(sessionId) : undefined;
     if (!session) {
-      response.statusCode = 400;
-      response.setHeader("content-type", "application/json");
-      response.end(
-        JSON.stringify({ error: "Missing or unknown mcp-session-id" }),
-      );
+      sendJson(response, 400, { error: "Missing or unknown mcp-session-id" });
       return;
     }
     await session.transport.handleRequest(request, response);
@@ -301,9 +287,7 @@ async function handlePost(
   if (sessionId) {
     const existing = sessions.get(sessionId);
     if (!existing) {
-      response.statusCode = 404;
-      response.setHeader("content-type", "application/json");
-      response.end(JSON.stringify({ error: "Unknown mcp-session-id" }));
+      sendJson(response, 404, { error: "Unknown mcp-session-id" });
       return;
     }
     await existing.transport.handleRequest(request, response, body);
@@ -311,19 +295,15 @@ async function handlePost(
   }
 
   if (!isInitializeRequest(body)) {
-    response.statusCode = 400;
-    response.setHeader("content-type", "application/json");
-    response.end(
-      JSON.stringify({
-        jsonrpc: "2.0",
-        error: {
-          code: -32000,
-          message:
-            "Bad Request: no mcp-session-id header and body is not an initialize request",
-        },
-        id: null,
-      }),
-    );
+    sendJson(response, 400, {
+      jsonrpc: "2.0",
+      error: {
+        code: -32000,
+        message:
+          "Bad Request: no mcp-session-id header and body is not an initialize request",
+      },
+      id: null,
+    });
     return;
   }
 
@@ -372,6 +352,21 @@ async function createSession(
   };
 
   return session;
+}
+
+/**
+ * Sends a JSON response with the given status code. Centralizes the
+ * statusCode + content-type + JSON.stringify + end dance shared by
+ * every error reply in this file.
+ */
+function sendJson(
+  response: ServerResponse,
+  status: number,
+  body: unknown,
+): void {
+  response.statusCode = status;
+  response.setHeader("content-type", "application/json");
+  response.end(JSON.stringify(body));
 }
 
 /**
