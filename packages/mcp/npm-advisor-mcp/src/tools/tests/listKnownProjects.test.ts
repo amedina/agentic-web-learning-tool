@@ -82,7 +82,18 @@ describe("runListKnownProjects", () => {
       const result = runListKnownProjects();
       expect(result.projects).toEqual([]);
       expect(result.hasOpenProjects).toBe(false);
+      expect(result.registryFileExists).toBe(false);
       expect(result.registryPath).toContain("recent-projects.json");
+    });
+  });
+
+  it("reports registryFileExists=true when the file is present but contains no projects", () => {
+    withTempRegistry((write) => {
+      write({ version: 1, projects: [] });
+      const result = runListKnownProjects();
+      expect(result.projects).toEqual([]);
+      expect(result.hasOpenProjects).toBe(false);
+      expect(result.registryFileExists).toBe(true);
     });
   });
 
@@ -111,6 +122,7 @@ describe("runListKnownProjects", () => {
         "/Users/me/projects/old",
       ]);
       expect(result.hasOpenProjects).toBe(true);
+      expect(result.registryFileExists).toBe(true);
     });
   });
 

@@ -12,15 +12,13 @@ import {
  */
 import { readPackageJsonDependencies } from "../workspace/findPackageJsonFiles";
 
-const DEFAULT_CONCURRENCY = 3;
+const CONCURRENCY = 3;
 
 export interface AnalyzePackageJsonInput {
   /** Absolute or cwd-relative path to the package.json file to analyze. */
   packageJsonPath: string;
   /** SPDX license id of the consuming project, used for license-compat verdicts. */
   targetLicense?: string;
-  /** Maximum simultaneous package fetches. Defaults to 3 to be polite to npm/GitHub. */
-  concurrency?: number;
 }
 
 export interface AnalyzedDependency {
@@ -62,7 +60,6 @@ export async function runAnalyzePackageJson(
 ): Promise<AnalyzePackageJsonOutput> {
   const packageJsonPath = resolve(input.packageJsonPath);
   const targetLicense = input.targetLicense ?? "MIT";
-  const concurrency = Math.max(1, input.concurrency ?? DEFAULT_CONCURRENCY);
 
   const parsed = await readPackageJsonDependencies(packageJsonPath);
   const queue: { name: string; category: AnalyzedDependency["category"] }[] = [
@@ -82,7 +79,7 @@ export async function runAnalyzePackageJson(
 
   const dependencies: AnalyzedDependency[] = await runConcurrent(
     queue,
-    concurrency,
+    CONCURRENCY,
     async ({ name, category }) => {
       try {
         const stats = await getPackageStats(name, targetLicense, {

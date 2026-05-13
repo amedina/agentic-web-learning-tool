@@ -4,6 +4,7 @@
 import {
   getRecentProjectsFilePath,
   readRegistry,
+  registryFileExists,
   type RecentProjectEntry,
 } from "../lib/recentProjectsRegistry";
 
@@ -23,6 +24,14 @@ export interface ListKnownProjectsOutput {
   projects: RecentProjectEntry[];
   /** True when at least one tracked workspace is currently open in VSCode. */
   hasOpenProjects: boolean;
+  /**
+   * True when the shared registry file is present on disk. When this
+   * is false the MCP client should tell the user that recent-project
+   * tracking requires the npm-advisor VSCode extension. When true
+   * but `projects` is empty, the extension is set up but hasn't yet
+   * recorded any workspaces.
+   */
+  registryFileExists: boolean;
 }
 
 /**
@@ -45,5 +54,6 @@ export function runListKnownProjects(): ListKnownProjectsOutput {
     registryPath: getRecentProjectsFilePath(),
     projects: sorted,
     hasOpenProjects: sorted.some((entry) => entry.isCurrentlyOpen),
+    registryFileExists: registryFileExists(),
   };
 }
