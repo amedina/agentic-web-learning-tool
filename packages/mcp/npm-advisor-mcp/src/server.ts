@@ -108,7 +108,7 @@ export async function createServer(): Promise<McpServer> {
     {
       title: "List package.json files in a workspace",
       description:
-        "Walks a directory looking for every package.json (skipping node_modules, dist, build, .git, etc.) and returns each file's name + dependency counts. Lightweight — no network calls. Use this to map a project's layout before drilling into specific packages. If the user hasn't given an explicit path, call list_known_projects first to find out which projects they've opened in VSCode.",
+        "Walks a directory looking for every package.json (skipping node_modules, dist, build, .git, etc.) and returns each file's name + dependency counts. Lightweight — no network calls. Use this to map a project's layout before drilling into specific packages. When `workspacePath` is omitted, the tool auto-ascends from the server's current working directory to the surrounding monorepo workspace root (via pnpm-workspace.yaml or `package.json#workspaces`), so a single call returns every package the monorepo declares — not just the sub-package the server happened to be launched from. If the result contains a non-null `workspaceRoot`, the scanned path is a sub-package and the AI should re-call with `workspacePath` set to that value to widen the scan. If the user hasn't given any path context, call list_known_projects first to find out which projects they've opened in VSCode.",
       inputSchema: {
         workspacePath: z
           .string()
