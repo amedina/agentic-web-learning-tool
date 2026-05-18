@@ -190,16 +190,20 @@ export const usePackageStats = () => {
         setError(null);
         setNotice(null);
         setIsNavigationMessage(false);
-        // On URL changes, clear the previous package's stats / deps so the
-        // widgets fall back to skeletons. On a manual refresh of the same
-        // URL, skip this — nulling `packageJsonDependencies` would briefly
-        // remove the Dependencies tab from the tablist, which the chatbot
+        // Always null `stats` so the Insights tab snaps back to its
+        // skeleton/loader state (numbers reset, shimmers visible) for the
+        // duration of the fetch — same UX as first-open of the panel.
+        setStats(null);
+        // On URL changes, also null `packageJsonDependencies` so the
+        // previous file's deps don't linger. On a manual refresh of the
+        // same file we keep them — nulling would briefly remove the
+        // Dependencies tab from the tablist, which the chatbot
         // PropProvider reacts to by switching the active tab back to
-        // Insights. Keeping the old data on screen until the new fetch
-        // resolves keeps tab visibility stable.
+        // Insights. The Dependencies widget itself is remounted via the
+        // refreshKey-based React `key`, so each row still resets to its
+        // own loading skeleton.
         if (!keepStaleData) {
           setPackageJsonDependencies(null);
-          setStats(null);
         }
 
         let packageName: string | null = null;
@@ -403,6 +407,12 @@ export const usePackageStats = () => {
    */
   const refresh = useCallback(() => {
     setIsRefreshing(true);
+    // Flip immediately to skeleton state — don't wait for the
+    // CLEAR_STATS_CACHE round-trip — so the Insights tab visibly resets
+    // numbers/shimmers the moment the user clicks. The Dependencies tab's
+    // per-row skeletons come from the key-bump remount below.
+    setStats(null);
+    setLoading(true);
     urlCache.clear();
     chrome.runtime.sendMessage({ type: "CLEAR_STATS_CACHE" }, () => {
       // Ignore lastError — even if the service worker is asleep, the next
