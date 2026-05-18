@@ -1,7 +1,7 @@
 /**
  * External dependencies.
  */
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { type PackageStats } from "@agentic-web-labs/package-analyzer-core";
 
 /**
@@ -94,6 +94,12 @@ export const usePackageStats = () => {
   const [addingRecommendations, setAddingRecommendations] = useState<
     Set<string>
   >(new Set());
+  // Holds the latest in-effect `fetchCurrentTabStats` so the `refresh()`
+  // callback exposed below can re-run the fetch without re-creating all the
+  // chrome.tabs listeners attached inside the effect.
+  const fetchCurrentTabStatsRef = useRef<
+    ((overrideUrl?: string) => Promise<void>) | null
+  >(null);
 
   useEffect(() => {
     chrome.storage.local.get(["comparisonBucket"], (res) => {
@@ -274,6 +280,7 @@ export const usePackageStats = () => {
       }
     };
 
+    fetchCurrentTabStatsRef.current = fetchCurrentTabStats;
     fetchCurrentTabStats();
 
     // Each side panel instance is bound to a specific tab via the hash
@@ -344,6 +351,27 @@ export const usePackageStats = () => {
     chrome.storage.local.set({ comparisonBucket: newBucket });
   };
 
+  /**
+   * Wipes the in-memory side-panel cache and the service-worker stats caches,
+   * then re-runs the active-tab fetch so the panel rebuilds from a clean
+   * slate. Exposed to the side panel's refresh button so the user can force
+   * fresh data without waiting for the 24h TTL.
+   */
+  const refresh = useCallback(() => {
+    urlCache.clear();
+    chrome.runtime.sendMessage({ type: "CLEAR_STATS_CACHE" }, () => {
+      // Ignore lastError — even if the service worker is asleep, the next
+      // GET_STATS the fetch fires will revive it and hit fresh upstreams.
+      void chrome.runtime.lastError;
+      setLoading(true);
+      setError(null);
+      setStats(null);
+      setPackageJsonDependencies(null);
+      setIsNavigationMessage(false);
+      fetchCurrentTabStatsRef.current?.();
+    });
+  }, []);
+
   const handleAddRecommendationToCompare = useCallback(
     (packageName: string) => {
       setAddingRecommendations((prev) => new Set(prev).add(packageName));
@@ -403,5 +431,6 @@ export const usePackageStats = () => {
     currentTabUrl,
     packageJsonDependencies,
     pendingPackageName,
+    refresh,
   };
 };

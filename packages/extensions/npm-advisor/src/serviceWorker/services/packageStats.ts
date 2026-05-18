@@ -216,6 +216,18 @@ class PackageStatsService {
 
     return cached instanceof Promise ? await cached : cached;
   }
+
+  /**
+   * Drops every cached stats entry (both full and light) and their timestamps.
+   * Called from the manual refresh flow so the next read goes back to the
+   * network instead of replaying whatever was cached.
+   */
+  clearAll(): void {
+    this.statsCache.clear();
+    this.statsCacheTimestamps.clear();
+    this.lightStatsCache.clear();
+    this.lightStatsCacheTimestamps.clear();
+  }
 }
 
 export const packageStatsService = new PackageStatsService();

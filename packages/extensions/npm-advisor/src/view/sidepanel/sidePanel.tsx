@@ -43,6 +43,7 @@ const SidePanel = () => {
     currentTabUrl,
     packageJsonDependencies,
     pendingPackageName,
+    refresh,
   } = usePackageStats();
 
   const hasAnalysableDependencies =
@@ -167,7 +168,7 @@ const SidePanel = () => {
               />
             }
             footerNode={<></>}
-            subHeaderNode={<GlobalHeader />}
+            subHeaderNode={<GlobalHeader onRefresh={refresh} />}
             assistantMessage={AssistantMessage}
             userMessage={UserMessage}
             getCustomSystemPrompt={() => {

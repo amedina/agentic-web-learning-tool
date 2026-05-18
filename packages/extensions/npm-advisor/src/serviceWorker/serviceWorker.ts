@@ -50,6 +50,18 @@ function isCacheExpired(
 }
 
 /**
+ * Drops every entry from the deferred bundle / dep-tree caches. Used by the
+ * manual refresh handler so the next expand of an accordion row re-hits the
+ * upstream rather than replaying yesterday's payload.
+ */
+function clearDeferredCaches(): void {
+  bundleDataCache.clear();
+  bundleDataCacheTimestamps.clear();
+  depTreeCache.clear();
+  depTreeCacheTimestamps.clear();
+}
+
+/**
  * Background Service Worker.
  * Acts as a router for incoming messages from content scripts and UI views.
  */
@@ -235,6 +247,16 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     chrome.tabs.create({
       url: chrome.runtime.getURL("options/options.html#settings"),
     });
+    sendResponse({ success: true });
+  }
+
+  // 7. Manual cache wipe triggered by the side panel's refresh button. Drops
+  // every in-memory stats / bundle / dep-tree cache so the next request goes
+  // back to the network — useful when the user wants up-to-the-minute data
+  // without waiting for the 24h TTL to expire.
+  else if (request.type === "CLEAR_STATS_CACHE") {
+    packageStatsService.clearAll();
+    clearDeferredCaches();
     sendResponse({ success: true });
   }
 });
