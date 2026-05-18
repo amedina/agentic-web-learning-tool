@@ -27,6 +27,7 @@ import { useTheme } from "../context/themeContext";
 
 interface GlobalHeaderProps {
   onRefresh?: () => void;
+  isRefreshing?: boolean;
 }
 
 /**
@@ -34,9 +35,13 @@ interface GlobalHeaderProps {
  * chat-context controls on the left and the panel-wide actions (refresh,
  * settings, theme) on the right. `onRefresh` is only wired when the panel is
  * showing package stats; the button is omitted on the options page where a
- * cache wipe would be a no-op.
+ * cache wipe would be a no-op. `isRefreshing` spins the icon and disables
+ * the button while a refresh is in flight so repeat clicks are ignored.
  */
-export const GlobalHeader = ({ onRefresh }: GlobalHeaderProps) => {
+export const GlobalHeader = ({
+  onRefresh,
+  isRefreshing = false,
+}: GlobalHeaderProps) => {
   const { isDarkMode, toggleTheme } = useTheme();
   const messages = useThread((state) => state.messages);
   const isThreadEmpty = messages.length === 0;
@@ -123,15 +128,26 @@ export const GlobalHeader = ({ onRefresh }: GlobalHeaderProps) => {
         )}
 
         {!isOptionsPage && onRefresh && (
-          <Tooltip text="Refresh package stats (clears cache)">
+          <Tooltip
+            text={
+              isRefreshing
+                ? "Refreshing package stats…"
+                : "Refresh package stats (clears cache)"
+            }
+          >
             <Button
               variant="ghost"
               size="icon"
               onClick={onRefresh}
+              disabled={isRefreshing}
               aria-label="Refresh package stats"
-              className="text-muted-foreground hover:text-foreground"
+              aria-busy={isRefreshing}
+              className="text-muted-foreground hover:text-foreground disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              <RefreshCcw size={16} />
+              <RefreshCcw
+                size={16}
+                className={isRefreshing ? "animate-spin" : undefined}
+              />
             </Button>
           </Tooltip>
         )}

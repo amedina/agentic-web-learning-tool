@@ -101,6 +101,11 @@ export const usePackageStats = () => {
   // forcing the analyzer-ui widget to remount and re-query each row's stats
   // against the (now-empty) service-worker caches.
   const [refreshKey, setRefreshKey] = useState(0);
+  // True between the moment the user clicks Refresh and the moment the
+  // active-tab fetch plus the comparison-bucket re-fetches all settle. The
+  // header reads this to spin its icon and disable the button so repeat
+  // clicks during the in-flight pass are ignored.
+  const [isRefreshing, setIsRefreshing] = useState(false);
   // Holds the latest in-effect `fetchCurrentTabStats` so the `refresh()`
   // callback exposed below can re-run the fetch without re-creating all the
   // chrome.tabs listeners attached inside the effect.
@@ -397,6 +402,7 @@ export const usePackageStats = () => {
    * Exposed to the side panel's refresh button.
    */
   const refresh = useCallback(() => {
+    setIsRefreshing(true);
     urlCache.clear();
     chrome.runtime.sendMessage({ type: "CLEAR_STATS_CACHE" }, () => {
       // Ignore lastError — even if the service worker is asleep, the next
@@ -415,43 +421,54 @@ export const usePackageStats = () => {
       // Pass `keepStaleData` so the Dependencies tab stays mounted across
       // the refresh window — otherwise the tab disappears and the active
       // tab snaps back to Insights mid-refresh.
-      fetchCurrentTabStatsRef.current?.(undefined, { keepStaleData: true });
+      const statsFetchPromise =
+        fetchCurrentTabStatsRef.current?.(undefined, {
+          keepStaleData: true,
+        }) ?? Promise.resolve();
 
       // Comparison bucket items were saved with stats frozen at the time
       // they were added. Re-fetch each one against the now-empty service
       // worker cache and write the refreshed array back to storage; the
       // comparison table listens to storage changes and re-renders.
       const currentBucket = comparisonBucketRef.current;
-      if (currentBucket.length === 0) {
-        return;
-      }
-      Promise.all(
-        currentBucket.map(
-          (item) =>
-            new Promise<any>((resolve) => {
-              const packageName = item?.packageName ?? item?.name;
-              if (!packageName) {
-                resolve(item);
-                return;
-              }
-              chrome.runtime.sendMessage(
-                { type: "GET_STATS", packageName },
-                (response) => {
-                  void chrome.runtime.lastError;
-                  if (response?.success && response.data) {
-                    resolve(response.data);
-                    return;
-                  }
-                  // Fall back to the existing item on failure so the table
-                  // doesn't go blank if one package fails to refresh.
-                  resolve(item);
-                },
-              );
-            }),
-        ),
-      ).then((refreshed) => {
-        setComparisonBucket(refreshed);
-        chrome.storage.local.set({ comparisonBucket: refreshed });
+      const bucketRefreshPromise =
+        currentBucket.length === 0
+          ? Promise.resolve()
+          : Promise.all(
+              currentBucket.map(
+                (item) =>
+                  new Promise<any>((resolve) => {
+                    const packageName = item?.packageName ?? item?.name;
+                    if (!packageName) {
+                      resolve(item);
+                      return;
+                    }
+                    chrome.runtime.sendMessage(
+                      { type: "GET_STATS", packageName },
+                      (response) => {
+                        void chrome.runtime.lastError;
+                        if (response?.success && response.data) {
+                          resolve(response.data);
+                          return;
+                        }
+                        // Fall back to the existing item on failure so the
+                        // table doesn't go blank if one package fails to
+                        // refresh.
+                        resolve(item);
+                      },
+                    );
+                  }),
+              ),
+            ).then((refreshed) => {
+              setComparisonBucket(refreshed);
+              chrome.storage.local.set({ comparisonBucket: refreshed });
+            });
+
+      // `finally` so a thrown error from either promise still flips the
+      // header back out of the spinning state — otherwise the button would
+      // be stuck disabled after a transient failure.
+      Promise.allSettled([statsFetchPromise, bucketRefreshPromise]).then(() => {
+        setIsRefreshing(false);
       });
     });
   }, []);
@@ -518,5 +535,6 @@ export const usePackageStats = () => {
     pendingPackageName,
     refresh,
     refreshKey,
+    isRefreshing,
   };
 };
