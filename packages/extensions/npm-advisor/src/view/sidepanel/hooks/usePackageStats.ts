@@ -3,6 +3,7 @@
  */
 import { useState, useEffect, useCallback, useRef } from "react";
 import { type PackageStats } from "@agentic-web-labs/package-analyzer-core";
+import { clearDependencyStatsCache } from "@agentic-web-labs/package-analyzer-ui";
 
 /**
  * Internal dependencies.
@@ -414,6 +415,12 @@ export const usePackageStats = () => {
     setStats(null);
     setLoading(true);
     urlCache.clear();
+    // analyzer-ui's `useDependencyStats` keeps its own module-level cache
+    // of per-row stats that survives remounts. Without clearing it here,
+    // the key-bump remount of DependenciesTab would re-seed each row from
+    // this cache and short-circuit the loading state — rows would jump
+    // back to their old numbers with no shimmer.
+    clearDependencyStatsCache();
     chrome.runtime.sendMessage({ type: "CLEAR_STATS_CACHE" }, () => {
       // Ignore lastError — even if the service worker is asleep, the next
       // GET_STATS the fetch fires will revive it and hit fresh upstreams.

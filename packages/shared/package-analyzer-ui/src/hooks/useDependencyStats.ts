@@ -34,6 +34,16 @@ const dependencyStatsCache = new Map<string, DependencyStatsState>();
 const cacheKey = (packageName: string, category: DependencyCategory) =>
   `${packageName}::${category}`;
 
+/**
+ * Drops every memoised per-dependency stats entry. Exposed so hosts can
+ * force the next mount of `useDependencyStats` (typically a key-bump
+ * remount after a manual refresh) to re-fetch every row from the network
+ * instead of replaying entries cached in this module from a prior pass.
+ */
+export const clearDependencyStatsCache = (): void => {
+  dependencyStatsCache.clear();
+};
+
 interface DependencyEntry {
   name: string;
   category: DependencyCategory;
