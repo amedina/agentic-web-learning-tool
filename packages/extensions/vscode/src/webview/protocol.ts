@@ -6,6 +6,7 @@ import type {
   DependencyTree,
   PackageStats,
 } from "@agentic-web-labs/package-analyzer-core";
+import type { ProjectAnalysis } from "@agentic-web-labs/project-analyzer-core";
 import type { BundleData } from "@agentic-web-labs/package-analyzer-ui";
 
 /**
@@ -33,6 +34,50 @@ export type WebviewRequest =
   | { type: "openPackageJson"; uri: string }
   | { type: "refreshStats" }
   | { type: "setupMcp" }
+  | {
+      type: "runProjectAnalysis";
+      requestId: string;
+      /**
+       * `vscode.Uri.toString()` of the package.json that anchors the
+       * analysis. The host parses it back into a Uri and walks one
+       * directory up to derive the project root, which keeps OS-specific
+       * path semantics (Windows drive letters, UNC paths) on the host
+       * side rather than asking the webview to special-case them.
+       */
+      packageJsonUri: string;
+    }
+  | {
+      /**
+       * Asks the host for the most recent cached analysis for the
+       * project containing `packageJsonUri`. Lets the webview restore
+       * its tab state after a tab switch or a full webview re-mount
+       * without having to re-run the (expensive) analyzer.
+       */
+      type: "getCachedProjectAnalysis";
+      requestId: string;
+      packageJsonUri: string;
+    }
+  | {
+      type: "revealFinding";
+      /**
+       * Absolute filesystem path of the file the finding refers to.
+       * The host converts it to a Uri via `vscode.Uri.file()`, which
+       * applies the right percent-encoding for paths that contain
+       * spaces or other characters that break a hand-built file:// URI.
+       */
+      filePath: string;
+      /**
+       * Optional 0-based selection range to highlight when the editor
+       * opens. Findings without a precise location omit this and the
+       * editor just opens the file.
+       */
+      range?: {
+        startLine: number;
+        startColumn: number;
+        endLine: number;
+        endColumn: number;
+      };
+    }
   | {
       type: "notify";
       level: "info" | "warning" | "error";
@@ -93,7 +138,28 @@ export type ExtensionMessage =
       data: DependencyTree | null;
     }
   | { type: "dependencyTree"; requestId: string; ok: false; error: string }
-  | { type: "focusPackage"; packageName: string };
+  | { type: "focusPackage"; packageName: string }
+  | {
+      type: "projectAnalysisResult";
+      requestId: string;
+      ok: true;
+      data: ProjectAnalysis;
+    }
+  | {
+      type: "projectAnalysisResult";
+      requestId: string;
+      ok: false;
+      error: string;
+    }
+  | {
+      type: "cachedProjectAnalysis";
+      requestId: string;
+      /**
+       * `null` when nothing's cached (first run, expired entry, or no
+       * package.json open). `finishedAt` is a `Date.now()` epoch.
+       */
+      data: { analysis: ProjectAnalysis; finishedAt: number } | null;
+    };
 
 export interface PackageJsonDependenciesPayload {
   dependencies: string[];

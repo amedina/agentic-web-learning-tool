@@ -34,6 +34,17 @@ Open the Command Palette (`⇧⌘P` on macOS, `Ctrl+Shift+P` elsewhere) and look
 
 - **NPM Advisor: View package on npm** — opens the npm page for a given dependency.
 - **NPM Advisor: Clear cached package stats** — drops every cached entry. Useful after changing `targetLicense`, since cached license-compatibility results stay until the 24-hour TTL expires otherwise.
+- **NPM Advisor: Run project analysis** — runs publint and a top-level replacement-opportunities scan against the current workspace folder and writes the findings to the Problems panel. Manual trigger only — never on save. Companion command **NPM Advisor: Clear project-analysis diagnostics** dismisses the results.
+- **NPM Advisor: Run migration wizard** — three-step flow that rewrites source files: pick which codemod-eligible deps to migrate, preview the first changed file in a diff editor, then confirm to commit every change via a single `WorkspaceEdit` (undoable with `Ctrl+Z`). See _Migration wizard packaging_ below for the runtime requirement.
+
+## Migration wizard packaging
+
+The migration wizard depends on [`module-replacements-codemods`](https://www.npmjs.com/package/module-replacements-codemods), which transitively depends on [`@ast-grep/napi`](https://www.npmjs.com/package/@ast-grep/napi) — a Rust-backed AST library that ships **platform-specific native bindings** (`darwin-arm64`, `darwin-x64`, `linux-x64`, `linux-arm64`, `win32-x64`, …). Because esbuild can't bundle `.node` files, the wizard loads these libraries lazily at runtime via Node's normal `require()` resolution.
+
+What this means in practice:
+
+- **Running from source** (the dev / contributor experience) — the wizard works out of the box; `pnpm install` puts the binary for your platform in `node_modules`.
+- **Marketplace / packaged `.vsix`** — the wizard will surface a friendly error explaining that `module-replacements-codemods` could not be loaded. Shipping it cross-platform requires VSCode's [platform-specific extension publishing](https://code.visualstudio.com/api/working-with-extensions/publishing-extension#platformspecific-extensions) — one `.vsix` per `--target` — which is tracked as a follow-up. The rest of NPM Advisor (hover, code lenses, diagnostics, project analysis) keeps working.
 
 ## Privacy
 

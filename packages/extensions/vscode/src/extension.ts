@@ -17,10 +17,16 @@ import {
   registerSignInToGithubCommand,
   registerSignOutFromGithubCommand,
 } from "./commands/githubAuth";
+import { registerRunMigrationWizardCommand } from "./commands/runMigrationWizard";
+import {
+  registerClearProjectAnalysisCommand,
+  registerRunProjectAnalysisCommand,
+} from "./commands/runProjectAnalysis";
 import { registerSetupMcpCommand } from "./commands/setupMcp";
 import { registerShowInsightsCommand } from "./commands/showInsights";
 import { registerUninstallMcpCommand } from "./commands/uninstallMcp";
 import { registerViewPackageCommand } from "./commands/viewPackage";
+import { ProjectAnalysisCache } from "./diagnostics/projectAnalysisCache";
 import { DiagnosticsRunner } from "./diagnostics/runner";
 import { readSettings } from "./diagnostics/settings";
 import { PackageJsonCodeLensProvider } from "./providers/codeLensProvider";
@@ -78,10 +84,19 @@ export function activate(context: vscode.ExtensionContext): void {
   });
   context.subscriptions.push(cache);
 
+  const projectAnalysisCollection = vscode.languages.createDiagnosticCollection(
+    "npm-advisor-project",
+  );
+  context.subscriptions.push(projectAnalysisCollection);
+
+  const projectAnalysisCache = new ProjectAnalysisCache();
+
   const bridge = new WebviewBridge({
     cache,
     settingsProvider: readSettings,
     githubAuth,
+    projectAnalysisCollection,
+    projectAnalysisCache,
   });
   context.subscriptions.push(bridge);
 
@@ -146,6 +161,18 @@ export function activate(context: vscode.ExtensionContext): void {
   const diagnosticCollection =
     vscode.languages.createDiagnosticCollection("npm-advisor");
   context.subscriptions.push(diagnosticCollection);
+
+  context.subscriptions.push(
+    registerRunProjectAnalysisCommand({
+      collection: projectAnalysisCollection,
+      cache: projectAnalysisCache,
+    }),
+    registerClearProjectAnalysisCommand({
+      collection: projectAnalysisCollection,
+      cache: projectAnalysisCache,
+    }),
+    registerRunMigrationWizardCommand(),
+  );
 
   const runner = new DiagnosticsRunner({
     cache,

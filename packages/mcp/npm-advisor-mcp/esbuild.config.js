@@ -13,6 +13,16 @@ const sharedOptions = {
   format: "esm",
   platform: "node",
   target: "node20",
+  // `module-replacements-codemods` and its transitive `@ast-grep/napi`
+  // ship a platform-specific `.node` native binding that esbuild
+  // cannot bundle. project-analyzer-core only loads them via dynamic
+  // import() inside runMigrationCodemods (an analyzer the MCP server
+  // doesn't currently expose), but esbuild still tries to follow the
+  // dynamic import at bundle time. Keeping both external means the
+  // server resolves them at runtime through normal node_modules
+  // lookup — works wherever pnpm has installed deps. See the
+  // matching note in packages/extensions/vscode/esbuild.config.js.
+  external: ["module-replacements-codemods", "@ast-grep/napi"],
   // Resolve ESM entry points first so the MCP SDK and analyzer-core
   // ship their published-as-esm builds rather than pulling in CJS
   // transpiler shims that don't tree-shake.

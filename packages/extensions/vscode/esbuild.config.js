@@ -10,7 +10,16 @@ const extensionBuildOptions = {
   entryPoints: ["src/extension.ts"],
   bundle: true,
   outfile: "dist/extension.js",
-  external: ["vscode"],
+  // `vscode` is the host-provided API, never bundled.
+  // `module-replacements-codemods` ships a transitive native binding
+  // (`@ast-grep/napi`'s .node file) that esbuild cannot bundle. Keeping
+  // both external means the bundled extension.js does `require()` them
+  // at runtime; they have to be resolvable on the user's filesystem
+  // (works in dev / when the extension runs from source) — see the
+  // "Migration wizard packaging" note in the README before publishing
+  // to the Marketplace, since `vsce package --no-dependencies` strips
+  // node_modules and the wizard fails to load otherwise.
+  external: ["vscode", "module-replacements-codemods", "@ast-grep/napi"],
   format: "cjs",
   platform: "node",
   target: "node20",

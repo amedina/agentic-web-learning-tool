@@ -1,0 +1,27 @@
+{
+  "name": "@agentic-web-labs/project-analyzer-core",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit",
+    "test": "vitest run --root . --silent"
+  },
+  "devDependencies": {
+    "@agentic-web-labs/shared-config": "workspace:*",
+    "typescript": "~5.8.3",
+    "vitest": "^3.2.4"
+  },
+  "dependencies": {
+    "@agentic-web-labs/package-analyzer-core": "workspace:*",
+    "@publint/pack": "^0.1.4",
+    "module-replacements-codemods": "^1.2.1",
+    "package-manager-detector": "^1.6.0",
+    "publint": "^0.3.18"
+  }
+}

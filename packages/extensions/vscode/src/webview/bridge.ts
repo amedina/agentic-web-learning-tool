@@ -1,6 +1,7 @@
 /**
  * External dependencies.
  */
+import * as path from "node:path";
 import * as vscode from "vscode";
 import {
   getDependencyTree,
@@ -16,6 +17,8 @@ import type { StatsCache } from "../cache/statsCache";
 import { SIGN_IN_GITHUB_COMMAND } from "../commands/githubAuth";
 import { SETUP_MCP_COMMAND } from "../commands/setupMcp";
 import { VIEW_PACKAGE_COMMAND } from "../commands/viewPackage";
+import type { ProjectAnalysisCache } from "../diagnostics/projectAnalysisCache";
+import { runProjectAnalysis } from "../diagnostics/projectAnalysisRunner";
 import type { NpmAdvisorSettings } from "../diagnostics/settings";
 import type { GithubAuthService } from "../services/githubAuthService";
 import type { ExtensionMessage, WebviewRequest } from "./protocol";
@@ -28,6 +31,19 @@ export interface WebviewBridgeDeps {
   cache: StatsCache;
   settingsProvider: () => NpmAdvisorSettings;
   githubAuth: GithubAuthService;
+  /**
+   * DiagnosticCollection populated by project-level analysis (publint +
+   * replacement opportunities). The bridge writes to it whenever the
+   * webview triggers a run, so the Problems panel and the webview tab
+   * stay in sync.
+   */
+  projectAnalysisCollection: vscode.DiagnosticCollection;
+  /**
+   * Result cache shared with the project-analysis runner so the webview
+   * can restore its tab state after a tab switch or webview re-mount
+   * without re-running the analyzer.
+   */
+  projectAnalysisCache: ProjectAnalysisCache;
 }
 
 /**
@@ -41,6 +57,8 @@ export class WebviewBridge implements vscode.Disposable {
   private readonly cache: StatsCache;
   private readonly settingsProvider: () => NpmAdvisorSettings;
   private readonly githubAuth: GithubAuthService;
+  private readonly projectAnalysisCollection: vscode.DiagnosticCollection;
+  private readonly projectAnalysisCache: ProjectAnalysisCache;
   private webview: vscode.Webview | null = null;
   private webviewSubscription: vscode.Disposable | null = null;
   private isReady = false;
@@ -48,11 +66,17 @@ export class WebviewBridge implements vscode.Disposable {
   private readonly onReadyListeners = new Set<() => void>();
   private readonly shownNotifications = new Set<string>();
 
-  /** Stores the cache, settings provider, and GitHub auth service. */
+  /**
+   * Stores the cache, settings provider, GitHub auth service, and the
+   * project-analysis DiagnosticCollection so handlers don't need to
+   * pass them through individually.
+   */
   constructor(deps: WebviewBridgeDeps) {
     this.cache = deps.cache;
     this.settingsProvider = deps.settingsProvider;
     this.githubAuth = deps.githubAuth;
+    this.projectAnalysisCollection = deps.projectAnalysisCollection;
+    this.projectAnalysisCache = deps.projectAnalysisCache;
   }
 
   /**
@@ -237,6 +261,77 @@ export class WebviewBridge implements vscode.Disposable {
         // wouldn't see the rate-limit toast again on a deliberate
         // refresh even if the limit is still reached.
         this.shownNotifications.clear();
+        return;
+      }
+      case "runProjectAnalysis": {
+        try {
+          const packageJsonUri = vscode.Uri.parse(message.packageJsonUri);
+          const rootPath = path.dirname(packageJsonUri.fsPath);
+          const result = await runProjectAnalysis(
+            this.projectAnalysisCollection,
+            { rootPath, cache: this.projectAnalysisCache },
+          );
+          this.post({
+            type: "projectAnalysisResult",
+            requestId: message.requestId,
+            ok: true,
+            data: result.analysis,
+          });
+        } catch (error) {
+          this.post({
+            type: "projectAnalysisResult",
+            requestId: message.requestId,
+            ok: false,
+            error: errorMessage(error),
+          });
+        }
+        return;
+      }
+      case "getCachedProjectAnalysis": {
+        try {
+          const packageJsonUri = vscode.Uri.parse(message.packageJsonUri);
+          const rootPath = path.dirname(packageJsonUri.fsPath);
+          const entry = this.projectAnalysisCache.get(rootPath);
+          this.post({
+            type: "cachedProjectAnalysis",
+            requestId: message.requestId,
+            data: entry
+              ? { analysis: entry.analysis, finishedAt: entry.finishedAt }
+              : null,
+          });
+        } catch {
+          // A malformed URI just means "no cache" — the webview
+          // already handles that branch gracefully.
+          this.post({
+            type: "cachedProjectAnalysis",
+            requestId: message.requestId,
+            data: null,
+          });
+        }
+        return;
+      }
+      case "revealFinding": {
+        try {
+          const uri = vscode.Uri.file(message.filePath);
+          const options: vscode.TextDocumentShowOptions = { preview: false };
+          if (message.range) {
+            options.selection = new vscode.Range(
+              new vscode.Position(
+                message.range.startLine,
+                message.range.startColumn,
+              ),
+              new vscode.Position(
+                message.range.endLine,
+                message.range.endColumn,
+              ),
+            );
+          }
+          await vscode.window.showTextDocument(uri, options);
+        } catch (error) {
+          void vscode.window.showErrorMessage(
+            `NPM Advisor: could not open ${message.filePath} — ${errorMessage(error)}`,
+          );
+        }
         return;
       }
       case "notify": {

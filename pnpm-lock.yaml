@@ -624,12 +624,12 @@ importers:
       '@agentic-web-labs/package-analyzer-core':
         specifier: workspace:*
         version: link:../../shared/package-analyzer-core
+      '@agentic-web-labs/project-analyzer-core':
+        specifier: workspace:*
+        version: link:../../shared/project-analyzer-core
       '@agentic-web-labs/shared-config':
         specifier: workspace:*
         version: link:../../shared/shared-config
-      '@e18e/cli':
-        specifier: ^0.5.0
-        version: 0.5.0(@babel/preset-env@7.29.2(@babel/core@7.29.0))(picomatch@4.0.4)
       '@tailwindcss/cli':
         specifier: ^4.1.13
         version: 4.2.2
@@ -781,6 +781,9 @@ importers:
       '@agentic-web-labs/package-analyzer-core':
         specifier: workspace:*
         version: link:../../shared/package-analyzer-core
+      '@agentic-web-labs/project-analyzer-core':
+        specifier: workspace:*
+        version: link:../../shared/project-analyzer-core
       '@modelcontextprotocol/sdk':
         specifier: 1.25.2
         version: 1.25.2(@cfworker/json-schema@4.1.1)(hono@4.12.9)(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))
@@ -1257,6 +1260,34 @@ importers:
       typescript:
         specifier: ~5.8.3
         version: 5.8.3
+
+  packages/shared/project-analyzer-core:
+    dependencies:
+      '@agentic-web-labs/package-analyzer-core':
+        specifier: workspace:*
+        version: link:../package-analyzer-core
+      '@publint/pack':
+        specifier: ^0.1.4
+        version: 0.1.4
+      module-replacements-codemods:
+        specifier: ^1.2.1
+        version: 1.2.1(@babel/preset-env@7.29.2(@babel/core@7.29.0))
+      package-manager-detector:
+        specifier: ^1.6.0
+        version: 1.6.0
+      publint:
+        specifier: ^0.3.18
+        version: 0.3.18
+    devDependencies:
+      '@agentic-web-labs/shared-config':
+        specifier: workspace:*
+        version: link:../shared-config
+      typescript:
+        specifier: ~5.8.3
+        version: 5.8.3
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/debug@4.1.13)(@types/node@24.12.0)(@vitest/browser@3.2.4)(jiti@2.6.1)(jsdom@20.0.3)(lightningcss@1.32.0)(yaml@2.8.3)
 
   packages/shared/shared-config:
     dependencies:
@@ -2454,18 +2485,6 @@ packages:
     engines: {node: '>=20.0.0', yarn: '>=1.22.18'}
     peerDependencies:
       storybook: ^0.0.0-0 || ^9.0.0 || ^9.1.0-0 || ^9.2.0-0 || ^10.0.0-0 || ^10.1.0-0 || ^10.2.0-0 || ^10.3.0-0
-
-  '@clack/core@1.3.0':
-    resolution: {integrity: sha512-xJPHpAmEQUBrXSLx0gF+q5K/IyihXpsHZcha+jB+tyahsKRK3Dxo4D0coZDewHo12NhiuzC3dTtMPbm53GEAAA==}
-    engines: {node: '>= 20.12.0'}
-
-  '@clack/prompts@1.3.0':
-    resolution: {integrity: sha512-GgcWwRCs/xPtaqlMy8qRhPnZf9vlWcWZNHAitnVQ3yk7JmSralSiq5q07yaffYE8SogtDm7zFeKccx1QNVARpw==}
-    engines: {node: '>= 20.12.0'}
-
-  '@e18e/cli@0.5.0':
-    resolution: {integrity: sha512-hObgA3H/22GkVLaoU5hx4+UbkvYmY+Xfoj8cr0XjRpQOutUCjz7CRlWwfcFsiNx45kKfKMmBuIGM1YkVBFkOQw==}
-    hasBin: true
 
   '@epic-web/invariant@1.0.0':
     resolution: {integrity: sha512-lrTPqgvfFQtR/eY/qkIzp98OGdNJu0m5ji3q/nJI8v3SXkRKEnWiOxMmbvcSoAIzv/cGiuvRy57k4suKQSAdwA==}
@@ -5834,17 +5853,8 @@ packages:
   fast-levenshtein@2.0.6:
     resolution: {integrity: sha512-DCXu6Ifhqcks7TZKY3Hxp3y6qphY5SJZmrWMDrKcERSOXWQdMhU9Ig/PYrzyw/ul9jOIyh0N4M0tbC5hodg8dw==}
 
-  fast-string-truncated-width@3.0.3:
-    resolution: {integrity: sha512-0jjjIEL6+0jag3l2XWWizO64/aZVtpiGE3t0Zgqxv0DPuxiMjvB3M24fCyhZUO4KomJQPj3LTSUnDP3GpdwC0g==}
-
-  fast-string-width@3.0.2:
-    resolution: {integrity: sha512-gX8LrtNEI5hq8DVUfRQMbr5lpaS4nMIWV+7XEbXk2b8kiQIizgnlr12B4dA3ZEx3308ze0O4Q1R+cHts8kyUJg==}
-
   fast-uri@3.1.0:
     resolution: {integrity: sha512-iPeeDKJSWf4IEOasVVrknXpaBV0IApz/gp7S2bb7Z4Lljbl2MGJRqInZiUrQwV16cpzw/D3S5j5Julj/gT52AA==}
-
-  fast-wrap-ansi@0.2.0:
-    resolution: {integrity: sha512-rLV8JHxTyhVmFYhBJuMujcrHqOT2cnO5Zxj37qROj23CP39GXubJRBUFF0z8KFK77Uc0SukZUf7JZhsVEQ6n8w==}
 
   fastq@1.20.1:
     resolution: {integrity: sha512-GGToxJ/w1x32s/D2EKND7kTil4n8OVk/9mycTc4VDza13lOvpUZTGX3mFSCtV9ksdGBVzvsyAVLM6mHFThxXxw==}
@@ -6064,10 +6074,6 @@ packages:
 
   graceful-fs@4.2.11:
     resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
-
-  gunshi@0.29.5:
-    resolution: {integrity: sha512-enk4QxCVyAKWZDYg3ui4at1s+1cvOWluPLtWPgFzv2NDBJ/GVZYbQdFfgM7RFyQJZnoKH27t3bKKcRtUbdFA6Q==}
-    engines: {node: '>= 20'}
 
   handlebars@4.7.9:
     resolution: {integrity: sha512-4E71E0rpOaQuJR2A3xDZ+GM1HyWYv1clR58tC8emQNeQe3RH7MAzSbat+V0wG78LQBo6m6bzSG/L4pBuCsgnUQ==}
@@ -6863,9 +6869,6 @@ packages:
     resolution: {integrity: sha512-gvVijfZvn7R+2qyPX8mAuKcFGDf6Nc61GdvGafQsHL0sBIxfKzA+usWn4GFC/bk+QdwPUD4kWFJLhElipq+0VA==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
 
-  lockparse@0.5.0:
-    resolution: {integrity: sha512-seaI91ZVc4mnEGL+/cEEd5MybTnb86NH3W5lM0Ft7CMCZsLP5z1orWnu8g7YacpiMc5GxU7wIrYLhb6W2DvNWg==}
-
   lodash-es@4.17.23:
     resolution: {integrity: sha512-kVI48u3PZr38HdYz98UmfPnXl2DXrpdctLrFLCd3kOx1xUkOmpFPx7gCWWM5MPkL/fD8zb+Ph0QzjGFs4+hHWg==}
 
@@ -7220,9 +7223,6 @@ packages:
   module-replacements-codemods@1.2.1:
     resolution: {integrity: sha512-EKUCgQWOap+KPeZmUtNErGN7DhoV4GbZZRwtmCgdcMjTrZzGm3TltwDII7kmaioi8pKZy51X9ITcivhmJT0K5A==}
 
-  module-replacements@2.11.0:
-    resolution: {integrity: sha512-j5sNQm3VCpQQ7nTqGeOZtoJtV3uKERgCBm9QRhmGRiXiqkf7iRFOkfxdJRZWLkqYY8PNf4cDQF/WfXUYLENrRA==}
-
   mri@1.2.0:
     resolution: {integrity: sha512-tzzskb3bG8LvYGFF/mDTpq3jpI6Q9wc3LEmBaghu+DdCssd1FakN7Bc0hVNmEyGq1bq3RgfkCb3cmQLpNPOroA==}
     engines: {node: '>=4'}
@@ -7354,9 +7354,6 @@ packages:
   object.values@1.2.1:
     resolution: {integrity: sha512-gXah6aZrcUxjWg2zR2MwouP2eHlCBzdV4pygudehaKXSGW4v2AsRQUK+lwwXhii6KFZcunEnmSUoYp5CXibxtA==}
     engines: {node: '>= 0.4'}
-
-  obug@2.1.1:
-    resolution: {integrity: sha512-uTqF9MuPraAQ+IsnPf366RG4cP9RtUi7MLO1N3KEc+wb0a6yKpeL0lmk2IB1jY5KHPAlTc6T/JRdC/YqxHNwkQ==}
 
   on-finished@2.4.1:
     resolution: {integrity: sha512-oVlzkg3ENAhCk2zdv7IJwd/QUD4z2RxRwpkcGY8psCVcCYZNq4wYnVWALHM+brtuJjePWiYF/ClmuDr8Ch5+kg==}
@@ -10249,38 +10246,6 @@ snapshots:
     transitivePeerDependencies:
       - '@chromatic-com/cypress'
       - '@chromatic-com/playwright'
-
-  '@clack/core@1.3.0':
-    dependencies:
-      fast-wrap-ansi: 0.2.0
-      sisteransi: 1.0.5
-
-  '@clack/prompts@1.3.0':
-    dependencies:
-      '@clack/core': 1.3.0
-      fast-string-width: 3.0.2
-      fast-wrap-ansi: 0.2.0
-      sisteransi: 1.0.5
-
-  '@e18e/cli@0.5.0(@babel/preset-env@7.29.2(@babel/core@7.29.0))(picomatch@4.0.4)':
-    dependencies:
-      '@clack/prompts': 1.3.0
-      '@publint/pack': 0.1.4
-      fast-wrap-ansi: 0.2.0
-      fdir: 6.5.0(picomatch@4.0.4)
-      gunshi: 0.29.5
-      lockparse: 0.5.0
-      module-replacements: 2.11.0
-      module-replacements-codemods: 1.2.1(@babel/preset-env@7.29.2(@babel/core@7.29.0))
-      obug: 2.1.1
-      package-manager-detector: 1.6.0
-      publint: 0.3.18
-      semver: 7.7.4
-      tinyglobby: 0.2.15
-    transitivePeerDependencies:
-      - '@babel/preset-env'
-      - picomatch
-      - supports-color
 
   '@epic-web/invariant@1.0.0': {}
 
@@ -14175,17 +14140,7 @@ snapshots:
 
   fast-levenshtein@2.0.6: {}
 
-  fast-string-truncated-width@3.0.3: {}
-
-  fast-string-width@3.0.2:
-    dependencies:
-      fast-string-truncated-width: 3.0.3
-
   fast-uri@3.1.0: {}
-
-  fast-wrap-ansi@0.2.0:
-    dependencies:
-      fast-string-width: 3.0.2
 
   fastq@1.20.1:
     dependencies:
@@ -14420,8 +14375,6 @@ snapshots:
   gopd@1.2.0: {}
 
   graceful-fs@4.2.11: {}
-
-  gunshi@0.29.5: {}
 
   handlebars@4.7.9:
     dependencies:
@@ -15494,8 +15447,6 @@ snapshots:
     dependencies:
       p-locate: 6.0.0
 
-  lockparse@0.5.0: {}
-
   lodash-es@4.17.23: {}
 
   lodash.debounce@4.0.8: {}
@@ -16030,8 +15981,6 @@ snapshots:
       - '@babel/preset-env'
       - supports-color
 
-  module-replacements@2.11.0: {}
-
   mri@1.2.0: {}
 
   mrmime@2.0.1: {}
@@ -16155,8 +16104,6 @@ snapshots:
       call-bound: 1.0.4
       define-properties: 1.2.1
       es-object-atoms: 1.1.1
-
-  obug@2.1.1: {}
 
   on-finished@2.4.1:
     dependencies:

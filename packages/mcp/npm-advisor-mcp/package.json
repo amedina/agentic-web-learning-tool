@@ -31,6 +31,7 @@
   },
   "dependencies": {
     "@agentic-web-labs/package-analyzer-core": "workspace:*",
+    "@agentic-web-labs/project-analyzer-core": "workspace:*",
     "@modelcontextprotocol/sdk": "^1.25.2",
     "zod": "4.3.5"
   },

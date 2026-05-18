@@ -88,6 +88,39 @@ function makeFakeAuth(options: { signedIn?: boolean } = {}): never {
   } as unknown as never;
 }
 
+/**
+ * Returns an inert stand-in for `vscode.DiagnosticCollection` so bridge
+ * tests can construct the bridge without exercising real diagnostics.
+ * Each method is a no-op spy callable from tests that need to assert
+ * project-analysis runs touched the collection.
+ */
+function makeFakeDiagnosticCollection(): never {
+  return {
+    name: "test",
+    set: vi.fn(),
+    delete: vi.fn(),
+    clear: vi.fn(),
+    forEach: vi.fn(),
+    get: vi.fn(),
+    has: vi.fn(),
+    dispose: vi.fn(),
+  } as unknown as never;
+}
+
+/**
+ * Returns an inert stand-in for `ProjectAnalysisCache`. Bridge tests
+ * never exercise the get/set/invalidate paths today, but the bridge
+ * constructor requires the field.
+ */
+function makeFakeProjectAnalysisCache(): never {
+  return {
+    get: vi.fn().mockReturnValue(undefined),
+    set: vi.fn(),
+    invalidate: vi.fn(),
+    clear: vi.fn(),
+  } as unknown as never;
+}
+
 describe("WebviewBridge", () => {
   let executeCommandSpy: ReturnType<typeof vi.spyOn>;
 
@@ -109,6 +142,8 @@ describe("WebviewBridge", () => {
       cache: cache as unknown as never,
       settingsProvider: () => ({ targetLicense: "MIT" }) as never,
       githubAuth: makeFakeAuth(),
+      projectAnalysisCollection: makeFakeDiagnosticCollection(),
+      projectAnalysisCache: makeFakeProjectAnalysisCache(),
     });
     const fakeWebview = new FakeWebview();
     bridge.attach(fakeWebview as unknown as vscode.Webview);
@@ -134,6 +169,8 @@ describe("WebviewBridge", () => {
       cache: cache as unknown as never,
       settingsProvider: () => ({ targetLicense: "MIT" }) as never,
       githubAuth: makeFakeAuth(),
+      projectAnalysisCollection: makeFakeDiagnosticCollection(),
+      projectAnalysisCache: makeFakeProjectAnalysisCache(),
     });
     const fakeWebview = new FakeWebview();
     bridge.attach(fakeWebview as unknown as vscode.Webview);
@@ -158,6 +195,8 @@ describe("WebviewBridge", () => {
       cache: cache as unknown as never,
       settingsProvider: () => ({ targetLicense: "MIT" }) as never,
       githubAuth: makeFakeAuth(),
+      projectAnalysisCollection: makeFakeDiagnosticCollection(),
+      projectAnalysisCache: makeFakeProjectAnalysisCache(),
     });
     const fakeWebview = new FakeWebview();
     bridge.attach(fakeWebview as unknown as vscode.Webview);
@@ -184,6 +223,8 @@ describe("WebviewBridge", () => {
       cache: { get: vi.fn(), clearAll } as unknown as never,
       settingsProvider: () => ({ targetLicense: "MIT" }) as never,
       githubAuth: makeFakeAuth(),
+      projectAnalysisCollection: makeFakeDiagnosticCollection(),
+      projectAnalysisCache: makeFakeProjectAnalysisCache(),
     });
     const fakeWebview = new FakeWebview();
     bridge.attach(fakeWebview as unknown as vscode.Webview);
@@ -201,6 +242,8 @@ describe("WebviewBridge", () => {
       cache: { get: vi.fn() } as unknown as never,
       settingsProvider: () => ({ targetLicense: "MIT" }) as never,
       githubAuth: makeFakeAuth(),
+      projectAnalysisCollection: makeFakeDiagnosticCollection(),
+      projectAnalysisCache: makeFakeProjectAnalysisCache(),
     });
     const fakeWebview = new FakeWebview();
     bridge.attach(fakeWebview as unknown as vscode.Webview);
@@ -223,6 +266,8 @@ describe("WebviewBridge", () => {
       cache: { get: vi.fn() } as unknown as never,
       settingsProvider: () => ({ targetLicense: "MIT" }) as never,
       githubAuth: makeFakeAuth({ signedIn: false }),
+      projectAnalysisCollection: makeFakeDiagnosticCollection(),
+      projectAnalysisCache: makeFakeProjectAnalysisCache(),
     });
     const fakeWebview = new FakeWebview();
     bridge.attach(fakeWebview as unknown as vscode.Webview);
@@ -250,6 +295,8 @@ describe("WebviewBridge", () => {
       cache: { get: vi.fn() } as unknown as never,
       settingsProvider: () => ({ targetLicense: "MIT" }) as never,
       githubAuth: makeFakeAuth({ signedIn: true }),
+      projectAnalysisCollection: makeFakeDiagnosticCollection(),
+      projectAnalysisCache: makeFakeProjectAnalysisCache(),
     });
     const fakeWebview = new FakeWebview();
     bridge.attach(fakeWebview as unknown as vscode.Webview);
@@ -276,6 +323,8 @@ describe("WebviewBridge", () => {
       cache: { get: vi.fn() } as unknown as never,
       settingsProvider: () => ({ targetLicense: "MIT" }) as never,
       githubAuth: makeFakeAuth(),
+      projectAnalysisCollection: makeFakeDiagnosticCollection(),
+      projectAnalysisCache: makeFakeProjectAnalysisCache(),
     });
     const fakeWebview = new FakeWebview();
     bridge.attach(fakeWebview as unknown as vscode.Webview);
@@ -312,6 +361,8 @@ describe("WebviewBridge", () => {
       cache: { get: vi.fn() } as unknown as never,
       settingsProvider: () => ({ targetLicense: "MIT" }) as never,
       githubAuth: makeFakeAuth(),
+      projectAnalysisCollection: makeFakeDiagnosticCollection(),
+      projectAnalysisCache: makeFakeProjectAnalysisCache(),
     });
     bridge.attach(webview1 as unknown as vscode.Webview);
     expect(dispose1).not.toHaveBeenCalled();
@@ -329,6 +380,8 @@ describe("WebviewBridge", () => {
       cache: { get: vi.fn() } as unknown as never,
       settingsProvider: () => ({ targetLicense: "MIT" }) as never,
       githubAuth: makeFakeAuth(),
+      projectAnalysisCollection: makeFakeDiagnosticCollection(),
+      projectAnalysisCache: makeFakeProjectAnalysisCache(),
     });
     const fakeWebview = new FakeWebview();
     bridge.attach(fakeWebview as unknown as vscode.Webview);
@@ -354,6 +407,8 @@ describe("WebviewBridge", () => {
       cache: { get: vi.fn() } as unknown as never,
       settingsProvider: () => ({ targetLicense: "MIT" }) as never,
       githubAuth: makeFakeAuth(),
+      projectAnalysisCollection: makeFakeDiagnosticCollection(),
+      projectAnalysisCache: makeFakeProjectAnalysisCache(),
     });
     const fakeWebview = new FakeWebview();
     bridge.attach(fakeWebview as unknown as vscode.Webview);
@@ -374,6 +429,8 @@ describe("WebviewBridge", () => {
       cache: { get: vi.fn() } as unknown as never,
       settingsProvider: () => ({ targetLicense: "MIT" }) as never,
       githubAuth: makeFakeAuth(),
+      projectAnalysisCollection: makeFakeDiagnosticCollection(),
+      projectAnalysisCache: makeFakeProjectAnalysisCache(),
     });
     const fakeWebview = new FakeWebview();
     bridge.attach(fakeWebview as unknown as vscode.Webview);
@@ -390,6 +447,8 @@ describe("WebviewBridge", () => {
       cache: { get: vi.fn() } as unknown as never,
       settingsProvider: () => ({ targetLicense: "MIT" }) as never,
       githubAuth: makeFakeAuth(),
+      projectAnalysisCollection: makeFakeDiagnosticCollection(),
+      projectAnalysisCache: makeFakeProjectAnalysisCache(),
     });
     const fakeWebview = new FakeWebview();
     bridge.attach(fakeWebview as unknown as vscode.Webview);
@@ -410,6 +469,8 @@ describe("WebviewBridge", () => {
       cache: { get: vi.fn() } as unknown as never,
       settingsProvider: () => ({ targetLicense: "MIT" }) as never,
       githubAuth: makeFakeAuth(),
+      projectAnalysisCollection: makeFakeDiagnosticCollection(),
+      projectAnalysisCache: makeFakeProjectAnalysisCache(),
     });
     const fakeWebview = new FakeWebview();
     bridge.attach(fakeWebview as unknown as vscode.Webview);
@@ -424,6 +485,8 @@ describe("WebviewBridge", () => {
       cache: { get: vi.fn() } as unknown as never,
       settingsProvider: () => ({ targetLicense: "MIT" }) as never,
       githubAuth: makeFakeAuth(),
+      projectAnalysisCollection: makeFakeDiagnosticCollection(),
+      projectAnalysisCache: makeFakeProjectAnalysisCache(),
     });
     const fakeWebview = new FakeWebview();
     bridge.attach(fakeWebview as unknown as vscode.Webview);

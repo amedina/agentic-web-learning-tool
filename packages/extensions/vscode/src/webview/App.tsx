@@ -14,6 +14,7 @@ import {
  * Internal dependencies.
  */
 import { PackageJsonSwitcher } from "./PackageJsonSwitcher";
+import { ProjectAnalysisTab } from "./ProjectAnalysisTab";
 import type {
   ExtensionMessage,
   PackageJsonDependenciesPayload,
@@ -31,7 +32,23 @@ interface AppProps {
     message: string,
     dedupeKey?: string,
   ) => void;
+  onRunProjectAnalysis: (requestId: string, packageJsonUri: string) => void;
+  onGetCachedProjectAnalysis: (
+    requestId: string,
+    packageJsonUri: string,
+  ) => void;
+  onRevealFinding: (
+    filePath: string,
+    range?: {
+      startLine: number;
+      startColumn: number;
+      endLine: number;
+      endColumn: number;
+    },
+  ) => void;
 }
+
+type ActiveTab = "dependencies" | "project";
 
 const EMPTY_DEPS: PackageJsonDependenciesPayload = {
   dependencies: [],
@@ -54,7 +71,11 @@ export const App: FC<AppProps> = ({
   onRefreshStats,
   onSetupMcp,
   onNotify,
+  onRunProjectAnalysis,
+  onGetCachedProjectAnalysis,
+  onRevealFinding,
 }) => {
+  const [activeTab, setActiveTab] = useState<ActiveTab>("dependencies");
   const [initState, setInitState] = useState<{
     activeFile: PackageJsonFile | null;
     availableFiles: PackageJsonFile[];
@@ -161,30 +182,99 @@ export const App: FC<AppProps> = ({
           onRefresh={onRefreshStats}
           onSetupMcp={onSetupMcp}
         />
-        {activeFile ? (
-          hasDependencies ? (
-            <div className="flex-1 min-h-0 overflow-y-auto">
-              <DependenciesTab
-                key={`${activeFile.uri}#${refreshKey}`}
-                packageJsonDependencies={packageJsonDependencies ?? EMPTY_DEPS}
-                onAddRecommendationToCompare={handleAddRecommendation}
-                comparisonBucketNames={EMPTY_SET}
-                addingRecommendations={EMPTY_SET}
-                hideCompare
-                showFitness
-                forceVisiblePackageName={focusPackageName ?? undefined}
-                onRateLimited={handleRateLimited}
-                initialStatsByName={prefetchedStats}
-              />
-            </div>
-          ) : (
-            <div className="text-slate-500 dark:text-slate-400 p-4 text-sm">
-              No dependencies found in this package.json.
-            </div>
-          )
-        ) : null}
+        <TabBar activeTab={activeTab} onChange={setActiveTab} />
+        <div className="flex-1 min-h-0 overflow-y-auto">
+          {/*
+           * Both tab panels stay mounted and toggle via CSS so that
+           * switching tabs doesn't blow away each tab's component-local
+           * state (e.g. the in-progress / ready status of a project
+           * analysis run). Host-side caching backstops state across
+           * full webview re-mounts; this just makes intra-mount tab
+           * switches feel instant and stateful.
+           */}
+          <div className={activeTab === "dependencies" ? "" : "hidden"}>
+            {activeFile ? (
+              hasDependencies ? (
+                <DependenciesTab
+                  key={`${activeFile.uri}#${refreshKey}`}
+                  packageJsonDependencies={
+                    packageJsonDependencies ?? EMPTY_DEPS
+                  }
+                  onAddRecommendationToCompare={handleAddRecommendation}
+                  comparisonBucketNames={EMPTY_SET}
+                  addingRecommendations={EMPTY_SET}
+                  hideCompare
+                  showFitness
+                  forceVisiblePackageName={focusPackageName ?? undefined}
+                  onRateLimited={handleRateLimited}
+                  initialStatsByName={prefetchedStats}
+                />
+              ) : (
+                <div className="text-slate-500 dark:text-slate-400 p-4 text-sm">
+                  No dependencies found in this package.json.
+                </div>
+              )
+            ) : null}
+          </div>
+          <div className={activeTab === "project" ? "" : "hidden"}>
+            <ProjectAnalysisTab
+              activeFile={activeFile}
+              postRunRequest={onRunProjectAnalysis}
+              postCacheRequest={onGetCachedProjectAnalysis}
+              postReveal={onRevealFinding}
+            />
+          </div>
+        </div>
       </div>
     </StatsClientProvider>
+  );
+};
+
+interface TabBarProps {
+  activeTab: ActiveTab;
+  onChange: (tab: ActiveTab) => void;
+}
+
+/**
+ * Two-tab strip below the package.json switcher. Switches between the
+ * existing per-dep view and the new project-level analysis tab.
+ */
+const TabBar: FC<TabBarProps> = ({ activeTab, onChange }) => {
+  return (
+    <div className="flex border-b border-slate-200 dark:border-slate-800 text-xs font-medium">
+      <TabButton
+        label="Dependencies"
+        isActive={activeTab === "dependencies"}
+        onClick={() => onChange("dependencies")}
+      />
+      <TabButton
+        label="Project Analysis"
+        isActive={activeTab === "project"}
+        onClick={() => onChange("project")}
+      />
+    </div>
+  );
+};
+
+interface TabButtonProps {
+  label: string;
+  isActive: boolean;
+  onClick: () => void;
+}
+
+const TabButton: FC<TabButtonProps> = ({ label, isActive, onClick }) => {
+  return (
+    <button
+      type="button"
+      className={`px-3 py-2 border-b-2 -mb-px ${
+        isActive
+          ? "border-sky-500 text-slate-900 dark:text-slate-100"
+          : "border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+      }`}
+      onClick={onClick}
+    >
+      {label}
+    </button>
   );
 };
 

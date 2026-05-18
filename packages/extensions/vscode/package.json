@@ -76,6 +76,21 @@
         "command": "npmAdvisor.uninstallMcp",
         "title": "NPM Advisor: Remove MCP server from AI clients",
         "category": "NPM Advisor"
+      },
+      {
+        "command": "npmAdvisor.runProjectAnalysis",
+        "title": "NPM Advisor: Run project analysis (publint + replacement opportunities)",
+        "category": "NPM Advisor"
+      },
+      {
+        "command": "npmAdvisor.clearProjectAnalysis",
+        "title": "NPM Advisor: Clear project-analysis diagnostics",
+        "category": "NPM Advisor"
+      },
+      {
+        "command": "npmAdvisor.runMigrationWizard",
+        "title": "NPM Advisor: Run migration wizard (replace deps with lighter alternatives)",
+        "category": "NPM Advisor"
       }
     ],
     "chatParticipants": [
@@ -144,8 +159,8 @@
   },
   "devDependencies": {
     "@agentic-web-labs/package-analyzer-core": "workspace:*",
+    "@agentic-web-labs/project-analyzer-core": "workspace:*",
     "@agentic-web-labs/shared-config": "workspace:*",
-    "@e18e/cli": "^0.5.0",
     "@tailwindcss/cli": "^4.1.13",
     "@types/d3": "^7.4.3",
     "@types/node": "^24.3.0",
