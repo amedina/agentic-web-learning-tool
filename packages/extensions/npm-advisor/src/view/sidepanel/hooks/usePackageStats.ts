@@ -25,6 +25,7 @@ const URL_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 interface UrlCacheEntry {
   stats: PackageStats | null;
   error: string | null;
+  notice: string | null;
   packageJsonDependencies: PackageJsonDependencies | null;
   cachedAt: number;
 }
@@ -80,6 +81,7 @@ export const getPackageNameFromUrl = (
 export const usePackageStats = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [currentTabUrl, setCurrentTabUrl] = useState<string | null>(null);
   const [pendingPackageName, setPendingPackageName] = useState<string | null>(
     null,
@@ -140,6 +142,7 @@ export const usePackageStats = () => {
           setStats(null);
           setPackageJsonDependencies(null);
           setError(null);
+          setNotice(null);
           setIsNavigationMessage(false);
           setLoading(false);
           return;
@@ -152,13 +155,17 @@ export const usePackageStats = () => {
         if (cached) {
           setStats(cached.stats);
           setError(cached.error);
+          setNotice(cached.notice);
           setPackageJsonDependencies(cached.packageJsonDependencies);
-          setIsNavigationMessage(!cached.stats && !cached.error);
+          setIsNavigationMessage(
+            !cached.stats && !cached.error && !cached.notice,
+          );
           setLoading(false);
           return;
         }
         setLoading(true);
         setError(null);
+        setNotice(null);
         setIsNavigationMessage(false);
         setPackageJsonDependencies(null);
         // Clear the previous package's stats immediately so widgets fall
@@ -205,6 +212,7 @@ export const usePackageStats = () => {
           urlCache.set(url, {
             stats: null,
             error: null,
+            notice: null,
             packageJsonDependencies: dependenciesToExpose,
             cachedAt: Date.now(),
           });
@@ -225,6 +233,7 @@ export const usePackageStats = () => {
               urlCache.set(url, {
                 stats: null,
                 error: errorMessage,
+                notice: null,
                 packageJsonDependencies: dependenciesToExpose,
                 cachedAt: Date.now(),
               });
@@ -242,21 +251,27 @@ export const usePackageStats = () => {
                   urlCache.set(url, {
                     stats: response.data,
                     error: null,
+                    notice: null,
                     packageJsonDependencies: dependenciesToExpose,
                     cachedAt: Date.now(),
                   });
                 }
                 setStats(response.data);
               } else {
-                const errorMessage =
+                // Package isn't published / npm returned 404 — that's a
+                // benign state, not a failure. Surface it through `notice`
+                // so the panel renders an info card instead of the red
+                // error UI.
+                const noticeMessage =
                   "This package was not found on npmjs.com. It may not be published.";
                 urlCache.set(url, {
                   stats: null,
-                  error: errorMessage,
+                  error: null,
+                  notice: noticeMessage,
                   packageJsonDependencies: dependenciesToExpose,
                   cachedAt: Date.now(),
                 });
-                setError(errorMessage);
+                setNotice(noticeMessage);
               }
             } else {
               const errorMessage =
@@ -265,6 +280,7 @@ export const usePackageStats = () => {
               urlCache.set(url, {
                 stats: null,
                 error: errorMessage,
+                notice: null,
                 packageJsonDependencies: dependenciesToExpose,
                 cachedAt: Date.now(),
               });
@@ -365,6 +381,7 @@ export const usePackageStats = () => {
       void chrome.runtime.lastError;
       setLoading(true);
       setError(null);
+      setNotice(null);
       setStats(null);
       setPackageJsonDependencies(null);
       setIsNavigationMessage(false);
@@ -419,6 +436,7 @@ export const usePackageStats = () => {
     stats,
     loading,
     error,
+    notice,
     isNavigationMessage,
     isOptionsPage,
     isComparisonPage,

@@ -9,6 +9,7 @@ import { StatsClientProvider } from "@agentic-web-labs/package-analyzer-ui";
  */
 import {
   ErrorState,
+  NoticeState,
   NavigationMessage,
   InsightsTab,
   DependenciesTab,
@@ -31,6 +32,7 @@ const SidePanel = () => {
     stats,
     loading,
     error,
+    notice,
     isNavigationMessage,
     isOptionsPage,
     isComparisonPage,
@@ -76,6 +78,15 @@ const SidePanel = () => {
       <>
         <Toaster position="bottom-center" />
         <OptionsPageSidePanel />
+      </>
+    );
+  }
+
+  if (notice) {
+    return (
+      <>
+        <Toaster position="bottom-center" />
+        <NoticeState message={notice} />
       </>
     );
   }
