@@ -6,6 +6,50 @@ const path = require("node:path");
 const production = process.argv.includes("--production");
 const watch = process.argv.includes("--watch");
 
+// Optional template engines that `@vue/compiler-sfc` and `consolidate`
+// dynamically `require()` (pulled in transitively by `madge` →
+// `precinct` for the circular-dependency analyzer). These are never
+// installed in this repo; marking them external leaves the requires
+// in the bundle as no-op `require()` calls that throw MODULE_NOT_FOUND
+// at runtime — which only happens if a consumer actually tries to
+// parse a Vue SFC using one of these template languages, which the
+// JS/TS-focused analyzer never does.
+const OPTIONAL_TEMPLATE_ENGINES = [
+  "atpl",
+  "babel-core",
+  "bracket-template",
+  "coffee-script",
+  "dot",
+  "dustjs-linkedin",
+  "eco",
+  "ect",
+  "ejs",
+  "haml-coffee",
+  "hamlet",
+  "hamljs",
+  "htmling",
+  "jazz",
+  "jqtpl",
+  "just",
+  "liquor",
+  "marko",
+  "mote",
+  "mustache",
+  "plates",
+  "ractive",
+  "slm",
+  "squirrelly",
+  "teacup/lib/express",
+  "templayed",
+  "toffee",
+  "twig",
+  "twing",
+  "vash",
+  "velocityjs",
+  "walrus",
+  "whiskers",
+];
+
 const extensionBuildOptions = {
   entryPoints: ["src/extension.ts"],
   bundle: true,
@@ -19,7 +63,12 @@ const extensionBuildOptions = {
   // "Migration wizard packaging" note in the README before publishing
   // to the Marketplace, since `vsce package --no-dependencies` strips
   // node_modules and the wizard fails to load otherwise.
-  external: ["vscode", "module-replacements-codemods", "@ast-grep/napi"],
+  external: [
+    "vscode",
+    "module-replacements-codemods",
+    "@ast-grep/napi",
+    ...OPTIONAL_TEMPLATE_ENGINES,
+  ],
   format: "cjs",
   platform: "node",
   target: "node20",
