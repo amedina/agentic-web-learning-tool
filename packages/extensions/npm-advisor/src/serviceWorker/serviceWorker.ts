@@ -5,6 +5,8 @@ import {
   fetchBundlephobiaData,
   getDependencyTree,
   configureGithubAuth,
+  clearCache as clearFetchWithCache,
+  clearGithubFetchCache,
 } from "@agentic-web-labs/package-analyzer-core";
 
 /**
@@ -17,11 +19,49 @@ import "./chromeListeners";
 
 configureGithubAuth({ getToken: () => githubAuthService.getToken() });
 
+/**
+ * How long deferred bundle / dependency-tree fetches stay cached before being
+ * refreshed. Mirrors `STATS_CACHE_TTL_MS` in `packageStats.ts` so every cache
+ * the side panel touches expires on the same daily cadence.
+ */
+const DEFERRED_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+
 // Tiny in-memory caches for deferred fetches. Live on the service worker,
 // so the same package only hits the upstream once per service-worker
 // lifetime even if multiple accordion rows expand it.
 const bundleDataCache = new Map<string, Promise<unknown> | unknown>();
+const bundleDataCacheTimestamps = new Map<string, number>();
 const depTreeCache = new Map<string, Promise<unknown> | unknown>();
+const depTreeCacheTimestamps = new Map<string, number>();
+
+/**
+ * Returns true when the named entry has a recorded timestamp older than the
+ * supplied TTL. Entries without a timestamp (in-flight promises) are treated
+ * as fresh so concurrent readers still share the same request.
+ */
+function isCacheExpired(
+  timestamps: Map<string, number>,
+  key: string,
+  ttlMs: number,
+): boolean {
+  const stampedAt = timestamps.get(key);
+  if (stampedAt === undefined) {
+    return false;
+  }
+  return Date.now() - stampedAt > ttlMs;
+}
+
+/**
+ * Drops every entry from the deferred bundle / dep-tree caches. Used by the
+ * manual refresh handler so the next expand of an accordion row re-hits the
+ * upstream rather than replaying yesterday's payload.
+ */
+function clearDeferredCaches(): void {
+  bundleDataCache.clear();
+  bundleDataCacheTimestamps.clear();
+  depTreeCache.clear();
+  depTreeCacheTimestamps.clear();
+}
 
 /**
  * Background Service Worker.
@@ -62,19 +102,34 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   // bundlephobia.
   else if (request.type === "GET_BUNDLE_DATA" && request.packageName) {
     const { packageName } = request;
+    if (
+      isCacheExpired(
+        bundleDataCacheTimestamps,
+        packageName,
+        DEFERRED_CACHE_TTL_MS,
+      )
+    ) {
+      bundleDataCache.delete(packageName);
+      bundleDataCacheTimestamps.delete(packageName);
+    }
     let cached = bundleDataCache.get(packageName);
     if (!cached) {
-      cached = fetchBundlephobiaData(packageName).catch((error) => {
-        bundleDataCache.delete(packageName);
-        throw error;
-      });
-      bundleDataCache.set(packageName, cached);
+      const promise = fetchBundlephobiaData(packageName)
+        .then((data) => {
+          bundleDataCache.set(packageName, data);
+          bundleDataCacheTimestamps.set(packageName, Date.now());
+          return data;
+        })
+        .catch((error) => {
+          bundleDataCache.delete(packageName);
+          bundleDataCacheTimestamps.delete(packageName);
+          throw error;
+        });
+      bundleDataCache.set(packageName, promise);
+      cached = promise;
     }
     Promise.resolve(cached)
-      .then((data) => {
-        bundleDataCache.set(packageName, data);
-        sendResponse({ success: true, data });
-      })
+      .then((data) => sendResponse({ success: true, data }))
       .catch((err) =>
         sendResponse({
           success: false,
@@ -90,19 +145,30 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   // want to pay for unless the user actually opens the accordion row.
   else if (request.type === "GET_DEP_TREE" && request.packageName) {
     const { packageName } = request;
+    if (
+      isCacheExpired(depTreeCacheTimestamps, packageName, DEFERRED_CACHE_TTL_MS)
+    ) {
+      depTreeCache.delete(packageName);
+      depTreeCacheTimestamps.delete(packageName);
+    }
     let cached = depTreeCache.get(packageName);
     if (!cached) {
-      cached = getDependencyTree(packageName).catch((error) => {
-        depTreeCache.delete(packageName);
-        throw error;
-      });
-      depTreeCache.set(packageName, cached);
+      const promise = getDependencyTree(packageName)
+        .then((data) => {
+          depTreeCache.set(packageName, data);
+          depTreeCacheTimestamps.set(packageName, Date.now());
+          return data;
+        })
+        .catch((error) => {
+          depTreeCache.delete(packageName);
+          depTreeCacheTimestamps.delete(packageName);
+          throw error;
+        });
+      depTreeCache.set(packageName, promise);
+      cached = promise;
     }
     Promise.resolve(cached)
-      .then((data) => {
-        depTreeCache.set(packageName, data);
-        sendResponse({ success: true, data });
-      })
+      .then((data) => sendResponse({ success: true, data }))
       .catch((err) =>
         sendResponse({
           success: false,
@@ -183,6 +249,21 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     chrome.tabs.create({
       url: chrome.runtime.getURL("options/options.html#settings"),
     });
+    sendResponse({ success: true });
+  }
+
+  // 7. Manual cache wipe triggered by the side panel's refresh button. Drops
+  // every in-memory stats / bundle / dep-tree cache so the next request goes
+  // back to the network — useful when the user wants up-to-the-minute data
+  // without waiting for the 24h TTL to expire. Also wipes the low-level
+  // fetch caches inside `package-analyzer-core`; without these, the npm /
+  // GitHub HTTP responses would still be served from a module-level Map and
+  // the refresh would only re-shape stale bytes.
+  else if (request.type === "CLEAR_STATS_CACHE") {
+    packageStatsService.clearAll();
+    clearDeferredCaches();
+    clearFetchWithCache();
+    clearGithubFetchCache();
     sendResponse({ success: true });
   }
 });

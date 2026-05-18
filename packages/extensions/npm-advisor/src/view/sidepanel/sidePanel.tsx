@@ -9,6 +9,7 @@ import { StatsClientProvider } from "@agentic-web-labs/package-analyzer-ui";
  */
 import {
   ErrorState,
+  NoticeState,
   NavigationMessage,
   InsightsTab,
   DependenciesTab,
@@ -31,6 +32,7 @@ const SidePanel = () => {
     stats,
     loading,
     error,
+    notice,
     isNavigationMessage,
     isOptionsPage,
     isComparisonPage,
@@ -43,6 +45,9 @@ const SidePanel = () => {
     currentTabUrl,
     packageJsonDependencies,
     pendingPackageName,
+    refresh,
+    refreshKey,
+    isRefreshing,
   } = usePackageStats();
 
   const hasAnalysableDependencies =
@@ -75,6 +80,15 @@ const SidePanel = () => {
       <>
         <Toaster position="bottom-center" />
         <OptionsPageSidePanel />
+      </>
+    );
+  }
+
+  if (notice) {
+    return (
+      <>
+        <Toaster position="bottom-center" />
+        <NoticeState message={notice} />
       </>
     );
   }
@@ -129,6 +143,7 @@ const SidePanel = () => {
                       label: "Dependencies",
                       content: (
                         <DependenciesTab
+                          key={`deps-${refreshKey}`}
                           packageJsonDependencies={packageJsonDependencies}
                           onAddRecommendationToCompare={
                             handleAddRecommendationToCompare
@@ -167,7 +182,9 @@ const SidePanel = () => {
               />
             }
             footerNode={<></>}
-            subHeaderNode={<GlobalHeader />}
+            subHeaderNode={
+              <GlobalHeader onRefresh={refresh} isRefreshing={isRefreshing} />
+            }
             assistantMessage={AssistantMessage}
             userMessage={UserMessage}
             getCustomSystemPrompt={() => {
