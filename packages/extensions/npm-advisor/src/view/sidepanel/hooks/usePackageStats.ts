@@ -15,15 +15,40 @@ export interface PackageJsonDependencies {
   peerDependencies: string[];
 }
 
-// Cache to prevent reloading state when returning to a previously visited tab
-const urlCache = new Map<
-  string,
-  {
-    stats: PackageStats | null;
-    error: string | null;
-    packageJsonDependencies: PackageJsonDependencies | null;
+/**
+ * How long a per-URL cache entry stays fresh before the panel re-fetches.
+ * Matches the service worker's stats cache TTL so the daily refresh cadence
+ * is consistent end-to-end.
+ */
+const URL_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+
+interface UrlCacheEntry {
+  stats: PackageStats | null;
+  error: string | null;
+  packageJsonDependencies: PackageJsonDependencies | null;
+  cachedAt: number;
+}
+
+// Cache to prevent reloading state when returning to a previously visited tab.
+// Entries older than `URL_CACHE_TTL_MS` are treated as misses so the panel
+// automatically pulls fresh stats once a day without a manual refresh.
+const urlCache = new Map<string, UrlCacheEntry>();
+
+/**
+ * Reads a URL cache entry but treats anything older than `URL_CACHE_TTL_MS`
+ * as a miss (and evicts it).
+ */
+const readFreshUrlCacheEntry = (url: string): UrlCacheEntry | null => {
+  const entry = urlCache.get(url);
+  if (!entry) {
+    return null;
   }
->();
+  if (Date.now() - entry.cachedAt > URL_CACHE_TTL_MS) {
+    urlCache.delete(url);
+    return null;
+  }
+  return entry;
+};
 
 const extractDependencies = (pkg: any): PackageJsonDependencies => ({
   dependencies: pkg?.dependencies ? Object.keys(pkg.dependencies) : [],
@@ -117,8 +142,8 @@ export const usePackageStats = () => {
         setIsOptionsPage(false);
         setIsComparisonPage(false);
 
-        if (urlCache.has(url)) {
-          const cached = urlCache.get(url)!;
+        const cached = readFreshUrlCacheEntry(url);
+        if (cached) {
           setStats(cached.stats);
           setError(cached.error);
           setPackageJsonDependencies(cached.packageJsonDependencies);
@@ -175,6 +200,7 @@ export const usePackageStats = () => {
             stats: null,
             error: null,
             packageJsonDependencies: dependenciesToExpose,
+            cachedAt: Date.now(),
           });
           setIsNavigationMessage(true);
           setStats(null);
@@ -194,6 +220,7 @@ export const usePackageStats = () => {
                 stats: null,
                 error: errorMessage,
                 packageJsonDependencies: dependenciesToExpose,
+                cachedAt: Date.now(),
               });
               setLoading(false);
               return setError(errorMessage);
@@ -210,6 +237,7 @@ export const usePackageStats = () => {
                     stats: response.data,
                     error: null,
                     packageJsonDependencies: dependenciesToExpose,
+                    cachedAt: Date.now(),
                   });
                 }
                 setStats(response.data);
@@ -220,6 +248,7 @@ export const usePackageStats = () => {
                   stats: null,
                   error: errorMessage,
                   packageJsonDependencies: dependenciesToExpose,
+                  cachedAt: Date.now(),
                 });
                 setError(errorMessage);
               }
@@ -231,6 +260,7 @@ export const usePackageStats = () => {
                 stats: null,
                 error: errorMessage,
                 packageJsonDependencies: dependenciesToExpose,
+                cachedAt: Date.now(),
               });
               setError(errorMessage);
             }

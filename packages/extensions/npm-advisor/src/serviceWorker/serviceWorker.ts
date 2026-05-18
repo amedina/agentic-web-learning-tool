@@ -17,11 +17,37 @@ import "./chromeListeners";
 
 configureGithubAuth({ getToken: () => githubAuthService.getToken() });
 
+/**
+ * How long deferred bundle / dependency-tree fetches stay cached before being
+ * refreshed. Mirrors `STATS_CACHE_TTL_MS` in `packageStats.ts` so every cache
+ * the side panel touches expires on the same daily cadence.
+ */
+const DEFERRED_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+
 // Tiny in-memory caches for deferred fetches. Live on the service worker,
 // so the same package only hits the upstream once per service-worker
 // lifetime even if multiple accordion rows expand it.
 const bundleDataCache = new Map<string, Promise<unknown> | unknown>();
+const bundleDataCacheTimestamps = new Map<string, number>();
 const depTreeCache = new Map<string, Promise<unknown> | unknown>();
+const depTreeCacheTimestamps = new Map<string, number>();
+
+/**
+ * Returns true when the named entry has a recorded timestamp older than the
+ * supplied TTL. Entries without a timestamp (in-flight promises) are treated
+ * as fresh so concurrent readers still share the same request.
+ */
+function isCacheExpired(
+  timestamps: Map<string, number>,
+  key: string,
+  ttlMs: number,
+): boolean {
+  const stampedAt = timestamps.get(key);
+  if (stampedAt === undefined) {
+    return false;
+  }
+  return Date.now() - stampedAt > ttlMs;
+}
 
 /**
  * Background Service Worker.
@@ -62,19 +88,34 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   // bundlephobia.
   else if (request.type === "GET_BUNDLE_DATA" && request.packageName) {
     const { packageName } = request;
+    if (
+      isCacheExpired(
+        bundleDataCacheTimestamps,
+        packageName,
+        DEFERRED_CACHE_TTL_MS,
+      )
+    ) {
+      bundleDataCache.delete(packageName);
+      bundleDataCacheTimestamps.delete(packageName);
+    }
     let cached = bundleDataCache.get(packageName);
     if (!cached) {
-      cached = fetchBundlephobiaData(packageName).catch((error) => {
-        bundleDataCache.delete(packageName);
-        throw error;
-      });
-      bundleDataCache.set(packageName, cached);
+      const promise = fetchBundlephobiaData(packageName)
+        .then((data) => {
+          bundleDataCache.set(packageName, data);
+          bundleDataCacheTimestamps.set(packageName, Date.now());
+          return data;
+        })
+        .catch((error) => {
+          bundleDataCache.delete(packageName);
+          bundleDataCacheTimestamps.delete(packageName);
+          throw error;
+        });
+      bundleDataCache.set(packageName, promise);
+      cached = promise;
     }
     Promise.resolve(cached)
-      .then((data) => {
-        bundleDataCache.set(packageName, data);
-        sendResponse({ success: true, data });
-      })
+      .then((data) => sendResponse({ success: true, data }))
       .catch((err) =>
         sendResponse({
           success: false,
@@ -90,19 +131,30 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   // want to pay for unless the user actually opens the accordion row.
   else if (request.type === "GET_DEP_TREE" && request.packageName) {
     const { packageName } = request;
+    if (
+      isCacheExpired(depTreeCacheTimestamps, packageName, DEFERRED_CACHE_TTL_MS)
+    ) {
+      depTreeCache.delete(packageName);
+      depTreeCacheTimestamps.delete(packageName);
+    }
     let cached = depTreeCache.get(packageName);
     if (!cached) {
-      cached = getDependencyTree(packageName).catch((error) => {
-        depTreeCache.delete(packageName);
-        throw error;
-      });
-      depTreeCache.set(packageName, cached);
+      const promise = getDependencyTree(packageName)
+        .then((data) => {
+          depTreeCache.set(packageName, data);
+          depTreeCacheTimestamps.set(packageName, Date.now());
+          return data;
+        })
+        .catch((error) => {
+          depTreeCache.delete(packageName);
+          depTreeCacheTimestamps.delete(packageName);
+          throw error;
+        });
+      depTreeCache.set(packageName, promise);
+      cached = promise;
     }
     Promise.resolve(cached)
-      .then((data) => {
-        depTreeCache.set(packageName, data);
-        sendResponse({ success: true, data });
-      })
+      .then((data) => sendResponse({ success: true, data }))
       .catch((err) =>
         sendResponse({
           success: false,
