@@ -5,6 +5,8 @@ import {
   fetchBundlephobiaData,
   getDependencyTree,
   configureGithubAuth,
+  clearCache as clearFetchWithCache,
+  clearGithubFetchCache,
 } from "@agentic-web-labs/package-analyzer-core";
 
 /**
@@ -253,10 +255,15 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   // 7. Manual cache wipe triggered by the side panel's refresh button. Drops
   // every in-memory stats / bundle / dep-tree cache so the next request goes
   // back to the network — useful when the user wants up-to-the-minute data
-  // without waiting for the 24h TTL to expire.
+  // without waiting for the 24h TTL to expire. Also wipes the low-level
+  // fetch caches inside `package-analyzer-core`; without these, the npm /
+  // GitHub HTTP responses would still be served from a module-level Map and
+  // the refresh would only re-shape stale bytes.
   else if (request.type === "CLEAR_STATS_CACHE") {
     packageStatsService.clearAll();
     clearDeferredCaches();
+    clearFetchWithCache();
+    clearGithubFetchCache();
     sendResponse({ success: true });
   }
 });
