@@ -95,7 +95,7 @@ export async function createServer(): Promise<McpServer> {
     {
       title: "List projects the user has opened in VSCode",
       description:
-        "Returns every workspace folder the user has opened in VSCode (with the npm-advisor extension installed), each annotated with its absolute path, parsed package.json `name`, last-opened timestamp, and whether it's currently open. CALL THIS FIRST when the user asks about 'my project', 'this project', 'my dependencies', or anything else that implies a workspace context — Claude Desktop has no concept of a current project, but VSCode does, and this tool surfaces that context. If exactly one project is currently open, you can confidently use its absolute path with the other tools. If multiple are open, ask the user which one. If the list is empty, the user either hasn't installed the npm-advisor VSCode extension or hasn't opened any workspace in VSCode yet — tell them so.",
+        "Returns every workspace folder the user has opened in VSCode (with the npm-advisor extension installed), each annotated with its absolute path, parsed package.json `name`, last-opened timestamp, and whether it's currently open. CALL THIS FIRST when the user asks about 'my project', 'this project', 'my dependencies', or anything else that implies a workspace context — Claude Desktop has no concept of a current project, but VSCode does, and this tool surfaces that context. If exactly one project is currently open, you can confidently use its absolute path with the other tools. If multiple are open, ask the user which one. If `projects` is empty, use `registryFileExists` to tell the user the right thing: when it is `false`, the npm-advisor VSCode extension is not installed or has never run (recent-project tracking depends on that extension — recommend installing/activating it); when it is `true`, the extension is set up but no workspaces have been recorded yet (ask the user to open a project in VSCode, or to give you an explicit path).",
       inputSchema: {},
     },
     async () => {
@@ -109,13 +109,13 @@ export async function createServer(): Promise<McpServer> {
     {
       title: "List package.json files in a workspace",
       description:
-        "Walks a directory looking for every package.json (skipping node_modules, dist, build, .git, etc.) and returns each file's name + dependency counts. Lightweight — no network calls. Use this to map a project's layout before drilling into specific packages. If the user hasn't given an explicit path, call list_known_projects first to find out which projects they've opened in VSCode.",
+        "Walks a directory looking for every package.json (skipping node_modules, dist, build, .git, etc.) and returns each file's name + dependency counts. Lightweight — no network calls. Use this to map a project's layout before drilling into specific packages. When `workspacePath` is omitted, the tool auto-ascends from the server's current working directory to the surrounding monorepo workspace root (via pnpm-workspace.yaml or `package.json#workspaces`), so a single call returns every package the monorepo declares — not just the sub-package the server happened to be launched from. If the result contains a non-null `workspaceRoot`, the scanned path is a sub-package and the AI should re-call with `workspacePath` set to that value to widen the scan. If the user hasn't given any path context, call list_known_projects first to find out which projects they've opened in VSCode.",
       inputSchema: {
         workspacePath: z
           .string()
           .optional()
           .describe(
-            "Directory to scan. Defaults to the server process's current working directory (which is typically the project root when launched by an MCP-aware editor).",
+            "Absolute path to a project or monorepo root directory (example: /Users/you/projects/my-app). Leave empty to auto-detect from the server's current working directory — the tool will ascend to the surrounding pnpm/yarn/npm workspace root.",
           ),
       },
     },
@@ -138,7 +138,7 @@ export async function createServer(): Promise<McpServer> {
           .string()
           .min(1)
           .describe(
-            "Absolute or cwd-relative path to the package.json file. Use list_workspace_dependencies first to discover candidates.",
+            "Absolute path to a package.json file (example: /Users/you/projects/my-app/package.json). Call list_workspace_dependencies first to discover candidate paths.",
           ),
         targetLicense: z
           .string()
@@ -146,22 +146,12 @@ export async function createServer(): Promise<McpServer> {
           .describe(
             "SPDX license id of the consuming project (defaults to MIT). Each dep's license-compatibility verdict is computed against this.",
           ),
-        concurrency: z
-          .number()
-          .int()
-          .min(1)
-          .max(10)
-          .optional()
-          .describe(
-            "Maximum simultaneous package fetches (default 3). Higher values speed up large workspaces but risk hitting npm/GitHub secondary rate limits.",
-          ),
       },
     },
     async (input) => {
       const result = await runAnalyzePackageJson({
         packageJsonPath: input.packageJsonPath,
         targetLicense: input.targetLicense,
-        concurrency: input.concurrency,
       });
       return jsonResult(result);
     },

@@ -159,6 +159,27 @@ export const DependencyTree: React.FC<DependencyTreeProps> = ({
 
   if (!dependencyTree) return null;
 
+  const hasDependencies =
+    Object.keys(dependencyTree.dependencies ?? {}).length > 0;
+  const isRootTruncated = dependencyTree._truncated === true;
+
+  if (!hasDependencies && !isRootTruncated) {
+    return (
+      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
+        <h2 className="text-sm font-semibold flex items-center text-slate-800 dark:text-slate-200 mb-3">
+          <Network
+            size={16}
+            className="mr-2 text-slate-600 dark:text-slate-400"
+          />
+          Dependencies
+        </h2>
+        <div className="py-4 text-center text-xs text-slate-500 dark:text-slate-400 italic">
+          This package has no dependencies.
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
       <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-100 dark:border-slate-700">

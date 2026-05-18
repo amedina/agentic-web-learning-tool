@@ -10,6 +10,7 @@ import {
   Menu,
   Download,
   PlusCircle,
+  RefreshCcw,
 } from "lucide-react";
 import {
   SidebarTrigger,
@@ -24,7 +25,23 @@ import { useThread } from "@assistant-ui/react";
  */
 import { useTheme } from "../context/themeContext";
 
-export const GlobalHeader = () => {
+interface GlobalHeaderProps {
+  onRefresh?: () => void;
+  isRefreshing?: boolean;
+}
+
+/**
+ * Top-of-panel header rendered as the chatbot's `subHeaderNode`. Hosts the
+ * chat-context controls on the left and the panel-wide actions (refresh,
+ * settings, theme) on the right. `onRefresh` is only wired when the panel is
+ * showing package stats; the button is omitted on the options page where a
+ * cache wipe would be a no-op. `isRefreshing` spins the icon and disables
+ * the button while a refresh is in flight so repeat clicks are ignored.
+ */
+export const GlobalHeader = ({
+  onRefresh,
+  isRefreshing = false,
+}: GlobalHeaderProps) => {
   const { isDarkMode, toggleTheme } = useTheme();
   const messages = useThread((state) => state.messages);
   const isThreadEmpty = messages.length === 0;
@@ -108,6 +125,31 @@ export const GlobalHeader = () => {
             <ExternalLink size={14} />
             <span>View in options page</span>
           </button>
+        )}
+
+        {!isOptionsPage && onRefresh && (
+          <Tooltip
+            text={
+              isRefreshing
+                ? "Refreshing package stats…"
+                : "Refresh package stats (clears cache)"
+            }
+          >
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onRefresh}
+              disabled={isRefreshing}
+              aria-label="Refresh package stats"
+              aria-busy={isRefreshing}
+              className="text-muted-foreground hover:text-foreground disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              <RefreshCcw
+                size={16}
+                className={isRefreshing ? "animate-spin" : undefined}
+              />
+            </Button>
+          </Tooltip>
         )}
 
         {!isOptionsPage && (

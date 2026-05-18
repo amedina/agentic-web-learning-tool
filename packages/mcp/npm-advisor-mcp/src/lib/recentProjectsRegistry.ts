@@ -49,6 +49,16 @@ export function getRecentProjectsFilePath(): string {
 }
 
 /**
+ * Returns true when the shared registry file is present on disk.
+ * Lets callers distinguish "no projects tracked yet" from "the
+ * VSCode extension has never written the file" — same empty-list
+ * result, very different remediation message for the user.
+ */
+export function registryFileExists(): boolean {
+  return existsSync(getRecentProjectsFilePath());
+}
+
+/**
  * Reads the registry file from disk. Returns an empty list when the
  * file is missing (the user hasn't installed / activated the VSCode
  * extension) or unparseable. Never throws.
