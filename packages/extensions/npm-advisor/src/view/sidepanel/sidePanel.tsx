@@ -46,6 +46,7 @@ const SidePanel = () => {
     packageJsonDependencies,
     pendingPackageName,
     refresh,
+    refreshKey,
   } = usePackageStats();
 
   const hasAnalysableDependencies =
@@ -141,6 +142,7 @@ const SidePanel = () => {
                       label: "Dependencies",
                       content: (
                         <DependenciesTab
+                          key={`deps-${refreshKey}`}
                           packageJsonDependencies={packageJsonDependencies}
                           onAddRecommendationToCompare={
                             handleAddRecommendationToCompare

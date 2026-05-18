@@ -96,12 +96,26 @@ export const usePackageStats = () => {
   const [addingRecommendations, setAddingRecommendations] = useState<
     Set<string>
   >(new Set());
+  // Bumped every time the user clicks the refresh button. Surfaced to the
+  // side panel so it can use it as a React `key` on the Dependencies tab,
+  // forcing the analyzer-ui widget to remount and re-query each row's stats
+  // against the (now-empty) service-worker caches.
+  const [refreshKey, setRefreshKey] = useState(0);
   // Holds the latest in-effect `fetchCurrentTabStats` so the `refresh()`
   // callback exposed below can re-run the fetch without re-creating all the
   // chrome.tabs listeners attached inside the effect.
   const fetchCurrentTabStatsRef = useRef<
-    ((overrideUrl?: string) => Promise<void>) | null
+    | ((
+        overrideUrl?: string,
+        options?: { keepStaleData?: boolean },
+      ) => Promise<void>)
+    | null
   >(null);
+  // Snapshot of the comparison bucket usable from the (deps-free) refresh
+  // callback. Without this, refresh() would need `comparisonBucket` in its
+  // deps and would tear down/recreate every render.
+  const comparisonBucketRef = useRef<any[]>([]);
+  comparisonBucketRef.current = comparisonBucket;
 
   useEffect(() => {
     chrome.storage.local.get(["comparisonBucket"], (res) => {
@@ -117,7 +131,11 @@ export const usePackageStats = () => {
     };
     chrome.storage.local.onChanged.addListener(storageListener);
 
-    const fetchCurrentTabStats = async (overrideUrl?: string) => {
+    const fetchCurrentTabStats = async (
+      overrideUrl?: string,
+      options?: { keepStaleData?: boolean },
+    ) => {
+      const keepStaleData = options?.keepStaleData ?? false;
       try {
         let url = overrideUrl;
         if (!url) {
@@ -167,12 +185,17 @@ export const usePackageStats = () => {
         setError(null);
         setNotice(null);
         setIsNavigationMessage(false);
-        setPackageJsonDependencies(null);
-        // Clear the previous package's stats immediately so widgets fall
-        // back to their skeleton state during the new fetch. Without this
-        // the panel would keep rendering the prior package (e.g. react-dom)
-        // until chalk's fetch resolved.
-        setStats(null);
+        // On URL changes, clear the previous package's stats / deps so the
+        // widgets fall back to skeletons. On a manual refresh of the same
+        // URL, skip this — nulling `packageJsonDependencies` would briefly
+        // remove the Dependencies tab from the tablist, which the chatbot
+        // PropProvider reacts to by switching the active tab back to
+        // Insights. Keeping the old data on screen until the new fetch
+        // resolves keeps tab visibility stable.
+        if (!keepStaleData) {
+          setPackageJsonDependencies(null);
+          setStats(null);
+        }
 
         let packageName: string | null = null;
         let parsedDependencies: PackageJsonDependencies | null = null;
@@ -369,9 +392,9 @@ export const usePackageStats = () => {
 
   /**
    * Wipes the in-memory side-panel cache and the service-worker stats caches,
-   * then re-runs the active-tab fetch so the panel rebuilds from a clean
-   * slate. Exposed to the side panel's refresh button so the user can force
-   * fresh data without waiting for the 24h TTL.
+   * re-runs the active-tab fetch, and re-fetches every package in the
+   * comparison bucket so its table data is replaced with fresh stats too.
+   * Exposed to the side panel's refresh button.
    */
   const refresh = useCallback(() => {
     urlCache.clear();
@@ -379,13 +402,57 @@ export const usePackageStats = () => {
       // Ignore lastError — even if the service worker is asleep, the next
       // GET_STATS the fetch fires will revive it and hit fresh upstreams.
       void chrome.runtime.lastError;
+      // Bump the refresh key. Consumers use this as part of a React `key`
+      // on the Dependencies tab to force the analyzer-ui widget to remount,
+      // which is what actually triggers re-fetches for each row — the
+      // mounted widget caches each row's stats in its own state and won't
+      // re-query just because the service-worker cache was cleared.
+      setRefreshKey((previous) => previous + 1);
       setLoading(true);
       setError(null);
       setNotice(null);
-      setStats(null);
-      setPackageJsonDependencies(null);
       setIsNavigationMessage(false);
-      fetchCurrentTabStatsRef.current?.();
+      // Pass `keepStaleData` so the Dependencies tab stays mounted across
+      // the refresh window — otherwise the tab disappears and the active
+      // tab snaps back to Insights mid-refresh.
+      fetchCurrentTabStatsRef.current?.(undefined, { keepStaleData: true });
+
+      // Comparison bucket items were saved with stats frozen at the time
+      // they were added. Re-fetch each one against the now-empty service
+      // worker cache and write the refreshed array back to storage; the
+      // comparison table listens to storage changes and re-renders.
+      const currentBucket = comparisonBucketRef.current;
+      if (currentBucket.length === 0) {
+        return;
+      }
+      Promise.all(
+        currentBucket.map(
+          (item) =>
+            new Promise<any>((resolve) => {
+              const packageName = item?.packageName ?? item?.name;
+              if (!packageName) {
+                resolve(item);
+                return;
+              }
+              chrome.runtime.sendMessage(
+                { type: "GET_STATS", packageName },
+                (response) => {
+                  void chrome.runtime.lastError;
+                  if (response?.success && response.data) {
+                    resolve(response.data);
+                    return;
+                  }
+                  // Fall back to the existing item on failure so the table
+                  // doesn't go blank if one package fails to refresh.
+                  resolve(item);
+                },
+              );
+            }),
+        ),
+      ).then((refreshed) => {
+        setComparisonBucket(refreshed);
+        chrome.storage.local.set({ comparisonBucket: refreshed });
+      });
     });
   }, []);
 
@@ -450,5 +517,6 @@ export const usePackageStats = () => {
     packageJsonDependencies,
     pendingPackageName,
     refresh,
+    refreshKey,
   };
 };
