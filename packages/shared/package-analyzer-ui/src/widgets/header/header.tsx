@@ -10,6 +10,7 @@ import {
   Activity,
   Info,
   AlertCircle,
+  ShieldAlert,
 } from "lucide-react";
 import { Tooltip } from "@agentic-web-labs/design-system";
 import { type ScoreBreakdownItem } from "@agentic-web-labs/package-analyzer-core";
@@ -72,6 +73,20 @@ export interface HeaderProps {
   score: number | null;
   scoreBreakdown?: ScoreBreakdownItem[];
   scoreMaxPoints?: number;
+  /**
+   * Severity-bucketed advisory counts. When `critical > 0` the Fitness
+   * value renders a small red ShieldAlert badge next to the number so the
+   * presence of a critical vulnerability is visible at a glance,
+   * independent of how much the score itself was nudged down. Lower
+   * severities don't trigger the badge — they're surfaced in the
+   * Security Advisories widget below the header.
+   */
+  securityAdvisories?: {
+    critical: number;
+    high: number;
+    moderate: number;
+    low: number;
+  } | null;
   /** True when a GitHub rate-limit prevented stars / lastCommit from loading. */
   githubRateLimited?: boolean;
   /**
@@ -130,6 +145,7 @@ export const Header: React.FC<HeaderProps> = ({
   score,
   scoreBreakdown,
   scoreMaxPoints,
+  securityAdvisories,
   githubRateLimited = false,
   hideFitness = false,
   hideCompare = false,
@@ -139,6 +155,13 @@ export const Header: React.FC<HeaderProps> = ({
   const animatedScore = useCountUp(score ?? 0);
   const animatedStars = useCountUp(stars ?? 0);
   const animatedCollabs = useCountUp(collaboratorsCount ?? 0);
+
+  // Only critical advisories trigger the inline shield. Lower severities
+  // are visible in the Security Advisories widget further down the page,
+  // and over-flagging the header would dilute the signal — the goal is
+  // to draw the eye when something truly urgent is open.
+  const criticalCount = securityAdvisories?.critical ?? 0;
+  const showCriticalBadge = criticalCount > 0;
 
   const formatDate = (dateString: string) => {
     const d = new Date(dateString);
@@ -320,23 +343,52 @@ export const Header: React.FC<HeaderProps> = ({
                 </button>
               </Tooltip>
             </div>
-            <span
-              className="font-bold text-lg leading-none text-center"
-              style={{
-                color: getFitnessColor(
-                  score === null ? null : animatedScore,
-                  scoreMaxPoints,
-                ),
-              }}
-            >
-              {score !== null ? (
-                animatedScore
-              ) : isLoading ? (
-                <SkeletonValue width="w-8" />
-              ) : (
-                "N/A"
+            <div className="flex items-center gap-1.5">
+              <span
+                className="font-bold text-lg leading-none text-center"
+                style={{
+                  color: getFitnessColor(
+                    score === null ? null : animatedScore,
+                    scoreMaxPoints,
+                  ),
+                }}
+              >
+                {score !== null ? (
+                  animatedScore
+                ) : isLoading ? (
+                  <SkeletonValue width="w-8" />
+                ) : (
+                  "N/A"
+                )}
+              </span>
+              {showCriticalBadge && (
+                <Tooltip
+                  placement="bottom"
+                  delayDuration={0}
+                  contentClassName="max-w-xs p-2 text-left font-normal normal-case tracking-normal bg-slate-800 text-white shadow-lg"
+                  body={
+                    <div className="text-xs leading-snug">
+                      <p className="font-semibold mb-0.5">
+                        {criticalCount} critical{" "}
+                        {criticalCount === 1 ? "advisory" : "advisories"}
+                      </p>
+                      <p className="mt-1 text-[11px] text-slate-400">
+                        Advisories are typically resolved by upstream patches,
+                        so they only nudge the score down. Check the Security
+                        Advisories section for fixed versions.
+                      </p>
+                    </div>
+                  }
+                >
+                  <span
+                    aria-label={`${criticalCount} critical security ${criticalCount === 1 ? "advisory" : "advisories"}`}
+                    className="inline-flex items-center text-red-600 dark:text-red-400 cursor-help"
+                  >
+                    <ShieldAlert size={16} />
+                  </span>
+                </Tooltip>
               )}
-            </span>
+            </div>
           </div>
         )}
         <div className="flex flex-col items-center space-y-1">

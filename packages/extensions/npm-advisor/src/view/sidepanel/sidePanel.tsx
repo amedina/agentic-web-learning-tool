@@ -56,6 +56,21 @@ const SidePanel = () => {
       packageJsonDependencies.devDependencies.length > 0 ||
       packageJsonDependencies.peerDependencies.length > 0);
 
+  // A "workspace root" is a package.json that declares dependencies but has
+  // no `name` field (monorepo roots like vuejs/core/package.json). The hook
+  // skips its navigation-message early-return in this case so the panel can
+  // render the tab strip; Insights shows an explanatory card and Dependencies
+  // does the actual analysis.
+  const isWorkspaceRoot =
+    !loading &&
+    !stats &&
+    !error &&
+    !notice &&
+    !isNavigationMessage &&
+    !isOptionsPage &&
+    hasAnalysableDependencies &&
+    !pendingPackageName;
+
   // Options / comparison / navigation / hard error messages stay as full
   // takeovers — they don't have meaningful tabs/skeletons to show.
   if (isNavigationMessage) {
@@ -125,7 +140,8 @@ const SidePanel = () => {
                   <InsightsTab
                     stats={stats}
                     pendingPackageName={pendingPackageName}
-                    isLoading={isStatsLoading}
+                    isLoading={isStatsLoading && !isWorkspaceRoot}
+                    isWorkspaceRoot={isWorkspaceRoot}
                     onAddToCompare={handleAddToCompare}
                     isAddedToCompare={isAddedToCompare}
                     onAddRecommendationToCompare={
@@ -188,6 +204,28 @@ const SidePanel = () => {
             assistantMessage={AssistantMessage}
             userMessage={UserMessage}
             getCustomSystemPrompt={() => {
+              // Workspace-root pages have no package stats to ground the
+              // assistant on, but they do declare dependencies. Feed those
+              // in instead so the AI can reason about the dep list directly.
+              if (isWorkspaceRoot && packageJsonDependencies) {
+                const workspacePayload = JSON.stringify(
+                  {
+                    workspaceRoot: true,
+                    note: "This package.json is a workspace/monorepo root with no published package name. Reason about its declared dependencies.",
+                    dependencies: packageJsonDependencies.dependencies,
+                    devDependencies: packageJsonDependencies.devDependencies,
+                    peerDependencies: packageJsonDependencies.peerDependencies,
+                  },
+                  null,
+                  2,
+                );
+                return getSystemPrompt(
+                  workspacePayload,
+                  comparisonBucket.length > 0
+                    ? JSON.stringify(comparisonBucket, null, 2)
+                    : undefined,
+                );
+              }
               // While stats are still loading, fall back to whatever package
               // name we know from the URL so the assistant has at least some
               // grounding context. Once stats resolve, the full payload is
@@ -203,7 +241,7 @@ const SidePanel = () => {
               );
             }}
             suggestions={
-              stats
+              isWorkspaceRoot
                 ? [
                     ...(comparisonBucket.length > 0
                       ? [
@@ -214,33 +252,67 @@ const SidePanel = () => {
                         ]
                       : []),
                     {
-                      text: "Suggest better alternatives",
-                      prompt: `Suggest better alternatives to ${stats.packageName}`,
+                      text: "Audit these dependencies",
+                      prompt:
+                        "Audit the dependencies declared in this package.json — flag anything unmaintained, oversized, or risky.",
                     },
                     {
-                      text: "Compare with [Popular Library]",
-                      prompt: `Compare ${stats.packageName} with a popular alternative library`,
+                      text: "Which deps are heaviest?",
+                      prompt:
+                        "Which of the declared dependencies contribute the most to bundle size?",
                     },
                     {
-                      text: "Is there a native JS way?",
-                      prompt: `Is there a native vanilla JavaScript way to do what ${stats.packageName} does?`,
-                    },
-                    {
-                      text: `Why use this over [X]?`,
-                      prompt: `Why should I use ${stats.packageName} over other options?`,
+                      text: "Suggest leaner alternatives",
+                      prompt:
+                        "Suggest leaner or more actively maintained alternatives for any concerning entries in this dependency list.",
                     },
                   ]
-                : []
+                : stats
+                  ? [
+                      ...(comparisonBucket.length > 0
+                        ? [
+                            {
+                              text: "Compare all packages",
+                              prompt: "Compare all of these packages.",
+                            },
+                          ]
+                        : []),
+                      {
+                        text: "Suggest better alternatives",
+                        prompt: `Suggest better alternatives to ${stats.packageName}`,
+                      },
+                      {
+                        text: "Compare with [Popular Library]",
+                        prompt: `Compare ${stats.packageName} with a popular alternative library`,
+                      },
+                      {
+                        text: "Is there a native JS way?",
+                        prompt: `Is there a native vanilla JavaScript way to do what ${stats.packageName} does?`,
+                      },
+                      {
+                        text: `Why use this over [X]?`,
+                        prompt: `Why should I use ${stats.packageName} over other options?`,
+                      },
+                    ]
+                  : []
             }
             helperTextSet={{
-              title: () =>
-                headerPackageName
+              title: () => {
+                if (isWorkspaceRoot) {
+                  return "Ask AI about these dependencies";
+                }
+                return headerPackageName
                   ? `Ask AI about ${headerPackageName}`
-                  : "Ask AI",
-              description: () =>
-                headerPackageName
+                  : "Ask AI";
+              },
+              description: () => {
+                if (isWorkspaceRoot) {
+                  return "This package.json doesn't publish a package, but I can help you reason about its declared dependencies.";
+                }
+                return headerPackageName
                   ? `Hello! I can help you with questions about ${headerPackageName}. What would you like to know?`
-                  : "Hello! What would you like to know?",
+                  : "Hello! What would you like to know?";
+              },
             }}
           >
             <SidebarProvider

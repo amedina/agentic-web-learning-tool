@@ -1,7 +1,13 @@
 /**
  * External dependencies.
  */
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import type { PackageStats } from "@agentic-web-labs/package-analyzer-core";
 
 /**
@@ -122,6 +128,44 @@ export const DependenciesTab: React.FC<DependenciesTabProps> = ({
     );
   }, []);
 
+  const filterPillsRef = useRef<HTMLDivElement>(null);
+
+  /**
+   * Scroll the filter pills (and the filtered list below them) to the top
+   * of the visible area. Used when a Dashboard interaction applies or clears
+   * a filter so the user sees the result without having to scroll past the
+   * dashboard themselves.
+   */
+  const scrollFiltersIntoView = useCallback(() => {
+    filterPillsRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }, []);
+
+  /**
+   * Wraps setFilterOn with a scroll-to-filters side effect. Only Dashboard
+   * clicks (circles and matrix tiles) go through this — toggling pills from
+   * inside FilterPills itself doesn't need to scroll because the pills are
+   * already visible at that point.
+   */
+  const handleDashboardSetFilter = useCallback(
+    (key: DependenciesFilterKey) => {
+      setFilterOn(key);
+      scrollFiltersIntoView();
+    },
+    [setFilterOn, scrollFiltersIntoView],
+  );
+
+  /**
+   * Wraps clearFilters with a scroll-to-filters side effect for the
+   * "Total Dependencies" Dashboard tile, which clears all active filters.
+   */
+  const handleDashboardClearFilters = useCallback(() => {
+    clearFilters();
+    scrollFiltersIntoView();
+  }, [clearFilters, scrollFiltersIntoView]);
+
   // Drop active filters whenever an external "force visible" target
   // changes, so a "Show full insights" jump from elsewhere in the host
   // (e.g. a VSCode hover popover link) never lands on a row the user
@@ -138,15 +182,17 @@ export const DependenciesTab: React.FC<DependenciesTabProps> = ({
         statsByName={statsByName}
         packageJsonDependencies={packageJsonDependencies}
         summary={summary}
-        onSetFilter={setFilterOn}
-        onClearFilters={clearFilters}
+        onSetFilter={handleDashboardSetFilter}
+        onClearFilters={handleDashboardClearFilters}
       />
-      <FilterPills
-        activeFilters={activeFilters}
-        counts={counts}
-        onToggle={toggleFilter}
-        onClear={clearFilters}
-      />
+      <div ref={filterPillsRef}>
+        <FilterPills
+          activeFilters={activeFilters}
+          counts={counts}
+          onToggle={toggleFilter}
+          onClear={clearFilters}
+        />
+      </div>
       <DependencySection
         title="Dependencies"
         packageNames={packageJsonDependencies.dependencies}

@@ -80,8 +80,8 @@ describe("getPackageStats", () => {
     expect(result?.collaboratorsCount).toBe(1);
     expect(result?.bundle).toBeNull(); // Because it failed
     expect(result?.dependencyTree).toBeDefined();
-    // Since deps === 0, score gets +30
-    expect(result?.score).toBe(30);
+    // Since deps === 0, score gets the full deps axis (35).
+    expect(result?.score).toBe(35);
   });
 
   it("should extract alternative recommendations correctly from module-replacements using dummy fixtures", async () => {
@@ -259,6 +259,42 @@ describe("getPackageStats", () => {
       expect(result?.githubRateLimited).toBe(true);
       expect(result?.stars).toBeNull();
       expect(result?.lastCommitDate).toBeNull();
+    });
+
+    it("falls back to scanning the readme field when repository.url is missing", async () => {
+      // Mirrors the @rtcamp/frappe-ui-react case: no `repository.url` on the
+      // registry response, but the readme field carries a github.com URL
+      // that uniquely identifies the source. The fallback should recover
+      // the repo identity and the GitHub fetchers should still run.
+      vi.mocked(fetchNpmPackage).mockResolvedValueOnce({
+        maintainers: [{ name: "test" }],
+        license: "MIT",
+        readme:
+          "https://github.com/rtCamp/frappe-ui-react/blob/main/packages/frappe-ui-react/README.md",
+      });
+      vi.mocked(parseGithubUrl).mockReturnValueOnce({
+        owner: "rtCamp",
+        repo: "frappe-ui-react",
+      });
+      vi.mocked(fetchBundlephobiaData).mockResolvedValueOnce(null);
+      vi.mocked(getDependencyTree).mockResolvedValueOnce(null as any);
+      vi.mocked(fetchModuleReplacements).mockResolvedValue(null);
+      vi.mocked(fetchGithubRepo).mockResolvedValueOnce({
+        repo: { stars: 42, pushedAt: "2024-06-01" },
+      } as any);
+      vi.mocked(fetchGithubIssues).mockResolvedValueOnce({
+        items: [],
+        openTotalCount: 0,
+      });
+      vi.mocked(fetchGithubSecurityAdvisories).mockResolvedValueOnce([] as any);
+
+      const result = await getPackageStats("@rtcamp/frappe-ui-react");
+
+      expect(result).not.toBeNull();
+      expect(result?.githubUrl).toBe(
+        "https://github.com/rtCamp/frappe-ui-react",
+      );
+      expect(result?.stars).toBe(42);
     });
 
     it("still returns partial stats for non-rate-limit GitHub errors", async () => {

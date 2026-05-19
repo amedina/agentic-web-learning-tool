@@ -123,6 +123,7 @@ export const PackageInsightsBody: React.FC<PackageInsightsBodyProps> = ({
           score={score}
           scoreBreakdown={scoreBreakdown}
           scoreMaxPoints={scoreMaxPoints}
+          securityAdvisories={securityAdvisories}
           githubRateLimited={githubRateLimited}
           isAddedToCompare={headerIsAddedToCompare}
           onAddToCompare={() => onAddRecommendationToCompare?.(packageName)}

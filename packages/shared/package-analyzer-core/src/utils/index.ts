@@ -6,4 +6,5 @@ export * from "./fetchGithubSecurityAdvisories";
 export * from "./fetchBundlephobiaData";
 export * from "./fetchModuleReplacements";
 export * from "./parseGithubUrl";
+export * from "./extractGithubUrlFromReadme";
 export * from "./githubFetch";

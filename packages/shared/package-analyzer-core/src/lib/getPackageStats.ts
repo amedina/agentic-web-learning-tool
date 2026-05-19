@@ -18,6 +18,7 @@ import {
   type LicenseCompatibilityResult,
 } from "./checkLicenseCompatibility";
 import { parseGithubUrl } from "../utils/parseGithubUrl";
+import { extractGithubUrlFromReadme } from "../utils/extractGithubUrlFromReadme";
 
 export interface PackageStats {
   packageName: string;
@@ -243,7 +244,27 @@ export async function getPackageStats(
   // Normalise to null so UI layers uniformly display "Unknown".
   const displayLicense = isUrlLicense ? null : licenseStr;
 
-  const githubInfo = repoUrlField ? parseGithubUrl(repoUrlField) : null;
+  let githubInfo = repoUrlField ? parseGithubUrl(repoUrlField) : null;
+
+  // Fallback: some packages (e.g. @rtcamp/frappe-ui-react) ship without a
+  // usable `repository.url` field but their `readme` field carries a GitHub
+  // link to the source — either as a bare URL string (when the publisher
+  // set `readme` in package.json directly) or embedded in the README
+  // markdown content that npm publish stores on the registry. Scanning that
+  // string for the first plausible github.com/<owner>/<repo> URL is enough
+  // to recover the repo identity for the rest of the stats pipeline.
+  if (!githubInfo) {
+    const readmeField = latestVersion
+      ? npmData.versions[latestVersion]?.readme
+      : null;
+    const topLevelReadme = npmData.readme;
+    const readmeGithubUrl =
+      extractGithubUrlFromReadme(readmeField) ??
+      extractGithubUrlFromReadme(topLevelReadme);
+    if (readmeGithubUrl) {
+      githubInfo = parseGithubUrl(readmeGithubUrl);
+    }
+  }
 
   let stars = null;
   let lastCommitDate = null;
@@ -448,7 +469,7 @@ export async function getPackageStats(
   // The Recommendations widget still surfaces that guidance to the user.
   const scoreBreakdown: ScoreBreakdownItem[] = [];
 
-  // Axis 1: bundle size (max 40). Rewards smaller gzipped payloads —
+  // Axis 1: bundle size (max 45). Rewards smaller gzipped payloads —
   // weighted highest because bundle size is the most direct user-facing
   // cost (download, parse, execute). Marked unavailable when:
   //   - the caller asked us to skip the bundlephobia fetch (deferred until
@@ -471,7 +492,7 @@ export async function getPackageStats(
     bundleReason = "Bundle data not available";
     bundleStatus = "unavailable";
   } else if (gzip < 10000) {
-    bundlePoints = 40;
+    bundlePoints = 45;
     bundleReason = "Gzipped size under 10 KB";
   } else if (gzip < 50000) {
     bundlePoints = 15;
@@ -482,12 +503,12 @@ export async function getPackageStats(
   scoreBreakdown.push({
     label: "Bundle Size",
     points: bundlePoints,
-    maxPoints: 40,
+    maxPoints: 45,
     reason: bundleReason,
     status: bundleStatus,
   });
 
-  // Axis 2: dependency count (max 30). Rewards leaf packages with no or few
+  // Axis 2: dependency count (max 35). Rewards leaf packages with no or few
   // direct dependencies — a proxy for supply-chain surface area. When we
   // skipped the transitive tree fetch, fall back to the top-level deps
   // declared on the published version so the axis still contributes
@@ -506,7 +527,7 @@ export async function getPackageStats(
   let depsPoints = 0;
   let depsReason: string;
   if (deps === 0) {
-    depsPoints = 30;
+    depsPoints = 35;
     depsReason = "No direct dependencies";
   } else if (deps < 5) {
     depsPoints = 15;
@@ -517,16 +538,20 @@ export async function getPackageStats(
   scoreBreakdown.push({
     label: "Dependencies",
     points: depsPoints,
-    maxPoints: 30,
+    maxPoints: 35,
     reason: depsReason,
     status: "scored",
   });
 
-  // Axis 3: maintainer responsiveness (max 30). Scaled linearly from the
-  // sampled closed-issues ratio: ratio of 1.0 awards the full 30 points,
-  // 0.5 awards 15, and so on. Marked unavailable when the package has no
-  // linked GitHub repo or no issues sample, so packages without a public
-  // repo aren't penalised for a missing signal.
+  // Axis 3: maintainer responsiveness (max 20). Scaled linearly from the
+  // sampled closed-issues ratio: ratio of 1.0 awards the full 20 points,
+  // 0.5 awards 10, and so on. Capped lower than bundle / deps because the
+  // closed-issues sample is a coarse proxy — old issues that closed via
+  // staleness inflate the ratio, and small repos with few issues swing
+  // wildly — so the axis shouldn't drag the score the way bundle size or
+  // dependency surface area legitimately can. Marked unavailable when the
+  // package has no linked GitHub repo or no issues sample, so packages
+  // without a public repo aren't penalised for a missing signal.
   let responsivenessPoints = 0;
   let responsivenessReason: string;
   let responsivenessStatus: ScoreBreakdownItem["status"] = "scored";
@@ -539,7 +564,7 @@ export async function getPackageStats(
     }
     responsivenessStatus = "unavailable";
   } else {
-    responsivenessPoints = Math.round(closedRatio * 30);
+    responsivenessPoints = Math.round(closedRatio * 20);
     const percentage = Math.round(closedRatio * 100);
     if (closedRatio > 0.8) {
       responsivenessReason = `Highly responsive — ${percentage}% of sampled issues closed`;
@@ -552,21 +577,24 @@ export async function getPackageStats(
   scoreBreakdown.push({
     label: "Responsiveness",
     points: responsivenessPoints,
-    maxPoints: 30,
+    maxPoints: 20,
     reason: responsivenessReason,
     status: responsivenessStatus,
   });
 
   // Penalty axis: security advisories. Contributes only negative points
-  // so the numerator drops without inflating the denominator. Points are
-  // weighted by severity (critical > high > moderate > low) and capped so
-  // a long tail of low-severity advisories can't dominate the score.
+  // so the numerator drops without inflating the denominator. Weights are
+  // intentionally light — advisories are temporary (patches land, the
+  // GitHub feed clears) and shouldn't dominate a long-term quality signal.
+  // The vulnerability indicator next to the score is what draws the user's
+  // eye; this penalty is just a nudge so a heavily-advised package can't
+  // tie a clean one on score alone.
   if (securityAdvisories) {
     const { critical, high, moderate, low } = securityAdvisories;
     const total = critical + high + moderate + low;
     if (total > 0) {
-      const rawPenalty = critical * 15 + high * 10 + moderate * 5 + low * 2;
-      const cappedPenalty = Math.min(rawPenalty, 50);
+      const rawPenalty = critical * 5 + high * 3 + moderate * 2 + low * 1;
+      const cappedPenalty = Math.min(rawPenalty, 15);
       const severityParts: string[] = [];
       if (critical > 0) severityParts.push(`${critical} critical`);
       if (high > 0) severityParts.push(`${high} high`);

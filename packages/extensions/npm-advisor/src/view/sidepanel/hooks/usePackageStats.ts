@@ -177,12 +177,22 @@ export const usePackageStats = () => {
 
         const cached = readFreshUrlCacheEntry(url);
         if (cached) {
+          const cachedHasDeps =
+            !!cached.packageJsonDependencies &&
+            (cached.packageJsonDependencies.dependencies.length > 0 ||
+              cached.packageJsonDependencies.devDependencies.length > 0 ||
+              cached.packageJsonDependencies.peerDependencies.length > 0);
           setStats(cached.stats);
           setError(cached.error);
           setNotice(cached.notice);
           setPackageJsonDependencies(cached.packageJsonDependencies);
+          // The cached entry represents a navigation-message state only when
+          // there is genuinely nothing to show: no stats, no error, no
+          // notice, and no parseable dependencies (a workspace-root cache
+          // entry has `packageJsonDependencies` populated and should keep
+          // the tab strip visible).
           setIsNavigationMessage(
-            !cached.stats && !cached.error && !cached.notice,
+            !cached.stats && !cached.error && !cached.notice && !cachedHasDeps,
           );
           setLoading(false);
           return;
@@ -242,6 +252,14 @@ export const usePackageStats = () => {
         setPackageJsonDependencies(dependenciesToExpose);
 
         if (!packageName) {
+          // A package.json with no `name` field can still be useful when it
+          // declares dependencies — e.g. a monorepo / workspace root like
+          // vuejs/core/package.json. In that case skip the "not a package"
+          // navigation message and let the side panel render its tabs so the
+          // Dependencies tab can do its work. The Insights tab handles its
+          // own empty-state copy. If there are no dependencies either, fall
+          // back to the navigation message — there's genuinely nothing to
+          // analyze.
           urlCache.set(url, {
             stats: null,
             error: null,
@@ -249,8 +267,8 @@ export const usePackageStats = () => {
             packageJsonDependencies: dependenciesToExpose,
             cachedAt: Date.now(),
           });
-          setIsNavigationMessage(true);
           setStats(null);
+          setIsNavigationMessage(!hasAnyDeclaredDep);
           setLoading(false);
           return;
         }

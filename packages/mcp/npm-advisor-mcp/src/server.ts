@@ -18,6 +18,7 @@ import { z } from "zod";
  * Internal dependencies.
  */
 import { parseCliArgs } from "./lib/parseCliArgs";
+import { runTool } from "./lib/toolRunner";
 import { runAnalyzePackageJson } from "./tools/analyzePackageJson";
 import { runAnalyzeProject } from "./tools/analyzeProject";
 import { runGetPackageStats } from "./tools/getPackageStats";
@@ -40,6 +41,19 @@ function configureAuthFromEnv(): void {
   configureGithubAuth({
     getToken: async () => token,
   });
+  // Logged to stderr (never stdout — that's the JSON-RPC stream) so users
+  // can confirm whether their MCP client actually passed the env var
+  // through; missing $GITHUB_TOKEN is the most common cause of premature
+  // rate-limit failures during a workspace audit.
+  const source = process.env.GITHUB_TOKEN
+    ? "GITHUB_TOKEN"
+    : process.env.GH_TOKEN
+      ? "GH_TOKEN"
+      : null;
+  const message = source
+    ? `npm-advisor-mcp: GitHub auth = token (from $${source}); rate limit 5,000 req/hr`
+    : `npm-advisor-mcp: GitHub auth = unauthenticated; rate limit 60 req/hr (set $GITHUB_TOKEN to lift)`;
+  process.stderr.write(`${message}\n`);
 }
 
 /**
@@ -81,12 +95,13 @@ export async function createServer(): Promise<McpServer> {
       },
     },
     async (input) => {
-      const result = await runGetPackageStats({
-        name: input.name,
-        targetLicense: input.targetLicense,
-        includeDependencyTree: input.includeDependencyTree,
-      });
-      return jsonResult(result);
+      return runTool(() =>
+        runGetPackageStats({
+          name: input.name,
+          targetLicense: input.targetLicense,
+          includeDependencyTree: input.includeDependencyTree,
+        }),
+      );
     },
   );
 
@@ -99,8 +114,7 @@ export async function createServer(): Promise<McpServer> {
       inputSchema: {},
     },
     async () => {
-      const result = runListKnownProjects();
-      return jsonResult(result);
+      return runTool(async () => runListKnownProjects());
     },
   );
 
@@ -120,10 +134,11 @@ export async function createServer(): Promise<McpServer> {
       },
     },
     async (input) => {
-      const result = await runListWorkspaceDependencies({
-        workspacePath: input.workspacePath,
-      });
-      return jsonResult(result);
+      return runTool(() =>
+        runListWorkspaceDependencies({
+          workspacePath: input.workspacePath,
+        }),
+      );
     },
   );
 
@@ -149,11 +164,12 @@ export async function createServer(): Promise<McpServer> {
       },
     },
     async (input) => {
-      const result = await runAnalyzePackageJson({
-        packageJsonPath: input.packageJsonPath,
-        targetLicense: input.targetLicense,
-      });
-      return jsonResult(result);
+      return runTool(() =>
+        runAnalyzePackageJson({
+          packageJsonPath: input.packageJsonPath,
+          targetLicense: input.targetLicense,
+        }),
+      );
     },
   );
 
@@ -191,36 +207,18 @@ export async function createServer(): Promise<McpServer> {
       },
     },
     async (input) => {
-      const result = await runAnalyzeProject({
-        rootPath: input.rootPath,
-        publintMode: input.publintMode,
-        skipPublint: input.skipPublint,
-        skipReplacements: input.skipReplacements,
-      });
-      return jsonResult(result);
+      return runTool(() =>
+        runAnalyzeProject({
+          rootPath: input.rootPath,
+          publintMode: input.publintMode,
+          skipPublint: input.skipPublint,
+          skipReplacements: input.skipReplacements,
+        }),
+      );
     },
   );
 
   return server;
-}
-
-/**
- * Wraps a tool handler's output in the MCP CallToolResult shape.
- * Every tool in this server returns plain JSON so a client AI can
- * parse it deterministically; using `text` content with stringified
- * JSON is the canonical way to do that today.
- */
-function jsonResult(value: unknown): {
-  content: Array<{ type: "text"; text: string }>;
-} {
-  return {
-    content: [
-      {
-        type: "text",
-        text: JSON.stringify(value, null, 2),
-      },
-    ],
-  };
 }
 
 /**
