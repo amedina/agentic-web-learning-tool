@@ -457,7 +457,7 @@ export async function getPackageStats(
   if (preferredMatches)
     recommendations.preferredReplacements = preferredMatches;
 
-  // Score is computed from three weighted axes summing to 90 when every
+  // Score is computed from three weighted axes summing to 100 when every
   // axis is scored. Each axis is also written to `scoreBreakdown` so the
   // UI can show the user how the score was arrived at, including any
   // axes that were skipped because the underlying data was unavailable.
@@ -469,7 +469,7 @@ export async function getPackageStats(
   // The Recommendations widget still surfaces that guidance to the user.
   const scoreBreakdown: ScoreBreakdownItem[] = [];
 
-  // Axis 1: bundle size (max 40). Rewards smaller gzipped payloads —
+  // Axis 1: bundle size (max 45). Rewards smaller gzipped payloads —
   // weighted highest because bundle size is the most direct user-facing
   // cost (download, parse, execute). Marked unavailable when:
   //   - the caller asked us to skip the bundlephobia fetch (deferred until
@@ -492,7 +492,7 @@ export async function getPackageStats(
     bundleReason = "Bundle data not available";
     bundleStatus = "unavailable";
   } else if (gzip < 10000) {
-    bundlePoints = 40;
+    bundlePoints = 45;
     bundleReason = "Gzipped size under 10 KB";
   } else if (gzip < 50000) {
     bundlePoints = 15;
@@ -503,12 +503,12 @@ export async function getPackageStats(
   scoreBreakdown.push({
     label: "Bundle Size",
     points: bundlePoints,
-    maxPoints: 40,
+    maxPoints: 45,
     reason: bundleReason,
     status: bundleStatus,
   });
 
-  // Axis 2: dependency count (max 30). Rewards leaf packages with no or few
+  // Axis 2: dependency count (max 35). Rewards leaf packages with no or few
   // direct dependencies — a proxy for supply-chain surface area. When we
   // skipped the transitive tree fetch, fall back to the top-level deps
   // declared on the published version so the axis still contributes
@@ -527,7 +527,7 @@ export async function getPackageStats(
   let depsPoints = 0;
   let depsReason: string;
   if (deps === 0) {
-    depsPoints = 30;
+    depsPoints = 35;
     depsReason = "No direct dependencies";
   } else if (deps < 5) {
     depsPoints = 15;
@@ -538,7 +538,7 @@ export async function getPackageStats(
   scoreBreakdown.push({
     label: "Dependencies",
     points: depsPoints,
-    maxPoints: 30,
+    maxPoints: 35,
     reason: depsReason,
     status: "scored",
   });

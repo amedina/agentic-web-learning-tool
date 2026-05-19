@@ -80,8 +80,8 @@ describe("getPackageStats", () => {
     expect(result?.collaboratorsCount).toBe(1);
     expect(result?.bundle).toBeNull(); // Because it failed
     expect(result?.dependencyTree).toBeDefined();
-    // Since deps === 0, score gets +30
-    expect(result?.score).toBe(30);
+    // Since deps === 0, score gets the full deps axis (35).
+    expect(result?.score).toBe(35);
   });
 
   it("should extract alternative recommendations correctly from module-replacements using dummy fixtures", async () => {
