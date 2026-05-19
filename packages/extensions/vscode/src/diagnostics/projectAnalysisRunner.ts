@@ -40,9 +40,12 @@ export interface ProjectAnalysisRunResult {
 /**
  * Runs `analyzeProject` for the given root, opens its package.json so we
  * can resolve precise ranges for each finding, and writes the resulting
- * diagnostics to `collection` keyed by the package.json URI. Returns the
- * raw analysis alongside a count, so the caller (the command handler)
- * can show a meaningful "found N issues" toast.
+ * diagnostics to `collection`. Publint and replacement findings are keyed
+ * by the package.json URI; circular-dependency findings are keyed by the
+ * first source file in the cycle so they show up next to the offending
+ * import in the Problems panel. Returns the raw analysis alongside a
+ * count, so the caller (the command handler) can show a meaningful
+ * "found N issues" toast.
  */
 export async function runProjectAnalysis(
   collection: vscode.DiagnosticCollection,
@@ -65,14 +68,35 @@ export async function runProjectAnalysis(
     document = undefined;
   }
 
-  const diagnostics = analysis.findings
-    .map((finding) => buildDiagnostic(finding, document))
-    .filter((diagnostic): diagnostic is vscode.Diagnostic =>
-      Boolean(diagnostic),
-    );
+  collection.clear();
 
-  collection.set(packageJsonUri, diagnostics);
-  return { analysis, diagnosticsWritten: diagnostics.length };
+  const packageJsonDiagnostics: vscode.Diagnostic[] = [];
+  const fileDiagnostics = new Map<string, vscode.Diagnostic[]>();
+  let diagnosticsWritten = 0;
+
+  for (const finding of analysis.findings) {
+    if (finding.source === "circular-deps" && finding.file) {
+      const diagnostic = buildCircularDiagnostic(finding);
+      const existing = fileDiagnostics.get(finding.file) ?? [];
+      existing.push(diagnostic);
+      fileDiagnostics.set(finding.file, existing);
+      diagnosticsWritten += 1;
+      continue;
+    }
+    const diagnostic = buildDiagnostic(finding, document);
+    if (!diagnostic) {
+      continue;
+    }
+    packageJsonDiagnostics.push(diagnostic);
+    diagnosticsWritten += 1;
+  }
+
+  collection.set(packageJsonUri, packageJsonDiagnostics);
+  for (const [filePath, diagnostics] of fileDiagnostics) {
+    collection.set(vscode.Uri.file(filePath), diagnostics);
+  }
+
+  return { analysis, diagnosticsWritten };
 }
 
 /**
@@ -141,6 +165,23 @@ function resolveRange(
     return dependency?.nameRange;
   }
   return undefined;
+}
+
+/**
+ * Builds a diagnostic for a circular-dependency finding. The range is
+ * pinned to the start of the source file the cycle was reported against;
+ * a precise import-statement location would require parsing the file,
+ * which is beyond what this runner does today.
+ */
+function buildCircularDiagnostic(finding: ProjectFinding): vscode.Diagnostic {
+  const diagnostic = new vscode.Diagnostic(
+    zeroRange(),
+    finding.message,
+    severityFor(finding.severity),
+  );
+  diagnostic.source = DIAGNOSTIC_SOURCE;
+  diagnostic.code = finding.code;
+  return diagnostic;
 }
 
 /**

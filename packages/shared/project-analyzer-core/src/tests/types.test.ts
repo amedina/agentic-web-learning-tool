@@ -16,7 +16,7 @@ describe("project-analyzer-core types", () => {
       summary: {
         total: 0,
         bySeverity: { error: 0, warning: 0, info: 0, hint: 0 },
-        bySource: { publint: 0, replacements: 0 },
+        bySource: { publint: 0, replacements: 0, "circular-deps": 0 },
       },
       warnings: [],
     };

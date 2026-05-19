@@ -8,6 +8,52 @@ const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const production = process.argv.includes("--production");
 const watch = process.argv.includes("--watch");
 
+// Optional template engines that `@vue/compiler-sfc` and `consolidate`
+// dynamically `require()` (pulled in transitively by `madge` →
+// `precinct` for the circular-dependency analyzer in
+// project-analyzer-core). None are installed in this repo and the
+// JS/TS-focused analyzer never asks for them, but esbuild still
+// traces the `require()` calls at bundle time — marking them
+// external leaves the literal requires in the bundle and they
+// MODULE_NOT_FOUND at runtime only if someone actually tries to
+// parse a Vue SFC using one of these template languages. See the
+// matching note in packages/extensions/vscode/esbuild.config.js.
+const OPTIONAL_TEMPLATE_ENGINES = [
+  "atpl",
+  "babel-core",
+  "bracket-template",
+  "coffee-script",
+  "dot",
+  "dustjs-linkedin",
+  "eco",
+  "ect",
+  "ejs",
+  "haml-coffee",
+  "hamlet",
+  "hamljs",
+  "htmling",
+  "jazz",
+  "jqtpl",
+  "just",
+  "liquor",
+  "marko",
+  "mote",
+  "mustache",
+  "plates",
+  "ractive",
+  "slm",
+  "squirrelly",
+  "teacup/lib/express",
+  "templayed",
+  "toffee",
+  "twig",
+  "twing",
+  "vash",
+  "velocityjs",
+  "walrus",
+  "whiskers",
+];
+
 const sharedOptions = {
   bundle: true,
   format: "esm",
@@ -20,9 +66,12 @@ const sharedOptions = {
   // doesn't currently expose), but esbuild still tries to follow the
   // dynamic import at bundle time. Keeping both external means the
   // server resolves them at runtime through normal node_modules
-  // lookup — works wherever pnpm has installed deps. See the
-  // matching note in packages/extensions/vscode/esbuild.config.js.
-  external: ["module-replacements-codemods", "@ast-grep/napi"],
+  // lookup — works wherever pnpm has installed deps.
+  external: [
+    "module-replacements-codemods",
+    "@ast-grep/napi",
+    ...OPTIONAL_TEMPLATE_ENGINES,
+  ],
   // Resolve ESM entry points first so the MCP SDK and analyzer-core
   // ship their published-as-esm builds rather than pulling in CJS
   // transpiler shims that don't tree-shake.

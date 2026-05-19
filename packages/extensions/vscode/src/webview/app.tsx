@@ -13,8 +13,8 @@ import {
 /**
  * Internal dependencies.
  */
-import { PackageJsonSwitcher } from "./PackageJsonSwitcher";
-import { ProjectAnalysisTab } from "./ProjectAnalysisTab";
+import { PackageJsonSwitcher } from "./packageJsonSwitcher";
+import { ProjectAnalysisTab } from "./projectAnalysisTab";
 import type {
   ExtensionMessage,
   PackageJsonDependenciesPayload,

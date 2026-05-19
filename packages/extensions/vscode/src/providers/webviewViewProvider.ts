@@ -114,6 +114,28 @@ export class NpmAdvisorWebviewProvider implements vscode.WebviewViewProvider {
   }
 
   /**
+   * Tells the webview that its most recent project-analysis result is
+   * now stale because the given package.json was modified on disk.
+   * The webview keeps existing findings visible (they're still useful
+   * while the user reads through them) but renders a banner pointing
+   * at the "Re-run analysis" button. Safe to call when no webview is
+   * mounted — the bridge's pre-ready buffer would queue the message,
+   * but for a pure UX hint we'd rather drop it than spam on next mount.
+   */
+  notifyProjectAnalysisStale(packageJsonUri: vscode.Uri): void {
+    if (!this.webviewView) {
+      return;
+    }
+    this.bridge.post({
+      type: "projectAnalysisStale",
+      packageJsonUri: packageJsonUri.toString(),
+      changedFileDisplayPath:
+        vscode.workspace.asRelativePath(packageJsonUri, false) ??
+        packageJsonUri.fsPath,
+    });
+  }
+
+  /**
    * Reveals the npm-advisor side panel and asks the webview to scroll
    * to the named package. If the webview hasn't mounted yet (cold
    * start), the focus name is queued and applied once init fires.

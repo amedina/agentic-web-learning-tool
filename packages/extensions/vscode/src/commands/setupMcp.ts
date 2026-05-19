@@ -6,7 +6,7 @@ import * as vscode from "vscode";
 /**
  * Internal dependencies.
  */
-import { McpSetupPanel } from "../mcp/wizard/McpSetupPanel";
+import { McpSetupPanel } from "../mcp/wizard/mcpSetupPanel";
 
 export const SETUP_MCP_COMMAND = "npmAdvisor.setupMcp";
 

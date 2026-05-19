@@ -159,6 +159,28 @@ export type ExtensionMessage =
        * package.json open). `finishedAt` is a `Date.now()` epoch.
        */
       data: { analysis: ProjectAnalysis; finishedAt: number } | null;
+    }
+  | {
+      /**
+       * Fired by the host when something the most recent analysis
+       * looked at (today: `package.json`) changes on disk. The webview
+       * keeps the old findings visible — they're still useful context
+       * — but flags them as stale so the user knows to re-run.
+       *
+       * Filtering to the right project is intentional: a save in
+       * `packages/foo/package.json` shouldn't mark `packages/bar`'s
+       * analysis as stale.
+       */
+      type: "projectAnalysisStale";
+      /**
+       * `vscode.Uri.toString()` of the package.json whose project is
+       * now stale. The webview matches this directly against the
+       * `activeFile.uri` it already knows about, so neither side has
+       * to do OS-specific path normalisation.
+       */
+      packageJsonUri: string;
+      /** Workspace-relative display path of the file that triggered staleness. */
+      changedFileDisplayPath: string;
     };
 
 export interface PackageJsonDependenciesPayload {

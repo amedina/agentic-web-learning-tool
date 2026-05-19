@@ -6,7 +6,7 @@ import { createRoot } from "react-dom/client";
 /**
  * Internal dependencies.
  */
-import { App } from "./App";
+import { App } from "./app";
 import { installVscodeThemeMirror } from "./themeAdapter";
 import { VsCodeStatsClient } from "./vscodeStatsClient";
 

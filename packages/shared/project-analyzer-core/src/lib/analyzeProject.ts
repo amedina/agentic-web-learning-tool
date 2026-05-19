@@ -9,6 +9,10 @@ import type {
 } from "../types";
 import { detectPackageManager } from "../utils/detectPackageManager";
 import {
+  findCircularDependencies,
+  type FindCircularDependenciesOptions,
+} from "./findCircularDependencies";
+import {
   findReplacementOpportunities,
   type FindReplacementOpportunitiesOptions,
 } from "./findReplacementOpportunities";
@@ -34,10 +38,23 @@ export interface AnalyzeProjectOptions {
    */
   skipReplacements?: boolean;
   /**
+   * Skip the circular-dependency scan. Useful when the caller only
+   * wants the publint and/or replacements surfaces.
+   */
+  skipCircularDependencies?: boolean;
+  /**
    * Forwarded to `findReplacementOpportunities` so tests can inject a
    * fixture manifest without a network round-trip.
    */
   replacementsManifestProvider?: FindReplacementOpportunitiesOptions["manifestProvider"];
+  /**
+   * Forwarded to `findCircularDependencies` so callers can override
+   * the source directory or file extensions used by the scan.
+   */
+  circularDependenciesOptions?: Omit<
+    FindCircularDependenciesOptions,
+    "rootPath"
+  >;
 }
 
 /**
@@ -55,6 +72,7 @@ function summarise(findings: ProjectFinding[]): ProjectAnalysis["summary"] {
   const bySource: Record<FindingSource, number> = {
     publint: 0,
     replacements: 0,
+    "circular-deps": 0,
   };
   for (const finding of findings) {
     bySeverity[finding.severity] += 1;
@@ -79,13 +97,15 @@ export async function analyzeProject(
     publintMode = "source",
     skipPublint = false,
     skipReplacements = false,
+    skipCircularDependencies = false,
     replacementsManifestProvider,
+    circularDependenciesOptions,
   } = options;
 
   const warnings: string[] = [];
 
-  const [packageManager, publintResult, replacementsResult] = await Promise.all(
-    [
+  const [packageManager, publintResult, replacementsResult, circularResult] =
+    await Promise.all([
       detectPackageManager(rootPath).catch(() => undefined),
       skipPublint
         ? Promise.resolve(null)
@@ -101,8 +121,16 @@ export async function analyzeProject(
             rootPath,
             manifestProvider: replacementsManifestProvider,
           }),
-    ],
-  );
+      skipCircularDependencies
+        ? Promise.resolve(null)
+        : findCircularDependencies({
+            rootPath,
+            ...circularDependenciesOptions,
+          }).catch((error: Error) => {
+            warnings.push(`circular-dependency scan failed: ${error.message}`);
+            return null;
+          }),
+    ]);
 
   const findings: ProjectFinding[] = [];
   if (publintResult) {
@@ -111,6 +139,10 @@ export async function analyzeProject(
   if (replacementsResult) {
     findings.push(...replacementsResult.findings);
     warnings.push(...replacementsResult.warnings);
+  }
+  if (circularResult) {
+    findings.push(...circularResult.findings);
+    warnings.push(...circularResult.warnings);
   }
 
   return {

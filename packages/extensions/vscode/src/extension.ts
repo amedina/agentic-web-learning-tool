@@ -1,6 +1,7 @@
 /**
  * External dependencies.
  */
+import * as path from "node:path";
 import * as vscode from "vscode";
 import {
   configureGithubAuth,
@@ -191,6 +192,17 @@ export function activate(context: vscode.ExtensionContext): void {
       void runner.refresh(document);
       if (isPackageJsonDocument(document)) {
         webviewProvider.refresh();
+        // A saved package.json invalidates any cached project analysis
+        // rooted at the same folder: publint reads from package.json
+        // directly, and findReplacementOpportunities walks its
+        // dependency blocks. Drop the cache entry and tell the
+        // webview its last result is now stale so the user sees a
+        // "Re-run analysis" prompt instead of phantom-correct data.
+        const rootPath = projectRootForPackageJson(document.uri);
+        if (rootPath) {
+          projectAnalysisCache.invalidate(rootPath);
+          webviewProvider.notifyProjectAnalysisStale(document.uri);
+        }
       }
     }),
     vscode.workspace.onDidChangeTextDocument((event) => {
@@ -235,4 +247,19 @@ function isPackageJsonDocument(document: vscode.TextDocument): boolean {
     return false;
   }
   return document.uri.path.endsWith("/package.json");
+}
+
+/**
+ * Returns the absolute path of the project root that owns the given
+ * package.json URI — the directory immediately containing it. Mirrors
+ * the convention the analyzer / runner already use (root = parent of
+ * package.json) so cache keys stay consistent across producers and
+ * consumers.
+ */
+function projectRootForPackageJson(uri: vscode.Uri): string | null {
+  const fsPath = uri.fsPath;
+  if (!fsPath.endsWith("package.json")) {
+    return null;
+  }
+  return path.dirname(fsPath);
 }

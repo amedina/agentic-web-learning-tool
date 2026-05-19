@@ -8,7 +8,7 @@ export type FindingSeverity = "error" | "warning" | "info" | "hint";
  * Where a finding was sourced from. Useful for grouping in UIs and for routing
  * fixes (e.g. only "replacements" findings have codemod-driven fixes).
  */
-export type FindingSource = "publint" | "replacements";
+export type FindingSource = "publint" | "replacements" | "circular-deps";
 
 /**
  * A single issue surfaced by a project-level analyzer.
