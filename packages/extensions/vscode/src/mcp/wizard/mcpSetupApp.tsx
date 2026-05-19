@@ -7,7 +7,7 @@ import { Loader2 } from "lucide-react";
 /**
  * Internal dependencies.
  */
-import { ClientCard } from "./ClientCard";
+import { ClientCard } from "./clientCard";
 import type {
   McpActionResult,
   McpClientView,

@@ -6,7 +6,7 @@ import { createRoot } from "react-dom/client";
 /**
  * Internal dependencies.
  */
-import { McpSetupApp } from "./McpSetupApp";
+import { McpSetupApp } from "./mcpSetupApp";
 import { installVscodeThemeMirror } from "../../webview/themeAdapter";
 
 declare function acquireVsCodeApi(): {
