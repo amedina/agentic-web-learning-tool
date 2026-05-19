@@ -18,6 +18,7 @@ import {
   type LicenseCompatibilityResult,
 } from "./checkLicenseCompatibility";
 import { parseGithubUrl } from "../utils/parseGithubUrl";
+import { extractGithubUrlFromReadme } from "../utils/extractGithubUrlFromReadme";
 
 export interface PackageStats {
   packageName: string;
@@ -243,7 +244,27 @@ export async function getPackageStats(
   // Normalise to null so UI layers uniformly display "Unknown".
   const displayLicense = isUrlLicense ? null : licenseStr;
 
-  const githubInfo = repoUrlField ? parseGithubUrl(repoUrlField) : null;
+  let githubInfo = repoUrlField ? parseGithubUrl(repoUrlField) : null;
+
+  // Fallback: some packages (e.g. @rtcamp/frappe-ui-react) ship without a
+  // usable `repository.url` field but their `readme` field carries a GitHub
+  // link to the source — either as a bare URL string (when the publisher
+  // set `readme` in package.json directly) or embedded in the README
+  // markdown content that npm publish stores on the registry. Scanning that
+  // string for the first plausible github.com/<owner>/<repo> URL is enough
+  // to recover the repo identity for the rest of the stats pipeline.
+  if (!githubInfo) {
+    const readmeField = latestVersion
+      ? npmData.versions[latestVersion]?.readme
+      : null;
+    const topLevelReadme = npmData.readme;
+    const readmeGithubUrl =
+      extractGithubUrlFromReadme(readmeField) ??
+      extractGithubUrlFromReadme(topLevelReadme);
+    if (readmeGithubUrl) {
+      githubInfo = parseGithubUrl(readmeGithubUrl);
+    }
+  }
 
   let stars = null;
   let lastCommitDate = null;
