@@ -211,6 +211,20 @@ A typical Claude Desktop entry with auth:
 
 The token only needs **public read** scopes — the server never touches private repositories.
 
+A ready-to-copy template lives at [`.env.example`](./.env.example) in this package — `cp .env.example .env`, fill in the values you need, and paste them into your MCP client's `env` block (or `source` the file before running the binary directly).
+
+On startup the server prints one line to stderr indicating whether a token was detected, so you can confirm your client actually forwarded the env var:
+
+```
+npm-advisor-mcp: GitHub auth = token (from $GITHUB_TOKEN); rate limit 5,000 req/hr
+```
+
+or, when no token was passed:
+
+```
+npm-advisor-mcp: GitHub auth = unauthenticated; rate limit 60 req/hr (set $GITHUB_TOKEN to lift)
+```
+
 ## How it works
 
 ```
