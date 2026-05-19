@@ -10,6 +10,7 @@ import {
   Activity,
   Info,
   AlertCircle,
+  ShieldAlert,
 } from "lucide-react";
 import { Tooltip } from "@agentic-web-labs/design-system";
 import { type ScoreBreakdownItem } from "@agentic-web-labs/package-analyzer-core";
@@ -72,6 +73,18 @@ export interface HeaderProps {
   score: number | null;
   scoreBreakdown?: ScoreBreakdownItem[];
   scoreMaxPoints?: number;
+  /**
+   * Severity-bucketed advisory counts. When the total is > 0 the Fitness
+   * value renders a small red ShieldAlert badge next to the number so the
+   * presence of vulnerabilities is visible at a glance, independent of how
+   * much the score itself was nudged down.
+   */
+  securityAdvisories?: {
+    critical: number;
+    high: number;
+    moderate: number;
+    low: number;
+  } | null;
   /** True when a GitHub rate-limit prevented stars / lastCommit from loading. */
   githubRateLimited?: boolean;
   /**
@@ -130,6 +143,7 @@ export const Header: React.FC<HeaderProps> = ({
   score,
   scoreBreakdown,
   scoreMaxPoints,
+  securityAdvisories,
   githubRateLimited = false,
   hideFitness = false,
   hideCompare = false,
@@ -139,6 +153,28 @@ export const Header: React.FC<HeaderProps> = ({
   const animatedScore = useCountUp(score ?? 0);
   const animatedStars = useCountUp(stars ?? 0);
   const animatedCollabs = useCountUp(collaboratorsCount ?? 0);
+
+  const advisoryTotal = securityAdvisories
+    ? securityAdvisories.critical +
+      securityAdvisories.high +
+      securityAdvisories.moderate +
+      securityAdvisories.low
+    : 0;
+  const advisorySeverityParts: string[] = [];
+  if (securityAdvisories) {
+    if (securityAdvisories.critical > 0) {
+      advisorySeverityParts.push(`${securityAdvisories.critical} critical`);
+    }
+    if (securityAdvisories.high > 0) {
+      advisorySeverityParts.push(`${securityAdvisories.high} high`);
+    }
+    if (securityAdvisories.moderate > 0) {
+      advisorySeverityParts.push(`${securityAdvisories.moderate} moderate`);
+    }
+    if (securityAdvisories.low > 0) {
+      advisorySeverityParts.push(`${securityAdvisories.low} low`);
+    }
+  }
 
   const formatDate = (dateString: string) => {
     const d = new Date(dateString);
@@ -320,23 +356,55 @@ export const Header: React.FC<HeaderProps> = ({
                 </button>
               </Tooltip>
             </div>
-            <span
-              className="font-bold text-lg leading-none text-center"
-              style={{
-                color: getFitnessColor(
-                  score === null ? null : animatedScore,
-                  scoreMaxPoints,
-                ),
-              }}
-            >
-              {score !== null ? (
-                animatedScore
-              ) : isLoading ? (
-                <SkeletonValue width="w-8" />
-              ) : (
-                "N/A"
+            <div className="flex items-center gap-1.5">
+              <span
+                className="font-bold text-lg leading-none text-center"
+                style={{
+                  color: getFitnessColor(
+                    score === null ? null : animatedScore,
+                    scoreMaxPoints,
+                  ),
+                }}
+              >
+                {score !== null ? (
+                  animatedScore
+                ) : isLoading ? (
+                  <SkeletonValue width="w-8" />
+                ) : (
+                  "N/A"
+                )}
+              </span>
+              {advisoryTotal > 0 && (
+                <Tooltip
+                  placement="bottom"
+                  delayDuration={0}
+                  contentClassName="max-w-xs p-2 text-left font-normal normal-case tracking-normal bg-slate-800 text-white shadow-lg"
+                  body={
+                    <div className="text-xs leading-snug">
+                      <p className="font-semibold mb-0.5">
+                        {advisoryTotal} open{" "}
+                        {advisoryTotal === 1 ? "advisory" : "advisories"}
+                      </p>
+                      <p className="text-slate-300">
+                        {advisorySeverityParts.join(" · ")}
+                      </p>
+                      <p className="mt-1 text-[11px] text-slate-400">
+                        Advisories are typically resolved by upstream patches,
+                        so they only nudge the score down. Check the Security
+                        Advisories section for fixed versions.
+                      </p>
+                    </div>
+                  }
+                >
+                  <span
+                    aria-label={`${advisoryTotal} open security ${advisoryTotal === 1 ? "advisory" : "advisories"}`}
+                    className="inline-flex items-center text-red-600 dark:text-red-400 cursor-help"
+                  >
+                    <ShieldAlert size={16} />
+                  </span>
+                </Tooltip>
               )}
-            </span>
+            </div>
           </div>
         )}
         <div className="flex flex-col items-center space-y-1">

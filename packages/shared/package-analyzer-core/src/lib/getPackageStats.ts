@@ -558,15 +558,18 @@ export async function getPackageStats(
   });
 
   // Penalty axis: security advisories. Contributes only negative points
-  // so the numerator drops without inflating the denominator. Points are
-  // weighted by severity (critical > high > moderate > low) and capped so
-  // a long tail of low-severity advisories can't dominate the score.
+  // so the numerator drops without inflating the denominator. Weights are
+  // intentionally light — advisories are temporary (patches land, the
+  // GitHub feed clears) and shouldn't dominate a long-term quality signal.
+  // The vulnerability indicator next to the score is what draws the user's
+  // eye; this penalty is just a nudge so a heavily-advised package can't
+  // tie a clean one on score alone.
   if (securityAdvisories) {
     const { critical, high, moderate, low } = securityAdvisories;
     const total = critical + high + moderate + low;
     if (total > 0) {
-      const rawPenalty = critical * 15 + high * 10 + moderate * 5 + low * 2;
-      const cappedPenalty = Math.min(rawPenalty, 50);
+      const rawPenalty = critical * 5 + high * 3 + moderate * 2 + low * 1;
+      const cappedPenalty = Math.min(rawPenalty, 15);
       const severityParts: string[] = [];
       if (critical > 0) severityParts.push(`${critical} critical`);
       if (high > 0) severityParts.push(`${high} high`);

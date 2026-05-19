@@ -89,6 +89,7 @@ export const InsightsTab: React.FC<InsightsTabProps> = ({
         score={effectiveStats.score}
         scoreBreakdown={effectiveStats.scoreBreakdown}
         scoreMaxPoints={effectiveStats.scoreMaxPoints}
+        securityAdvisories={effectiveStats.securityAdvisories}
         githubRateLimited={effectiveStats.githubRateLimited}
         isLoading={isLoading}
         onNavigateToComparison={onNavigateToComparison}
