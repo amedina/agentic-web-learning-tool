@@ -16782,14 +16782,23 @@ ${e}`
 `)}`,
         };
   }
+  // PATCH (agentic-web-labs): Strengthen native-API detection so that Chrome
+  // builds shipping a *partial* `navigator.modelContextTesting` (testing
+  // surface present, but missing `registerToolsChangedCallback`) are routed
+  // to the existing "partial native API" warning branch below instead of
+  // crashing inside the native-adapter constructor. If you re-sync this
+  // file from @mcp-b/global, re-apply the `typeof ... === "function"` check.
   function Km() {
     if (typeof window > `u` || typeof navigator > `u`)
       return { hasNativeContext: !1, hasNativeTesting: !1 };
     let e = navigator.modelContext,
       t = navigator.modelContextTesting;
-    return !e || !t || (t.constructor?.name || ``).includes(`WebModelContext`)
-      ? { hasNativeContext: !1, hasNativeTesting: !1 }
-      : { hasNativeContext: !0, hasNativeTesting: !0 };
+    if (!e) return { hasNativeContext: !1, hasNativeTesting: !1 };
+    if ((t?.constructor?.name || ``).includes(`WebModelContext`))
+      return { hasNativeContext: !1, hasNativeTesting: !1 };
+    let hasUsableTesting =
+      !!t && typeof t.registerToolsChangedCallback === `function`;
+    return { hasNativeContext: !0, hasNativeTesting: hasUsableTesting };
   }
   var qm = class {
       nativeContext;
