@@ -74,10 +74,12 @@ export interface HeaderProps {
   scoreBreakdown?: ScoreBreakdownItem[];
   scoreMaxPoints?: number;
   /**
-   * Severity-bucketed advisory counts. When the total is > 0 the Fitness
+   * Severity-bucketed advisory counts. When `critical > 0` the Fitness
    * value renders a small red ShieldAlert badge next to the number so the
-   * presence of vulnerabilities is visible at a glance, independent of how
-   * much the score itself was nudged down.
+   * presence of a critical vulnerability is visible at a glance,
+   * independent of how much the score itself was nudged down. Lower
+   * severities don't trigger the badge — they're surfaced in the
+   * Security Advisories widget below the header.
    */
   securityAdvisories?: {
     critical: number;
@@ -154,27 +156,12 @@ export const Header: React.FC<HeaderProps> = ({
   const animatedStars = useCountUp(stars ?? 0);
   const animatedCollabs = useCountUp(collaboratorsCount ?? 0);
 
-  const advisoryTotal = securityAdvisories
-    ? securityAdvisories.critical +
-      securityAdvisories.high +
-      securityAdvisories.moderate +
-      securityAdvisories.low
-    : 0;
-  const advisorySeverityParts: string[] = [];
-  if (securityAdvisories) {
-    if (securityAdvisories.critical > 0) {
-      advisorySeverityParts.push(`${securityAdvisories.critical} critical`);
-    }
-    if (securityAdvisories.high > 0) {
-      advisorySeverityParts.push(`${securityAdvisories.high} high`);
-    }
-    if (securityAdvisories.moderate > 0) {
-      advisorySeverityParts.push(`${securityAdvisories.moderate} moderate`);
-    }
-    if (securityAdvisories.low > 0) {
-      advisorySeverityParts.push(`${securityAdvisories.low} low`);
-    }
-  }
+  // Only critical advisories trigger the inline shield. Lower severities
+  // are visible in the Security Advisories widget further down the page,
+  // and over-flagging the header would dilute the signal — the goal is
+  // to draw the eye when something truly urgent is open.
+  const criticalCount = securityAdvisories?.critical ?? 0;
+  const showCriticalBadge = criticalCount > 0;
 
   const formatDate = (dateString: string) => {
     const d = new Date(dateString);
@@ -374,7 +361,7 @@ export const Header: React.FC<HeaderProps> = ({
                   "N/A"
                 )}
               </span>
-              {advisoryTotal > 0 && (
+              {showCriticalBadge && (
                 <Tooltip
                   placement="bottom"
                   delayDuration={0}
@@ -382,11 +369,8 @@ export const Header: React.FC<HeaderProps> = ({
                   body={
                     <div className="text-xs leading-snug">
                       <p className="font-semibold mb-0.5">
-                        {advisoryTotal} open{" "}
-                        {advisoryTotal === 1 ? "advisory" : "advisories"}
-                      </p>
-                      <p className="text-slate-300">
-                        {advisorySeverityParts.join(" · ")}
+                        {criticalCount} critical{" "}
+                        {criticalCount === 1 ? "advisory" : "advisories"}
                       </p>
                       <p className="mt-1 text-[11px] text-slate-400">
                         Advisories are typically resolved by upstream patches,
@@ -397,7 +381,7 @@ export const Header: React.FC<HeaderProps> = ({
                   }
                 >
                   <span
-                    aria-label={`${advisoryTotal} open security ${advisoryTotal === 1 ? "advisory" : "advisories"}`}
+                    aria-label={`${criticalCount} critical security ${criticalCount === 1 ? "advisory" : "advisories"}`}
                     className="inline-flex items-center text-red-600 dark:text-red-400 cursor-help"
                   >
                     <ShieldAlert size={16} />
