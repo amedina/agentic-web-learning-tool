@@ -436,7 +436,7 @@ export async function getPackageStats(
   if (preferredMatches)
     recommendations.preferredReplacements = preferredMatches;
 
-  // Score is computed from three weighted axes summing to 100 when every
+  // Score is computed from three weighted axes summing to 90 when every
   // axis is scored. Each axis is also written to `scoreBreakdown` so the
   // UI can show the user how the score was arrived at, including any
   // axes that were skipped because the underlying data was unavailable.
@@ -522,11 +522,15 @@ export async function getPackageStats(
     status: "scored",
   });
 
-  // Axis 3: maintainer responsiveness (max 30). Scaled linearly from the
-  // sampled closed-issues ratio: ratio of 1.0 awards the full 30 points,
-  // 0.5 awards 15, and so on. Marked unavailable when the package has no
-  // linked GitHub repo or no issues sample, so packages without a public
-  // repo aren't penalised for a missing signal.
+  // Axis 3: maintainer responsiveness (max 20). Scaled linearly from the
+  // sampled closed-issues ratio: ratio of 1.0 awards the full 20 points,
+  // 0.5 awards 10, and so on. Capped lower than bundle / deps because the
+  // closed-issues sample is a coarse proxy — old issues that closed via
+  // staleness inflate the ratio, and small repos with few issues swing
+  // wildly — so the axis shouldn't drag the score the way bundle size or
+  // dependency surface area legitimately can. Marked unavailable when the
+  // package has no linked GitHub repo or no issues sample, so packages
+  // without a public repo aren't penalised for a missing signal.
   let responsivenessPoints = 0;
   let responsivenessReason: string;
   let responsivenessStatus: ScoreBreakdownItem["status"] = "scored";
@@ -539,7 +543,7 @@ export async function getPackageStats(
     }
     responsivenessStatus = "unavailable";
   } else {
-    responsivenessPoints = Math.round(closedRatio * 30);
+    responsivenessPoints = Math.round(closedRatio * 20);
     const percentage = Math.round(closedRatio * 100);
     if (closedRatio > 0.8) {
       responsivenessReason = `Highly responsive — ${percentage}% of sampled issues closed`;
@@ -552,7 +556,7 @@ export async function getPackageStats(
   scoreBreakdown.push({
     label: "Responsiveness",
     points: responsivenessPoints,
-    maxPoints: 30,
+    maxPoints: 20,
     reason: responsivenessReason,
     status: responsivenessStatus,
   });
