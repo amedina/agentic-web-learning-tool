@@ -86,14 +86,14 @@ const ClickableCircle: React.FC<ClickableCircleProps> = ({
   children,
 }) => {
   if (!interactive) {
-    return <div className="p-0 m-0">{children}</div>;
+    return <div className="p-0 m-0 flex-1 basis-0 min-w-0">{children}</div>;
   }
   return (
     <button
       type="button"
       onClick={() => onTrigger(title)}
       aria-label={`Filter by ${title}`}
-      className="cursor-pointer bg-transparent border-0 p-0 m-0 text-inherit focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 rounded-md"
+      className="cursor-pointer bg-transparent border-0 p-0 m-0 text-inherit focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 rounded-md flex-1 basis-0 min-w-0"
     >
       {children}
     </button>
