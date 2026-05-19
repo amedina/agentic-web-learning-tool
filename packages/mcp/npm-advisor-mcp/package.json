@@ -1,6 +1,6 @@
 {
   "name": "@agentic-web-labs/npm-advisor-mcp",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "description": "MCP server exposing npm package intelligence (security, license, scoring, recommendations) to MCP-aware AI clients like Claude Code, Claude Desktop, and Cursor.",
   "private": true,
   "type": "module",

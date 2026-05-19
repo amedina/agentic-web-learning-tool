@@ -1,7 +1,7 @@
 {
   "name": "@agentic-web-labs/awl",
   "private": true,
-  "version": "1.0.3",
+  "version": "1.0.4",
   "type": "module",
   "scripts": {
     "predev": "rimraf ../../../dist/awl",

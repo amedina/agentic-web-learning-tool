@@ -2,7 +2,7 @@
   "name": "vscode-npm-advisor",
   "displayName": "NPM Advisor",
   "description": "Package intelligence, security insights, dependency analysis, and AI-powered evaluation for npm packages — directly inside VSCode.",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "private": true,
   "publisher": "agentic-web-labs",
   "license": "Apache-2.0",
