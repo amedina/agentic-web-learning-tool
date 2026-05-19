@@ -41,6 +41,19 @@ function configureAuthFromEnv(): void {
   configureGithubAuth({
     getToken: async () => token,
   });
+  // Logged to stderr (never stdout — that's the JSON-RPC stream) so users
+  // can confirm whether their MCP client actually passed the env var
+  // through; missing $GITHUB_TOKEN is the most common cause of premature
+  // rate-limit failures during a workspace audit.
+  const source = process.env.GITHUB_TOKEN
+    ? "GITHUB_TOKEN"
+    : process.env.GH_TOKEN
+      ? "GH_TOKEN"
+      : null;
+  const message = source
+    ? `npm-advisor-mcp: GitHub auth = token (from $${source}); rate limit 5,000 req/hr`
+    : `npm-advisor-mcp: GitHub auth = unauthenticated; rate limit 60 req/hr (set $GITHUB_TOKEN to lift)`;
+  process.stderr.write(`${message}\n`);
 }
 
 /**
