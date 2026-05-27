@@ -9,6 +9,7 @@ import { fetchBundlephobiaData } from "../utils/fetchBundlephobiaData";
 import { getDependencyTree, type DependencyTree } from "./getDependencyTree";
 import { fetchModuleReplacements } from "../utils/fetchModuleReplacements";
 import { githubFetch, GithubRateLimitError } from "../utils/githubFetch";
+import { fetchOsvAdvisories } from "../utils/fetchOsvAdvisories";
 import { matchesAdvisoryVersion } from "./matchAdvisoryToVersion";
 
 /**
@@ -95,6 +96,14 @@ export interface PackageStats {
    * "showing data for X" badges in the UI.
    */
   consideredVersion: string | null;
+  /**
+   * Advisory data sources that contributed to `securityAdvisories`. When
+   * either feed is unreachable (network failure, rate-limit) the missing
+   * entry is dropped so the UI can warn that coverage is partial. Empty
+   * when `securityAdvisories` itself is `null` (no GitHub repo, no OSV
+   * data) — distinguishes "no advisories" from "advisories not checked".
+   */
+  advisorySources: Array<"github" | "osv">;
 }
 
 export interface ScoreBreakdownItem {
@@ -199,6 +208,7 @@ export async function getPackageStats(
     nativeReplacementsRaw,
     microUtilityReplacementsRaw,
     preferredReplacementsRaw,
+    osvAdvisoriesRaw,
   ] = await Promise.all([
     fetchNpmPackage(packageName),
     includeBundle
@@ -222,6 +232,10 @@ export async function getPackageStats(
     fetchModuleReplacements("native").catch(() => null),
     fetchModuleReplacements("micro-utilities").catch(() => null),
     fetchModuleReplacements("preferred").catch(() => null),
+    // OSV runs unconditionally — it works directly from the npm package
+    // name with no GitHub repo lookup needed, so packages whose repository
+    // we can't resolve still get advisory coverage.
+    fetchOsvAdvisories(packageName),
   ]);
 
   console.log({
@@ -318,7 +332,9 @@ export async function getPackageStats(
   let stars = null;
   let lastCommitDate = null;
   let responsiveness = null;
-  let securityAdvisories = null;
+  let securityAdvisories: PackageStats["securityAdvisories"] = null;
+  let githubAdvisoriesData: any[] | null = null;
+  let githubAdvisoriesFetchFailed = false;
   // GitHub has separate rate limits per resource. We track the
   // user-actionable one (Core REST API, raised by adding a PAT) on
   // `githubRateLimited`; that's what the toast and Header / Security
@@ -374,9 +390,22 @@ export async function getPackageStats(
               swallowGithubError("GitHub Issues", true),
             )
           : Promise.resolve(null),
-        fetchGithubSecurityAdvisories(owner, repo).catch(
-          swallowGithubError("GitHub Advisories"),
-        ),
+        fetchGithubSecurityAdvisories(owner, repo).catch((error: unknown) => {
+          // Track failure separately from the swallow helper so the merge
+          // step below can distinguish "github said nothing" (counts as a
+          // contributing source) from "github fetch failed" (don't list it
+          // as a source so the UI can warn about partial coverage).
+          githubAdvisoriesFetchFailed = true;
+          if (error instanceof GithubRateLimitError) {
+            githubRateLimited = true;
+          } else {
+            console.warn(
+              `[NPM Advisor] GitHub Advisories fetch failed:`,
+              (error as Error)?.message,
+            );
+          }
+          return null;
+        }),
       ]);
 
       if (repoData && repoData.repo) {
@@ -434,32 +463,7 @@ export async function getPackageStats(
       }
 
       if (advisoriesData && Array.isArray(advisoriesData)) {
-        // Filter advisories so we only count ones that actually affect the
-        // version the user has installed (consideredVersion). When no
-        // version is resolvable, matchesAdvisoryVersion falls back to
-        // including all advisories so the pre-1b behaviour is preserved.
-        const relevant = advisoriesData.filter((adv: any) =>
-          matchesAdvisoryVersion(adv, packageName, consideredVersion),
-        );
-
-        const issues = relevant.map((adv: any) => ({
-          summary: adv.summary || "N/A",
-          severity: adv.severity || "unknown",
-          url: adv.html_url || "",
-        }));
-
-        securityAdvisories = {
-          critical: issues.filter(
-            (i) => i.severity.toLowerCase() === "critical",
-          ).length,
-          high: issues.filter((i) => i.severity.toLowerCase() === "high")
-            .length,
-          moderate: issues.filter(
-            (i) => i.severity.toLowerCase() === "moderate",
-          ).length,
-          low: issues.filter((i) => i.severity.toLowerCase() === "low").length,
-          issues,
-        };
+        githubAdvisoriesData = advisoriesData;
       }
     } catch (e) {
       // Per-fetch errors are already swallowed by `swallowGithubError`. This
@@ -479,6 +483,92 @@ export async function getPackageStats(
     console.warn(
       `[NPM Advisor] Could not resolve a valid GitHub repository for ${packageName}`,
     );
+  }
+
+  // Merge GitHub + OSV advisories into one list, deduplicated by canonical
+  // identifier (GHSA id or CVE alias). When both feeds list the same
+  // finding we keep GitHub's record because its severity field is
+  // pre-bucketed (critical / high / moderate / low) and consistent with
+  // the rest of the UI's labels. OSV-only findings are added with the
+  // severity derived in `fetchOsvAdvisories`.
+  const advisorySources: Array<"github" | "osv"> = [];
+  // GitHub counts as a contributing source whenever we successfully
+  // reached the API for a known repo, even if it returned no findings —
+  // that's still useful information. Skip when there's no repo to query
+  // against and when the fetch threw or rate-limited.
+  if (githubInfo && !githubAdvisoriesFetchFailed && !githubRateLimited) {
+    advisorySources.push("github");
+  }
+  // OSV's fetch wrapper resolves to [] on any failure, so a non-empty
+  // result here is the only way to know the source contributed. We don't
+  // separately track "OSV reached but returned nothing" — that case is
+  // indistinguishable from network failure given the current wrapper,
+  // and the UI shows "no advisories" identically in both cases.
+  if (osvAdvisoriesRaw.length > 0) {
+    advisorySources.push("osv");
+  }
+
+  const githubList = githubAdvisoriesData ?? [];
+  const mergedAdvisories: any[] = githubList.slice();
+  const seenIds = new Set<string>();
+  for (const advisory of githubList) {
+    const ghsaId = advisory?.ghsa_id;
+    if (typeof ghsaId === "string" && ghsaId.length > 0) {
+      seenIds.add(ghsaId.toLowerCase());
+    }
+    const aliases = Array.isArray(advisory?.identifiers)
+      ? advisory.identifiers
+      : [];
+    for (const alias of aliases) {
+      if (
+        alias &&
+        typeof alias === "object" &&
+        typeof alias.value === "string"
+      ) {
+        seenIds.add(alias.value.toLowerCase());
+      }
+    }
+  }
+  for (const osvAdvisory of osvAdvisoriesRaw) {
+    const matchesExisting = osvAdvisory.canonicalIds.some((id) =>
+      seenIds.has(id),
+    );
+    if (matchesExisting) {
+      continue;
+    }
+    for (const id of osvAdvisory.canonicalIds) {
+      seenIds.add(id);
+    }
+    mergedAdvisories.push(osvAdvisory);
+  }
+
+  if (mergedAdvisories.length > 0) {
+    // Apply the version-aware filter to the merged list. OSV is already
+    // server-side filtered when a version was passed, but the helper is
+    // a no-op for records whose vulnerabilities already match — so this
+    // is the single source of truth regardless of which feed produced
+    // the record.
+    const relevant = mergedAdvisories.filter((adv) =>
+      matchesAdvisoryVersion(adv, packageName, consideredVersion),
+    );
+
+    if (relevant.length > 0) {
+      const issues = relevant.map((adv) => ({
+        summary: adv.summary || "N/A",
+        severity: typeof adv.severity === "string" ? adv.severity : "unknown",
+        url: adv.html_url || "",
+      }));
+
+      securityAdvisories = {
+        critical: issues.filter((i) => i.severity.toLowerCase() === "critical")
+          .length,
+        high: issues.filter((i) => i.severity.toLowerCase() === "high").length,
+        moderate: issues.filter((i) => i.severity.toLowerCase() === "moderate")
+          .length,
+        low: issues.filter((i) => i.severity.toLowerCase() === "low").length,
+        issues,
+      };
+    }
   }
 
   function extractRecommendations(raw: any, pkgName: string) {
@@ -707,6 +797,7 @@ export async function getPackageStats(
     githubIssuesUnavailable,
     versionResolution,
     consideredVersion,
+    advisorySources,
   };
 
   return stats;
