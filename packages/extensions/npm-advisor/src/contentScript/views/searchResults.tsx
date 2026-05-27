@@ -3,7 +3,6 @@
  */
 import React, { useState, useEffect, useCallback } from "react";
 import { X } from "lucide-react";
-import { calculateScore } from "@agentic-web-labs/package-analyzer-core";
 
 /**
  * Internal dependencies
@@ -204,7 +203,11 @@ export const SearchResults: React.FC = () => {
                       (pkg) =>
                         pkg.packageName === h.name || pkg.name === h.name,
                     );
-                    return match ? (calculateScore(match) ?? 0) : null;
+                    return match
+                      ? typeof match.score === "number"
+                        ? match.score
+                        : 0
+                      : null;
                   };
                   const scoreA = findScore(a);
                   const scoreB = findScore(b);

@@ -4,7 +4,6 @@
 import React from "react";
 import { Trash2, Award } from "lucide-react";
 import { X } from "lucide-react";
-import { calculateScore } from "@agentic-web-labs/package-analyzer-core";
 
 interface ComparisonTableProps {
   comparisonBucket: any[];
@@ -76,7 +75,7 @@ export const ComparisonTable: React.FC<ComparisonTableProps> = ({
                     key={idx}
                     className={`px-6 py-4 font-bold text-[#c94137] ${idx !== comparisonBucket.length - 1 ? "border-r" : ""} border-b border-slate-200 dark:border-slate-700 text-lg`}
                   >
-                    {calculateScore(pkg)}
+                    {pkg.score ?? null}
                   </td>
                 ))}
               </tr>
