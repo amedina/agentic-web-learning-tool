@@ -19,6 +19,8 @@ import { z } from "zod";
  */
 import { parseCliArgs } from "./lib/parseCliArgs";
 import { runTool } from "./lib/toolRunner";
+import { registerPrompts } from "./prompts";
+import { registerResources } from "./resources";
 import { runAnalyzePackageJson } from "./tools/analyzePackageJson";
 import { runAnalyzeProject } from "./tools/analyzeProject";
 import { runGetPackageStats } from "./tools/getPackageStats";
@@ -243,6 +245,16 @@ export async function createServer(): Promise<McpServer> {
       );
     },
   );
+
+  // Static resources (scoring methodology, data-source provenance,
+  // bundled module-replacements). Lets a client quote documentation
+  // without burning a tool slot.
+  registerResources(server);
+
+  // Prompt templates (audit-this-project, compare-packages). Clients
+  // typically render these as user-invokable commands and only
+  // execute when the user accepts.
+  registerPrompts(server);
 
   return server;
 }
