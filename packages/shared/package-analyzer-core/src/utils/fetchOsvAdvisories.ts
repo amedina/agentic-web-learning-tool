@@ -80,11 +80,12 @@ function cacheKeyFor(packageName: string, version?: string): string {
 export async function fetchOsvAdvisories(
   packageName: string,
   version?: string,
+  signal?: AbortSignal,
 ): Promise<OsvAdvisoryRecord[]> {
   const key = cacheKeyFor(packageName, version);
   const cached = osvCache.get(key);
   if (cached) {
-    return cached;
+    return raceFetchWithAbort(cached, signal);
   }
   const promise = queryOsv(packageName, version).catch((error) => {
     console.warn(
@@ -95,7 +96,47 @@ export async function fetchOsvAdvisories(
     return [];
   });
   osvCache.set(key, promise);
-  return promise;
+  return raceFetchWithAbort(promise, signal);
+}
+
+/**
+ * Local race-with-abort helper for the OSV cache. Mirrors the same
+ * pattern used by `LruTtlCache`: when the signal aborts, *this caller's*
+ * await rejects but the underlying shared promise keeps running so any
+ * concurrent caller still receives the value.
+ */
+function raceFetchWithAbort<T>(
+  promise: Promise<T>,
+  signal: AbortSignal | undefined,
+): Promise<T> {
+  if (!signal) {
+    return promise;
+  }
+  if (signal.aborted) {
+    return Promise.reject(
+      (signal as { reason?: unknown }).reason ??
+        new DOMException("The operation was aborted.", "AbortError"),
+    );
+  }
+  return new Promise<T>((resolve, reject) => {
+    const onAbort = () => {
+      reject(
+        (signal as { reason?: unknown }).reason ??
+          new DOMException("The operation was aborted.", "AbortError"),
+      );
+    };
+    signal.addEventListener("abort", onAbort, { once: true });
+    promise.then(
+      (value) => {
+        signal.removeEventListener("abort", onAbort);
+        resolve(value);
+      },
+      (error) => {
+        signal.removeEventListener("abort", onAbort);
+        reject(error);
+      },
+    );
+  });
 }
 
 /**

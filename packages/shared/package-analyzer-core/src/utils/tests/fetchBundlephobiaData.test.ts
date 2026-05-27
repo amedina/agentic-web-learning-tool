@@ -23,6 +23,8 @@ describe("fetchBundlephobiaData", () => {
     const expectedQuery = encodeURIComponent("react");
     expect(fetchWithCache).toHaveBeenCalledWith(
       `https://bundlephobia.com/api/size?package=${expectedQuery}&record=true`,
+      undefined,
+      undefined,
     );
     expect(result).toEqual(mockData);
   });

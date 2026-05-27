@@ -4,10 +4,18 @@
 import { fetchWithCache } from "./fetchWithCache";
 
 /**
- * Fetch Github Repo.
+ * Fetch basic repository health indicators via ungh.cc (a GitHub
+ * mirror that lets us dodge the 60-req/hr unauthenticated REST limit).
+ *
+ * @param owner - GitHub owner / organisation.
+ * @param repo - Repository name.
+ * @param signal - Optional abort signal.
  */
-export async function fetchGithubRepo(owner: string, repo: string) {
-  // Use ungh.cc to bypass strict Github API rate limits for basic repository health indicators
+export async function fetchGithubRepo(
+  owner: string,
+  repo: string,
+  signal?: AbortSignal,
+) {
   const url = `https://ungh.cc/repos/${owner}/${repo}`;
-  return fetchWithCache(url);
+  return fetchWithCache(url, undefined, signal);
 }

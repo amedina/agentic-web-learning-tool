@@ -187,6 +187,7 @@ export function activate(context: vscode.ExtensionContext): void {
     settingsProvider: readSettings,
     lockfileResolver,
   });
+  context.subscriptions.push(runner);
 
   context.subscriptions.push(
     vscode.workspace.onDidOpenTextDocument((document) => {
@@ -213,7 +214,12 @@ export function activate(context: vscode.ExtensionContext): void {
       }
     }),
     vscode.workspace.onDidChangeTextDocument((event) => {
-      runner.clear(event.document);
+      // Debounced: a single keystroke used to call runner.clear()
+      // synchronously, blanking the Problems panel until the next save
+      // refreshed it. scheduleClear coalesces a burst of edits into one
+      // clear after the user stops typing, so squiggles no longer
+      // flicker mid-edit.
+      runner.scheduleClear(event.document);
     }),
     vscode.workspace.onDidChangeConfiguration((event) => {
       if (!event.affectsConfiguration("npmAdvisor")) {

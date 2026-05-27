@@ -22,6 +22,7 @@ import { runProjectAnalysis } from "../diagnostics/projectAnalysisRunner";
 import type { NpmAdvisorSettings } from "../diagnostics/settings";
 import type { GithubAuthService } from "../services/githubAuthService";
 import type { ExtensionMessage, WebviewRequest } from "./protocol";
+import { validateWebviewMessage } from "./validateMessage";
 
 const VERSION_KEY_FOR_WEBVIEW = "latest";
 const RATE_LIMITED_DEDUPE_KEY = "github-rate-limited";
@@ -93,8 +94,20 @@ export class WebviewBridge implements vscode.Disposable {
     this.webview = webview;
     this.isReady = false;
     this.pendingOutbound = [];
-    this.webviewSubscription = webview.onDidReceiveMessage((message) => {
-      void this.handle(message as WebviewRequest);
+    this.webviewSubscription = webview.onDidReceiveMessage((raw) => {
+      const workspace = {
+        folders: (vscode.workspace.workspaceFolders ?? []).map(
+          (folder) => folder.uri.fsPath,
+        ),
+      };
+      const validation = validateWebviewMessage(raw, workspace);
+      if (!validation.ok) {
+        console.warn(
+          `[NPM Advisor] Dropping webview message: ${validation.reason}`,
+        );
+        return;
+      }
+      void this.handle(validation.message);
     });
     return this.webviewSubscription;
   }

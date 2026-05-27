@@ -3,7 +3,6 @@
  */
 import React, { useState, useEffect } from "react";
 import { User, Clock, Download, Plus, Check, Loader2 } from "lucide-react";
-import { calculateScore } from "@agentic-web-labs/package-analyzer-core";
 
 /**
  * Internal dependencies
@@ -33,7 +32,9 @@ export const ResultCard: React.FC<ResultCardProps> = ({ hit, query }) => {
 
         if (exists) {
           setIsAdded(true);
-          setAdvisorScore(calculateScore(exists));
+          setAdvisorScore(
+            typeof exists.score === "number" ? exists.score : null,
+          );
         } else {
           setIsAdded(false);
           setAdvisorScore(null);

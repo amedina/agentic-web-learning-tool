@@ -3,7 +3,6 @@
  */
 import React, { useState, useEffect, useMemo } from "react";
 import { Award, Trash2, X } from "lucide-react";
-import { calculateScore } from "@agentic-web-labs/package-analyzer-core";
 
 interface SidepanelComparisonTableProps {
   onClear?: () => void;
@@ -36,7 +35,7 @@ export const SidepanelComparisonTable: React.FC<
     let bestScore = -Infinity;
     let winner: string | null = null;
     comparisonBucket.forEach((pkg) => {
-      const score = calculateScore(pkg);
+      const score = pkg.score ?? null;
       if (score > bestScore) {
         bestScore = score;
         winner = pkg.packageName;
@@ -65,7 +64,7 @@ export const SidepanelComparisonTable: React.FC<
         label: "Advisor Score",
         render: (pkg) => (
           <span className="font-bold text-[#c94137] text-base">
-            {calculateScore(pkg)}
+            {pkg.score ?? null}
           </span>
         ),
       },

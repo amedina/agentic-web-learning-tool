@@ -25,6 +25,7 @@ export const SearchBar: React.FC = () => {
   const [isFetchingMore, setIsFetchingMore] = useState(false);
   const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
   const [isInputFocused, setIsInputFocused] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<{
     label: string;
     key: string;
@@ -57,6 +58,7 @@ export const SearchBar: React.FC = () => {
     (targetPage: number) => {
       if (targetPage === 0) {
         setIsFetching(true);
+        setSearchError(null);
       } else {
         setIsFetchingMore(true);
       }
@@ -70,20 +72,56 @@ export const SearchBar: React.FC = () => {
           facetFilters: activeFilter ? [`${activeFilter.key}:${query}`] : [],
         },
         (response) => {
-          void chrome.runtime.lastError;
+          // chrome.runtime.lastError is set when the message port closed
+          // before the worker could reply — typically because the service
+          // worker crashed or was suspended mid-request. Read it before
+          // touching the response so we don't trigger the "Unchecked
+          // runtime.lastError" warning, and so we can surface the real
+          // reason to the user instead of just leaving them with an
+          // empty dropdown.
+          const portError = chrome.runtime.lastError;
           setIsFetching(false);
           setIsFetchingMore(false);
 
-          if (response && response.success) {
-            if (targetPage === 0) {
-              setHits(response.hits);
-              setActiveIndex(-1);
-            } else {
-              setHits((prev) => [...prev, ...response.hits]);
-            }
-            setNbPages(response.nbPages);
+          if (portError) {
+            console.warn(
+              "[NPM Advisor] Search message port closed before a reply arrived:",
+              portError.message,
+            );
+            setSearchError(
+              "Couldn't reach the npm-advisor background worker. Try again in a moment.",
+            );
+            setHits([]);
             setIsVisible(true);
+            return;
           }
+
+          if (!response || typeof response !== "object") {
+            setSearchError("Search request returned no response.");
+            setHits([]);
+            setIsVisible(true);
+            return;
+          }
+
+          if (!response.success) {
+            setSearchError(
+              typeof response.error === "string" && response.error.length > 0
+                ? response.error
+                : "Search failed.",
+            );
+            setHits([]);
+            setIsVisible(true);
+            return;
+          }
+
+          if (targetPage === 0) {
+            setHits(response.hits);
+            setActiveIndex(-1);
+          } else {
+            setHits((prev) => [...prev, ...response.hits]);
+          }
+          setNbPages(response.nbPages);
+          setIsVisible(true);
         },
       );
     },
@@ -97,6 +135,7 @@ export const SearchBar: React.FC = () => {
       setIsVisible(false);
       setPage(0);
       setNbPages(0);
+      setSearchError(null);
       return;
     }
 
@@ -288,6 +327,15 @@ export const SearchBar: React.FC = () => {
               ×
             </button>
           </div>
+        </div>
+      )}
+
+      {isVisible && searchError && hits.length === 0 && (
+        <div
+          role="alert"
+          className="absolute top-full left-0 right-0 mt-0.5 bg-white dark:bg-zinc-900 border-x border-b border-red-200 dark:border-red-900 shadow-2xl z-9999 p-3 text-xs text-red-700 dark:text-red-300"
+        >
+          {searchError}
         </div>
       )}
 

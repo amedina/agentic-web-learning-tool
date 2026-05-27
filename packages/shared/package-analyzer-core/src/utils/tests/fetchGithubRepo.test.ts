@@ -22,6 +22,8 @@ describe("fetchGithubRepo", () => {
 
     expect(fetchWithCache).toHaveBeenCalledWith(
       "https://ungh.cc/repos/facebook/react",
+      undefined,
+      undefined,
     );
     expect(result).toEqual(mockData);
   });

@@ -22,6 +22,8 @@ describe("fetchModuleReplacements", () => {
 
     expect(fetchWithCache).toHaveBeenCalledWith(
       "https://raw.githubusercontent.com/es-tooling/module-replacements/main/manifests/native.json",
+      undefined,
+      undefined,
     );
     expect(result).toEqual(mockData);
   });

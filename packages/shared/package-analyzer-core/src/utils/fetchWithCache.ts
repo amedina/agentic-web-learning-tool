@@ -1,30 +1,57 @@
-// Simple in-memory cache
-const cache = new Map<string, any>();
+/**
+ * Internal dependencies.
+ */
+import { LruTtlCache } from "./lruCache";
 
 /**
- * Fetch With Cache.
+ * Process-wide cache backing every analyzer-core fetch. Bounded so a
+ * long-lived host (Chrome service worker, MCP HTTP server) can't grow
+ * the cache unbounded, expired entries are re-fetched on next read,
+ * and concurrent identical requests share one network round-trip
+ * (single-flight).
  */
-export async function fetchWithCache(url: string, options?: RequestInit) {
-  if (cache.has(url)) {
-    return cache.get(url);
-  }
+const cache = new LruTtlCache<unknown>();
 
-  const response = await fetch(url, options);
-  if (!response.ok) {
-    if (response.status === 404) {
-      return null;
-    }
-    throw new Error(`Failed to fetch ${url}: ${response.statusText}`);
-  }
-
-  const data = await response.json();
-  cache.set(url, data);
-  return data;
+/**
+ * Fetch a URL and cache the result. Subsequent reads of the same URL
+ * within the cache's TTL return the cached value without a network
+ * round-trip. Concurrent reads of the same URL share one in-flight
+ * promise.
+ *
+ * @param url - Absolute URL to fetch.
+ * @param options - Optional fetch init; forwarded as-is.
+ * @param signal - Optional {@link AbortSignal}. When the signal aborts,
+ *   *this caller's* await rejects with the signal's reason; the shared
+ *   underlying fetch keeps running so concurrent callers waiting on
+ *   the same key still receive the value.
+ * @returns The parsed JSON body, or `null` for a 404 response.
+ * @throws On any other non-OK response.
+ */
+export async function fetchWithCache(
+  url: string,
+  options?: RequestInit,
+  signal?: AbortSignal,
+): Promise<unknown> {
+  return cache.getOrFetch(
+    url,
+    async () => {
+      const response = await fetch(url, options);
+      if (!response.ok) {
+        if (response.status === 404) {
+          return null;
+        }
+        throw new Error(`Failed to fetch ${url}: ${response.statusText}`);
+      }
+      return await response.json();
+    },
+    signal,
+  );
 }
 
 /**
- * Clear Cache.
+ * Drop every cached response. Used by the manual refresh path so the
+ * next read forces a fresh network fetch.
  */
-export function clearCache() {
+export function clearCache(): void {
   cache.clear();
 }

@@ -3,7 +3,6 @@
  */
 import { useEffect, useState, useMemo } from "react";
 import { OptionsPageTab } from "@agentic-web-labs/design-system";
-import { calculateScore } from "@agentic-web-labs/package-analyzer-core";
 
 /**
  * Internal dependencies
@@ -37,7 +36,7 @@ export default function ComparisonPage() {
     let bestScore = -Infinity;
     let winner = null;
     comparisonBucket.forEach((pkg) => {
-      const score = calculateScore(pkg);
+      const score = pkg.score ?? null;
       if (score > bestScore) {
         bestScore = score;
         winner = pkg.packageName;

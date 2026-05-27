@@ -23,6 +23,7 @@ describe("fetchGithubIssues", () => {
 
     expect(githubFetch).toHaveBeenCalledWith(
       "https://api.github.com/search/issues?q=repo:facebook/react%20is:issue&per_page=100",
+      undefined,
     );
     expect(result).toEqual({ items: [], openTotalCount: 0 });
   });
