@@ -19,15 +19,15 @@ import { z } from "zod";
  */
 import { parseCliArgs } from "./lib/parseCliArgs";
 import { runTool } from "./lib/toolRunner";
+import { registerPrompts } from "./prompts";
+import { registerResources } from "./resources";
 import { runAnalyzePackageJson } from "./tools/analyzePackageJson";
 import { runAnalyzeProject } from "./tools/analyzeProject";
 import { runGetPackageStats } from "./tools/getPackageStats";
 import { runListKnownProjects } from "./tools/listKnownProjects";
 import { runListWorkspaceDependencies } from "./tools/listWorkspaceDependencies";
 import { startHttpServer } from "./transports/httpTransport";
-
-const SERVER_NAME = "npm-advisor";
-const SERVER_VERSION = "0.1.0";
+import { SERVER_NAME, SERVER_VERSION } from "./version";
 
 /**
  * Wires analyzer-core's githubFetch to a $GITHUB_TOKEN env var when
@@ -245,6 +245,16 @@ export async function createServer(): Promise<McpServer> {
       );
     },
   );
+
+  // Static resources (scoring methodology, data-source provenance,
+  // bundled module-replacements). Lets a client quote documentation
+  // without burning a tool slot.
+  registerResources(server);
+
+  // Prompt templates (audit-this-project, compare-packages). Clients
+  // typically render these as user-invokable commands and only
+  // execute when the user accepts.
+  registerPrompts(server);
 
   return server;
 }

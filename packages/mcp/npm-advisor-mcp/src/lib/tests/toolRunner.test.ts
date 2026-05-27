@@ -36,11 +36,40 @@ describe("runTool", () => {
     expect(text).toContain("https://api.github.com/repos/foo/bar");
   });
 
-  it("rethrows non-rate-limit errors so the MCP SDK can surface them", async () => {
-    await expect(
-      runTool(async () => {
-        throw new Error("boom");
-      }),
-    ).rejects.toThrow("boom");
+  it("returns generic errors as isError content instead of rethrowing", async () => {
+    const result = await runTool(async () => {
+      throw new Error("boom");
+    });
+    expect(result.isError).toBe(true);
+    expect(result.content).toHaveLength(1);
+    const payload = JSON.parse(result.content[0].text);
+    expect(payload).toMatchObject({ error: "boom", name: "Error" });
+  });
+
+  it("includes a recognised error.code (e.g. ENOENT) in the payload", async () => {
+    const result = await runTool(async () => {
+      const err = new Error("no such file") as Error & { code: string };
+      err.code = "ENOENT";
+      throw err;
+    });
+    expect(result.isError).toBe(true);
+    const payload = JSON.parse(result.content[0].text);
+    expect(payload).toMatchObject({
+      error: "no such file",
+      name: "Error",
+      code: "ENOENT",
+    });
+  });
+
+  it("falls back to a generic message for non-Error throws", async () => {
+    const result = await runTool(async () => {
+      throw "raw string failure";
+    });
+    expect(result.isError).toBe(true);
+    const payload = JSON.parse(result.content[0].text);
+    expect(payload).toMatchObject({
+      error: "raw string failure",
+      name: "Error",
+    });
   });
 });
