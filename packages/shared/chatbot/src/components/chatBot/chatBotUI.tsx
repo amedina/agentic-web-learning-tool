@@ -26,6 +26,7 @@ import {
   SidebarInset,
   ThreadListSidebar,
 } from '@agentic-web-labs/design-system';
+import { logger } from '@agentic-web-labs/common';
 /**
  * Internal dependencies
  */
@@ -94,7 +95,18 @@ const ChatBotUI = ({ runtime }: ChatBotUIProps) => {
     // Service Worker, and client.listTools() performs the actual "Refresh" to get the new data.
     transport.onmessage = async (message: JSONRPCMessage) => {
       if ('method' in message && message.method === 'get/Tools') {
-        await client.listTools();
+        try {
+          await client.listTools();
+        } catch (error) {
+          // Swallow transport-closed races (e.g. MCP error -32000) that fire
+          // when a tab teardown closes the transport mid-request. Other
+          // failures are logged for visibility but not rethrown — this is a
+          // background sync, not a user-initiated action.
+          logger(
+            ['debug'],
+            [`[chatBotUI] listTools refresh after get/Tools failed:`, error]
+          );
+        }
       }
     };
   }, [client]);
