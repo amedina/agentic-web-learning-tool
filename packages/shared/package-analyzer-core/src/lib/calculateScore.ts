@@ -1,26 +1,23 @@
 /**
- * Calculate Score.
+ * Return the precomputed fitness score for a package, or `null` when no
+ * score has been computed yet.
+ *
+ * This used to fall back to an alternative inline scoring formula
+ * whenever `pkg.score` was missing. That fallback diverged from the
+ * canonical score `getPackageStats` produces (different bundle-size
+ * thresholds, different weights, the inclusion of replacement
+ * availability as a positive signal), so two views rendering the same
+ * package could disagree on the number. The function is now a thin
+ * accessor — callers decide how to render a missing score (typically
+ * `—` or omit the column).
+ *
+ * @param pkg - Anything that may carry a `score` field. In practice
+ *   either a fully-fetched {@link PackageStats} or a partially-hydrated
+ *   entry from the comparison bucket / search results.
+ * @returns The numeric score when present; otherwise `null`.
  */
-export const calculateScore = (pkg: any) => {
-  if (pkg.score !== undefined && pkg.score !== null) return pkg.score;
-  let score = 0;
-  const gzip = pkg.bundle?.gzip || Infinity;
-  if (gzip < 50000) score += 10;
-  if (gzip < 10000) score += 20;
-
-  const deps = pkg.dependencyTree
-    ? Object.keys(pkg.dependencyTree.dependencies || {}).length
-    : 0;
-  if (deps === 0) score += 30;
-  else if (deps < 5) score += 15;
-
-  const recs = pkg.recommendations;
-  if (
-    recs &&
-    (recs.nativeReplacements?.length > 0 ||
-      recs.preferredReplacements?.length > 0)
-  ) {
-    score += 25;
-  }
-  return score;
-};
+export function calculateScore(
+  pkg: { score?: number | null } | null | undefined,
+): number | null {
+  return typeof pkg?.score === "number" ? pkg.score : null;
+}
