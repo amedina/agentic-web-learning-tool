@@ -1225,10 +1225,23 @@ importers:
         version: 5.9.3
 
   packages/shared/package-analyzer-core:
+    dependencies:
+      js-yaml:
+        specifier: ^4.1.1
+        version: 4.1.1
+      semver:
+        specifier: ^7.7.4
+        version: 7.7.4
     devDependencies:
       '@agentic-web-labs/shared-config':
         specifier: workspace:*
         version: link:../shared-config
+      '@types/js-yaml':
+        specifier: ^4.0.9
+        version: 4.0.9
+      '@types/semver':
+        specifier: ^7.5.8
+        version: 7.7.1
       typescript:
         specifier: ~5.8.3
         version: 5.8.3
@@ -4404,6 +4417,9 @@ packages:
   '@types/jest@29.5.14':
     resolution: {integrity: sha512-ZN+4sdnLUbo8EVvVc2ao0GFW6oVrQRPn4K2lglySj7APvSrgzxHiNNK99us4WDMi57xxA2yggblIAMNhXOotLQ==}
 
+  '@types/js-yaml@4.0.9':
+    resolution: {integrity: sha512-k4MGaQl5TGo/iipqb2UDG2UwjXziSWkh0uysQelTlJpX1qGlpUZYm8PnO4DxG1qBomtJUdYJ6qR6xdIah10JLg==}
+
   '@types/jsdom@20.0.1':
     resolution: {integrity: sha512-d0r18sZPmMQr1eG35u12FZfhIXNrnsPU/g5wvRKCUf/tOGilKKwYMYGqh33BNR6ba+2gkHw1EUiHoN3mn7E5IQ==}
 
@@ -4456,6 +4472,9 @@ packages:
 
   '@types/sarif@2.1.7':
     resolution: {integrity: sha512-kRz0VEkJqWLf1LLVN4pT1cg1Z9wAuvI6L97V3m2f5B76Tg8d413ddvLBPTEHAZJlnn4XSvu0FkZtViCQGVyrXQ==}
+
+  '@types/semver@7.7.1':
+    resolution: {integrity: sha512-FmgJfu+MOcQ370SD0ev7EI8TlCAfKYU+B4m5T3yXc1CiRN94g/SZPtsCkk506aUDtlMnFZvasDwHHUcZUEaYuA==}
 
   '@types/serve-handler@6.1.4':
     resolution: {integrity: sha512-aXy58tNie0NkuSCY291xUxl0X+kGYy986l4kqW6Gi4kEXgr6Tx0fpSH7YwUSa5usPpG3s9DBeIR6hHcDtL2IvQ==}
@@ -12501,6 +12520,8 @@ snapshots:
       expect: 29.7.0
       pretty-format: 29.7.0
 
+  '@types/js-yaml@4.0.9': {}
+
   '@types/jsdom@20.0.1':
     dependencies:
       '@types/node': 24.12.0
@@ -12552,6 +12573,8 @@ snapshots:
   '@types/resolve@1.20.6': {}
 
   '@types/sarif@2.1.7': {}
+
+  '@types/semver@7.7.1': {}
 
   '@types/serve-handler@6.1.4':
     dependencies:

@@ -8,3 +8,4 @@ export * from "./fetchModuleReplacements";
 export * from "./parseGithubUrl";
 export * from "./extractGithubUrlFromReadme";
 export * from "./githubFetch";
+export * from "./parseLockfile";
