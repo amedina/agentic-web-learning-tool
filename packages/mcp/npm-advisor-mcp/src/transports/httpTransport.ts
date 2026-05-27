@@ -17,11 +17,27 @@ import {
 } from "./requestRouter";
 import {
   closeAllSessions,
+  createSessionReaper,
   type McpServerFactory,
   type Session,
 } from "./sessionRegistry";
 
 export type { McpServerFactory } from "./sessionRegistry";
+
+/**
+ * Default idle window after which an abandoned session is evicted by
+ * the reaper. 30 minutes balances "kill leaked sessions before they
+ * matter" against "don't kill a conversation while the user is reading
+ * the last reply".
+ */
+const DEFAULT_IDLE_TTL_MS = 30 * 60 * 1000;
+
+/**
+ * Default cadence on which the reaper scans the session map. 60 seconds
+ * is short enough that a leak is bounded but long enough that the scan
+ * cost is irrelevant.
+ */
+const DEFAULT_REAP_INTERVAL_MS = 60 * 1000;
 
 /**
  * MCP Streamable HTTP — request lifecycle for ONE client.
@@ -69,6 +85,17 @@ export type HttpServerOptions = {
   createMcpServer: McpServerFactory;
   /** Optional bearer token. If set, every request must include `Authorization: Bearer <token>`. */
   authToken?: string;
+  /**
+   * Idle window after which the session reaper evicts an abandoned
+   * session. Defaults to 30 minutes; expose only when a deployment
+   * needs to tune it (e.g. CI runs where 30 minutes is forever).
+   */
+  idleTtlMs?: number;
+  /**
+   * How often the reaper scans the session map. Defaults to 60 seconds.
+   * Mostly useful for tests that want to drive a tighter schedule.
+   */
+  reapIntervalMs?: number;
 };
 
 /**
@@ -94,6 +121,11 @@ export async function startHttpServer(
   options: HttpServerOptions,
 ): Promise<RunningHttpServer> {
   const sessions = new Map<string, Session>();
+  const reaper = createSessionReaper(sessions, {
+    idleTtlMs: options.idleTtlMs ?? DEFAULT_IDLE_TTL_MS,
+    reapIntervalMs: options.reapIntervalMs ?? DEFAULT_REAP_INTERVAL_MS,
+  });
+  reaper.start();
 
   const httpServer = createHttpServer((request, response) => {
     void handleRequest(request, response, {
@@ -148,6 +180,7 @@ export async function startHttpServer(
     httpServer,
     port: boundPort,
     close: async () => {
+      reaper.stop();
       await closeAllSessions(sessions);
       await new Promise<void>((resolve, reject) => {
         httpServer.close((error) => {

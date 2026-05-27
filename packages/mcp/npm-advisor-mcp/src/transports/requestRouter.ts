@@ -10,6 +10,7 @@ import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
 import { isAuthorized } from "./bearerAuth";
 import {
   createSession,
+  touchSession,
   type McpServerFactory,
   type Session,
 } from "./sessionRegistry";
@@ -94,6 +95,7 @@ export async function handleRequest(
       sendJson(response, 400, { error: "Missing or unknown mcp-session-id" });
       return;
     }
+    touchSession(session);
     await session.transport.handleRequest(request, response);
     return;
   }
@@ -123,6 +125,7 @@ async function handlePost(
       sendJson(response, 404, { error: "Unknown mcp-session-id" });
       return;
     }
+    touchSession(existing);
     await existing.transport.handleRequest(request, response, body);
     return;
   }
