@@ -70,6 +70,7 @@ export const SearchBar: React.FC = () => {
           facetFilters: activeFilter ? [`${activeFilter.key}:${query}`] : [],
         },
         (response) => {
+          void chrome.runtime.lastError;
           setIsFetching(false);
           setIsFetchingMore(false);
 
