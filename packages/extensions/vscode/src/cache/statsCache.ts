@@ -53,7 +53,7 @@ export interface StatsCacheOptions {
 
 export interface StatsCacheDeps {
   storage: vscode.Memento;
-  fetcher: (name: string) => Promise<PackageStats | null>;
+  fetcher: (name: string, version: string) => Promise<PackageStats | null>;
   options?: StatsCacheOptions;
 }
 
@@ -65,7 +65,10 @@ export interface StatsCacheDeps {
  */
 export class StatsCache {
   private readonly storage: vscode.Memento;
-  private readonly fetcher: (name: string) => Promise<PackageStats | null>;
+  private readonly fetcher: (
+    name: string,
+    version: string,
+  ) => Promise<PackageStats | null>;
   private readonly ttlMs: number;
   private readonly failureTtlMs: number;
   private readonly clock: () => number;
@@ -182,7 +185,7 @@ export class StatsCache {
   ): Promise<PackageStats | null> {
     let stats: PackageStats | null = null;
     try {
-      stats = await this.fetcher(name);
+      stats = await this.fetcher(name, version);
     } catch {
       stats = null;
     }

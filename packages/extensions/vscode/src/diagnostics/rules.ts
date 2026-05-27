@@ -169,12 +169,28 @@ function buildAdvisoryDiagnostic(
     .join(", ");
   const diagnostic = new vscode.Diagnostic(
     dependency.nameRange,
-    `${dependency.name} has security advisories: ${summary}.`,
+    `${dependency.name} has security advisories: ${summary}. ${formatResolutionContext(stats)}`,
     vscode.DiagnosticSeverity.Error,
   );
   diagnostic.source = "npm-advisor";
   diagnostic.code = "security-advisory";
   return diagnostic;
+}
+
+/**
+ * Render a short suffix that tells the user which version the advisories
+ * apply to and how that version was determined. Surfaced in the
+ * diagnostic message so anyone reading the Problems panel can tell
+ * whether the verdict reflects their lockfile or the latest release.
+ */
+function formatResolutionContext(stats: PackageStats): string {
+  if (stats.versionResolution === "lockfile" && stats.consideredVersion) {
+    return `(installed ${stats.consideredVersion}).`;
+  }
+  if (stats.consideredVersion) {
+    return `(no lockfile, showing latest ${stats.consideredVersion}).`;
+  }
+  return "(no lockfile, showing latest).";
 }
 
 /**

@@ -39,6 +39,7 @@ import { GithubAuthService } from "./services/githubAuthService";
 import { RecentProjectsTracker } from "./services/recentProjectsTracker";
 import { WebviewBridge } from "./webview/bridge";
 import { ActivePackageJsonTracker } from "./workspace/activePackageJsonTracker";
+import { LockfileResolver } from "./workspace/lockfileResolver";
 import { PackageJsonScanner } from "./workspace/packageJsonScanner";
 
 const PACKAGE_JSON_SELECTOR: vscode.DocumentFilter[] = [
@@ -76,13 +77,24 @@ export function activate(context: vscode.ExtensionContext): void {
   const ONE_DAY_MS = 24 * 60 * 60 * 1000;
   const cache = new StatsCache({
     storage: context.globalState,
-    fetcher: (name) =>
-      getPackageStats(name, readSettings().targetLicense, {
+    fetcher: (name, version) => {
+      // The cache key is either a resolved semver (when callers looked
+      // up the installed version from a lockfile) or a non-semver
+      // sentinel like "*" / a package.json range. We only pass it down
+      // as `resolvedVersion` when it's clean semver; otherwise let
+      // analyzer-core fall back to `dist-tags.latest`.
+      const resolvedVersion = isCleanSemver(version) ? version : undefined;
+      return getPackageStats(name, readSettings().targetLicense, {
         includeDependencyTree: false,
-      }),
+        resolvedVersion,
+      });
+    },
     options: { ttlMs: ONE_DAY_MS, failureTtlMs: ONE_DAY_MS },
   });
   context.subscriptions.push(cache);
+
+  const lockfileResolver = new LockfileResolver();
+  context.subscriptions.push(lockfileResolver);
 
   const projectAnalysisCollection = vscode.languages.createDiagnosticCollection(
     "npm-advisor-project",
@@ -122,7 +134,11 @@ export function activate(context: vscode.ExtensionContext): void {
     scanner.onDidChange(() => webviewProvider.refresh()),
   );
 
-  const hoverProvider = new PackageJsonHoverProvider(cache, readSettings);
+  const hoverProvider = new PackageJsonHoverProvider(
+    cache,
+    readSettings,
+    lockfileResolver,
+  );
   context.subscriptions.push(
     vscode.languages.registerHoverProvider(
       PACKAGE_JSON_SELECTOR,
@@ -169,6 +185,7 @@ export function activate(context: vscode.ExtensionContext): void {
     cache,
     collection: diagnosticCollection,
     settingsProvider: readSettings,
+    lockfileResolver,
   });
 
   context.subscriptions.push(
@@ -216,6 +233,13 @@ export function activate(context: vscode.ExtensionContext): void {
     githubAuth.onDidChange(() => {
       void cache.clearAll();
     }),
+    // A changed lockfile means previously cached resolutions are stale.
+    // Refresh diagnostics and the side panel so the new install state
+    // shows up without the user having to clear the cache.
+    lockfileResolver.onDidChange(() => {
+      void runner.refreshOpenPackageJsons();
+      webviewProvider.forceRefresh();
+    }),
   );
 
   // Seed diagnostics for any package.json the user already has open.
@@ -236,6 +260,16 @@ function isPackageJsonDocument(document: vscode.TextDocument): boolean {
     return false;
   }
   return document.uri.path.endsWith("/package.json");
+}
+
+/**
+ * Test whether a string is a clean semver version (e.g. `4.17.20`) — not
+ * a range like `^4.17.0`, a wildcard, a tag like `latest`, or a sentinel
+ * like the webview's `*`. Only clean semver flows into analyzer-core's
+ * `resolvedVersion` option; everything else triggers the latest fallback.
+ */
+function isCleanSemver(version: string): boolean {
+  return /^\d+\.\d+\.\d+(?:[-+][\w.+-]+)?$/.test(version);
 }
 
 /**

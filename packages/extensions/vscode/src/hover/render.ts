@@ -6,6 +6,19 @@ import type { PackageStats } from "@agentic-web-labs/package-analyzer-core";
 export interface RenderHoverOptions {
   targetLicense?: string;
   now?: () => Date;
+  /**
+   * The range string as it appears in package.json — `^4.17.0`, `~1.2.3`,
+   * `*`, a git URL, etc. Shown alongside the installed and latest version
+   * when the hover wants to highlight install/range drift.
+   */
+  declaredRange?: string;
+  /**
+   * The resolved version from the user's lockfile, when known. When set,
+   * the hover renders the installed/range/latest triplet and marks the
+   * data as lockfile-grounded; when omitted, a small "no lockfile —
+   * showing latest" footer is rendered instead.
+   */
+  installedVersion?: string;
 }
 
 /**
@@ -68,9 +81,7 @@ export function renderHover(
     detailLines.push(licenseLine);
   }
 
-  if (stats.latestVersion) {
-    detailLines.push(`- **Latest version:** ${stats.latestVersion}`);
-  }
+  detailLines.push(...buildVersionLines(stats, options));
 
   if (detailLines.length > 0) {
     lines.push("");
@@ -88,6 +99,48 @@ export function renderHover(
   lines.push(linkParts.join(" · "));
 
   return lines.join("\n");
+}
+
+/**
+ * Build the version detail lines for the hover popover. Renders three
+ * pieces of information that frequently diverge — what the lockfile
+ * installed, what the package.json range asks for, what the registry
+ * currently publishes — and a footer explaining when one of those is
+ * absent. Always shows at least `Latest version: X` when the registry
+ * data is available.
+ */
+function buildVersionLines(
+  stats: PackageStats,
+  options: RenderHoverOptions,
+): string[] {
+  const lines: string[] = [];
+  const declaredRange = options.declaredRange;
+  const installed = options.installedVersion;
+  const latest = stats.latestVersion;
+  const isLockfileGrounded =
+    !!installed && stats.versionResolution === "lockfile";
+
+  if (isLockfileGrounded) {
+    lines.push(`- **Installed:** ${installed}`);
+    if (declaredRange && declaredRange !== installed) {
+      lines.push(`- **Range:** ${declaredRange}`);
+    }
+    if (latest && latest !== installed) {
+      lines.push(`- **Latest version:** ${latest}`);
+    }
+    return lines;
+  }
+
+  if (declaredRange) {
+    lines.push(`- **Range:** ${declaredRange}`);
+  }
+  if (latest) {
+    lines.push(`- **Latest version:** ${latest}`);
+  }
+  if (!installed && (declaredRange || latest)) {
+    lines.push(`- _No lockfile found — showing latest._`);
+  }
+  return lines;
 }
 
 /**

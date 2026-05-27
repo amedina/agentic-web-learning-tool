@@ -10,11 +10,13 @@ import type { StatsCache } from "../cache/statsCache";
 import { parseDependencies } from "../packageJson/parse";
 import { evaluateDiagnostics } from "./rules";
 import type { NpmAdvisorSettings } from "./settings";
+import type { LockfileResolver } from "../workspace/lockfileResolver";
 
 export interface DiagnosticsRunnerDeps {
   cache: StatsCache;
   collection: vscode.DiagnosticCollection;
   settingsProvider: () => NpmAdvisorSettings;
+  lockfileResolver: LockfileResolver;
 }
 
 /**
@@ -27,15 +29,19 @@ export class DiagnosticsRunner {
   private readonly cache: StatsCache;
   private readonly collection: vscode.DiagnosticCollection;
   private readonly settingsProvider: () => NpmAdvisorSettings;
+  private readonly lockfileResolver: LockfileResolver;
 
   /**
-   * Stores the cache, target collection, and settings reader the
-   * runner will use on every refresh.
+   * Stores the cache, target collection, settings reader, and lockfile
+   * resolver the runner will use on every refresh. The lockfile resolver
+   * supplies the installed version per dep so the cache key (and the
+   * underlying stats fetch) matches what the user actually has on disk.
    */
   constructor(deps: DiagnosticsRunnerDeps) {
     this.cache = deps.cache;
     this.collection = deps.collection;
     this.settingsProvider = deps.settingsProvider;
+    this.lockfileResolver = deps.lockfileResolver;
   }
 
   /**
@@ -57,7 +63,12 @@ export class DiagnosticsRunner {
     const diagnostics: vscode.Diagnostic[] = [];
     const results = await Promise.all(
       dependencies.map(async (dependency) => {
-        const stats = await this.cache.get(dependency.name, dependency.version);
+        const installedVersion = await this.lockfileResolver.resolveVersion(
+          document.uri,
+          dependency.name,
+        );
+        const cacheVersion = installedVersion ?? dependency.version;
+        const stats = await this.cache.get(dependency.name, cacheVersion);
         return { dependency, stats };
       }),
     );
