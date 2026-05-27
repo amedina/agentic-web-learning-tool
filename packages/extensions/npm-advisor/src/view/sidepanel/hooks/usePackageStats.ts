@@ -514,6 +514,7 @@ export const usePackageStats = () => {
       chrome.runtime.sendMessage(
         { type: "GET_STATS", packageName },
         (response) => {
+          void chrome.runtime.lastError;
           setAddingRecommendations((prev) => {
             const next = new Set(prev);
             next.delete(packageName);
