@@ -1,6 +1,6 @@
 {
   "name": "NPM Advisor",
-  "description": "Evaluate npm packages instantly — advisor score, bundle size, security, dependencies, and AI chat on npmjs.com and GitHub.",
+  "description": "Side panel with package insights and an AI chat for npmjs.com and GitHub.",
   "version": "0.3.0",
   "manifest_version": 3,
   "action": {
