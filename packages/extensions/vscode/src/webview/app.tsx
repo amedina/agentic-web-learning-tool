@@ -7,6 +7,7 @@ import type { PackageStats } from "@agentic-web-labs/package-analyzer-core";
 import {
   DependenciesTab,
   StatsClientProvider,
+  clearDependencyStatsCache,
   type StatsClient,
 } from "@agentic-web-labs/package-analyzer-ui";
 
@@ -87,6 +88,11 @@ export const App: FC<AppProps> = ({
   const noopAddRef = useRef<(name: string) => void>(() => undefined);
   const onReadyRef = useRef(onReady);
   onReadyRef.current = onReady;
+  // Tracks the refreshKey from the previous init so we can detect a host-side
+  // cache wipe and drop useDependencyStats's module-level cache before the
+  // key-bumped DependenciesTab remounts. Without this, the remount re-seeds
+  // each row from the stale cache and the refresh appears to do nothing.
+  const lastRefreshKeyRef = useRef<number | null>(null);
 
   useEffect(() => {
     const handle = (event: MessageEvent): void => {
@@ -95,11 +101,19 @@ export const App: FC<AppProps> = ({
         return;
       }
       if (data.type === "init") {
+        const incomingRefreshKey = data.refreshKey ?? 0;
+        if (
+          lastRefreshKeyRef.current !== null &&
+          lastRefreshKeyRef.current !== incomingRefreshKey
+        ) {
+          clearDependencyStatsCache();
+        }
+        lastRefreshKeyRef.current = incomingRefreshKey;
         setInitState({
           activeFile: data.activeFile,
           availableFiles: data.availableFiles,
           packageJsonDependencies: data.packageJsonDependencies,
-          refreshKey: data.refreshKey ?? 0,
+          refreshKey: incomingRefreshKey,
           prefetchedStats: data.prefetchedStats ?? {},
         });
         // Sync focus to whatever the host sent — including null. A plain
