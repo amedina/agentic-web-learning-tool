@@ -6,6 +6,7 @@ import type { JSONRPCMessage } from '@modelcontextprotocol/sdk/types.js';
 import { useEffect, useRef, useState } from 'react';
 import { useMcpClient } from '@mcp-b/react-webmcp';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { logger } from '@agentic-web-labs/common';
 /**
  * Internal dependencies.
  */
@@ -22,7 +23,20 @@ export const Layout = () => {
     // Service Worker, and client.listTools() performs the actual "Refresh" to get the new data.
     transport.onmessage = async (message: JSONRPCMessage) => {
       if ('method' in message && message.method === 'get/Tools') {
-        await client.listTools();
+        try {
+          await client.listTools();
+        } catch (error) {
+          // Swallow transport-closed races (MCP error -32000) that fire
+          // when devtools is detaching mid-request. Background sync —
+          // benign to drop a single refresh.
+          logger(
+            ['debug'],
+            [
+              `[devtools/Layout] listTools refresh after get/Tools failed:`,
+              error,
+            ]
+          );
+        }
       }
     };
   }, [client]);
