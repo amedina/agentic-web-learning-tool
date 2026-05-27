@@ -1,0 +1,37 @@
+lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+importers:
+
+  .:
+    dependencies:
+      react:
+        specifier: ^18.0.0
+        version: 18.2.0
+      '@scope/util':
+        specifier: ^1.0.0
+        version: 1.2.3
+      from-git:
+        specifier: git+ssh://git@github.com/example/from-git.git
+        version: github.com/example/from-git/abc123
+    devDependencies:
+      vitest:
+        specifier: ^3.0.0
+        version: 3.2.4
+
+packages:
+
+  react@18.2.0:
+    resolution: {integrity: sha512-deadbeef}
+
+  loose-envify@1.4.0:
+    resolution: {integrity: sha512-deadbeef}
+
+  '@scope/util@1.2.3':
+    resolution: {integrity: sha512-deadbeef}
+
+  vitest@3.2.4:
+    resolution: {integrity: sha512-deadbeef}

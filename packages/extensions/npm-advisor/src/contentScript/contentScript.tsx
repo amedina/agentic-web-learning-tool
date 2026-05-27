@@ -8,6 +8,7 @@ import { createRoot } from "react-dom/client";
  */
 import { SearchBar } from "./views/searchBar";
 import { SearchResults } from "./views/searchResults";
+import { fetchRepoLockfile, parseGithubBlobUrl } from "./githubLockfile";
 
 // Vite inlines the Tailwind CSS as a string so it can be injected into the Shadow DOM
 import contentStyles from "./contentScript.css?inline";
@@ -52,6 +53,13 @@ const npmAdvisor = {
   async run() {
     const url = window.location.href;
     let packageName: string | null = null;
+    // Becomes a `{ name → version }` map when the page is a GitHub
+    // package.json AND the surrounding repo ships a lockfile we can
+    // parse. Allows the service worker to score the page's own package
+    // (and the comparison bucket) against the version actually installed
+    // in that repo, not whatever is currently on the npm registry.
+    let repoTopLevel: Record<string, string> | null = null;
+    let lockfileSourceUrl: string | null = null;
 
     // 1. Detect if on npmjs.com package page
     if (url.includes("npmjs.com/package/")) {
@@ -81,10 +89,35 @@ const npmAdvisor = {
           e,
         );
       }
+      const githubContext = parseGithubBlobUrl(url);
+      if (githubContext) {
+        try {
+          const lockfile = await fetchRepoLockfile(githubContext);
+          if (lockfile) {
+            repoTopLevel = lockfile.parsed.topLevel;
+            lockfileSourceUrl = lockfile.url;
+          }
+        } catch (e) {
+          console.warn(
+            "[NPM Advisor] Failed to fetch repo lockfile from GitHub",
+            e,
+          );
+        }
+      }
     }
 
     if (packageName) {
-      chrome.runtime.sendMessage({ type: "PREFETCH", packageName });
+      const resolvedVersion = repoTopLevel?.[packageName];
+      chrome.runtime.sendMessage({
+        type: "PREFETCH",
+        packageName,
+        // The service worker uses these to thread analyzer-core's
+        // resolvedVersion option through; when absent, analyzer-core
+        // falls back to dist-tags.latest.
+        resolvedVersion,
+        repoTopLevel,
+        lockfileSourceUrl,
+      });
     }
 
     // 3. NPM Search Takeover (respects the useAlgoliaSearch opt-out flag)

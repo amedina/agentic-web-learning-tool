@@ -12,3 +12,4 @@ export * from "./getPackageStats";
 export * from "./getDependencyTree";
 export * from "./checkLicenseCompatibility";
 export * from "./calculateScore";
+export * from "./matchAdvisoryToVersion";

@@ -34,6 +34,9 @@ function makeStats(overrides: Partial<PackageStats> = {}): PackageStats {
     scoreMaxPoints: 100,
     githubRateLimited: false,
     githubIssuesUnavailable: false,
+    versionResolution: "latest-fallback",
+    consideredVersion: null,
+    advisorySources: [],
     ...overrides,
   } as PackageStats;
 }
@@ -160,5 +163,58 @@ describe("renderHover", () => {
       makeStats({ githubUrl: "https://github.com/lodash/lodash" }),
     );
     expect(output).toContain("[Source](https://github.com/lodash/lodash)");
+  });
+
+  it("renders Installed / Range / Latest when lockfile-grounded and all three differ", () => {
+    const output = renderHover(
+      makeStats({
+        latestVersion: "4.17.21",
+        versionResolution: "lockfile",
+        consideredVersion: "4.17.20",
+      }),
+      { declaredRange: "^4.17.0", installedVersion: "4.17.20" },
+    );
+    expect(output).toContain("**Installed:** 4.17.20");
+    expect(output).toContain("**Range:** ^4.17.0");
+    expect(output).toContain("**Latest version:** 4.17.21");
+  });
+
+  it("collapses the Range line when it equals the installed version", () => {
+    const output = renderHover(
+      makeStats({
+        latestVersion: "4.17.20",
+        versionResolution: "lockfile",
+        consideredVersion: "4.17.20",
+      }),
+      { declaredRange: "4.17.20", installedVersion: "4.17.20" },
+    );
+    expect(output).toContain("**Installed:** 4.17.20");
+    expect(output).not.toContain("**Range:**");
+    expect(output).not.toContain("**Latest version:**");
+  });
+
+  it("appends a no-lockfile footer when only a range is available", () => {
+    const output = renderHover(
+      makeStats({
+        latestVersion: "4.17.21",
+        versionResolution: "latest-fallback",
+        consideredVersion: "4.17.21",
+      }),
+      { declaredRange: "^4.17.0" },
+    );
+    expect(output).toContain("**Range:** ^4.17.0");
+    expect(output).toContain("**Latest version:** 4.17.21");
+    expect(output).toContain("No lockfile found — showing latest");
+  });
+
+  it("omits the no-lockfile footer when neither range nor latest are present", () => {
+    const output = renderHover(
+      makeStats({
+        latestVersion: null,
+        versionResolution: "latest-fallback",
+        consideredVersion: null,
+      }),
+    );
+    expect(output).not.toContain("No lockfile found");
   });
 });

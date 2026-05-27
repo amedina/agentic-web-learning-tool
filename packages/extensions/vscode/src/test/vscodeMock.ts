@@ -180,15 +180,32 @@ export const commands = {
  */
 export class Uri {
   private readonly value: string;
+  /** Filesystem path component, only set when the Uri was built via `Uri.file`. */
+  readonly fsPath: string;
 
   /** Stores the URI string verbatim. */
-  private constructor(value: string) {
+  private constructor(value: string, fsPath: string) {
     this.value = value;
+    this.fsPath = fsPath;
   }
 
   /** Parses an arbitrary URI string into a stub Uri. */
   static parse(value: string): Uri {
-    return new Uri(value);
+    return new Uri(value, value.replace(/^file:\/\//, ""));
+  }
+
+  /** Builds a stub Uri from a filesystem path, mirroring the real API. */
+  static file(filePath: string): Uri {
+    return new Uri(`file://${filePath}`, filePath);
+  }
+
+  /**
+   * Like the real {@link vscode.Uri.path}, returns the path portion of
+   * the URI. Tests rely on this when matching against patterns like
+   * `endsWith("/package.json")`.
+   */
+  get path(): string {
+    return this.fsPath;
   }
 
   /** Returns the original URI string. */
@@ -220,10 +237,73 @@ export const window = {
  * and lets tests overwrite `workspaceFolders` to exercise the
  * folder-required code paths.
  */
+interface MockFileSystemWatcher {
+  onDidChange: (listener: (uri: Uri) => void) => Disposable;
+  onDidCreate: (listener: (uri: Uri) => void) => Disposable;
+  onDidDelete: (listener: (uri: Uri) => void) => Disposable;
+  dispose(): void;
+  /** Triggers all listeners — exposed for tests, not on real vscode API. */
+  __fire(event: "change" | "create" | "delete", uri: Uri): void;
+}
+
+const fileSystemWatchers: MockFileSystemWatcher[] = [];
+
+/**
+ * Build a fake {@link vscode.FileSystemWatcher} so source files that
+ * register watchers in tests don't crash. Tests can recover the
+ * watchers via {@link _watchersForTests} and trigger their listeners
+ * with `__fire(event, uri)`.
+ */
+function createMockFileSystemWatcher(): MockFileSystemWatcher {
+  const change = new Set<(uri: Uri) => void>();
+  const create = new Set<(uri: Uri) => void>();
+  const del = new Set<(uri: Uri) => void>();
+  const subscribe = (
+    set: Set<(uri: Uri) => void>,
+    listener: (uri: Uri) => void,
+  ): Disposable => {
+    set.add(listener);
+    return { dispose: () => set.delete(listener) };
+  };
+  const watcher: MockFileSystemWatcher = {
+    onDidChange: (listener) => subscribe(change, listener),
+    onDidCreate: (listener) => subscribe(create, listener),
+    onDidDelete: (listener) => subscribe(del, listener),
+    dispose: () => {
+      change.clear();
+      create.clear();
+      del.clear();
+    },
+    __fire(event, uri) {
+      const set =
+        event === "change" ? change : event === "create" ? create : del;
+      for (const listener of set) {
+        listener(uri);
+      }
+    },
+  };
+  fileSystemWatchers.push(watcher);
+  return watcher;
+}
+
 export const workspace: {
   workspaceFolders: { uri: { fsPath: string } }[] | undefined;
+  createFileSystemWatcher: (..._args: unknown[]) => MockFileSystemWatcher;
 } = {
   workspaceFolders: undefined,
+  createFileSystemWatcher: () => createMockFileSystemWatcher(),
+};
+
+/**
+ * Test helper: read out every watcher created during the test so the
+ * test can fire change events on the right one. Not exposed by real
+ * vscode.
+ */
+export const _watchersForTests = {
+  list: () => fileSystemWatchers.slice(),
+  clear: () => {
+    fileSystemWatchers.length = 0;
+  },
 };
 
 /**

@@ -70,7 +70,20 @@ function clearDeferredCaches(): void {
 chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   // 1. Prefetch Stats
   if (request.type === "PREFETCH" && request.packageName) {
-    packageStatsService.prefetch(request.packageName);
+    // Forward every entry of repoTopLevel into the service so a later
+    // GET_LIGHT_STATS for any dep declared in the same repo's lockfile
+    // (e.g. the side panel's comparison bucket pulling stats for sibling
+    // deps after a GitHub-page prefetch) picks up the same resolved
+    // version without needing to re-thread the lockfile per message.
+    const repoTopLevel = request.repoTopLevel as
+      | Record<string, string>
+      | undefined;
+    if (repoTopLevel) {
+      for (const [name, version] of Object.entries(repoTopLevel)) {
+        packageStatsService.setResolvedVersion(name, version);
+      }
+    }
+    packageStatsService.prefetch(request.packageName, request.resolvedVersion);
     sendResponse({ status: "prefetching" });
   }
 

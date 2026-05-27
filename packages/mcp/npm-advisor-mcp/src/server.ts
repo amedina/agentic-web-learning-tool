@@ -92,6 +92,24 @@ export async function createServer(): Promise<McpServer> {
           .describe(
             "If true, include the recursive dependency tree (slower; large output). Default false.",
           ),
+        resolvedVersion: z
+          .string()
+          .optional()
+          .describe(
+            "Exact installed version, e.g. '4.17.20'. When set, advisory matching and version-sensitive lookups run against this version instead of the latest published one. Use this when you already know what the user has installed.",
+          ),
+        packageJsonPath: z
+          .string()
+          .optional()
+          .describe(
+            "Absolute path to a package.json. When provided and resolvedVersion is not, the tool walks up from this file's directory to find the nearest lockfile (package-lock.json / pnpm-lock.yaml / yarn.lock) and looks the package up there. Returns latest-fallback when no lockfile is found.",
+          ),
+        lockfilePath: z
+          .string()
+          .optional()
+          .describe(
+            "Absolute path to a specific lockfile to read for version resolution. Overrides the auto-walk from packageJsonPath. Ignored when resolvedVersion is set.",
+          ),
       },
     },
     async (input) => {
@@ -100,6 +118,9 @@ export async function createServer(): Promise<McpServer> {
           name: input.name,
           targetLicense: input.targetLicense,
           includeDependencyTree: input.includeDependencyTree,
+          resolvedVersion: input.resolvedVersion,
+          packageJsonPath: input.packageJsonPath,
+          lockfilePath: input.lockfilePath,
         }),
       );
     },
@@ -161,6 +182,12 @@ export async function createServer(): Promise<McpServer> {
           .describe(
             "SPDX license id of the consuming project (defaults to MIT). Each dep's license-compatibility verdict is computed against this.",
           ),
+        lockfilePath: z
+          .string()
+          .optional()
+          .describe(
+            "Absolute path to a specific lockfile to read for resolved-version lookups. Overrides the auto-walk from packageJsonPath's directory. Useful when the lockfile sits outside the natural walk target (vendored fixture, non-standard monorepo layout).",
+          ),
       },
     },
     async (input) => {
@@ -168,6 +195,7 @@ export async function createServer(): Promise<McpServer> {
         runAnalyzePackageJson({
           packageJsonPath: input.packageJsonPath,
           targetLicense: input.targetLicense,
+          lockfilePath: input.lockfilePath,
         }),
       );
     },

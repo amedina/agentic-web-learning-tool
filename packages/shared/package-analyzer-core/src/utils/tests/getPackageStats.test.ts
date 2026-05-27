@@ -14,6 +14,7 @@ import { fetchModuleReplacements } from "../fetchModuleReplacements";
 import { fetchGithubRepo } from "../fetchGithubRepo";
 import { fetchGithubIssues } from "../fetchGithubIssues";
 import { fetchGithubSecurityAdvisories } from "../fetchGithubSecurityAdvisories";
+import { fetchOsvAdvisories } from "../fetchOsvAdvisories";
 import { parseGithubUrl } from "../parseGithubUrl";
 import { GithubRateLimitError } from "../githubFetch";
 
@@ -28,6 +29,10 @@ vi.mock("../fetchGithubIssues", () => ({ fetchGithubIssues: vi.fn() }));
 vi.mock("../fetchGithubSecurityAdvisories", () => ({
   fetchGithubSecurityAdvisories: vi.fn(),
 }));
+vi.mock("../fetchOsvAdvisories", () => ({
+  fetchOsvAdvisories: vi.fn(),
+  clearOsvCache: vi.fn(),
+}));
 vi.mock("../../lib/checkLicenseCompatibility", () => ({
   checkLicenseCompatibility: vi.fn(),
 }));
@@ -36,6 +41,10 @@ vi.mock("../parseGithubUrl", () => ({ parseGithubUrl: vi.fn() }));
 describe("getPackageStats", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Default OSV mock — every test that doesn't explicitly stub OSV
+    // gets an empty list so the merge path is exercised without
+    // accidentally adding test-specific advisories.
+    vi.mocked(fetchOsvAdvisories).mockResolvedValue([]);
   });
 
   it("should return null if npm data fetch fails", async () => {

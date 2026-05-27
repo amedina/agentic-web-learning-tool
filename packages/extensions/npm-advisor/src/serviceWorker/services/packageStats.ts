@@ -31,6 +31,31 @@ class PackageStatsService {
   private statsCacheTimestamps = new Map<string, number>();
   private lightStatsCache = new Map<string, StatsCacheValue>();
   private lightStatsCacheTimestamps = new Map<string, number>();
+  /**
+   * Stickiness for lockfile-resolved versions learned via PREFETCH. The
+   * content script knows the resolved version when the user is browsing
+   * a GitHub repo with a committed lockfile, but the side panel that
+   * later calls `getStats` doesn't carry that context across tabs. We
+   * remember the most recent resolved version per package name so the
+   * side panel can keep using it for subsequent reads. `null` represents
+   * "explicitly fetched without a lockfile", so a later GET_STATS won't
+   * accidentally pick up a stale resolution from a different tab.
+   */
+  private lastResolvedVersion = new Map<string, string | null>();
+
+  /**
+   * Record (or clear) the lockfile-derived resolved version for a
+   * package. Called by the PREFETCH handler so subsequent stats reads
+   * from the side panel can target the same version without having to
+   * thread the context through every message.
+   */
+  setResolvedVersion(packageName: string, version: string | undefined): void {
+    if (version) {
+      this.lastResolvedVersion.set(packageName, version);
+    } else {
+      this.lastResolvedVersion.set(packageName, null);
+    }
+  }
 
   /**
    * Returns true if the key has a recorded timestamp older than the TTL.
@@ -45,9 +70,16 @@ class PackageStatsService {
   }
 
   /**
-   * Prefetch stats for a package if not already cached.
+   * Prefetch stats for a package if not already cached. Accepts an
+   * optional `resolvedVersion` so callers (the content script on a
+   * GitHub repo page) can pass through the lockfile-derived version,
+   * making advisory matching and version-sensitive lookups reflect the
+   * repo's installed dependency rather than the latest published one.
    */
-  async prefetch(packageName: string): Promise<void> {
+  async prefetch(packageName: string, resolvedVersion?: string): Promise<void> {
+    if (resolvedVersion !== undefined) {
+      this.setResolvedVersion(packageName, resolvedVersion);
+    }
     if (
       this.statsCache.has(packageName) &&
       !this.isExpired(this.statsCacheTimestamps, packageName)
@@ -60,7 +92,9 @@ class PackageStatsService {
     // race a second request.
     this.statsCacheTimestamps.delete(packageName);
 
-    console.log(`[NPM Advisor] Prefetching stats for ${packageName}...`);
+    console.log(
+      `[NPM Advisor] Prefetching stats for ${packageName}${resolvedVersion ? `@${resolvedVersion}` : ""}...`,
+    );
 
     const promise = (async () => {
       try {
@@ -70,7 +104,9 @@ class PackageStatsService {
             ? result.targetLicense
             : DEFAULT_TARGET_PROJECT_LICENSE;
 
-        const stats = await getPackageStats(packageName, targetLicense);
+        const stats = await getPackageStats(packageName, targetLicense, {
+          resolvedVersion,
+        });
         this.statsCache.set(packageName, stats);
         this.statsCacheTimestamps.set(packageName, Date.now());
         return stats;
@@ -101,8 +137,10 @@ class PackageStatsService {
     let statsData = this.statsCache.get(packageName);
 
     if (!statsData) {
+      const resolvedVersion =
+        this.lastResolvedVersion.get(packageName) ?? undefined;
       console.log(
-        `[NPM Advisor] Cache miss for ${packageName}, fetching now...`,
+        `[NPM Advisor] Cache miss for ${packageName}${resolvedVersion ? `@${resolvedVersion}` : ""}, fetching now...`,
       );
       const promise = (async () => {
         try {
@@ -112,7 +150,9 @@ class PackageStatsService {
               ? result.targetLicense
               : DEFAULT_TARGET_PROJECT_LICENSE;
 
-          const stats = await getPackageStats(packageName, targetLicense);
+          const stats = await getPackageStats(packageName, targetLicense, {
+            resolvedVersion: resolvedVersion ?? undefined,
+          });
           if (stats?.githubRateLimited || stats?.githubIssuesUnavailable) {
             // Don't cache rate-limited or search-throttled results — once the
             // limit resets the next read should retry, not replay the partial answer.
@@ -171,8 +211,10 @@ class PackageStatsService {
     let cached = this.lightStatsCache.get(cacheKey);
 
     if (!cached) {
+      const resolvedVersion =
+        this.lastResolvedVersion.get(packageName) ?? undefined;
       console.log(
-        `[NPM Advisor] Light cache miss for ${cacheKey}, fetching now...`,
+        `[NPM Advisor] Light cache miss for ${cacheKey}${resolvedVersion ? `@${resolvedVersion}` : ""}, fetching now...`,
       );
       const promise = (async () => {
         try {
@@ -192,6 +234,7 @@ class PackageStatsService {
             // are fetched in parallel, causing silent 0-result responses.
             includeGithubIssues: false,
             dependencyCategory,
+            resolvedVersion: resolvedVersion ?? undefined,
           });
           if (stats?.githubRateLimited || stats?.githubIssuesUnavailable) {
             this.lightStatsCache.delete(cacheKey);
