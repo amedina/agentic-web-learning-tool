@@ -1,6 +1,6 @@
 {
   "name": "NPM Advisor",
-  "description": "NPM Advisor Extension",
+  "description": "Evaluate npm packages instantly — advisor score, bundle size, security, dependencies, and AI chat on npmjs.com and GitHub.",
   "version": "0.3.0",
   "manifest_version": 3,
   "action": {
