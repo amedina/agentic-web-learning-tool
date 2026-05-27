@@ -24,6 +24,12 @@ export interface McpClientView {
   backupCount: number;
   /** Newest backup's absolute path; the host reveals this in the OS file manager. */
   latestBackupPath?: string;
+  /**
+   * Whether the client appears to be installed on the user's machine
+   * (per clientDetection.isProbablyInstalled). The wizard hides
+   * undetected cards by default unless the user toggles "Show all".
+   */
+  detected: boolean;
 }
 
 /**

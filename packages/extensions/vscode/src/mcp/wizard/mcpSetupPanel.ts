@@ -15,6 +15,7 @@ import {
   type McpClientDescriptor,
   type McpClientId,
 } from "../clientConfigs";
+import { isProbablyInstalled } from "../clientDetection";
 import {
   cleanupBackups,
   getClientStatus,
@@ -586,6 +587,7 @@ export class McpSetupPanel implements vscode.Disposable {
         status,
         backupCount: backupPaths.length,
         latestBackupPath: backupPaths[0],
+        detected: isProbablyInstalled(client),
       };
       if (client.strategy.kind === "cli-snippet") {
         view.cliCommand = buildClaudeCodeCommand(serverScriptPath);

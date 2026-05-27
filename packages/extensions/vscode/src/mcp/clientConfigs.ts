@@ -16,6 +16,21 @@ export type McpClientStrategy =
   /** Show a copy-able CLI command (Claude Code uses `claude mcp add ...`). */
   | { kind: "cli-snippet" };
 
+/**
+ * A single signal that suggests the client is installed on the
+ * user's machine. The wizard hides cards whose descriptor lists
+ * hints but where none of them match, so populate with conservative
+ * choices (app bundle path, config directory) to avoid false negatives.
+ *
+ * - `path` — checks `existsSync(path)`. Use the app bundle on macOS,
+ *   the install dir on Windows, or the config dir on any platform.
+ * - `command` — scans PATH for the named executable (with Windows
+ *   suffixes appended). Use for CLI clients like Claude Code.
+ */
+export type McpClientInstallHint =
+  | { kind: "path"; path: string }
+  | { kind: "command"; name: string };
+
 export interface McpClientDescriptor {
   id: McpClientId;
   /** Human-readable name shown in the QuickPick. */
@@ -25,6 +40,12 @@ export interface McpClientDescriptor {
   /** Optional learn-more URL surfaced in the wizard. */
   docsUrl?: string;
   strategy: McpClientStrategy;
+  /**
+   * Filesystem / PATH signals that the client is installed on this
+   * machine. Any one resolving counts. Omit (or leave empty) to mean
+   * "always show" — appropriate for the editor we're hosted in.
+   */
+  installedHints?: McpClientInstallHint[];
 }
 
 // Claude Desktop's Connectors UI throws "Invalid server ID format.
@@ -92,6 +113,52 @@ export function getSupportedClients(): McpClientDescriptor[] {
         )
       : join(home, ".config", "Claude", "claude_desktop_config.json");
 
+  const claudeDesktopHints: McpClientInstallHint[] = isMac
+    ? [
+        { kind: "path", path: "/Applications/Claude.app" },
+        {
+          kind: "path",
+          path: join(home, "Library", "Application Support", "Claude"),
+        },
+      ]
+    : isWindows
+      ? [
+          {
+            kind: "path",
+            path: join(
+              process.env.LOCALAPPDATA ?? join(home, "AppData", "Local"),
+              "AnthropicClaude",
+            ),
+          },
+          {
+            kind: "path",
+            path: join(
+              process.env.APPDATA ?? join(home, "AppData", "Roaming"),
+              "Claude",
+            ),
+          },
+        ]
+      : [{ kind: "path", path: join(home, ".config", "Claude") }];
+
+  const cursorHints: McpClientInstallHint[] = isMac
+    ? [
+        { kind: "path", path: "/Applications/Cursor.app" },
+        { kind: "path", path: join(home, ".cursor") },
+      ]
+    : isWindows
+      ? [
+          {
+            kind: "path",
+            path: join(
+              process.env.LOCALAPPDATA ?? join(home, "AppData", "Local"),
+              "Programs",
+              "cursor",
+            ),
+          },
+          { kind: "path", path: join(home, ".cursor") },
+        ]
+      : [{ kind: "path", path: join(home, ".cursor") }];
+
   return [
     {
       id: "claude-desktop",
@@ -99,6 +166,7 @@ export function getSupportedClients(): McpClientDescriptor[] {
       description: "Anthropic's desktop chat app",
       docsUrl: "https://modelcontextprotocol.io/quickstart/user",
       strategy: { kind: "json-merge", configPath: claudeDesktopConfig },
+      installedHints: claudeDesktopHints,
     },
     {
       id: "cursor",
@@ -109,6 +177,7 @@ export function getSupportedClients(): McpClientDescriptor[] {
         kind: "json-merge",
         configPath: join(home, ".cursor", "mcp.json"),
       },
+      installedHints: cursorHints,
     },
     {
       id: "vscode",
@@ -117,6 +186,7 @@ export function getSupportedClients(): McpClientDescriptor[] {
         "Adds the server to your workspace's .vscode/mcp.json (used by Copilot agent mode)",
       docsUrl: "https://code.visualstudio.com/docs/copilot/chat/mcp-servers",
       strategy: { kind: "json-merge", configPath: ".vscode/mcp.json" },
+      // No installedHints — we are VSCode, so it's always present.
     },
     {
       id: "claude-code",
@@ -124,6 +194,7 @@ export function getSupportedClients(): McpClientDescriptor[] {
       description: "Anthropic's CLI agent — registers via `claude mcp add`",
       docsUrl: "https://docs.anthropic.com/en/docs/claude-code/mcp",
       strategy: { kind: "cli-snippet" },
+      installedHints: [{ kind: "command", name: "claude" }],
     },
   ];
 }
