@@ -1,7 +1,7 @@
 /**
  * External dependencies.
  */
-import { resolve } from "node:path";
+import { dirname, resolve } from "node:path";
 import {
   getPackageStats,
   type PackageStats,
@@ -11,6 +11,11 @@ import {
  * Internal dependencies.
  */
 import { readPackageJsonDependencies } from "../workspace/findPackageJsonFiles";
+import {
+  findAndParseLockfile,
+  parseLockfileAtPath,
+  type DiscoveredLockfile,
+} from "../workspace/findLockfile";
 
 const CONCURRENCY = 3;
 
@@ -19,6 +24,13 @@ export interface AnalyzePackageJsonInput {
   packageJsonPath: string;
   /** SPDX license id of the consuming project, used for license-compat verdicts. */
   targetLicense?: string;
+  /**
+   * Absolute path to a lockfile to use for resolved-version lookups.
+   * Overrides the upward walk from `packageJsonPath`'s directory.
+   * Useful when the lockfile sits outside the natural walk target —
+   * e.g. a vendored fixture or a monorepo with non-standard layout.
+   */
+  lockfilePath?: string;
 }
 
 export interface AnalyzedDependency {
@@ -34,6 +46,20 @@ export interface AnalyzePackageJsonOutput {
   packageJsonPath: string;
   /** Parsed `name` field of the package.json. */
   name: string | null;
+  /**
+   * Path to the lockfile used for resolved-version lookups, when one
+   * was found. `null` when no lockfile was discovered or when the file
+   * was unsupported.
+   */
+  lockfilePath: string | null;
+  /**
+   * `"lockfile"` when at least one dep was resolved from the lockfile;
+   * `"latest-fallback"` when no lockfile was used (the analyzer ran
+   * against `dist-tags.latest` for every dep). Surfaced so the LLM
+   * can warn users that latest-fallback verdicts may not match their
+   * installed versions.
+   */
+  versionResolution: "lockfile" | "latest-fallback";
   /** Per-dependency analysis result. Empty when the file has no deps. */
   dependencies: AnalyzedDependency[];
   /** High-level counts so the AI can summarize without iterating. */
@@ -61,6 +87,9 @@ export async function runAnalyzePackageJson(
   const packageJsonPath = resolve(input.packageJsonPath);
   const targetLicense = input.targetLicense ?? "MIT";
 
+  const lockfile = await resolveLockfile(packageJsonPath, input.lockfilePath);
+  const topLevel = lockfile?.parsed.topLevel ?? {};
+
   const parsed = await readPackageJsonDependencies(packageJsonPath);
   const queue: { name: string; category: AnalyzedDependency["category"] }[] = [
     ...parsed.dependencies.map((name) => ({
@@ -84,6 +113,7 @@ export async function runAnalyzePackageJson(
       try {
         const stats = await getPackageStats(name, targetLicense, {
           includeDependencyTree: false,
+          resolvedVersion: topLevel[name],
         });
         return { name, category, stats };
       } catch (error) {
@@ -100,9 +130,27 @@ export async function runAnalyzePackageJson(
   return {
     packageJsonPath,
     name: parsed.name,
+    lockfilePath: lockfile?.path ?? null,
+    versionResolution: lockfile ? "lockfile" : "latest-fallback",
     dependencies,
     summary: summarize(dependencies),
   };
+}
+
+/**
+ * Resolve which lockfile to use for version lookups. When the caller
+ * provides an explicit path it wins; otherwise walk up from the
+ * package.json's directory. Returns `null` when no usable lockfile is
+ * found, which the caller treats as `latest-fallback`.
+ */
+async function resolveLockfile(
+  packageJsonPath: string,
+  override: string | undefined,
+): Promise<DiscoveredLockfile | null> {
+  if (override) {
+    return parseLockfileAtPath(resolve(override));
+  }
+  return findAndParseLockfile(dirname(packageJsonPath));
 }
 
 /**
