@@ -1,6 +1,5 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@import "@agentic-web-labs/table/styles.css";
 
 @custom-variant dark (&:is(.dark *));
 
