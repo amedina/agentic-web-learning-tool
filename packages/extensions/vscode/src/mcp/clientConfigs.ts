@@ -8,7 +8,8 @@ export type McpClientId =
   | "claude-desktop"
   | "cursor"
   | "vscode"
-  | "claude-code";
+  | "claude-code"
+  | "windsurf";
 
 export type McpClientStrategy =
   /** Direct merge into a JSON config file we own (Claude Desktop / Cursor / VSCode native MCP). */
@@ -159,6 +160,26 @@ export function getSupportedClients(): McpClientDescriptor[] {
         ]
       : [{ kind: "path", path: join(home, ".cursor") }];
 
+  const windsurfConfig = join(home, ".codeium", "windsurf", "mcp_config.json");
+  const windsurfHints: McpClientInstallHint[] = isMac
+    ? [
+        { kind: "path", path: "/Applications/Windsurf.app" },
+        { kind: "path", path: join(home, ".codeium", "windsurf") },
+      ]
+    : isWindows
+      ? [
+          {
+            kind: "path",
+            path: join(
+              process.env.LOCALAPPDATA ?? join(home, "AppData", "Local"),
+              "Programs",
+              "Windsurf",
+            ),
+          },
+          { kind: "path", path: join(home, ".codeium", "windsurf") },
+        ]
+      : [{ kind: "path", path: join(home, ".codeium", "windsurf") }];
+
   return [
     {
       id: "claude-desktop",
@@ -195,6 +216,14 @@ export function getSupportedClients(): McpClientDescriptor[] {
       docsUrl: "https://docs.anthropic.com/en/docs/claude-code/mcp",
       strategy: { kind: "cli-snippet" },
       installedHints: [{ kind: "command", name: "claude" }],
+    },
+    {
+      id: "windsurf",
+      label: "Windsurf",
+      description: "Codeium's agentic IDE",
+      docsUrl: "https://docs.windsurf.com/windsurf/cascade/mcp",
+      strategy: { kind: "json-merge", configPath: windsurfConfig },
+      installedHints: windsurfHints,
     },
   ];
 }

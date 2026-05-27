@@ -42,6 +42,29 @@ describe("getSupportedClients", () => {
       }
     }
   });
+
+  it("includes Windsurf with a Codeium config path under home", () => {
+    const windsurf = getSupportedClients().find(
+      (client) => client.id === "windsurf",
+    );
+    expect(windsurf).toBeDefined();
+    if (windsurf?.strategy.kind === "json-merge") {
+      expect(windsurf.strategy.configPath).toMatch(
+        /[\\/]\.codeium[\\/]windsurf[\\/]mcp_config\.json$/,
+      );
+    }
+  });
+
+  it("attaches install hints to every client except the VSCode workspace one", () => {
+    for (const client of getSupportedClients()) {
+      if (client.id === "vscode") {
+        // VSCode workspace MCP is always shown — we are VSCode.
+        expect(client.installedHints ?? []).toEqual([]);
+      } else {
+        expect(client.installedHints?.length ?? 0).toBeGreaterThan(0);
+      }
+    }
+  });
 });
 
 describe("buildServerEntry", () => {
