@@ -18,8 +18,9 @@ import { fetchWithCache } from "./fetchWithCache";
 export async function fetchBundlephobiaData(
   packageName: string,
   version?: string,
+  signal?: AbortSignal,
 ) {
   const pkg = version ? `${packageName}@${version}` : packageName;
   const url = `https://bundlephobia.com/api/size?package=${encodeURIComponent(pkg)}&record=true`;
-  return fetchWithCache(url);
+  return fetchWithCache(url, undefined, signal);
 }

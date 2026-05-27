@@ -20,23 +20,32 @@ const cache = new LruTtlCache<unknown>();
  *
  * @param url - Absolute URL to fetch.
  * @param options - Optional fetch init; forwarded as-is.
+ * @param signal - Optional {@link AbortSignal}. When the signal aborts,
+ *   *this caller's* await rejects with the signal's reason; the shared
+ *   underlying fetch keeps running so concurrent callers waiting on
+ *   the same key still receive the value.
  * @returns The parsed JSON body, or `null` for a 404 response.
  * @throws On any other non-OK response.
  */
 export async function fetchWithCache(
   url: string,
   options?: RequestInit,
+  signal?: AbortSignal,
 ): Promise<unknown> {
-  return cache.getOrFetch(url, async () => {
-    const response = await fetch(url, options);
-    if (!response.ok) {
-      if (response.status === 404) {
-        return null;
+  return cache.getOrFetch(
+    url,
+    async () => {
+      const response = await fetch(url, options);
+      if (!response.ok) {
+        if (response.status === 404) {
+          return null;
+        }
+        throw new Error(`Failed to fetch ${url}: ${response.statusText}`);
       }
-      throw new Error(`Failed to fetch ${url}: ${response.statusText}`);
-    }
-    return await response.json();
-  });
+      return await response.json();
+    },
+    signal,
+  );
 }
 
 /**

@@ -9,7 +9,11 @@ import { githubFetch } from "./githubFetch";
  * Returns both a sample of issues (for responsiveness ratio) and the true
  * total open issues count (via a separate search with `is:open`).
  */
-export async function fetchGithubIssues(owner: string, repo: string) {
+export async function fetchGithubIssues(
+  owner: string,
+  repo: string,
+  signal?: AbortSignal,
+) {
   // Fetching a sample of open and closed issues/PRs to gauge responsiveness
   // Using Search API has a 10req/min (600/hr) unauthenticated rate limit, dodging the basic 60/hr Core API limit.
   // GitHub Search requires field qualifiers like `repo:` to have unencoded colons/slashes.
@@ -21,8 +25,8 @@ export async function fetchGithubIssues(owner: string, repo: string) {
   const openCountUrl = `https://api.github.com/search/issues?q=repo:${owner}/${repo}%20is:issue%20is:open&per_page=1`;
 
   const [sampleData, openCountData] = (await Promise.all([
-    githubFetch(sampleUrl),
-    githubFetch(openCountUrl),
+    githubFetch(sampleUrl, signal),
+    githubFetch(openCountUrl, signal),
   ])) as [any, any];
 
   return {

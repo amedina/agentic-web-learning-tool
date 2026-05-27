@@ -148,3 +148,59 @@ describe("LruTtlCache - clear", () => {
     expect(cache.size).toBe(0);
   });
 });
+
+describe("LruTtlCache - AbortSignal", () => {
+  it("rejects immediately when the signal is already aborted", async () => {
+    const cache = new LruTtlCache<string>();
+    const controller = new AbortController();
+    controller.abort(new Error("already cancelled"));
+    await expect(
+      cache.getOrFetch("key", async () => "value", controller.signal),
+    ).rejects.toThrow("already cancelled");
+  });
+
+  it("rejects this caller's await when the signal aborts mid-fetch", async () => {
+    const cache = new LruTtlCache<string>();
+    const controller = new AbortController();
+    let resolveFetcher!: (value: string) => void;
+    const fetcher = () =>
+      new Promise<string>((resolve) => {
+        resolveFetcher = resolve;
+      });
+    const pending = cache.getOrFetch("key", fetcher, controller.signal);
+    controller.abort(new Error("cancelled"));
+    await expect(pending).rejects.toThrow("cancelled");
+    // Underlying fetch still completes and warms the cache.
+    resolveFetcher("eventual");
+    // Give microtasks a turn so the cache fills.
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(cache.get("key")).toBe("eventual");
+  });
+
+  it("does not affect a concurrent caller without a signal", async () => {
+    const cache = new LruTtlCache<string>();
+    const controller = new AbortController();
+    let resolveFetcher!: (value: string) => void;
+    const fetcher = () =>
+      new Promise<string>((resolve) => {
+        resolveFetcher = resolve;
+      });
+    const cancelling = cache.getOrFetch("key", fetcher, controller.signal);
+    const passive = cache.getOrFetch("key", fetcher);
+    controller.abort(new Error("cancelled"));
+    await expect(cancelling).rejects.toThrow("cancelled");
+    resolveFetcher("eventual");
+    expect(await passive).toBe("eventual");
+  });
+
+  it("returns cached values without consulting the signal", async () => {
+    const cache = new LruTtlCache<string>();
+    cache.set("key", "cached");
+    const controller = new AbortController();
+    // Not aborted yet → cached read returns synchronously.
+    expect(
+      await cache.getOrFetch("key", async () => "fresh", controller.signal),
+    ).toBe("cached");
+  });
+});

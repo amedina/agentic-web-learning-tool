@@ -134,25 +134,95 @@ export class LruTtlCache<T> {
    * same promise with any concurrent caller for the same key. On
    * rejection the in-flight entry is dropped so the next call retries
    * instead of replaying the failure.
+   *
+   * An optional {@link AbortSignal} controls *this caller's* await
+   * only: when the signal aborts, this call's promise rejects with the
+   * signal's reason but the underlying fetch keeps running so any
+   * other concurrent caller still receives the value (and the cache
+   * still gets populated). This isolation matters because two views
+   * can want the same package; if one navigates away, the other
+   * shouldn't lose its fetch.
    */
-  async getOrFetch(key: string, fetcher: () => Promise<T>): Promise<T> {
+  async getOrFetch(
+    key: string,
+    fetcher: () => Promise<T>,
+    signal?: AbortSignal,
+  ): Promise<T> {
+    throwIfAborted(signal);
     if (this.has(key)) {
       return this.get(key) as T;
     }
-    const existing = this.inFlight.get(key);
-    if (existing) {
-      return existing;
+    let promise = this.inFlight.get(key);
+    if (!promise) {
+      promise = (async () => {
+        try {
+          const value = await fetcher();
+          this.set(key, value);
+          return value;
+        } finally {
+          this.inFlight.delete(key);
+        }
+      })();
+      this.inFlight.set(key, promise);
     }
-    const promise = (async () => {
-      try {
-        const value = await fetcher();
-        this.set(key, value);
-        return value;
-      } finally {
-        this.inFlight.delete(key);
-      }
-    })();
-    this.inFlight.set(key, promise);
+    return raceWithAbort(promise, signal);
+  }
+}
+
+/**
+ * Throw an `AbortError`-shaped error when the supplied signal is
+ * already aborted. Mirrors the standard `signal.throwIfAborted` from
+ * recent Web APIs but works in older Node runtimes too.
+ */
+function throwIfAborted(signal: AbortSignal | undefined): void {
+  if (signal?.aborted) {
+    throw abortReason(signal);
+  }
+}
+
+/**
+ * Race a promise against an abort signal. When the signal aborts, the
+ * returned promise rejects with the signal's reason while the original
+ * promise keeps running. When the original resolves or rejects first,
+ * the abort listener is detached so it can't fire later.
+ */
+function raceWithAbort<T>(
+  promise: Promise<T>,
+  signal: AbortSignal | undefined,
+): Promise<T> {
+  if (!signal) {
     return promise;
   }
+  if (signal.aborted) {
+    return Promise.reject(abortReason(signal));
+  }
+  return new Promise<T>((resolve, reject) => {
+    const onAbort = () => {
+      reject(abortReason(signal));
+    };
+    signal.addEventListener("abort", onAbort, { once: true });
+    promise.then(
+      (value) => {
+        signal.removeEventListener("abort", onAbort);
+        resolve(value);
+      },
+      (error) => {
+        signal.removeEventListener("abort", onAbort);
+        reject(error);
+      },
+    );
+  });
+}
+
+/**
+ * Return the abort reason exposed by recent runtimes, falling back to
+ * a synthetic DOMException so older Node versions still get a
+ * recognisable AbortError to throw.
+ */
+function abortReason(signal: AbortSignal): unknown {
+  const reason = (signal as { reason?: unknown }).reason;
+  if (reason !== undefined) {
+    return reason;
+  }
+  return new DOMException("The operation was aborted.", "AbortError");
 }

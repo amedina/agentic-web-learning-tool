@@ -179,6 +179,15 @@ export interface GetPackageStatsOptions {
    * can warn the user that the verdict may not reflect their install.
    */
   resolvedVersion?: string;
+  /**
+   * Optional {@link AbortSignal} that cancels every in-flight sub-fetch
+   * this analyzer kicks off. Aborting mid-run rejects the outer
+   * `getPackageStats` promise with the signal's reason. The shared
+   * fetch caches (`fetchWithCache`, `githubFetch`, `fetchOsvAdvisories`)
+   * isolate cancellation so any concurrent caller waiting on the same
+   * URL keeps its result — only this call short-circuits.
+   */
+  signal?: AbortSignal;
 }
 
 /**
@@ -195,6 +204,7 @@ export async function getPackageStats(
     dependencyCategory = "unknown",
     includeGithubIssues = true,
     resolvedVersion,
+    signal,
   } = options;
 
   console.log(
@@ -210,32 +220,36 @@ export async function getPackageStats(
     preferredReplacementsRaw,
     osvAdvisoriesRaw,
   ] = await Promise.all([
-    fetchNpmPackage(packageName),
+    fetchNpmPackage(packageName, signal),
     includeBundle
-      ? fetchBundlephobiaData(packageName, resolvedVersion).catch((e) => {
-          console.warn(
-            `[NPM Advisor] Failed to fetch bundle data for ${packageName}`,
-            e,
-          );
-          return null;
-        })
+      ? fetchBundlephobiaData(packageName, resolvedVersion, signal).catch(
+          (e) => {
+            console.warn(
+              `[NPM Advisor] Failed to fetch bundle data for ${packageName}`,
+              e,
+            );
+            return null;
+          },
+        )
       : Promise.resolve(null),
     includeDependencyTree
-      ? getDependencyTree(packageName).catch((e) => {
-          console.warn(
-            `[NPM Advisor] Failed to fetch dependency tree for ${packageName}`,
-            e,
-          );
-          return null;
-        })
+      ? getDependencyTree(packageName, "latest", new Set(), 0, signal).catch(
+          (e) => {
+            console.warn(
+              `[NPM Advisor] Failed to fetch dependency tree for ${packageName}`,
+              e,
+            );
+            return null;
+          },
+        )
       : Promise.resolve(null),
-    fetchModuleReplacements("native").catch(() => null),
-    fetchModuleReplacements("micro-utilities").catch(() => null),
-    fetchModuleReplacements("preferred").catch(() => null),
+    fetchModuleReplacements("native", signal).catch(() => null),
+    fetchModuleReplacements("micro-utilities", signal).catch(() => null),
+    fetchModuleReplacements("preferred", signal).catch(() => null),
     // OSV runs unconditionally — it works directly from the npm package
     // name with no GitHub repo lookup needed, so packages whose repository
     // we can't resolve still get advisory coverage.
-    fetchOsvAdvisories(packageName),
+    fetchOsvAdvisories(packageName, undefined, signal),
   ]);
 
   console.log({
@@ -384,28 +398,32 @@ export async function getPackageStats(
         };
 
       const [repoData, issuesData, advisoriesData] = await Promise.all([
-        fetchGithubRepo(owner, repo).catch(swallowGithubError("GitHub Repo")),
+        fetchGithubRepo(owner, repo, signal).catch(
+          swallowGithubError("GitHub Repo"),
+        ),
         includeGithubIssues
-          ? fetchGithubIssues(owner, repo).catch(
+          ? fetchGithubIssues(owner, repo, signal).catch(
               swallowGithubError("GitHub Issues", true),
             )
           : Promise.resolve(null),
-        fetchGithubSecurityAdvisories(owner, repo).catch((error: unknown) => {
-          // Track failure separately from the swallow helper so the merge
-          // step below can distinguish "github said nothing" (counts as a
-          // contributing source) from "github fetch failed" (don't list it
-          // as a source so the UI can warn about partial coverage).
-          githubAdvisoriesFetchFailed = true;
-          if (error instanceof GithubRateLimitError) {
-            githubRateLimited = true;
-          } else {
-            console.warn(
-              `[NPM Advisor] GitHub Advisories fetch failed:`,
-              (error as Error)?.message,
-            );
-          }
-          return null;
-        }),
+        fetchGithubSecurityAdvisories(owner, repo, signal).catch(
+          (error: unknown) => {
+            // Track failure separately from the swallow helper so the merge
+            // step below can distinguish "github said nothing" (counts as a
+            // contributing source) from "github fetch failed" (don't list it
+            // as a source so the UI can warn about partial coverage).
+            githubAdvisoriesFetchFailed = true;
+            if (error instanceof GithubRateLimitError) {
+              githubRateLimited = true;
+            } else {
+              console.warn(
+                `[NPM Advisor] GitHub Advisories fetch failed:`,
+                (error as Error)?.message,
+              );
+            }
+            return null;
+          },
+        ),
       ]);
 
       if (repoData && repoData.repo) {

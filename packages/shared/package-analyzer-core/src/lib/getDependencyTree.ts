@@ -14,10 +14,14 @@ export interface DependencyTree {
 
 /**
  * Recursively builds a dependency tree for an npm package.
+ *
  * @param packageName - The name of the npm package.
  * @param version - The version or tag to fetch (defaults to 'latest').
  * @param visited - Tracks visited packages in the current branch to prevent infinite loops.
  * @param depth - Tracks the current recursion depth.
+ * @param signal - Optional abort signal. Propagates through every
+ *   recursive sub-fetch so cancelling the root request short-circuits
+ *   the whole walk.
  * @returns The dependency tree object.
  */
 export async function getDependencyTree(
@@ -25,6 +29,7 @@ export async function getDependencyTree(
   version: string = "latest",
   visited: Set<string> = new Set(),
   depth: number = 0,
+  signal?: AbortSignal,
 ): Promise<DependencyTree> {
   const MAX_DEPTH = 3;
   const tree: DependencyTree = {
@@ -42,7 +47,7 @@ export async function getDependencyTree(
 
   try {
     const url = `https://registry.npmjs.org/${packageName}/${version}`;
-    const data = await fetchWithCache(url);
+    const data = await fetchWithCache(url, undefined, signal);
 
     if (!data) {
       throw new Error(`Failed to fetch package data for ${packageName}`);
@@ -61,6 +66,7 @@ export async function getDependencyTree(
           "latest",
           new Set(visited),
           depth + 1,
+          signal,
         );
       });
 

@@ -22,6 +22,7 @@ describe("fetchGithubSecurityAdvisories", () => {
 
     expect(githubFetch).toHaveBeenCalledWith(
       "https://api.github.com/repos/facebook/react/security-advisories",
+      undefined,
     );
     expect(result).toEqual(mockData);
   });

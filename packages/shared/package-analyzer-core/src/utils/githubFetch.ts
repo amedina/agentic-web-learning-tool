@@ -63,33 +63,45 @@ function isRateLimitResponse(response: Response): boolean {
  * - Rate-limit detection that throws `GithubRateLimitError` so the UI can
  *   prompt the user to add a token.
  * - The shared bounded LRU+TTL cache with single-flight semantics.
+ *
+ * @param url - GitHub REST API URL to fetch.
+ * @param signal - Optional {@link AbortSignal}. When it aborts, this
+ *   caller's await rejects with the signal's reason; the underlying
+ *   shared fetch keeps running so concurrent callers benefit.
  */
-export async function githubFetch(url: string): Promise<unknown> {
-  return cache.getOrFetch(url, async () => {
-    const token = await getTokenFn();
-    const headers: Record<string, string> = {
-      Accept: "application/vnd.github+json",
-      "X-GitHub-Api-Version": "2022-11-28",
-    };
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-    }
-
-    const response = await fetch(url, { headers });
-
-    if (isRateLimitResponse(response)) {
-      throw new GithubRateLimitError(url);
-    }
-
-    if (!response.ok) {
-      if (response.status === 404) {
-        return null;
+export async function githubFetch(
+  url: string,
+  signal?: AbortSignal,
+): Promise<unknown> {
+  return cache.getOrFetch(
+    url,
+    async () => {
+      const token = await getTokenFn();
+      const headers: Record<string, string> = {
+        Accept: "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+      };
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
       }
-      throw new Error(`Failed to fetch ${url}: ${response.statusText}`);
-    }
 
-    return await response.json();
-  });
+      const response = await fetch(url, { headers });
+
+      if (isRateLimitResponse(response)) {
+        throw new GithubRateLimitError(url);
+      }
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          return null;
+        }
+        throw new Error(`Failed to fetch ${url}: ${response.statusText}`);
+      }
+
+      return await response.json();
+    },
+    signal,
+  );
 }
 
 /**

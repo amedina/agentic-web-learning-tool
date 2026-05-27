@@ -22,6 +22,8 @@ describe("fetchNpmPackage", () => {
 
     expect(fetchWithCache).toHaveBeenCalledWith(
       "https://registry.npmjs.org/react",
+      undefined,
+      undefined,
     );
     expect(result).toEqual(mockData);
   });
