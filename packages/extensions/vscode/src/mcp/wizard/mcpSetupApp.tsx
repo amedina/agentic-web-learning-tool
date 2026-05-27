@@ -1,8 +1,8 @@
 /**
  * External dependencies.
  */
-import { useCallback, useEffect, useState, type FC } from "react";
-import { Loader2 } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState, type FC } from "react";
+import { ChevronDown, ChevronUp, Loader2 } from "lucide-react";
 
 /**
  * Internal dependencies.
@@ -41,6 +41,11 @@ export const McpSetupApp: FC<McpSetupAppProps> = ({ postMessage }) => {
   const [resultsByClient, setResultsByClient] = useState<
     Record<string, McpActionResult | undefined>
   >({});
+  // When false (default), the wizard hides clients that don't look
+  // installed on this machine. Toggled on by the "Show all supported
+  // clients" button so a user with an undetected install (portable
+  // app, custom path) can still proceed.
+  const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {
     const handle = (event: MessageEvent): void => {
@@ -87,6 +92,30 @@ export const McpSetupApp: FC<McpSetupAppProps> = ({ postMessage }) => {
       return next;
     });
   }, []);
+
+  // Always-include rule: detected clients, plus any client we've
+  // already installed against (so a stale-path entry is never hidden
+  // behind the "Show all" toggle even if the app bundle has since
+  // been removed).
+  const visibleClients = useMemo(() => {
+    if (!state) {
+      return [];
+    }
+    if (showAll) {
+      return state.clients;
+    }
+    return state.clients.filter((client) => {
+      if (client.detected) {
+        return true;
+      }
+      return (
+        client.status.kind === "installed" ||
+        client.status.kind === "installed-stale"
+      );
+    });
+  }, [state, showAll]);
+
+  const hiddenCount = state ? state.clients.length - visibleClients.length : 0;
 
   if (!state) {
     return (
@@ -135,7 +164,7 @@ export const McpSetupApp: FC<McpSetupAppProps> = ({ postMessage }) => {
           </div>
         </header>
         <ul className="space-y-3">
-          {state.clients.map((client) => (
+          {visibleClients.map((client) => (
             <li key={client.id}>
               <ClientCard
                 client={client}
@@ -146,6 +175,32 @@ export const McpSetupApp: FC<McpSetupAppProps> = ({ postMessage }) => {
             </li>
           ))}
         </ul>
+        {(hiddenCount > 0 || showAll) && (
+          <div className="mt-4 flex justify-center">
+            <button
+              type="button"
+              onClick={() => setShowAll((previous) => !previous)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-md border transition-colors"
+              style={{
+                color: "var(--vscode-descriptionForeground)",
+                borderColor: "var(--vscode-panel-border, transparent)",
+                backgroundColor: "transparent",
+              }}
+            >
+              {showAll ? (
+                <>
+                  <ChevronUp size={12} />
+                  <span>Hide undetected clients</span>
+                </>
+              ) : (
+                <>
+                  <ChevronDown size={12} />
+                  <span>Show all supported clients ({hiddenCount} hidden)</span>
+                </>
+              )}
+            </button>
+          </div>
+        )}
         <footer
           className="mt-8 text-xs leading-relaxed"
           style={{ color: "var(--vscode-descriptionForeground)" }}

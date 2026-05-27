@@ -30,7 +30,6 @@ import { registerViewPackageCommand } from "./commands/viewPackage";
 import { ProjectAnalysisCache } from "./diagnostics/projectAnalysisCache";
 import { DiagnosticsRunner } from "./diagnostics/runner";
 import { readSettings } from "./diagnostics/settings";
-import { PackageJsonCodeLensProvider } from "./providers/codeLensProvider";
 import { PackageJsonHoverProvider } from "./providers/hoverProvider";
 import {
   NpmAdvisorWebviewProvider,
@@ -50,8 +49,8 @@ const PACKAGE_JSON_SELECTOR: vscode.DocumentFilter[] = [
 /**
  * Extension entry point. VSCode invokes this once after the extension's
  * activation event fires (workspaceContains:**\/package.json). Wires up
- * the StatsCache, registers hover / CodeLens / diagnostics / webview
- * providers, registers commands, and binds workspace event listeners.
+ * the StatsCache, registers hover / diagnostics / webview providers,
+ * registers commands, and binds workspace event listeners.
  */
 export function activate(context: vscode.ExtensionContext): void {
   const githubAuth = new GithubAuthService();
@@ -150,15 +149,6 @@ export function activate(context: vscode.ExtensionContext): void {
     }),
   );
 
-  const codeLensProvider = new PackageJsonCodeLensProvider(cache, readSettings);
-  context.subscriptions.push(codeLensProvider);
-  context.subscriptions.push(
-    vscode.languages.registerCodeLensProvider(
-      PACKAGE_JSON_SELECTOR,
-      codeLensProvider,
-    ),
-  );
-
   const diagnosticCollection =
     vscode.languages.createDiagnosticCollection("npm-advisor");
   context.subscriptions.push(diagnosticCollection);
@@ -212,7 +202,6 @@ export function activate(context: vscode.ExtensionContext): void {
       if (!event.affectsConfiguration("npmAdvisor")) {
         return;
       }
-      codeLensProvider.refresh();
       void runner.refreshOpenPackageJsons();
     }),
     cache.onDidChange((change) => {

@@ -83,7 +83,10 @@ export const SearchWrapper = () => {
         const response = await new Promise<any>((resolve) => {
           chrome.runtime.sendMessage(
             { type: "GET_STATS", packageName: pkg.name },
-            resolve,
+            (result) => {
+              void chrome.runtime.lastError;
+              resolve(result);
+            },
           );
         });
 

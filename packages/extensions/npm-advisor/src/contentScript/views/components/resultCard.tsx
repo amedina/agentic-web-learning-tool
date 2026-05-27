@@ -65,6 +65,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ hit, query }) => {
         package: hit,
       },
       (response) => {
+        void chrome.runtime.lastError;
         setIsAdding(false);
         if (response?.success) {
           setIsAdded(true);

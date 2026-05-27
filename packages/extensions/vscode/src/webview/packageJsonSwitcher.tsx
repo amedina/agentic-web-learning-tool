@@ -15,6 +15,7 @@ interface PackageJsonSwitcherProps {
   onSelect: (file: PackageJsonFile) => void;
   onRefresh: () => void;
   onSetupMcp: () => void;
+  isRefreshing?: boolean;
 }
 
 /**
@@ -31,6 +32,7 @@ export const PackageJsonSwitcher: FC<PackageJsonSwitcherProps> = ({
   onSelect,
   onRefresh,
   onSetupMcp,
+  isRefreshing = false,
 }) => {
   const [expanded, setExpanded] = useState(!activeFile);
   const [legendOpen, setLegendOpen] = useState(false);
@@ -134,11 +136,20 @@ export const PackageJsonSwitcher: FC<PackageJsonSwitcherProps> = ({
         <button
           type="button"
           onClick={onRefresh}
-          title="Refresh package stats (clears cache)"
+          disabled={isRefreshing}
+          title={
+            isRefreshing
+              ? "Refreshing package stats…"
+              : "Refresh package stats (clears cache)"
+          }
           aria-label="Refresh package stats"
-          className="shrink-0 p-1.5 rounded text-slate-500 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-700/60 transition-colors"
+          aria-busy={isRefreshing}
+          className="shrink-0 p-1.5 rounded text-slate-500 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-700/60 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          <RefreshCcw size={14} />
+          <RefreshCcw
+            size={14}
+            className={isRefreshing ? "animate-spin" : undefined}
+          />
         </button>
       </div>
       {legendOpen ? <DiagnosticLegend /> : null}

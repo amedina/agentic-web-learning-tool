@@ -169,6 +169,7 @@ export const SearchResults: React.FC = () => {
         numericFilters,
       },
       (response) => {
+        void chrome.runtime.lastError;
         setIsFetching(false);
         if (response && response.success) {
           let finalHits: AlgoliaHit[] = response.hits || [];

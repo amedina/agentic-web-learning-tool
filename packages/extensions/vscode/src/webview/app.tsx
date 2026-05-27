@@ -7,6 +7,7 @@ import type { PackageStats } from "@agentic-web-labs/package-analyzer-core";
 import {
   DependenciesTab,
   StatsClientProvider,
+  clearDependencyStatsCache,
   type StatsClient,
 } from "@agentic-web-labs/package-analyzer-ui";
 
@@ -84,9 +85,23 @@ export const App: FC<AppProps> = ({
     prefetchedStats: Record<string, PackageStats | null>;
   } | null>(null);
   const [focusPackageName, setFocusPackageName] = useState<string | null>(null);
+  // Drives the refresh-button spinner. Set true on click, cleared when the
+  // host responds with a new init (i.e. cache.clearAll has completed and
+  // the new dependency payload is in hand).
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  // Bumped on every refresh click so DependenciesTab remounts immediately
+  // (before the host round-trip completes) and the rows visibly snap back
+  // to their skeleton state. Without this, the click→new-init turnaround
+  // can be too fast to perceive and the refresh feels like a no-op.
+  const [localRefreshTick, setLocalRefreshTick] = useState(0);
   const noopAddRef = useRef<(name: string) => void>(() => undefined);
   const onReadyRef = useRef(onReady);
   onReadyRef.current = onReady;
+  // Tracks the refreshKey from the previous init so we can detect a host-side
+  // cache wipe and drop useDependencyStats's module-level cache before the
+  // key-bumped DependenciesTab remounts. Without this, the remount re-seeds
+  // each row from the stale cache and the refresh appears to do nothing.
+  const lastRefreshKeyRef = useRef<number | null>(null);
 
   useEffect(() => {
     const handle = (event: MessageEvent): void => {
@@ -95,11 +110,20 @@ export const App: FC<AppProps> = ({
         return;
       }
       if (data.type === "init") {
+        const incomingRefreshKey = data.refreshKey ?? 0;
+        if (
+          lastRefreshKeyRef.current !== null &&
+          lastRefreshKeyRef.current !== incomingRefreshKey
+        ) {
+          clearDependencyStatsCache();
+          setIsRefreshing(false);
+        }
+        lastRefreshKeyRef.current = incomingRefreshKey;
         setInitState({
           activeFile: data.activeFile,
           availableFiles: data.availableFiles,
           packageJsonDependencies: data.packageJsonDependencies,
-          refreshKey: data.refreshKey ?? 0,
+          refreshKey: incomingRefreshKey,
           prefetchedStats: data.prefetchedStats ?? {},
         });
         // Sync focus to whatever the host sent — including null. A plain
@@ -142,6 +166,22 @@ export const App: FC<AppProps> = ({
     [onOpenPackageJson],
   );
 
+  // Wraps the host-side refresh in an optimistic local reset: drop the
+  // analyzer-ui module cache, strip the prefetchedStats snapshot from
+  // initState, and bump localRefreshTick so DependenciesTab remounts now
+  // with empty seed data — every row goes back to the skeleton state
+  // before the host has even acknowledged the message. The button spinner
+  // turns off when the new init arrives (see the message handler above).
+  const handleRefresh = useCallback(() => {
+    setIsRefreshing(true);
+    clearDependencyStatsCache();
+    setLocalRefreshTick((tick) => tick + 1);
+    setInitState((previous) =>
+      previous ? { ...previous, prefetchedStats: {} } : previous,
+    );
+    onRefreshStats();
+  }, [onRefreshStats]);
+
   const handleRateLimited = useCallback(() => {
     onNotify(
       "warning",
@@ -179,8 +219,9 @@ export const App: FC<AppProps> = ({
           activeFile={activeFile}
           availableFiles={availableFiles}
           onSelect={handleSelectFile}
-          onRefresh={onRefreshStats}
+          onRefresh={handleRefresh}
           onSetupMcp={onSetupMcp}
+          isRefreshing={isRefreshing}
         />
         <TabBar activeTab={activeTab} onChange={setActiveTab} />
         <div className="flex-1 min-h-0 overflow-y-auto">
@@ -196,7 +237,7 @@ export const App: FC<AppProps> = ({
             {activeFile ? (
               hasDependencies ? (
                 <DependenciesTab
-                  key={`${activeFile.uri}#${refreshKey}`}
+                  key={`${activeFile.uri}#${refreshKey}#${localRefreshTick}`}
                   packageJsonDependencies={
                     packageJsonDependencies ?? EMPTY_DEPS
                   }
