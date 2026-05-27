@@ -9,6 +9,7 @@ import { fetchBundlephobiaData } from "../utils/fetchBundlephobiaData";
 import { getDependencyTree, type DependencyTree } from "./getDependencyTree";
 import { fetchModuleReplacements } from "../utils/fetchModuleReplacements";
 import { githubFetch, GithubRateLimitError } from "../utils/githubFetch";
+import { matchesAdvisoryVersion } from "./matchAdvisoryToVersion";
 
 /**
  * External dependencies.
@@ -433,7 +434,15 @@ export async function getPackageStats(
       }
 
       if (advisoriesData && Array.isArray(advisoriesData)) {
-        const issues = advisoriesData.map((adv: any) => ({
+        // Filter advisories so we only count ones that actually affect the
+        // version the user has installed (consideredVersion). When no
+        // version is resolvable, matchesAdvisoryVersion falls back to
+        // including all advisories so the pre-1b behaviour is preserved.
+        const relevant = advisoriesData.filter((adv: any) =>
+          matchesAdvisoryVersion(adv, packageName, consideredVersion),
+        );
+
+        const issues = relevant.map((adv: any) => ({
           summary: adv.summary || "N/A",
           severity: adv.severity || "unknown",
           url: adv.html_url || "",
