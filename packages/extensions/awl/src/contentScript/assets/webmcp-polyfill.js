@@ -16800,12 +16800,17 @@ ${e}`
         ((this.bridge = e),
           (this.nativeContext = t),
           (this.nativeTesting = n),
-          this.nativeTesting.registerToolsChangedCallback(() => {
-            (console.log(
-              `[Native Adapter] Tool change detected from native API`
-            ),
-              this.syncToolsFromNative());
-          }),
+          // Patch: guard against Chrome builds where modelContextTesting
+          // exists but does not expose registerToolsChangedCallback. The
+          // ontoolchange assignment below still covers change detection.
+          typeof this.nativeTesting.registerToolsChangedCallback ===
+            `function` &&
+            this.nativeTesting.registerToolsChangedCallback(() => {
+              (console.log(
+                `[Native Adapter] Tool change detected from native API`
+              ),
+                this.syncToolsFromNative());
+            }),
           (this.nativeTesting.ontoolchange = () => {
             (console.log(
               `[Native Adapter] Tool change detected from native API`

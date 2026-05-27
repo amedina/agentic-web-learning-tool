@@ -204,7 +204,16 @@ export const Tools = ({
   );
 
   const reloadTools = useCallback(async () => {
-    await client.listTools();
+    try {
+      await client.listTools();
+    } catch (error) {
+      // Guard against transport-closed races (MCP error -32000) if the
+      // refresh button is clicked while devtools is detaching.
+      logger(
+        ['debug'],
+        [`[devtools/Tools] reloadTools listTools failed:`, error]
+      );
+    }
   }, [client]);
 
   const extraInterfaceToTopBar = useCallback(() => {

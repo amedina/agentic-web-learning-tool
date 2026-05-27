@@ -1,6 +1,6 @@
 {
   "name": "NPM Advisor",
-  "description": "NPM Advisor Extension",
+  "description": "Evaluate npm packages on npmjs.com and GitHub, with an AI chat for follow-ups.",
   "version": "0.3.0",
   "manifest_version": 3,
   "action": {

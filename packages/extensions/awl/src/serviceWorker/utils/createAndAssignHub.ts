@@ -48,6 +48,20 @@ const createAndAssignHub = async (
         chrome.runtime.sendMessage(
           { type: 'still_there' },
           async (response) => {
+            // Read lastError to suppress Chrome's "Unchecked
+            // runtime.lastError: The message port closed before a
+            // response was received." This fires whenever no extension
+            // page (sidePanel or devtools) is open to answer the ping —
+            // a normal state, not an error.
+            if (chrome.runtime.lastError) {
+              logger(
+                ['info'],
+                [
+                  'still_there: no extension page responded, treating tab as closed.',
+                ]
+              );
+              return;
+            }
             if (response?.status === 'yes' && response?.type === prefix) {
               logger(['info'], ['Tab is still active, restarting server...']);
               await restartServer();
