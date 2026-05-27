@@ -16,6 +16,27 @@
     "Chat",
     "Other"
   ],
+  "keywords": [
+    "npm",
+    "package.json",
+    "security",
+    "advisories",
+    "vulnerabilities",
+    "audit",
+    "dependencies",
+    "lockfile",
+    "license",
+    "bundle-size",
+    "publint",
+    "e18e",
+    "mcp"
+  ],
+  "homepage": "https://github.com/amedina/agentic-web-learning-tool/tree/develop/packages/extensions/vscode#readme",
+  "bugs": {
+    "url": "https://github.com/amedina/agentic-web-learning-tool/issues",
+    "email": ""
+  },
+  "qna": "https://github.com/amedina/agentic-web-learning-tool/discussions",
   "icon": "media/icon-128-color.png",
   "main": "./dist/extension.js",
   "activationEvents": [
