@@ -25,9 +25,7 @@ import { runGetPackageStats } from "./tools/getPackageStats";
 import { runListKnownProjects } from "./tools/listKnownProjects";
 import { runListWorkspaceDependencies } from "./tools/listWorkspaceDependencies";
 import { startHttpServer } from "./transports/httpTransport";
-
-const SERVER_NAME = "npm-advisor";
-const SERVER_VERSION = "0.1.0";
+import { SERVER_NAME, SERVER_VERSION } from "./version";
 
 /**
  * Wires analyzer-core's githubFetch to a $GITHUB_TOKEN env var when
