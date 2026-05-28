@@ -1,5 +1,5 @@
 import { build, context } from "esbuild";
-import { chmodSync } from "node:fs";
+import { chmodSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -7,6 +7,16 @@ const __dirname = fileURLToPath(new URL(".", import.meta.url));
 
 const production = process.argv.includes("--production");
 const watch = process.argv.includes("--watch");
+
+// Inline name + version from package.json at build time. The bundle is
+// copied into the VSCode extension at `dist/mcp/server.js`, two levels
+// deep, so the runtime `../package.json` lookup in version.ts can't find
+// it there. Baking the literals in via `define` makes the version
+// resolve correctly wherever the bundle ends up; version.ts keeps the
+// file read as a fallback for unbundled dev/test runs.
+const pkg = JSON.parse(
+  readFileSync(resolve(__dirname, "package.json"), "utf8"),
+);
 
 // Optional template engines that `@vue/compiler-sfc` and `consolidate`
 // dynamically `require()` (pulled in transitively by `madge` →
@@ -76,10 +86,28 @@ const sharedOptions = {
   // ship their published-as-esm builds rather than pulling in CJS
   // transpiler shims that don't tree-shake.
   mainFields: ["module", "main"],
+  define: {
+    __NPM_ADVISOR_VERSION__: JSON.stringify(pkg.version),
+    __NPM_ADVISOR_NAME__: JSON.stringify(pkg.name),
+  },
   banner: {
     // Shebang so `npx @agentic-web-labs/npm-advisor-mcp` and
-    // chmod +x on the output both work as plain executables.
-    js: "#!/usr/bin/env node",
+    // chmod +x on the output both work as plain executables. The
+    // require/__filename/__dirname shims restore the CommonJS globals
+    // that bundled deps still reference at runtime (ajv's codegen calls
+    // `require("path")`; the bundled TypeScript compiler reads
+    // `__filename`). Without them esbuild's ESM output throws "Dynamic
+    // require of X is not supported" / "__filename is not defined in ES
+    // module scope". The shebang must stay the first line.
+    js: [
+      "#!/usr/bin/env node",
+      "import { createRequire as __npmAdvisorCreateRequire } from 'node:module';",
+      "import { fileURLToPath as __npmAdvisorFileURLToPath } from 'node:url';",
+      "import { dirname as __npmAdvisorDirname } from 'node:path';",
+      "const require = __npmAdvisorCreateRequire(import.meta.url);",
+      "const __filename = __npmAdvisorFileURLToPath(import.meta.url);",
+      "const __dirname = __npmAdvisorDirname(__filename);",
+    ].join("\n"),
   },
   sourcemap: !production,
   minify: production,
