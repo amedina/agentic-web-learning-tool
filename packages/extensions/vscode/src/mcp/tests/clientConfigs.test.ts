@@ -30,6 +30,11 @@ describe("getSupportedClients", () => {
     );
   });
 
+  it("lists Claude Code first, then Claude Desktop", () => {
+    const ids = getSupportedClients().map((client) => client.id);
+    expect(ids.slice(0, 2)).toEqual(["claude-code", "claude-desktop"]);
+  });
+
   it("attaches a json-merge config path to every client except claude-code", () => {
     for (const client of getSupportedClients()) {
       if (client.id === "claude-code") {
