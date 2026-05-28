@@ -76,6 +76,26 @@ describe("validateWebviewMessage - per-type payload", () => {
       }).ok,
     ).toBe(false);
   });
+
+  it("requires non-empty text for copyToClipboard and accepts an optional toast", () => {
+    expect(
+      validateWebviewMessage({
+        type: "copyToClipboard",
+        text: "fix prompt",
+        toast: "Copied",
+      }).ok,
+    ).toBe(true);
+    expect(
+      validateWebviewMessage({ type: "copyToClipboard", text: "" }).ok,
+    ).toBe(false);
+    expect(
+      validateWebviewMessage({
+        type: "copyToClipboard",
+        text: "fix prompt",
+        toast: 42,
+      }).ok,
+    ).toBe(false);
+  });
 });
 
 describe("validateWebviewMessage - workspace boundary", () => {

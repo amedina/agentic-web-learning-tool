@@ -89,6 +89,19 @@ export type WebviewRequest =
        * trigger them.
        */
       dedupeKey?: string;
+    }
+  | {
+      /**
+       * Asks the host to copy `text` to the system clipboard via
+       * `vscode.env.clipboard`. Routing through the host rather than
+       * `navigator.clipboard` avoids the webview CSP blocking clipboard
+       * writes. Used by the "Copy prompt" affordance so users can paste
+       * a ready-made fix prompt into their AI assistant.
+       */
+      type: "copyToClipboard";
+      text: string;
+      /** Optional confirmation toast shown after the copy succeeds. */
+      toast?: string;
     };
 
 export type ExtensionMessage =
