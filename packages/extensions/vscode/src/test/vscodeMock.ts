@@ -229,6 +229,14 @@ export const window = {
   showWarningMessage: async (..._args: unknown[]): Promise<unknown> =>
     undefined,
   showErrorMessage: async (..._args: unknown[]): Promise<unknown> => undefined,
+  createOutputChannel: (_name: string) => ({
+    appendLine: (_value: string): void => undefined,
+    append: (_value: string): void => undefined,
+    clear: (): void => undefined,
+    show: (): void => undefined,
+    hide: (): void => undefined,
+    dispose: (): void => undefined,
+  }),
 };
 
 /**
@@ -300,9 +308,14 @@ function createMockFileSystemWatcher(): MockFileSystemWatcher {
 export const workspace: {
   workspaceFolders: { uri: { fsPath: string } }[] | undefined;
   createFileSystemWatcher: (..._args: unknown[]) => MockFileSystemWatcher;
+  openTextDocument: (..._args: unknown[]) => Promise<unknown>;
 } = {
   workspaceFolders: undefined,
   createFileSystemWatcher: () => createMockFileSystemWatcher(),
+  // Default to "could not open" — the project-analysis runner wraps this
+  // in try/catch and degrades to document-less diagnostics, which keeps
+  // runner tests focused on the analysis flow rather than editor IO.
+  openTextDocument: () => Promise.reject(new Error("not available in tests")),
 };
 
 /**
