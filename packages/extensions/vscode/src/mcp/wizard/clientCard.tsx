@@ -131,6 +131,19 @@ export const ClientCard: FC<ClientCardProps> = ({
             >
               {client.description}
             </p>
+            {isCli ? (
+              <p
+                className="text-[11px] mt-2 leading-relaxed flex items-start gap-1.5"
+                style={{ color: "var(--vscode-descriptionForeground)" }}
+              >
+                <Info size={12} className="shrink-0 mt-0.5" />
+                <span>
+                  Runs <code>claude mcp add</code> at local scope, so
+                  npm-advisor is registered for the current project only — this
+                  includes the Claude Code agent running inside VSCode.
+                </span>
+              </p>
+            ) : null}
             {configPath ? (
               <p
                 className="text-[11px] font-mono mt-2 break-all"
