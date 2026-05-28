@@ -357,6 +357,14 @@ export function buildClaudeCodeRemoveCommand(): string {
   return `claude mcp remove ${SERVER_KEY}`;
 }
 
+/**
+ * Builds the `claude mcp list` invocation so the wizard can let the
+ * user verify which MCP servers Claude Code currently has registered.
+ */
+export function buildClaudeCodeListCommand(): string {
+  return "claude mcp list";
+}
+
 /** Server key written into every json-merge client's config — useful for tests. */
 export const SERVER_KEY_NAME = SERVER_KEY;
 

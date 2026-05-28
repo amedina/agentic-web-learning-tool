@@ -10,6 +10,7 @@ import { dirname } from "node:path";
  */
 import {
   buildClaudeCodeCommand,
+  buildClaudeCodeListCommand,
   buildClaudeCodeRemoveCommand,
   getSupportedClients,
   type McpClientDescriptor,
@@ -570,9 +571,9 @@ export class McpSetupPanel implements vscode.Disposable {
 
   /**
    * Builds a per-client view object for every supported client. Adds
-   * Claude Code's CLI install / remove commands to the descriptor so
-   * the card's "Run in terminal" / "Copy command" buttons can resolve
-   * the string locally without an extra round-trip.
+   * Claude Code's CLI install / remove / list commands to the descriptor
+   * so the card's "Run in terminal" button and overflow-menu actions can
+   * resolve the string locally without an extra round-trip.
    */
   private collectClientViews(): McpClientView[] {
     const serverScriptPath = this.serverScriptPath();
@@ -592,6 +593,7 @@ export class McpSetupPanel implements vscode.Disposable {
       if (client.strategy.kind === "cli-snippet") {
         view.cliCommand = buildClaudeCodeCommand(serverScriptPath);
         view.cliRemoveCommand = buildClaudeCodeRemoveCommand();
+        view.cliListCommand = buildClaudeCodeListCommand();
       }
       return view;
     });

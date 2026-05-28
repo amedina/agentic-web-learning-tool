@@ -19,6 +19,7 @@ import {
   FileCode,
   FolderOpen,
   Info,
+  List,
   Loader2,
   MoreVertical,
   RefreshCcw,
@@ -174,14 +175,12 @@ export const ClientCard: FC<ClientCardProps> = ({
               </a>
             ) : null}
           </div>
-          {isCli ? null : (
-            <ClientCardOverflow
-              client={client}
-              pending={pending}
-              isWorkspaceBlocked={isWorkspaceBlocked}
-              dispatch={dispatchAction}
-            />
-          )}
+          <ClientCardOverflow
+            client={client}
+            pending={pending}
+            isWorkspaceBlocked={isWorkspaceBlocked}
+            dispatch={dispatchAction}
+          />
         </div>
 
         <div className="flex flex-wrap items-center gap-2 mt-4">
@@ -222,10 +221,12 @@ interface ClientCardOverflowProps {
 }
 
 /**
- * Three-dots overflow menu in the card's top-right corner. Hosts the
- * less-frequently-used file-system actions (Open config, Reveal in
- * OS) and the backup-management actions (View / Delete backups) so
- * the primary action row stays tight.
+ * Three-dots overflow menu in the card's top-right corner. For
+ * json-merge clients it hosts the less-frequently-used file-system
+ * actions (Open config, Reveal in OS) and the backup-management
+ * actions (View / Delete backups); for the Claude Code (cli-snippet)
+ * client it hosts the copy-command and "List MCP servers" actions
+ * (see `buildCliItems`). Either way the primary action row stays tight.
  *
  * Click-outside / Escape close the menu. Disabled menu items render
  * dimmed but stay readable so users can see what's possible (e.g.
@@ -293,55 +294,58 @@ const ClientCardOverflow: FC<ClientCardOverflowProps> = ({
 
   const close = (): void => setOpen(false);
   const hasBackups = client.backupCount > 0;
+  const isCli = client.status.kind === "cli-snippet";
 
-  const items: OverflowItem[] = [
-    {
-      key: "openConfig",
-      label: "Open config",
-      icon: <FileCode size={14} />,
-      disabled: isWorkspaceBlocked,
-      onClick: () => {
-        close();
-        dispatch({ type: "openConfig", clientId: client.id });
-      },
-    },
-    {
-      key: "revealConfig",
-      label: "Reveal in OS",
-      icon: <FolderOpen size={14} />,
-      disabled: isWorkspaceBlocked,
-      onClick: () => {
-        close();
-        dispatch({ type: "revealConfig", clientId: client.id });
-      },
-    },
-    {
-      key: "viewBackups",
-      label: `View backups (${client.backupCount})`,
-      icon: <Archive size={14} />,
-      disabled: !hasBackups,
-      onClick: () => {
-        close();
-        dispatch({ type: "viewBackups", clientId: client.id });
-      },
-    },
-    {
-      key: "cleanupBackups",
-      label: confirmingDelete ? "Click again to confirm" : "Delete backups",
-      icon: <Trash2 size={14} />,
-      disabled: !hasBackups,
-      danger: true,
-      onClick: () => {
-        if (!confirmingDelete) {
-          setConfirmingDelete(true);
-          return;
-        }
-        setConfirmingDelete(false);
-        close();
-        dispatch({ type: "cleanupBackups", clientId: client.id });
-      },
-    },
-  ];
+  const items: OverflowItem[] = isCli
+    ? buildCliItems(client, close, dispatch)
+    : [
+        {
+          key: "openConfig",
+          label: "Open config",
+          icon: <FileCode size={14} />,
+          disabled: isWorkspaceBlocked,
+          onClick: () => {
+            close();
+            dispatch({ type: "openConfig", clientId: client.id });
+          },
+        },
+        {
+          key: "revealConfig",
+          label: "Reveal in OS",
+          icon: <FolderOpen size={14} />,
+          disabled: isWorkspaceBlocked,
+          onClick: () => {
+            close();
+            dispatch({ type: "revealConfig", clientId: client.id });
+          },
+        },
+        {
+          key: "viewBackups",
+          label: `View backups (${client.backupCount})`,
+          icon: <Archive size={14} />,
+          disabled: !hasBackups,
+          onClick: () => {
+            close();
+            dispatch({ type: "viewBackups", clientId: client.id });
+          },
+        },
+        {
+          key: "cleanupBackups",
+          label: confirmingDelete ? "Click again to confirm" : "Delete backups",
+          icon: <Trash2 size={14} />,
+          disabled: !hasBackups,
+          danger: true,
+          onClick: () => {
+            if (!confirmingDelete) {
+              setConfirmingDelete(true);
+              return;
+            }
+            setConfirmingDelete(false);
+            close();
+            dispatch({ type: "cleanupBackups", clientId: client.id });
+          },
+        },
+      ];
 
   return (
     <div className="relative shrink-0" ref={containerRef}>
@@ -408,6 +412,73 @@ const OverflowMenuItem: FC<OverflowMenuItemProps> = ({ item }) => (
     <span className="flex-1 text-left">{item.label}</span>
   </button>
 );
+
+/**
+ * Builds the overflow-menu items for the Claude Code (cli-snippet)
+ * card: copy the install / remove commands to the clipboard, plus a
+ * "List MCP servers" shortcut that types `claude mcp list` into a
+ * terminal. Each item is only included when the host resolved the
+ * matching command string. These low-frequency actions live in the
+ * menu so the card's action row keeps just the two "Run in terminal"
+ * buttons.
+ */
+function buildCliItems(
+  client: McpClientView,
+  close: () => void,
+  dispatch: (message: McpWizardRequest) => void,
+): OverflowItem[] {
+  const items: OverflowItem[] = [];
+  if (client.cliCommand) {
+    const installCommand = client.cliCommand;
+    items.push({
+      key: "copyInstall",
+      label: "Copy install command",
+      icon: <Copy size={14} />,
+      onClick: () => {
+        close();
+        dispatch({
+          type: "copyCommand",
+          clientId: client.id,
+          command: installCommand,
+        });
+      },
+    });
+  }
+  if (client.cliRemoveCommand) {
+    const removeCommand = client.cliRemoveCommand;
+    items.push({
+      key: "copyRemove",
+      label: "Copy remove command",
+      icon: <Copy size={14} />,
+      onClick: () => {
+        close();
+        dispatch({
+          type: "copyCommand",
+          clientId: client.id,
+          command: removeCommand,
+        });
+      },
+    });
+  }
+  if (client.cliListCommand) {
+    const listCommand = client.cliListCommand;
+    items.push({
+      key: "listServers",
+      label: "List MCP servers",
+      icon: <List size={14} />,
+      onClick: () => {
+        close();
+        dispatch({
+          type: "runCommand",
+          clientId: client.id,
+          command: listCommand,
+          label: "List command",
+        });
+      },
+    });
+  }
+  return items;
+}
 
 interface JsonMergeActionsProps {
   client: McpClientView;
@@ -480,11 +551,11 @@ interface CliActionsProps {
 }
 
 /**
- * Action row for the Claude Code (cli-snippet) client. Run-in-terminal
- * is the primary path because we can do that for the user without a
- * round-trip to clipboard + paste; copy-to-clipboard stays as a
- * fallback for users who prefer running the CLI in a different
- * terminal app.
+ * Action row for the Claude Code (cli-snippet) client. Keeps just the
+ * two run-in-terminal buttons because we can do that for the user
+ * without a clipboard round-trip. The copy-command and "List MCP
+ * servers" actions live in the card's three-dots overflow menu so the
+ * row stays tight.
  */
 const CliActions: FC<CliActionsProps> = ({ client, pending, dispatch }) => {
   if (!client.cliCommand || !client.cliRemoveCommand) {
@@ -509,19 +580,6 @@ const CliActions: FC<CliActionsProps> = ({ client, pending, dispatch }) => {
         }
       />
       <SecondaryButton
-        icon={<Copy size={14} />}
-        label="Copy install"
-        loading={pending === "copyCommand"}
-        disabled={pending !== null}
-        onClick={() =>
-          dispatch({
-            type: "copyCommand",
-            clientId: client.id,
-            command: installCommand,
-          })
-        }
-      />
-      <SecondaryButton
         icon={<Terminal size={14} />}
         label="Run remove in terminal"
         loading={pending === "runCommand"}
@@ -532,19 +590,6 @@ const CliActions: FC<CliActionsProps> = ({ client, pending, dispatch }) => {
             clientId: client.id,
             command: removeCommand,
             label: "Remove command",
-          })
-        }
-      />
-      <SecondaryButton
-        icon={<Copy size={14} />}
-        label="Copy remove"
-        loading={pending === "copyCommand"}
-        disabled={pending !== null}
-        onClick={() =>
-          dispatch({
-            type: "copyCommand",
-            clientId: client.id,
-            command: removeCommand,
           })
         }
       />

@@ -8,6 +8,7 @@ import { describe, expect, it } from "vitest";
  */
 import {
   buildClaudeCodeCommand,
+  buildClaudeCodeListCommand,
   buildClaudeCodeRemoveCommand,
   buildJsonMergePayload,
   buildServerEntry,
@@ -87,6 +88,12 @@ describe("buildClaudeCodeCommand", () => {
     expect(buildClaudeCodeCommand("/path with space/server.js")).toBe(
       `claude mcp add ${SERVER_KEY_NAME} -- node "/path with space/server.js"`,
     );
+  });
+});
+
+describe("buildClaudeCodeListCommand", () => {
+  it("renders the `claude mcp list` command", () => {
+    expect(buildClaudeCodeListCommand()).toBe("claude mcp list");
   });
 });
 
