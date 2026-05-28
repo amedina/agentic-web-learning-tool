@@ -28,6 +28,7 @@ const ALLOWED_TYPES: ReadonlySet<WebviewRequest["type"]> = new Set([
   "getCachedProjectAnalysis",
   "revealFinding",
   "notify",
+  "copyToClipboard",
 ] as const);
 
 /**
@@ -195,6 +196,16 @@ export function validateWebviewMessage(
           ok: false,
           reason: "notify missing level (info|warning|error) or message",
         };
+      }
+      return { ok: true, message: message as WebviewRequest };
+    }
+
+    case "copyToClipboard": {
+      if (!isNonEmptyString(message.text)) {
+        return { ok: false, reason: "copyToClipboard missing text" };
+      }
+      if (message.toast !== undefined && !isString(message.toast)) {
+        return { ok: false, reason: "copyToClipboard has non-string toast" };
       }
       return { ok: true, message: message as WebviewRequest };
     }

@@ -258,6 +258,35 @@ describe("WebviewBridge", () => {
     showWarningSpy.mockRestore();
   });
 
+  it("writes the text to the clipboard and confirms with a toast on copyToClipboard", async () => {
+    const writeTextSpy = vi
+      .spyOn(vscode.env.clipboard, "writeText")
+      .mockResolvedValue(undefined);
+    const showInfoSpy = vi
+      .spyOn(vscode.window, "showInformationMessage")
+      .mockResolvedValue(undefined as never);
+    const bridge = new WebviewBridge({
+      cache: { get: vi.fn() } as unknown as never,
+      settingsProvider: () => ({ targetLicense: "MIT" }) as never,
+      githubAuth: makeFakeAuth(),
+      projectAnalysisCollection: makeFakeDiagnosticCollection(),
+      projectAnalysisCache: makeFakeProjectAnalysisCache(),
+    });
+    const fakeWebview = new FakeWebview();
+    bridge.attach(fakeWebview as unknown as vscode.Webview);
+    fakeWebview.dispatch({ type: "ready" });
+    fakeWebview.dispatch({
+      type: "copyToClipboard",
+      text: "fix prompt body",
+      toast: "Copied!",
+    });
+    await flushAsync();
+    expect(writeTextSpy).toHaveBeenCalledWith("fix prompt body");
+    expect(showInfoSpy).toHaveBeenCalledWith("Copied!");
+    writeTextSpy.mockRestore();
+    showInfoSpy.mockRestore();
+  });
+
   it("appends a Sign in action when rate-limited and unauthenticated", async () => {
     const showWarningSpy = vi
       .spyOn(vscode.window, "showWarningMessage")

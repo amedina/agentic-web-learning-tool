@@ -6,26 +6,45 @@ import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 
 /**
- * Read the package's `name` and `version` directly out of package.json at
- * load time. Both the esbuild bundle (`dist/server.js`) and the source
- * tree (`src/version.ts`) sit exactly one directory above package.json,
- * so the same `..` lookup works in production builds, in `vitest`, and
- * when the file is invoked through `tsx`/`node` without bundling.
+ * esbuild replaces these with string literals from package.json at build
+ * time (see the `define` block in esbuild.config.js). They are the
+ * authoritative source in the shipped bundle, which gets relocated into
+ * the VSCode extension at `dist/mcp/server.js` where the file-read
+ * fallback below can't find package.json.
+ */
+declare const __NPM_ADVISOR_VERSION__: string | undefined;
+declare const __NPM_ADVISOR_NAME__: string | undefined;
+
+/**
+ * Resolve the package's `name` and `version`. In the esbuild bundle the
+ * `define`d literals win. In unbundled runs (`tsx`, `vitest`, plain
+ * `node` on the source) those identifiers are undefined, so we read
+ * package.json one directory above this module — true for both the
+ * source tree (`src/version.ts`) and an unbundled `dist/server.js`.
  *
  * Previously the server hardcoded `SERVER_VERSION = "0.1.0"` while
- * package.json had moved on to `0.3.0`, so MCP clients displayed a
- * misleading version string. Centralising on package.json removes the
- * drift altogether.
+ * package.json had moved on, so MCP clients displayed a misleading
+ * version string. Sourcing from package.json removes the drift.
  */
-const packageJsonPath = resolve(
-  dirname(fileURLToPath(import.meta.url)),
-  "..",
-  "package.json",
-);
-const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf8")) as {
-  name: string;
-  version: string;
-};
+function readPackageMeta(): { name: string; version: string } {
+  if (
+    typeof __NPM_ADVISOR_NAME__ === "string" &&
+    typeof __NPM_ADVISOR_VERSION__ === "string"
+  ) {
+    return { name: __NPM_ADVISOR_NAME__, version: __NPM_ADVISOR_VERSION__ };
+  }
+  const packageJsonPath = resolve(
+    dirname(fileURLToPath(import.meta.url)),
+    "..",
+    "package.json",
+  );
+  return JSON.parse(readFileSync(packageJsonPath, "utf8")) as {
+    name: string;
+    version: string;
+  };
+}
+
+const packageJson = readPackageMeta();
 
 export const SERVER_NAME = "npm-advisor";
 export const SERVER_VERSION: string = packageJson.version;

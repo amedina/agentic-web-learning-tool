@@ -33,6 +33,9 @@ if (container) {
       }
       onRefreshStats={() => vscodeApi.postMessage({ type: "refreshStats" })}
       onSetupMcp={() => vscodeApi.postMessage({ type: "setupMcp" })}
+      onCopyToClipboard={(text, toast) =>
+        vscodeApi.postMessage({ type: "copyToClipboard", text, toast })
+      }
       onNotify={(level, message, dedupeKey) =>
         vscodeApi.postMessage({ type: "notify", level, message, dedupeKey })
       }

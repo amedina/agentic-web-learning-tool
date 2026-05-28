@@ -182,6 +182,14 @@ export function getSupportedClients(): McpClientDescriptor[] {
 
   return [
     {
+      id: "claude-code",
+      label: "Claude Code",
+      description: "Anthropic's CLI agent — registers via `claude mcp add`",
+      docsUrl: "https://docs.anthropic.com/en/docs/claude-code/mcp",
+      strategy: { kind: "cli-snippet" },
+      installedHints: [{ kind: "command", name: "claude" }],
+    },
+    {
       id: "claude-desktop",
       label: "Claude Desktop",
       description: "Anthropic's desktop chat app",
@@ -208,14 +216,6 @@ export function getSupportedClients(): McpClientDescriptor[] {
       docsUrl: "https://code.visualstudio.com/docs/copilot/chat/mcp-servers",
       strategy: { kind: "json-merge", configPath: ".vscode/mcp.json" },
       // No installedHints — we are VSCode, so it's always present.
-    },
-    {
-      id: "claude-code",
-      label: "Claude Code",
-      description: "Anthropic's CLI agent — registers via `claude mcp add`",
-      docsUrl: "https://docs.anthropic.com/en/docs/claude-code/mcp",
-      strategy: { kind: "cli-snippet" },
-      installedHints: [{ kind: "command", name: "claude" }],
     },
     {
       id: "windsurf",
@@ -355,6 +355,14 @@ export function removeFromExistingConfig(
  */
 export function buildClaudeCodeRemoveCommand(): string {
   return `claude mcp remove ${SERVER_KEY}`;
+}
+
+/**
+ * Builds the `claude mcp list` invocation so the wizard can let the
+ * user verify which MCP servers Claude Code currently has registered.
+ */
+export function buildClaudeCodeListCommand(): string {
+  return "claude mcp list";
 }
 
 /** Server key written into every json-merge client's config — useful for tests. */

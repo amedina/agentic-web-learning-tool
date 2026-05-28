@@ -45,6 +45,55 @@ export interface RunPublintResult {
 }
 
 /**
+ * Directory names whose contents are never part of a published package: third
+ * party code (`node_modules`) and common build-output directories. In `"source"`
+ * mode publint globs the whole working tree when the package has no `exports`
+ * field, so it surfaces format warnings for thousands of dependency and build
+ * artifacts that are irrelevant to the `package.json` being analyzed.
+ */
+const NON_PUBLISHED_DIR_SEGMENTS = new Set([
+  "node_modules",
+  "dist",
+  "build",
+  "out",
+  "coverage",
+  ".next",
+  ".turbo",
+  ".cache",
+]);
+
+/**
+ * Returns the pkgDir-relative file path a publint message refers to, if any.
+ * publint records this on `actualFilePath` (globbed file-format checks) or
+ * `globbedFilePath` (exports-glob checks); both are leading-slash paths such as
+ * `"/node_modules/jiti/dist/jiti.cjs"`.
+ */
+function getReferencedFilePath(message: Message): string | undefined {
+  const args = message.args as Record<string, unknown> | undefined;
+  if (!args) {
+    return undefined;
+  }
+  const candidate = args.actualFilePath ?? args.globbedFilePath;
+  return typeof candidate === "string" ? candidate : undefined;
+}
+
+/**
+ * Whether a publint message points at a file that would never be published
+ * (anything under `node_modules` or a build-output directory). Such messages are
+ * noise for publishing-hygiene analysis and are dropped before findings are
+ * created. Messages without a referenced file (i.e. those tied to a
+ * `package.json` field) are always kept.
+ */
+function refersToNonPublishedFile(message: Message): boolean {
+  const filePath = getReferencedFilePath(message);
+  if (!filePath) {
+    return false;
+  }
+  const segments = filePath.split("/").filter((segment) => segment.length > 0);
+  return segments.some((segment) => NON_PUBLISHED_DIR_SEGMENTS.has(segment));
+}
+
+/**
  * Maps publint's `MessageType` to the severity vocabulary used by
  * `ProjectFinding`. Suggestions surface as `"info"` rather than `"hint"`
  * so they remain visible in editor diagnostic UIs.
@@ -95,7 +144,10 @@ export async function runPublint(
     pack: mode === "source" ? false : "auto",
   });
   const packageJsonPath = path.join(pkgDir, "package.json");
-  const findings: ProjectFinding[] = result.messages.map((message) => ({
+  const publishableMessages = result.messages.filter(
+    (message) => !refersToNonPublishedFile(message),
+  );
+  const findings: ProjectFinding[] = publishableMessages.map((message) => ({
     source: "publint",
     severity: mapSeverity(message.type),
     code: message.code,

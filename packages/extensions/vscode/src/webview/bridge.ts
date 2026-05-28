@@ -264,6 +264,13 @@ export class WebviewBridge implements vscode.Disposable {
         await vscode.commands.executeCommand(SETUP_MCP_COMMAND);
         return;
       }
+      case "copyToClipboard": {
+        await vscode.env.clipboard.writeText(message.text);
+        void vscode.window.showInformationMessage(
+          message.toast ?? "Copied to clipboard.",
+        );
+        return;
+      }
       case "refreshStats": {
         // Cache change emits onDidChange; provider's downstream
         // listeners + the diagnostics runner pick that up and re-init

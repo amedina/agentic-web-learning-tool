@@ -28,6 +28,7 @@ interface AppProps {
   onOpenPackageJson: (uri: string) => void;
   onRefreshStats: () => void;
   onSetupMcp: () => void;
+  onCopyToClipboard: (text: string, toast?: string) => void;
   onNotify: (
     level: "info" | "warning" | "error",
     message: string,
@@ -71,6 +72,7 @@ export const App: FC<AppProps> = ({
   onOpenPackageJson,
   onRefreshStats,
   onSetupMcp,
+  onCopyToClipboard,
   onNotify,
   onRunProjectAnalysis,
   onGetCachedProjectAnalysis,
@@ -263,6 +265,8 @@ export const App: FC<AppProps> = ({
               postRunRequest={onRunProjectAnalysis}
               postCacheRequest={onGetCachedProjectAnalysis}
               postReveal={onRevealFinding}
+              postCopyPrompt={onCopyToClipboard}
+              postSetupMcp={onSetupMcp}
             />
           </div>
         </div>

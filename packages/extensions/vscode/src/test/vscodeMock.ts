@@ -232,6 +232,17 @@ export const window = {
 };
 
 /**
+ * Test stand-in for vscode.env. Only the clipboard is modelled; tests
+ * can spy on `env.clipboard.writeText` to verify the bridge copies
+ * text without touching the real system clipboard.
+ */
+export const env = {
+  clipboard: {
+    writeText: async (_text: string): Promise<void> => undefined,
+  },
+};
+
+/**
  * Test stand-in for vscode.workspace. Defaults to "no folders open"
  * (matching VSCode's behavior when the user opens a stand-alone file)
  * and lets tests overwrite `workspaceFolders` to exercise the

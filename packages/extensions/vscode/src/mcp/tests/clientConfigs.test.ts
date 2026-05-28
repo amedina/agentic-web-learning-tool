@@ -8,6 +8,7 @@ import { describe, expect, it } from "vitest";
  */
 import {
   buildClaudeCodeCommand,
+  buildClaudeCodeListCommand,
   buildClaudeCodeRemoveCommand,
   buildJsonMergePayload,
   buildServerEntry,
@@ -28,6 +29,11 @@ describe("getSupportedClients", () => {
         "claude-code",
       ]),
     );
+  });
+
+  it("lists Claude Code first, then Claude Desktop", () => {
+    const ids = getSupportedClients().map((client) => client.id);
+    expect(ids.slice(0, 2)).toEqual(["claude-code", "claude-desktop"]);
   });
 
   it("attaches a json-merge config path to every client except claude-code", () => {
@@ -82,6 +88,12 @@ describe("buildClaudeCodeCommand", () => {
     expect(buildClaudeCodeCommand("/path with space/server.js")).toBe(
       `claude mcp add ${SERVER_KEY_NAME} -- node "/path with space/server.js"`,
     );
+  });
+});
+
+describe("buildClaudeCodeListCommand", () => {
+  it("renders the `claude mcp list` command", () => {
+    expect(buildClaudeCodeListCommand()).toBe("claude mcp list");
   });
 });
 

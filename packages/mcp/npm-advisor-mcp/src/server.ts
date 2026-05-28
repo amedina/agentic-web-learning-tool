@@ -247,11 +247,12 @@ export async function createServer(): Promise<McpServer> {
   );
 
   // Static resources (scoring methodology, data-source provenance,
-  // bundled module-replacements). Lets a client quote documentation
-  // without burning a tool slot.
+  // bundled module-replacements, publishing-hygiene playbook). Lets a
+  // client quote documentation without burning a tool slot.
   registerResources(server);
 
-  // Prompt templates (audit-this-project, compare-packages). Clients
+  // Prompt templates (audit-this-project, compare-packages,
+  // fix-publishing-issues, fix-circular-dependencies). Clients
   // typically render these as user-invokable commands and only
   // execute when the user accepts.
   registerPrompts(server);

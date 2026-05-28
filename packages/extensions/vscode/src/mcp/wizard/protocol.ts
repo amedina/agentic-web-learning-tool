@@ -7,8 +7,8 @@ import type { McpClientStatus } from "../operations";
 /**
  * Per-client snapshot rendered as a card in the wizard. Built by the
  * host on each refresh and pushed to the webview as part of the init /
- * statuses message. `cliCommand` / `cliRemoveCommand` only set for
- * Claude Code (cli-snippet strategy). `backupCount` /
+ * statuses message. `cliCommand` / `cliRemoveCommand` / `cliListCommand`
+ * only set for Claude Code (cli-snippet strategy). `backupCount` /
  * `latestBackupPath` are 0 / undefined for cli-snippet clients (no
  * config file → no backups).
  */
@@ -20,6 +20,7 @@ export interface McpClientView {
   status: McpClientStatus;
   cliCommand?: string;
   cliRemoveCommand?: string;
+  cliListCommand?: string;
   /** Count of `<config>.<ts>.bak` files this client has accumulated. */
   backupCount: number;
   /** Newest backup's absolute path; the host reveals this in the OS file manager. */

@@ -9,6 +9,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
  */
 import {
   DATA_SOURCES_URI,
+  PUBLISHING_HYGIENE_PLAYBOOK_URI,
   RECOMMENDED_REPLACEMENTS_URI,
   SCORING_METHODOLOGY_URI,
   registerResources,
@@ -29,9 +30,7 @@ function makeServer(): McpServer {
  * tests can invoke its read callback directly without going through a
  * full SDK request round-trip.
  */
-function registeredResources(
-  server: McpServer,
-): Record<
+function registeredResources(server: McpServer): Record<
   string,
   {
     metadata?: { title?: string };
@@ -56,7 +55,7 @@ afterEach(() => {
 });
 
 describe("registerResources", () => {
-  it("registers all three static resources", () => {
+  it("registers every static resource", () => {
     const server = makeServer();
     registerResources(server);
     const resources = registeredResources(server);
@@ -64,6 +63,7 @@ describe("registerResources", () => {
     expect(uris).toContain(SCORING_METHODOLOGY_URI);
     expect(uris).toContain(DATA_SOURCES_URI);
     expect(uris).toContain(RECOMMENDED_REPLACEMENTS_URI);
+    expect(uris).toContain(PUBLISHING_HYGIENE_PLAYBOOK_URI);
   });
 
   it("scoring methodology serves markdown describing the score axes", async () => {
@@ -133,5 +133,22 @@ describe("registerResources", () => {
     expect(
       payload.replacements.some((entry) => entry.fromPackage === "lodash"),
     ).toBe(true);
+  });
+
+  it("publishing-hygiene playbook maps publint codes to root-cause fixes", async () => {
+    const server = makeServer();
+    registerResources(server);
+    const resources = registeredResources(server);
+    const result = (await resources[
+      PUBLISHING_HYGIENE_PLAYBOOK_URI
+    ].readCallback(new URL(PUBLISHING_HYGIENE_PLAYBOOK_URI))) as {
+      contents: Array<{ text: string; mimeType: string }>;
+    };
+    expect(result.contents[0].mimeType).toBe("text/markdown");
+    const text = result.contents[0].text;
+    expect(text).toContain("FILE_INVALID_FORMAT");
+    expect(text).toContain("USE_FILES");
+    expect(text).toContain("node_modules");
+    expect(text).toContain("build output");
   });
 });

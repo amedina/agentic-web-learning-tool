@@ -15,6 +15,7 @@ import {
   ArrowDown,
   ChevronDown,
   ChevronRight,
+  Copy,
   CornerDownLeft,
   ExternalLink,
   HelpCircle,
@@ -23,10 +24,12 @@ import {
   Loader2,
   Network,
   PlayCircle,
+  Plug,
   RefreshCw,
   Repeat,
   Search,
   ShieldCheck,
+  Sparkles,
   X,
 } from "lucide-react";
 import type {
@@ -45,6 +48,8 @@ interface ProjectAnalysisTabProps {
   postRunRequest: (requestId: string, packageJsonUri: string) => void;
   postCacheRequest: (requestId: string, packageJsonUri: string) => void;
   postReveal: (filePath: string, range?: ProjectFinding["range"]) => void;
+  postCopyPrompt: (text: string, toast?: string) => void;
+  postSetupMcp: () => void;
 }
 
 type Status =
@@ -85,6 +90,8 @@ export const ProjectAnalysisTab: FC<ProjectAnalysisTabProps> = ({
   postRunRequest,
   postCacheRequest,
   postReveal,
+  postCopyPrompt,
+  postSetupMcp,
 }) => {
   const [status, setStatus] = useState<Status>({ kind: "idle" });
   const [stale, setStale] = useState<StaleState | null>(null);
@@ -217,7 +224,12 @@ export const ProjectAnalysisTab: FC<ProjectAnalysisTabProps> = ({
           onRerun={handleRun}
         />
       )}
-      <Body status={status} postReveal={postReveal} />
+      <Body
+        status={status}
+        postReveal={postReveal}
+        postCopyPrompt={postCopyPrompt}
+        postSetupMcp={postSetupMcp}
+      />
     </div>
   );
 };
@@ -419,13 +431,20 @@ const StaleBanner: FC<StaleBannerProps> = ({
 interface BodyProps {
   status: Status;
   postReveal: ProjectAnalysisTabProps["postReveal"];
+  postCopyPrompt: ProjectAnalysisTabProps["postCopyPrompt"];
+  postSetupMcp: ProjectAnalysisTabProps["postSetupMcp"];
 }
 
 /**
  * Renders the body of the tab. Shows an empty/loading/error state, or
  * the summary + grouped findings list once analysis succeeds.
  */
-const Body: FC<BodyProps> = ({ status, postReveal }) => {
+const Body: FC<BodyProps> = ({
+  status,
+  postReveal,
+  postCopyPrompt,
+  postSetupMcp,
+}) => {
   if (status.kind === "idle") {
     return <IdleExplainer />;
   }
@@ -444,12 +463,21 @@ const Body: FC<BodyProps> = ({ status, postReveal }) => {
       </div>
     );
   }
-  return <Results analysis={status.analysis} postReveal={postReveal} />;
+  return (
+    <Results
+      analysis={status.analysis}
+      postReveal={postReveal}
+      postCopyPrompt={postCopyPrompt}
+      postSetupMcp={postSetupMcp}
+    />
+  );
 };
 
 interface ResultsProps {
   analysis: ProjectAnalysis;
   postReveal: ProjectAnalysisTabProps["postReveal"];
+  postCopyPrompt: ProjectAnalysisTabProps["postCopyPrompt"];
+  postSetupMcp: ProjectAnalysisTabProps["postSetupMcp"];
 }
 
 type SeverityFilter = FindingSeverity | "all";
@@ -468,7 +496,12 @@ const INITIAL_GROUP_LIMIT = 50;
  * clicking a stat tile or a card header expands that section and
  * collapses the other (only one open at a time).
  */
-const Results: FC<ResultsProps> = ({ analysis, postReveal }) => {
+const Results: FC<ResultsProps> = ({
+  analysis,
+  postReveal,
+  postCopyPrompt,
+  postSetupMcp,
+}) => {
   const publintFindings = useMemo(
     () => analysis.findings.filter((finding) => finding.source === "publint"),
     [analysis.findings],
@@ -488,6 +521,15 @@ const Results: FC<ResultsProps> = ({ analysis, postReveal }) => {
 
   return (
     <div className="flex flex-col gap-3">
+      {totalSurfaced > 0 && (
+        <FixWithAiCallout
+          rootPath={analysis.rootPath}
+          publintCount={publintFindings.length}
+          circularCount={circularFindings.length}
+          postCopyPrompt={postCopyPrompt}
+          postSetupMcp={postSetupMcp}
+        />
+      )}
       <OverallSummary
         publintCount={publintFindings.length}
         circularCount={circularFindings.length}
@@ -520,6 +562,108 @@ const Results: FC<ResultsProps> = ({ analysis, postReveal }) => {
       {analysis.warnings.length > 0 && (
         <Warnings warnings={analysis.warnings} />
       )}
+    </div>
+  );
+};
+
+interface FixWithAiCalloutProps {
+  rootPath: string;
+  publintCount: number;
+  circularCount: number;
+  postCopyPrompt: ProjectAnalysisTabProps["postCopyPrompt"];
+  postSetupMcp: ProjectAnalysisTabProps["postSetupMcp"];
+}
+
+/**
+ * Build the ready-to-paste prompt the "Copy prompt" button drops on the
+ * clipboard. It tells an AI assistant to fix exactly the issue kinds
+ * present (publishing and/or circular) via the npm-advisor MCP server,
+ * scoped to this project root, and to verify afterwards.
+ */
+function buildFixPrompt(
+  rootPath: string,
+  publintCount: number,
+  circularCount: number,
+): string {
+  const lines: string[] = [
+    `Fix the project-analysis issues in the project at ${rootPath} using the npm-advisor MCP server.`,
+    "",
+  ];
+  if (publintCount > 0) {
+    lines.push(
+      `- ${publintCount} publishing-hygiene issue(s): run the \`fix-publishing-issues\` prompt (rootPath "${rootPath}"). Read the npm-advisor://publishing-hygiene-playbook resource, ignore findings under node_modules and build output, and apply the root-cause config fixes (package.json type/exports/files, bundler output).`,
+    );
+  }
+  if (circularCount > 0) {
+    lines.push(
+      `- ${circularCount} circular-dependency cycle(s): run the \`fix-circular-dependencies\` prompt (rootPath "${rootPath}"). Break the offending import edge in each cycle with the least-invasive refactor.`,
+    );
+  }
+  lines.push(
+    "",
+    "Show diffs before applying and re-run analyze_project to confirm the counts dropped.",
+  );
+  return lines.join("\n");
+}
+
+/**
+ * Callout above the results that points users at fixing these findings
+ * with their AI assistant. "Copy prompt" drops a ready-to-paste prompt
+ * (scoped to this project and the issue kinds present) on the clipboard;
+ * "Set up MCP" opens the MCP setup wizard so the assistant can reach the
+ * npm-advisor tools and prompts. The detection stays read-only — this is
+ * the bridge to an actual fix.
+ */
+const FixWithAiCallout: FC<FixWithAiCalloutProps> = ({
+  rootPath,
+  publintCount,
+  circularCount,
+  postCopyPrompt,
+  postSetupMcp,
+}) => {
+  const handleCopy = useCallback(() => {
+    postCopyPrompt(
+      buildFixPrompt(rootPath, publintCount, circularCount),
+      "Fix prompt copied — paste it into Claude Code or your AI assistant.",
+    );
+  }, [rootPath, publintCount, circularCount, postCopyPrompt]);
+
+  return (
+    <div className="rounded border border-violet-200 dark:border-violet-900 bg-violet-50/60 dark:bg-violet-950/40 p-3 text-xs text-slate-700 dark:text-slate-200">
+      <div className="flex items-start gap-2">
+        <Sparkles
+          size={14}
+          className="shrink-0 mt-0.5 text-violet-500 dark:text-violet-300"
+        />
+        <div className="flex-1 min-w-0">
+          <div className="font-semibold text-slate-800 dark:text-slate-100">
+            Fix these with your AI assistant
+          </div>
+          <div className="mt-0.5 text-slate-600 dark:text-slate-300">
+            Send these findings to Claude Code (or any MCP client) via the
+            npm-advisor MCP server to get grouped, root-cause fixes — not
+            file-by-file edits.
+          </div>
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={handleCopy}
+              className="inline-flex items-center gap-1 rounded border border-violet-300 dark:border-violet-800 bg-white dark:bg-slate-800 px-2 py-1 font-medium text-violet-700 dark:text-violet-200 hover:bg-violet-100 dark:hover:bg-slate-700"
+            >
+              <Copy size={12} />
+              Copy prompt
+            </button>
+            <button
+              type="button"
+              onClick={postSetupMcp}
+              className="inline-flex items-center gap-1 rounded border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-2 py-1 font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700"
+            >
+              <Plug size={12} />
+              Set up MCP
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
