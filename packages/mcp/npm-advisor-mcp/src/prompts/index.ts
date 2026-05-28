@@ -8,9 +8,13 @@ import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
  */
 import { registerAuditProjectPrompt } from "./auditProject";
 import { registerComparePackagesPrompt } from "./comparePackages";
+import { registerFixCircularDependenciesPrompt } from "./fixCircularDependencies";
+import { registerFixPublishingIssuesPrompt } from "./fixPublishingIssues";
 
 export { registerAuditProjectPrompt } from "./auditProject";
 export { registerComparePackagesPrompt } from "./comparePackages";
+export { registerFixCircularDependenciesPrompt } from "./fixCircularDependencies";
+export { registerFixPublishingIssuesPrompt } from "./fixPublishingIssues";
 
 /**
  * Register every prompt template the npm-advisor MCP server exposes.
@@ -21,4 +25,6 @@ export { registerComparePackagesPrompt } from "./comparePackages";
 export function registerPrompts(server: McpServer): void {
   registerAuditProjectPrompt(server);
   registerComparePackagesPrompt(server);
+  registerFixPublishingIssuesPrompt(server);
+  registerFixCircularDependenciesPrompt(server);
 }
