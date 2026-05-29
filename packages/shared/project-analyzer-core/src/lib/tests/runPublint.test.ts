@@ -116,7 +116,7 @@ describe("runPublint (source mode)", () => {
       "utf8",
     );
 
-    const { findings, rawMessageCount } = await runPublint({
+    const { findings } = await runPublint({
       pkgDir: tempDir,
       mode: "source",
     });
@@ -128,16 +128,63 @@ describe("runPublint (source mode)", () => {
       const candidate = args?.actualFilePath ?? args?.globbedFilePath;
       return typeof candidate === "string" ? [candidate] : [];
     });
+    // node_modules and build output are excluded before the walk, so the
+    // scan never produces findings rooted there...
     for (const referencedPath of referencedPaths) {
       expect(referencedPath).not.toContain("node_modules");
       expect(referencedPath).not.toContain("dist");
     }
-
-    // The package's own top-level file is still surfaced...
+    // ...while the package's own top-level file is still surfaced.
     expect(referencedPaths).toContain("/index.js");
-    // ...and publint really did emit more messages than we kept, proving
-    // the node_modules / dist messages were filtered rather than absent.
-    expect(rawMessageCount).toBeGreaterThan(findings.length);
+  });
+
+  it("skips the scan entirely for a private package", async () => {
+    await writePackageJson(tempDir, {
+      name: "fixture-private",
+      version: "1.0.0",
+      private: true,
+      type: "module",
+    });
+    // A file that would normally trip a format finding, proving the skip
+    // is about `private` rather than an empty tree.
+    await fs.writeFile(
+      path.join(tempDir, "index.js"),
+      "module.exports = {};\n",
+      "utf8",
+    );
+
+    const { findings, warnings } = await runPublint({
+      pkgDir: tempDir,
+      mode: "source",
+    });
+
+    expect(findings).toEqual([]);
+    expect(warnings.some((warning) => warning.includes("private"))).toBe(true);
+  });
+
+  it("truncates and warns when the tree exceeds maxScanFiles", async () => {
+    await writePackageJson(tempDir, {
+      name: "fixture-large-tree",
+      version: "1.0.0",
+      type: "module",
+    });
+    for (let index = 0; index < 5; index += 1) {
+      await fs.writeFile(
+        path.join(tempDir, `module-${index}.js`),
+        "export const value = 1;\n",
+        "utf8",
+      );
+    }
+
+    const { warnings } = await runPublint({
+      pkgDir: tempDir,
+      mode: "source",
+      maxScanFiles: 2,
+    });
+
+    expect(
+      warnings.some((warning) => warning.includes("only the first 2 files")),
+    ).toBe(true);
   });
 
   it("respects the level filter (error-only suppresses warnings/suggestions)", async () => {

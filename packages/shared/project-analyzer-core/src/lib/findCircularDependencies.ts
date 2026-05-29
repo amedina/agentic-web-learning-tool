@@ -111,6 +111,50 @@ async function pickSourceDir(
 }
 
 /**
+ * Detects whether `rootPath` is the root of a monorepo workspace. Checks
+ * for the markers used by the major package managers: a
+ * `pnpm-workspace.yaml`, a `lerna.json`, or a `workspaces` field in
+ * `package.json` (npm/yarn, either the array form or the
+ * `{ packages: [] }` object form). A truthy result means cycle detection
+ * must not fall back to walking the bare root — source lives in the
+ * individual packages, and pointing madge at the whole tree would build a
+ * dependency graph across every package at once, which on a large repo
+ * never finishes in a reasonable time.
+ */
+async function isWorkspaceRoot(rootPath: string): Promise<boolean> {
+  const markerFiles = ["pnpm-workspace.yaml", "lerna.json"];
+  for (const marker of markerFiles) {
+    try {
+      const stat = await fs.stat(path.join(rootPath, marker));
+      if (stat.isFile()) {
+        return true;
+      }
+    } catch {
+      continue;
+    }
+  }
+  try {
+    const raw = await fs.readFile(path.join(rootPath, "package.json"), "utf8");
+    const parsed = JSON.parse(raw) as { workspaces?: unknown };
+    const workspaces = parsed.workspaces;
+    if (Array.isArray(workspaces) && workspaces.length > 0) {
+      return true;
+    }
+    if (
+      workspaces !== null &&
+      typeof workspaces === "object" &&
+      Array.isArray((workspaces as { packages?: unknown }).packages) &&
+      (workspaces as { packages: unknown[] }).packages.length > 0
+    ) {
+      return true;
+    }
+  } catch {
+    return false;
+  }
+  return false;
+}
+
+/**
  * Returns the path to a `tsconfig.json` at the project root when one
  * exists. Used so madge's TS resolver honours path aliases configured
  * in the user's project.
@@ -176,6 +220,23 @@ export async function findCircularDependencies(
       findings: [],
       warnings: [
         `No analyzable source directory found under ${rootPath} (tried ${DEFAULT_SOURCE_CANDIDATES.join(", ")}, and project root).`,
+      ],
+    };
+  }
+
+  // When no conventional source directory exists, `pickSourceDir` falls
+  // back to the bare root. For a monorepo workspace root that fallback
+  // points madge at the entire repository (every package's source at
+  // once), which on a large tree pins the CPU long enough that the
+  // editor's analysis spinner appears to hang forever. Skip the scan
+  // here with a clear warning; cycles are detected per-package when each
+  // package's own package.json is analyzed. An explicit `sourceDir`
+  // override is always honoured — the caller asked for a specific tree.
+  if (!sourceDir && entryDir === rootPath && (await isWorkspaceRoot(rootPath))) {
+    return {
+      findings: [],
+      warnings: [
+        `Skipped circular-dependency scan: ${rootPath} is a monorepo workspace root with no dedicated source directory. Run the analysis on an individual package instead.`,
       ],
     };
   }

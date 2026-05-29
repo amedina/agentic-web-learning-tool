@@ -149,6 +149,84 @@ describe("findCircularDependencies", () => {
     expect(result.findings).toEqual([]);
   });
 
+  it("skips the scan at a monorepo root marked by pnpm-workspace.yaml", async () => {
+    const dir = await fs.mkdtemp(
+      path.join(os.tmpdir(), "find-circular-deps-pnpm-"),
+    );
+    projectDir = dir;
+    await fs.writeFile(
+      path.join(dir, "package.json"),
+      JSON.stringify({ name: "root", version: "1.0.0" }),
+      "utf8",
+    );
+    await fs.writeFile(
+      path.join(dir, "pnpm-workspace.yaml"),
+      "packages:\n  - 'packages/*'\n",
+      "utf8",
+    );
+
+    const result = await findCircularDependencies({ rootPath: dir });
+
+    expect(result.findings).toEqual([]);
+    expect(result.warnings.join(" ")).toMatch(/monorepo workspace root/i);
+  });
+
+  it("skips the scan at a monorepo root marked by a workspaces field", async () => {
+    const dir = await fs.mkdtemp(
+      path.join(os.tmpdir(), "find-circular-deps-workspaces-"),
+    );
+    projectDir = dir;
+    await fs.writeFile(
+      path.join(dir, "package.json"),
+      JSON.stringify({
+        name: "root",
+        version: "1.0.0",
+        workspaces: ["packages/*"],
+      }),
+      "utf8",
+    );
+
+    const result = await findCircularDependencies({ rootPath: dir });
+
+    expect(result.findings).toEqual([]);
+    expect(result.warnings.join(" ")).toMatch(/monorepo workspace root/i);
+  });
+
+  it("still scans an explicit sourceDir even at a workspace root", async () => {
+    const dir = await fs.mkdtemp(
+      path.join(os.tmpdir(), "find-circular-deps-ws-override-"),
+    );
+    projectDir = dir;
+    await fs.writeFile(
+      path.join(dir, "package.json"),
+      JSON.stringify({
+        name: "root",
+        version: "1.0.0",
+        workspaces: ["packages/*"],
+      }),
+      "utf8",
+    );
+    const pkgSrc = path.join(dir, "packages", "a", "src");
+    await fs.mkdir(pkgSrc, { recursive: true });
+    await fs.writeFile(
+      path.join(pkgSrc, "a.js"),
+      "import { b } from './b.js';\nexport const a = () => b;\n",
+      "utf8",
+    );
+    await fs.writeFile(
+      path.join(pkgSrc, "b.js"),
+      "import { a } from './a.js';\nexport const b = () => a;\n",
+      "utf8",
+    );
+
+    const result = await findCircularDependencies({
+      rootPath: dir,
+      sourceDir: path.join("packages", "a", "src"),
+    });
+
+    expect(result.findings.length).toBeGreaterThanOrEqual(1);
+  });
+
   it("honours an explicit sourceDir override", async () => {
     const dir = await fs.mkdtemp(
       path.join(os.tmpdir(), "find-circular-deps-custom-"),

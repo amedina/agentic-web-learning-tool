@@ -135,6 +135,7 @@ export async function analyzeProject(
   const findings: ProjectFinding[] = [];
   if (publintResult) {
     findings.push(...publintResult.findings);
+    warnings.push(...publintResult.warnings);
   }
   if (replacementsResult) {
     findings.push(...replacementsResult.findings);
