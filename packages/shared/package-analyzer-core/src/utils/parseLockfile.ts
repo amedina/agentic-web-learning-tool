@@ -27,8 +27,51 @@ export interface ParsedLockfile {
    * the highest semver version is returned. This is an approximation —
    * pass the project's `package.json` ranges separately if exact
    * resolution is required.
+   *
+   * For a pnpm workspace lockfile this mirrors the root importer
+   * (`importers["."]`); use {@link importers} to resolve a specific
+   * workspace package.
    */
   topLevel: Record<string, string>;
+  /**
+   * pnpm workspace lockfiles only: per-importer direct-dependency
+   * resolutions, keyed by the importer path the lockfile uses — a posix
+   * path relative to the lockfile's directory, with `.` for the root
+   * package. A single pnpm `pnpm-lock.yaml` covers every workspace
+   * package, so this lets callers resolve a dependency against the exact
+   * package that declared it rather than always against the root.
+   *
+   * Undefined for npm and yarn lockfiles, and for pnpm lockfiles that
+   * have no `importers` map (older v5.x single-package layout). Use
+   * {@link resolutionsForImporter} to select the right map with a
+   * graceful fallback.
+   */
+  importers?: Record<string, Record<string, string>>;
+}
+
+/**
+ * Select the direct-dependency resolution map for one importer within a
+ * parsed lockfile. For a pnpm workspace lockfile this returns the entry
+ * matching `importerPath` (a posix path relative to the lockfile's
+ * directory, `.` for the root package). When the lockfile has an importer
+ * graph but no entry matches `importerPath`, an empty map is returned so
+ * the caller falls back to `latest-fallback` rather than misattributing
+ * another package's versions. Lockfiles without an importer graph (npm,
+ * yarn, single-package pnpm) fall back to {@link ParsedLockfile.topLevel}.
+ *
+ * @param parsed - A parsed lockfile from {@link parseLockfile}.
+ * @param importerPath - Posix path of the package relative to the
+ *   lockfile directory; `.` for the package alongside the lockfile.
+ * @returns Map of direct dependency name → installed version.
+ */
+export function resolutionsForImporter(
+  parsed: ParsedLockfile,
+  importerPath: string,
+): Record<string, string> {
+  if (parsed.importers) {
+    return parsed.importers[importerPath] ?? {};
+  }
+  return parsed.topLevel;
 }
 
 /**
@@ -227,16 +270,25 @@ function parsePnpmLockfile(contents: string): ParsedLockfile {
       `Unsupported pnpm-lock.yaml lockfileVersion: ${version}. Supported: ${[...SUPPORTED_PNPM_LOCKFILE_VERSIONS].join(", ")}.`,
     );
   }
-  const out: Record<string, string> = {};
   const importers = data.importers as Record<string, unknown> | undefined;
   if (importers && typeof importers === "object") {
-    const root = importers["."] as Record<string, unknown> | undefined;
-    if (root && typeof root === "object") {
-      mergePnpmImporter(root, out);
+    const perImporter: Record<string, Record<string, string>> = {};
+    for (const [importerPath, node] of Object.entries(importers)) {
+      if (!node || typeof node !== "object") {
+        continue;
+      }
+      const resolutions: Record<string, string> = {};
+      mergePnpmImporter(node as Record<string, unknown>, resolutions);
+      perImporter[importerPath] = resolutions;
     }
-  } else {
-    mergePnpmImporter(data, out);
+    return {
+      format: "pnpm",
+      topLevel: perImporter["."] ?? {},
+      importers: perImporter,
+    };
   }
+  const out: Record<string, string> = {};
+  mergePnpmImporter(data, out);
   return { format: "pnpm", topLevel: out };
 }
 
