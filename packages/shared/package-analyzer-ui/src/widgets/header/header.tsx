@@ -9,7 +9,6 @@ import {
   Clock,
   Activity,
   Info,
-  AlertCircle,
   ShieldAlert,
 } from "lucide-react";
 import { Tooltip } from "@agentic-web-labs/design-system";
@@ -20,6 +19,8 @@ import { type ScoreBreakdownItem } from "@agentic-web-labs/package-analyzer-core
  */
 import { DEPENDENCIES_COLORS, BRAND_PRIMARY_COLOR } from "../../theme/colors";
 import { useCountUp } from "../../hooks/useCountUp";
+import { SkeletonValue } from "./skeletonValue";
+import { RateLimitedValue } from "./rateLimitedValue";
 
 /**
  * Picks a Fitness Score color based on the score's percentage of the
@@ -113,25 +114,6 @@ export interface HeaderProps {
    */
   onNavigateToComparison?: () => void;
 }
-
-const SkeletonValue: React.FC<{ width?: string }> = ({ width = "w-10" }) => (
-  <span
-    className={`inline-block h-4 ${width} rounded bg-slate-200 dark:bg-slate-700 animate-pulse align-middle`}
-  />
-);
-
-const GITHUB_RATE_LIMIT_TITLE =
-  "Couldn't fetch — GitHub API rate limit reached. Add a Personal Access Token in Options.";
-
-const RateLimitedValue: React.FC = () => (
-  <span
-    className="inline-flex items-center gap-1 text-amber-600 dark:text-amber-400"
-    title={GITHUB_RATE_LIMIT_TITLE}
-  >
-    <AlertCircle size={12} />
-    N/A
-  </span>
-);
 
 export const Header: React.FC<HeaderProps> = ({
   packageName,

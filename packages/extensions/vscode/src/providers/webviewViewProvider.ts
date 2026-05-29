@@ -56,15 +56,15 @@ export class NpmAdvisorWebviewProvider implements vscode.WebviewViewProvider {
   }
 
   /**
-   * VSCode invokes this when the view becomes visible. We configure
+   * VSCode invokes this when the view is first resolved. We configure
    * CSP / asset roots, render the HTML shell, attach the bridge, and
    * subscribe to ready signals from the React app.
    *
-   * VSCode WebviewView has no retainContextWhenHidden equivalent, so
-   * the script context tears down on every hide and rebuilds on every
-   * show. The React app remounts with empty state each time, so we
-   * push a fresh init payload on every ready handshake — not just the
-   * first one — otherwise re-shown panels stay stuck on "Loading…".
+   * The view is registered with retainContextWhenHidden, so the script
+   * context survives visibility flips and this normally runs once per
+   * session. We still push init on every ready handshake (not just the
+   * first) so a full teardown/recreate — should one ever happen — re-
+   * hydrates the React app instead of leaving it stuck on "Loading…".
    */
   resolveWebviewView(webviewView: vscode.WebviewView): void {
     this.webviewView = webviewView;

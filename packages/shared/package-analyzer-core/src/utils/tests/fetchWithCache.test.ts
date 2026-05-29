@@ -28,9 +28,11 @@ describe("fetchWithCache", () => {
     const result = await fetchWithCache("https://api.example.com/data");
 
     expect(global.fetch).toHaveBeenCalledTimes(1);
+    // The underlying fetch always carries a timeout AbortSignal so a
+    // stalled connection can't hang the single-flighted promise forever.
     expect(global.fetch).toHaveBeenCalledWith(
       "https://api.example.com/data",
-      undefined,
+      expect.objectContaining({ signal: expect.any(AbortSignal) }),
     );
     expect(result).toEqual(mockData);
   });

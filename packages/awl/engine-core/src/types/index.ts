@@ -1,5 +1,5 @@
 import z from 'zod/mini';
-import {
+import type {
   EdgeConfigSchema,
   NodeConfigSchema,
   NodeUIConfigSchema,

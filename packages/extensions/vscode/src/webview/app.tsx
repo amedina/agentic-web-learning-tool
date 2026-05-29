@@ -16,6 +16,7 @@ import {
  */
 import { PackageJsonSwitcher } from "./packageJsonSwitcher";
 import { ProjectAnalysisTab } from "./projectAnalysisTab";
+import { TabBar, type ActiveTab } from "./tabBar";
 import type {
   ExtensionMessage,
   PackageJsonDependenciesPayload,
@@ -49,8 +50,6 @@ interface AppProps {
     },
   ) => void;
 }
-
-type ActiveTab = "dependencies" | "project";
 
 const EMPTY_DEPS: PackageJsonDependenciesPayload = {
   dependencies: [],
@@ -272,54 +271,6 @@ export const App: FC<AppProps> = ({
         </div>
       </div>
     </StatsClientProvider>
-  );
-};
-
-interface TabBarProps {
-  activeTab: ActiveTab;
-  onChange: (tab: ActiveTab) => void;
-}
-
-/**
- * Two-tab strip below the package.json switcher. Switches between the
- * existing per-dep view and the new project-level analysis tab.
- */
-const TabBar: FC<TabBarProps> = ({ activeTab, onChange }) => {
-  return (
-    <div className="flex border-b border-slate-200 dark:border-slate-800 text-xs font-medium">
-      <TabButton
-        label="Dependencies"
-        isActive={activeTab === "dependencies"}
-        onClick={() => onChange("dependencies")}
-      />
-      <TabButton
-        label="Project Analysis"
-        isActive={activeTab === "project"}
-        onClick={() => onChange("project")}
-      />
-    </div>
-  );
-};
-
-interface TabButtonProps {
-  label: string;
-  isActive: boolean;
-  onClick: () => void;
-}
-
-const TabButton: FC<TabButtonProps> = ({ label, isActive, onClick }) => {
-  return (
-    <button
-      type="button"
-      className={`px-3 py-2 border-b-2 -mb-px ${
-        isActive
-          ? "border-sky-500 text-slate-900 dark:text-slate-100"
-          : "border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
-      }`}
-      onClick={onClick}
-    >
-      {label}
-    </button>
   );
 };
 

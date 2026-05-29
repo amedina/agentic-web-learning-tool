@@ -8,28 +8,26 @@ import { dirname } from "node:path";
 /**
  * Internal dependencies.
  */
-import {
-  buildClaudeCodeCommand,
-  buildClaudeCodeListCommand,
-  buildClaudeCodeRemoveCommand,
-  getSupportedClients,
-  type McpClientDescriptor,
-  type McpClientId,
-} from "../clientConfigs";
-import { isProbablyInstalled } from "../clientDetection";
+import { type McpClientId } from "../clientConfigs";
 import {
   cleanupBackups,
   getClientStatus,
   installForClient,
   listBackups,
   removeForClient,
-  type McpClientStatus,
 } from "../operations";
 import type {
   McpClientView,
   McpWizardMessage,
   McpWizardRequest,
 } from "./protocol";
+import {
+  collectClientViews,
+  configPathFromStatus,
+  findClient,
+  statusErrorMessage,
+} from "./mcpSetupHelpers";
+import { renderWizardHtml } from "./mcpSetupPanelHtml";
 
 const VIEW_TYPE = "npmAdvisor.mcpSetupPanel";
 const TERMINAL_NAME = "NPM Advisor: MCP setup";
@@ -569,34 +567,9 @@ export class McpSetupPanel implements vscode.Disposable {
     });
   }
 
-  /**
-   * Builds a per-client view object for every supported client. Adds
-   * Claude Code's CLI install / remove / list commands to the descriptor
-   * so the card's "Run in terminal" button and overflow-menu actions can
-   * resolve the string locally without an extra round-trip.
-   */
+  /** Per-client view objects for every supported client. */
   private collectClientViews(): McpClientView[] {
-    const serverScriptPath = this.serverScriptPath();
-    return getSupportedClients().map((client) => {
-      const status = getClientStatus(client, serverScriptPath);
-      const { paths: backupPaths } = listBackups(client);
-      const view: McpClientView = {
-        id: client.id,
-        label: client.label,
-        description: client.description,
-        docsUrl: client.docsUrl,
-        status,
-        backupCount: backupPaths.length,
-        latestBackupPath: backupPaths[0],
-        detected: isProbablyInstalled(client),
-      };
-      if (client.strategy.kind === "cli-snippet") {
-        view.cliCommand = buildClaudeCodeCommand(serverScriptPath);
-        view.cliRemoveCommand = buildClaudeCodeRemoveCommand();
-        view.cliListCommand = buildClaudeCodeListCommand();
-      }
-      return view;
-    });
+    return collectClientViews(this.serverScriptPath());
   }
 
   /** Absolute fs path of the bundled MCP server script. */
@@ -607,76 +580,16 @@ export class McpSetupPanel implements vscode.Disposable {
 
   /** Builds the wizard's HTML shell — strict CSP, nonce, bundled script. */
   private renderHtml(): string {
-    const scriptUri = this.panel.webview.asWebviewUri(
-      vscode.Uri.joinPath(this.extensionUri, "dist", "mcpWizard.js"),
-    );
-    const styleUri = this.panel.webview.asWebviewUri(
-      vscode.Uri.joinPath(this.extensionUri, "dist", "mcpWizard.css"),
-    );
-    const nonce = generateNonce();
-    const cspSource = this.panel.webview.cspSource;
-    return `<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta
-      http-equiv="Content-Security-Policy"
-      content="default-src 'none'; img-src ${cspSource} https: data:; style-src ${cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}'; font-src ${cspSource};"
-    />
-    <link rel="stylesheet" href="${styleUri}" />
-    <title>NPM Advisor: MCP Setup</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script nonce="${nonce}" src="${scriptUri}"></script>
-  </body>
-</html>`;
+    const scriptUri = this.panel.webview
+      .asWebviewUri(
+        vscode.Uri.joinPath(this.extensionUri, "dist", "mcpWizard.js"),
+      )
+      .toString();
+    const styleUri = this.panel.webview
+      .asWebviewUri(
+        vscode.Uri.joinPath(this.extensionUri, "dist", "mcpWizard.css"),
+      )
+      .toString();
+    return renderWizardHtml(scriptUri, styleUri, this.panel.webview.cspSource);
   }
-}
-
-/** Finds a descriptor by id, or returns null when the id is unknown. */
-function findClient(clientId: McpClientId): McpClientDescriptor | null {
-  return getSupportedClients().find((client) => client.id === clientId) ?? null;
-}
-
-/**
- * Pulls the configPath out of an `McpClientStatus` regardless of which
- * variant it is. Centralizes the discriminated-union spread so the
- * panel's open/reveal handlers don't repeat the type narrowing.
- */
-function configPathFromStatus(status: McpClientStatus): string | null {
-  if (
-    status.kind === "installed" ||
-    status.kind === "installed-stale" ||
-    status.kind === "not-installed" ||
-    status.kind === "no-config" ||
-    status.kind === "error"
-  ) {
-    return status.configPath;
-  }
-  return null;
-}
-
-/**
- * Friendly error string for status variants that block an open /
- * reveal action (e.g. "workspace-required" or "error"). Keeps the
- * panel's two handlers consistent in what they say to the user.
- */
-function statusErrorMessage(status: McpClientStatus): string {
-  if (status.kind === "workspace-required") {
-    return "Open a workspace folder first — this client's config lives inside it.";
-  }
-  if (status.kind === "error") {
-    return `Couldn't read config file: ${status.message}`;
-  }
-  return "Couldn't resolve the config path for this client.";
-}
-
-/** Returns a 32-character hex nonce for the webview's script CSP. */
-function generateNonce(): string {
-  const bytes = new Uint8Array(16);
-  crypto.getRandomValues(bytes);
-  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join(
-    "",
-  );
 }

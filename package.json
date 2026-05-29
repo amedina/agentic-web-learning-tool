@@ -34,7 +34,8 @@
   },
   "scripts": {
     "preinstall": "npx only-allow pnpm",
-    "lint": "pnpm lint:common && pnpm lint:awl-mcp-inspector && pnpm lint:design-system && pnpm lint:awl && pnpm lint:storybook-config && pnpm lint:shared-config",
+    "lint": "pnpm lint:common && pnpm lint:awl-mcp-inspector && pnpm lint:design-system && pnpm lint:awl && pnpm lint:storybook-config && pnpm lint:shared-config && pnpm lint:structure",
+    "lint:structure": "eslint -c packages/shared/shared-config/eslint/fileStructure.js \"packages/extensions/npm-advisor/src/**/*.{ts,tsx}\" \"packages/extensions/vscode/src/**/*.{ts,tsx}\" \"packages/mcp/npm-advisor-mcp/src/**/*.{ts,tsx}\" \"packages/shared/package-analyzer-core/src/**/*.{ts,tsx}\" \"packages/shared/package-analyzer-ui/src/**/*.{ts,tsx}\" \"packages/shared/project-analyzer-core/src/**/*.{ts,tsx}\"",
     "lint:awl-mcp-inspector": "pnpm --filter awl-mcp-inspector lint",
     "lint:common": "pnpm --filter common lint",
     "lint:design-system": "pnpm --filter design-system lint",
@@ -100,6 +101,9 @@
     "*.(cjs|js|ts|tsx)": [
       "eslint -c packages/shared/shared-config/eslint/index.js  --fix",
       "prettier --write"
+    ],
+    "packages/{extensions/npm-advisor,extensions/vscode,mcp/npm-advisor-mcp,shared/package-analyzer-core,shared/package-analyzer-ui,shared/project-analyzer-core}/**/*.(ts|tsx)": [
+      "eslint -c packages/shared/shared-config/eslint/fileStructure.js"
     ],
     "*.(json|xml|xml.dist|yml)": [
       "prettier --write"

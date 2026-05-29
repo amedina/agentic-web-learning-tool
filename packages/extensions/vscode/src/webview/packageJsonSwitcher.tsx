@@ -8,6 +8,8 @@ import { ChevronDown, FileJson, Info, Plug, RefreshCcw } from "lucide-react";
  * Internal dependencies.
  */
 import type { PackageJsonFile } from "./protocol";
+import { DiagnosticLegend } from "./diagnosticLegend";
+import { FileList } from "./fileList";
 
 interface PackageJsonSwitcherProps {
   activeFile: PackageJsonFile | null;
@@ -159,99 +161,3 @@ export const PackageJsonSwitcher: FC<PackageJsonSwitcherProps> = ({
     </div>
   );
 };
-
-/**
- * Inline legend documenting what the squiggle colors under
- * dependency entries in package.json mean. Lets users decode the
- * Problems-panel diagnostics without reading the README, and keeps
- * the contract in one place that any future rule additions update.
- */
-const DiagnosticLegend: FC = () => (
-  <div className="border-t border-slate-200/70 dark:border-slate-700/70 px-3 py-3 text-xs space-y-2 text-slate-700 dark:text-slate-300">
-    <div className="font-medium text-[11px] uppercase tracking-wide text-slate-500 dark:text-slate-400">
-      Underline colors in package.json
-    </div>
-    <ul className="space-y-1.5">
-      <LegendRow
-        swatchClass="bg-red-500"
-        label="Red"
-        description="Security advisory at or above the configured severity floor"
-      />
-      <LegendRow
-        swatchClass="bg-amber-400"
-        label="Yellow"
-        description="License incompatible with the target license, or package appears unmaintained"
-      />
-      <LegendRow
-        swatchClass="bg-sky-400"
-        label="Blue"
-        description="Installed major version is several releases behind the latest"
-      />
-    </ul>
-    <div className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
-      Hover any squiggle in the editor to see the full diagnostic message.
-      Configure thresholds under{" "}
-      <code className="text-[11px]">npmAdvisor.*</code> in Settings.
-    </div>
-  </div>
-);
-
-interface LegendRowProps {
-  swatchClass: string;
-  label: string;
-  description: string;
-}
-
-/** One row of the diagnostic legend: colored swatch + label + description. */
-const LegendRow: FC<LegendRowProps> = ({ swatchClass, label, description }) => (
-  <li className="flex items-start gap-2">
-    <span
-      className={`shrink-0 mt-1 inline-block w-2.5 h-2.5 rounded-full ${swatchClass}`}
-      aria-hidden
-    />
-    <div className="min-w-0">
-      <span className="font-medium text-slate-800 dark:text-slate-200">
-        {label}
-      </span>
-      <span className="text-slate-600 dark:text-slate-400">
-        {" "}
-        — {description}
-      </span>
-    </div>
-  </li>
-);
-
-interface FileListProps {
-  files: PackageJsonFile[];
-  caption: string;
-  onSelect: (file: PackageJsonFile) => void;
-}
-
-/** Static list of package.json files rendered as clickable rows. */
-const FileList: FC<FileListProps> = ({ files, caption, onSelect }) => (
-  <div className="border-t border-slate-200/70 dark:border-slate-700/70 px-2 pt-2 pb-3">
-    <div className="px-1 pb-1 text-[11px] uppercase tracking-wide text-slate-500 dark:text-slate-400">
-      {caption}
-    </div>
-    <ul className="space-y-0.5">
-      {files.map((file) => (
-        <li key={file.uri}>
-          <button
-            type="button"
-            onClick={() => onSelect(file)}
-            className="w-full text-left px-2 py-1.5 rounded hover:bg-slate-200/60 dark:hover:bg-slate-700/60 transition-colors"
-          >
-            <div className="text-sm text-slate-800 dark:text-slate-200 truncate">
-              {file.name ?? file.relativePath}
-            </div>
-            {file.name ? (
-              <div className="text-xs text-slate-500 dark:text-slate-400 truncate">
-                {file.relativePath}
-              </div>
-            ) : null}
-          </button>
-        </li>
-      ))}
-    </ul>
-  </div>
-);
