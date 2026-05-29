@@ -64,6 +64,21 @@ const getFitnessColor = (
 
 export interface HeaderProps {
   packageName: string;
+  /**
+   * The package version to display next to the name. On GitHub
+   * `package.json` pages and in VSCode this is the lockfile-resolved
+   * (installed) version; on npm pages it's the latest published version.
+   * Hidden when null/undefined (e.g. while the per-package fetch is still
+   * in flight).
+   */
+  version?: string | null;
+  /**
+   * True when `version` is the version actually installed in the user's
+   * project (resolved from a lockfile). Drives the "Installed" label so a
+   * lockfile-derived version reads differently from a bare npm version,
+   * which is shown without any qualifier.
+   */
+  isInstalledVersion?: boolean;
   githubUrl: string | null;
   stars: number | null;
   collaboratorsCount: number | null;
@@ -117,6 +132,8 @@ export interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({
   packageName,
+  version,
+  isInstalledVersion = false,
   githubUrl,
   stars,
   collaboratorsCount,
@@ -164,6 +181,35 @@ export const Header: React.FC<HeaderProps> = ({
             >
               {packageName}
             </h1>
+            {version ? (
+              isInstalledVersion ? (
+                <Tooltip
+                  placement="bottom"
+                  delayDuration={0}
+                  contentClassName="max-w-xs p-2 text-left font-normal normal-case tracking-normal bg-slate-800 text-white shadow-lg"
+                  body={
+                    <p className="text-xs leading-snug">
+                      Version installed in your project, resolved from the
+                      lockfile.
+                    </p>
+                  }
+                >
+                  <span
+                    className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-mono bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600 cursor-help whitespace-nowrap"
+                    aria-label={`Installed version ${version}`}
+                  >
+                    Installed v{version}
+                  </span>
+                </Tooltip>
+              ) : (
+                <span
+                  className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-mono bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600 whitespace-nowrap"
+                  aria-label={`Version ${version}`}
+                >
+                  v{version}
+                </span>
+              )
+            ) : null}
             {hideCompare ? null : isAddedToCompare ? (
               <button
                 onClick={() => onNavigateToComparison?.()}
