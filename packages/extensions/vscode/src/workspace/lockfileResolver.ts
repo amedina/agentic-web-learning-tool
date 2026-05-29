@@ -6,6 +6,7 @@ import * as path from "node:path";
 import * as vscode from "vscode";
 import {
   parseLockfile,
+  resolutionsForImporter,
   UnsupportedLockfileError,
   type ParsedLockfile,
 } from "@agentic-web-labs/package-analyzer-core";
@@ -78,7 +79,16 @@ export class LockfileResolver implements vscode.Disposable {
     dependencyName: string,
   ): Promise<string | undefined> {
     const entry = await this.getDirectoryEntry(packageJsonUri);
-    return entry.lockfile?.parsed.topLevel[dependencyName];
+    if (!entry.lockfile) {
+      return undefined;
+    }
+    const importerPath = toImporterPath(
+      path.dirname(entry.lockfile.uri.fsPath),
+      path.dirname(packageJsonUri.fsPath),
+    );
+    return resolutionsForImporter(entry.lockfile.parsed, importerPath)[
+      dependencyName
+    ];
   }
 
   /**
@@ -187,6 +197,21 @@ export class LockfileResolver implements vscode.Disposable {
     this.watchers.add(watcher);
     return watcher;
   }
+}
+
+/**
+ * Compute the importer path for a package.json relative to a lockfile,
+ * in the form pnpm uses for `importers` keys: a posix path relative to
+ * the lockfile's directory, with `.` for the package alongside it. Lets
+ * the resolver pick the exact workspace member a dependency belongs to
+ * when a single root lockfile covers the whole workspace.
+ */
+function toImporterPath(lockfileDir: string, packageDir: string): string {
+  const relativePath = path.relative(lockfileDir, packageDir);
+  if (!relativePath) {
+    return ".";
+  }
+  return relativePath.split(path.sep).join("/");
 }
 
 /**
