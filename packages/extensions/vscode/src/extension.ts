@@ -36,6 +36,7 @@ import {
   WEBVIEW_VIEW_ID,
 } from "./providers/webviewViewProvider";
 import { GithubAuthService } from "./services/githubAuthService";
+import { disposeLogger } from "./services/logger";
 import { RecentProjectsTracker } from "./services/recentProjectsTracker";
 import { WebviewBridge } from "./webview/bridge";
 import { ActivePackageJsonTracker } from "./workspace/activePackageJsonTracker";
@@ -54,6 +55,8 @@ const PACKAGE_JSON_SELECTOR: vscode.DocumentFilter[] = [
  * registers commands, and binds workspace event listeners.
  */
 export function activate(context: vscode.ExtensionContext): void {
+  context.subscriptions.push({ dispose: disposeLogger });
+
   const githubAuth = new GithubAuthService();
   context.subscriptions.push(githubAuth);
 
@@ -126,7 +129,19 @@ export function activate(context: vscode.ExtensionContext): void {
     cache,
   });
   context.subscriptions.push(
-    vscode.window.registerWebviewViewProvider(WEBVIEW_VIEW_ID, webviewProvider),
+    // retainContextWhenHidden keeps the webview's DOM + script context
+    // alive while the panel is hidden (e.g. the user switches to another
+    // activity-bar view). Without it VSCode tears the webview down and
+    // the React app remounts with empty state on every re-show, snapping
+    // the user back to the initial Dependencies tab and dropping any
+    // in-progress project-analysis results.
+    vscode.window.registerWebviewViewProvider(
+      WEBVIEW_VIEW_ID,
+      webviewProvider,
+      {
+        webviewOptions: { retainContextWhenHidden: true },
+      },
+    ),
   );
 
   context.subscriptions.push(

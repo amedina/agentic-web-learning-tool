@@ -7,13 +7,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@agentic-web-labs/design-system";
-import {
-  ChevronDown,
-  Loader2,
-  ShieldAlert,
-  Scale,
-  Sparkles,
-} from "lucide-react";
+import { ChevronDown, Loader2 } from "lucide-react";
 
 /**
  * Internal dependencies.
@@ -24,9 +18,9 @@ import {
   type DependencyTree,
 } from "@agentic-web-labs/package-analyzer-core";
 import { PackageInsightsBody } from "../insights/packageInsightsBody";
-import { DEPENDENCIES_COLORS } from "../../theme/colors";
 import { useStatsClient } from "../../context/statsClientContext";
 import { type BundleData } from "../../types/statsClient";
+import { StatusSummary } from "./statusSummary";
 
 /**
  * Module-scoped caches so reopening the same row doesn't re-fetch, and the
@@ -58,102 +52,6 @@ interface DependencyAccordionRowProps {
    */
   showFitness?: boolean;
 }
-
-const StatusSummary: React.FC<{ state: DependencyStatsState }> = ({
-  state,
-}) => {
-  if (state.status === "pending" || state.status === "loading") {
-    return (
-      <span className="inline-flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
-        <Loader2 size={12} className="animate-spin" />
-        Loading
-      </span>
-    );
-  }
-
-  if (state.status === "not_found") {
-    return (
-      <span className="text-xs text-slate-500 dark:text-slate-400">
-        Not on npmjs.com
-      </span>
-    );
-  }
-
-  if (state.status === "error") {
-    return (
-      <span className="text-xs text-red-600 dark:text-red-400">Error</span>
-    );
-  }
-
-  const stats = state.stats;
-  const vulnerabilityCount = stats.securityAdvisories?.issues?.length ?? 0;
-  const hasLicenseIssue = stats.licenseCompatibility?.isCompatible === false;
-  const recommendations = stats.recommendations;
-  const isReplaceable =
-    (recommendations?.nativeReplacements?.length ?? 0) > 0 ||
-    (recommendations?.preferredReplacements?.length ?? 0) > 0 ||
-    (recommendations?.microUtilityReplacements?.length ?? 0) > 0;
-
-  // The Fitness score is intentionally not shown on Dependencies rows. Fitness
-  // is a composite that includes Responsiveness, which we don't load for
-  // dep rows because the Search API quota that powers it routinely
-  // throttles during a multi-dep scan. Showing a partial-coverage score
-  // here would be misleading.
-  return (
-    <div className="flex items-center gap-1.5">
-      {vulnerabilityCount > 0 && (
-        <Badge
-          color={DEPENDENCIES_COLORS.vulnerable}
-          icon={<ShieldAlert size={10} />}
-          title={`${vulnerabilityCount} vulnerabilit${vulnerabilityCount === 1 ? "y" : "ies"}`}
-        >
-          {vulnerabilityCount}
-        </Badge>
-      )}
-      {hasLicenseIssue && (
-        <Badge
-          color={DEPENDENCIES_COLORS.licenseIssue}
-          icon={<Scale size={10} />}
-          title="License incompatible with target"
-        />
-      )}
-      {isReplaceable && (
-        <Badge
-          color={DEPENDENCIES_COLORS.replaceable}
-          icon={<Sparkles size={10} />}
-          title="Modern replacement available"
-        />
-      )}
-    </div>
-  );
-};
-
-interface BadgeProps {
-  color: string;
-  icon: React.ReactNode;
-  title: string;
-  children?: React.ReactNode;
-}
-
-/**
- * Compact pill that signals one of the tab's key parameters
- * (vulnerabilities / license issues / replaceable) on an accordion trigger.
- * Uses the canonical color from `DEPENDENCIES_COLORS` so the same parameter looks
- * the same in the dashboard pie/matrix and in the accordion row badge.
- */
-const Badge: React.FC<BadgeProps> = ({ color, icon, title, children }) => (
-  <span
-    title={title}
-    className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-semibold"
-    style={{
-      backgroundColor: `${color}20`,
-      color,
-    }}
-  >
-    {icon}
-    {children}
-  </span>
-);
 
 export const DependencyAccordionRow: React.FC<DependencyAccordionRowProps> = ({
   packageName,

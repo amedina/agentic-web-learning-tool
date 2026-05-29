@@ -129,11 +129,10 @@ export class WebviewBridge implements vscode.Disposable {
   /**
    * Subscribes to every ready handshake from the webview. Fires
    * immediately if the webview is already ready, then again on each
-   * subsequent ready signal — essential for VSCode WebviewView, where
-   * the script context is destroyed and recreated on every visibility
-   * transition (no retainContextWhenHidden equivalent on this API),
-   * so the React app re-mounts and needs init pushed each time.
-   * Returns a Disposable that unsubscribes the listener.
+   * subsequent ready signal. With retainContextWhenHidden the React app
+   * normally mounts once, but re-firing on every ready keeps a full
+   * teardown/recreate safe — the app gets its init payload each time it
+   * re-mounts. Returns a Disposable that unsubscribes the listener.
    */
   onReady(callback: () => void): vscode.Disposable {
     this.onReadyListeners.add(callback);

@@ -13,9 +13,20 @@ import {
  */
 import { findRangeForJsonPath } from "../packageJson/findRangeForJsonPath";
 import { parseDependencies } from "../packageJson/parse";
+import { logError, logInfo } from "../services/logger";
 import type { ProjectAnalysisCache } from "./projectAnalysisCache";
 
 const DIAGNOSTIC_SOURCE = "npm-advisor (project)";
+
+/**
+ * Upper bound on a single analysis run. publint, the replacements scan,
+ * and madge's circular-dependency walk all run without internal time
+ * limits; on a pathological project (huge source tree, symlink loops,
+ * a stalled manifest fetch) any one of them can hang indefinitely, which
+ * left the webview spinner and the command progress notification stuck
+ * forever. The timeout turns that into a surfaced error instead.
+ */
+const ANALYSIS_TIMEOUT_MS = 90_000;
 
 export interface ProjectAnalysisOptions {
   /** Absolute path to the project root that contains package.json. */
@@ -53,10 +64,31 @@ export async function runProjectAnalysis(
 ): Promise<ProjectAnalysisRunResult> {
   options.cache?.invalidate(options.rootPath);
 
-  const analysis = await analyzeProject({
-    rootPath: options.rootPath,
-    publintMode: options.publintMode ?? "source",
-  });
+  logInfo(`Project analysis started for ${options.rootPath}`);
+  const startedAt = Date.now();
+
+  let analysis: ProjectAnalysis;
+  try {
+    analysis = await withTimeout(
+      analyzeProject({
+        rootPath: options.rootPath,
+        publintMode: options.publintMode ?? "source",
+      }),
+      ANALYSIS_TIMEOUT_MS,
+      `Project analysis for ${options.rootPath} timed out after ${ANALYSIS_TIMEOUT_MS / 1000}s`,
+    );
+  } catch (error) {
+    logError(`Project analysis failed for ${options.rootPath}`, error);
+    throw error;
+  }
+
+  const elapsedMs = Date.now() - startedAt;
+  logInfo(
+    `Project analysis finished for ${options.rootPath} in ${elapsedMs}ms — ${analysis.findings.length} finding(s)` +
+      (analysis.warnings.length > 0
+        ? `, ${analysis.warnings.length} warning(s): ${analysis.warnings.join("; ")}`
+        : ""),
+  );
 
   options.cache?.set(options.rootPath, analysis);
 
@@ -207,4 +239,30 @@ function severityFor(
 /** Returns a zero-length range pinned to the start of the document. */
 function zeroRange(): vscode.Range {
   return new vscode.Range(new vscode.Position(0, 0), new vscode.Position(0, 0));
+}
+
+/**
+ * Rejects with `message` if `promise` hasn't settled within `timeoutMs`.
+ * The underlying work (madge, publint, the manifest fetch) can't be
+ * cancelled, so it keeps running in the background after a timeout — but
+ * the caller's await unblocks and surfaces a real error instead of
+ * spinning forever. The timer is cleared on settle so a resolved run
+ * doesn't leak a pending handle.
+ */
+async function withTimeout<T>(
+  promise: Promise<T>,
+  timeoutMs: number,
+  message: string,
+): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_resolve, reject) => {
+    timer = setTimeout(() => reject(new Error(message)), timeoutMs);
+  });
+  try {
+    return await Promise.race([promise, timeout]);
+  } finally {
+    if (timer) {
+      clearTimeout(timer);
+    }
+  }
 }
