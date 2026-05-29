@@ -9,12 +9,7 @@ import type {
 /**
  * Internal dependencies.
  */
-import type {
-  CycleEdge,
-  FilterState,
-  PublintSummary,
-  Status,
-} from "./types";
+import type { CycleEdge, FilterState, PublintSummary, Status } from "./types";
 
 /**
  * Number of findings shown before a group truncates behind a "Show all"

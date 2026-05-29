@@ -20,6 +20,7 @@ import {
   ErrorBoundary,
 } from "./tabs";
 import { usePackageStats } from "./hooks/usePackageStats";
+import { deriveDependencyPanelState } from "./utils/deriveDependencyPanelState";
 import { chromeStatsClient } from "./services/chromeStatsClient";
 import { getSystemPrompt } from "./tabs/askAI/getSystemPrompt";
 import { ThemeProvider } from "./context/themeContext";
@@ -56,20 +57,23 @@ const SidePanel = () => {
       packageJsonDependencies.devDependencies.length > 0 ||
       packageJsonDependencies.peerDependencies.length > 0);
 
-  // A "workspace root" is a package.json that declares dependencies but has
-  // no `name` field (monorepo roots like vuejs/core/package.json). The hook
-  // skips its navigation-message early-return in this case so the panel can
-  // render the tab strip; Insights shows an explanatory card and Dependencies
-  // does the actual analysis.
-  const isWorkspaceRoot =
-    !loading &&
-    !stats &&
-    !error &&
-    !notice &&
-    !isNavigationMessage &&
-    !isOptionsPage &&
-    hasAnalysableDependencies &&
-    !pendingPackageName;
+  // "Dependencies-only" covers any package.json that declares dependencies
+  // but has no published package to score: a monorepo root with no `name`
+  // (e.g. vuejs/core/package.json), or a named package that simply isn't
+  // published on npm (e.g. an app repo like opencode). In both cases the panel
+  // renders the tab strip — Insights shows an explanatory card and
+  // Dependencies does the actual analysis — instead of a "not found" notice.
+  const { showNoticeTakeover, isDependenciesOnly, unpublishedPackageName } =
+    deriveDependencyPanelState({
+      loading,
+      hasStats: !!stats,
+      hasError: !!error,
+      notice,
+      isNavigationMessage,
+      isOptionsPage,
+      hasAnalysableDependencies,
+      pendingPackageName,
+    });
 
   // Options / comparison / navigation / hard error messages stay as full
   // takeovers — they don't have meaningful tabs/skeletons to show.
@@ -99,7 +103,11 @@ const SidePanel = () => {
     );
   }
 
-  if (notice) {
+  // Only take over the whole panel with the notice when there's genuinely
+  // nothing else to show. A package.json that isn't published on npm but
+  // declares dependencies still has a Dependencies tab worth rendering, so
+  // fall through to the tab shell and surface the notice in the Insights card.
+  if (showNoticeTakeover && notice) {
     return (
       <>
         <Toaster position="bottom-center" />
@@ -140,8 +148,9 @@ const SidePanel = () => {
                   <InsightsTab
                     stats={stats}
                     pendingPackageName={pendingPackageName}
-                    isLoading={isStatsLoading && !isWorkspaceRoot}
-                    isWorkspaceRoot={isWorkspaceRoot}
+                    isLoading={isStatsLoading && !isDependenciesOnly}
+                    isDependenciesOnly={isDependenciesOnly}
+                    unpublishedPackageName={unpublishedPackageName}
                     onAddToCompare={handleAddToCompare}
                     isAddedToCompare={isAddedToCompare}
                     onAddRecommendationToCompare={
@@ -204,14 +213,17 @@ const SidePanel = () => {
             assistantMessage={AssistantMessage}
             userMessage={UserMessage}
             getCustomSystemPrompt={() => {
-              // Workspace-root pages have no package stats to ground the
+              // Dependencies-only pages have no package stats to ground the
               // assistant on, but they do declare dependencies. Feed those
               // in instead so the AI can reason about the dep list directly.
-              if (isWorkspaceRoot && packageJsonDependencies) {
-                const workspacePayload = JSON.stringify(
+              if (isDependenciesOnly && packageJsonDependencies) {
+                const dependenciesPayload = JSON.stringify(
                   {
-                    workspaceRoot: true,
-                    note: "This package.json is a workspace/monorepo root with no published package name. Reason about its declared dependencies.",
+                    workspaceRoot: !unpublishedPackageName,
+                    packageName: unpublishedPackageName ?? undefined,
+                    note: unpublishedPackageName
+                      ? `This package.json names "${unpublishedPackageName}", which isn't published on npm, so there are no package stats. Reason about its declared dependencies.`
+                      : "This package.json is a workspace/monorepo root with no published package name. Reason about its declared dependencies.",
                     dependencies: packageJsonDependencies.dependencies,
                     devDependencies: packageJsonDependencies.devDependencies,
                     peerDependencies: packageJsonDependencies.peerDependencies,
@@ -220,7 +232,7 @@ const SidePanel = () => {
                   2,
                 );
                 return getSystemPrompt(
-                  workspacePayload,
+                  dependenciesPayload,
                   comparisonBucket.length > 0
                     ? JSON.stringify(comparisonBucket, null, 2)
                     : undefined,
@@ -241,7 +253,7 @@ const SidePanel = () => {
               );
             }}
             suggestions={
-              isWorkspaceRoot
+              isDependenciesOnly
                 ? [
                     ...(comparisonBucket.length > 0
                       ? [
@@ -298,7 +310,7 @@ const SidePanel = () => {
             }
             helperTextSet={{
               title: () => {
-                if (isWorkspaceRoot) {
+                if (isDependenciesOnly) {
                   return "Ask AI about these dependencies";
                 }
                 return headerPackageName
@@ -306,7 +318,7 @@ const SidePanel = () => {
                   : "Ask AI";
               },
               description: () => {
-                if (isWorkspaceRoot) {
+                if (isDependenciesOnly) {
                   return "This package.json doesn't publish a package, but I can help you reason about its declared dependencies.";
                 }
                 return headerPackageName
