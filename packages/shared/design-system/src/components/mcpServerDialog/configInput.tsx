@@ -252,7 +252,7 @@ export function ConfigInput({ config, setConfig }: MCPServerConfigInput) {
                 Connection Type
               </label>
               <Select
-                value={config.connectionType}
+                value={config.connectionType ?? ''}
                 onValueChange={(value) => setConfig('connectionType', value)}
               >
                 <SelectTrigger id="connection-type-select">
