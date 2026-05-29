@@ -31,6 +31,16 @@ jobs:
         # rejoin the gate when develop merges into main. A handful of likewise
         # stale engine-core suites are skipped via its jest.config.js for the
         # same reason; the remaining engine-core suites still run here.
+        #
+        # The following packages live only on the develop branch (under a
+        # restructured layout) and do not exist on main yet, so they cannot be
+        # gated here. Add them to this matrix as part of the develop -> main
+        # merge, once they land on main:
+        #   - vscode extension        (packages/extensions/vscode)
+        #   - npm-advisor MCP server  (packages/mcp/npm-advisor-mcp)
+        #   - package-analyzer-core / package-analyzer-ui / project-analyzer-core
+        #   - awl-mcp-inspector       (packages/mcp/awl-mcp-inspector; today's
+        #                              packages/mcp-inspector, deps need fixing)
         include:
           - package: extension
             script: test:extension
