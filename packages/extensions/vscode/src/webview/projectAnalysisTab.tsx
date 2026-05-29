@@ -121,23 +121,32 @@ export const ProjectAnalysisTab: FC<ProjectAnalysisTabProps> = ({
 
   // Ask the host for any cached result every time the active file
   // changes (including initial mount, dropdown switch, and tab
-  // re-mount). Reset the visible status synchronously *before* asking
-  // — otherwise the previous project's findings stay onscreen until
+  // re-mount). Reset the visible status synchronously *before* asking,
+  // otherwise the previous project's findings stay onscreen until
   // the host's `cachedProjectAnalysis` response lands, and if the new
   // project has no cached result the host's `null` reply doesn't
   // touch state, so the wrong findings linger indefinitely. Survives
   // the webview-script-context reset VSCode does on visibility flips.
+  //
+  // Keyed on the file URI string, not the `activeFile` object. The host
+  // rebuilds a fresh `activeFile` object on every `init` it posts, and an
+  // `init` fires on routine workspace events, including the runner opening
+  // the package.json as a run finishes. Depending on the object reference
+  // reset an in-flight run back to "idle" on each such refresh, which
+  // dropped the eventual `projectAnalysisResult` and left the spinner
+  // stuck forever. The URI only changes when the user truly switches files.
+  const activeFileUri = activeFile?.uri ?? null;
   useEffect(() => {
     setStatus({ kind: "idle" });
     setStale(null);
-    if (!activeFile) {
+    if (!activeFileUri) {
       pendingCacheRequestIdRef.current = null;
       return;
     }
     const requestId = newRequestId();
     pendingCacheRequestIdRef.current = requestId;
-    postCacheRequest(requestId, activeFile.uri);
-  }, [activeFile, postCacheRequest]);
+    postCacheRequest(requestId, activeFileUri);
+  }, [activeFileUri, postCacheRequest]);
 
   const handleRun = useCallback(() => {
     if (!activeFile) {
