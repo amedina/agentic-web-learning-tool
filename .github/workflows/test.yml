@@ -25,29 +25,34 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # engine-extension (test:engine-extension) is intentionally excluded:
-        # its suites are stale relative to main's source (renamed modules,
-        # removed APIs) and only compile against the develop branch. They will
-        # rejoin the gate when develop merges into main. A handful of likewise
-        # stale engine-core suites are skipped via its jest.config.js for the
-        # same reason; the remaining engine-core suites still run here.
+        # A handful of stale engine-core suites are skipped via its
+        # jest.config.js (changed executor signatures and a revised workflow
+        # schema); the remaining engine-core suites still run here.
         #
-        # The following packages live only on the develop branch (under a
-        # restructured layout) and do not exist on main yet, so they cannot be
-        # gated here. Add them to this matrix as part of the develop -> main
-        # merge, once they land on main:
-        #   - vscode extension        (packages/extensions/vscode)
-        #   - npm-advisor MCP server  (packages/mcp/npm-advisor-mcp)
-        #   - package-analyzer-core / package-analyzer-ui / project-analyzer-core
-        #   - awl-mcp-inspector       (packages/mcp/awl-mcp-inspector; today's
-        #                              packages/mcp-inspector, deps need fixing)
+        # Two packages are intentionally excluded because their test harness is
+        # broken on this branch (independent of CI) and needs separate work:
+        #   - engine-extension: missing `jest` dependency, and its suites fail
+        #     to type-check (missing "node" lib types, unresolved engine-core
+        #     workspace types under ts-jest).
+        #   - awl-mcp-inspector: jest.config.cjs uses the ts-jest preset but the
+        #     package ships only babel tooling and is missing jest/ts-jest/
+        #     jest-fixed-jsdom, so `jest` is not found.
+        # package-analyzer-ui has no test script, so it is not gated.
         include:
-          - package: extension
-            script: test:extension
+          - package: awl
+            script: test:awl
           - package: design-system
             script: test:design-system
           - package: npm-advisor
             script: test:npm-advisor
+          - package: vscode
+            script: test:vscode
+          - package: npm-advisor-mcp
+            script: test:npm-advisor-mcp
+          - package: package-analyzer-core
+            script: test:package-analyzer-core
+          - package: project-analyzer-core
+            script: test:project-analyzer-core
           - package: engine-core
             script: test:engine
     steps:
