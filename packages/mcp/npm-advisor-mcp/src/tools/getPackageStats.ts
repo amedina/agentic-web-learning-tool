@@ -4,6 +4,7 @@
 import { dirname, resolve } from "node:path";
 import {
   getPackageStats,
+  resolutionsForImporter,
   type PackageStats,
 } from "@agentic-web-labs/package-analyzer-core";
 
@@ -15,6 +16,7 @@ import {
   parseLockfileAtPath,
   type DiscoveredLockfile,
 } from "../workspace/findLockfile";
+import { importerPathFor } from "../workspace/importerPath";
 
 export interface GetPackageStatsInput {
   /** npm package name, e.g. "lodash" or "@types/node". */
@@ -115,8 +117,13 @@ async function resolveVersionFromInput(
   if (!lockfile) {
     return { lockfilePath: null };
   }
+  const importerPath = input.packageJsonPath
+    ? importerPathFor(lockfile.path, resolve(input.packageJsonPath))
+    : ".";
   return {
-    resolvedVersion: lockfile.parsed.topLevel[input.name],
+    resolvedVersion: resolutionsForImporter(lockfile.parsed, importerPath)[
+      input.name
+    ],
     lockfilePath: lockfile.path,
   };
 }
