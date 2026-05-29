@@ -36,19 +36,30 @@ rather than misattributing the root package's versions.
 - [x] Investigate lockfile resolution + installed-version flow
 - [x] Confirm root cause against the real pnpm-lock.yaml
 - [x] Create worktree + TASK_STATUS.md
-- [ ] parseLockfile.ts: add `importers` to ParsedLockfile, parse per-importer, add `resolutionsForImporter`
-- [ ] MCP: add importer-path helper + wire getPackageStats & analyzePackageJson
-- [ ] VSCode lockfileResolver: select importer by relative path
-- [ ] Tests (analyzer-core, vscode resolver, MCP)
-- [ ] Build npm-advisor + run tests
+- [x] parseLockfile.ts: add `importers` to ParsedLockfile, parse per-importer, add `resolutionsForImporter`
+- [x] MCP: add importer-path helper + wire getPackageStats & analyzePackageJson
+- [x] VSCode lockfileResolver: select importer by relative path
+- [x] Tests (analyzer-core, vscode resolver, MCP)
+- [x] Build npm-advisor / mcp / vscode + run tests (all green)
 - [ ] PR description + push
 
 ## Files Touched
-- (pending)
+- packages/shared/package-analyzer-core/src/utils/parseLockfile.ts — added `ParsedLockfile.importers` (per-importer maps) and exported `resolutionsForImporter`; pnpm parser now builds a map per importer, `topLevel` mirrors `.` for back-compat.
+- packages/mcp/npm-advisor-mcp/src/workspace/importerPath.ts — new `importerPathFor(lockfilePath, packageJsonPath)` helper.
+- packages/mcp/npm-advisor-mcp/src/tools/getPackageStats.ts — resolve via `resolutionsForImporter` for the package's importer.
+- packages/mcp/npm-advisor-mcp/src/tools/analyzePackageJson.ts — resolve every dep via the package's importer.
+- packages/extensions/vscode/src/workspace/lockfileResolver.ts — `resolveVersion` selects the importer by posix-relative path from the lockfile dir.
+- tests: parseLockfile.test.ts (+ pnpm-lock.v9-workspace.yaml fixture), lockfileResolver.test.ts, importerPath.test.ts.
 
 ## Blockers / Notes
 - pnpm v9 lockfile; `workspace:*` deps resolve to `link:...` (non-semver) and are
   correctly omitted by `isResolvableSemver`.
+- Pre-existing, unrelated type errors exist on `develop` in
+  package-analyzer-core/src/lib/getPackageStats.ts and a githubFetch test; not
+  touched here.
+- Fresh worktrees need workspace deps built (engine-core, engine-extension,
+  engine-web, workflow-ui, chrome-ai-playground, common, table, design-system)
+  before the husky `pnpm check-types` pre-commit hook passes.
 
 ## Next Action
-Edit parseLockfile.ts to add per-importer parsing and the resolutionsForImporter helper.
+Push the branch and open the PR against develop.
