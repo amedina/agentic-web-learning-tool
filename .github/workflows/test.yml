@@ -1,0 +1,93 @@
+name: Tests
+
+on:
+  pull_request:
+    branches:
+      - main
+
+# Cancels all prior workflow runs associated with pull requests that are still in progress.
+concurrency:
+  # The concurrency group contains the workflow name and the (target) branch name.
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test (${{ matrix.package }})
+    # Change ubuntu version as the latest ubuntu is unable to run for some reason. Change it back to latest when its fixed.
+    runs-on: 'ubuntu-24.04'
+    permissions:
+      contents: read # For actions/checkout to fetch code
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        # A handful of stale engine-core suites are skipped via its
+        # jest.config.js (changed executor signatures and a revised workflow
+        # schema); the remaining engine-core suites still run here.
+        #
+        # Two packages are intentionally excluded because their test harness is
+        # broken on this branch (independent of CI) and needs separate work:
+        #   - engine-extension: missing `jest` dependency, and its suites fail
+        #     to type-check (missing "node" lib types, unresolved engine-core
+        #     workspace types under ts-jest).
+        #   - awl-mcp-inspector: jest.config.cjs uses the ts-jest preset but the
+        #     package ships only babel tooling and is missing jest/ts-jest/
+        #     jest-fixed-jsdom, so `jest` is not found.
+        # package-analyzer-ui has no test script, so it is not gated.
+        include:
+          - package: awl
+            script: test:awl
+          - package: design-system
+            script: test:design-system
+          - package: npm-advisor
+            script: test:npm-advisor
+          - package: vscode
+            script: test:vscode
+          - package: npm-advisor-mcp
+            script: test:npm-advisor-mcp
+          - package: package-analyzer-core
+            script: test:package-analyzer-core
+          - package: project-analyzer-core
+            script: test:project-analyzer-core
+          - package: engine-core
+            script: test:engine
+    steps:
+      - name: Harden Runner # Security agent: blocks outbound traffic & detects code overwrite to prevent breaches
+        uses: step-security/harden-runner@17d0e2bd7d51742c71671bd19fa12bdc9d40a3d6
+        with:
+          disable-sudo: true
+          disable-file-monitoring: true
+          egress-policy: block
+          allowed-endpoints: >
+            api.github.com:443
+            github.com:443
+            registry.npmjs.org:443
+
+      - name: Checkout
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
+
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          version: 10.15.1
+          run_install: false
+
+      - name: Setup Node
+        uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c
+        with:
+          node-version-file: '.nvmrc'
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm i
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: true
+
+      - name: Run tests
+        run: pnpm ${{ matrix.script }}
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
