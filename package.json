@@ -76,6 +76,7 @@
     "build:common": "pnpm --filter common build",
     "build": "pnpm run build:common && pnpm run build:table && pnpm run build:chrome-ai-playground && pnpm run build:awl-mcp-inspector && pnpm run build:design-system && pnpm run build:chatbot && pnpm run build:npm-advisor && pnpm run build:awl && pnpm run build:npm-advisor-mcp && pnpm run build:vscode",
     "serve": "pnpm --filter awl preview",
+    "deploy:local": "bash bin/deploy-local.sh",
     "preview-storybook": "pnpm --filter storybook-config preview-storybook",
     "storybook": "pnpm --filter storybook-config storybook",
     "test:awl": "pnpm --filter awl test",
