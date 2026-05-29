@@ -40,10 +40,42 @@ importers:
       react:
         specifier: ^18.0.0
         version: 18.2.0
+  packages/a:
+    dependencies:
+      react:
+        specifier: ^18.0.0
+        version: 18.2.0
 
 packages:
   react@18.2.0:
     resolution: {integrity: sha512-x}
+`,
+  pnpmV9Workspace: `lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: true
+
+importers:
+  .:
+    dependencies:
+      react:
+        specifier: ^18.0.0
+        version: 18.2.0
+  packages/extensions/vscode:
+    dependencies:
+      react:
+        specifier: ^19.1.1
+        version: 19.2.4
+    devDependencies:
+      '@types/node':
+        specifier: ^24.3.0
+        version: 24.12.0
+
+packages:
+  react@18.2.0:
+    resolution: {integrity: sha512-x}
+  react@19.2.4:
+    resolution: {integrity: sha512-y}
 `,
 };
 
@@ -104,6 +136,63 @@ describe("LockfileResolver", () => {
       expect(await resolver.resolveVersion(uri as never, "react")).toBe(
         "18.2.0",
       );
+    } finally {
+      resolver.dispose();
+    }
+  });
+
+  it("resolves a sub-package against its own importer in a pnpm workspace", async () => {
+    const uri = await setupProject(
+      "packages/extensions/vscode",
+      "pnpm-lock.yaml",
+      "",
+    );
+    await fs.rm(
+      path.join(tempRoot, "packages/extensions/vscode/pnpm-lock.yaml"),
+    );
+    await fs.writeFile(
+      path.join(tempRoot, "pnpm-lock.yaml"),
+      fixtures.pnpmV9Workspace,
+    );
+    const resolver = new LockfileResolver();
+    try {
+      expect(await resolver.resolveVersion(uri as never, "@types/node")).toBe(
+        "24.12.0",
+      );
+      // The sub-package pins react 19, not the root's 18.
+      expect(await resolver.resolveVersion(uri as never, "react")).toBe(
+        "19.2.4",
+      );
+    } finally {
+      resolver.dispose();
+    }
+  });
+
+  it("does not leak root-importer deps to a sub-package", async () => {
+    const rootUri = await setupProject(".", "pnpm-lock.yaml", "");
+    await fs.writeFile(
+      path.join(tempRoot, "pnpm-lock.yaml"),
+      fixtures.pnpmV9Workspace,
+    );
+    const subDir = path.join(tempRoot, "packages/extensions/vscode");
+    await fs.mkdir(subDir, { recursive: true });
+    await fs.writeFile(
+      path.join(subDir, "package.json"),
+      JSON.stringify({ name: "vscode", version: "1.0.0" }),
+    );
+    const subUri = vscodeMock.Uri.file(path.join(subDir, "package.json"));
+    const resolver = new LockfileResolver();
+    try {
+      // root has react@18 but no @types/node; sub has @types/node@24.
+      expect(await resolver.resolveVersion(rootUri as never, "react")).toBe(
+        "18.2.0",
+      );
+      expect(
+        await resolver.resolveVersion(rootUri as never, "@types/node"),
+      ).toBeUndefined();
+      expect(
+        await resolver.resolveVersion(subUri as never, "@types/node"),
+      ).toBe("24.12.0");
     } finally {
       resolver.dispose();
     }
