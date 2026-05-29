@@ -81,7 +81,7 @@ export const PackageJsonSwitcher: FC<PackageJsonSwitcherProps> = ({
         <button
           type="button"
           onClick={() => setExpanded((previous) => !previous)}
-          className="group flex-1 flex items-center justify-between gap-3 px-3 py-2.5 text-left hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors outline-none"
+          className="group flex-1 min-w-0 flex items-center justify-between gap-3 px-3 py-2.5 text-left hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors outline-none"
         >
           <div className="flex items-start gap-2 min-w-0">
             <FileJson
