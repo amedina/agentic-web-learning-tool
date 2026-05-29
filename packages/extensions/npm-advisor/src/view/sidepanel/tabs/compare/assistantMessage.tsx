@@ -2,11 +2,11 @@
  * External dependencies.
  */
 import { MessagePrimitive } from "@assistant-ui/react";
-import { MarkdownText } from "@agentic-web-labs/design-system";
+
 /**
  * Internal dependencies.
  */
-import { PackageButton } from "../../../shared/packageButton";
+import { MarkdownMessageText } from "../../../shared/markdownMessageText";
 
 export const AssistantMessage = () => {
   return (
@@ -15,26 +15,7 @@ export const AssistantMessage = () => {
         <div className="overflow-x-auto border px-4 py-2 rounded-2xl max-w-[85%] text-[13px] shadow-sm break-words leading-relaxed bg-white border-slate-200 text-slate-800">
           <MessagePrimitive.Parts
             components={{
-              Text: (props) => (
-                <MarkdownText
-                  {...props}
-                  components={{
-                    a: ({ href, children, ...rest }) => {
-                      if (href?.startsWith("package:")) {
-                        const packageName = href.replace("package:", "");
-
-                        return <PackageButton packageName={packageName} />;
-                      }
-
-                      return (
-                        <a href={href} {...rest}>
-                          {children}
-                        </a>
-                      );
-                    },
-                  }}
-                />
-              ),
+              Text: MarkdownMessageText,
             }}
           />
         </div>

@@ -20,6 +20,7 @@ import ModelsTab from "./tabs/models";
 import SettingsTab from "./tabs/settings";
 import ComparisonPage from "./tabs/compare";
 import { ModelProvider } from "./providers";
+import { NpmAdvisorHeader } from "./npmAdvisorHeader";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -47,35 +48,6 @@ function applyTheme() {
       document.documentElement.classList.remove("dark");
     }
   });
-}
-
-// ── Sidebar header ────────────────────────────────────────────────────────────
-
-function NpmAdvisorHeader() {
-  const { sidebarState } = useSidebar(({ state }) => ({
-    sidebarState: state.sidebarState,
-  }));
-
-  const expanded = sidebarState === "expanded";
-
-  return (
-    <div className="flex items-center gap-2 overflow-hidden">
-      <div
-        className={`ml-2 shrink-0 transition-all duration-200 ${expanded ? "opacity-100 w-6" : "opacity-0 w-0"}`}
-      >
-        <img
-          src={chrome.runtime.getURL("icons/icon-128.png")}
-          className="h-6 w-6"
-          alt="NPM Advisor"
-        />
-      </div>
-      <span
-        className={`font-bold text-lg whitespace-nowrap overflow-hidden transition-all duration-200 ${expanded ? "opacity-100 max-w-xs" : "opacity-0 max-w-0"}`}
-      >
-        NPM Advisor
-      </span>
-    </div>
-  );
 }
 
 // ── Menu items ────────────────────────────────────────────────────────────────
