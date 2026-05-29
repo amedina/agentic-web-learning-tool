@@ -4,6 +4,7 @@
 import { dirname, resolve } from "node:path";
 import {
   getPackageStats,
+  resolutionsForImporter,
   type PackageStats,
 } from "@agentic-web-labs/package-analyzer-core";
 
@@ -16,6 +17,7 @@ import {
   parseLockfileAtPath,
   type DiscoveredLockfile,
 } from "../workspace/findLockfile";
+import { importerPathFor } from "../workspace/importerPath";
 
 const CONCURRENCY = 3;
 
@@ -88,7 +90,12 @@ export async function runAnalyzePackageJson(
   const targetLicense = input.targetLicense ?? "MIT";
 
   const lockfile = await resolveLockfile(packageJsonPath, input.lockfilePath);
-  const topLevel = lockfile?.parsed.topLevel ?? {};
+  const resolutions = lockfile
+    ? resolutionsForImporter(
+        lockfile.parsed,
+        importerPathFor(lockfile.path, packageJsonPath),
+      )
+    : {};
 
   const parsed = await readPackageJsonDependencies(packageJsonPath);
   const queue: { name: string; category: AnalyzedDependency["category"] }[] = [
@@ -113,7 +120,7 @@ export async function runAnalyzePackageJson(
       try {
         const stats = await getPackageStats(name, targetLicense, {
           includeDependencyTree: false,
-          resolvedVersion: topLevel[name],
+          resolvedVersion: resolutions[name],
         });
         return { name, category, stats };
       } catch (error) {

@@ -1,0 +1,46 @@
+lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+importers:
+
+  .:
+    dependencies:
+      react:
+        specifier: ^18.0.0
+        version: 18.2.0
+
+  packages/extensions/vscode:
+    dependencies:
+      lucide-react:
+        specifier: ^0.468.0
+        version: 0.468.0(react@19.2.4)
+      react:
+        specifier: ^19.1.1
+        version: 19.2.4
+    devDependencies:
+      '@agentic-web-labs/package-analyzer-core':
+        specifier: workspace:*
+        version: link:../../shared/package-analyzer-core
+      '@types/node':
+        specifier: ^24.3.0
+        version: 24.12.0
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/node@24.12.0)
+
+  packages/shared/common:
+    dependencies:
+      '@types/node':
+        specifier: ^20.0.0
+        version: 20.19.0
+
+packages:
+
+  react@18.2.0:
+    resolution: {integrity: sha512-deadbeef}
+
+  react@19.2.4:
+    resolution: {integrity: sha512-deadbeef}

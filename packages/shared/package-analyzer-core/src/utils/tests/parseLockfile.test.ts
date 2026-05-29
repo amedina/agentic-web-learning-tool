@@ -9,7 +9,11 @@ import { describe, it, expect } from "vitest";
 /**
  * Internal dependencies.
  */
-import { parseLockfile, UnsupportedLockfileError } from "../parseLockfile";
+import {
+  parseLockfile,
+  resolutionsForImporter,
+  UnsupportedLockfileError,
+} from "../parseLockfile";
 
 const fixturesDir = join(
   dirname(fileURLToPath(import.meta.url)),
@@ -180,6 +184,77 @@ importers:
     expect(() => parseLockfile("pnpm-lock.yaml", bad)).toThrow(
       UnsupportedLockfileError,
     );
+  });
+});
+
+describe("parseLockfile - pnpm workspace importers", () => {
+  function workspaceLockfile() {
+    return parseLockfile(
+      "pnpm-lock.yaml",
+      readFixture("pnpm-lock.v9-workspace.yaml"),
+    );
+  }
+
+  it("exposes a resolution map per importer", () => {
+    const result = workspaceLockfile();
+    expect(result.importers).toBeDefined();
+    expect(Object.keys(result.importers ?? {})).toEqual(
+      expect.arrayContaining([
+        ".",
+        "packages/extensions/vscode",
+        "packages/shared/common",
+      ]),
+    );
+  });
+
+  it("keeps topLevel pointing at the root importer for back-compat", () => {
+    const result = workspaceLockfile();
+    expect(result.topLevel.react).toBe("18.2.0");
+    expect("@types/node" in result.topLevel).toBe(false);
+  });
+
+  it("resolves a dependency against the importer that declared it", () => {
+    const result = workspaceLockfile();
+    const vscode = resolutionsForImporter(result, "packages/extensions/vscode");
+    expect(vscode["@types/node"]).toBe("24.12.0");
+    expect(vscode.react).toBe("19.2.4");
+    expect(vscode["lucide-react"]).toBe("0.468.0");
+  });
+
+  it("resolves the same name to different versions in different importers", () => {
+    const result = workspaceLockfile();
+    expect(
+      resolutionsForImporter(result, "packages/extensions/vscode")[
+        "@types/node"
+      ],
+    ).toBe("24.12.0");
+    expect(
+      resolutionsForImporter(result, "packages/shared/common")["@types/node"],
+    ).toBe("20.19.0");
+  });
+
+  it("omits workspace: link resolutions as non-semver", () => {
+    const result = workspaceLockfile();
+    const vscode = resolutionsForImporter(result, "packages/extensions/vscode");
+    expect("@agentic-web-labs/package-analyzer-core" in vscode).toBe(false);
+  });
+
+  it("returns an empty map for an importer not in the workspace", () => {
+    const result = workspaceLockfile();
+    expect(resolutionsForImporter(result, "packages/does/not-exist")).toEqual(
+      {},
+    );
+  });
+});
+
+describe("resolutionsForImporter - non-workspace fallback", () => {
+  it("falls back to topLevel for lockfiles without an importer graph", () => {
+    const result = parseLockfile(
+      "pnpm-lock.yaml",
+      readFixture("pnpm-lock.v5_4.yaml"),
+    );
+    expect(result.importers).toBeUndefined();
+    expect(resolutionsForImporter(result, "anything").react).toBe("18.2.0");
   });
 });
 
