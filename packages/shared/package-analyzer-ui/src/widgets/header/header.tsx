@@ -188,10 +188,7 @@ export const Header: React.FC<HeaderProps> = ({
                   delayDuration={0}
                   contentClassName="max-w-xs p-2 text-left font-normal normal-case tracking-normal bg-slate-800 text-white shadow-lg"
                   body={
-                    <p className="text-xs leading-snug">
-                      Version installed in your project, resolved from the
-                      lockfile.
-                    </p>
+                    <p className="text-xs leading-snug">Installed Version</p>
                   }
                 >
                   <span
