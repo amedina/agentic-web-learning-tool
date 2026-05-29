@@ -8,7 +8,14 @@ import * as vscode from "vscode";
  */
 import type { PackageJsonFile } from "../webview/protocol";
 
-const EXCLUDE_GLOB = "**/{node_modules,dist,build,.git,.next,out}/**";
+/**
+ * Directories whose package.json files should never surface in the
+ * workspace switcher: dependency / build output dirs and hidden tool
+ * config dirs such as `.claude` (which can hold its own package.json
+ * for plugins and is not a real workspace package).
+ */
+export const EXCLUDE_GLOB =
+  "**/{node_modules,dist,build,.git,.next,out,.claude}/**";
 
 /**
  * Discovers every package.json in the open workspace folders and
