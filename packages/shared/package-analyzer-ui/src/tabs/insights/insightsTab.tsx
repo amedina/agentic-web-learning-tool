@@ -46,6 +46,9 @@ const EMPTY_STATS_DEFAULTS = {
   dependencyTree: null,
   githubRateLimited: false,
   githubIssuesUnavailable: false,
+  latestVersion: null,
+  consideredVersion: null,
+  versionResolution: "latest-fallback" as const,
 };
 
 export const InsightsTab: React.FC<InsightsTabProps> = ({
@@ -73,12 +76,16 @@ export const InsightsTab: React.FC<InsightsTabProps> = ({
     collaboratorsCount,
     lastCommitDate,
     license,
+    consideredVersion,
+    versionResolution,
   } = effectiveStats;
 
   return (
     <div className="text-slate-800 dark:text-slate-200 p-4 space-y-4 h-full overflow-y-auto">
       <Header
         packageName={packageName}
+        version={consideredVersion}
+        isInstalledVersion={versionResolution === "lockfile"}
         githubUrl={githubUrl}
         stars={stars}
         collaboratorsCount={collaboratorsCount}

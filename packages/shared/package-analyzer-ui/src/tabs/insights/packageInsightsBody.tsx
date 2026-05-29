@@ -102,6 +102,8 @@ export const PackageInsightsBody: React.FC<PackageInsightsBodyProps> = ({
     dependencyTree,
     githubRateLimited,
     githubIssuesUnavailable,
+    consideredVersion,
+    versionResolution,
   } = stats;
 
   // For accordion-mounted Headers we route the "+ Compare" button through
@@ -115,6 +117,8 @@ export const PackageInsightsBody: React.FC<PackageInsightsBodyProps> = ({
       {showHeader && (
         <Header
           packageName={packageName}
+          version={consideredVersion}
+          isInstalledVersion={versionResolution === "lockfile"}
           githubUrl={githubUrl}
           stars={stars}
           collaboratorsCount={collaboratorsCount}
