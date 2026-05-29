@@ -85,6 +85,8 @@
     "test:vscode": "pnpm --filter vscode-npm-advisor test",
     "test:engine": "pnpm --filter engine-core test",
     "test:engine-extension": "pnpm --filter engine-extension test",
+    "test:package-analyzer-core": "pnpm --filter package-analyzer-core test",
+    "test:project-analyzer-core": "pnpm --filter project-analyzer-core test",
     "test:e2e": "pnpm --filter awl test:e2e",
     "test:e2e-ui": "pnpm --filter awl test:e2e-ui",
     "prepare": "husky"
