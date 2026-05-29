@@ -9,13 +9,14 @@ import { type PackageStats } from "@agentic-web-labs/package-analyzer-core";
 /**
  * Internal dependencies.
  */
-import { WorkspaceRootInsights } from "./workspaceRootInsights";
+import { DependenciesOnlyInsights } from "./dependenciesOnlyInsights";
 
 interface InsightsTabProps {
   stats: PackageStats | null;
   pendingPackageName: string | null;
   isLoading: boolean;
-  isWorkspaceRoot?: boolean;
+  isDependenciesOnly?: boolean;
+  unpublishedPackageName?: string | null;
   onAddToCompare: () => void;
   isAddedToCompare: boolean;
   onAddRecommendationToCompare: (packageName: string) => void;
@@ -26,8 +27,9 @@ interface InsightsTabProps {
 /**
  * Renders the Insights tab content for the npm-advisor side panel. Defers to
  * the shared `InsightsTab` for normal packages, and substitutes a friendly
- * "workspace root" card when the active page is a monorepo `package.json`
- * with no `name` field — there's no package to analyze, but the Dependencies
+ * empty-state card when the active page is a `package.json` that has no
+ * published package to score — either a monorepo root with no `name`, or a
+ * named package that isn't published on npm. In both cases the Dependencies
  * tab can still do useful work.
  */
 export const ChromeInsightsTab: React.FC<InsightsTabProps> = (props) => {
@@ -35,9 +37,10 @@ export const ChromeInsightsTab: React.FC<InsightsTabProps> = (props) => {
     setActiveTab: actions.setActiveTab,
   }));
 
-  if (props.isWorkspaceRoot) {
+  if (props.isDependenciesOnly) {
     return (
-      <WorkspaceRootInsights
+      <DependenciesOnlyInsights
+        unpublishedPackageName={props.unpublishedPackageName ?? null}
         onOpenDependencies={() => setActiveTab("dependencies")}
       />
     );

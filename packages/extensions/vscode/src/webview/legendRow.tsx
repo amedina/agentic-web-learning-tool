@@ -24,7 +24,10 @@ export const LegendRow: FC<LegendRowProps> = ({
       <span className="font-medium text-slate-800 dark:text-slate-200">
         {label}
       </span>
-      <span className="text-slate-600 dark:text-slate-400"> — {description}</span>
+      <span className="text-slate-600 dark:text-slate-400">
+        {" "}
+        — {description}
+      </span>
     </div>
   </li>
 );

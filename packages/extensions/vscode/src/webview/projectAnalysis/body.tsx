@@ -9,12 +9,7 @@ import { Loader2 } from "lucide-react";
  */
 import { IdleExplainer } from "./idleExplainer";
 import { Results } from "./results";
-import type {
-  PostCopyPrompt,
-  PostReveal,
-  PostSetupMcp,
-  Status,
-} from "./types";
+import type { PostCopyPrompt, PostReveal, PostSetupMcp, Status } from "./types";
 
 interface BodyProps {
   status: Status;

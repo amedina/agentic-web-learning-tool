@@ -161,4 +161,3 @@ export const PackageJsonSwitcher: FC<PackageJsonSwitcherProps> = ({
     </div>
   );
 };
-
