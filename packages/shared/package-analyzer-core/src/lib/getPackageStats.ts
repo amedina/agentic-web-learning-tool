@@ -6,189 +6,27 @@ import { fetchGithubRepo } from "../utils/fetchGithubRepo";
 import { fetchGithubIssues } from "../utils/fetchGithubIssues";
 import { fetchGithubSecurityAdvisories } from "../utils/fetchGithubSecurityAdvisories";
 import { fetchBundlephobiaData } from "../utils/fetchBundlephobiaData";
-import { getDependencyTree, type DependencyTree } from "./getDependencyTree";
+import { getDependencyTree } from "./getDependencyTree";
 import { fetchModuleReplacements } from "../utils/fetchModuleReplacements";
 import { githubFetch, GithubRateLimitError } from "../utils/githubFetch";
 import { fetchOsvAdvisories } from "../utils/fetchOsvAdvisories";
 import { matchesAdvisoryVersion } from "./matchAdvisoryToVersion";
-
-/**
- * External dependencies.
- */
-import {
-  checkLicenseCompatibility,
-  type LicenseCompatibilityResult,
-} from "./checkLicenseCompatibility";
+import { checkLicenseCompatibility } from "./checkLicenseCompatibility";
 import { parseGithubUrl } from "../utils/parseGithubUrl";
 import { extractGithubUrlFromReadme } from "../utils/extractGithubUrlFromReadme";
+import { extractRecommendations } from "./extractRecommendations";
+import { computeScoreBreakdown } from "./computeScoreBreakdown";
+import {
+  type PackageStats,
+  type GetPackageStatsOptions,
+} from "./packageStatsTypes";
 
-export interface PackageStats {
-  packageName: string;
-  description: string | null;
-  /** Latest version published to the npm registry, taken from dist-tags.latest. */
-  latestVersion: string | null;
-  githubUrl: string | null;
-  stars: number | null;
-  collaboratorsCount: number | null;
-  lastCommitDate: string | null;
-  responsiveness: {
-    closedIssuesRatio: number | null;
-    sampleSize: number;
-    openIssuesCount: number;
-    issuesUrl: string;
-    description: string;
-  } | null;
-  securityAdvisories: {
-    critical: number;
-    high: number;
-    moderate: number;
-    low: number;
-    issues: Array<{ summary: string; severity: string; url: string }>;
-  } | null;
-  bundle: {
-    size: number;
-    gzip: number;
-    isTreeShakeable: boolean;
-    hasSideEffects: boolean | string[];
-  } | null;
-  dependencyTree: DependencyTree | null;
-  license: string | null;
-  licenseCompatibility: LicenseCompatibilityResult | null;
-  recommendations: {
-    nativeReplacements?: any;
-    microUtilityReplacements?: any;
-    preferredReplacements?: any;
-  };
-  score: number;
-  scoreBreakdown: ScoreBreakdownItem[];
-  scoreMaxPoints: number;
-  /**
-   * True when a GitHub Core REST API call (repo metadata, security
-   * advisories) failed due to a rate limit — i.e. the kind of failure
-   * adding a Personal Access Token would mitigate. Drives the toast and
-   * the Header / SecurityAdvisories warning indicators.
-   */
-  githubRateLimited: boolean;
-  /**
-   * True when the GitHub Search API call used to gather issue activity
-   * was throttled. Tracked separately because Search has a much tighter
-   * per-minute quota (30 req/min even authenticated) that routinely
-   * trips during a multi-dep scan and is not user-actionable. We render
-   * a softer "couldn't fetch right now" hint on the Responsiveness
-   * widget rather than the alarming global rate-limit warning.
-   */
-  githubIssuesUnavailable: boolean;
-  /**
-   * How the version used for version-sensitive lookups (npm registry
-   * metadata, bundle size, and — once Task 1b lands — advisory matching)
-   * was determined.
-   * - `"lockfile"`: the caller passed `resolvedVersion`, so the stats
-   *   reflect the version actually installed in the user's project.
-   * - `"latest-fallback"`: no `resolvedVersion` was provided, so the
-   *   latest published version was used. The UI should warn that
-   *   advisories may not match what the user has installed.
-   */
-  versionResolution: "lockfile" | "latest-fallback";
-  /**
-   * The version against which version-sensitive lookups were performed
-   * (`resolvedVersion` when set, otherwise the latest published version).
-   * Mirrors what the user actually saw the stats for and is useful for
-   * "showing data for X" badges in the UI.
-   */
-  consideredVersion: string | null;
-  /**
-   * Advisory data sources that contributed to `securityAdvisories`. When
-   * either feed is unreachable (network failure, rate-limit) the missing
-   * entry is dropped so the UI can warn that coverage is partial. Empty
-   * when `securityAdvisories` itself is `null` (no GitHub repo, no OSV
-   * data) — distinguishes "no advisories" from "advisories not checked".
-   */
-  advisorySources: Array<"github" | "osv">;
-}
-
-export interface ScoreBreakdownItem {
-  label: string;
-  points: number;
-  maxPoints: number;
-  reason: string;
-  /**
-   * - `scored`: the axis was evaluated; both `points` and `maxPoints`
-   *   contribute to the displayed score.
-   * - `unavailable`: required data was missing so the axis was skipped.
-   *   It contributes 0 to the numerator AND 0 to the denominator, so the
-   *   package isn't unfairly penalized for a data gap.
-   * - `penalty`: the axis only deducts from the score. `points` is
-   *   negative, `maxPoints` is 0, so the denominator is unaffected but the
-   *   numerator drops. Used for things like security advisories where the
-   *   signal is strictly a downside, never an upside.
-   */
-  status: "scored" | "unavailable" | "penalty";
-}
-
-/**
- * How the package is consumed in the user's project. The scorer uses this
- * to pick which axes apply — a dev-only tool (like TypeScript) shouldn't
- * be penalised for bundle size because it never ships to end users.
- *
- * - `runtime`: declared under `dependencies` or `peerDependencies`; ships
- *   to end users. Bundle size matters.
- * - `dev`: declared under `devDependencies`; never shipped. Bundle size
- *   and dep-count axes are marked unavailable.
- * - `unknown` (default): we don't know the consumption context (e.g. the
- *   user is viewing a standalone npm package page). Assume frontend use
- *   so the score reflects "how fit for a client-side bundle is this?".
- */
-export type DependencyCategory = "runtime" | "dev" | "unknown";
-
-export interface GetPackageStatsOptions {
-  /**
-   * Whether to resolve the full transitive dependency tree. Skipping the tree
-   * avoids the recursive npm fetch cost when analysing many packages at once
-   * (e.g. the Report tab's dependency list).
-   */
-  includeDependencyTree?: boolean;
-  /**
-   * Whether to fetch bundlephobia data for this package. Skipping it cuts a
-   * network round-trip per dep, which matters when the Report tab fans out
-   * to dozens of packages and most never get expanded. The Bundle Size
-   * scoring axis is then marked unavailable (with a "deferred" reason) until
-   * the caller fetches the bundle separately via `fetchBundlephobiaData`.
-   */
-  includeBundle?: boolean;
-  /**
-   * Whether to fetch GitHub issue activity for the Responsiveness widget.
-   * Skipping it avoids draining the GitHub Search API quota when scanning many
-   * deps in parallel (e.g. Report tab). Default true; set false in light-stats
-   * calls that only need bundle / dep-tree data.
-   */
-  includeGithubIssues?: boolean;
-  /**
-   * How this package is consumed in the user's project, if known. Defaults
-   * to `unknown`, which scores as if the package will be shipped to a
-   * client-side bundle.
-   */
-  dependencyCategory?: DependencyCategory;
-  /**
-   * The exact version installed in the user's project, as resolved from a
-   * lockfile. When provided, npm registry metadata (license, repository,
-   * dependencies), bundle-size lookups, and (in Task 1b) advisory
-   * matching are performed against this version rather than the latest
-   * published one. Surfaces as `versionResolution: "lockfile"` on the
-   * result. When omitted, the latest published version is used and the
-   * result is flagged `versionResolution: "latest-fallback"` so the UI
-   * can warn the user that the verdict may not reflect their install.
-   */
-  resolvedVersion?: string;
-  /**
-   * Optional {@link AbortSignal} that cancels every in-flight sub-fetch
-   * this analyzer kicks off. Aborting mid-run rejects the outer
-   * `getPackageStats` promise with the signal's reason. The shared
-   * fetch caches (`fetchWithCache`, `githubFetch`, `fetchOsvAdvisories`)
-   * isolate cancellation so any concurrent caller waiting on the same
-   * URL keeps its result — only this call short-circuits.
-   */
-  signal?: AbortSignal;
-}
+export {
+  type PackageStats,
+  type ScoreBreakdownItem,
+  type DependencyCategory,
+  type GetPackageStatsOptions,
+} from "./packageStatsTypes";
 
 /**
  * Get Package Stats.
@@ -589,18 +427,6 @@ export async function getPackageStats(
     }
   }
 
-  function extractRecommendations(raw: any, pkgName: string) {
-    if (!raw || !raw.mappings || !raw.mappings[pkgName]) return null;
-    const mapping = raw.mappings[pkgName];
-    const replacementIds = mapping.replacements || [];
-
-    const replacements = replacementIds
-      .map((id: string) => raw.replacements?.[id])
-      .filter(Boolean);
-
-    return replacements.length > 0 ? replacements : null;
-  }
-
   const recommendations: PackageStats["recommendations"] = {};
 
   const nativeMatches = extractRecommendations(
@@ -622,174 +448,19 @@ export async function getPackageStats(
   if (preferredMatches)
     recommendations.preferredReplacements = preferredMatches;
 
-  // Score is computed from three weighted axes summing to 100 when every
-  // axis is scored. Each axis is also written to `scoreBreakdown` so the
-  // UI can show the user how the score was arrived at, including any
-  // axes that were skipped because the underlying data was unavailable.
-  //
-  // Note: the e18e "modern replacements" list is intentionally not part of
-  // the score. Whether a replacement exists is a property of the ecosystem
-  // around the package, not of the package itself, so rewarding or
-  // penalising it conflates "this has alternatives" with "this is good/bad".
-  // The Recommendations widget still surfaces that guidance to the user.
-  const scoreBreakdown: ScoreBreakdownItem[] = [];
-
-  // Axis 1: bundle size (max 45). Rewards smaller gzipped payloads —
-  // weighted highest because bundle size is the most direct user-facing
-  // cost (download, parse, execute). Marked unavailable when:
-  //   - the caller asked us to skip the bundlephobia fetch (deferred until
-  //     the user expands an accordion row), or
-  //   - bundlephobia did not return data, so we can't measure it, or
-  //   - the package is declared under devDependencies and so never ships
-  //     to end users (a dev-only tool like TypeScript shouldn't be
-  //     penalised for being large).
-  const gzip = bundle?.gzip ?? null;
-  let bundlePoints = 0;
-  let bundleReason: string;
-  let bundleStatus: ScoreBreakdownItem["status"] = "scored";
-  if (dependencyCategory === "dev") {
-    bundleReason = "Dev-only package — bundle size does not ship to users";
-    bundleStatus = "unavailable";
-  } else if (!includeBundle) {
-    bundleReason = "Bundle data deferred — expand the row to fetch";
-    bundleStatus = "unavailable";
-  } else if (gzip === null) {
-    bundleReason = "Bundle data not available";
-    bundleStatus = "unavailable";
-  } else if (gzip < 10000) {
-    bundlePoints = 45;
-    bundleReason = "Gzipped size under 10 KB";
-  } else if (gzip < 50000) {
-    bundlePoints = 15;
-    bundleReason = "Gzipped size under 50 KB";
-  } else {
-    bundleReason = "Gzipped size of 50 KB or more";
-  }
-  scoreBreakdown.push({
-    label: "Bundle Size",
-    points: bundlePoints,
-    maxPoints: 45,
-    reason: bundleReason,
-    status: bundleStatus,
+  const { scoreBreakdown, score, scoreMaxPoints } = computeScoreBreakdown({
+    bundle,
+    dependencyCategory,
+    includeBundle,
+    dependencyTree,
+    includeDependencyTree,
+    consideredVersion,
+    npmData,
+    responsiveness,
+    githubIssuesUnavailable,
+    githubRateLimited,
+    securityAdvisories,
   });
-
-  // Axis 2: dependency count (max 35). Rewards leaf packages with no or few
-  // direct dependencies — a proxy for supply-chain surface area. When we
-  // skipped the transitive tree fetch, fall back to the top-level deps
-  // declared on the published version so the axis still contributes
-  // without triggering a recursive npm fetch.
-  let deps: number;
-  if (dependencyTree) {
-    deps = Object.keys(dependencyTree.dependencies || {}).length;
-  } else if (!includeDependencyTree) {
-    const topLevelDeps = consideredVersion
-      ? npmData.versions[consideredVersion]?.dependencies
-      : undefined;
-    deps = topLevelDeps ? Object.keys(topLevelDeps).length : 0;
-  } else {
-    deps = 0;
-  }
-  let depsPoints = 0;
-  let depsReason: string;
-  if (deps === 0) {
-    depsPoints = 35;
-    depsReason = "No direct dependencies";
-  } else if (deps < 5) {
-    depsPoints = 15;
-    depsReason = `Only ${deps} direct ${deps === 1 ? "dependency" : "dependencies"}`;
-  } else {
-    depsReason = `${deps} direct dependencies`;
-  }
-  scoreBreakdown.push({
-    label: "Dependencies",
-    points: depsPoints,
-    maxPoints: 35,
-    reason: depsReason,
-    status: "scored",
-  });
-
-  // Axis 3: maintainer responsiveness (max 20). Scaled linearly from the
-  // sampled closed-issues ratio: ratio of 1.0 awards the full 20 points,
-  // 0.5 awards 10, and so on. Capped lower than bundle / deps because the
-  // closed-issues sample is a coarse proxy — old issues that closed via
-  // staleness inflate the ratio, and small repos with few issues swing
-  // wildly — so the axis shouldn't drag the score the way bundle size or
-  // dependency surface area legitimately can. Marked unavailable when the
-  // package has no linked GitHub repo or no issues sample, so packages
-  // without a public repo aren't penalised for a missing signal.
-  let responsivenessPoints = 0;
-  let responsivenessReason: string;
-  let responsivenessStatus: ScoreBreakdownItem["status"] = "scored";
-  const closedRatio = responsiveness?.closedIssuesRatio ?? null;
-  if (!responsiveness || closedRatio === null) {
-    if (githubIssuesUnavailable || githubRateLimited) {
-      responsivenessReason = "Couldn't fetch issue activity right now";
-    } else {
-      responsivenessReason = "Issue activity not available";
-    }
-    responsivenessStatus = "unavailable";
-  } else {
-    responsivenessPoints = Math.round(closedRatio * 20);
-    const percentage = Math.round(closedRatio * 100);
-    if (closedRatio > 0.8) {
-      responsivenessReason = `Highly responsive — ${percentage}% of sampled issues closed`;
-    } else if (closedRatio > 0.5) {
-      responsivenessReason = `Moderately responsive — ${percentage}% of sampled issues closed`;
-    } else {
-      responsivenessReason = `Low issue closure rate — ${percentage}% of sampled issues closed`;
-    }
-  }
-  scoreBreakdown.push({
-    label: "Responsiveness",
-    points: responsivenessPoints,
-    maxPoints: 20,
-    reason: responsivenessReason,
-    status: responsivenessStatus,
-  });
-
-  // Penalty axis: security advisories. Contributes only negative points
-  // so the numerator drops without inflating the denominator. Weights are
-  // intentionally light — advisories are temporary (patches land, the
-  // GitHub feed clears) and shouldn't dominate a long-term quality signal.
-  // The vulnerability indicator next to the score is what draws the user's
-  // eye; this penalty is just a nudge so a heavily-advised package can't
-  // tie a clean one on score alone.
-  if (securityAdvisories) {
-    const { critical, high, moderate, low } = securityAdvisories;
-    const total = critical + high + moderate + low;
-    if (total > 0) {
-      const rawPenalty = critical * 5 + high * 3 + moderate * 2 + low * 1;
-      const cappedPenalty = Math.min(rawPenalty, 15);
-      const severityParts: string[] = [];
-      if (critical > 0) severityParts.push(`${critical} critical`);
-      if (high > 0) severityParts.push(`${high} high`);
-      if (moderate > 0) severityParts.push(`${moderate} moderate`);
-      if (low > 0) severityParts.push(`${low} low`);
-      scoreBreakdown.push({
-        label: "Security Advisories",
-        points: -cappedPenalty,
-        maxPoints: 0,
-        reason: `${total} open ${total === 1 ? "advisory" : "advisories"} (${severityParts.join(", ")})`,
-        status: "penalty",
-      });
-    }
-  }
-
-  // Only `scored` axes contribute to the max denominator. `penalty` axes
-  // only reduce the numerator; `unavailable` axes contribute nothing.
-  // The final score is clamped to [0, max] so a heavily-advisory'd
-  // package shows "0 / N" rather than a negative number.
-  const rawScore = scoreBreakdown.reduce((sum, item) => {
-    if (item.status === "scored" || item.status === "penalty") {
-      return sum + item.points;
-    }
-    return sum;
-  }, 0);
-  const scoreMaxPoints = scoreBreakdown.reduce(
-    (sum, item) => (item.status === "scored" ? sum + item.maxPoints : sum),
-    0,
-  );
-  const score = Math.max(0, Math.min(rawScore, scoreMaxPoints));
 
   const stats: PackageStats = {
     packageName,
