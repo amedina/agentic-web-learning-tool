@@ -66,18 +66,15 @@ export interface RunPublintResult {
 const DEFAULT_MAX_SCAN_FILES = 5000;
 
 /**
- * Directory names that are never part of a published package and must never
- * be walked during a `"source"`-mode scan. `node_modules` is the critical
- * entry: on a workspace root it can hold hundreds of megabytes, and letting
- * publint recurse into it walks the whole tree, which exhausts memory and
- * blows past the caller's analysis timeout. The rest are build/VCS output
- * that only add noise.
+ * Directory names that must never be walked during a `"source"`-mode scan.
+ * `node_modules` is the critical entry: on a workspace root it can hold
+ * hundreds of megabytes, and letting publint recurse into it walks the whole
+ * tree, which exhausts memory and blows past the caller's analysis timeout.
+ * The rest are dependency caches and VCS/tooling output that a published
+ * package's entry points never point at, so skipping them only removes noise.
  */
-const SCAN_EXCLUDED_DIRS = new Set([
+const HARD_EXCLUDED_DIRS = new Set([
   "node_modules",
-  "dist",
-  "build",
-  "out",
   "coverage",
   ".next",
   ".nuxt",
@@ -85,6 +82,22 @@ const SCAN_EXCLUDED_DIRS = new Set([
   ".cache",
   ".git",
 ]);
+
+/**
+ * Build-output directory names. These are walked (unlike {@link
+ * HARD_EXCLUDED_DIRS}) because a published package's entry points (`main`,
+ * `module`, `types`, `exports`, `bin`) almost always resolve into one of them,
+ * so publint must see those files to confirm the entry points exist. Without
+ * this, every package that ships from `dist/` draws a false
+ * `FILE_DOES_NOT_EXIST` for entry points that are present on disk.
+ *
+ * Files under these directories are recorded name-only (empty content): publint
+ * only needs the path to satisfy the existence check, and reading large built
+ * bundles into memory buys nothing because any format finding publint would
+ * raise for a build artifact is dropped downstream as non-published noise (see
+ * {@link refersToNonPublishedFile}).
+ */
+const BUILD_OUTPUT_DIRS = new Set(["dist", "build", "out"]);
 
 /**
  * Extensions whose contents publint actually reads to lint file format. Only
@@ -128,10 +141,12 @@ async function readPackageManifest(
  * Walks `pkgDir` and returns the file set publint should lint, expressed as
  * the in-memory virtual file system publint accepts via `pack: { files }`.
  *
- * The walk deliberately never descends into {@link SCAN_EXCLUDED_DIRS} and
+ * The walk deliberately never descends into {@link HARD_EXCLUDED_DIRS} and
  * never follows symlinks, so it cannot wander into `node_modules` or a
- * symlink loop. It stops after `maxFiles` entries, reporting `truncated` so
- * the caller can warn that results may be incomplete.
+ * symlink loop. {@link BUILD_OUTPUT_DIRS} are walked but recorded name-only so
+ * entry-point existence checks pass without reading built bundles into memory.
+ * It stops after `maxFiles` entries, reporting `truncated` so the caller can
+ * warn that results may be incomplete.
  */
 async function collectPackageFiles(
   pkgDir: string,
@@ -152,7 +167,7 @@ async function collectPackageFiles(
     // No readable manifest — let publint surface the error downstream.
   }
 
-  async function walk(directory: string): Promise<void> {
+  async function walk(directory: string, nameOnly: boolean): Promise<void> {
     if (files.length >= maxFiles) {
       truncated = true;
       return;
@@ -176,10 +191,10 @@ async function collectPackageFiles(
         continue;
       }
       if (entry.isDirectory()) {
-        if (SCAN_EXCLUDED_DIRS.has(entry.name)) {
+        if (HARD_EXCLUDED_DIRS.has(entry.name)) {
           continue;
         }
-        await walk(fullPath);
+        await walk(fullPath, nameOnly || BUILD_OUTPUT_DIRS.has(entry.name));
         continue;
       }
       if (!entry.isFile()) {
@@ -187,7 +202,10 @@ async function collectPackageFiles(
       }
       const extension = path.extname(entry.name).toLowerCase();
       let data = "";
-      if (entry.name === "package.json" || LINTABLE_EXTENSIONS.has(extension)) {
+      if (
+        !nameOnly &&
+        (entry.name === "package.json" || LINTABLE_EXTENSIONS.has(extension))
+      ) {
         try {
           data = await fs.readFile(fullPath, "utf8");
         } catch {
@@ -198,7 +216,7 @@ async function collectPackageFiles(
     }
   }
 
-  await walk(pkgDir);
+  await walk(pkgDir, false);
   return { files, truncated };
 }
 
