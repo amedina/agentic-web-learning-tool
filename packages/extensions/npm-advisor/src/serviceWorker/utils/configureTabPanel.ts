@@ -8,7 +8,7 @@ import { logger } from "@agentic-web-labs/common";
  * @param tabId - The tab ID to attach the panel to
  */
 async function configureTabPanel(tabId: number): Promise<void> {
-  const path = `sidePanel/sidePanel.html#tab=${tabId}`;
+  const path = `sidepanel/sidePanel.html#tab=${tabId}`;
   try {
     chrome.sidePanel.setOptions({
       tabId,
