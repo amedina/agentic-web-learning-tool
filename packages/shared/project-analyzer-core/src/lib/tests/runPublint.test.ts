@@ -128,14 +128,103 @@ describe("runPublint (source mode)", () => {
       const candidate = args?.actualFilePath ?? args?.globbedFilePath;
       return typeof candidate === "string" ? [candidate] : [];
     });
-    // node_modules and build output are excluded before the walk, so the
-    // scan never produces findings rooted there...
+    // node_modules is never walked and build-output files are recorded
+    // name-only, so the scan never produces format findings rooted there...
     for (const referencedPath of referencedPaths) {
       expect(referencedPath).not.toContain("node_modules");
       expect(referencedPath).not.toContain("dist");
     }
     // ...while the package's own top-level file is still surfaced.
     expect(referencedPaths).toContain("/index.js");
+  });
+
+  it("does not flag entry points that resolve into an existing build-output directory", async () => {
+    await writePackageJson(tempDir, {
+      name: "fixture-dist-entrypoints",
+      version: "1.0.0",
+      type: "module",
+      license: "MIT",
+      types: "dist/index.d.ts",
+      main: "dist/index.js",
+      module: "dist/index.js",
+      exports: {
+        ".": {
+          types: "./dist/index.d.ts",
+          import: "./dist/index.js",
+        },
+      },
+      files: ["dist/"],
+    });
+    await fs.mkdir(path.join(tempDir, "dist"), { recursive: true });
+    await fs.writeFile(
+      path.join(tempDir, "dist", "index.js"),
+      "export const noop = () => {};\n",
+      "utf8",
+    );
+    await fs.writeFile(
+      path.join(tempDir, "dist", "index.d.ts"),
+      "export declare const noop: () => void;\n",
+      "utf8",
+    );
+
+    const { findings } = await runPublint({ pkgDir: tempDir, mode: "source" });
+
+    const codes = findings.map((finding) => finding.code);
+    expect(codes).not.toContain("FILE_DOES_NOT_EXIST");
+  });
+
+  it("still flags an entry point whose build-output target is missing", async () => {
+    await writePackageJson(tempDir, {
+      name: "fixture-dist-missing",
+      version: "1.0.0",
+      type: "module",
+      license: "MIT",
+      main: "dist/index.js",
+      exports: {
+        ".": "./dist/index.js",
+      },
+      files: ["dist/"],
+    });
+
+    const { findings } = await runPublint({ pkgDir: tempDir, mode: "source" });
+
+    const codes = findings.map((finding) => finding.code);
+    expect(codes).toContain("FILE_DOES_NOT_EXIST");
+  });
+
+  it("resolves build-output entry points for a package nested under packages/", async () => {
+    const packageDir = path.join(tempDir, "packages", "nested");
+    await fs.mkdir(path.join(packageDir, "dist"), { recursive: true });
+    await writePackageJson(packageDir, {
+      name: "fixture-nested",
+      version: "1.0.0",
+      type: "module",
+      license: "MIT",
+      types: "dist/index.d.ts",
+      main: "dist/index.js",
+      exports: {
+        ".": {
+          types: "./dist/index.d.ts",
+          import: "./dist/index.js",
+        },
+      },
+      files: ["dist/"],
+    });
+    await fs.writeFile(
+      path.join(packageDir, "dist", "index.js"),
+      "export const noop = () => {};\n",
+      "utf8",
+    );
+    await fs.writeFile(
+      path.join(packageDir, "dist", "index.d.ts"),
+      "export declare const noop: () => void;\n",
+      "utf8",
+    );
+
+    const { findings } = await runPublint({ pkgDir: packageDir, mode: "source" });
+
+    const codes = findings.map((finding) => finding.code);
+    expect(codes).not.toContain("FILE_DOES_NOT_EXIST");
   });
 
   it("skips the scan entirely for a private package", async () => {
