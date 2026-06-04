@@ -26,8 +26,12 @@ const pkg = JSON.parse(
 // traces the `require()` calls at bundle time — marking them
 // external leaves the literal requires in the bundle and they
 // MODULE_NOT_FOUND at runtime only if someone actually tries to
-// parse a Vue SFC using one of these template languages. See the
-// matching note in packages/extensions/vscode/esbuild.config.js.
+// parse a Vue SFC using one of these template languages. `lodash` is
+// listed here too: it is not a template language itself, but
+// consolidate exposes a lodash-template renderer that does
+// `require('lodash')`, and lodash is no longer hoisted to a resolvable
+// location in this repo. See the matching note in
+// packages/extensions/vscode/esbuild.config.js.
 const OPTIONAL_TEMPLATE_ENGINES = [
   "atpl",
   "babel-core",
@@ -46,6 +50,7 @@ const OPTIONAL_TEMPLATE_ENGINES = [
   "jqtpl",
   "just",
   "liquor",
+  "lodash",
   "marko",
   "mote",
   "mustache",
