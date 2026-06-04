@@ -15,7 +15,7 @@
   "devDependencies": {
     "@agentic-web-labs/shared-config": "workspace:*",
     "typescript": "~5.8.3",
-    "vitest": "^3.2.4"
+    "vitest": "^4.1.0"
   },
   "dependencies": {
     "@agentic-web-labs/package-analyzer-core": "workspace:*",

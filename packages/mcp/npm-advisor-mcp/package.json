@@ -38,9 +38,9 @@
   "devDependencies": {
     "@agentic-web-labs/shared-config": "workspace:*",
     "@types/node": "^24.3.0",
-    "esbuild": "^0.24.0",
+    "esbuild": "^0.25.0",
     "rimraf": "^5.0.5",
     "typescript": "~5.8.3",
-    "vitest": "^3.2.4"
+    "vitest": "^4.1.0"
   }
 }
