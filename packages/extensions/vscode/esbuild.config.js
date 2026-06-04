@@ -13,7 +13,10 @@ const watch = process.argv.includes("--watch");
 // in the bundle as no-op `require()` calls that throw MODULE_NOT_FOUND
 // at runtime — which only happens if a consumer actually tries to
 // parse a Vue SFC using one of these template languages, which the
-// JS/TS-focused analyzer never does.
+// JS/TS-focused analyzer never does. `lodash` is listed here too: it
+// is not a template language itself, but consolidate exposes a
+// lodash-template renderer that does `require('lodash')`, and lodash is
+// no longer hoisted to a resolvable location in this repo.
 const OPTIONAL_TEMPLATE_ENGINES = [
   "atpl",
   "babel-core",
@@ -32,6 +35,7 @@ const OPTIONAL_TEMPLATE_ENGINES = [
   "jqtpl",
   "just",
   "liquor",
+  "lodash",
   "marko",
   "mote",
   "mustache",
