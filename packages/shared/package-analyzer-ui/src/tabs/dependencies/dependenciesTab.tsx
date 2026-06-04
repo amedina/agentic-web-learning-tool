@@ -17,9 +17,11 @@ import { type PackageJsonDependencies } from "../../types/statsClient";
 import { useDependencyStats } from "../../hooks/useDependencyStats";
 import { Dashboard } from "./dashboard";
 import { DependencySection } from "./dependencySection";
+import { DependenciesEmptyState } from "./dependenciesEmptyState";
 import { FilterPills } from "./filterPills";
 import {
   computeFilterCounts,
+  matchesFilters,
   type DependenciesFilterKey,
 } from "./dependenciesFilters";
 
@@ -96,6 +98,20 @@ export const DependenciesTab: React.FC<DependenciesTabProps> = ({
     () => computeFilterCounts(allPackageNames, statsByName),
     [allPackageNames, statsByName],
   );
+
+  // When filters are active but no package across any section matches them,
+  // every DependencySection renders null. Detect that here so we can show an
+  // empty-state message in the accordion area instead of leaving it blank,
+  // which would let the filter pills sit flush against the bottom.
+  const hasVisibleMatches = useMemo(
+    () =>
+      allPackageNames.some((name) =>
+        matchesFilters(statsByName[name], activeFilters),
+      ),
+    [allPackageNames, statsByName, activeFilters],
+  );
+  const showEmptyState =
+    activeFilters.size > 0 && allPackageNames.length > 0 && !hasVisibleMatches;
 
   const toggleFilter = useCallback((key: DependenciesFilterKey) => {
     setActiveFilters((previous) => {
@@ -193,6 +209,9 @@ export const DependenciesTab: React.FC<DependenciesTabProps> = ({
           onClear={clearFilters}
         />
       </div>
+      {showEmptyState && (
+        <DependenciesEmptyState onClearFilters={clearFilters} />
+      )}
       <DependencySection
         title="Dependencies"
         packageNames={packageJsonDependencies.dependencies}
