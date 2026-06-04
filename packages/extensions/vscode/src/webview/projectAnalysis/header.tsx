@@ -40,20 +40,22 @@ export const Header: FC<HeaderProps> = ({
         {statusHint(status)}
       </div>
       <div className="flex items-center gap-1">
-        <button
-          type="button"
-          className={`inline-flex items-center justify-center rounded border border-slate-300 dark:border-slate-700 p-1 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 ${
-            showAbout
-              ? "bg-slate-100 dark:bg-slate-700"
-              : "bg-slate-50 dark:bg-slate-800"
-          }`}
-          onClick={onToggleAbout}
-          aria-label="About this analysis"
-          title="About this analysis"
-          aria-pressed={showAbout}
-        >
-          <HelpCircle size={12} />
-        </button>
+        {isReady && (
+          <button
+            type="button"
+            className={`inline-flex items-center justify-center rounded border border-slate-300 dark:border-slate-700 p-1 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 ${
+              showAbout
+                ? "bg-slate-100 dark:bg-slate-700"
+                : "bg-slate-50 dark:bg-slate-800"
+            }`}
+            onClick={onToggleAbout}
+            aria-label="About this analysis"
+            title="About this analysis"
+            aria-pressed={showAbout}
+          >
+            <HelpCircle size={12} />
+          </button>
+        )}
         <button
           type="button"
           className="inline-flex items-center gap-1 rounded border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-2 py-1 text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"

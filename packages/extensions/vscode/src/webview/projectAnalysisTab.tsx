@@ -176,7 +176,9 @@ export const ProjectAnalysisTab: FC<ProjectAnalysisTabProps> = ({
         showAbout={showAbout}
         onToggleAbout={() => setShowAbout((value) => !value)}
       />
-      {showAbout && <AboutPanel onClose={() => setShowAbout(false)} />}
+      {showAbout && status.kind === "ready" && (
+        <AboutPanel onClose={() => setShowAbout(false)} />
+      )}
       {stale && status.kind === "ready" && (
         <StaleBanner
           changedFileDisplayPath={stale.changedFileDisplayPath}
