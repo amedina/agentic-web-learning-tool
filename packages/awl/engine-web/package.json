@@ -28,7 +28,7 @@
     "rimraf": "^5.0.10",
     "ts-jest": "^29.4.6",
     "typescript": "~5.9.2",
-    "vite": "^7.1.11",
+    "vite": "^7.3.2",
     "vite-plugin-compression2": "^2.5.0"
   }
 }
