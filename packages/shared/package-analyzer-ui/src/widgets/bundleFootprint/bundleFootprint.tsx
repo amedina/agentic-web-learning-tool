@@ -2,7 +2,15 @@
  * External dependencies.
  */
 import React from "react";
-import { Zap, HardDrive, Leaf, Info, Box, Loader2 } from "lucide-react";
+import {
+  Zap,
+  HardDrive,
+  Leaf,
+  Info,
+  Box,
+  Loader2,
+  AlertCircle,
+} from "lucide-react";
 
 /**
  * Internal dependencies.
@@ -31,11 +39,19 @@ export interface BundleFootprintProps {
    * on accordion expand to avoid hammering bundlephobia upfront.
    */
   isLoading?: boolean;
+  /**
+   * True when the bundlephobia request failed (rate-limit, server error,
+   * timeout). Renders an inline "couldn't fetch" hint inside the card shell so
+   * an empty bundle reads as a transient API issue rather than the package
+   * genuinely having no bundle data.
+   */
+  bundleUnavailable?: boolean;
 }
 
 export const BundleFootprint: React.FC<BundleFootprintProps> = ({
   bundle,
   isLoading = false,
+  bundleUnavailable = false,
 }) => {
   const animatedSize = useCountUp(bundle?.size ?? 0);
   const animatedGzip = useCountUp(bundle?.gzip ?? 0);
@@ -55,6 +71,24 @@ export const BundleFootprint: React.FC<BundleFootprintProps> = ({
           <Loader2 size={14} className="animate-spin" />
           <span>Fetching bundle size from bundlephobia…</span>
         </div>
+      </div>
+    );
+  }
+
+  if (!bundle && bundleUnavailable) {
+    return (
+      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
+        <h2 className="text-sm font-semibold flex items-center text-slate-800 dark:text-slate-200 mb-3">
+          <Zap size={16} className="mr-2 text-slate-600 dark:text-slate-400" />
+          Bundle footprint
+        </h2>
+        <p
+          className="text-sm flex items-start gap-1.5 text-amber-700 dark:text-amber-400"
+          title="bundlephobia may be rate-limited or temporarily down. Try refreshing in a minute."
+        >
+          <AlertCircle size={14} className="mt-0.5 shrink-0" />
+          <span>Couldn&rsquo;t fetch bundle size right now.</span>
+        </p>
       </div>
     );
   }

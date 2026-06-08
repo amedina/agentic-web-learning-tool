@@ -102,6 +102,7 @@ export const PackageInsightsBody: React.FC<PackageInsightsBodyProps> = ({
     dependencyTree,
     githubRateLimited,
     githubIssuesUnavailable,
+    bundleUnavailable,
     consideredVersion,
     versionResolution,
   } = stats;
@@ -158,7 +159,11 @@ export const PackageInsightsBody: React.FC<PackageInsightsBodyProps> = ({
         </div>
       )}
 
-      <BundleFootprint bundle={bundle} isLoading={bundleLoading || isLoading} />
+      <BundleFootprint
+        bundle={bundle}
+        isLoading={bundleLoading || isLoading}
+        bundleUnavailable={bundleUnavailable}
+      />
       <SecurityAdvisories
         securityAdvisories={securityAdvisories}
         githubRateLimited={githubRateLimited}
