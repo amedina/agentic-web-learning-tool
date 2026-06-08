@@ -30,6 +30,27 @@ export {
 } from "./packageStatsTypes";
 
 /**
+ * Returns true when `url` points at a host other than GitHub (GitLab,
+ * Bitbucket, a self-hosted forge, etc.). Used to tell "repository hosted
+ * elsewhere" apart from "no repository", so the UI can explain why the
+ * GitHub-derived signals are absent. Shorthands like `github:owner/repo`
+ * parse with an empty hostname and are not treated as non-GitHub, and
+ * subdomains of github.com (e.g. `gist.github.com`) are treated as GitHub.
+ */
+function isNonGithubRepositoryUrl(url: string | undefined | null): boolean {
+  if (!url) {
+    return false;
+  }
+  try {
+    const cleanUrl = url.replace(/^git\+/, "").replace(/^git:\/\//, "https://");
+    const host = new URL(cleanUrl).hostname.toLowerCase();
+    return !!host && host !== "github.com" && !host.endsWith(".github.com");
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Get Package Stats.
  */
 export async function getPackageStats(
@@ -198,6 +219,12 @@ export async function getPackageStats(
       githubInfo = parseGithubUrl(readmeGithubUrl);
     }
   }
+
+  // When we still have no GitHub repo but the package does declare a
+  // repository on another host, flag it so the UI can say "hosted elsewhere"
+  // rather than leaving the GitHub-signal widgets blank with no explanation.
+  const repositoryHostUnsupported =
+    !githubInfo && isNonGithubRepositoryUrl(repoUrlField);
 
   let stars = null;
   let lastCommitDate = null;
@@ -373,14 +400,23 @@ export async function getPackageStats(
   if (githubInfo && !githubAdvisoriesFetchFailed && !githubRateLimited) {
     advisorySources.push("github");
   }
-  // OSV's fetch wrapper resolves to [] on any failure, so a non-empty
-  // result here is the only way to know the source contributed. We don't
-  // separately track "OSV reached but returned nothing" — that case is
-  // indistinguishable from network failure given the current wrapper,
-  // and the UI shows "no advisories" identically in both cases.
-  if (osvAdvisoriesRaw.length > 0) {
+  // OSV now returns `null` when unreachable (distinct from `[]` for a genuine
+  // empty result). A non-empty list is still the signal that OSV contributed
+  // findings to the merged list below; the unreachable case feeds
+  // `advisoryCoverageDegraded` so the UI can warn that coverage was partial.
+  const osvUnavailable = osvAdvisoriesRaw === null;
+  const osvRecords = osvAdvisoriesRaw ?? [];
+  if (osvRecords.length > 0) {
     advisorySources.push("osv");
   }
+
+  // Advisory coverage is degraded when a source we'd normally consult failed:
+  // OSV unreachable, or (for a known repo) GitHub advisories errored or were
+  // rate-limited. Lets the UI flag that "no advisories" may mean "not fully
+  // checked" rather than "known clean".
+  const advisoryCoverageDegraded =
+    osvUnavailable ||
+    (!!githubInfo && (githubAdvisoriesFetchFailed || githubRateLimited));
 
   const githubList = githubAdvisoriesData ?? [];
   const mergedAdvisories: any[] = githubList.slice();
@@ -403,7 +439,7 @@ export async function getPackageStats(
       }
     }
   }
-  for (const osvAdvisory of osvAdvisoriesRaw) {
+  for (const osvAdvisory of osvRecords) {
     const matchesExisting = osvAdvisory.canonicalIds.some((id) =>
       seenIds.has(id),
     );
@@ -503,6 +539,8 @@ export async function getPackageStats(
     githubRateLimited,
     githubIssuesUnavailable,
     bundleUnavailable,
+    repositoryHostUnsupported,
+    advisoryCoverageDegraded,
     versionResolution,
     consideredVersion,
     advisorySources,

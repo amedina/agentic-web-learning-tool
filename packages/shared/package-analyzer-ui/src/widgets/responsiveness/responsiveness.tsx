@@ -29,6 +29,12 @@ export interface ResponsivenessProps {
    */
   githubIssuesUnavailable?: boolean;
   /**
+   * True when the package's repository is hosted outside GitHub (GitLab,
+   * Bitbucket, etc.), so issue-activity data can't be fetched. Surfaced as a
+   * neutral note rather than an error, since it isn't a transient failure.
+   */
+  repositoryHostUnsupported?: boolean;
+  /**
    * Renders a skeleton placeholder inside the card shell while stats are
    * still being fetched, so the layout does not shift on resolve.
    */
@@ -39,6 +45,7 @@ export const Responsiveness: React.FC<ResponsivenessProps> = ({
   responsiveness,
   githubRateLimited = false,
   githubIssuesUnavailable = false,
+  repositoryHostUnsupported = false,
   isLoading = false,
 }) => {
   const closedPercentage = Math.round(
@@ -101,6 +108,16 @@ export const Responsiveness: React.FC<ResponsivenessProps> = ({
           >
             <AlertCircle size={14} className="mt-0.5 shrink-0" />
             <span>Couldn&rsquo;t fetch issue activity right now.</span>
+          </p>
+        ) : repositoryHostUnsupported ? (
+          <p
+            className="text-sm flex items-start gap-1.5 text-slate-500 dark:text-slate-400"
+            title="This package's repository is hosted outside GitHub, so issue activity can't be fetched."
+          >
+            <Info size={14} className="mt-0.5 shrink-0" />
+            <span>
+              Issue activity is unavailable for non-GitHub repositories.
+            </span>
           </p>
         ) : (
           <p className="text-sm text-slate-500 dark:text-slate-400">

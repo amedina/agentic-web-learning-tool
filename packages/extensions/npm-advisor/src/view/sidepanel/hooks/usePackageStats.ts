@@ -548,6 +548,7 @@ export const usePackageStats = () => {
     stats?.githubRateLimited,
     stats?.githubIssuesUnavailable,
     stats?.bundleUnavailable,
+    stats?.advisoryCoverageDegraded,
   ]);
 
   const isAddedToCompare = comparisonBucket.some(

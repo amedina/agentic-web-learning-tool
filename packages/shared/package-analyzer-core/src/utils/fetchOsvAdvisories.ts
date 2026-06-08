@@ -43,7 +43,7 @@ interface OsvAffected {
   }>;
 }
 
-const osvCache = new Map<string, Promise<OsvAdvisoryRecord[]>>();
+const osvCache = new Map<string, Promise<OsvAdvisoryRecord[] | null>>();
 
 /**
  * Build a stable cache key for a `(packageName, version)` pair. Treats an
@@ -68,20 +68,22 @@ function cacheKeyFor(packageName: string, version?: string): string {
  *
  * Results are cached in-process by `(packageName, version)`. The cache
  * stores the in-flight promise so concurrent identical requests share
- * one network round-trip. A non-OK response or network failure resolves
- * to an empty list — the caller (`getPackageStats`) treats that as
- * "OSV unavailable" and falls back to GitHub-only results.
+ * one network round-trip. A 404 (OSV reached, nothing on file) resolves
+ * to an empty list; a non-OK response or network failure resolves to
+ * `null` so the caller (`getPackageStats`) can flag degraded advisory
+ * coverage rather than mistaking an outage for a clean result.
  *
  * @param packageName - The npm package to query (scoped or unscoped).
  * @param version - Optional resolved version. When provided, OSV returns
  *   only advisories whose affected ranges cover this version.
- * @returns A list of normalised {@link OsvAdvisoryRecord} entries.
+ * @returns A list of normalised {@link OsvAdvisoryRecord} entries, or
+ *   `null` when OSV was unreachable.
  */
 export async function fetchOsvAdvisories(
   packageName: string,
   version?: string,
   signal?: AbortSignal,
-): Promise<OsvAdvisoryRecord[]> {
+): Promise<OsvAdvisoryRecord[] | null> {
   const key = cacheKeyFor(packageName, version);
   const cached = osvCache.get(key);
   if (cached) {
@@ -93,7 +95,10 @@ export async function fetchOsvAdvisories(
       error instanceof Error ? error.message : String(error),
     );
     osvCache.delete(key);
-    return [];
+    // `null` signals "OSV was unreachable" so the caller can flag degraded
+    // advisory coverage, distinct from `[]` which means "OSV reached, no
+    // advisories" (a genuine clean result).
+    return null;
   });
   osvCache.set(key, promise);
   return raceFetchWithAbort(promise, signal);

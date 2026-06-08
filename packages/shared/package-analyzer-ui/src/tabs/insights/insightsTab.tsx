@@ -47,6 +47,8 @@ const EMPTY_STATS_DEFAULTS = {
   githubRateLimited: false,
   githubIssuesUnavailable: false,
   bundleUnavailable: false,
+  repositoryHostUnsupported: false,
+  advisoryCoverageDegraded: false,
   latestVersion: null,
   consideredVersion: null,
   versionResolution: "latest-fallback" as const,

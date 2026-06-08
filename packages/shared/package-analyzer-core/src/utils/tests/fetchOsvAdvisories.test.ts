@@ -145,22 +145,22 @@ describe("fetchOsvAdvisories", () => {
     expect(result).toHaveLength(0);
   });
 
-  it("returns empty list on a non-OK response without throwing", async () => {
+  it("returns null on a non-OK response without throwing", async () => {
     stubFetch({ ok: false, status: 500, statusText: "Internal Server Error" });
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     const result = await fetchOsvAdvisories("lodash");
-    expect(result).toEqual([]);
+    expect(result).toBeNull();
     expect(warnSpy).toHaveBeenCalled();
   });
 
-  it("returns empty list when fetch rejects", async () => {
+  it("returns null when fetch rejects", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn().mockRejectedValue(new Error("network down")),
     );
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     const result = await fetchOsvAdvisories("lodash");
-    expect(result).toEqual([]);
+    expect(result).toBeNull();
     expect(warnSpy).toHaveBeenCalled();
   });
 

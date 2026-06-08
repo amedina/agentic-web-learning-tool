@@ -391,4 +391,70 @@ describe("getPackageStats", () => {
       );
     });
   });
+
+  describe("repository host + advisory coverage", () => {
+    it("flags repositoryHostUnsupported for a non-GitHub repository", async () => {
+      vi.mocked(fetchNpmPackage).mockResolvedValueOnce({
+        maintainers: [{ name: "test" }],
+        license: "MIT",
+        repository: { url: "git+https://gitlab.com/foo/bar.git" },
+      });
+      // No GitHub repo resolves from a GitLab URL.
+      vi.mocked(parseGithubUrl).mockReturnValueOnce(null as any);
+      vi.mocked(fetchBundlephobiaData).mockResolvedValueOnce(null);
+      vi.mocked(getDependencyTree).mockResolvedValueOnce(null as any);
+      vi.mocked(fetchModuleReplacements).mockResolvedValue(null);
+
+      const result = await getPackageStats("foo");
+
+      expect(result).not.toBeNull();
+      expect(result?.githubUrl).toBeNull();
+      expect(result?.repositoryHostUnsupported).toBe(true);
+    });
+
+    it("does not flag repositoryHostUnsupported when there is no repository", async () => {
+      vi.mocked(fetchNpmPackage).mockResolvedValueOnce({
+        maintainers: [{ name: "test" }],
+        license: "MIT",
+      });
+      vi.mocked(fetchBundlephobiaData).mockResolvedValueOnce(null);
+      vi.mocked(getDependencyTree).mockResolvedValueOnce(null as any);
+      vi.mocked(fetchModuleReplacements).mockResolvedValue(null);
+
+      const result = await getPackageStats("test");
+
+      expect(result?.repositoryHostUnsupported).toBe(false);
+    });
+
+    it("flags advisoryCoverageDegraded when OSV is unreachable", async () => {
+      vi.mocked(fetchNpmPackage).mockResolvedValueOnce({
+        maintainers: [{ name: "test" }],
+        license: "MIT",
+      });
+      vi.mocked(fetchBundlephobiaData).mockResolvedValueOnce(null);
+      vi.mocked(getDependencyTree).mockResolvedValueOnce(null as any);
+      vi.mocked(fetchModuleReplacements).mockResolvedValue(null);
+      // OSV now returns null (not []) when it couldn't be reached.
+      vi.mocked(fetchOsvAdvisories).mockResolvedValueOnce(null as any);
+
+      const result = await getPackageStats("test");
+
+      expect(result?.advisoryCoverageDegraded).toBe(true);
+    });
+
+    it("leaves advisoryCoverageDegraded false when OSV returns a clean empty result", async () => {
+      vi.mocked(fetchNpmPackage).mockResolvedValueOnce({
+        maintainers: [{ name: "test" }],
+        license: "MIT",
+      });
+      vi.mocked(fetchBundlephobiaData).mockResolvedValueOnce(null);
+      vi.mocked(getDependencyTree).mockResolvedValueOnce(null as any);
+      vi.mocked(fetchModuleReplacements).mockResolvedValue(null);
+      // Default OSV mock resolves to [] (reachable, nothing on file).
+
+      const result = await getPackageStats("test");
+
+      expect(result?.advisoryCoverageDegraded).toBe(false);
+    });
+  });
 });

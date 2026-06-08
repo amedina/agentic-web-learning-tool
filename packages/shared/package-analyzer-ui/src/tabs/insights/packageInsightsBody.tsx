@@ -103,6 +103,8 @@ export const PackageInsightsBody: React.FC<PackageInsightsBodyProps> = ({
     githubRateLimited,
     githubIssuesUnavailable,
     bundleUnavailable,
+    repositoryHostUnsupported,
+    advisoryCoverageDegraded,
     consideredVersion,
     versionResolution,
   } = stats;
@@ -154,6 +156,7 @@ export const PackageInsightsBody: React.FC<PackageInsightsBodyProps> = ({
             responsiveness={responsiveness as any}
             githubRateLimited={githubRateLimited}
             githubIssuesUnavailable={githubIssuesUnavailable}
+            repositoryHostUnsupported={repositoryHostUnsupported}
             isLoading={isLoading}
           />
         </div>
@@ -167,6 +170,7 @@ export const PackageInsightsBody: React.FC<PackageInsightsBodyProps> = ({
       <SecurityAdvisories
         securityAdvisories={securityAdvisories}
         githubRateLimited={githubRateLimited}
+        advisoryCoverageDegraded={advisoryCoverageDegraded}
         isLoading={isLoading}
       />
       <Recommendations
