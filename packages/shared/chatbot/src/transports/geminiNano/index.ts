@@ -58,6 +58,20 @@ export class GeminiNanoChatTransport implements ChatTransport<
   setRuntime(runtime: AssistantRuntime) {
     this.runtime = runtime;
   }
+
+  /**
+   * Updates the system prompt on the underlying on-device model so the next
+   * message uses it, without recreating the transport (which would reset the
+   * chat thread). No-op until the session has been initialized.
+   */
+  setSystemPrompt(systemPrompt: string) {
+    if (this.model) {
+      (this.model as unknown as ChromeAILanguageModel).setSystemPrompt(
+        systemPrompt
+      );
+    }
+  }
+
   /**
    * Initializes the on-device model session.
    * This checks for API availability and creates a session.

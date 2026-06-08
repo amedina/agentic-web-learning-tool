@@ -63,6 +63,14 @@ const Provider = ({ children }: PropsWithChildren) => {
     return apiKeys[selectedAgent.modelProvider]?.systemPrompt;
   }, [getCustomSystemPrompt]);
 
+  // Always-current system prompt for the transport-creation effect below.
+  // The effect deliberately excludes `systemPrompt` from its deps so a prompt
+  // change (e.g. the package comparison set changing) does NOT recreate the
+  // transport and reset the chat; it reads the latest value via this ref when
+  // the transport is genuinely (re)created.
+  const systemPromptRef = useRef(systemPrompt);
+  systemPromptRef.current = systemPrompt;
+
   useEffect(() => {
     if (!initialFetchDone.current) {
       return;
@@ -77,7 +85,7 @@ const Provider = ({ children }: PropsWithChildren) => {
             ...apiKeys[selectedAgent?.modelProvider],
           },
           apiKeys[selectedAgent.modelProvider]?.thinkingMode,
-          systemPrompt,
+          systemPromptRef.current,
           isNPMAdvisor
         )
       );
@@ -90,7 +98,7 @@ const Provider = ({ children }: PropsWithChildren) => {
     chrome.storage.sync.set({
       selectedAgent,
     });
-  }, [apiKeys, selectedAgent, systemPrompt, isNPMAdvisor]);
+  }, [apiKeys, selectedAgent, isNPMAdvisor]);
 
   const fetchMCPServersAndCreateMapping = useCallback(async () => {
     const {
@@ -183,25 +191,28 @@ const Provider = ({ children }: PropsWithChildren) => {
     [fetchMCPServersAndCreateMapping]
   );
 
+  // Keep the active transport's system prompt in sync with the latest
+  // grounding context. `systemPrompt` is a string, so this effect only fires
+  // when its CONTENT actually changes (e.g. the comparison set changes), not
+  // on every render. Updating the prompt in place avoids recreating the
+  // transport, which would otherwise reset the live chat thread.
   useEffect(() => {
     if (!_transport || !initialFetchDone.current) {
       return;
     }
 
-    if (selectedAgent?.modelProvider !== 'browser-ai') {
-      return;
+    if (selectedAgent?.modelProvider === 'browser-ai') {
+      // Ensure the on-device session exists (no-op once initialized), then
+      // push the latest prompt onto the model in place.
+      (_transport as GeminiNanoChatTransport).initializeSession(
+        isNPMAdvisor,
+        systemPrompt
+      );
+      (_transport as GeminiNanoChatTransport).setSystemPrompt(systemPrompt);
+    } else {
+      (_transport as CloudHostedTransport).setSystemPrompt(systemPrompt);
     }
-
-    (_transport as GeminiNanoChatTransport).initializeSession(
-      isNPMAdvisor,
-      getCustomSystemPrompt()
-    );
-  }, [
-    selectedAgent?.modelProvider,
-    _transport,
-    isNPMAdvisor,
-    getCustomSystemPrompt,
-  ]);
+  }, [selectedAgent?.modelProvider, _transport, isNPMAdvisor, systemPrompt]);
 
   useEffect(() => {
     intitialSync();
