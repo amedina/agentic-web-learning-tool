@@ -39,21 +39,57 @@ async function searchIssueActivity(
 }
 
 /**
+ * Read the canonical slug from the ungh mirror, which follows GitHub transfers
+ * and reports the current `owner/repo` in `repo.repo`. Quota-friendly and
+ * usually cache-warm (the repo fetch runs in parallel). Returns `null` when
+ * ungh is unreachable or doesn't report a slug.
+ */
+async function canonicalSlugFromUngh(
+  owner: string,
+  repo: string,
+  signal?: AbortSignal,
+): Promise<string | null> {
+  const data = (await fetchGithubRepo(owner, repo, signal).catch(
+    () => null,
+  )) as any;
+  const slug: unknown = data?.repo?.repo;
+  return typeof slug === "string" ? slug : null;
+}
+
+/**
+ * Read the canonical slug from GitHub's REST repos endpoint, which also
+ * follows transfers and reports the current slug in `full_name`. Used as a
+ * fallback when ungh can't resolve it, so a transferred repo still recovers
+ * even if the mirror is down. Returns `null` on any failure.
+ */
+async function canonicalSlugFromRest(
+  owner: string,
+  repo: string,
+  signal?: AbortSignal,
+): Promise<string | null> {
+  const data = (await githubFetch(
+    `https://api.github.com/repos/${owner}/${repo}`,
+    signal,
+  ).catch(() => null)) as any;
+  const fullName: unknown = data?.full_name;
+  return typeof fullName === "string" ? fullName : null;
+}
+
+/**
  * Resolve the canonical `owner/repo` for a possibly transferred or renamed
- * repository. The ungh mirror (used by {@link fetchGithubRepo}) follows GitHub
- * transfers and reports the current slug in `repo.repo`, so we reuse it here.
- * Returns `null` when the slug can't be resolved.
+ * repository. Tries the ungh mirror first (quota-friendly, usually cache-warm)
+ * and falls back to GitHub REST so a transfer still recovers when ungh is
+ * unavailable. Returns `null` when neither source yields a usable slug.
  */
 async function resolveCanonicalRepo(
   owner: string,
   repo: string,
   signal?: AbortSignal,
 ): Promise<{ owner: string; repo: string } | null> {
-  const data = (await fetchGithubRepo(owner, repo, signal).catch(
-    () => null,
-  )) as any;
-  const slug: unknown = data?.repo?.repo;
-  if (typeof slug === "string" && slug.includes("/")) {
+  const slug =
+    (await canonicalSlugFromUngh(owner, repo, signal)) ??
+    (await canonicalSlugFromRest(owner, repo, signal));
+  if (slug && slug.includes("/")) {
     const [canonicalOwner, canonicalRepo] = slug.split("/");
     if (canonicalOwner && canonicalRepo) {
       return { owner: canonicalOwner, repo: canonicalRepo };

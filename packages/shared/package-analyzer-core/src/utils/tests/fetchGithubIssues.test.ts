@@ -81,6 +81,28 @@ describe("fetchGithubIssues", () => {
     });
   });
 
+  it("falls back to GitHub REST for the canonical slug when ungh can't resolve it", async () => {
+    vi.mocked(githubFetch)
+      // First attempt: both Search queries 422.
+      .mockRejectedValueOnce(new GithubValidationError("sample"))
+      .mockRejectedValueOnce(new GithubValidationError("openCount"))
+      // REST fallback resolves the canonical full_name.
+      .mockResolvedValueOnce({ full_name: "forwardemail/superagent" })
+      // Retry against the canonical slug succeeds.
+      .mockResolvedValueOnce({ items: [{ state: "open" }] })
+      .mockResolvedValueOnce({ total_count: 7 });
+    // ungh is unreachable / yields no slug.
+    vi.mocked(fetchGithubRepo).mockResolvedValueOnce(null as any);
+
+    const result = await fetchGithubIssues("ladjs", "superagent");
+
+    expect(githubFetch).toHaveBeenCalledWith(
+      "https://api.github.com/repos/ladjs/superagent",
+      undefined,
+    );
+    expect(result).toEqual({ items: [{ state: "open" }], openTotalCount: 7 });
+  });
+
   it("rethrows the 422 when the canonical slug is unchanged", async () => {
     vi.mocked(githubFetch)
       .mockRejectedValueOnce(new GithubValidationError("sample"))
