@@ -330,4 +330,63 @@ describe("getPackageStats", () => {
       expect(result?.githubRateLimited).toBe(false);
     });
   });
+
+  describe("monorepo repository.directory", () => {
+    it("captures repository.directory for a monorepo package", async () => {
+      vi.mocked(fetchNpmPackage).mockResolvedValueOnce({
+        maintainers: [{ name: "test" }],
+        license: "MIT",
+        repository: {
+          url: "git+https://github.com/babel/babel.git",
+          directory: "packages/babel-core",
+        },
+      });
+      vi.mocked(parseGithubUrl).mockReturnValueOnce({
+        owner: "babel",
+        repo: "babel",
+      });
+      vi.mocked(fetchBundlephobiaData).mockResolvedValueOnce(null);
+      vi.mocked(getDependencyTree).mockResolvedValueOnce(null as any);
+      vi.mocked(fetchModuleReplacements).mockResolvedValue(null);
+      vi.mocked(fetchGithubRepo).mockResolvedValueOnce({
+        repo: { stars: 1, pushedAt: "2024-01-01" },
+      } as any);
+      vi.mocked(fetchGithubIssues).mockResolvedValueOnce({
+        items: [],
+        openTotalCount: 0,
+      });
+      vi.mocked(fetchGithubSecurityAdvisories).mockResolvedValueOnce([] as any);
+
+      const result = await getPackageStats("@babel/core");
+
+      expect(result?.repositoryDirectory).toBe("packages/babel-core");
+    });
+
+    it("leaves repositoryDirectory null for a single-package repo", async () => {
+      vi.mocked(fetchNpmPackage).mockResolvedValueOnce({
+        maintainers: [{ name: "test" }],
+        license: "MIT",
+        repository: { url: "git+https://github.com/sindresorhus/p-limit.git" },
+      });
+      vi.mocked(parseGithubUrl).mockReturnValueOnce({
+        owner: "sindresorhus",
+        repo: "p-limit",
+      });
+      vi.mocked(fetchBundlephobiaData).mockResolvedValueOnce(null);
+      vi.mocked(getDependencyTree).mockResolvedValueOnce(null as any);
+      vi.mocked(fetchModuleReplacements).mockResolvedValue(null);
+      vi.mocked(fetchGithubRepo).mockResolvedValueOnce({
+        repo: { stars: 1, pushedAt: "2024-01-01" },
+      } as any);
+      vi.mocked(fetchGithubIssues).mockResolvedValueOnce({
+        items: [],
+        openTotalCount: 0,
+      });
+      vi.mocked(fetchGithubSecurityAdvisories).mockResolvedValueOnce([] as any);
+
+      const result = await getPackageStats("p-limit");
+
+      expect(result?.repositoryDirectory).toBeNull();
+    });
+  });
 });

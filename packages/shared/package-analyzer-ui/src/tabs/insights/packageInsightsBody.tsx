@@ -102,9 +102,14 @@ export const PackageInsightsBody: React.FC<PackageInsightsBodyProps> = ({
     dependencyTree,
     githubRateLimited,
     githubIssuesUnavailable,
+    repositoryDirectory,
     consideredVersion,
     versionResolution,
   } = stats;
+
+  // A non-null `repository.directory` means the package lives in a monorepo
+  // subdirectory, so its issue-activity signals are repository-wide.
+  const isMonorepoPackage = !!repositoryDirectory;
 
   // For accordion-mounted Headers we route the "+ Compare" button through
   // the same handler the Recommendations widget uses, so a dep can be
@@ -153,6 +158,7 @@ export const PackageInsightsBody: React.FC<PackageInsightsBodyProps> = ({
             responsiveness={responsiveness as any}
             githubRateLimited={githubRateLimited}
             githubIssuesUnavailable={githubIssuesUnavailable}
+            isMonorepoPackage={isMonorepoPackage}
             isLoading={isLoading}
           />
         </div>
