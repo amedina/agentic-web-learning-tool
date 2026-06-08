@@ -8,7 +8,7 @@ import { clearDependencyStatsCache } from "@agentic-web-labs/package-analyzer-ui
 /**
  * Internal dependencies.
  */
-import { showGithubRateLimitToastOnce } from "../utils/githubRateLimitToast";
+import { notifyApiIssues } from "../utils/apiIssueToasts";
 
 export interface PackageJsonDependencies {
   dependencies: string[];
@@ -293,11 +293,13 @@ export const usePackageStats = () => {
             }
             if (response && response.success) {
               if (response.data) {
-                // Don't cache rate-limited or search-throttled results so the
-                // next visit retries once the limit resets or the user adds a token.
+                // Don't cache rate-limited, search-throttled, or
+                // bundle-unavailable results so the next visit retries once the
+                // limit resets or the user adds a token.
                 if (
                   !response.data.githubRateLimited &&
-                  !response.data.githubIssuesUnavailable
+                  !response.data.githubIssuesUnavailable &&
+                  !response.data.bundleUnavailable
                 ) {
                   urlCache.set(url, {
                     stats: response.data,
@@ -533,16 +535,21 @@ export const usePackageStats = () => {
     [],
   );
 
-  // Surface the rate-limit toast in a render-driven effect so it always
-  // fires after the Toaster has mounted. Firing from inside the
+  // Surface API-issue notifications in a render-driven effect so they always
+  // fire after the Toaster has mounted. Firing from inside the
   // chrome.runtime.sendMessage callback was unreliable: on the very first
   // render the callback could resolve before any Toaster instance had
-  // registered with sonner, and the toast would silently drop.
+  // registered with sonner, and the toast would silently drop. The dispatcher
+  // raises the matching deduped toast for each flag (GitHub Core rate limit,
+  // GitHub Search throttle, bundlephobia failure).
   useEffect(() => {
-    if (stats?.githubRateLimited) {
-      showGithubRateLimitToastOnce();
-    }
-  }, [stats?.githubRateLimited]);
+    notifyApiIssues(stats);
+  }, [
+    stats?.githubRateLimited,
+    stats?.githubIssuesUnavailable,
+    stats?.bundleUnavailable,
+    stats?.advisoryCoverageDegraded,
+  ]);
 
   const isAddedToCompare = comparisonBucket.some(
     (item) => item?.packageName === stats?.packageName,

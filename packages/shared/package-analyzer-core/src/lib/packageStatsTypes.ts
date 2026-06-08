@@ -61,6 +61,31 @@ export interface PackageStats {
    */
   githubIssuesUnavailable: boolean;
   /**
+   * True when the bundlephobia request for this package failed for a reason
+   * other than a benign 404 (rate-limit, server error, timeout, network). The
+   * Bundle footprint widget shows an inline "couldn't fetch" hint and the side
+   * panel raises a soft notification, instead of silently rendering an empty
+   * card as if the package simply had no bundle data.
+   */
+  bundleUnavailable: boolean;
+  /**
+   * True when the package declares a repository hosted somewhere other than
+   * GitHub (GitLab, Bitbucket, a self-hosted forge, etc.), so the
+   * GitHub-derived signals (stars, responsiveness, GitHub advisories) are
+   * unavailable by design rather than simply missing. Distinguished from "no
+   * repository at all" so the UI can explain the gap instead of showing a bare
+   * "not enough data".
+   */
+  repositoryHostUnsupported: boolean;
+  /**
+   * True when advisory coverage is degraded: at least one advisory source we
+   * would normally consult (OSV, or GitHub's advisories for a known repo)
+   * failed or was rate-limited. Lets the UI warn that "no advisories" may mean
+   * "not fully checked" rather than "known clean". See {@link advisorySources}
+   * for which sources actually contributed.
+   */
+  advisoryCoverageDegraded: boolean;
+  /**
    * The package's path within its repository, from npm's
    * `repository.directory`. Non-null means the package lives in a monorepo
    * subdirectory, so the issue-activity signals (Responsiveness, open-issue

@@ -102,6 +102,9 @@ export const PackageInsightsBody: React.FC<PackageInsightsBodyProps> = ({
     dependencyTree,
     githubRateLimited,
     githubIssuesUnavailable,
+    bundleUnavailable,
+    repositoryHostUnsupported,
+    advisoryCoverageDegraded,
     repositoryDirectory,
     consideredVersion,
     versionResolution,
@@ -159,15 +162,21 @@ export const PackageInsightsBody: React.FC<PackageInsightsBodyProps> = ({
             githubRateLimited={githubRateLimited}
             githubIssuesUnavailable={githubIssuesUnavailable}
             isMonorepoPackage={isMonorepoPackage}
+            repositoryHostUnsupported={repositoryHostUnsupported}
             isLoading={isLoading}
           />
         </div>
       )}
 
-      <BundleFootprint bundle={bundle} isLoading={bundleLoading || isLoading} />
+      <BundleFootprint
+        bundle={bundle}
+        isLoading={bundleLoading || isLoading}
+        bundleUnavailable={bundleUnavailable}
+      />
       <SecurityAdvisories
         securityAdvisories={securityAdvisories}
         githubRateLimited={githubRateLimited}
+        advisoryCoverageDegraded={advisoryCoverageDegraded}
         isLoading={isLoading}
       />
       <Recommendations
