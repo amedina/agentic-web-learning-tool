@@ -73,8 +73,11 @@ export const Responsiveness: React.FC<ResponsivenessProps> = ({
           Responsiveness
           <div className="group relative flex items-center ml-1.5 cursor-help">
             <Info size={14} className="text-slate-400 dark:text-slate-500" />
-            <div className="hidden group-hover:block absolute z-50 w-48 p-2 bg-slate-800 text-white text-xs rounded-md bottom-full left-1/2 -translate-x-1/2 mb-2 shadow-lg text-center font-normal normal-case tracking-normal whitespace-normal">
-              Measures how quickly maintainers close open issues and PRs.
+            <div className="hidden group-hover:block absolute z-50 w-60 p-2 bg-slate-800 text-white text-xs rounded-md bottom-full left-1/2 -translate-x-1/2 mb-2 shadow-lg text-center font-normal normal-case tracking-normal whitespace-normal">
+              The percentage is the share of a sample of up to 100 recent issues
+              and PRs that maintainers have closed. Above 80% is highly
+              responsive, above 50% is moderate, and 50% or below needs
+              attention.
               <div className="absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent border-t-slate-800"></div>
             </div>
           </div>
