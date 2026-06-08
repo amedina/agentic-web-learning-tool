@@ -196,7 +196,14 @@ export const Header: React.FC<HeaderProps> = ({
                   delayDuration={0}
                   contentClassName="max-w-xs p-2 text-left font-normal normal-case tracking-normal bg-slate-800 text-white shadow-lg"
                   body={
-                    <p className="text-xs leading-snug">Installed Version</p>
+                    <div className="text-xs leading-snug">
+                      <p className="font-semibold mb-0.5">Installed version</p>
+                      <p className="mt-1 text-[11px] text-slate-400">
+                        Resolved from the lockfile in this project, so it
+                        reflects the exact version installed, not necessarily
+                        npm&rsquo;s latest release.
+                      </p>
+                    </div>
                   }
                 >
                   <span
@@ -207,12 +214,32 @@ export const Header: React.FC<HeaderProps> = ({
                   </span>
                 </Tooltip>
               ) : (
-                <span
-                  className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-mono bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600 whitespace-nowrap"
-                  aria-label={`Version ${version}`}
+                <Tooltip
+                  placement="bottom"
+                  delayDuration={0}
+                  contentClassName="max-w-xs p-2 text-left font-normal normal-case tracking-normal bg-slate-800 text-white shadow-lg"
+                  body={
+                    <div className="text-xs leading-snug">
+                      <p className="font-semibold mb-0.5">
+                        Latest published version
+                      </p>
+                      <p className="mt-1 text-[11px] text-slate-400">
+                        npm&rsquo;s <span className="font-mono">latest</span>{" "}
+                        release. An exact version is shown only when a lockfile
+                        pins one; without a lockfile the version range in
+                        package.json can&rsquo;t be resolved, so the latest
+                        release is shown instead.
+                      </p>
+                    </div>
+                  }
                 >
-                  v{version}
-                </span>
+                  <span
+                    className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-mono bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600 cursor-help whitespace-nowrap"
+                    aria-label={`Version ${version}`}
+                  >
+                    v{version}
+                  </span>
+                </Tooltip>
               )
             ) : null}
             {hideCompare ? null : isAddedToCompare ? (
