@@ -30,6 +30,7 @@ interface InsightsTabProps {
 
 const EMPTY_STATS_DEFAULTS = {
   packageName: "",
+  description: null,
   githubUrl: null,
   stars: null,
   collaboratorsCount: null,
@@ -71,6 +72,7 @@ export const InsightsTab: React.FC<InsightsTabProps> = ({
 
   const {
     packageName,
+    description,
     githubUrl,
     stars,
     collaboratorsCount,
@@ -84,6 +86,7 @@ export const InsightsTab: React.FC<InsightsTabProps> = ({
     <div className="text-slate-800 dark:text-slate-200 p-4 space-y-4 h-full overflow-y-auto">
       <Header
         packageName={packageName}
+        description={description}
         version={consideredVersion}
         isInstalledVersion={versionResolution === "lockfile"}
         githubUrl={githubUrl}

@@ -65,6 +65,13 @@ const getFitnessColor = (
 export interface HeaderProps {
   packageName: string;
   /**
+   * The package's one-line description (the npm `description` field).
+   * Rendered as a short blurb below the name/license row when present, and
+   * silently omitted when null/undefined so packages without a description
+   * don't leave an empty line.
+   */
+  description?: string | null;
+  /**
    * The package version to display next to the name. On GitHub
    * `package.json` pages and in VSCode this is the lockfile-resolved
    * (installed) version; on npm pages it's the latest published version.
@@ -132,6 +139,7 @@ export interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({
   packageName,
+  description,
   version,
   isInstalledVersion = false,
   githubUrl,
@@ -256,6 +264,12 @@ export const Header: React.FC<HeaderProps> = ({
           )}
         </div>
       </div>
+
+      {description ? (
+        <p className="mt-2 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+          {description}
+        </p>
+      ) : null}
 
       <div className="flex items-start justify-between mt-4 pt-4 border-t border-slate-100 dark:border-slate-700">
         {!hideFitness && (
