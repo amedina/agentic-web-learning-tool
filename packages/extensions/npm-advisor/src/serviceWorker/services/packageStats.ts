@@ -153,9 +153,14 @@ class PackageStatsService {
           const stats = await getPackageStats(packageName, targetLicense, {
             resolvedVersion: resolvedVersion ?? undefined,
           });
-          if (stats?.githubRateLimited || stats?.githubIssuesUnavailable) {
-            // Don't cache rate-limited or search-throttled results — once the
-            // limit resets the next read should retry, not replay the partial answer.
+          if (
+            stats?.githubRateLimited ||
+            stats?.githubIssuesUnavailable ||
+            stats?.bundleUnavailable
+          ) {
+            // Don't cache rate-limited, search-throttled, or bundle-unavailable
+            // results — once the limit resets the next read should retry, not
+            // replay the partial answer.
             this.statsCache.delete(packageName);
             this.statsCacheTimestamps.delete(packageName);
           } else {

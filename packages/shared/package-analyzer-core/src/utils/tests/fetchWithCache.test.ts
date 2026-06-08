@@ -6,7 +6,11 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 /**
  * Internal dependencies.
  */
-import { fetchWithCache, clearCache } from "../fetchWithCache";
+import {
+  fetchWithCache,
+  clearCache,
+  UpstreamFetchError,
+} from "../fetchWithCache";
 
 describe("fetchWithCache", () => {
   beforeEach(() => {
@@ -65,7 +69,7 @@ describe("fetchWithCache", () => {
     expect(result).toBeNull();
   });
 
-  it("should throw an error on non-404 failure responses", async () => {
+  it("should throw an UpstreamFetchError on non-404 failure responses", async () => {
     (global.fetch as any).mockResolvedValueOnce({
       ok: false,
       status: 500,
@@ -75,7 +79,38 @@ describe("fetchWithCache", () => {
     await expect(
       fetchWithCache("https://api.example.com/error"),
     ).rejects.toThrowError(
-      "Failed to fetch https://api.example.com/error: Internal Server Error",
+      "Failed to fetch https://api.example.com/error: 500 Internal Server Error",
     );
+  });
+
+  it("flags a 429 response as rate-limited on the thrown UpstreamFetchError", async () => {
+    (global.fetch as any).mockResolvedValueOnce({
+      ok: false,
+      status: 429,
+      statusText: "Too Many Requests",
+    });
+
+    const error = await fetchWithCache("https://api.example.com/limited").catch(
+      (caught) => caught,
+    );
+
+    expect(error).toBeInstanceOf(UpstreamFetchError);
+    expect(error.status).toBe(429);
+    expect(error.isRateLimited).toBe(true);
+  });
+
+  it("does not flag a non-429 failure as rate-limited", async () => {
+    (global.fetch as any).mockResolvedValueOnce({
+      ok: false,
+      status: 503,
+      statusText: "Service Unavailable",
+    });
+
+    const error = await fetchWithCache("https://api.example.com/down").catch(
+      (caught) => caught,
+    );
+
+    expect(error).toBeInstanceOf(UpstreamFetchError);
+    expect(error.isRateLimited).toBe(false);
   });
 });

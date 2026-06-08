@@ -12,6 +12,9 @@ import { GITHUB_PAT_STORAGE_KEY } from "../../../serviceWorker/services/githubAu
 export const GITHUB_RATE_LIMIT_USER_MESSAGE =
   "GitHub API rate limit reached. Add a Personal Access Token in Options.";
 
+export const GITHUB_RATE_LIMIT_WITH_PAT_MESSAGE =
+  "GitHub API rate limit reached. Some signals may be missing right now; this usually clears within a few minutes.";
+
 // Module-scoped so the toast fires at most once per sidepanel session, no
 // matter how many fetchers (main package, dependency tree) hit the limit.
 let rateLimitToastShown = false;
@@ -44,12 +47,16 @@ export function showGithubRateLimitToastOnce() {
 
   void hasGithubPat().then((hasPat) => {
     if (hasPat) {
-      // PAT is configured — the action item ("Add a PAT") doesn't apply.
-      // The transient hit is most likely the GitHub Search API's per-minute
-      // quota (30 req/min even authenticated), which the user can't fix.
-      // The affected stats already render inline warning icons, so the
-      // disruptive toast is unnecessary noise here.
-      rateLimitToastShown = false;
+      // PAT is configured, so the "Add a PAT" action item doesn't apply.
+      // Still inform the user why some signals are missing instead of leaving
+      // them to guess — but with a softer warning toast and no action button,
+      // since there's nothing for them to fix beyond waiting for the limit to
+      // reset. The once-per-session guard stays set so this can't spam during
+      // a multi-dependency scan.
+      toast.warning(GITHUB_RATE_LIMIT_WITH_PAT_MESSAGE, {
+        duration: 8000,
+        closeButton: true,
+      });
       return;
     }
     toast.error(GITHUB_RATE_LIMIT_USER_MESSAGE, {

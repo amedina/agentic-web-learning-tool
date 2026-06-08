@@ -24,6 +24,21 @@ export class GithubRateLimitError extends Error {
 }
 
 /**
+ * Github Validation Error.
+ * Thrown when GitHub responds with a 422 (Unprocessable Entity). In practice
+ * this is the Search API rejecting a `repo:` qualifier whose slug no longer
+ * resolves, typically because the repository was transferred or renamed and
+ * the caller still holds the stale slug (e.g. npm's `repository.url`). Callers
+ * can catch this to resolve the canonical slug and retry.
+ */
+export class GithubValidationError extends Error {
+  constructor(url: string) {
+    super(`GitHub rejected the request as invalid (422) for ${url}`);
+    this.name = "GithubValidationError";
+  }
+}
+
+/**
  * Bounded LRU+TTL cache shared across all githubFetch calls, with
  * single-flight semantics so two views fetching the same GitHub URL at
  * the same time share one network request.
@@ -89,6 +104,10 @@ export async function githubFetch(
 
       if (isRateLimitResponse(response)) {
         throw new GithubRateLimitError(url);
+      }
+
+      if (response.status === 422) {
+        throw new GithubValidationError(url);
       }
 
       if (!response.ok) {

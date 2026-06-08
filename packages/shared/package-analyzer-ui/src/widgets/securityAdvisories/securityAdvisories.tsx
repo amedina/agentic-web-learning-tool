@@ -2,7 +2,7 @@
  * External dependencies.
  */
 import React, { useState } from "react";
-import { ShieldAlert, AlertCircle } from "lucide-react";
+import { ShieldAlert, AlertCircle, ShieldQuestion } from "lucide-react";
 
 /**
  * Internal dependencies.
@@ -16,6 +16,13 @@ export interface SecurityAdvisoriesProps {
   /** True when a GitHub rate-limit prevented this signal from loading. */
   githubRateLimited?: boolean;
   /**
+   * True when an advisory source we'd normally consult (OSV, or GitHub
+   * advisories for a known repo) failed or was rate-limited. When no
+   * advisories are found, this turns the silent empty state into an explicit
+   * "coverage incomplete" note so "no advisories" isn't read as "known clean".
+   */
+  advisoryCoverageDegraded?: boolean;
+  /**
    * Renders a placeholder shell while stats are still loading. Once the
    * fetch resolves, the widget reverts to its existing logic — including
    * returning null when there are no advisories.
@@ -26,6 +33,7 @@ export interface SecurityAdvisoriesProps {
 export const SecurityAdvisories: React.FC<SecurityAdvisoriesProps> = ({
   securityAdvisories,
   githubRateLimited = false,
+  advisoryCoverageDegraded = false,
   isLoading = false,
 }) => {
   const [showAll, setShowAll] = useState(false);
@@ -60,6 +68,28 @@ export const SecurityAdvisories: React.FC<SecurityAdvisoriesProps> = ({
         <span>
           Couldn&rsquo;t fetch security advisories — GitHub API rate limit
           reached.
+        </span>
+      </div>
+    );
+  }
+
+  // No advisories to show, but at least one source couldn't be checked. Make
+  // the gap explicit instead of rendering nothing, so an OSV/GitHub outage
+  // isn't mistaken for a clean bill of health. (The rate-limit branch above
+  // already covers the GitHub-rate-limit cause.)
+  if (
+    (!securityAdvisories || securityAdvisories.issues.length === 0) &&
+    advisoryCoverageDegraded
+  ) {
+    return (
+      <div
+        className="bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-800 p-3 flex items-start gap-2 text-xs text-amber-800 dark:text-amber-300"
+        title="An advisory source (OSV or GitHub) couldn't be reached, so this isn't a confirmed clean result."
+      >
+        <ShieldQuestion size={14} className="mt-0.5 shrink-0" />
+        <span>
+          No advisories found, but coverage was incomplete (a source
+          couldn&rsquo;t be reached). Try refreshing.
         </span>
       </div>
     );
