@@ -50,6 +50,7 @@ const EMPTY_STATS_DEFAULTS = {
   bundleUnavailable: false,
   repositoryHostUnsupported: false,
   advisoryCoverageDegraded: false,
+  repositoryDirectory: null,
   latestVersion: null,
   consideredVersion: null,
   versionResolution: "latest-fallback" as const,

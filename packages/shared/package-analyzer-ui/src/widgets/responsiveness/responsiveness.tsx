@@ -29,6 +29,13 @@ export interface ResponsivenessProps {
    */
   githubIssuesUnavailable?: boolean;
   /**
+   * True when the package lives in a monorepo subdirectory. GitHub's Issues
+   * Search can't be scoped to a subdirectory, so the issue-activity signals
+   * cover the whole repository. The widget labels them as repository-wide so
+   * they aren't misread as package-specific.
+   */
+  isMonorepoPackage?: boolean;
+  /**
    * True when the package's repository is hosted outside GitHub (GitLab,
    * Bitbucket, etc.), so issue-activity data can't be fetched. Surfaced as a
    * neutral note rather than an error, since it isn't a transient failure.
@@ -45,6 +52,7 @@ export const Responsiveness: React.FC<ResponsivenessProps> = ({
   responsiveness,
   githubRateLimited = false,
   githubIssuesUnavailable = false,
+  isMonorepoPackage = false,
   repositoryHostUnsupported = false,
   isLoading = false,
 }) => {
@@ -88,8 +96,17 @@ export const Responsiveness: React.FC<ResponsivenessProps> = ({
                 <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
                   {responsiveness.description}
                 </p>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                  Based on recent issues/PRs.
+                <p
+                  className="text-xs text-slate-500 dark:text-slate-400 mt-1"
+                  title={
+                    isMonorepoPackage
+                      ? "This package lives in a monorepo. GitHub issues can't be scoped to a subdirectory, so this reflects the whole repository."
+                      : undefined
+                  }
+                >
+                  {isMonorepoPackage
+                    ? "Based on recent issues/PRs across the monorepo."
+                    : "Based on recent issues/PRs."}
                 </p>
               </div>
               <div className="text-lg font-bold text-slate-800 dark:text-slate-200">
@@ -128,8 +145,15 @@ export const Responsiveness: React.FC<ResponsivenessProps> = ({
 
       {responsiveness && (
         <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between">
-          <span className="text-xs text-slate-600 dark:text-slate-400 font-medium tracking-wide">
-            Open Issues
+          <span
+            className="text-xs text-slate-600 dark:text-slate-400 font-medium tracking-wide"
+            title={
+              isMonorepoPackage
+                ? "Open issues for the whole monorepo, not just this package."
+                : undefined
+            }
+          >
+            {isMonorepoPackage ? "Open Issues (whole repo)" : "Open Issues"}
           </span>
           <a
             href={responsiveness.issuesUrl}

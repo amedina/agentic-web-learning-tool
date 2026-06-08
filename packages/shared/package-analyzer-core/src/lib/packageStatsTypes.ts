@@ -86,6 +86,16 @@ export interface PackageStats {
    */
   advisoryCoverageDegraded: boolean;
   /**
+   * The package's path within its repository, from npm's
+   * `repository.directory`. Non-null means the package lives in a monorepo
+   * subdirectory, so the issue-activity signals (Responsiveness, open-issue
+   * count) reflect the whole repository rather than this package alone —
+   * GitHub's Issues Search can't be scoped to a subdirectory. The UI labels
+   * those signals as repository-wide instead of presenting them as
+   * package-specific. `null` for single-package repositories.
+   */
+  repositoryDirectory: string | null;
+  /**
    * How the version used for version-sensitive lookups (npm registry
    * metadata, bundle size, and — once Task 1b lands — advisory matching)
    * was determined.

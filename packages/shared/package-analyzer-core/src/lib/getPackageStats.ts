@@ -176,6 +176,19 @@ export async function getPackageStats(
     ? npmData.versions[consideredVersion]?.repository?.url
     : npmData.repository?.url;
 
+  // npm's `repository.directory` marks a package that lives in a subdirectory
+  // of a monorepo. When set, issue-activity signals can only be measured for
+  // the whole repository (GitHub's Issues Search can't scope to a subdir), so
+  // the UI labels them as repository-wide. Read it version-aware, mirroring
+  // `repoUrlField`.
+  const repositoryDirectoryRaw = consideredVersion
+    ? npmData.versions[consideredVersion]?.repository?.directory
+    : npmData.repository?.directory;
+  const repositoryDirectory =
+    typeof repositoryDirectoryRaw === "string" && repositoryDirectoryRaw.trim()
+      ? repositoryDirectoryRaw.trim()
+      : null;
+
   const rawLicense = consideredVersion
     ? npmData.versions[consideredVersion]?.license
     : npmData.license;
@@ -541,6 +554,7 @@ export async function getPackageStats(
     bundleUnavailable,
     repositoryHostUnsupported,
     advisoryCoverageDegraded,
+    repositoryDirectory,
     versionResolution,
     consideredVersion,
     advisorySources,
