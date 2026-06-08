@@ -39,6 +39,14 @@ export function renderHover(
     `**${stats.packageName}** — Fitness ${stats.score}/${stats.scoreMaxPoints}`,
   );
 
+  if (stats.description) {
+    const description = stats.description.replace(/\s+/g, " ").trim();
+    if (description) {
+      lines.push("");
+      lines.push(description);
+    }
+  }
+
   const detailLines: string[] = [];
 
   if (stats.bundle) {

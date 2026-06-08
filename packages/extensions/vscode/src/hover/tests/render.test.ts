@@ -64,6 +64,29 @@ describe("renderHover", () => {
     expect(output).toContain("**lodash** — Fitness 78/100");
   });
 
+  it("renders the package description after the name line when present", () => {
+    const output = renderHover(
+      makeStats({ description: "A modern JavaScript utility library." }),
+    );
+    const lines = output.split("\n");
+    const nameIndex = lines.findIndex((line) => line.includes("**lodash**"));
+    expect(lines[nameIndex + 2]).toBe("A modern JavaScript utility library.");
+  });
+
+  it("omits the description when null", () => {
+    const output = renderHover(makeStats({ description: null }));
+    const nameLine = "**lodash** — Fitness 70/100";
+    const afterName = output.slice(output.indexOf(nameLine) + nameLine.length);
+    expect(afterName).not.toMatch(/\n\nA modern/);
+  });
+
+  it("collapses whitespace in multi-line descriptions", () => {
+    const output = renderHover(
+      makeStats({ description: "  Line one\n  Line two  " }),
+    );
+    expect(output).toContain("Line one Line two");
+  });
+
   it("includes a bundle line when bundle data is present", () => {
     const output = renderHover(
       makeStats({
