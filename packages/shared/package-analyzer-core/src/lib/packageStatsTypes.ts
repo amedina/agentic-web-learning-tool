@@ -61,6 +61,14 @@ export interface PackageStats {
    */
   githubIssuesUnavailable: boolean;
   /**
+   * True when the bundlephobia request for this package failed for a reason
+   * other than a benign 404 (rate-limit, server error, timeout, network). The
+   * Bundle footprint widget shows an inline "couldn't fetch" hint and the side
+   * panel raises a soft notification, instead of silently rendering an empty
+   * card as if the package simply had no bundle data.
+   */
+  bundleUnavailable: boolean;
+  /**
    * How the version used for version-sensitive lookups (npm registry
    * metadata, bundle size, and — once Task 1b lands — advisory matching)
    * was determined.

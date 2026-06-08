@@ -4,6 +4,42 @@
 import { LruTtlCache } from "./lruCache";
 
 /**
+ * Marker prefix included in error messages so a host that only receives the
+ * serialised error string (e.g. the Chrome extension across the service-worker
+ * message boundary) can still detect an upstream rate-limit failure.
+ */
+export const UPSTREAM_RATE_LIMIT_ERROR_MARKER = "UPSTREAM_RATE_LIMIT";
+
+/**
+ * Thrown by {@link fetchWithCache} for any non-OK response other than 404.
+ * Carries the HTTP status so callers can tell a rate-limit (429) apart from a
+ * generic server error and surface the right message to the user.
+ */
+export class UpstreamFetchError extends Error {
+  readonly url: string;
+  readonly status: number;
+
+  /**
+   * @param url - The URL that failed.
+   * @param status - The HTTP status code of the failing response.
+   * @param statusText - The HTTP status text, included in the message.
+   */
+  constructor(url: string, status: number, statusText: string) {
+    const ratePrefix =
+      status === 429 ? `${UPSTREAM_RATE_LIMIT_ERROR_MARKER}: ` : "";
+    super(`${ratePrefix}Failed to fetch ${url}: ${status} ${statusText}`);
+    this.name = "UpstreamFetchError";
+    this.url = url;
+    this.status = status;
+  }
+
+  /** True when the upstream responded with HTTP 429 (Too Many Requests). */
+  get isRateLimited(): boolean {
+    return this.status === 429;
+  }
+}
+
+/**
  * Process-wide cache backing every analyzer-core fetch. Bounded so a
  * long-lived host (Chrome service worker, MCP HTTP server) can't grow
  * the cache unbounded, expired entries are re-fetched on next read,
@@ -52,7 +88,7 @@ function buildFetchSignal(requestSignal?: AbortSignal | null): AbortSignal {
  *   underlying fetch keeps running so concurrent callers waiting on
  *   the same key still receive the value.
  * @returns The parsed JSON body, or `null` for a 404 response.
- * @throws On any other non-OK response.
+ * @throws {UpstreamFetchError} On any other non-OK response.
  */
 export async function fetchWithCache(
   url: string,
@@ -70,7 +106,7 @@ export async function fetchWithCache(
         if (response.status === 404) {
           return null;
         }
-        throw new Error(`Failed to fetch ${url}: ${response.statusText}`);
+        throw new UpstreamFetchError(url, response.status, response.statusText);
       }
       return await response.json();
     },

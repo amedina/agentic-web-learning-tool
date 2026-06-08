@@ -17,6 +17,7 @@ import { fetchGithubSecurityAdvisories } from "../fetchGithubSecurityAdvisories"
 import { fetchOsvAdvisories } from "../fetchOsvAdvisories";
 import { parseGithubUrl } from "../parseGithubUrl";
 import { GithubRateLimitError } from "../githubFetch";
+import { UpstreamFetchError } from "../fetchWithCache";
 
 vi.mock("../fetchNpmPackage", () => ({ fetchNpmPackage: vi.fn() }));
 vi.mock("../fetchBundlephobiaData", () => ({ fetchBundlephobiaData: vi.fn() }));
@@ -88,6 +89,7 @@ describe("getPackageStats", () => {
     expect(result?.packageName).toBe("test");
     expect(result?.collaboratorsCount).toBe(1);
     expect(result?.bundle).toBeNull(); // Because it failed
+    expect(result?.bundleUnavailable).toBe(true); // Flagged so the UI can warn
     expect(result?.dependencyTree).toBeDefined();
     // Since deps === 0, score gets the full deps axis (35).
     expect(result?.score).toBe(35);
@@ -328,6 +330,65 @@ describe("getPackageStats", () => {
       expect(result?.stars).toBe(100);
       // Non-rate-limit failures don't flip the rate-limit flag.
       expect(result?.githubRateLimited).toBe(false);
+    });
+  });
+
+  describe("upstream API availability", () => {
+    it("leaves bundleUnavailable false when bundlephobia returns no data (benign 404)", async () => {
+      vi.mocked(fetchNpmPackage).mockResolvedValueOnce({
+        maintainers: [{ name: "test" }],
+        license: "MIT",
+      });
+      // fetchWithCache resolves null for a 404 rather than throwing, so a
+      // package simply absent from bundlephobia must not look like an error.
+      vi.mocked(fetchBundlephobiaData).mockResolvedValueOnce(null);
+      vi.mocked(getDependencyTree).mockResolvedValueOnce(null as any);
+      vi.mocked(fetchModuleReplacements).mockResolvedValue(null);
+
+      const result = await getPackageStats("test");
+
+      expect(result).not.toBeNull();
+      expect(result?.bundle).toBeNull();
+      expect(result?.bundleUnavailable).toBe(false);
+    });
+
+    it("flags bundleUnavailable when the bundlephobia request fails", async () => {
+      vi.mocked(fetchNpmPackage).mockResolvedValueOnce({
+        maintainers: [{ name: "test" }],
+        license: "MIT",
+      });
+      vi.mocked(fetchBundlephobiaData).mockRejectedValueOnce(
+        new UpstreamFetchError(
+          "https://bundlephobia.com/api/size?package=test",
+          429,
+          "Too Many Requests",
+        ),
+      );
+      vi.mocked(getDependencyTree).mockResolvedValueOnce(null as any);
+      vi.mocked(fetchModuleReplacements).mockResolvedValue(null);
+
+      const result = await getPackageStats("test");
+
+      expect(result).not.toBeNull();
+      expect(result?.bundle).toBeNull();
+      expect(result?.bundleUnavailable).toBe(true);
+    });
+
+    it("translates an npm registry rate-limit into a user-facing error", async () => {
+      vi.mocked(fetchNpmPackage).mockRejectedValueOnce(
+        new UpstreamFetchError(
+          "https://registry.npmjs.org/test",
+          429,
+          "Too Many Requests",
+        ),
+      );
+      vi.mocked(fetchBundlephobiaData).mockResolvedValueOnce(null);
+      vi.mocked(getDependencyTree).mockResolvedValueOnce(null as any);
+      vi.mocked(fetchModuleReplacements).mockResolvedValue(null);
+
+      await expect(getPackageStats("test")).rejects.toThrowError(
+        /npm registry is rate-limiting/i,
+      );
     });
   });
 });

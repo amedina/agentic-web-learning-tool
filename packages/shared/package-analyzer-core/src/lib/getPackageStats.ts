@@ -2,6 +2,7 @@
  * Internal dependencies.
  */
 import { fetchNpmPackage } from "../utils/fetchNpmPackage";
+import { UpstreamFetchError } from "../utils/fetchWithCache";
 import { fetchGithubRepo } from "../utils/fetchGithubRepo";
 import { fetchGithubIssues } from "../utils/fetchGithubIssues";
 import { fetchGithubSecurityAdvisories } from "../utils/fetchGithubSecurityAdvisories";
@@ -49,6 +50,11 @@ export async function getPackageStats(
     `[NPM Advisor] Fetching stats for ${packageName}${includeDependencyTree ? "" : " (light)"}${resolvedVersion ? ` @ ${resolvedVersion}` : ""}...`,
   );
 
+  // Set when the bundlephobia request fails for a non-404 reason (rate-limit,
+  // server error, timeout). Surfaced on the result so the UI can show a
+  // "couldn't fetch" hint and a soft notification instead of an empty card.
+  let bundleUnavailable = false;
+
   const [
     npmData,
     bundleData,
@@ -58,10 +64,22 @@ export async function getPackageStats(
     preferredReplacementsRaw,
     osvAdvisoriesRaw,
   ] = await Promise.all([
-    fetchNpmPackage(packageName, signal),
+    // The npm registry is the one upstream we can't degrade gracefully around:
+    // with no packument there are no stats to show. Translate a 429 into a
+    // clear, user-facing message so the side panel's error screen tells the
+    // user the registry is rate-limiting rather than printing a raw URL.
+    fetchNpmPackage(packageName, signal).catch((error) => {
+      if (error instanceof UpstreamFetchError && error.isRateLimited) {
+        throw new Error(
+          "The npm registry is rate-limiting requests right now. Please wait a minute and refresh.",
+        );
+      }
+      throw error;
+    }),
     includeBundle
       ? fetchBundlephobiaData(packageName, resolvedVersion, signal).catch(
           (e) => {
+            bundleUnavailable = true;
             console.warn(
               `[NPM Advisor] Failed to fetch bundle data for ${packageName}`,
               e,
@@ -484,6 +502,7 @@ export async function getPackageStats(
     scoreMaxPoints,
     githubRateLimited,
     githubIssuesUnavailable,
+    bundleUnavailable,
     versionResolution,
     consideredVersion,
     advisorySources,
