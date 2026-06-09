@@ -38,8 +38,9 @@ export const DEPENDENCIES_COLORS = {
 /**
  * Dark slate accent used for the "With Issues" filter pill, which is
  * intentionally not a category color (it aggregates across vulnerable /
- * licenseIssue / replaceable, so painting it in any one of those would
- * be misleading).
+ * licenseIssue, so painting it in either of those would be misleading).
+ * Replaceable is informational, not an issue, so it is excluded from this
+ * aggregate.
  */
 export const WITH_ISSUES_PILL_COLOR = "#1E293B";
 
