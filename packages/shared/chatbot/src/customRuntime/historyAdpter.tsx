@@ -7,6 +7,7 @@ import { RuntimeAdapterProvider, useAssistantApi } from '@assistant-ui/react';
  * Internal dependencies
  */
 import { chatStorage } from './chatStorage';
+import { repairParentChain } from './messageHistory';
 import type {
   LoadFunctionOutputType,
   ExportedMessageRepositoryItem,
@@ -25,7 +26,10 @@ export const HistoryAdapter = () => {
 
       const messages = await chatStorage.messages.findByThreadId(remoteId);
       return {
-        messages,
+        // Re-derive the parent chain from stored order so a corrupted or
+        // incomplete history can never make MessageRepository.import throw
+        // "Parent message not found" and collapse the thread to an empty chat.
+        messages: repairParentChain(messages),
         unstable_resume: false,
       } as LoadFunctionOutputType;
     }, [api]);
@@ -59,7 +63,11 @@ export const HistoryAdapter = () => {
             .filter((part) => part.type === 'text')[0]
             .text.substring(0, 30);
 
-          chatStorage.threads.update(remoteId, { title: messageTitle });
+          // Rename through the runtime (not a raw storage write) so the live
+          // thread list reflects the title immediately; the adapter's rename
+          // also persists it. A raw chatStorage write only lands on disk and
+          // the in-memory thread keeps the "New Chat" fallback until reload.
+          await api.threadListItem().rename(messageTitle);
         }
 
         await chatStorage.messages.create({
