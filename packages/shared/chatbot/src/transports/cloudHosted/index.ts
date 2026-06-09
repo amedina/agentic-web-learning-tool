@@ -92,6 +92,17 @@ export class CloudHostedTransport implements ChatTransport<
   }
 
   /**
+   * Updates the system prompt used for subsequent requests without
+   * recreating the transport. `sendMessages` reads `this.systemPrompt` at
+   * call time, so the next message picks up the new prompt. Recreating the
+   * transport instead would reset the live chat thread, so callers update
+   * the prompt in place when only the grounding context has changed.
+   */
+  setSystemPrompt(systemPrompt: string) {
+    this.systemPrompt = systemPrompt;
+  }
+
+  /**
    * Initializes the on-device model session.
    * This checks for API availability and creates a session.
    */

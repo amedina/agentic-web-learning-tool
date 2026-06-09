@@ -83,6 +83,15 @@ class ChromeAILanguageModel {
   }
 
   /**
+   * Updates the system prompt used to seed the on-device session. A fresh
+   * session is created from `this.systemPrompt` on every prompt, so the new
+   * value takes effect on the next message without rebuilding the model.
+   */
+  public setSystemPrompt(systemPrompt: string) {
+    this.systemPrompt = systemPrompt;
+  }
+
+  /**
    * Initializes or retrieves the Chrome AI session.
    * Converts AssistantUI tools into a JSON schema format understandable by the model.
    */
