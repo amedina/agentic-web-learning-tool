@@ -38,7 +38,12 @@ import { logger } from '@agentic-web-labs/common';
 /**
  * Internal dependencies
  */
-import { jsonSchemaToZod } from '../../utils';
+import {
+  jsonSchemaToZod,
+  createTransportErrorSurfacer,
+  getProviderErrorMessage,
+  getProviderLabel,
+} from '../../utils';
 import replaceSlashCommands from '../replaceSlashCommands';
 
 type JsonSchemaObject = Record<string, unknown>;
@@ -77,14 +82,17 @@ export class CloudHostedTransport implements ChatTransport<
   formattedTools: any = {};
   private modelId: string = '';
   private systemPrompt: string = '';
+  private provider: string = '';
   constructor(
     modelId: string,
     providerOptions: SharedV2ProviderOptions,
-    systemPrompt: string
+    systemPrompt: string,
+    provider: string = ''
   ) {
     this.modelId = modelId;
     this.providerOptions = providerOptions;
     this.systemPrompt = systemPrompt;
+    this.provider = provider;
   }
 
   setRuntime(runtime: AssistantRuntime) {
@@ -200,6 +208,19 @@ export class CloudHostedTransport implements ChatTransport<
 
     return createUIMessageStream({
       execute: async ({ writer }) => {
+        const surfaceError = createTransportErrorSurfacer(
+          writer,
+          this.provider
+        );
+
+        if (!this.model) {
+          surfaceError(
+            new Error('Ask AI model is not initialized'),
+            `${getProviderLabel(this.provider)} is not configured. Add a valid API key and select a model in Settings, then try again.`
+          );
+          return;
+        }
+
         try {
           const result = streamText({
             model: this.model as unknown as LanguageModelV2,
@@ -210,7 +231,7 @@ export class CloudHostedTransport implements ChatTransport<
             system: this.systemPrompt,
             stopWhen: ({ steps }) => steps.length === 100,
             onError: (err) => {
-              logger(['error'], [`AI SDK error [chatId=]:`, err.error]);
+              surfaceError(err.error);
             },
             onAbort: (res) => {
               logger(
@@ -236,52 +257,16 @@ export class CloudHostedTransport implements ChatTransport<
               );
             },
           });
-          try {
-            writer.merge(result.toUIMessageStream());
-          } catch (mergeError) {
-            logger(['error'], [` Error merging stream [chatId=]:`, mergeError]);
-            const errorMessage =
-              mergeError instanceof Error
-                ? mergeError.message
-                : 'An error occurred while processing the response';
-
-            writer.write({
-              type: 'text-delta',
-              delta: `Error: ${errorMessage}\n\nThe model may still be processing. Please try again.`,
-              id: crypto.randomUUID(),
-            });
-          }
-        } catch (executionError) {
-          if (executionError instanceof Error) {
-            logger(
-              ['error'],
-              [
-                ` Stream execution error [chatId=]:`,
-                {
-                  message: executionError.message,
-                  name: executionError.name,
-                  stack: executionError.stack,
-                },
-              ]
-            );
-
-            writer.write({
-              type: 'text-delta',
-              delta: `Error: ${executionError.message}\n\nPlease check the console for more details.`,
-              id: crypto.randomUUID(),
-            });
-            return;
-          }
-
-          logger(
-            ['error'],
-            [`Unknown stream error [chatId=]:`, executionError]
+          writer.merge(
+            result.toUIMessageStream({
+              onError: (error) => {
+                surfaceError(error);
+                return getProviderErrorMessage(error, this.provider);
+              },
+            })
           );
-          writer.write({
-            type: 'text-delta',
-            delta: `An unexpected error occurred. Please try again.`,
-            id: crypto.randomUUID(),
-          });
+        } catch (executionError) {
+          surfaceError(executionError);
         }
       },
     });
