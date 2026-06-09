@@ -7,6 +7,7 @@ import { RuntimeAdapterProvider, useAssistantApi } from '@assistant-ui/react';
  * Internal dependencies
  */
 import { chatStorage } from './chatStorage';
+import { repairParentChain } from './messageHistory';
 import type {
   LoadFunctionOutputType,
   ExportedMessageRepositoryItem,
@@ -25,7 +26,10 @@ export const HistoryAdapter = () => {
 
       const messages = await chatStorage.messages.findByThreadId(remoteId);
       return {
-        messages,
+        // Re-derive the parent chain from stored order so a corrupted or
+        // incomplete history can never make MessageRepository.import throw
+        // "Parent message not found" and collapse the thread to an empty chat.
+        messages: repairParentChain(messages),
         unstable_resume: false,
       } as LoadFunctionOutputType;
     }, [api]);
