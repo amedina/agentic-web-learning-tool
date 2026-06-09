@@ -63,7 +63,11 @@ export const HistoryAdapter = () => {
             .filter((part) => part.type === 'text')[0]
             .text.substring(0, 30);
 
-          chatStorage.threads.update(remoteId, { title: messageTitle });
+          // Rename through the runtime (not a raw storage write) so the live
+          // thread list reflects the title immediately; the adapter's rename
+          // also persists it. A raw chatStorage write only lands on disk and
+          // the in-memory thread keeps the "New Chat" fallback until reload.
+          await api.threadListItem().rename(messageTitle);
         }
 
         await chatStorage.messages.create({
