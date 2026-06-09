@@ -42,6 +42,9 @@
     "*://api.github.com/*",
     "*://bundlephobia.com/*",
     "*://raw.githubusercontent.com/*",
-    "*://www.npmjs.com/*"
+    "*://www.npmjs.com/*",
+    "*://api.anthropic.com/*",
+    "*://api.openai.com/*",
+    "*://generativelanguage.googleapis.com/*"
   ]
 }
