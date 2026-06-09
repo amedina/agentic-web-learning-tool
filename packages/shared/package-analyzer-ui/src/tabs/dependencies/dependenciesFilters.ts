@@ -33,6 +33,9 @@ const hasReplaceable = (stats: PackageStats): boolean => {
   );
 };
 
+// "Replaceable" is intentionally excluded from "With Issues": an available
+// e18e replacement is informational, not a problem with the package, so it is
+// not an issue or a warning. It remains its own standalone filter.
 const PREDICATES: Record<
   DependenciesFilterKey,
   (stats: PackageStats) => boolean
@@ -40,10 +43,7 @@ const PREDICATES: Record<
   vulnerable: hasVulnerabilities,
   licenseIssue: hasLicenseIssue,
   replaceable: hasReplaceable,
-  withIssues: (stats) =>
-    hasVulnerabilities(stats) ||
-    hasLicenseIssue(stats) ||
-    hasReplaceable(stats),
+  withIssues: (stats) => hasVulnerabilities(stats) || hasLicenseIssue(stats),
 };
 
 /**
@@ -110,7 +110,7 @@ export function computeFilterCounts(
     if (r) {
       replaceable += 1;
     }
-    if (v || l || r) {
+    if (v || l) {
       withIssues += 1;
     }
   }
