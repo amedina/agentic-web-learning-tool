@@ -3,7 +3,7 @@
  */
 import { useEffect, useState } from 'react';
 import { PropProvider, SidepanelChatbot } from '@agentic-web-labs/chatbot';
-import { SidebarProvider } from '@agentic-web-labs/design-system';
+import { SidebarProvider, Toaster } from '@agentic-web-labs/design-system';
 /**
  * Internal dependencies
  */
@@ -88,6 +88,7 @@ const SidePanel = () => {
         <div className="flex-1 min-h-0 overflow-hidden">
           <SidepanelChatbot />
         </div>
+        <Toaster position="bottom-center" />
       </SidebarProvider>
     </PropProvider>
   );

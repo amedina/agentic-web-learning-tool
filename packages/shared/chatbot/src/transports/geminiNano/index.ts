@@ -20,9 +20,13 @@ import { logger } from '@agentic-web-labs/common';
  * Internal dependencies
  */
 import ChromeAILanguageModel from './chromeAILanguageModel';
-import { SYSTEM_PROMPT_START } from '../../utils';
+import {
+  SYSTEM_PROMPT_START,
+  jsonSchemaToZod,
+  createTransportErrorSurfacer,
+  getProviderErrorMessage,
+} from '../../utils';
 import replaceSlashCommands from '../replaceSlashCommands';
-import { jsonSchemaToZod } from '../../utils';
 
 type SendMessagesParams = {
   /** The type of message submission - either new message or regeneration */
@@ -159,6 +163,16 @@ export class GeminiNanoChatTransport implements ChatTransport<
 
     return createUIMessageStream({
       execute: async ({ writer }) => {
+        const surfaceError = createTransportErrorSurfacer(writer, 'browser-ai');
+
+        if (!this.model) {
+          surfaceError(
+            new Error('Browser AI model is not initialized'),
+            'Browser AI (on-device Gemini Nano) is unavailable on this device. Switch to another provider in Settings, then try again.'
+          );
+          return;
+        }
+
         try {
           const result = streamText({
             model: this.model as unknown as LanguageModelV2,
@@ -173,7 +187,7 @@ export class GeminiNanoChatTransport implements ChatTransport<
             stopWhen: ({ steps }) => steps.length === 10,
             system: SYSTEM_PROMPT_START,
             onError: (err) => {
-              logger(['error'], ['AI SDK error [chatId=]: ', err.error]);
+              surfaceError(err.error);
             },
             onAbort: (res) => {
               logger(
@@ -199,55 +213,16 @@ export class GeminiNanoChatTransport implements ChatTransport<
               );
             },
           });
-          try {
-            writer.merge(result.toUIMessageStream());
-          } catch (mergeError) {
-            logger(
-              ['error'],
-              [`Error merging stream [chatId=]: ${mergeError}`]
-            );
-            const errorMessage =
-              mergeError instanceof Error
-                ? mergeError.message
-                : 'An error occurred while processing the response';
-
-            writer.write({
-              type: 'text-delta',
-              delta: `Error: ${errorMessage}\n\nThe model may still be processing. Please try again.`,
-              id: crypto.randomUUID(),
-            });
-          }
-        } catch (executionError) {
-          if (executionError instanceof Error) {
-            logger(
-              ['error'],
-              [
-                `Stream execution error [chatId=]: `,
-                {
-                  message: executionError.message,
-                  name: executionError.name,
-                  stack: executionError.stack,
-                },
-              ]
-            );
-
-            writer.write({
-              type: 'text-delta',
-              delta: `Error: ${executionError.message}\n\nPlease check the console for more details.`,
-              id: crypto.randomUUID(),
-            });
-            return;
-          }
-
-          logger(
-            ['error'],
-            [`Unknown stream error [chatId=]: ${executionError}`]
+          writer.merge(
+            result.toUIMessageStream({
+              onError: (error) => {
+                surfaceError(error);
+                return getProviderErrorMessage(error, 'browser-ai');
+              },
+            })
           );
-          writer.write({
-            type: 'text-delta',
-            delta: `An unexpected error occurred. Please try again.`,
-            id: crypto.randomUUID(),
-          });
+        } catch (executionError) {
+          surfaceError(executionError);
         }
       },
     });

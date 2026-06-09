@@ -35,7 +35,8 @@ function transportGenerator(
       modelInstance = new CloudHostedTransport(
         model,
         buildProviderOptions(thinkingMode, provider) ?? {},
-        systemPrompt
+        systemPrompt,
+        provider
       );
       modelInstance.initializeSession(createOpenAI, config, isNPMAdivsor);
       return modelInstance;
@@ -43,7 +44,8 @@ function transportGenerator(
       modelInstance = new CloudHostedTransport(
         model,
         buildProviderOptions(thinkingMode, provider) ?? {},
-        systemPrompt
+        systemPrompt,
+        provider
       );
       // Anthropic rejects browser-origin requests (such as those from the
       // extension side panel) unless this header is set. The user supplies
@@ -67,7 +69,8 @@ function transportGenerator(
       modelInstance = new CloudHostedTransport(
         model,
         buildProviderOptions(thinkingMode, provider) ?? {},
-        systemPrompt
+        systemPrompt,
+        provider
       );
       modelInstance.initializeSession(
         createGoogleGenerativeAI,

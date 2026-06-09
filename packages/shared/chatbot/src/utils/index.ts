@@ -13,3 +13,5 @@ export { default as buildProviderOptions } from './buildProviderOptions';
 export { default as openOptionsPage } from './openOptionsPage';
 export * from './getMcpbToolGroup';
 export * from './jsonSchemaToZod';
+export * from './getProviderErrorMessage';
+export * from './surfaceTransportError';
