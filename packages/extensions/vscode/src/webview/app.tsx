@@ -174,13 +174,16 @@ export const App: FC<AppProps> = ({
         // re-runs on each new packageJsonDependencies object reference).
         setFocusPackageName(data.focusPackageName ?? null);
         // A focus request (e.g. "Show full insights" from the hover) only
-        // makes sense in the per-package view, so switch back to it.
+        // makes sense in the per-package Dependencies view, so switch
+        // both the mode and the inner tab back to it before scrolling.
         if (data.focusPackageName) {
           setViewMode("package");
+          setActiveTab("dependencies");
           setFocusTick((tick) => tick + 1);
         }
       } else if (data.type === "focusPackage") {
         setViewMode("package");
+        setActiveTab("dependencies");
         setFocusPackageName(data.packageName);
         setFocusTick((tick) => tick + 1);
       } else if (data.type === "projectHealth") {
@@ -408,6 +411,13 @@ function focusRow(packageName: string): boolean {
     document.querySelectorAll<HTMLElement>("[title]"),
   ).find((node) => node.getAttribute("title") === packageName);
   if (!trigger) {
+    return false;
+  }
+  // `offsetParent` is null when the element is not actually rendered
+  // (e.g. it lives in the inactive, display:none tab). Scrolling then is a
+  // no-op, so report "not found" and let the caller retry once the tab the
+  // row belongs to has switched in.
+  if (trigger.offsetParent === null) {
     return false;
   }
   trigger.scrollIntoView({ behavior: "smooth", block: "start" });
