@@ -37,6 +37,9 @@ export const SearchResults: React.FC = () => {
   const [nbPages, setNbPages] = useState(0);
   const [isFetching, setIsFetching] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // True when results came from the registry fallback (Algolia unavailable),
+  // so we can tell the user some fields are missing.
+  const [isDegraded, setIsDegraded] = useState(false);
   const [sortOrder, setSortOrder] = useState<"desc" | "asc">("desc");
   const [filters, setFilters] = useState<SearchFilters>(DEFAULT_FILTERS);
   const [comparisonBucket, setComparisonBucket] = useState<
@@ -230,6 +233,7 @@ export const SearchResults: React.FC = () => {
           setHits(finalHits);
           setNbHits(response.nbHits);
           setNbPages(isClientSideMode ? 1 : response.nbPages);
+          setIsDegraded(!!response.degraded);
         } else {
           setError(response?.error || "Failed to fetch results");
         }
@@ -316,6 +320,14 @@ export const SearchResults: React.FC = () => {
             }
             onOpenFilters={() => setIsSidebarOpen(true)}
           />
+
+          {isDegraded && !error && (
+            <div className="mx-4 mt-3 rounded border border-amber-300 bg-amber-50 px-3 py-2 text-xs font-bold text-amber-700 dark:border-amber-700/50 dark:bg-amber-950/40 dark:text-amber-300">
+              The primary search service is unavailable, so these are limited
+              results from a backup source. Download counts and other details
+              may be missing.
+            </div>
+          )}
 
           {/* Results Scroll Area */}
           <div id="npc-advisor-results-scroll-container">
