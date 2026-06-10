@@ -143,6 +143,21 @@ export const SummaryHeader: FC<SummaryHeaderProps> = ({
               isActive={activeFilter === "license"}
             />
             <SummaryChip
+              icon={<Recycle size={13} />}
+              value={replaceablePackages}
+              label={
+                replaceablePackages === 1
+                  ? "replaceable pkg"
+                  : "replaceable pkgs"
+              }
+              tone={replaceablePackages > 0 ? "info" : "neutral"}
+              title={`${replaceablePackages} package(s) with replacement suggestions. Click to filter.`}
+              onClick={() =>
+                onFilterChange(toggleFilter(activeFilter, "replaceable"))
+              }
+              isActive={activeFilter === "replaceable"}
+            />
+            <SummaryChip
               icon={<Package size={13} />}
               value={totals.packageCount}
               label={totals.packageCount === 1 ? "package" : "packages"}
@@ -180,21 +195,6 @@ export const SummaryHeader: FC<SummaryHeaderProps> = ({
                 onFilterChange(toggleFilter(activeFilter, "circular"))
               }
               isActive={activeFilter === "circular"}
-            />
-            <SummaryChip
-              icon={<Recycle size={13} />}
-              value={replaceablePackages}
-              label={
-                replaceablePackages === 1
-                  ? "replaceable pkg"
-                  : "replaceable pkgs"
-              }
-              tone={replaceablePackages > 0 ? "info" : "neutral"}
-              title={`${replaceablePackages} package(s) with replacement suggestions. Click to filter.`}
-              onClick={() =>
-                onFilterChange(toggleFilter(activeFilter, "replaceable"))
-              }
-              isActive={activeFilter === "replaceable"}
             />
             <SummaryChip
               icon={<Package size={13} />}

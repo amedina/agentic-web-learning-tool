@@ -2,14 +2,14 @@
  * External dependencies.
  */
 import { useMemo, useState, type FC } from "react";
-import { ChevronRight, CircleCheck, Loader2 } from "lucide-react";
+import { ChevronRight, Loader2 } from "lucide-react";
 
 /**
  * Internal dependencies.
  */
 import { RowBadges } from "./rowBadges";
 import { RowDetails } from "./rowDetails";
-import { isPackageCleanForScope, tallyVulnerabilities } from "./helpers";
+import { tallyVulnerabilities } from "./helpers";
 import type { PackageHealthEntry } from "../../projectHealth/types";
 
 interface PackageHealthRowProps {
@@ -37,12 +37,7 @@ export const PackageHealthRow: FC<PackageHealthRowProps> = ({
     () => tallyVulnerabilities(entry.vulnerabilities),
     [entry.vulnerabilities],
   );
-  const isClean = isPackageCleanForScope(entry, scope);
   const isAnalyzing = entry.status === "pending";
-  const cleanTooltip =
-    scope === "dependencies"
-      ? "No vulnerabilities or license issues in this package."
-      : "No publishing or circular-dependency issues in this package.";
 
   return (
     <li className="bg-white/30 dark:bg-slate-900/30">
@@ -87,15 +82,6 @@ export const PackageHealthRow: FC<PackageHealthRowProps> = ({
               severityCounts={severityCounts}
             />
           )}
-          {!isAnalyzing && isClean ? (
-            <span
-              className="inline-flex items-center gap-1 rounded bg-emerald-100 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
-              title={cleanTooltip}
-            >
-              <CircleCheck size={11} />
-              No issues
-            </span>
-          ) : null}
         </div>
       </button>
       {expanded ? (

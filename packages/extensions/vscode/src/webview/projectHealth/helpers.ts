@@ -149,56 +149,6 @@ export function packageIssueCount(entry: PackageHealthEntry): number {
   );
 }
 
-/**
- * Counts only the actionable problems for a package: vulnerabilities,
- * license issues, publint findings, and circular dependencies.
- * Replacement suggestions are excluded because they are informational
- * optimizations, not problems, so they never remove a row's clean check.
- */
-export function packageProblemCount(entry: PackageHealthEntry): number {
-  const publint = entry.projectAnalysis?.publintCount ?? 0;
-  const circular = entry.projectAnalysis?.circularCount ?? 0;
-  return (
-    entry.vulnerabilities.length +
-    entry.licenseIssues.length +
-    publint +
-    circular
-  );
-}
-
-/**
- * True when a package is genuinely clean: its project analysis actually
- * ran (so publint / circular are known, not merely absent) and there are
- * no problems. Replacement suggestions do not affect cleanliness. When
- * project analysis did not run for a package, it is not reported clean.
- */
-export function isPackageClean(entry: PackageHealthEntry): boolean {
-  return entry.projectAnalysis !== null && packageProblemCount(entry) === 0;
-}
-
-/**
- * Scope-aware cleanliness for a row's "no issues" badge. On the
- * Dependencies tab a package is clean when it has no vulnerabilities and
- * no license issues. On the Project Analysis tab it is clean when the
- * analysis ran and found no publint findings or circular dependencies
- * (replacement suggestions are informational and do not count).
- */
-export function isPackageCleanForScope(
-  entry: PackageHealthEntry,
-  scope: "dependencies" | "project",
-): boolean {
-  if (scope === "dependencies") {
-    return (
-      entry.vulnerabilities.length === 0 && entry.licenseIssues.length === 0
-    );
-  }
-  return (
-    entry.projectAnalysis !== null &&
-    entry.projectAnalysis.publintCount === 0 &&
-    entry.projectAnalysis.circularCount === 0
-  );
-}
-
 /** True when a package has at least one non-suppressed vulnerability. */
 export function entryHasActiveVulnerability(
   entry: PackageHealthEntry,
@@ -221,7 +171,7 @@ export function entryHasActiveLicenseIssue(
 
 /** True when a package has at least one replacement suggestion. */
 export function entryHasReplaceable(entry: PackageHealthEntry): boolean {
-  return (entry.projectAnalysis?.replaceableCount ?? 0) > 0;
+  return entry.replaceable.length > 0;
 }
 
 /** True when a package has at least one publint (publishing) finding. */
@@ -295,11 +245,15 @@ export function reportHasActionableFindings(
     if (
       includeDependencies &&
       (entryHasActiveVulnerability(entry, suppressions) ||
-        entryHasActiveLicenseIssue(entry, suppressions))
+        entryHasActiveLicenseIssue(entry, suppressions) ||
+        entryHasReplaceable(entry))
     ) {
       return true;
     }
-    return includeProject && (entry.projectAnalysis?.total ?? 0) > 0;
+    if (includeProject) {
+      return entryHasPublint(entry) || entryHasCircular(entry);
+    }
+    return false;
   });
 }
 
@@ -318,9 +272,9 @@ export function buildAggregateFixPrompt(
   const includeProject = scope !== "dependencies";
   const subject =
     scope === "dependencies"
-      ? "dependency vulnerabilities and license issues"
+      ? "dependency vulnerabilities, license issues, and replacement opportunities"
       : scope === "project"
-        ? "publishing, circular-dependency, and replacement issues"
+        ? "publishing and circular-dependency issues"
         : "issues";
 
   const lines: string[] = [];
@@ -340,12 +294,15 @@ export function buildAggregateFixPrompt(
           (finding) => !isLicenseSuppressed(suppressions, finding),
         )
       : [];
+    const replaceable = includeDependencies ? entry.replaceable : [];
     const analysis = includeProject ? entry.projectAnalysis : null;
-    const hasAnalysisFindings = (analysis?.total ?? 0) > 0;
+    const hasProjectFindings =
+      analysis !== null && analysis.publintCount + analysis.circularCount > 0;
     if (
       vulnerabilities.length === 0 &&
       licenseIssues.length === 0 &&
-      !hasAnalysisFindings
+      replaceable.length === 0 &&
+      !hasProjectFindings
     ) {
       continue;
     }
@@ -370,17 +327,24 @@ export function buildAggregateFixPrompt(
         );
       }
     }
+    if (replaceable.length > 0) {
+      lines.push(`- Replaceable dependencies (${replaceable.length}):`);
+      for (const suggestion of replaceable.slice(0, 10)) {
+        const alternatives =
+          suggestion.replacements.length > 0
+            ? suggestion.replacements.join(", ")
+            : "see documentation";
+        lines.push(
+          `  - ${suggestion.packageName || "dependency"} -> ${alternatives}`,
+        );
+      }
+    }
     if (analysis) {
       if (analysis.publintCount > 0) {
         lines.push(`- Publishing (publint) issues: ${analysis.publintCount}`);
       }
       if (analysis.circularCount > 0) {
         lines.push(`- Circular dependencies: ${analysis.circularCount}`);
-      }
-      if (analysis.replaceableCount > 0) {
-        lines.push(
-          `- Replaceable dependencies (lighter alternatives): ${analysis.replaceableCount}`,
-        );
       }
     }
     lines.push("");

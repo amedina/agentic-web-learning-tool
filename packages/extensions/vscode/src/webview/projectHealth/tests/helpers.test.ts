@@ -196,6 +196,14 @@ describe("buildAggregateFixPrompt", () => {
         uri: "a",
         relativePath: "packages/a/package.json",
         vulnerabilities: [VULN],
+        replaceable: [
+          {
+            packageName: "lodash",
+            replacements: ["es-toolkit"],
+            documentationUrl: null,
+            message: "lodash has lighter alternatives",
+          },
+        ],
         projectAnalysis: {
           total: 2,
           errorCount: 0,

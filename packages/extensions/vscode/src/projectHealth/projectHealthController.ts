@@ -3,7 +3,10 @@
  */
 import * as path from "node:path";
 import * as vscode from "vscode";
-import { analyzeProject } from "@agentic-web-labs/project-analyzer-core";
+import {
+  analyzeProject,
+  findReplacementOpportunities,
+} from "@agentic-web-labs/project-analyzer-core";
 
 /**
  * Internal dependencies.
@@ -20,7 +23,7 @@ import {
 import { readManifest } from "./manifestReader";
 import type { ProjectHealthCache } from "./projectHealthCache";
 import { notifyReportSummary } from "./projectHealthNotifications";
-import { computeTotals } from "./projectHealthReport";
+import { computeTotals, replacementsFromFindings } from "./projectHealthReport";
 import {
   runProjectHealth,
   type ProjectHealthRunnerDeps,
@@ -30,6 +33,7 @@ import type {
   MuteTarget,
   ProjectHealthReport,
   ProjectHealthScope,
+  ReplaceableSuggestion,
   SuppressionEntry,
 } from "./types";
 
@@ -251,8 +255,29 @@ export class ProjectHealthController implements vscode.Disposable {
       },
       fetchVulnerabilities: createVulnerabilityFetcher(),
       fetchLicenseIssue: createLicenseFetcher(targetLicense),
+      fetchReplaceable: (manifest) => this.fetchReplaceable(manifest),
       analyzeManifest: (manifest) => this.analyzeManifest(manifest),
     };
+  }
+
+  /**
+   * Finds the replacement opportunities for one manifest. Cheap (a
+   * manifest match, no publint or madge), so it runs in the fast pass.
+   * Returns an empty list on timeout or failure.
+   */
+  private async fetchReplaceable(
+    manifest: ParsedManifest,
+  ): Promise<ReplaceableSuggestion[]> {
+    const rootPath = path.dirname(vscode.Uri.parse(manifest.uri).fsPath);
+    try {
+      const result = await withTimeout(
+        findReplacementOpportunities({ rootPath }),
+        ANALYSIS_TIMEOUT_MS,
+      );
+      return replacementsFromFindings(result.findings);
+    } catch {
+      return [];
+    }
   }
 
   /**

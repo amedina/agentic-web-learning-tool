@@ -17,7 +17,6 @@ import {
   computeTotals,
   createInitialReport,
   emptyVulnerabilityTotals,
-  replacementsFromAnalysis,
   summarizeProjectAnalysis,
   type SuppressionPredicates,
 } from "./projectHealthReport";
@@ -56,6 +55,13 @@ export interface ProjectHealthRunnerDeps {
   fetchVulnerabilities: VulnerabilityFetcher;
   /** Per-dependency license-issue lookup. */
   fetchLicenseIssue: LicenseFetcher;
+  /**
+   * Per-manifest replacement-opportunity lookup. Cheap (manifest match,
+   * no madge/publint), so it runs in the fast dependency pass.
+   */
+  fetchReplaceable: (
+    manifest: ParsedManifest,
+  ) => Promise<ReplaceableSuggestion[]>;
   /** Runs project-level analysis (publint + circular) for one manifest. */
   analyzeManifest: (
     manifest: ParsedManifest,
@@ -277,6 +283,25 @@ export async function runProjectHealth(
         );
       },
     );
+
+    // Replacement opportunities are a dependency concern (which deps to
+    // swap), so they are computed here in the fast pass rather than with
+    // the slower publint / circular analysis.
+    await mapWithConcurrency(
+      manifests,
+      concurrency,
+      async (manifest) => {
+        try {
+          replaceableByUri.set(
+            manifest.uri,
+            await deps.fetchReplaceable(manifest),
+          );
+        } catch {
+          replaceableByUri.set(manifest.uri, []);
+        }
+      },
+      options.signal,
+    );
     fastPassCompletedAt = clock();
   }
 
@@ -301,13 +326,8 @@ export async function runProjectHealth(
             manifest.uri,
             analysis ? summarizeProjectAnalysis(analysis) : null,
           );
-          replaceableByUri.set(
-            manifest.uri,
-            analysis ? replacementsFromAnalysis(analysis) : [],
-          );
         } catch {
           analysisByUri.set(manifest.uri, null);
-          replaceableByUri.set(manifest.uri, []);
         }
         analyzedManifests.add(manifest.uri);
       },
@@ -374,7 +394,8 @@ function assemblePackages(
       projectAnalysis: includeProjectAnalysis
         ? (analysisByUri.get(manifest.uri) ?? null)
         : (base?.projectAnalysis ?? null),
-      replaceable: includeProjectAnalysis
+      // Replaceable is now part of the fast (dependencies) pass.
+      replaceable: includeDependencies
         ? (replaceableByUri.get(manifest.uri) ?? [])
         : [...(base?.replaceable ?? [])],
       status: "pending",

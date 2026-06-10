@@ -2,7 +2,10 @@
  * External dependencies.
  */
 import type { PackageStats } from "@agentic-web-labs/package-analyzer-core";
-import type { ProjectAnalysis } from "@agentic-web-labs/project-analyzer-core";
+import type {
+  ProjectAnalysis,
+  ProjectFinding,
+} from "@agentic-web-labs/project-analyzer-core";
 
 /**
  * Internal dependencies.
@@ -150,7 +153,18 @@ export function summarizeProjectAnalysis(
 export function replacementsFromAnalysis(
   analysis: ProjectAnalysis,
 ): ReplaceableSuggestion[] {
-  return analysis.findings
+  return replacementsFromFindings(analysis.findings);
+}
+
+/**
+ * Maps the `replacements` project findings into ReplaceableSuggestions.
+ * Shared by the full-analysis path and the standalone replacement scan
+ * used by the fast dependency pass.
+ */
+export function replacementsFromFindings(
+  findings: ProjectFinding[],
+): ReplaceableSuggestion[] {
+  return findings
     .filter((finding) => finding.source === "replacements")
     .map((finding) => {
       const data = (finding.data ?? {}) as {
@@ -197,7 +211,7 @@ export function computeTotals(
   let suppressedCount = 0;
 
   for (const entry of packages) {
-    replaceableCount += entry.projectAnalysis?.replaceableCount ?? 0;
+    replaceableCount += entry.replaceable.length;
     for (const vulnerability of entry.vulnerabilities) {
       const key = `${vulnerability.packageName}@${vulnerability.version}::${vulnerability.id}`;
       if (seenVulns.has(key)) {

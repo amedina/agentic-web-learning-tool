@@ -21,9 +21,10 @@ interface RowBadgesProps {
 
 /**
  * The compact badge cluster shown on a collapsed row. On the Dependencies
- * sub-tab it shows the severity-split vulnerability counts and the license
- * issue count; on the Project Analysis sub-tab it shows the project-level
- * publint, circular, and replaceable counts (once the analysis has run).
+ * sub-tab it shows the severity-split vulnerability counts, the license
+ * issue count, and the replaceable-dependency count; on the Project
+ * Analysis sub-tab it shows the publint and circular counts (once the
+ * analysis has run).
  */
 export const RowBadges: FC<RowBadgesProps> = ({
   scope,
@@ -43,6 +44,16 @@ export const RowBadges: FC<RowBadgesProps> = ({
               : "license issues"
           }
           tone="warning"
+        />
+        <CountBadge
+          icon={<Recycle size={10} />}
+          count={entry.replaceable.length}
+          label={
+            entry.replaceable.length === 1
+              ? "replaceable dependency (lighter alternative available)"
+              : "replaceable dependencies (lighter alternatives available)"
+          }
+          tone="info"
         />
       </>
     );
@@ -73,16 +84,6 @@ export const RowBadges: FC<RowBadgesProps> = ({
             : "circular dependencies"
         }
         tone="warning"
-      />
-      <CountBadge
-        icon={<Recycle size={10} />}
-        count={projectAnalysis.replaceableCount}
-        label={
-          projectAnalysis.replaceableCount === 1
-            ? "replaceable dependency (lighter alternative available)"
-            : "replaceable dependencies (lighter alternatives available)"
-        }
-        tone="info"
       />
     </>
   );

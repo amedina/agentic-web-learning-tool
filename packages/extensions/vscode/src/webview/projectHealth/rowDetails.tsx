@@ -87,9 +87,7 @@ export const RowDetails: FC<RowDetailsProps> = ({
               ))}
             </ul>
           </FindingSummaryBox>
-        </div>
-      ) : (
-        <>
+
           <FindingSummaryBox
             icon={<Recycle size={14} />}
             label="Replaceable dependencies"
@@ -162,21 +160,21 @@ export const RowDetails: FC<RowDetailsProps> = ({
               ))}
             </ul>
           </FindingSummaryBox>
-
-          <section className="rounded border border-slate-200 dark:border-slate-800">
-            <ProjectAnalysisTab
-              activeFile={packageJsonFile}
-              postRunRequest={actions.postRunRequest}
-              postCacheRequest={actions.postCacheRequest}
-              postReveal={actions.postReveal}
-              postCopyPrompt={actions.postCopyPrompt}
-              postSetupMcp={actions.postSetupMcp}
-              hideFixWithAi
-              hideReplacements
-              hideHeader
-            />
-          </section>
-        </>
+        </div>
+      ) : (
+        <section className="rounded border border-slate-200 dark:border-slate-800">
+          <ProjectAnalysisTab
+            activeFile={packageJsonFile}
+            postRunRequest={actions.postRunRequest}
+            postCacheRequest={actions.postCacheRequest}
+            postReveal={actions.postReveal}
+            postCopyPrompt={actions.postCopyPrompt}
+            postSetupMcp={actions.postSetupMcp}
+            hideFixWithAi
+            hideReplacements
+            hideHeader
+          />
+        </section>
       )}
 
       <button

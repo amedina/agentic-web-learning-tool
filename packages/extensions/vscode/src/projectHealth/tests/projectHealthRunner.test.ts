@@ -67,6 +67,7 @@ function makeDeps(
     resolveVersionKey: vi.fn((_, dep) => Promise.resolve(dep.range)),
     fetchVulnerabilities,
     fetchLicenseIssue: fetchLicenseIssue ?? vi.fn().mockResolvedValue(null),
+    fetchReplaceable: vi.fn().mockResolvedValue([]),
     analyzeManifest:
       analyzeManifest ??
       vi.fn((manifestArg) => Promise.resolve(emptyAnalysis(manifestArg.uri))),

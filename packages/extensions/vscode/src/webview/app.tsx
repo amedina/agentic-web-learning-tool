@@ -117,6 +117,10 @@ export const App: FC<AppProps> = ({
     prefetchedStats: Record<string, PackageStats | null>;
   } | null>(null);
   const [focusPackageName, setFocusPackageName] = useState<string | null>(null);
+  // Bumped on every focus request so re-triggering "Show full insights"
+  // for the same package re-runs the scroll effect (a repeat name alone
+  // would not change state and the effect would not re-fire).
+  const [focusTick, setFocusTick] = useState(0);
   // Drives the refresh-button spinner. Set true on click, cleared when the
   // host responds with a new init (i.e. cache.clearAll has completed and
   // the new dependency payload is in hand).
@@ -173,10 +177,12 @@ export const App: FC<AppProps> = ({
         // makes sense in the per-package view, so switch back to it.
         if (data.focusPackageName) {
           setViewMode("package");
+          setFocusTick((tick) => tick + 1);
         }
       } else if (data.type === "focusPackage") {
         setViewMode("package");
         setFocusPackageName(data.packageName);
+        setFocusTick((tick) => tick + 1);
       } else if (data.type === "projectHealth") {
         // Streamed progress + the terminal snapshot for a workspace run.
         setProjectHealthReport(data.report);
@@ -211,15 +217,27 @@ export const App: FC<AppProps> = ({
     if (!focusPackageName) {
       return;
     }
-    // Two rAF ticks so the row has time to mount after deps arrive.
-    const rafA = requestAnimationFrame(() => {
-      const rafB = requestAnimationFrame(() => {
-        focusRow(focusPackageName);
-        cancelAnimationFrame(rafB);
-      });
-      cancelAnimationFrame(rafA);
-    });
-  }, [focusPackageName, initState?.packageJsonDependencies]);
+    // Retry across a few frames so the scroll lands even when switching
+    // from the Project Health view (DependenciesTab mounts a render or
+    // two later, after the mode switch). Stops as soon as the row is
+    // found, or after a short budget.
+    let attempts = 0;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const tryFocus = (): void => {
+      attempts += 1;
+      const found = focusRow(focusPackageName);
+      if (!found && attempts < 10) {
+        timer = setTimeout(tryFocus, 120);
+      }
+    };
+    const raf = requestAnimationFrame(tryFocus);
+    return () => {
+      cancelAnimationFrame(raf);
+      if (timer !== undefined) {
+        clearTimeout(timer);
+      }
+    };
+  }, [focusPackageName, focusTick, initState?.packageJsonDependencies]);
 
   const handleAddRecommendation = useCallback((name: string) => {
     noopAddRef.current(name);
@@ -382,19 +400,20 @@ export const App: FC<AppProps> = ({
 /**
  * Locates the accordion trigger for the named package via its title
  * attribute, scrolls it into view, and clicks it open if it isn't
- * already. Falls back to a no-op if analyzer-ui's row markup ever
- * stops emitting the title attribute we rely on.
+ * already. Returns true when the row was found (so the caller can stop
+ * retrying), false otherwise (e.g. the row has not mounted yet).
  */
-function focusRow(packageName: string): void {
+function focusRow(packageName: string): boolean {
   const trigger = Array.from(
     document.querySelectorAll<HTMLElement>("[title]"),
   ).find((node) => node.getAttribute("title") === packageName);
   if (!trigger) {
-    return;
+    return false;
   }
   trigger.scrollIntoView({ behavior: "smooth", block: "start" });
   const button = trigger.closest<HTMLElement>("button[data-state]");
   if (button && button.getAttribute("data-state") === "closed") {
     button.click();
   }
+  return true;
 }
