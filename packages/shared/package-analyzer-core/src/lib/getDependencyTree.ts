@@ -1,7 +1,7 @@
 /**
  * Internal dependencies.
  */
-import { fetchWithCache } from "../utils/fetchWithCache";
+import { fetchFromRegistry } from "../utils/registryFetch";
 
 export interface DependencyTree {
   name: string;
@@ -46,8 +46,7 @@ export async function getDependencyTree(
   visited.add(packageName);
 
   try {
-    const url = `https://registry.npmjs.org/${packageName}/${version}`;
-    const data = await fetchWithCache(url, undefined, signal);
+    const data = await fetchFromRegistry(`/${packageName}/${version}`, signal);
 
     if (!data) {
       throw new Error(`Failed to fetch package data for ${packageName}`);
