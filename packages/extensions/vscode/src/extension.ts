@@ -125,6 +125,7 @@ export function activate(context: vscode.ExtensionContext): void {
     settingsProvider: readSettings,
     reportCache: projectHealthCache,
     suppressionStore,
+    projectAnalysisCache,
   });
   context.subscriptions.push(projectHealthController);
 

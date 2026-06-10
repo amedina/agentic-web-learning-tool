@@ -8,6 +8,7 @@ import { analyzeProject } from "@agentic-web-labs/project-analyzer-core";
 /**
  * Internal dependencies.
  */
+import type { ProjectAnalysisCache } from "../diagnostics/projectAnalysisCache";
 import type { NpmAdvisorSettings } from "../diagnostics/settings";
 import type { LockfileResolver } from "../workspace/lockfileResolver";
 import type { PackageJsonScanner } from "../workspace/packageJsonScanner";
@@ -40,6 +41,13 @@ export interface ProjectHealthControllerDeps {
   settingsProvider: () => NpmAdvisorSettings;
   reportCache: ProjectHealthCache;
   suppressionStore: SuppressionStore;
+  /**
+   * Shared with the single-package project-analysis path. The run stores
+   * each manifest's full analysis here so expanding a Project Health row
+   * shows the rich publint / circular / replacement view instantly,
+   * without re-running the analyzer per package.
+   */
+  projectAnalysisCache: ProjectAnalysisCache;
 }
 
 /** Options that vary per `run` invocation. */
@@ -68,6 +76,7 @@ export class ProjectHealthController implements vscode.Disposable {
   private readonly settingsProvider: () => NpmAdvisorSettings;
   private readonly reportCache: ProjectHealthCache;
   private readonly suppressionStore: SuppressionStore;
+  private readonly projectAnalysisCache: ProjectAnalysisCache;
   private readonly emitter = new vscode.EventEmitter<ProjectHealthReport>();
   private active: {
     abort: AbortController;
@@ -84,6 +93,7 @@ export class ProjectHealthController implements vscode.Disposable {
     this.settingsProvider = deps.settingsProvider;
     this.reportCache = deps.reportCache;
     this.suppressionStore = deps.suppressionStore;
+    this.projectAnalysisCache = deps.projectAnalysisCache;
   }
 
   /** True while a run is in flight. */
@@ -247,10 +257,14 @@ export class ProjectHealthController implements vscode.Disposable {
   private async analyzeManifest(manifest: ParsedManifest) {
     const rootPath = path.dirname(vscode.Uri.parse(manifest.uri).fsPath);
     try {
-      return await withTimeout(
+      const analysis = await withTimeout(
         analyzeProject({ rootPath, publintMode: "source" }),
         ANALYSIS_TIMEOUT_MS,
       );
+      // Populate the shared cache so expanding a row renders the rich
+      // project-analysis view immediately instead of re-running publint.
+      this.projectAnalysisCache.set(rootPath, analysis);
+      return analysis;
     } catch {
       return null;
     }

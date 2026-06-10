@@ -293,6 +293,13 @@ export const App: FC<AppProps> = ({
               suppressions={suppressions}
               onMute={onMuteFinding}
               onUnmute={onUnmuteFinding}
+              projectAnalysisActions={{
+                postRunRequest: onRunProjectAnalysis,
+                postCacheRequest: onGetCachedProjectAnalysis,
+                postReveal: onRevealFinding,
+                postCopyPrompt: onCopyToClipboard,
+                postSetupMcp: onSetupMcp,
+              }}
             />
           </div>
         ) : (

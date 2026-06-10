@@ -7,6 +7,10 @@ import { useState, type FC } from "react";
  * Internal dependencies.
  */
 import { PackageHealthList } from "./packageHealthList";
+import {
+  ProjectAnalysisActionsProvider,
+  type ProjectAnalysisActions,
+} from "./projectAnalysisActionsContext";
 import { ProjectHealthHeader } from "./projectHealthHeader";
 import { SuppressionProvider } from "./suppressionContext";
 import type { ListFilter } from "./helpers";
@@ -34,6 +38,8 @@ interface ProjectHealthViewProps {
   onMute: (target: MuteTarget, reason?: string) => void;
   /** Remove an existing mute so the finding is shown again. */
   onUnmute: (target: MuteTarget) => void;
+  /** Callbacks for the per-package project analysis embedded in each row. */
+  projectAnalysisActions: ProjectAnalysisActions;
 }
 
 /**
@@ -53,6 +59,7 @@ export const ProjectHealthView: FC<ProjectHealthViewProps> = ({
   suppressions,
   onMute,
   onUnmute,
+  projectAnalysisActions,
 }) => {
   const [filter, setFilter] = useState<ListFilter>("all");
   const showList =
@@ -60,24 +67,26 @@ export const ProjectHealthView: FC<ProjectHealthViewProps> = ({
 
   return (
     <SuppressionProvider value={{ suppressions, onMute, onUnmute }}>
-      <div className="flex flex-col gap-3 p-4">
-        <ProjectHealthHeader
-          report={report}
-          isRunning={isRunning}
-          onRun={onRun}
-          onCancel={onCancel}
-          activeFilter={filter}
-          onFilterChange={setFilter}
-        />
-        {showList ? (
-          <PackageHealthList
-            packages={report.packages}
-            filter={filter}
-            onClearFilter={() => setFilter("all")}
-            onOpenPackageJson={onOpenPackageJson}
+      <ProjectAnalysisActionsProvider value={projectAnalysisActions}>
+        <div className="flex flex-col gap-3 p-4">
+          <ProjectHealthHeader
+            report={report}
+            isRunning={isRunning}
+            onRun={onRun}
+            onCancel={onCancel}
+            activeFilter={filter}
+            onFilterChange={setFilter}
           />
-        ) : null}
-      </div>
+          {showList ? (
+            <PackageHealthList
+              packages={report.packages}
+              filter={filter}
+              onClearFilter={() => setFilter("all")}
+              onOpenPackageJson={onOpenPackageJson}
+            />
+          ) : null}
+        </div>
+      </ProjectAnalysisActionsProvider>
     </SuppressionProvider>
   );
 };
