@@ -12,6 +12,7 @@ import {
  * Internal dependencies
  */
 import { storageService } from "./storage";
+import { persistentStatsCache } from "./persistentStatsCache";
 
 /**
  * How long a cached PackageStats entry stays fresh before being re-fetched.
@@ -166,6 +167,13 @@ class PackageStatsService {
           } else {
             this.statsCache.set(packageName, stats);
             this.statsCacheTimestamps.set(packageName, Date.now());
+            // Write through to the persistent last-resort cache (fire and
+            // forget) so a later registry outage can still serve this data.
+            // Only full, non-degraded results are worth persisting; a null
+            // (unpublished / 404) is not.
+            if (stats) {
+              void persistentStatsCache.set(packageName, stats);
+            }
           }
           return stats;
         } catch (err) {
@@ -182,6 +190,36 @@ class PackageStatsService {
     }
 
     return statsData instanceof Promise ? await statsData : statsData;
+  }
+
+  /**
+   * Like {@link getStats}, but when the live fetch fails entirely (every
+   * registry rate-limited or unreachable), falls back to the persistent
+   * last-resort cache instead of throwing. Returns whether the data is stale
+   * and, when it is, the timestamp it was saved so the side panel can tell the
+   * user they're looking at a saved copy.
+   */
+  async getStatsResilient(packageName: string): Promise<{
+    stats: PackageStats | null;
+    stale: boolean;
+    staleAt?: number;
+  }> {
+    try {
+      const stats = await this.getStats(packageName);
+      return { stats, stale: false };
+    } catch (error) {
+      const cached = await persistentStatsCache.get(packageName);
+      if (cached) {
+        console.warn(
+          `[NPM Advisor] Live fetch failed for ${packageName}; serving saved copy from ${new Date(
+            cached.savedAt,
+          ).toISOString()}.`,
+          error,
+        );
+        return { stats: cached.stats, stale: true, staleAt: cached.savedAt };
+      }
+      throw error;
+    }
   }
 
   /**

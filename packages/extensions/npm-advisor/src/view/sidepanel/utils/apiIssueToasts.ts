@@ -24,6 +24,7 @@ export const ADVISORY_COVERAGE_DEGRADED_MESSAGE =
 let issuesToastShown = false;
 let bundleToastShown = false;
 let advisoryCoverageToastShown = false;
+let staleStatsToastShown = false;
 
 /**
  * Surfaces a soft, non-actionable notice that GitHub's Search API throttled
@@ -75,6 +76,56 @@ export function showAdvisoryCoverageDegradedToastOnce(): void {
 }
 
 /**
+ * Formats a saved-at timestamp into a short, human relative string
+ * (e.g. "3 hours ago"). Falls back to an empty string for a missing or
+ * future timestamp so the caller can append it conditionally.
+ */
+function formatRelativeTime(timestamp?: number): string {
+  if (!timestamp) {
+    return "";
+  }
+  const elapsedMs = Date.now() - timestamp;
+  if (elapsedMs < 0) {
+    return "";
+  }
+  const minutes = Math.floor(elapsedMs / 60000);
+  if (minutes < 1) {
+    return "just now";
+  }
+  if (minutes < 60) {
+    return `${minutes} minute${minutes === 1 ? "" : "s"} ago`;
+  }
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) {
+    return `${hours} hour${hours === 1 ? "" : "s"} ago`;
+  }
+  const days = Math.floor(hours / 24);
+  return `${days} day${days === 1 ? "" : "s"} ago`;
+}
+
+/**
+ * Surfaces a notice that the live registries were all unreachable so the panel
+ * is showing the last saved copy of this package's data. Fires once per session
+ * and, when known, mentions how old the saved copy is so the user understands
+ * the figures may be out of date.
+ */
+export function showStaleStatsToastOnce(staleAt?: number): void {
+  if (staleStatsToastShown) {
+    return;
+  }
+  staleStatsToastShown = true;
+  const savedAgo = formatRelativeTime(staleAt);
+  const suffix = savedAgo ? ` (saved ${savedAgo})` : "";
+  toast.warning(
+    `The npm registry and its mirrors are unavailable right now, so this is the last saved copy of the data${suffix}. Refresh once they recover for the latest.`,
+    {
+      duration: 8000,
+      closeButton: true,
+    },
+  );
+}
+
+/**
  * Single entry point the side panel calls whenever fresh stats resolve. It
  * inspects every API-issue flag on the result and raises the matching deduped
  * notification, so an upstream limit or failure always tells the user what
@@ -109,4 +160,5 @@ export function __resetApiIssueToastsForTests(): void {
   issuesToastShown = false;
   bundleToastShown = false;
   advisoryCoverageToastShown = false;
+  staleStatsToastShown = false;
 }

@@ -11,6 +11,7 @@ import {
   notifyApiIssues,
   showBundleUnavailableToastOnce,
   showGithubIssuesUnavailableToastOnce,
+  showStaleStatsToastOnce,
   __resetApiIssueToastsForTests,
   BUNDLE_UNAVAILABLE_MESSAGE,
   GITHUB_ISSUES_UNAVAILABLE_MESSAGE,
@@ -93,5 +94,24 @@ describe("apiIssueToasts", () => {
     showGithubIssuesUnavailableToastOnce();
     showGithubIssuesUnavailableToastOnce();
     expect(toast.warning).toHaveBeenCalledTimes(2);
+  });
+
+  it("warns once when serving a stale saved copy and fires only once", () => {
+    showStaleStatsToastOnce();
+    showStaleStatsToastOnce();
+    expect(toast.warning).toHaveBeenCalledTimes(1);
+    expect(toast.warning).toHaveBeenCalledWith(
+      expect.stringContaining("last saved copy"),
+      expect.objectContaining({ closeButton: true }),
+    );
+  });
+
+  it("includes how old the saved copy is when a timestamp is known", () => {
+    const threeHoursAgo = Date.now() - 3 * 60 * 60 * 1000;
+    showStaleStatsToastOnce(threeHoursAgo);
+    expect(toast.warning).toHaveBeenCalledWith(
+      expect.stringContaining("saved 3 hours ago"),
+      expect.objectContaining({ closeButton: true }),
+    );
   });
 });

@@ -87,11 +87,15 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     sendResponse({ status: "prefetching" });
   }
 
-  // 2. Get Package Stats (with cache)
+  // 2. Get Package Stats (with cache). Uses the resilient read so that when
+  // every registry is rate-limited or unreachable the side panel still gets
+  // the last saved copy (flagged stale) instead of a hard error.
   else if (request.type === "GET_STATS" && request.packageName) {
     packageStatsService
-      .getStats(request.packageName)
-      .then((stats) => sendResponse({ success: true, data: stats }))
+      .getStatsResilient(request.packageName)
+      .then(({ stats, stale, staleAt }) =>
+        sendResponse({ success: true, data: stats, stale, staleAt }),
+      )
       .catch((err) => sendResponse({ success: false, error: err.message }));
     return true;
   }

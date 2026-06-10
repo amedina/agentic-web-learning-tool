@@ -8,7 +8,10 @@ import { clearDependencyStatsCache } from "@agentic-web-labs/package-analyzer-ui
 /**
  * Internal dependencies.
  */
-import { notifyApiIssues } from "../utils/apiIssueToasts";
+import {
+  notifyApiIssues,
+  showStaleStatsToastOnce,
+} from "../utils/apiIssueToasts";
 
 export interface PackageJsonDependencies {
   dependencies: string[];
@@ -295,11 +298,15 @@ export const usePackageStats = () => {
               if (response.data) {
                 // Don't cache rate-limited, search-throttled, or
                 // bundle-unavailable results so the next visit retries once the
-                // limit resets or the user adds a token.
+                // limit resets or the user adds a token. A `stale` result is a
+                // saved copy served because every registry was unreachable —
+                // also skip caching it so the next visit re-attempts a live
+                // fetch.
                 if (
                   !response.data.githubRateLimited &&
                   !response.data.githubIssuesUnavailable &&
-                  !response.data.bundleUnavailable
+                  !response.data.bundleUnavailable &&
+                  !response.stale
                 ) {
                   urlCache.set(url, {
                     stats: response.data,
@@ -310,6 +317,9 @@ export const usePackageStats = () => {
                   });
                 }
                 setStats(response.data);
+                if (response.stale) {
+                  showStaleStatsToastOnce(response.staleAt);
+                }
               } else {
                 // Package isn't published / npm returned 404 — that's a
                 // benign state, not a failure. Surface it through `notice`
