@@ -12,11 +12,15 @@ const SEVERITY_RANK: Record<AdvisorySeverity, number> = {
   low: 1,
 };
 
+/** Whether to run the workspace-wide Project Health analysis on a schedule. */
+export type ProjectHealthAutoRun = "off" | "daily";
+
 export interface NpmAdvisorSettings {
   targetLicense: string;
   unmaintainedThresholdDays: number;
   advisorySeverityFloor: AdvisorySeverity;
   outdatedMajorThreshold: number;
+  projectHealthAutoRun: ProjectHealthAutoRun;
 }
 
 /**
@@ -38,6 +42,10 @@ export function readSettings(): NpmAdvisorSettings {
       "high",
     ),
     outdatedMajorThreshold: config.get<number>("outdatedMajorThreshold", 2),
+    projectHealthAutoRun: config.get<ProjectHealthAutoRun>(
+      "projectHealth.autoRun",
+      "off",
+    ),
   };
 }
 

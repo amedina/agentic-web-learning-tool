@@ -20,6 +20,7 @@ const SETTINGS: NpmAdvisorSettings = {
   unmaintainedThresholdDays: 730,
   advisorySeverityFloor: "high",
   outdatedMajorThreshold: 2,
+  projectHealthAutoRun: "off",
 };
 
 /**

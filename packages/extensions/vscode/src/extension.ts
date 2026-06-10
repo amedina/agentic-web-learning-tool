@@ -32,6 +32,7 @@ import { DiagnosticsRunner } from "./diagnostics/runner";
 import { readSettings } from "./diagnostics/settings";
 import { ProjectHealthCache } from "./projectHealth/projectHealthCache";
 import { ProjectHealthController } from "./projectHealth/projectHealthController";
+import { ProjectHealthScheduler } from "./projectHealth/projectHealthScheduler";
 import { SuppressionStore } from "./projectHealth/suppressionStore";
 import { PackageJsonHoverProvider } from "./providers/hoverProvider";
 import {
@@ -126,6 +127,21 @@ export function activate(context: vscode.ExtensionContext): void {
     suppressionStore,
   });
   context.subscriptions.push(projectHealthController);
+
+  // Optional daily auto-run: checks on activation and once an hour while
+  // the window is open, running only when the user opted into "daily".
+  const projectHealthScheduler = new ProjectHealthScheduler({
+    controller: projectHealthController,
+    settingsProvider: readSettings,
+  });
+  context.subscriptions.push(projectHealthScheduler);
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand("npmAdvisor.runProjectHealth", async () => {
+      await vscode.commands.executeCommand(`${WEBVIEW_VIEW_ID}.focus`);
+      void projectHealthController.run();
+    }),
+  );
 
   const bridge = new WebviewBridge({
     cache,
@@ -260,6 +276,9 @@ export function activate(context: vscode.ExtensionContext): void {
         return;
       }
       void runner.refreshOpenPackageJsons();
+      // Re-evaluate the schedule immediately when the user flips
+      // projectHealth.autoRun, rather than waiting for the next tick.
+      projectHealthScheduler.checkNow();
     }),
     cache.onDidChange((change) => {
       void runner.refreshOpenPackageJsons();
@@ -284,6 +303,9 @@ export function activate(context: vscode.ExtensionContext): void {
 
   // Seed diagnostics for any package.json the user already has open.
   void runner.refreshOpenPackageJsons();
+
+  // Arm the daily Project Health schedule (no-op unless autoRun is "daily").
+  projectHealthScheduler.start();
 }
 
 /**

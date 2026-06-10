@@ -112,6 +112,11 @@
         "command": "npmAdvisor.runMigrationWizard",
         "title": "NPM Advisor: Run migration wizard (replace deps with lighter alternatives)",
         "category": "NPM Advisor"
+      },
+      {
+        "command": "npmAdvisor.runProjectHealth",
+        "title": "NPM Advisor: Run full Project Health analysis (all package.json files)",
+        "category": "NPM Advisor"
       }
     ],
     "chatParticipants": [
@@ -153,6 +158,19 @@
           "default": 2,
           "minimum": 1,
           "description": "Number of major versions a dependency can be behind the latest published release before NPM Advisor flags it as outdated."
+        },
+        "npmAdvisor.projectHealth.autoRun": {
+          "type": "string",
+          "enum": [
+            "off",
+            "daily"
+          ],
+          "enumDescriptions": [
+            "Never run automatically. You can still run a full analysis from the Project Health view.",
+            "Run a full Project Health analysis once per day and notify you with a summary of any vulnerabilities or license issues."
+          ],
+          "default": "off",
+          "description": "Automatically run the workspace-wide Project Health analysis (vulnerabilities, licenses, and publishing checks across every package.json) on a daily schedule and notify you of the result."
         }
       }
     }
