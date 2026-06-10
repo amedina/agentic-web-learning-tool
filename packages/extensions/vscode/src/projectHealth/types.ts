@@ -160,3 +160,29 @@ export interface ProjectHealthReport {
 export function isTerminalPhase(phase: HealthRunPhase): boolean {
   return phase === "complete" || phase === "error" || phase === "cancelled";
 }
+
+/** The kinds of finding that can be muted. */
+export type SuppressionKind = "vuln" | "license";
+
+/**
+ * Identifies what to mute. For a vulnerability it is the (package,
+ * advisory id) pair, so muting one advisory never hides a different one
+ * for the same package. For a license it is just the package.
+ */
+export interface MuteTarget {
+  kind: SuppressionKind;
+  packageName: string;
+  /** Advisory id for `vuln` targets; omitted for `license`. */
+  id?: string;
+}
+
+/**
+ * A persisted mute. Stored per workspace so a suppression accepted in
+ * one project does not silence the same issue in another.
+ */
+export interface SuppressionEntry extends MuteTarget {
+  /** Optional free-text reason the user gave when muting. */
+  reason?: string;
+  /** `Date.now()` when the mute was created. */
+  mutedAt: number;
+}

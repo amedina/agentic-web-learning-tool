@@ -65,6 +65,15 @@ if (container) {
       onGetCachedProjectHealth={(requestId) =>
         vscodeApi.postMessage({ type: "getCachedProjectHealth", requestId })
       }
+      onGetSuppressions={() =>
+        vscodeApi.postMessage({ type: "getSuppressions" })
+      }
+      onMuteFinding={(target, reason) =>
+        vscodeApi.postMessage({ type: "muteFinding", target, reason })
+      }
+      onUnmuteFinding={(target) =>
+        vscodeApi.postMessage({ type: "unmuteFinding", target })
+      }
     />,
   );
 }

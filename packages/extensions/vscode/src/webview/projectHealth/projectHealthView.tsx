@@ -8,9 +8,12 @@ import { type FC } from "react";
  */
 import { PackageHealthList } from "./packageHealthList";
 import { ProjectHealthHeader } from "./projectHealthHeader";
+import { SuppressionProvider } from "./suppressionContext";
 import {
   isTerminalPhase,
+  type MuteTarget,
   type ProjectHealthReport,
+  type SuppressionEntry,
 } from "../../projectHealth/types";
 
 interface ProjectHealthViewProps {
@@ -24,6 +27,12 @@ interface ProjectHealthViewProps {
   onCancel: () => void;
   /** Drill into a manifest by its `vscode.Uri.toString()`. */
   onOpenPackageJson: (uri: string) => void;
+  /** The persisted mutes for this workspace. */
+  suppressions: SuppressionEntry[];
+  /** Mute a finding, optionally recording why it was accepted. */
+  onMute: (target: MuteTarget, reason?: string) => void;
+  /** Remove an existing mute so the finding is shown again. */
+  onUnmute: (target: MuteTarget) => void;
 }
 
 /**
@@ -40,24 +49,29 @@ export const ProjectHealthView: FC<ProjectHealthViewProps> = ({
   onRun,
   onCancel,
   onOpenPackageJson,
+  suppressions,
+  onMute,
+  onUnmute,
 }) => {
   const showList =
     report !== null && isTerminalPhase(report.phase) && !isRunning;
 
   return (
-    <div className="flex flex-col gap-3 p-4">
-      <ProjectHealthHeader
-        report={report}
-        isRunning={isRunning}
-        onRun={onRun}
-        onCancel={onCancel}
-      />
-      {showList ? (
-        <PackageHealthList
-          packages={report.packages}
-          onOpenPackageJson={onOpenPackageJson}
+    <SuppressionProvider value={{ suppressions, onMute, onUnmute }}>
+      <div className="flex flex-col gap-3 p-4">
+        <ProjectHealthHeader
+          report={report}
+          isRunning={isRunning}
+          onRun={onRun}
+          onCancel={onCancel}
         />
-      ) : null}
-    </div>
+        {showList ? (
+          <PackageHealthList
+            packages={report.packages}
+            onOpenPackageJson={onOpenPackageJson}
+          />
+        ) : null}
+      </div>
+    </SuppressionProvider>
   );
 };

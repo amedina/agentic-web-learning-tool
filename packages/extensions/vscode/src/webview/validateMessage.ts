@@ -32,6 +32,9 @@ const ALLOWED_TYPES: ReadonlySet<WebviewRequest["type"]> = new Set([
   "runProjectHealth",
   "cancelProjectHealth",
   "getCachedProjectHealth",
+  "muteFinding",
+  "unmuteFinding",
+  "getSuppressions",
 ] as const);
 
 /**
@@ -91,6 +94,7 @@ export function validateWebviewMessage(
     case "setupMcp":
     case "runProjectHealth":
     case "cancelProjectHealth":
+    case "getSuppressions":
       return { ok: true, message: message as WebviewRequest };
 
     case "getCachedProjectHealth": {
@@ -99,6 +103,21 @@ export function validateWebviewMessage(
           ok: false,
           reason: "getCachedProjectHealth missing requestId",
         };
+      }
+      return { ok: true, message: message as WebviewRequest };
+    }
+
+    case "muteFinding":
+    case "unmuteFinding": {
+      if (!isMuteTarget(message.target)) {
+        return { ok: false, reason: `${type} has an invalid target` };
+      }
+      if (
+        type === "muteFinding" &&
+        message.reason !== undefined &&
+        !isString(message.reason)
+      ) {
+        return { ok: false, reason: "muteFinding has a non-string reason" };
       }
       return { ok: true, message: message as WebviewRequest };
     }
@@ -262,6 +281,27 @@ function isRangeShape(value: unknown): value is {
 /** True for a finite, non-negative number. */
 function isNonNegativeFinite(value: unknown): value is number {
   return typeof value === "number" && Number.isFinite(value) && value >= 0;
+}
+
+/**
+ * Validates a mute target: an object with a known `kind`, a non-empty
+ * `packageName`, and (for vulnerabilities) an optional string `id`.
+ */
+function isMuteTarget(value: unknown): boolean {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+  const target = value as Record<string, unknown>;
+  if (target.kind !== "vuln" && target.kind !== "license") {
+    return false;
+  }
+  if (!isNonEmptyString(target.packageName)) {
+    return false;
+  }
+  if (target.id !== undefined && !isString(target.id)) {
+    return false;
+  }
+  return true;
 }
 
 /**

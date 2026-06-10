@@ -19,11 +19,17 @@ import {
 import { readManifest } from "./manifestReader";
 import type { ProjectHealthCache } from "./projectHealthCache";
 import { notifyReportSummary } from "./projectHealthNotifications";
+import { computeTotals } from "./projectHealthReport";
 import {
   runProjectHealth,
   type ProjectHealthRunnerDeps,
 } from "./projectHealthRunner";
-import type { ProjectHealthReport } from "./types";
+import type { SuppressionStore } from "./suppressionStore";
+import type {
+  MuteTarget,
+  ProjectHealthReport,
+  SuppressionEntry,
+} from "./types";
 
 /** Upper bound on a single manifest's project-level analysis. */
 const ANALYSIS_TIMEOUT_MS = 60_000;
@@ -33,6 +39,7 @@ export interface ProjectHealthControllerDeps {
   lockfileResolver: LockfileResolver;
   settingsProvider: () => NpmAdvisorSettings;
   reportCache: ProjectHealthCache;
+  suppressionStore: SuppressionStore;
 }
 
 /** Options that vary per `run` invocation. */
@@ -60,6 +67,7 @@ export class ProjectHealthController implements vscode.Disposable {
   private readonly lockfileResolver: LockfileResolver;
   private readonly settingsProvider: () => NpmAdvisorSettings;
   private readonly reportCache: ProjectHealthCache;
+  private readonly suppressionStore: SuppressionStore;
   private readonly emitter = new vscode.EventEmitter<ProjectHealthReport>();
   private active: {
     abort: AbortController;
@@ -75,6 +83,7 @@ export class ProjectHealthController implements vscode.Disposable {
     this.lockfileResolver = deps.lockfileResolver;
     this.settingsProvider = deps.settingsProvider;
     this.reportCache = deps.reportCache;
+    this.suppressionStore = deps.suppressionStore;
   }
 
   /** True while a run is in flight. */
@@ -110,6 +119,45 @@ export class ProjectHealthController implements vscode.Disposable {
   /** True when a fresh run is due per the durable cache's freshness window. */
   isRunDue(dueAfterMs?: number): boolean {
     return this.reportCache.isRunDue(this.workspaceKey(), dueAfterMs);
+  }
+
+  /** Returns the current suppression entries for this workspace. */
+  suppressions(): SuppressionEntry[] {
+    return this.suppressionStore.list();
+  }
+
+  /** Mutes a finding, then recomputes and re-broadcasts the cached report. */
+  async mute(entry: SuppressionEntry): Promise<void> {
+    await this.suppressionStore.add(entry);
+    this.recomputeCachedReport();
+  }
+
+  /** Unmutes a finding, then recomputes and re-broadcasts the cached report. */
+  async unmute(target: MuteTarget): Promise<void> {
+    await this.suppressionStore.remove(target);
+    this.recomputeCachedReport();
+  }
+
+  /**
+   * Recomputes the cached report's totals with the current suppressions
+   * and re-broadcasts it, so muting/unmuting updates the panel and the
+   * suppressed count immediately without re-running the analysis.
+   */
+  private recomputeCachedReport(): void {
+    const report = this.getCached();
+    if (!report) {
+      return;
+    }
+    const updated: ProjectHealthReport = {
+      ...report,
+      totals: computeTotals(
+        report.packages,
+        report.totals.uniqueDependencyCount,
+        this.suppressionStore.predicates(),
+      ),
+    };
+    void this.reportCache.set(updated);
+    this.emitter.fire(updated);
   }
 
   /**
@@ -154,6 +202,7 @@ export class ProjectHealthController implements vscode.Disposable {
       workspaceName: this.workspaceName(),
       signal,
       includeProjectAnalysis: options.includeProjectAnalysis ?? true,
+      suppression: this.suppressionStore.predicates(),
       onProgress: (snapshot) => this.emitter.fire(snapshot),
     });
     await this.reportCache.set(report);

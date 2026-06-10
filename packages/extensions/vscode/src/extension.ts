@@ -32,6 +32,7 @@ import { DiagnosticsRunner } from "./diagnostics/runner";
 import { readSettings } from "./diagnostics/settings";
 import { ProjectHealthCache } from "./projectHealth/projectHealthCache";
 import { ProjectHealthController } from "./projectHealth/projectHealthController";
+import { SuppressionStore } from "./projectHealth/suppressionStore";
 import { PackageJsonHoverProvider } from "./providers/hoverProvider";
 import {
   NpmAdvisorWebviewProvider,
@@ -114,11 +115,15 @@ export function activate(context: vscode.ExtensionContext): void {
   // Durable, globalState-backed store for the workspace-wide Project
   // Health report (daily freshness + diff-on-notify + restore on reload).
   const projectHealthCache = new ProjectHealthCache(context.globalState);
+  // Suppressions are workspace-scoped: an issue the user accepts in this
+  // project should not be silenced in a different one.
+  const suppressionStore = new SuppressionStore(context.workspaceState);
   const projectHealthController = new ProjectHealthController({
     scanner,
     lockfileResolver,
     settingsProvider: readSettings,
     reportCache: projectHealthCache,
+    suppressionStore,
   });
   context.subscriptions.push(projectHealthController);
 

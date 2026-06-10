@@ -27,7 +27,9 @@ import type {
 } from "./protocol";
 import {
   isTerminalPhase,
+  type MuteTarget,
   type ProjectHealthReport,
+  type SuppressionEntry,
 } from "../projectHealth/types";
 
 interface AppProps {
@@ -59,6 +61,9 @@ interface AppProps {
   onRunProjectHealth: () => void;
   onCancelProjectHealth: () => void;
   onGetCachedProjectHealth: (requestId: string) => void;
+  onGetSuppressions: () => void;
+  onMuteFinding: (target: MuteTarget, reason?: string) => void;
+  onUnmuteFinding: (target: MuteTarget) => void;
 }
 
 const EMPTY_DEPS: PackageJsonDependenciesPayload = {
@@ -89,11 +94,15 @@ export const App: FC<AppProps> = ({
   onRunProjectHealth,
   onCancelProjectHealth,
   onGetCachedProjectHealth,
+  onGetSuppressions,
+  onMuteFinding,
+  onUnmuteFinding,
 }) => {
   const [viewMode, setViewMode] = useState<ViewMode>("package");
   const [projectHealthReport, setProjectHealthReport] =
     useState<ProjectHealthReport | null>(null);
   const [isProjectHealthRunning, setIsProjectHealthRunning] = useState(false);
+  const [suppressions, setSuppressions] = useState<SuppressionEntry[]>([]);
   const [activeTab, setActiveTab] = useState<ActiveTab>("dependencies");
   const [initState, setInitState] = useState<{
     activeFile: PackageJsonFile | null;
@@ -117,6 +126,8 @@ export const App: FC<AppProps> = ({
   onReadyRef.current = onReady;
   const onGetCachedProjectHealthRef = useRef(onGetCachedProjectHealth);
   onGetCachedProjectHealthRef.current = onGetCachedProjectHealth;
+  const onGetSuppressionsRef = useRef(onGetSuppressions);
+  onGetSuppressionsRef.current = onGetSuppressions;
   const pendingHealthCacheRequestIdRef = useRef<string | null>(null);
   // Tracks the refreshKey from the previous init so we can detect a host-side
   // cache wipe and drop useDependencyStats's module-level cache before the
@@ -168,6 +179,8 @@ export const App: FC<AppProps> = ({
           setProjectHealthReport(data.report);
           setIsProjectHealthRunning(!isTerminalPhase(data.report.phase));
         }
+      } else if (data.type === "suppressions") {
+        setSuppressions(data.entries);
       }
     };
     window.addEventListener("message", handle);
@@ -178,6 +191,7 @@ export const App: FC<AppProps> = ({
     const healthRequestId = newRequestId();
     pendingHealthCacheRequestIdRef.current = healthRequestId;
     onGetCachedProjectHealthRef.current(healthRequestId);
+    onGetSuppressionsRef.current();
     return () => window.removeEventListener("message", handle);
   }, []);
 
@@ -276,6 +290,9 @@ export const App: FC<AppProps> = ({
               onRun={handleRunProjectHealth}
               onCancel={handleCancelProjectHealth}
               onOpenPackageJson={onOpenPackageJson}
+              suppressions={suppressions}
+              onMute={onMuteFinding}
+              onUnmute={onUnmuteFinding}
             />
           </div>
         ) : (
