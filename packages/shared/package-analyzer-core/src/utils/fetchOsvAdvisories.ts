@@ -20,7 +20,7 @@ export interface OsvAdvisoryRecord {
   }>;
 }
 
-interface OsvVulnerability {
+export interface OsvVulnerability {
   id?: string;
   summary?: string;
   details?: string;
@@ -181,7 +181,7 @@ async function queryOsv(
   const json = (await response.json()) as { vulns?: OsvVulnerability[] };
   const vulns = Array.isArray(json?.vulns) ? json.vulns : [];
   return vulns
-    .map((vuln) => toAdvisoryRecord(vuln, packageName))
+    .map((vuln) => parseOsvVuln(vuln, packageName))
     .filter((entry): entry is OsvAdvisoryRecord => entry !== null);
 }
 
@@ -189,10 +189,19 @@ async function queryOsv(
  * Map a raw OSV vuln entry into the normalised record used downstream.
  * Returns `null` for entries that carry no usable npm-affected payload,
  * so the caller can drop them with a clean filter.
+ *
+ * Shared between the single-package query path and the batched
+ * `fetchOsvAdvisoriesBatch` detail path so both produce identically
+ * normalised records from one source of truth.
+ *
+ * @param vuln - A raw OSV vuln object (from `/v1/query` or `/v1/vulns/{id}`).
+ * @param fallbackPackageName - Optional npm package name used when the
+ *   vuln carries no `affected[]` payload. The batch detail path omits it
+ *   because the OSV detail document already names the affected packages.
  */
-function toAdvisoryRecord(
+export function parseOsvVuln(
   vuln: OsvVulnerability,
-  packageName: string,
+  fallbackPackageName?: string,
 ): OsvAdvisoryRecord | null {
   const summary =
     vuln.summary?.trim() || vuln.details?.split("\n")[0]?.trim() || "N/A";
@@ -200,7 +209,7 @@ function toAdvisoryRecord(
   const htmlUrl = pickAdvisoryUrl(vuln);
   const ghsaId = pickGhsaId(vuln);
   const canonicalIds = collectCanonicalIds(vuln);
-  const vulnerabilities = buildVulnerabilities(vuln, packageName);
+  const vulnerabilities = buildVulnerabilities(vuln, fallbackPackageName);
   if (vulnerabilities.length === 0) {
     return null;
   }
@@ -331,21 +340,23 @@ function collectCanonicalIds(vuln: OsvVulnerability): string[] {
  */
 function buildVulnerabilities(
   vuln: OsvVulnerability,
-  fallbackPackageName: string,
+  fallbackPackageName?: string,
 ): OsvAdvisoryRecord["vulnerabilities"] {
   const affected = Array.isArray(vuln.affected) ? vuln.affected : [];
   const out: OsvAdvisoryRecord["vulnerabilities"] = [];
   if (affected.length === 0) {
-    out.push({
-      package: { ecosystem: "npm", name: fallbackPackageName },
-      vulnerable_version_range: ">= 0.0.0",
-    });
+    if (fallbackPackageName) {
+      out.push({
+        package: { ecosystem: "npm", name: fallbackPackageName },
+        vulnerable_version_range: ">= 0.0.0",
+      });
+    }
     return out;
   }
   for (const entry of affected) {
     const ecosystem = entry.package?.ecosystem ?? "npm";
     const name = entry.package?.name ?? fallbackPackageName;
-    if (ecosystem.toLowerCase() !== "npm") {
+    if (ecosystem.toLowerCase() !== "npm" || !name) {
       continue;
     }
     const ranges = Array.isArray(entry.ranges) ? entry.ranges : [];

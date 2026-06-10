@@ -77,6 +77,30 @@ describe("validateWebviewMessage - per-type payload", () => {
     ).toBe(false);
   });
 
+  it("accepts getProjectHealthSettings with no payload", () => {
+    expect(
+      validateWebviewMessage({ type: "getProjectHealthSettings" }).ok,
+    ).toBe(true);
+  });
+
+  it("requires a boolean enabled for setProjectHealthAutoRun", () => {
+    expect(
+      validateWebviewMessage({
+        type: "setProjectHealthAutoRun",
+        enabled: true,
+      }).ok,
+    ).toBe(true);
+    expect(
+      validateWebviewMessage({
+        type: "setProjectHealthAutoRun",
+        enabled: "yes",
+      }).ok,
+    ).toBe(false);
+    expect(validateWebviewMessage({ type: "setProjectHealthAutoRun" }).ok).toBe(
+      false,
+    );
+  });
+
   it("requires non-empty text for copyToClipboard and accepts an optional toast", () => {
     expect(
       validateWebviewMessage({

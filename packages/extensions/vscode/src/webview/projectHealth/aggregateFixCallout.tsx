@@ -7,40 +7,73 @@ import { ChevronDown, ChevronRight, Copy, Plug, Sparkles } from "lucide-react";
 /**
  * Internal dependencies.
  */
-import { buildFixPrompt } from "./helpers";
-import type { PostCopyPrompt, PostSetupMcp } from "./types";
+import { buildAggregateFixPrompt } from "./helpers";
+import type { PostCopyPrompt, PostSetupMcp } from "../projectAnalysis/types";
+import type {
+  ProjectHealthReport,
+  ProjectHealthScope,
+  SuppressionEntry,
+} from "../../projectHealth/types";
 
-interface FixWithAiCalloutProps {
-  rootPath: string;
-  publintCount: number;
-  circularCount: number;
+interface AggregateFixCalloutProps {
+  /** Which sub-tab's findings the prompt covers. */
+  scope: ProjectHealthScope;
+  report: ProjectHealthReport;
+  suppressions: SuppressionEntry[];
   postCopyPrompt: PostCopyPrompt;
   postSetupMcp: PostSetupMcp;
 }
 
+/** Scope-specific copy for the callout body, button, and toast. */
+const SCOPE_COPY: Record<
+  ProjectHealthScope,
+  { description: string; button: string; toast: string }
+> = {
+  dependencies: {
+    description:
+      "Copies one prompt covering every package's vulnerabilities and license issues, so your assistant can fix them in a single pass.",
+    button: "Copy dependency fix prompt",
+    toast:
+      "Dependency fix prompt copied. Paste it into Claude Code or your AI assistant.",
+  },
+  project: {
+    description:
+      "Copies one prompt covering every package's publishing, circular-dependency, and replacement issues, so your assistant can fix them in a single pass.",
+    button: "Copy project-analysis fix prompt",
+    toast:
+      "Project-analysis fix prompt copied. Paste it into Claude Code or your AI assistant.",
+  },
+  all: {
+    description:
+      "Copies one prompt covering every package's issues, so your assistant can fix the whole workspace in a single pass.",
+    button: "Copy fix prompt",
+    toast:
+      "Project Health fix prompt copied. Paste it into Claude Code or your AI assistant.",
+  },
+};
+
 /**
- * Collapsible callout above the results that points users at fixing
- * these findings with their AI assistant. Collapsed by default to save
- * space; expanding reveals "Copy prompt" (a ready-to-paste prompt scoped
- * to this project and the issue kinds present) and "Set up MCP" (opens
- * the MCP setup wizard so the assistant can reach the npm-advisor tools).
- * The detection stays read-only; this is the bridge to an actual fix.
+ * A collapsible "fix with AI" callout for one sub-tab. Collapsed by
+ * default to save space; expanding reveals a short explanation plus
+ * "Copy prompt" (which assembles that sub-tab's non-suppressed findings
+ * into one prompt) and "Set up MCP".
  */
-export const FixWithAiCallout: FC<FixWithAiCalloutProps> = ({
-  rootPath,
-  publintCount,
-  circularCount,
+export const AggregateFixCallout: FC<AggregateFixCalloutProps> = ({
+  scope,
+  report,
+  suppressions,
   postCopyPrompt,
   postSetupMcp,
 }) => {
   const [expanded, setExpanded] = useState(false);
+  const copy = SCOPE_COPY[scope];
 
   const handleCopy = useCallback(() => {
     postCopyPrompt(
-      buildFixPrompt(rootPath, publintCount, circularCount),
-      "Fix prompt copied. Paste it into Claude Code or your AI assistant.",
+      buildAggregateFixPrompt(report, suppressions, scope),
+      copy.toast,
     );
-  }, [rootPath, publintCount, circularCount, postCopyPrompt]);
+  }, [report, suppressions, scope, copy.toast, postCopyPrompt]);
 
   return (
     <div className="rounded border border-violet-200 dark:border-violet-900 bg-violet-50/60 dark:bg-violet-950/40 text-xs text-slate-700 dark:text-slate-200">
@@ -66,9 +99,7 @@ export const FixWithAiCallout: FC<FixWithAiCalloutProps> = ({
       {expanded ? (
         <div className="px-3 pb-3 pl-9">
           <div className="text-slate-600 dark:text-slate-300">
-            Send these findings to Claude Code (or any MCP client) via the
-            npm-advisor MCP server to get grouped, root-cause fixes, not
-            file-by-file edits.
+            {copy.description}
           </div>
           <div className="mt-2 flex flex-wrap items-center gap-2">
             <button
@@ -77,7 +108,7 @@ export const FixWithAiCallout: FC<FixWithAiCalloutProps> = ({
               className="inline-flex items-center gap-1 rounded border border-violet-300 dark:border-violet-800 bg-white dark:bg-slate-800 px-2 py-1 font-medium text-violet-700 dark:text-violet-200 hover:bg-violet-100 dark:hover:bg-slate-700"
             >
               <Copy size={12} />
-              Copy prompt
+              {copy.button}
             </button>
             <button
               type="button"

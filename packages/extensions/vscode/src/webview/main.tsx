@@ -56,6 +56,30 @@ if (container) {
       onRevealFinding={(filePath, range) =>
         vscodeApi.postMessage({ type: "revealFinding", filePath, range })
       }
+      onRunProjectHealth={(scope) =>
+        vscodeApi.postMessage({ type: "runProjectHealth", scope })
+      }
+      onCancelProjectHealth={() =>
+        vscodeApi.postMessage({ type: "cancelProjectHealth" })
+      }
+      onGetCachedProjectHealth={(requestId) =>
+        vscodeApi.postMessage({ type: "getCachedProjectHealth", requestId })
+      }
+      onGetSuppressions={() =>
+        vscodeApi.postMessage({ type: "getSuppressions" })
+      }
+      onMuteFinding={(target, reason) =>
+        vscodeApi.postMessage({ type: "muteFinding", target, reason })
+      }
+      onUnmuteFinding={(target) =>
+        vscodeApi.postMessage({ type: "unmuteFinding", target })
+      }
+      onGetProjectHealthSettings={() =>
+        vscodeApi.postMessage({ type: "getProjectHealthSettings" })
+      }
+      onSetProjectHealthAutoRun={(enabled) =>
+        vscodeApi.postMessage({ type: "setProjectHealthAutoRun", enabled })
+      }
     />,
   );
 }

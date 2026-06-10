@@ -29,6 +29,14 @@ const ALLOWED_TYPES: ReadonlySet<WebviewRequest["type"]> = new Set([
   "revealFinding",
   "notify",
   "copyToClipboard",
+  "runProjectHealth",
+  "cancelProjectHealth",
+  "getCachedProjectHealth",
+  "muteFinding",
+  "unmuteFinding",
+  "getSuppressions",
+  "getProjectHealthSettings",
+  "setProjectHealthAutoRun",
 ] as const);
 
 /**
@@ -86,7 +94,58 @@ export function validateWebviewMessage(
     case "ready":
     case "refreshStats":
     case "setupMcp":
+    case "cancelProjectHealth":
+    case "getSuppressions":
+    case "getProjectHealthSettings":
       return { ok: true, message: message as WebviewRequest };
+
+    case "setProjectHealthAutoRun": {
+      if (typeof message.enabled !== "boolean") {
+        return {
+          ok: false,
+          reason: "setProjectHealthAutoRun missing boolean enabled",
+        };
+      }
+      return { ok: true, message: message as WebviewRequest };
+    }
+
+    case "runProjectHealth": {
+      const scope = message.scope;
+      if (
+        scope !== undefined &&
+        scope !== "dependencies" &&
+        scope !== "project" &&
+        scope !== "all"
+      ) {
+        return { ok: false, reason: "runProjectHealth has an invalid scope" };
+      }
+      return { ok: true, message: message as WebviewRequest };
+    }
+
+    case "getCachedProjectHealth": {
+      if (!isNonEmptyString(message.requestId)) {
+        return {
+          ok: false,
+          reason: "getCachedProjectHealth missing requestId",
+        };
+      }
+      return { ok: true, message: message as WebviewRequest };
+    }
+
+    case "muteFinding":
+    case "unmuteFinding": {
+      if (!isMuteTarget(message.target)) {
+        return { ok: false, reason: `${type} has an invalid target` };
+      }
+      if (
+        type === "muteFinding" &&
+        message.reason !== undefined &&
+        !isString(message.reason)
+      ) {
+        return { ok: false, reason: "muteFinding has a non-string reason" };
+      }
+      return { ok: true, message: message as WebviewRequest };
+    }
 
     case "getLightStats": {
       const fieldsOk =
@@ -247,6 +306,27 @@ function isRangeShape(value: unknown): value is {
 /** True for a finite, non-negative number. */
 function isNonNegativeFinite(value: unknown): value is number {
   return typeof value === "number" && Number.isFinite(value) && value >= 0;
+}
+
+/**
+ * Validates a mute target: an object with a known `kind`, a non-empty
+ * `packageName`, and (for vulnerabilities) an optional string `id`.
+ */
+function isMuteTarget(value: unknown): boolean {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+  const target = value as Record<string, unknown>;
+  if (target.kind !== "vuln" && target.kind !== "license") {
+    return false;
+  }
+  if (!isNonEmptyString(target.packageName)) {
+    return false;
+  }
+  if (target.id !== undefined && !isString(target.id)) {
+    return false;
+  }
+  return true;
 }
 
 /**

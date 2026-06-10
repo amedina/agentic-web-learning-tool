@@ -12,6 +12,7 @@ import { CircularDependenciesCard } from "./circularDependenciesCard";
 import { FixWithAiCallout } from "./fixWithAiCallout";
 import { OverallSummary } from "./overallSummary";
 import { PublintCard } from "./publintCard";
+import { ReplacementsCard } from "./replacementsCard";
 import { Warnings } from "./warnings";
 import type {
   ExpandedSection,
@@ -25,6 +26,17 @@ interface ResultsProps {
   postReveal: PostReveal;
   postCopyPrompt: PostCopyPrompt;
   postSetupMcp: PostSetupMcp;
+  /**
+   * Hides the per-project "Fix with AI" callout. Set when the component
+   * is embedded inside a Project Health row, which offers a single
+   * aggregate fix prompt for the whole workspace instead.
+   */
+  hideFixWithAi?: boolean;
+  /**
+   * Hides the replacements card. Set when embedded in a Project Health
+   * row, which shows replaceable dependencies in its own prominent box.
+   */
+  hideReplacements?: boolean;
 }
 
 /**
@@ -39,6 +51,8 @@ export const Results: FC<ResultsProps> = ({
   postReveal,
   postCopyPrompt,
   postSetupMcp,
+  hideFixWithAi = false,
+  hideReplacements = false,
 }) => {
   const publintFindings = useMemo(
     () => analysis.findings.filter((finding) => finding.source === "publint"),
@@ -49,8 +63,16 @@ export const Results: FC<ResultsProps> = ({
       analysis.findings.filter((finding) => finding.source === "circular-deps"),
     [analysis.findings],
   );
+  const replacementFindings = useMemo(
+    () =>
+      analysis.findings.filter((finding) => finding.source === "replacements"),
+    [analysis.findings],
+  );
 
-  const totalSurfaced = publintFindings.length + circularFindings.length;
+  const totalSurfaced =
+    publintFindings.length +
+    circularFindings.length +
+    (hideReplacements ? 0 : replacementFindings.length);
   const [expanded, setExpanded] = useState<ExpandedSection>("none");
 
   const toggle = useCallback((section: ExpandedSection) => {
@@ -59,7 +81,7 @@ export const Results: FC<ResultsProps> = ({
 
   return (
     <div className="flex flex-col gap-3">
-      {totalSurfaced > 0 && (
+      {!hideFixWithAi && totalSurfaced > 0 && (
         <FixWithAiCallout
           rootPath={analysis.rootPath}
           publintCount={publintFindings.length}
@@ -86,6 +108,14 @@ export const Results: FC<ResultsProps> = ({
         expanded={expanded === "circular"}
         onToggle={() => toggle("circular")}
       />
+      {!hideReplacements && replacementFindings.length > 0 && (
+        <ReplacementsCard
+          findings={replacementFindings}
+          postReveal={postReveal}
+          expanded={expanded === "replacements"}
+          onToggle={() => toggle("replacements")}
+        />
+      )}
       {totalSurfaced === 0 && (
         <div className="rounded border border-emerald-300 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950 p-3 text-sm text-emerald-700 dark:text-emerald-300 flex items-start gap-2">
           <ShieldCheck size={16} className="shrink-0 mt-0.5" />
