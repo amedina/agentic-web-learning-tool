@@ -80,6 +80,20 @@ export interface PackageProjectAnalysisSummary {
 export type PackageEnrichmentStatus = "pending" | "fast" | "enriched" | "error";
 
 /**
+ * One e18e replacement opportunity: a dependency that has lighter
+ * alternatives. Carries the suggested replacements so the UI can show
+ * what to use instead, not just a count.
+ */
+export interface ReplaceableSuggestion {
+  /** The dependency that has lighter alternatives. */
+  packageName: string;
+  /** Suggested lighter replacements (package or approach names). */
+  replacements: string[];
+  /** Full human-readable message from the analyzer. */
+  message: string;
+}
+
+/**
  * Everything Project Health knows about one package.json: its identity,
  * its dependency count, the vulnerability + license findings across its
  * dependency closure, and its project-level analysis summary.
@@ -97,6 +111,8 @@ export interface PackageHealthEntry {
   licenseIssues: LicenseFinding[];
   /** Null until the project-level analysis (publint + circular) has run. */
   projectAnalysis: PackageProjectAnalysisSummary | null;
+  /** Replacement suggestions surfaced by project analysis (informational). */
+  replaceable: ReplaceableSuggestion[];
   /** How far analysis has progressed for this package. */
   status: PackageEnrichmentStatus;
   /** Non-fatal messages collected while analyzing this package. */

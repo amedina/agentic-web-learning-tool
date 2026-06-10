@@ -29,6 +29,8 @@ interface ProjectAnalysisTabProps {
   postSetupMcp: PostSetupMcp;
   /** Hides the per-project Fix-with-AI callout (set when embedded in a row). */
   hideFixWithAi?: boolean;
+  /** Hides the replacements card (set when embedded in a Project Health row). */
+  hideReplacements?: boolean;
 }
 
 /**
@@ -45,6 +47,7 @@ export const ProjectAnalysisTab: FC<ProjectAnalysisTabProps> = ({
   postCopyPrompt,
   postSetupMcp,
   hideFixWithAi = false,
+  hideReplacements = false,
 }) => {
   const [status, setStatus] = useState<Status>({ kind: "idle" });
   const [stale, setStale] = useState<StaleState | null>(null);
@@ -194,6 +197,7 @@ export const ProjectAnalysisTab: FC<ProjectAnalysisTabProps> = ({
         postCopyPrompt={postCopyPrompt}
         postSetupMcp={postSetupMcp}
         hideFixWithAi={hideFixWithAi}
+        hideReplacements={hideReplacements}
       />
     </div>
   );

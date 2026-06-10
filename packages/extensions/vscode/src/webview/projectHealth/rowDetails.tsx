@@ -2,11 +2,12 @@
  * External dependencies.
  */
 import { type FC } from "react";
-import { FileJson, ShieldCheck } from "lucide-react";
+import { FileJson, Recycle, Scale, ShieldAlert } from "lucide-react";
 
 /**
  * Internal dependencies.
  */
+import { FindingSummaryBox } from "./findingSummaryBox";
 import { useProjectAnalysisActions } from "./projectAnalysisActionsContext";
 import { VulnerabilityItem } from "./vulnerabilityItem";
 import { LicenseItem } from "./licenseItem";
@@ -20,10 +21,11 @@ interface RowDetailsProps {
 }
 
 /**
- * Expanded body of a row: the vulnerability and license lists from the
- * fast pass, the full per-package project analysis (publint, circular
- * dependencies graph, replacement suggestions, and the "fix with AI"
- * copy-prompt) reusing the standalone ProjectAnalysisTab, and an
+ * Expanded body of a row. The top surfaces three prominent boxes,
+ * vulnerabilities, license issues, and replaceable dependencies (with the
+ * suggested lighter alternatives), so each stands out on its own. Below,
+ * the full per-package project analysis (publint + circular dependency
+ * graph) is reused from the standalone Project Analysis tab, then an
  * "Open package.json" link.
  */
 export const RowDetails: FC<RowDetailsProps> = ({
@@ -31,9 +33,6 @@ export const RowDetails: FC<RowDetailsProps> = ({
   onOpenPackageJson,
 }) => {
   const actions = useProjectAnalysisActions();
-  const hasVulnerabilities = entry.vulnerabilities.length > 0;
-  const hasLicenseIssues = entry.licenseIssues.length > 0;
-  const hasDependencyIssues = hasVulnerabilities || hasLicenseIssues;
   const packageJsonFile: PackageJsonFile = {
     uri: entry.uri,
     relativePath: entry.relativePath,
@@ -42,11 +41,14 @@ export const RowDetails: FC<RowDetailsProps> = ({
 
   return (
     <div className="flex flex-col gap-2 border-t border-slate-100 px-3 py-2 dark:border-slate-800">
-      {hasVulnerabilities ? (
-        <section className="flex flex-col gap-1.5">
-          <h4 className="text-[10px] font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
-            Vulnerabilities
-          </h4>
+      <div className="grid grid-cols-1 gap-2">
+        <FindingSummaryBox
+          icon={<ShieldAlert size={14} />}
+          label="Vulnerabilities"
+          count={entry.vulnerabilities.length}
+          tone="danger"
+          emptyText="No known vulnerabilities."
+        >
           <ul className="flex flex-col gap-1.5">
             {entry.vulnerabilities.map((finding, index) => (
               <VulnerabilityItem
@@ -55,13 +57,15 @@ export const RowDetails: FC<RowDetailsProps> = ({
               />
             ))}
           </ul>
-        </section>
-      ) : null}
-      {hasLicenseIssues ? (
-        <section className="flex flex-col gap-1.5">
-          <h4 className="text-[10px] font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
-            License issues
-          </h4>
+        </FindingSummaryBox>
+
+        <FindingSummaryBox
+          icon={<Scale size={14} />}
+          label="License issues"
+          count={entry.licenseIssues.length}
+          tone="warning"
+          emptyText="No license issues."
+        >
           <ul className="flex flex-col gap-1.5">
             {entry.licenseIssues.map((finding, index) => (
               <LicenseItem
@@ -70,14 +74,39 @@ export const RowDetails: FC<RowDetailsProps> = ({
               />
             ))}
           </ul>
-        </section>
-      ) : null}
-      {!hasDependencyIssues ? (
-        <div className="flex items-center gap-1.5 text-xs text-emerald-700 dark:text-emerald-300">
-          <ShieldCheck size={13} />
-          No vulnerabilities or license issues.
-        </div>
-      ) : null}
+        </FindingSummaryBox>
+
+        <FindingSummaryBox
+          icon={<Recycle size={14} />}
+          label="Replaceable dependencies"
+          count={entry.replaceable.length}
+          tone="info"
+          emptyText="No lighter alternatives suggested."
+        >
+          <ul className="flex flex-col gap-1.5">
+            {entry.replaceable.map((suggestion, index) => (
+              <li
+                key={`${suggestion.packageName}-${index}`}
+                className="rounded border border-sky-200 bg-white/60 p-2 text-xs dark:border-sky-900 dark:bg-slate-900/40"
+              >
+                <div className="font-medium text-slate-800 dark:text-slate-100">
+                  {suggestion.packageName || "dependency"}
+                </div>
+                {suggestion.replacements.length > 0 ? (
+                  <div className="mt-0.5 text-slate-600 dark:text-slate-300">
+                    Use instead: {suggestion.replacements.join(", ")}
+                  </div>
+                ) : (
+                  <div className="mt-0.5 text-slate-600 dark:text-slate-300">
+                    {suggestion.message}
+                  </div>
+                )}
+              </li>
+            ))}
+          </ul>
+        </FindingSummaryBox>
+      </div>
+
       <section className="rounded border border-slate-200 dark:border-slate-800">
         <ProjectAnalysisTab
           activeFile={packageJsonFile}
@@ -87,8 +116,10 @@ export const RowDetails: FC<RowDetailsProps> = ({
           postCopyPrompt={actions.postCopyPrompt}
           postSetupMcp={actions.postSetupMcp}
           hideFixWithAi
+          hideReplacements
         />
       </section>
+
       <button
         type="button"
         className="inline-flex items-center gap-1 self-start text-[11px] text-slate-500 hover:text-slate-700 hover:underline dark:text-slate-400 dark:hover:text-slate-200"

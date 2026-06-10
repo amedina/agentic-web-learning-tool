@@ -32,6 +32,11 @@ interface ResultsProps {
    * aggregate fix prompt for the whole workspace instead.
    */
   hideFixWithAi?: boolean;
+  /**
+   * Hides the replacements card. Set when embedded in a Project Health
+   * row, which shows replaceable dependencies in its own prominent box.
+   */
+  hideReplacements?: boolean;
 }
 
 /**
@@ -47,6 +52,7 @@ export const Results: FC<ResultsProps> = ({
   postCopyPrompt,
   postSetupMcp,
   hideFixWithAi = false,
+  hideReplacements = false,
 }) => {
   const publintFindings = useMemo(
     () => analysis.findings.filter((finding) => finding.source === "publint"),
@@ -66,7 +72,7 @@ export const Results: FC<ResultsProps> = ({
   const totalSurfaced =
     publintFindings.length +
     circularFindings.length +
-    replacementFindings.length;
+    (hideReplacements ? 0 : replacementFindings.length);
   const [expanded, setExpanded] = useState<ExpandedSection>("none");
 
   const toggle = useCallback((section: ExpandedSection) => {
@@ -102,7 +108,7 @@ export const Results: FC<ResultsProps> = ({
         expanded={expanded === "circular"}
         onToggle={() => toggle("circular")}
       />
-      {replacementFindings.length > 0 && (
+      {!hideReplacements && replacementFindings.length > 0 && (
         <ReplacementsCard
           findings={replacementFindings}
           postReveal={postReveal}

@@ -17,6 +17,7 @@ import {
   computeTotals,
   createInitialReport,
   emptyVulnerabilityTotals,
+  replacementsFromAnalysis,
   summarizeProjectAnalysis,
   type SuppressionPredicates,
 } from "./projectHealthReport";
@@ -28,6 +29,7 @@ import {
   type PackageHealthEntry,
   type ProjectHealthProgress,
   type ProjectHealthReport,
+  type ReplaceableSuggestion,
   type VulnerabilityFinding,
 } from "./types";
 
@@ -109,6 +111,7 @@ export async function runProjectHealth(
     string,
     PackageHealthEntry["projectAnalysis"]
   >();
+  const replaceableByUri = new Map<string, ReplaceableSuggestion[]>();
   const analyzedManifests = new Set<string>();
 
   let manifests: ParsedManifest[] = [];
@@ -130,6 +133,7 @@ export async function runProjectHealth(
       closure,
       entryResults,
       analysisByUri,
+      replaceableByUri,
       analyzedManifests,
       includeProjectAnalysis,
     );
@@ -271,8 +275,13 @@ export async function runProjectHealth(
             manifest.uri,
             analysis ? summarizeProjectAnalysis(analysis) : null,
           );
+          replaceableByUri.set(
+            manifest.uri,
+            analysis ? replacementsFromAnalysis(analysis) : [],
+          );
         } catch {
           analysisByUri.set(manifest.uri, null);
+          replaceableByUri.set(manifest.uri, []);
         }
         analyzedManifests.add(manifest.uri);
       },
@@ -311,6 +320,7 @@ function assemblePackages(
   closure: DependencyClosure,
   entryResults: Map<string, EntryResult>,
   analysisByUri: Map<string, PackageHealthEntry["projectAnalysis"]>,
+  replaceableByUri: Map<string, ReplaceableSuggestion[]>,
   analyzedManifests: Set<string>,
   includeProjectAnalysis: boolean,
 ): PackageHealthEntry[] {
@@ -324,6 +334,7 @@ function assemblePackages(
       vulnerabilities: [],
       licenseIssues: [],
       projectAnalysis: analysisByUri.get(manifest.uri) ?? null,
+      replaceable: replaceableByUri.get(manifest.uri) ?? [],
       status: "pending",
       warnings: [],
     });

@@ -70,14 +70,6 @@ export const ProjectHealthView: FC<ProjectHealthViewProps> = ({
     <SuppressionProvider value={{ suppressions, onMute, onUnmute }}>
       <ProjectAnalysisActionsProvider value={projectAnalysisActions}>
         <div className="flex flex-col gap-3 p-4">
-          <ProjectHealthHeader
-            report={report}
-            isRunning={isRunning}
-            onRun={onRun}
-            onCancel={onCancel}
-            activeFilter={filter}
-            onFilterChange={setFilter}
-          />
           {showList &&
           report &&
           reportHasActionableFindings(report, suppressions) ? (
@@ -88,6 +80,14 @@ export const ProjectHealthView: FC<ProjectHealthViewProps> = ({
               postSetupMcp={projectAnalysisActions.postSetupMcp}
             />
           ) : null}
+          <ProjectHealthHeader
+            report={report}
+            isRunning={isRunning}
+            onRun={onRun}
+            onCancel={onCancel}
+            activeFilter={filter}
+            onFilterChange={setFilter}
+          />
           {showList ? (
             <PackageHealthList
               packages={report.packages}

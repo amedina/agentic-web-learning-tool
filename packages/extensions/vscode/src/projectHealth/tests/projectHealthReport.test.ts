@@ -33,6 +33,7 @@ function entry(partial: Partial<PackageHealthEntry>): PackageHealthEntry {
     vulnerabilities: [],
     licenseIssues: [],
     projectAnalysis: null,
+    replaceable: [],
     status: "enriched",
     warnings: [],
     ...partial,

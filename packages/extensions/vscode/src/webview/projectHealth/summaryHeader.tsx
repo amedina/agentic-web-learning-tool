@@ -135,15 +135,13 @@ export const SummaryHeader: FC<SummaryHeaderProps> = ({
           icon={<Package size={13} />}
           value={totals.packageCount}
           label={totals.packageCount === 1 ? "package" : "packages"}
-          title="Number of package.json files analyzed. Click to show all."
-          onClick={() => onFilterChange("all")}
+          title="Number of package.json files analyzed."
         />
         <SummaryChip
           icon={<FileBadge size={13} />}
           value={totals.uniqueDependencyCount}
           label="deps"
-          title="Distinct dependency versions analyzed across all package.json files. Click to show all."
-          onClick={() => onFilterChange("all")}
+          title="Distinct dependency versions analyzed across all package.json files."
         />
       </div>
       {hasVulnerabilities ? (

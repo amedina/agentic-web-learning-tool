@@ -14,6 +14,7 @@ import {
   type PackageProjectAnalysisSummary,
   type ProjectHealthReport,
   type ProjectHealthTotals,
+  type ReplaceableSuggestion,
   type VulnerabilityFinding,
   type VulnerabilitySeverity,
   type VulnerabilityTotals,
@@ -139,6 +140,35 @@ export function summarizeProjectAnalysis(
     circularCount: bySource["circular-deps"] ?? 0,
     replaceableCount: bySource.replacements ?? 0,
   };
+}
+
+/**
+ * Extracts the replacement suggestions from a ProjectAnalysis: every
+ * `replacements` finding, mapped to the dependency and its lighter
+ * alternatives so the UI can show what to use instead of a bare count.
+ */
+export function replacementsFromAnalysis(
+  analysis: ProjectAnalysis,
+): ReplaceableSuggestion[] {
+  return analysis.findings
+    .filter((finding) => finding.source === "replacements")
+    .map((finding) => {
+      const data = (finding.data ?? {}) as {
+        packageName?: unknown;
+        replacements?: unknown;
+      };
+      const replacements = Array.isArray(data.replacements)
+        ? data.replacements.filter(
+            (value): value is string => typeof value === "string",
+          )
+        : [];
+      return {
+        packageName:
+          typeof data.packageName === "string" ? data.packageName : "",
+        replacements,
+        message: finding.message,
+      };
+    });
 }
 
 /**

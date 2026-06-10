@@ -18,6 +18,8 @@ interface BodyProps {
   postSetupMcp: PostSetupMcp;
   /** Forwarded to Results to hide the per-project Fix-with-AI callout. */
   hideFixWithAi?: boolean;
+  /** Forwarded to Results to hide the replacements card. */
+  hideReplacements?: boolean;
 }
 
 /**
@@ -30,6 +32,7 @@ export const Body: FC<BodyProps> = ({
   postCopyPrompt,
   postSetupMcp,
   hideFixWithAi = false,
+  hideReplacements = false,
 }) => {
   if (status.kind === "idle") {
     return <IdleExplainer />;
@@ -56,6 +59,7 @@ export const Body: FC<BodyProps> = ({
       postCopyPrompt={postCopyPrompt}
       postSetupMcp={postSetupMcp}
       hideFixWithAi={hideFixWithAi}
+      hideReplacements={hideReplacements}
     />
   );
 };
