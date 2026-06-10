@@ -8,6 +8,7 @@ import {
 import type {
   PackageHealthEntry,
   ProjectHealthReport,
+  ProjectHealthScope,
   SuppressionEntry,
   VulnerabilitySeverity,
 } from "../../projectHealth/types";
@@ -175,6 +176,29 @@ export function isPackageClean(entry: PackageHealthEntry): boolean {
   return entry.projectAnalysis !== null && packageProblemCount(entry) === 0;
 }
 
+/**
+ * Scope-aware cleanliness for a row's "no issues" badge. On the
+ * Dependencies tab a package is clean when it has no vulnerabilities and
+ * no license issues. On the Project Analysis tab it is clean when the
+ * analysis ran and found no publint findings or circular dependencies
+ * (replacement suggestions are informational and do not count).
+ */
+export function isPackageCleanForScope(
+  entry: PackageHealthEntry,
+  scope: "dependencies" | "project",
+): boolean {
+  if (scope === "dependencies") {
+    return (
+      entry.vulnerabilities.length === 0 && entry.licenseIssues.length === 0
+    );
+  }
+  return (
+    entry.projectAnalysis !== null &&
+    entry.projectAnalysis.publintCount === 0 &&
+    entry.projectAnalysis.circularCount === 0
+  );
+}
+
 /** True when a package has at least one non-suppressed vulnerability. */
 export function entryHasActiveVulnerability(
   entry: PackageHealthEntry,
@@ -256,48 +280,67 @@ export function entryMatchesFilter(
 
 /**
  * True when the report has at least one actionable, non-suppressed
- * finding worth assembling into a fix prompt (vulnerability, license
- * issue, publint finding, circular dependency, or replacement).
+ * finding within the given scope worth assembling into a fix prompt.
+ * "dependencies" covers vulnerabilities + license issues; "project"
+ * covers publint + circular + replacement findings; "all" covers both.
  */
 export function reportHasActionableFindings(
   report: ProjectHealthReport,
   suppressions: SuppressionEntry[],
+  scope: ProjectHealthScope = "all",
 ): boolean {
+  const includeDependencies = scope !== "project";
+  const includeProject = scope !== "dependencies";
   return report.packages.some((entry) => {
-    if (entryHasActiveVulnerability(entry, suppressions)) {
+    if (
+      includeDependencies &&
+      (entryHasActiveVulnerability(entry, suppressions) ||
+        entryHasActiveLicenseIssue(entry, suppressions))
+    ) {
       return true;
     }
-    if (entryHasActiveLicenseIssue(entry, suppressions)) {
-      return true;
-    }
-    return (entry.projectAnalysis?.total ?? 0) > 0;
+    return includeProject && (entry.projectAnalysis?.total ?? 0) > 0;
   });
 }
 
 /**
- * Assembles a single, ready-to-paste prompt covering every actionable
- * finding across the whole workspace, grouped by package. Suppressed
- * vulnerabilities and license issues are excluded. The assistant is
- * pointed at the npm-advisor MCP tools for deeper detail.
+ * Assembles a ready-to-paste prompt covering the actionable findings in
+ * the given scope, grouped by package. Suppressed vulnerabilities and
+ * license issues are excluded. The assistant is pointed at the
+ * npm-advisor MCP tools for deeper detail.
  */
 export function buildAggregateFixPrompt(
   report: ProjectHealthReport,
   suppressions: SuppressionEntry[],
+  scope: ProjectHealthScope = "all",
 ): string {
+  const includeDependencies = scope !== "project";
+  const includeProject = scope !== "dependencies";
+  const subject =
+    scope === "dependencies"
+      ? "dependency vulnerabilities and license issues"
+      : scope === "project"
+        ? "publishing, circular-dependency, and replacement issues"
+        : "issues";
+
   const lines: string[] = [];
   lines.push(
-    "I ran NPM Advisor Project Health across my workspace. Help me fix the issues below, grouped by package, preferring root-cause fixes over file-by-file edits. Use the npm-advisor MCP tools (analyze_project, analyze_package_json) for full detail where needed.",
+    `I ran NPM Advisor Project Health across my workspace. Help me fix the ${subject} below, grouped by package, preferring root-cause fixes over file-by-file edits. Use the npm-advisor MCP tools (analyze_project, analyze_package_json) for full detail where needed.`,
   );
   lines.push("");
 
   for (const entry of report.packages) {
-    const vulnerabilities = entry.vulnerabilities.filter(
-      (finding) => !isVulnerabilitySuppressed(suppressions, finding),
-    );
-    const licenseIssues = entry.licenseIssues.filter(
-      (finding) => !isLicenseSuppressed(suppressions, finding),
-    );
-    const analysis = entry.projectAnalysis;
+    const vulnerabilities = includeDependencies
+      ? entry.vulnerabilities.filter(
+          (finding) => !isVulnerabilitySuppressed(suppressions, finding),
+        )
+      : [];
+    const licenseIssues = includeDependencies
+      ? entry.licenseIssues.filter(
+          (finding) => !isLicenseSuppressed(suppressions, finding),
+        )
+      : [];
+    const analysis = includeProject ? entry.projectAnalysis : null;
     const hasAnalysisFindings = (analysis?.total ?? 0) > 0;
     if (
       vulnerabilities.length === 0 &&

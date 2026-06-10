@@ -86,20 +86,14 @@ export const ProjectHealthView: FC<ProjectHealthViewProps> = ({
     : report !== null && report.backfillCompletedAt !== null;
   const showList = !isRunning && hasCompletedRun && report !== null;
   const showCallout =
-    report !== null && reportHasActionableFindings(report, suppressions);
+    showList &&
+    report !== null &&
+    reportHasActionableFindings(report, suppressions, activeTab);
 
   return (
     <SuppressionProvider value={{ suppressions, onMute, onUnmute }}>
       <ProjectAnalysisActionsProvider value={projectAnalysisActions}>
         <div className="flex flex-col gap-3 p-4">
-          {showCallout && report ? (
-            <AggregateFixCallout
-              report={report}
-              suppressions={suppressions}
-              postCopyPrompt={projectAnalysisActions.postCopyPrompt}
-              postSetupMcp={projectAnalysisActions.postSetupMcp}
-            />
-          ) : null}
           <ProjectHealthSubTabBar
             activeTab={activeTab}
             onChange={handleTabChange}
@@ -114,6 +108,15 @@ export const ProjectHealthView: FC<ProjectHealthViewProps> = ({
             activeFilter={filter}
             onFilterChange={setFilter}
           />
+          {showCallout && report ? (
+            <AggregateFixCallout
+              scope={activeTab}
+              report={report}
+              suppressions={suppressions}
+              postCopyPrompt={projectAnalysisActions.postCopyPrompt}
+              postSetupMcp={projectAnalysisActions.postSetupMcp}
+            />
+          ) : null}
           {showList ? (
             <PackageHealthList
               scope={activeTab}

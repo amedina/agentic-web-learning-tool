@@ -138,6 +138,57 @@ describe("reportHasActionableFindings", () => {
   });
 });
 
+describe("scoped fix prompt + actionable findings", () => {
+  const packages = [
+    entry({
+      vulnerabilities: [VULN],
+      projectAnalysis: {
+        total: 1,
+        errorCount: 0,
+        warningCount: 0,
+        publintCount: 1,
+        circularCount: 0,
+        replaceableCount: 0,
+      },
+    }),
+  ];
+
+  it("dependency scope keeps vulnerabilities and drops project lines", () => {
+    const prompt = buildAggregateFixPrompt(
+      report(packages),
+      [],
+      "dependencies",
+    );
+    expect(prompt).toContain("Vulnerabilities");
+    expect(prompt).not.toContain("Publishing (publint)");
+  });
+
+  it("project scope keeps project lines and drops vulnerabilities", () => {
+    const prompt = buildAggregateFixPrompt(report(packages), [], "project");
+    expect(prompt).toContain("Publishing (publint)");
+    expect(prompt).not.toContain("Vulnerabilities");
+  });
+
+  it("reportHasActionableFindings respects the scope", () => {
+    const onlyProject = report([
+      entry({
+        projectAnalysis: {
+          total: 1,
+          errorCount: 0,
+          warningCount: 0,
+          publintCount: 1,
+          circularCount: 0,
+          replaceableCount: 0,
+        },
+      }),
+    ]);
+    expect(reportHasActionableFindings(onlyProject, [], "dependencies")).toBe(
+      false,
+    );
+    expect(reportHasActionableFindings(onlyProject, [], "project")).toBe(true);
+  });
+});
+
 describe("buildAggregateFixPrompt", () => {
   it("groups findings by package and excludes suppressed ones", () => {
     const packages = [
