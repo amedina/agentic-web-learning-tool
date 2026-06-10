@@ -7,58 +7,19 @@ import { useMemo, type FC } from "react";
  * Internal dependencies.
  */
 import { PackageHealthRow } from "./packageHealthRow";
-import { packageIssueCount, type ListFilter } from "./helpers";
-import { useSuppression } from "./suppressionContext";
 import {
-  isLicenseSuppressed,
-  isVulnerabilitySuppressed,
-} from "../../projectHealth/suppressionMatching";
-import type {
-  PackageHealthEntry,
-  SuppressionEntry,
-} from "../../projectHealth/types";
+  entryMatchesFilter,
+  packageIssueCount,
+  type ListFilter,
+} from "./helpers";
+import { useSuppression } from "./suppressionContext";
+import type { PackageHealthEntry } from "../../projectHealth/types";
 
 interface PackageHealthListProps {
   packages: PackageHealthEntry[];
   filter: ListFilter;
   onClearFilter: () => void;
   onOpenPackageJson: (uri: string) => void;
-}
-
-/** True when a package carries at least one currently-suppressed finding. */
-function entryHasSuppressed(
-  entry: PackageHealthEntry,
-  suppressions: SuppressionEntry[],
-): boolean {
-  return (
-    entry.vulnerabilities.some((finding) =>
-      isVulnerabilitySuppressed(suppressions, finding),
-    ) ||
-    entry.licenseIssues.some((finding) =>
-      isLicenseSuppressed(suppressions, finding),
-    )
-  );
-}
-
-/** Decides whether a package passes the active roll-up filter. */
-function matchesFilter(
-  entry: PackageHealthEntry,
-  filter: ListFilter,
-  suppressions: SuppressionEntry[],
-): boolean {
-  switch (filter) {
-    case "vuln":
-      return entry.vulnerabilities.length > 0;
-    case "license":
-      return entry.licenseIssues.length > 0;
-    case "replaceable":
-      return (entry.projectAnalysis?.replaceableCount ?? 0) > 0;
-    case "suppressed":
-      return entryHasSuppressed(entry, suppressions);
-    case "all":
-    default:
-      return true;
-  }
 }
 
 /**
@@ -86,7 +47,8 @@ export const PackageHealthList: FC<PackageHealthListProps> = ({
   }, [packages]);
 
   const visible = useMemo(
-    () => sorted.filter((entry) => matchesFilter(entry, filter, suppressions)),
+    () =>
+      sorted.filter((entry) => entryMatchesFilter(entry, filter, suppressions)),
     [sorted, filter, suppressions],
   );
 

@@ -16,6 +16,8 @@ interface BodyProps {
   postReveal: PostReveal;
   postCopyPrompt: PostCopyPrompt;
   postSetupMcp: PostSetupMcp;
+  /** Forwarded to Results to hide the per-project Fix-with-AI callout. */
+  hideFixWithAi?: boolean;
 }
 
 /**
@@ -27,6 +29,7 @@ export const Body: FC<BodyProps> = ({
   postReveal,
   postCopyPrompt,
   postSetupMcp,
+  hideFixWithAi = false,
 }) => {
   if (status.kind === "idle") {
     return <IdleExplainer />;
@@ -52,6 +55,7 @@ export const Body: FC<BodyProps> = ({
       postReveal={postReveal}
       postCopyPrompt={postCopyPrompt}
       postSetupMcp={postSetupMcp}
+      hideFixWithAi={hideFixWithAi}
     />
   );
 };

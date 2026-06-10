@@ -36,10 +36,10 @@ export type Status =
 
 /**
  * Which analyzer card is currently expanded. Only one is open at a
- * time — `none` means both are collapsed, which is the default state
+ * time; `none` means all are collapsed, which is the default state
  * after a run finishes (the stat tiles up top still surface the totals).
  */
-export type ExpandedSection = "none" | "publint" | "circular";
+export type ExpandedSection = "none" | "publint" | "circular" | "replacements";
 
 /**
  * Tracks whether the displayed analysis is known to be out-of-date

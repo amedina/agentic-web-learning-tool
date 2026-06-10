@@ -1,8 +1,14 @@
 /**
- * External dependencies.
+ * Internal dependencies.
  */
+import {
+  isLicenseSuppressed,
+  isVulnerabilitySuppressed,
+} from "../../projectHealth/suppressionMatching";
 import type {
   PackageHealthEntry,
+  ProjectHealthReport,
+  SuppressionEntry,
   VulnerabilitySeverity,
 } from "../../projectHealth/types";
 
@@ -148,6 +154,163 @@ export function packageProblemCount(entry: PackageHealthEntry): number {
  */
 export function isPackageClean(entry: PackageHealthEntry): boolean {
   return entry.projectAnalysis !== null && packageProblemCount(entry) === 0;
+}
+
+/** True when a package has at least one non-suppressed vulnerability. */
+export function entryHasActiveVulnerability(
+  entry: PackageHealthEntry,
+  suppressions: SuppressionEntry[],
+): boolean {
+  return entry.vulnerabilities.some(
+    (finding) => !isVulnerabilitySuppressed(suppressions, finding),
+  );
+}
+
+/** True when a package has at least one non-suppressed license issue. */
+export function entryHasActiveLicenseIssue(
+  entry: PackageHealthEntry,
+  suppressions: SuppressionEntry[],
+): boolean {
+  return entry.licenseIssues.some(
+    (finding) => !isLicenseSuppressed(suppressions, finding),
+  );
+}
+
+/** True when a package has at least one replacement suggestion. */
+export function entryHasReplaceable(entry: PackageHealthEntry): boolean {
+  return (entry.projectAnalysis?.replaceableCount ?? 0) > 0;
+}
+
+/** True when a package carries at least one currently-suppressed finding. */
+export function entryHasSuppressed(
+  entry: PackageHealthEntry,
+  suppressions: SuppressionEntry[],
+): boolean {
+  return (
+    entry.vulnerabilities.some((finding) =>
+      isVulnerabilitySuppressed(suppressions, finding),
+    ) ||
+    entry.licenseIssues.some((finding) =>
+      isLicenseSuppressed(suppressions, finding),
+    )
+  );
+}
+
+/**
+ * The single source of truth for "does this package match the active
+ * filter?", used by both the header chip counts and the list filtering
+ * so the chip number always equals the number of rows shown.
+ */
+export function entryMatchesFilter(
+  entry: PackageHealthEntry,
+  filter: ListFilter,
+  suppressions: SuppressionEntry[],
+): boolean {
+  switch (filter) {
+    case "vuln":
+      return entryHasActiveVulnerability(entry, suppressions);
+    case "license":
+      return entryHasActiveLicenseIssue(entry, suppressions);
+    case "replaceable":
+      return entryHasReplaceable(entry);
+    case "suppressed":
+      return entryHasSuppressed(entry, suppressions);
+    case "all":
+    default:
+      return true;
+  }
+}
+
+/**
+ * True when the report has at least one actionable, non-suppressed
+ * finding worth assembling into a fix prompt (vulnerability, license
+ * issue, publint finding, circular dependency, or replacement).
+ */
+export function reportHasActionableFindings(
+  report: ProjectHealthReport,
+  suppressions: SuppressionEntry[],
+): boolean {
+  return report.packages.some((entry) => {
+    if (entryHasActiveVulnerability(entry, suppressions)) {
+      return true;
+    }
+    if (entryHasActiveLicenseIssue(entry, suppressions)) {
+      return true;
+    }
+    return (entry.projectAnalysis?.total ?? 0) > 0;
+  });
+}
+
+/**
+ * Assembles a single, ready-to-paste prompt covering every actionable
+ * finding across the whole workspace, grouped by package. Suppressed
+ * vulnerabilities and license issues are excluded. The assistant is
+ * pointed at the npm-advisor MCP tools for deeper detail.
+ */
+export function buildAggregateFixPrompt(
+  report: ProjectHealthReport,
+  suppressions: SuppressionEntry[],
+): string {
+  const lines: string[] = [];
+  lines.push(
+    "I ran NPM Advisor Project Health across my workspace. Help me fix the issues below, grouped by package, preferring root-cause fixes over file-by-file edits. Use the npm-advisor MCP tools (analyze_project, analyze_package_json) for full detail where needed.",
+  );
+  lines.push("");
+
+  for (const entry of report.packages) {
+    const vulnerabilities = entry.vulnerabilities.filter(
+      (finding) => !isVulnerabilitySuppressed(suppressions, finding),
+    );
+    const licenseIssues = entry.licenseIssues.filter(
+      (finding) => !isLicenseSuppressed(suppressions, finding),
+    );
+    const analysis = entry.projectAnalysis;
+    const hasAnalysisFindings = (analysis?.total ?? 0) > 0;
+    if (
+      vulnerabilities.length === 0 &&
+      licenseIssues.length === 0 &&
+      !hasAnalysisFindings
+    ) {
+      continue;
+    }
+
+    lines.push(
+      `## ${entry.relativePath}${entry.name ? ` (${entry.name})` : ""}`,
+    );
+    if (vulnerabilities.length > 0) {
+      lines.push(`- Vulnerabilities (${vulnerabilities.length}):`);
+      for (const finding of vulnerabilities.slice(0, 10)) {
+        lines.push(
+          `  - [${finding.severity}] ${finding.packageName}@${finding.version}: ${finding.summary} (${finding.id})`,
+        );
+      }
+    }
+    if (licenseIssues.length > 0) {
+      lines.push(`- License issues (${licenseIssues.length}):`);
+      for (const finding of licenseIssues.slice(0, 10)) {
+        const reason = finding.explanation ? ` (${finding.explanation})` : "";
+        lines.push(
+          `  - ${finding.packageName}@${finding.version}: ${finding.license ?? "unknown"}${reason}`,
+        );
+      }
+    }
+    if (analysis) {
+      if (analysis.publintCount > 0) {
+        lines.push(`- Publishing (publint) issues: ${analysis.publintCount}`);
+      }
+      if (analysis.circularCount > 0) {
+        lines.push(`- Circular dependencies: ${analysis.circularCount}`);
+      }
+      if (analysis.replaceableCount > 0) {
+        lines.push(
+          `- Replaceable dependencies (lighter alternatives): ${analysis.replaceableCount}`,
+        );
+      }
+    }
+    lines.push("");
+  }
+
+  return lines.join("\n").trimEnd();
 }
 
 /**

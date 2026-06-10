@@ -6,6 +6,7 @@ import { useState, type FC } from "react";
 /**
  * Internal dependencies.
  */
+import { AggregateFixCallout } from "./aggregateFixCallout";
 import { PackageHealthList } from "./packageHealthList";
 import {
   ProjectAnalysisActionsProvider,
@@ -13,7 +14,7 @@ import {
 } from "./projectAnalysisActionsContext";
 import { ProjectHealthHeader } from "./projectHealthHeader";
 import { SuppressionProvider } from "./suppressionContext";
-import type { ListFilter } from "./helpers";
+import { reportHasActionableFindings, type ListFilter } from "./helpers";
 import {
   isTerminalPhase,
   type MuteTarget,
@@ -77,6 +78,16 @@ export const ProjectHealthView: FC<ProjectHealthViewProps> = ({
             activeFilter={filter}
             onFilterChange={setFilter}
           />
+          {showList &&
+          report &&
+          reportHasActionableFindings(report, suppressions) ? (
+            <AggregateFixCallout
+              report={report}
+              suppressions={suppressions}
+              postCopyPrompt={projectAnalysisActions.postCopyPrompt}
+              postSetupMcp={projectAnalysisActions.postSetupMcp}
+            />
+          ) : null}
           {showList ? (
             <PackageHealthList
               packages={report.packages}

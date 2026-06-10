@@ -27,6 +27,8 @@ interface ProjectAnalysisTabProps {
   postReveal: PostReveal;
   postCopyPrompt: PostCopyPrompt;
   postSetupMcp: PostSetupMcp;
+  /** Hides the per-project Fix-with-AI callout (set when embedded in a row). */
+  hideFixWithAi?: boolean;
 }
 
 /**
@@ -42,6 +44,7 @@ export const ProjectAnalysisTab: FC<ProjectAnalysisTabProps> = ({
   postReveal,
   postCopyPrompt,
   postSetupMcp,
+  hideFixWithAi = false,
 }) => {
   const [status, setStatus] = useState<Status>({ kind: "idle" });
   const [stale, setStale] = useState<StaleState | null>(null);
@@ -190,6 +193,7 @@ export const ProjectAnalysisTab: FC<ProjectAnalysisTabProps> = ({
         postReveal={postReveal}
         postCopyPrompt={postCopyPrompt}
         postSetupMcp={postSetupMcp}
+        hideFixWithAi={hideFixWithAi}
       />
     </div>
   );

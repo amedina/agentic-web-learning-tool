@@ -16,7 +16,15 @@ import {
  */
 import { SeverityBreakdown } from "./severityBreakdown";
 import { SummaryChip } from "./summaryChip";
-import { formatRelativeTime, toggleFilter, type ListFilter } from "./helpers";
+import { useSuppression } from "./suppressionContext";
+import {
+  entryHasActiveLicenseIssue,
+  entryHasActiveVulnerability,
+  entryHasReplaceable,
+  formatRelativeTime,
+  toggleFilter,
+  type ListFilter,
+} from "./helpers";
 import type { ProjectHealthReport } from "../../projectHealth/types";
 
 interface SummaryHeaderProps {
@@ -30,7 +38,9 @@ interface SummaryHeaderProps {
  * Terminal state: a wrapped row of clickable summary chips that double as
  * filters (vulnerabilities, license issues, replaceable suggestions),
  * plus package / dependency counts, the relative "Last run" time, a
- * clickable suppressed note, and a re-run button.
+ * clickable suppressed note, and a re-run button. The vuln / license /
+ * replaceable chips count the number of affected packages (not deduped
+ * findings) so the chip value always equals the rows shown when clicked.
  */
 export const SummaryHeader: FC<SummaryHeaderProps> = ({
   report,
@@ -38,9 +48,19 @@ export const SummaryHeader: FC<SummaryHeaderProps> = ({
   activeFilter,
   onFilterChange,
 }) => {
+  const { suppressions } = useSuppression();
   const { totals } = report;
   const { vulnerabilities } = totals;
   const hasVulnerabilities = vulnerabilities.total > 0;
+  const vulnPackages = report.packages.filter((entry) =>
+    entryHasActiveVulnerability(entry, suppressions),
+  ).length;
+  const licensePackages = report.packages.filter((entry) =>
+    entryHasActiveLicenseIssue(entry, suppressions),
+  ).length;
+  const replaceablePackages = report.packages.filter((entry) =>
+    entryHasReplaceable(entry),
+  ).length;
 
   return (
     <div className="flex flex-col gap-2">
@@ -82,28 +102,30 @@ export const SummaryHeader: FC<SummaryHeaderProps> = ({
       <div className="flex flex-wrap gap-1.5">
         <SummaryChip
           icon={<ShieldAlert size={13} />}
-          value={vulnerabilities.total}
-          label={vulnerabilities.total === 1 ? "vuln" : "vulns"}
-          tone={hasVulnerabilities ? "danger" : "ok"}
-          title="Filter to packages with vulnerabilities"
+          value={vulnPackages}
+          label={vulnPackages === 1 ? "vuln pkg" : "vuln pkgs"}
+          tone={vulnPackages > 0 ? "danger" : "ok"}
+          title={`${vulnPackages} package(s) with vulnerabilities. Click to filter.`}
           onClick={() => onFilterChange(toggleFilter(activeFilter, "vuln"))}
           isActive={activeFilter === "vuln"}
         />
         <SummaryChip
           icon={<Scale size={13} />}
-          value={totals.licenseIssueCount}
-          label={totals.licenseIssueCount === 1 ? "license" : "licenses"}
-          tone={totals.licenseIssueCount > 0 ? "danger" : "ok"}
-          title="Filter to packages with license issues"
+          value={licensePackages}
+          label={licensePackages === 1 ? "license pkg" : "license pkgs"}
+          tone={licensePackages > 0 ? "danger" : "ok"}
+          title={`${licensePackages} package(s) with license issues. Click to filter.`}
           onClick={() => onFilterChange(toggleFilter(activeFilter, "license"))}
           isActive={activeFilter === "license"}
         />
         <SummaryChip
           icon={<Recycle size={13} />}
-          value={totals.replaceableCount}
-          label="replaceable"
-          tone={totals.replaceableCount > 0 ? "info" : "neutral"}
-          title="Filter to packages with replacement suggestions"
+          value={replaceablePackages}
+          label={
+            replaceablePackages === 1 ? "replaceable pkg" : "replaceable pkgs"
+          }
+          tone={replaceablePackages > 0 ? "info" : "neutral"}
+          title={`${replaceablePackages} package(s) with replacement suggestions. Click to filter.`}
           onClick={() =>
             onFilterChange(toggleFilter(activeFilter, "replaceable"))
           }

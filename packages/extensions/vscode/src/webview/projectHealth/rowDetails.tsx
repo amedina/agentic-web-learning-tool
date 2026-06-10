@@ -86,6 +86,7 @@ export const RowDetails: FC<RowDetailsProps> = ({
           postReveal={actions.postReveal}
           postCopyPrompt={actions.postCopyPrompt}
           postSetupMcp={actions.postSetupMcp}
+          hideFixWithAi
         />
       </section>
       <button
