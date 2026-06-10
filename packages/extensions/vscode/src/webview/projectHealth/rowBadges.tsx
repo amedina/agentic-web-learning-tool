@@ -40,19 +40,31 @@ export const RowBadges: FC<RowBadgesProps> = ({ entry, severityCounts }) => {
           <CountBadge
             icon={<ShieldCheck size={10} />}
             count={projectAnalysis.publintCount}
-            label="publint issues"
+            label={
+              projectAnalysis.publintCount === 1
+                ? "publishing (publint) issue"
+                : "publishing (publint) issues"
+            }
             tone="warning"
           />
           <CountBadge
             icon={<Repeat size={10} />}
             count={projectAnalysis.circularCount}
-            label="circular dependencies"
+            label={
+              projectAnalysis.circularCount === 1
+                ? "circular dependency"
+                : "circular dependencies"
+            }
             tone="warning"
           />
           <CountBadge
             icon={<Recycle size={10} />}
             count={projectAnalysis.replaceableCount}
-            label="replaceable dependencies"
+            label={
+              projectAnalysis.replaceableCount === 1
+                ? "replaceable dependency (lighter alternative available)"
+                : "replaceable dependencies (lighter alternatives available)"
+            }
             tone="info"
           />
         </>

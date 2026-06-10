@@ -7,8 +7,10 @@ import {
   Package,
   Recycle,
   RefreshCw,
+  Repeat,
   Scale,
   ShieldAlert,
+  ShieldCheck,
 } from "lucide-react";
 
 /**
@@ -20,6 +22,8 @@ import { useSuppression } from "./suppressionContext";
 import {
   entryHasActiveLicenseIssue,
   entryHasActiveVulnerability,
+  entryHasCircular,
+  entryHasPublint,
   entryHasReplaceable,
   formatRelativeTime,
   toggleFilter,
@@ -60,6 +64,12 @@ export const SummaryHeader: FC<SummaryHeaderProps> = ({
   ).length;
   const replaceablePackages = report.packages.filter((entry) =>
     entryHasReplaceable(entry),
+  ).length;
+  const publintPackages = report.packages.filter((entry) =>
+    entryHasPublint(entry),
+  ).length;
+  const circularPackages = report.packages.filter((entry) =>
+    entryHasCircular(entry),
   ).length;
 
   return (
@@ -130,6 +140,24 @@ export const SummaryHeader: FC<SummaryHeaderProps> = ({
             onFilterChange(toggleFilter(activeFilter, "replaceable"))
           }
           isActive={activeFilter === "replaceable"}
+        />
+        <SummaryChip
+          icon={<ShieldCheck size={13} />}
+          value={publintPackages}
+          label={publintPackages === 1 ? "publishing pkg" : "publishing pkgs"}
+          tone={publintPackages > 0 ? "warning" : "ok"}
+          title={`${publintPackages} package(s) with publishing (publint) issues. Click to filter.`}
+          onClick={() => onFilterChange(toggleFilter(activeFilter, "publint"))}
+          isActive={activeFilter === "publint"}
+        />
+        <SummaryChip
+          icon={<Repeat size={13} />}
+          value={circularPackages}
+          label={circularPackages === 1 ? "circular pkg" : "circular pkgs"}
+          tone={circularPackages > 0 ? "warning" : "ok"}
+          title={`${circularPackages} package(s) with circular dependencies. Click to filter.`}
+          onClick={() => onFilterChange(toggleFilter(activeFilter, "circular"))}
+          isActive={activeFilter === "circular"}
         />
         <SummaryChip
           icon={<Package size={13} />}

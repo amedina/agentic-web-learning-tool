@@ -9,6 +9,8 @@ import { describe, expect, it } from "vitest";
 import {
   buildAggregateFixPrompt,
   entryMatchesFilter,
+  isLikelyPackageName,
+  npmPackageUrl,
   reportHasActionableFindings,
 } from "../helpers";
 import type {
@@ -88,6 +90,36 @@ describe("entryMatchesFilter", () => {
   it("matches an active vulnerability", () => {
     const pkg = entry({ vulnerabilities: [VULN] });
     expect(entryMatchesFilter(pkg, "vuln", [])).toBe(true);
+  });
+
+  it("matches publint and circular filters from the analysis summary", () => {
+    const pkg = entry({
+      projectAnalysis: {
+        total: 2,
+        errorCount: 0,
+        warningCount: 0,
+        publintCount: 1,
+        circularCount: 1,
+        replaceableCount: 0,
+      },
+    });
+    expect(entryMatchesFilter(pkg, "publint", [])).toBe(true);
+    expect(entryMatchesFilter(pkg, "circular", [])).toBe(true);
+    expect(entryMatchesFilter(pkg, "replaceable", [])).toBe(false);
+  });
+});
+
+describe("npm helpers", () => {
+  it("recognizes package names and ignores free-text approaches", () => {
+    expect(isLikelyPackageName("lodash")).toBe(true);
+    expect(isLikelyPackageName("@scope/pkg")).toBe(true);
+    expect(isLikelyPackageName("use optional chaining")).toBe(false);
+  });
+
+  it("builds the npmjs.com url", () => {
+    expect(npmPackageUrl("lodash")).toBe(
+      "https://www.npmjs.com/package/lodash",
+    );
   });
 });
 

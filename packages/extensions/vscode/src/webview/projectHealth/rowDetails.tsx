@@ -1,13 +1,20 @@
 /**
  * External dependencies.
  */
-import { type FC } from "react";
-import { FileJson, Recycle, Scale, ShieldAlert } from "lucide-react";
+import { Fragment, type FC } from "react";
+import {
+  ExternalLink,
+  FileJson,
+  Recycle,
+  Scale,
+  ShieldAlert,
+} from "lucide-react";
 
 /**
  * Internal dependencies.
  */
 import { FindingSummaryBox } from "./findingSummaryBox";
+import { isLikelyPackageName, npmPackageUrl } from "./helpers";
 import { useProjectAnalysisActions } from "./projectAnalysisActionsContext";
 import { VulnerabilityItem } from "./vulnerabilityItem";
 import { LicenseItem } from "./licenseItem";
@@ -89,12 +96,45 @@ export const RowDetails: FC<RowDetailsProps> = ({
                 key={`${suggestion.packageName}-${index}`}
                 className="rounded border border-sky-200 bg-white/60 p-2 text-xs dark:border-sky-900 dark:bg-slate-900/40"
               >
-                <div className="font-medium text-slate-800 dark:text-slate-100">
-                  {suggestion.packageName || "dependency"}
-                </div>
+                {suggestion.packageName ? (
+                  <a
+                    href={npmPackageUrl(suggestion.packageName)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-0.5 font-medium text-sky-700 hover:underline dark:text-sky-300"
+                    title={`Open ${suggestion.packageName} on npmjs.com`}
+                  >
+                    {suggestion.packageName}
+                    <ExternalLink size={10} />
+                  </a>
+                ) : (
+                  <span className="font-medium text-slate-800 dark:text-slate-100">
+                    dependency
+                  </span>
+                )}
                 {suggestion.replacements.length > 0 ? (
                   <div className="mt-0.5 text-slate-600 dark:text-slate-300">
-                    Use instead: {suggestion.replacements.join(", ")}
+                    Use instead:{" "}
+                    {suggestion.replacements.map(
+                      (replacement, replacementIndex) => (
+                        <Fragment key={replacement}>
+                          {replacementIndex > 0 ? ", " : ""}
+                          {isLikelyPackageName(replacement) ? (
+                            <a
+                              href={npmPackageUrl(replacement)}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-sky-700 hover:underline dark:text-sky-300"
+                              title={`Open ${replacement} on npmjs.com`}
+                            >
+                              {replacement}
+                            </a>
+                          ) : (
+                            <span>{replacement}</span>
+                          )}
+                        </Fragment>
+                      ),
+                    )}
                   </div>
                 ) : (
                   <div className="mt-0.5 text-slate-600 dark:text-slate-300">

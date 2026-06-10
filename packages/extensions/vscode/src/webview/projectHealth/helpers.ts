@@ -81,6 +81,8 @@ export type ListFilter =
   | "all"
   | "vuln"
   | "license"
+  | "publint"
+  | "circular"
   | "replaceable"
   | "suppressed";
 
@@ -90,6 +92,23 @@ export function toggleFilter(
   filter: ListFilter,
 ): ListFilter {
   return current === filter ? "all" : filter;
+}
+
+/** Matches a plausible npm package name (optionally scoped). */
+const PACKAGE_NAME = /^(?:@[a-z0-9-~][a-z0-9-._~]*\/)?[a-z0-9-~][a-z0-9-._~]*$/;
+
+/**
+ * True when a string looks like an npm package name (so a replacement
+ * suggestion can be linked to npmjs.com). Free-text approaches like
+ * "use optional chaining" are excluded.
+ */
+export function isLikelyPackageName(value: string): boolean {
+  return PACKAGE_NAME.test(value.trim());
+}
+
+/** Builds the npmjs.com page URL for a package. */
+export function npmPackageUrl(name: string): string {
+  return `https://www.npmjs.com/package/${name.trim()}`;
 }
 
 /**
@@ -181,6 +200,16 @@ export function entryHasReplaceable(entry: PackageHealthEntry): boolean {
   return (entry.projectAnalysis?.replaceableCount ?? 0) > 0;
 }
 
+/** True when a package has at least one publint (publishing) finding. */
+export function entryHasPublint(entry: PackageHealthEntry): boolean {
+  return (entry.projectAnalysis?.publintCount ?? 0) > 0;
+}
+
+/** True when a package has at least one circular dependency. */
+export function entryHasCircular(entry: PackageHealthEntry): boolean {
+  return (entry.projectAnalysis?.circularCount ?? 0) > 0;
+}
+
 /** True when a package carries at least one currently-suppressed finding. */
 export function entryHasSuppressed(
   entry: PackageHealthEntry,
@@ -211,6 +240,10 @@ export function entryMatchesFilter(
       return entryHasActiveVulnerability(entry, suppressions);
     case "license":
       return entryHasActiveLicenseIssue(entry, suppressions);
+    case "publint":
+      return entryHasPublint(entry);
+    case "circular":
+      return entryHasCircular(entry);
     case "replaceable":
       return entryHasReplaceable(entry);
     case "suppressed":
