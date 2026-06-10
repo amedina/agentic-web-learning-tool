@@ -72,6 +72,8 @@ export interface PackageProjectAnalysisSummary {
   warningCount: number;
   publintCount: number;
   circularCount: number;
+  /** e18e replacement opportunities (lighter alternatives). Informational. */
+  replaceableCount: number;
 }
 
 /** Per-package enrichment state, so the UI can show what the backfill has reached. */
@@ -118,6 +120,8 @@ export interface ProjectHealthTotals {
   uniqueDependencyCount: number;
   vulnerabilities: VulnerabilityTotals;
   licenseIssueCount: number;
+  /** Total e18e replacement opportunities across every manifest. Informational. */
+  replaceableCount: number;
   /** Findings hidden by the suppression system (counted, not listed). */
   suppressedCount: number;
 }

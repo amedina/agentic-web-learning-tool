@@ -34,6 +34,7 @@ function report(totals: {
         ...totals.vulnerabilities,
       },
       licenseIssueCount: totals.licenseIssueCount ?? 0,
+      replaceableCount: 0,
       suppressedCount: totals.suppressedCount ?? 0,
     },
   };

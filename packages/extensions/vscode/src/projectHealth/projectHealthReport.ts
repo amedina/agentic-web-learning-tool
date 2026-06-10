@@ -137,6 +137,7 @@ export function summarizeProjectAnalysis(
     warningCount: bySeverity.warning ?? 0,
     publintCount: bySource.publint ?? 0,
     circularCount: bySource["circular-deps"] ?? 0,
+    replaceableCount: bySource.replacements ?? 0,
   };
 }
 
@@ -157,9 +158,11 @@ export function computeTotals(
   const seenVulns = new Set<string>();
   const seenLicenses = new Set<string>();
   let licenseIssueCount = 0;
+  let replaceableCount = 0;
   let suppressedCount = 0;
 
   for (const entry of packages) {
+    replaceableCount += entry.projectAnalysis?.replaceableCount ?? 0;
     for (const vulnerability of entry.vulnerabilities) {
       const key = `${vulnerability.packageName}@${vulnerability.version}::${vulnerability.id}`;
       if (seenVulns.has(key)) {
@@ -193,6 +196,7 @@ export function computeTotals(
     uniqueDependencyCount,
     vulnerabilities,
     licenseIssueCount,
+    replaceableCount,
     suppressedCount,
   };
 }
@@ -220,6 +224,7 @@ export function createInitialReport(
       uniqueDependencyCount: 0,
       vulnerabilities: emptyVulnerabilityTotals(),
       licenseIssueCount: 0,
+      replaceableCount: 0,
       suppressedCount: 0,
     },
     progress: {

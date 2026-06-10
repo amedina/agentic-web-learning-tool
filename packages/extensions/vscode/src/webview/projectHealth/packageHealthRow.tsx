@@ -9,7 +9,7 @@ import { ChevronRight, CircleCheck, Loader2 } from "lucide-react";
  */
 import { RowBadges } from "./rowBadges";
 import { RowDetails } from "./rowDetails";
-import { packageIssueCount, tallyVulnerabilities } from "./helpers";
+import { isPackageClean, tallyVulnerabilities } from "./helpers";
 import type { PackageHealthEntry } from "../../projectHealth/types";
 
 interface PackageHealthRowProps {
@@ -33,7 +33,7 @@ export const PackageHealthRow: FC<PackageHealthRowProps> = ({
     () => tallyVulnerabilities(entry.vulnerabilities),
     [entry.vulnerabilities],
   );
-  const isClean = packageIssueCount(entry) === 0;
+  const isClean = isPackageClean(entry);
   const isAnalyzing = entry.status === "pending";
 
   return (

@@ -7,13 +7,14 @@ interface CountBadgeProps {
   icon?: ReactNode;
   count: number;
   label: string;
-  tone?: "neutral" | "warning";
+  tone?: "neutral" | "warning" | "info";
 }
 
 /**
  * A compact count badge for the collapsed roll-up row, e.g. a license
- * issue count or a publint count. Hidden entirely when `count` is zero
- * so clean rows stay uncluttered.
+ * issue count or a publint count. The `info` tone (sky) is for
+ * non-problem signals like replacement suggestions. Hidden entirely when
+ * `count` is zero so clean rows stay uncluttered.
  */
 export const CountBadge: FC<CountBadgeProps> = ({
   icon,
@@ -27,7 +28,9 @@ export const CountBadge: FC<CountBadgeProps> = ({
   const toneClass =
     tone === "warning"
       ? "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300"
-      : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300";
+      : tone === "info"
+        ? "bg-sky-100 text-sky-700 dark:bg-sky-950 dark:text-sky-300"
+        : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300";
   return (
     <span
       className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-medium ${toneClass}`}

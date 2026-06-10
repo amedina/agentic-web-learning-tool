@@ -2,7 +2,7 @@
  * External dependencies.
  */
 import { type FC } from "react";
-import { Repeat, Scale, ShieldCheck } from "lucide-react";
+import { Recycle, Repeat, Scale, ShieldCheck } from "lucide-react";
 
 /**
  * Internal dependencies.
@@ -48,6 +48,12 @@ export const RowBadges: FC<RowBadgesProps> = ({ entry, severityCounts }) => {
             count={projectAnalysis.circularCount}
             label="circular dependencies"
             tone="warning"
+          />
+          <CountBadge
+            icon={<Recycle size={10} />}
+            count={projectAnalysis.replaceableCount}
+            label="replaceable dependencies"
+            tone="info"
           />
         </>
       ) : null}

@@ -68,6 +68,25 @@ export const SEVERITY_ORDER: VulnerabilitySeverity[] = [
 ];
 
 /**
+ * The active roll-up filter. `all` shows every package; the others
+ * narrow the list to packages that carry that kind of finding.
+ */
+export type ListFilter =
+  | "all"
+  | "vuln"
+  | "license"
+  | "replaceable"
+  | "suppressed";
+
+/** Returns `filter` unless it is already active, in which case `all` (a toggle). */
+export function toggleFilter(
+  current: ListFilter,
+  filter: ListFilter,
+): ListFilter {
+  return current === filter ? "all" : filter;
+}
+
+/**
  * Formats a millisecond epoch as a coarse relative time such as
  * "just now", "2 minutes ago", or "3 hours ago". Good enough for the
  * "Last run" hint in the header; falls back to days for older snapshots.
@@ -90,9 +109,10 @@ export function formatRelativeTime(epoch: number): string {
 }
 
 /**
- * Totals every surfaced issue for one package: each vulnerability, each
- * license issue, and each project-analysis finding (publint + circular).
- * Used both for sorting the roll-up and for the "clean" check on a row.
+ * Totals every surfaced finding for one package (vulnerabilities,
+ * license issues, and all project-analysis findings including
+ * replacements). Used to sort the roll-up so the noisiest manifests
+ * float to the top.
  */
 export function packageIssueCount(entry: PackageHealthEntry): number {
   const projectAnalysisTotal = entry.projectAnalysis?.total ?? 0;
@@ -101,6 +121,33 @@ export function packageIssueCount(entry: PackageHealthEntry): number {
     entry.licenseIssues.length +
     projectAnalysisTotal
   );
+}
+
+/**
+ * Counts only the actionable problems for a package: vulnerabilities,
+ * license issues, publint findings, and circular dependencies.
+ * Replacement suggestions are excluded because they are informational
+ * optimizations, not problems, so they never remove a row's clean check.
+ */
+export function packageProblemCount(entry: PackageHealthEntry): number {
+  const publint = entry.projectAnalysis?.publintCount ?? 0;
+  const circular = entry.projectAnalysis?.circularCount ?? 0;
+  return (
+    entry.vulnerabilities.length +
+    entry.licenseIssues.length +
+    publint +
+    circular
+  );
+}
+
+/**
+ * True when a package is genuinely clean: its project analysis actually
+ * ran (so publint / circular are known, not merely absent) and there are
+ * no problems. Replacement suggestions do not affect cleanliness. When
+ * project analysis did not run for a package, it is not reported clean.
+ */
+export function isPackageClean(entry: PackageHealthEntry): boolean {
+  return entry.projectAnalysis !== null && packageProblemCount(entry) === 0;
 }
 
 /**

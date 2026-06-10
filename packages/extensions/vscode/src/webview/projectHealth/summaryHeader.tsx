@@ -5,6 +5,7 @@ import { type FC } from "react";
 import {
   FileBadge,
   Package,
+  Recycle,
   RefreshCw,
   Scale,
   ShieldAlert,
@@ -15,21 +16,28 @@ import {
  */
 import { SeverityBreakdown } from "./severityBreakdown";
 import { SummaryChip } from "./summaryChip";
-import { formatRelativeTime } from "./helpers";
+import { formatRelativeTime, toggleFilter, type ListFilter } from "./helpers";
 import type { ProjectHealthReport } from "../../projectHealth/types";
 
 interface SummaryHeaderProps {
   report: ProjectHealthReport;
   onRun: () => void;
+  activeFilter: ListFilter;
+  onFilterChange: (filter: ListFilter) => void;
 }
 
 /**
- * Terminal state: a wrapped row of summary chips (vulnerabilities split
- * by severity, license issues, package count, unique dependency count),
- * the relative "Last run" time, an optional suppressed note, and a
- * re-run button.
+ * Terminal state: a wrapped row of clickable summary chips that double as
+ * filters (vulnerabilities, license issues, replaceable suggestions),
+ * plus package / dependency counts, the relative "Last run" time, a
+ * clickable suppressed note, and a re-run button.
  */
-export const SummaryHeader: FC<SummaryHeaderProps> = ({ report, onRun }) => {
+export const SummaryHeader: FC<SummaryHeaderProps> = ({
+  report,
+  onRun,
+  activeFilter,
+  onFilterChange,
+}) => {
   const { totals } = report;
   const { vulnerabilities } = totals;
   const hasVulnerabilities = vulnerabilities.total > 0;
@@ -40,9 +48,26 @@ export const SummaryHeader: FC<SummaryHeaderProps> = ({ report, onRun }) => {
         <div className="flex flex-col">
           <span className="text-[11px] text-slate-500 dark:text-slate-400">
             Last run {formatRelativeTime(report.generatedAt)}
-            {totals.suppressedCount > 0
-              ? ` (${totals.suppressedCount} suppressed)`
-              : ""}
+            {totals.suppressedCount > 0 ? (
+              <>
+                {" ("}
+                <button
+                  type="button"
+                  className={`underline-offset-2 hover:underline ${
+                    activeFilter === "suppressed"
+                      ? "font-semibold text-sky-600 dark:text-sky-400"
+                      : ""
+                  }`}
+                  onClick={() =>
+                    onFilterChange(toggleFilter(activeFilter, "suppressed"))
+                  }
+                  title="Show only packages with a suppressed finding"
+                >
+                  {totals.suppressedCount} suppressed
+                </button>
+                {")"}
+              </>
+            ) : null}
           </span>
         </div>
         <button
@@ -60,26 +85,43 @@ export const SummaryHeader: FC<SummaryHeaderProps> = ({ report, onRun }) => {
           value={vulnerabilities.total}
           label={vulnerabilities.total === 1 ? "vuln" : "vulns"}
           tone={hasVulnerabilities ? "danger" : "ok"}
-          title="Total vulnerabilities across the workspace"
+          title="Filter to packages with vulnerabilities"
+          onClick={() => onFilterChange(toggleFilter(activeFilter, "vuln"))}
+          isActive={activeFilter === "vuln"}
         />
         <SummaryChip
           icon={<Scale size={13} />}
           value={totals.licenseIssueCount}
           label={totals.licenseIssueCount === 1 ? "license" : "licenses"}
           tone={totals.licenseIssueCount > 0 ? "danger" : "ok"}
-          title="License issues across the workspace"
+          title="Filter to packages with license issues"
+          onClick={() => onFilterChange(toggleFilter(activeFilter, "license"))}
+          isActive={activeFilter === "license"}
+        />
+        <SummaryChip
+          icon={<Recycle size={13} />}
+          value={totals.replaceableCount}
+          label="replaceable"
+          tone={totals.replaceableCount > 0 ? "info" : "neutral"}
+          title="Filter to packages with replacement suggestions"
+          onClick={() =>
+            onFilterChange(toggleFilter(activeFilter, "replaceable"))
+          }
+          isActive={activeFilter === "replaceable"}
         />
         <SummaryChip
           icon={<Package size={13} />}
           value={totals.packageCount}
           label={totals.packageCount === 1 ? "package" : "packages"}
-          title="package.json files analyzed"
+          title="Number of package.json files analyzed. Click to show all."
+          onClick={() => onFilterChange("all")}
         />
         <SummaryChip
           icon={<FileBadge size={13} />}
           value={totals.uniqueDependencyCount}
           label="deps"
-          title="Unique dependencies across the workspace"
+          title="Distinct dependency versions analyzed across all package.json files. Click to show all."
+          onClick={() => onFilterChange("all")}
         />
       </div>
       {hasVulnerabilities ? (

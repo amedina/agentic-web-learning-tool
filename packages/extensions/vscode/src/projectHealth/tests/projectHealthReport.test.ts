@@ -159,18 +159,19 @@ describe("summarizeProjectAnalysis", () => {
   it("condenses severity and source counts", () => {
     const analysis = {
       summary: {
-        total: 4,
-        bySeverity: { error: 1, warning: 2, info: 1, hint: 0 },
-        bySource: { publint: 3, replacements: 0, "circular-deps": 1 },
+        total: 6,
+        bySeverity: { error: 1, warning: 2, info: 3, hint: 0 },
+        bySource: { publint: 3, replacements: 2, "circular-deps": 1 },
       },
     } as unknown as ProjectAnalysis;
 
     expect(summarizeProjectAnalysis(analysis)).toEqual({
-      total: 4,
+      total: 6,
       errorCount: 1,
       warningCount: 2,
       publintCount: 3,
       circularCount: 1,
+      replaceableCount: 2,
     });
   });
 });

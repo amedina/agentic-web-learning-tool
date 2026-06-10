@@ -1,7 +1,7 @@
 /**
  * External dependencies.
  */
-import { type FC } from "react";
+import { useState, type FC } from "react";
 
 /**
  * Internal dependencies.
@@ -9,6 +9,7 @@ import { type FC } from "react";
 import { PackageHealthList } from "./packageHealthList";
 import { ProjectHealthHeader } from "./projectHealthHeader";
 import { SuppressionProvider } from "./suppressionContext";
+import type { ListFilter } from "./helpers";
 import {
   isTerminalPhase,
   type MuteTarget,
@@ -53,6 +54,7 @@ export const ProjectHealthView: FC<ProjectHealthViewProps> = ({
   onMute,
   onUnmute,
 }) => {
+  const [filter, setFilter] = useState<ListFilter>("all");
   const showList =
     report !== null && isTerminalPhase(report.phase) && !isRunning;
 
@@ -64,10 +66,14 @@ export const ProjectHealthView: FC<ProjectHealthViewProps> = ({
           isRunning={isRunning}
           onRun={onRun}
           onCancel={onCancel}
+          activeFilter={filter}
+          onFilterChange={setFilter}
         />
         {showList ? (
           <PackageHealthList
             packages={report.packages}
+            filter={filter}
+            onClearFilter={() => setFilter("all")}
             onOpenPackageJson={onOpenPackageJson}
           />
         ) : null}
