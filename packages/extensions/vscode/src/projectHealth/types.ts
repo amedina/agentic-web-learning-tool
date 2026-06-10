@@ -17,6 +17,13 @@ export type VulnerabilitySeverity =
   | "low"
   | "unknown";
 
+/**
+ * Which analyses a run performs. `dependencies` is the fast pass (OSV
+ * vulnerabilities + licenses); `project` is the slower publint + circular
+ * + replacement pass; `all` runs both.
+ */
+export type ProjectHealthScope = "dependencies" | "project" | "all";
+
 /** The phases a Project Health run moves through, in order. */
 export type HealthRunPhase =
   | "idle"

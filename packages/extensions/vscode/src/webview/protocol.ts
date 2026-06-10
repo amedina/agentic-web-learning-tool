@@ -15,6 +15,7 @@ import type { BundleData } from "@agentic-web-labs/package-analyzer-ui";
 import type {
   MuteTarget,
   ProjectHealthReport,
+  ProjectHealthScope,
   SuppressionEntry,
 } from "../projectHealth/types";
 
@@ -114,12 +115,14 @@ export type WebviewRequest =
     }
   | {
       /**
-       * Starts (or no-ops, when one is already in flight) a full
-       * Project Health run across every package.json in the workspace.
-       * Results stream back as `projectHealth` messages rather than a
-       * single response, since a run produces many progress snapshots.
+       * Starts (or no-ops, when one is already in flight) a Project
+       * Health run across every package.json in the workspace. `scope`
+       * narrows the run to the fast dependency pass or the slower project
+       * analysis; omitted means both. Results stream back as
+       * `projectHealth` messages rather than a single response.
        */
       type: "runProjectHealth";
+      scope?: ProjectHealthScope;
     }
   | {
       /** Cancels the in-flight Project Health run, if any. */

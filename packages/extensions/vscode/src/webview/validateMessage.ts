@@ -92,10 +92,22 @@ export function validateWebviewMessage(
     case "ready":
     case "refreshStats":
     case "setupMcp":
-    case "runProjectHealth":
     case "cancelProjectHealth":
     case "getSuppressions":
       return { ok: true, message: message as WebviewRequest };
+
+    case "runProjectHealth": {
+      const scope = message.scope;
+      if (
+        scope !== undefined &&
+        scope !== "dependencies" &&
+        scope !== "project" &&
+        scope !== "all"
+      ) {
+        return { ok: false, reason: "runProjectHealth has an invalid scope" };
+      }
+      return { ok: true, message: message as WebviewRequest };
+    }
 
     case "getCachedProjectHealth": {
       if (!isNonEmptyString(message.requestId)) {

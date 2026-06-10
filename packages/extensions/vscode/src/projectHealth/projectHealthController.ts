@@ -29,6 +29,7 @@ import type { SuppressionStore } from "./suppressionStore";
 import type {
   MuteTarget,
   ProjectHealthReport,
+  ProjectHealthScope,
   SuppressionEntry,
 } from "./types";
 
@@ -52,8 +53,11 @@ export interface ProjectHealthControllerDeps {
 
 /** Options that vary per `run` invocation. */
 export interface RunOptions {
-  /** When false, skips the publint/circular pass (vuln + license only). */
-  includeProjectAnalysis?: boolean;
+  /**
+   * Which analyses to run. Defaults to "all". A scoped run preserves the
+   * other scope's findings from the previously cached report.
+   */
+  scope?: ProjectHealthScope;
   /**
    * When true, shows a VSCode notification summarizing the completed
    * report. Set by the scheduler for daily runs; left false for manual
@@ -207,11 +211,14 @@ export class ProjectHealthController implements vscode.Disposable {
     signal: AbortSignal,
     options: RunOptions,
   ): Promise<ProjectHealthReport> {
+    const scope = options.scope ?? "all";
     const report = await runProjectHealth(this.buildRunnerDeps(), {
       workspaceKey: this.workspaceKey(),
       workspaceName: this.workspaceName(),
       signal,
-      includeProjectAnalysis: options.includeProjectAnalysis ?? true,
+      includeDependencies: scope === "dependencies" || scope === "all",
+      includeProjectAnalysis: scope === "project" || scope === "all",
+      baseReport: this.getCached() ?? undefined,
       suppression: this.suppressionStore.predicates(),
       onProgress: (snapshot) => this.emitter.fire(snapshot),
     });

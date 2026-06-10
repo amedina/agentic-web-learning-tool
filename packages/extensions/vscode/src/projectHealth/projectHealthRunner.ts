@@ -71,11 +71,19 @@ export interface RunProjectHealthOptions {
   signal?: AbortSignal;
   onProgress?: (report: ProjectHealthReport) => void;
   concurrency?: number;
+  /** When false, skips the OSV + license fast pass. Default true. */
+  includeDependencies?: boolean;
   /** When false, skips the publint/circular pass (vuln + license only). */
   includeProjectAnalysis?: boolean;
   emitIntervalMs?: number;
   /** Suppression predicates applied to the totals (Phase 4 wires these). */
   suppression?: SuppressionPredicates;
+  /**
+   * Previous report whose findings seed the scopes this run skips, so a
+   * dependencies-only or project-only run preserves the other scope's
+   * data instead of blanking it.
+   */
+  baseReport?: ProjectHealthReport;
 }
 
 /** The vuln + license findings computed once for a unique closure entry. */
@@ -100,12 +108,23 @@ export async function runProjectHealth(
   const clock = deps.clock ?? Date.now;
   const concurrency = Math.max(1, options.concurrency ?? DEFAULT_CONCURRENCY);
   const emitIntervalMs = options.emitIntervalMs ?? DEFAULT_EMIT_INTERVAL_MS;
+  const includeDependencies = options.includeDependencies ?? true;
   const includeProjectAnalysis = options.includeProjectAnalysis ?? true;
   const startedAt = clock();
+  // Seed the scopes this run skips from the previous report, keyed by uri.
+  const baseByUri = new Map<string, PackageHealthEntry>();
+  for (const entry of options.baseReport?.packages ?? []) {
+    baseByUri.set(entry.uri, entry);
+  }
 
   let lastEmitAt = 0;
-  let fastPassCompletedAt: number | null = null;
-  let backfillCompletedAt: number | null = null;
+  // Skipped scopes keep the previous run's completion timestamp.
+  let fastPassCompletedAt: number | null = includeDependencies
+    ? null
+    : (options.baseReport?.fastPassCompletedAt ?? null);
+  let backfillCompletedAt: number | null = includeProjectAnalysis
+    ? null
+    : (options.baseReport?.backfillCompletedAt ?? null);
   const entryResults = new Map<string, EntryResult>();
   const analysisByUri = new Map<
     string,
@@ -135,7 +154,9 @@ export async function runProjectHealth(
       analysisByUri,
       replaceableByUri,
       analyzedManifests,
+      includeDependencies,
       includeProjectAnalysis,
+      baseByUri,
     );
     return {
       schemaVersion: PROJECT_HEALTH_SCHEMA_VERSION,
@@ -183,9 +204,6 @@ export async function runProjectHealth(
     phase: HealthRunPhase,
     total: number,
   ): ProjectHealthReport => {
-    if (phase === "complete") {
-      backfillCompletedAt = clock();
-    }
     const label =
       phase === "cancelled" ? "Analysis cancelled" : "Analysis complete";
     const report = snapshot(phase, progressFor(phase, total, total, label));
@@ -203,56 +221,64 @@ export async function runProjectHealth(
 
   // Fast pass: one batched OSV vulnerability lookup, then a concurrent
   // sweep of light license checks. Produces the vuln + license findings
-  // (the critical daily signal) before the slower project analysis.
-  emit(
-    "fast-pass",
-    progressFor("fast-pass", 0, closure.uniqueCount, "Checking dependencies…"),
-    true,
-  );
-  const vulnerabilitiesByEntry = await deps.fetchVulnerabilities(
-    closure.entries.map((entry) => ({
-      name: entry.name,
-      versionKey: entry.versionKey,
-    })),
-    options.signal,
-  );
-
-  if (isAborted(options.signal)) {
-    return terminal("cancelled", closure.uniqueCount);
-  }
-
-  let completedEntries = 0;
-  await mapWithConcurrency(
-    closure.entries,
-    concurrency,
-    async (entry) => {
-      const key = `${entry.name}@${entry.versionKey}`;
-      const licenseIssue = await deps.fetchLicenseIssue(
-        entry.name,
-        entry.versionKey,
-        options.signal,
-      );
-      entryResults.set(key, {
-        vulnerabilities: vulnerabilitiesByEntry.get(key) ?? [],
-        licenseIssue,
-      });
-    },
-    options.signal,
-    () => {
-      completedEntries += 1;
-      emit(
+  // (the critical daily signal) before the slower project analysis. Run
+  // only when this invocation's scope includes dependencies.
+  if (includeDependencies) {
+    emit(
+      "fast-pass",
+      progressFor(
         "fast-pass",
-        progressFor(
+        0,
+        closure.uniqueCount,
+        "Checking dependencies…",
+      ),
+      true,
+    );
+    const vulnerabilitiesByEntry = await deps.fetchVulnerabilities(
+      closure.entries.map((entry) => ({
+        name: entry.name,
+        versionKey: entry.versionKey,
+      })),
+      options.signal,
+    );
+
+    if (isAborted(options.signal)) {
+      return terminal("cancelled", closure.uniqueCount);
+    }
+
+    let completedEntries = 0;
+    await mapWithConcurrency(
+      closure.entries,
+      concurrency,
+      async (entry) => {
+        const key = `${entry.name}@${entry.versionKey}`;
+        const licenseIssue = await deps.fetchLicenseIssue(
+          entry.name,
+          entry.versionKey,
+          options.signal,
+        );
+        entryResults.set(key, {
+          vulnerabilities: vulnerabilitiesByEntry.get(key) ?? [],
+          licenseIssue,
+        });
+      },
+      options.signal,
+      () => {
+        completedEntries += 1;
+        emit(
           "fast-pass",
-          completedEntries,
-          closure.uniqueCount,
-          `Checking dependencies (${completedEntries}/${closure.uniqueCount})`,
-        ),
-        false,
-      );
-    },
-  );
-  fastPassCompletedAt = clock();
+          progressFor(
+            "fast-pass",
+            completedEntries,
+            closure.uniqueCount,
+            `Checking dependencies (${completedEntries}/${closure.uniqueCount})`,
+          ),
+          false,
+        );
+      },
+    );
+    fastPassCompletedAt = clock();
+  }
 
   if (isAborted(options.signal)) {
     return terminal("cancelled", closure.uniqueCount);
@@ -300,6 +326,9 @@ export async function runProjectHealth(
         );
       },
     );
+    if (!isAborted(options.signal)) {
+      backfillCompletedAt = clock();
+    }
   } else {
     for (const manifest of manifests) {
       analyzedManifests.add(manifest.uri);
@@ -322,37 +351,52 @@ function assemblePackages(
   analysisByUri: Map<string, PackageHealthEntry["projectAnalysis"]>,
   replaceableByUri: Map<string, ReplaceableSuggestion[]>,
   analyzedManifests: Set<string>,
+  includeDependencies: boolean,
   includeProjectAnalysis: boolean,
+  baseByUri: Map<string, PackageHealthEntry>,
 ): PackageHealthEntry[] {
   const byUri = new Map<string, PackageHealthEntry>();
   for (const manifest of closure.manifests) {
+    const base = baseByUri.get(manifest.uri);
     byUri.set(manifest.uri, {
       uri: manifest.uri,
       relativePath: manifest.relativePath,
       name: manifest.name,
       dependencyCount: manifest.dependencies.length,
-      vulnerabilities: [],
-      licenseIssues: [],
-      projectAnalysis: analysisByUri.get(manifest.uri) ?? null,
-      replaceable: replaceableByUri.get(manifest.uri) ?? [],
+      // Dependency findings are filled below when this run includes the
+      // fast pass; otherwise they are preserved from the previous report.
+      vulnerabilities: includeDependencies
+        ? []
+        : [...(base?.vulnerabilities ?? [])],
+      licenseIssues: includeDependencies
+        ? []
+        : [...(base?.licenseIssues ?? [])],
+      projectAnalysis: includeProjectAnalysis
+        ? (analysisByUri.get(manifest.uri) ?? null)
+        : (base?.projectAnalysis ?? null),
+      replaceable: includeProjectAnalysis
+        ? (replaceableByUri.get(manifest.uri) ?? [])
+        : [...(base?.replaceable ?? [])],
       status: "pending",
       warnings: [],
     });
   }
 
-  for (const entry of closure.entries) {
-    const result = entryResults.get(`${entry.name}@${entry.versionKey}`);
-    if (!result) {
-      continue;
-    }
-    for (const ref of entry.refs) {
-      const target = byUri.get(ref.uri);
-      if (!target) {
+  if (includeDependencies) {
+    for (const entry of closure.entries) {
+      const result = entryResults.get(`${entry.name}@${entry.versionKey}`);
+      if (!result) {
         continue;
       }
-      target.vulnerabilities.push(...result.vulnerabilities);
-      if (result.licenseIssue) {
-        target.licenseIssues.push(result.licenseIssue);
+      for (const ref of entry.refs) {
+        const target = byUri.get(ref.uri);
+        if (!target) {
+          continue;
+        }
+        target.vulnerabilities.push(...result.vulnerabilities);
+        if (result.licenseIssue) {
+          target.licenseIssues.push(result.licenseIssue);
+        }
       }
     }
   }
@@ -363,6 +407,7 @@ function assemblePackages(
       closure,
       entryResults,
       analyzedManifests,
+      includeDependencies,
       includeProjectAnalysis,
     );
   }
@@ -376,22 +421,26 @@ function assemblePackages(
  * Decides how far analysis has progressed for one package: "enriched"
  * once every referenced dependency is analyzed and (when requested) its
  * project analysis has run; "fast" when deps are done but analysis is
- * pending; "pending" otherwise.
+ * pending; "pending" otherwise. Scopes skipped by this run are treated
+ * as already done (their data is seeded from the previous report).
  */
 function statusFor(
   entry: PackageHealthEntry,
   closure: DependencyClosure,
   entryResults: Map<string, EntryResult>,
   analyzedManifests: Set<string>,
+  includeDependencies: boolean,
   includeProjectAnalysis: boolean,
 ): PackageEnrichmentStatus {
-  const refsDone = closure.entries
-    .filter((closureEntry) =>
-      closureEntry.refs.some((ref) => ref.uri === entry.uri),
-    )
-    .every((closureEntry) =>
-      entryResults.has(`${closureEntry.name}@${closureEntry.versionKey}`),
-    );
+  const refsDone =
+    !includeDependencies ||
+    closure.entries
+      .filter((closureEntry) =>
+        closureEntry.refs.some((ref) => ref.uri === entry.uri),
+      )
+      .every((closureEntry) =>
+        entryResults.has(`${closureEntry.name}@${closureEntry.versionKey}`),
+      );
   if (!refsDone) {
     return "pending";
   }

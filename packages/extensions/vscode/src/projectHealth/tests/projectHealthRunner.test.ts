@@ -13,7 +13,7 @@ import {
   runProjectHealth,
   type ProjectHealthRunnerDeps,
 } from "../projectHealthRunner";
-import type { VulnerabilityFinding } from "../types";
+import type { ProjectHealthReport, VulnerabilityFinding } from "../types";
 
 /** Builds a ParsedManifest with the given single-section deps. */
 function manifest(uri: string, deps: Array<[string, string]>): ParsedManifest {
@@ -161,6 +161,100 @@ describe("runProjectHealth", () => {
     expect(phases).toContain("scanning");
     expect(phases).toContain("fast-pass");
     expect(phases.at(-1)).toBe("complete");
+  });
+
+  it("project scope skips the fast pass and seeds vuln/license from the base", async () => {
+    const manifests = [manifest("a", [["lodash", "4.17.20"]])];
+    const fetchVulnerabilities = vulnerableFetcher();
+    const analyzeManifest = vi.fn((manifestArg) =>
+      Promise.resolve(emptyAnalysis(manifestArg.uri)),
+    );
+    const deps = makeDeps(
+      manifests,
+      fetchVulnerabilities,
+      undefined,
+      analyzeManifest,
+    );
+    const baseReport = {
+      packages: [
+        {
+          uri: "a",
+          relativePath: "a/package.json",
+          name: "a",
+          dependencyCount: 1,
+          vulnerabilities: [vuln("lodash", "4.17.20")],
+          licenseIssues: [],
+          projectAnalysis: null,
+          replaceable: [],
+          status: "enriched",
+          warnings: [],
+        },
+      ],
+      fastPassCompletedAt: 500,
+    } as unknown as ProjectHealthReport;
+
+    const report = await runProjectHealth(deps, {
+      workspaceKey: "ws",
+      workspaceName: null,
+      includeDependencies: false,
+      baseReport,
+    });
+
+    // The fast pass was skipped, but vuln data is preserved from the base.
+    expect(fetchVulnerabilities).not.toHaveBeenCalled();
+    expect(analyzeManifest).toHaveBeenCalled();
+    expect(report.packages[0].vulnerabilities).toHaveLength(1);
+    expect(report.totals.vulnerabilities.total).toBe(1);
+    // The preserved fast-pass timestamp carries over.
+    expect(report.fastPassCompletedAt).toBe(500);
+    expect(report.backfillCompletedAt).not.toBeNull();
+  });
+
+  it("dependencies scope skips project analysis and seeds it from the base", async () => {
+    const manifests = [manifest("a", [["lodash", "4.17.20"]])];
+    const analyzeManifest = vi.fn();
+    const deps = makeDeps(
+      manifests,
+      vulnerableFetcher(),
+      undefined,
+      analyzeManifest,
+    );
+    const baseReport = {
+      packages: [
+        {
+          uri: "a",
+          relativePath: "a/package.json",
+          name: "a",
+          dependencyCount: 1,
+          vulnerabilities: [],
+          licenseIssues: [],
+          projectAnalysis: {
+            total: 1,
+            errorCount: 0,
+            warningCount: 0,
+            publintCount: 1,
+            circularCount: 0,
+            replaceableCount: 0,
+          },
+          replaceable: [],
+          status: "enriched",
+          warnings: [],
+        },
+      ],
+      backfillCompletedAt: 900,
+    } as unknown as ProjectHealthReport;
+
+    const report = await runProjectHealth(deps, {
+      workspaceKey: "ws",
+      workspaceName: null,
+      includeProjectAnalysis: false,
+      baseReport,
+    });
+
+    expect(analyzeManifest).not.toHaveBeenCalled();
+    expect(report.packages[0].projectAnalysis?.publintCount).toBe(1);
+    expect(report.packages[0].vulnerabilities).toHaveLength(1);
+    expect(report.backfillCompletedAt).toBe(900);
   });
 
   it("returns a cancelled report when the signal is already aborted", async () => {

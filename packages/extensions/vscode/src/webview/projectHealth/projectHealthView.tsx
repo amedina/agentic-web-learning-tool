@@ -13,22 +13,26 @@ import {
   type ProjectAnalysisActions,
 } from "./projectAnalysisActionsContext";
 import { ProjectHealthHeader } from "./projectHealthHeader";
+import {
+  ProjectHealthSubTabBar,
+  type ProjectHealthSubTab,
+} from "./projectHealthSubTabBar";
 import { SuppressionProvider } from "./suppressionContext";
 import { reportHasActionableFindings, type ListFilter } from "./helpers";
-import {
-  isTerminalPhase,
-  type MuteTarget,
-  type ProjectHealthReport,
-  type SuppressionEntry,
+import type {
+  MuteTarget,
+  ProjectHealthReport,
+  ProjectHealthScope,
+  SuppressionEntry,
 } from "../../projectHealth/types";
 
 interface ProjectHealthViewProps {
   /** The latest report, or null before the first run. */
   report: ProjectHealthReport | null;
-  /** True while a run is in flight. */
-  isRunning: boolean;
-  /** Start a full workspace analysis. */
-  onRun: () => void;
+  /** The scope currently running, or null when idle. */
+  runningScope: ProjectHealthScope | null;
+  /** Start a run for the given scope. */
+  onRun: (scope: ProjectHealthScope) => void;
   /** Cancel the in-flight run. */
   onCancel: () => void;
   /** Drill into a manifest by its `vscode.Uri.toString()`. */
@@ -44,16 +48,18 @@ interface ProjectHealthViewProps {
 }
 
 /**
- * Public entry point for the Project Health mode. Renders the summary
- * header (empty / running / terminal) and, once a report exists, the
- * sorted roll-up of every package.json's vulnerabilities, license
- * issues, and project-level analysis. The component is purely
- * presentational: all run/cancel/drill-in behavior is delegated to the
- * callbacks supplied by the host.
+ * Public entry point for the Project Health mode. A workspace-wide "fix
+ * with AI" callout sits at the top, followed by a two-tab strip splitting
+ * the fast dependency check ("Dependencies") from the slower publint +
+ * circular + replacement pass ("Project Analysis"). Each sub-tab carries
+ * its own run button, summary header, and package roll-up so a slow
+ * project analysis never blocks the fast dependency check. The component
+ * is purely presentational: all run / cancel / drill-in behavior is
+ * delegated to the callbacks supplied by the host.
  */
 export const ProjectHealthView: FC<ProjectHealthViewProps> = ({
   report,
-  isRunning,
+  runningScope,
   onRun,
   onCancel,
   onOpenPackageJson,
@@ -62,17 +68,31 @@ export const ProjectHealthView: FC<ProjectHealthViewProps> = ({
   onUnmute,
   projectAnalysisActions,
 }) => {
+  const [activeTab, setActiveTab] =
+    useState<ProjectHealthSubTab>("dependencies");
   const [filter, setFilter] = useState<ListFilter>("all");
-  const showList =
-    report !== null && isTerminalPhase(report.phase) && !isRunning;
+
+  const handleTabChange = (tab: ProjectHealthSubTab): void => {
+    setActiveTab(tab);
+    setFilter("all");
+  };
+
+  const isDependencies = activeTab === "dependencies";
+  const isRunning =
+    runningScope === "all" ||
+    runningScope === (isDependencies ? "dependencies" : "project");
+  const hasCompletedRun = isDependencies
+    ? report !== null && report.fastPassCompletedAt !== null
+    : report !== null && report.backfillCompletedAt !== null;
+  const showList = !isRunning && hasCompletedRun && report !== null;
+  const showCallout =
+    report !== null && reportHasActionableFindings(report, suppressions);
 
   return (
     <SuppressionProvider value={{ suppressions, onMute, onUnmute }}>
       <ProjectAnalysisActionsProvider value={projectAnalysisActions}>
         <div className="flex flex-col gap-3 p-4">
-          {showList &&
-          report &&
-          reportHasActionableFindings(report, suppressions) ? (
+          {showCallout && report ? (
             <AggregateFixCallout
               report={report}
               suppressions={suppressions}
@@ -80,16 +100,23 @@ export const ProjectHealthView: FC<ProjectHealthViewProps> = ({
               postSetupMcp={projectAnalysisActions.postSetupMcp}
             />
           ) : null}
+          <ProjectHealthSubTabBar
+            activeTab={activeTab}
+            onChange={handleTabChange}
+          />
           <ProjectHealthHeader
+            scope={activeTab}
             report={report}
             isRunning={isRunning}
-            onRun={onRun}
+            hasCompletedRun={hasCompletedRun}
+            onRun={() => onRun(activeTab)}
             onCancel={onCancel}
             activeFilter={filter}
             onFilterChange={setFilter}
           />
           {showList ? (
             <PackageHealthList
+              scope={activeTab}
               packages={report.packages}
               filter={filter}
               onClearFilter={() => setFilter("all")}

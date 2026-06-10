@@ -56,8 +56,8 @@ if (container) {
       onRevealFinding={(filePath, range) =>
         vscodeApi.postMessage({ type: "revealFinding", filePath, range })
       }
-      onRunProjectHealth={() =>
-        vscodeApi.postMessage({ type: "runProjectHealth" })
+      onRunProjectHealth={(scope) =>
+        vscodeApi.postMessage({ type: "runProjectHealth", scope })
       }
       onCancelProjectHealth={() =>
         vscodeApi.postMessage({ type: "cancelProjectHealth" })

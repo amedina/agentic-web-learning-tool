@@ -348,7 +348,7 @@ export class WebviewBridge implements vscode.Disposable {
       case "runProjectHealth": {
         // Fire-and-forget: progress + the terminal report stream back as
         // `projectHealth` messages via the controller's onDidUpdate.
-        void this.projectHealthController.run();
+        void this.projectHealthController.run({ scope: message.scope });
         return;
       }
       case "cancelProjectHealth": {

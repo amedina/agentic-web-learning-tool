@@ -5,14 +5,28 @@ import { type FC } from "react";
 import { PlayCircle, ShieldCheck } from "lucide-react";
 
 interface EmptyHeaderProps {
+  /** Which sub-tab this empty state belongs to, tuning the copy + button. */
+  scope: "dependencies" | "project";
+  /** Kick off the run for this sub-tab's scope. */
   onRun: () => void;
 }
 
 /**
- * Empty state shown before the first run: a short explanatory line and
- * a primary button that kicks off a full workspace analysis.
+ * Empty state shown before the first run of a sub-tab: a short
+ * explanatory line and a primary button that kicks off the matching
+ * scope. The Dependencies tab runs the fast vulnerability + license
+ * check; the Project Analysis tab runs the slower publint + circular +
+ * replacement pass.
  */
-export const EmptyHeader: FC<EmptyHeaderProps> = ({ onRun }) => {
+export const EmptyHeader: FC<EmptyHeaderProps> = ({ scope, onRun }) => {
+  const isDependencies = scope === "dependencies";
+  const explanation = isDependencies
+    ? "Checks every package.json in the workspace for dependency vulnerabilities and license issues. This is the fast pass."
+    : "Analyzes every package.json for publishing (publint) problems, circular dependencies, and replacement suggestions. This is the slower pass.";
+  const buttonLabel = isDependencies
+    ? "Run dependency check"
+    : "Run project analysis";
+
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-start gap-2 text-sm text-slate-600 dark:text-slate-300">
@@ -20,10 +34,7 @@ export const EmptyHeader: FC<EmptyHeaderProps> = ({ onRun }) => {
           size={16}
           className="shrink-0 mt-0.5 text-slate-400 dark:text-slate-500"
         />
-        <p>
-          Analyzes every package.json in the workspace for vulnerabilities,
-          license issues, and publishing problems.
-        </p>
+        <p>{explanation}</p>
       </div>
       <button
         type="button"
@@ -31,7 +42,7 @@ export const EmptyHeader: FC<EmptyHeaderProps> = ({ onRun }) => {
         onClick={onRun}
       >
         <PlayCircle size={14} />
-        Run full project analysis
+        {buttonLabel}
       </button>
     </div>
   );

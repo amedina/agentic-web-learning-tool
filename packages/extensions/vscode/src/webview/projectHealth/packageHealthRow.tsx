@@ -13,18 +13,22 @@ import { isPackageClean, tallyVulnerabilities } from "./helpers";
 import type { PackageHealthEntry } from "../../projectHealth/types";
 
 interface PackageHealthRowProps {
+  /** Which sub-tab the row belongs to, selecting its badges + detail boxes. */
+  scope: "dependencies" | "project";
   entry: PackageHealthEntry;
   onOpenPackageJson: (uri: string) => void;
 }
 
 /**
- * One collapsible roll-up row for a single package.json. Collapsed it
- * shows the path, name, and compact issue badges (vulnerabilities by
- * severity, license issues, publint, circular). Expanded it lists the
- * individual vulnerabilities and license issues and offers an
+ * One collapsible roll-up row for a single package.json, scoped to the
+ * active sub-tab. Collapsed it shows the path, name, and the compact issue
+ * badges for that scope (vulnerability + license counts on the
+ * Dependencies tab; publint / circular / replaceable on the Project
+ * Analysis tab). Expanded it shows the matching detail boxes plus an
  * "Open package.json" affordance.
  */
 export const PackageHealthRow: FC<PackageHealthRowProps> = ({
+  scope,
   entry,
   onOpenPackageJson,
 }) => {
@@ -73,7 +77,11 @@ export const PackageHealthRow: FC<PackageHealthRowProps> = ({
               analyzing
             </span>
           ) : (
-            <RowBadges entry={entry} severityCounts={severityCounts} />
+            <RowBadges
+              scope={scope}
+              entry={entry}
+              severityCounts={severityCounts}
+            />
           )}
           {!isAnalyzing && isClean ? (
             <CircleCheck
@@ -85,7 +93,11 @@ export const PackageHealthRow: FC<PackageHealthRowProps> = ({
         </div>
       </button>
       {expanded ? (
-        <RowDetails entry={entry} onOpenPackageJson={onOpenPackageJson} />
+        <RowDetails
+          scope={scope}
+          entry={entry}
+          onOpenPackageJson={onOpenPackageJson}
+        />
       ) : null}
     </li>
   );

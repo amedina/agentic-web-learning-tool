@@ -29,6 +29,7 @@ import {
   isTerminalPhase,
   type MuteTarget,
   type ProjectHealthReport,
+  type ProjectHealthScope,
   type SuppressionEntry,
 } from "../projectHealth/types";
 
@@ -58,7 +59,7 @@ interface AppProps {
       endColumn: number;
     },
   ) => void;
-  onRunProjectHealth: () => void;
+  onRunProjectHealth: (scope: ProjectHealthScope) => void;
   onCancelProjectHealth: () => void;
   onGetCachedProjectHealth: (requestId: string) => void;
   onGetSuppressions: () => void;
@@ -101,7 +102,11 @@ export const App: FC<AppProps> = ({
   const [viewMode, setViewMode] = useState<ViewMode>("package");
   const [projectHealthReport, setProjectHealthReport] =
     useState<ProjectHealthReport | null>(null);
-  const [isProjectHealthRunning, setIsProjectHealthRunning] = useState(false);
+  // The scope currently running (set optimistically on click, cleared
+  // when a terminal report arrives), or null when idle.
+  const [runningScope, setRunningScope] = useState<ProjectHealthScope | null>(
+    null,
+  );
   const [suppressions, setSuppressions] = useState<SuppressionEntry[]>([]);
   const [activeTab, setActiveTab] = useState<ActiveTab>("dependencies");
   const [initState, setInitState] = useState<{
@@ -175,7 +180,9 @@ export const App: FC<AppProps> = ({
       } else if (data.type === "projectHealth") {
         // Streamed progress + the terminal snapshot for a workspace run.
         setProjectHealthReport(data.report);
-        setIsProjectHealthRunning(!isTerminalPhase(data.report.phase));
+        if (isTerminalPhase(data.report.phase)) {
+          setRunningScope(null);
+        }
       } else if (data.type === "cachedProjectHealth") {
         if (data.requestId !== pendingHealthCacheRequestIdRef.current) {
           return;
@@ -183,7 +190,6 @@ export const App: FC<AppProps> = ({
         pendingHealthCacheRequestIdRef.current = null;
         if (data.report) {
           setProjectHealthReport(data.report);
-          setIsProjectHealthRunning(!isTerminalPhase(data.report.phase));
         }
       } else if (data.type === "suppressions") {
         setSuppressions(data.entries);
@@ -250,13 +256,16 @@ export const App: FC<AppProps> = ({
     );
   }, [onNotify]);
 
-  // Optimistically flip the running flag so the header shows progress
+  // Optimistically mark the scope as running so the header shows progress
   // immediately, before the first host snapshot lands. It is cleared
   // when a terminal `projectHealth` snapshot arrives.
-  const handleRunProjectHealth = useCallback(() => {
-    setIsProjectHealthRunning(true);
-    onRunProjectHealth();
-  }, [onRunProjectHealth]);
+  const handleRunProjectHealth = useCallback(
+    (scope: ProjectHealthScope) => {
+      setRunningScope(scope);
+      onRunProjectHealth(scope);
+    },
+    [onRunProjectHealth],
+  );
 
   const handleCancelProjectHealth = useCallback(() => {
     onCancelProjectHealth();
@@ -292,7 +301,7 @@ export const App: FC<AppProps> = ({
           <div className="flex-1 min-h-0 overflow-y-auto">
             <ProjectHealthView
               report={projectHealthReport}
-              isRunning={isProjectHealthRunning}
+              runningScope={runningScope}
               onRun={handleRunProjectHealth}
               onCancel={handleCancelProjectHealth}
               onOpenPackageJson={onOpenPackageJson}

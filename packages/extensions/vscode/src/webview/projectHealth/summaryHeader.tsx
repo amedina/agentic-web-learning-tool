@@ -32,21 +32,26 @@ import {
 import type { ProjectHealthReport } from "../../projectHealth/types";
 
 interface SummaryHeaderProps {
+  /** Which sub-tab this summary belongs to, selecting the chips + run scope. */
+  scope: "dependencies" | "project";
   report: ProjectHealthReport;
+  /** Re-run the pass for this sub-tab's scope. */
   onRun: () => void;
   activeFilter: ListFilter;
   onFilterChange: (filter: ListFilter) => void;
 }
 
 /**
- * Terminal state: a wrapped row of clickable summary chips that double as
- * filters (vulnerabilities, license issues, replaceable suggestions),
- * plus package / dependency counts, the relative "Last run" time, a
- * clickable suppressed note, and a re-run button. The vuln / license /
- * replaceable chips count the number of affected packages (not deduped
+ * Terminal state for one sub-tab: a row of clickable summary chips that
+ * double as filters, the relative "Last run" time, and a re-run button.
+ * The Dependencies tab shows vulnerability + license chips (plus the
+ * static package / dependency counts and the suppressed note); the
+ * Project Analysis tab shows publint + circular + replaceable chips. Each
+ * finding chip counts the number of affected packages (not deduped
  * findings) so the chip value always equals the rows shown when clicked.
  */
 export const SummaryHeader: FC<SummaryHeaderProps> = ({
+  scope,
   report,
   onRun,
   activeFilter,
@@ -55,7 +60,12 @@ export const SummaryHeader: FC<SummaryHeaderProps> = ({
   const { suppressions } = useSuppression();
   const { totals } = report;
   const { vulnerabilities } = totals;
+  const isDependencies = scope === "dependencies";
   const hasVulnerabilities = vulnerabilities.total > 0;
+  const lastRunEpoch = isDependencies
+    ? (report.fastPassCompletedAt ?? report.generatedAt)
+    : (report.backfillCompletedAt ?? report.generatedAt);
+
   const vulnPackages = report.packages.filter((entry) =>
     entryHasActiveVulnerability(entry, suppressions),
   ).length;
@@ -77,8 +87,8 @@ export const SummaryHeader: FC<SummaryHeaderProps> = ({
       <div className="flex items-center justify-between gap-2">
         <div className="flex flex-col">
           <span className="text-[11px] text-slate-500 dark:text-slate-400">
-            Last run {formatRelativeTime(report.generatedAt)}
-            {totals.suppressedCount > 0 ? (
+            Last run {formatRelativeTime(lastRunEpoch)}
+            {isDependencies && totals.suppressedCount > 0 ? (
               <>
                 {" ("}
                 <button
@@ -110,69 +120,92 @@ export const SummaryHeader: FC<SummaryHeaderProps> = ({
         </button>
       </div>
       <div className="flex flex-wrap gap-1.5">
-        <SummaryChip
-          icon={<ShieldAlert size={13} />}
-          value={vulnPackages}
-          label={vulnPackages === 1 ? "vuln pkg" : "vuln pkgs"}
-          tone={vulnPackages > 0 ? "danger" : "ok"}
-          title={`${vulnPackages} package(s) with vulnerabilities. Click to filter.`}
-          onClick={() => onFilterChange(toggleFilter(activeFilter, "vuln"))}
-          isActive={activeFilter === "vuln"}
-        />
-        <SummaryChip
-          icon={<Scale size={13} />}
-          value={licensePackages}
-          label={licensePackages === 1 ? "license pkg" : "license pkgs"}
-          tone={licensePackages > 0 ? "danger" : "ok"}
-          title={`${licensePackages} package(s) with license issues. Click to filter.`}
-          onClick={() => onFilterChange(toggleFilter(activeFilter, "license"))}
-          isActive={activeFilter === "license"}
-        />
-        <SummaryChip
-          icon={<Recycle size={13} />}
-          value={replaceablePackages}
-          label={
-            replaceablePackages === 1 ? "replaceable pkg" : "replaceable pkgs"
-          }
-          tone={replaceablePackages > 0 ? "info" : "neutral"}
-          title={`${replaceablePackages} package(s) with replacement suggestions. Click to filter.`}
-          onClick={() =>
-            onFilterChange(toggleFilter(activeFilter, "replaceable"))
-          }
-          isActive={activeFilter === "replaceable"}
-        />
-        <SummaryChip
-          icon={<ShieldCheck size={13} />}
-          value={publintPackages}
-          label={publintPackages === 1 ? "publishing pkg" : "publishing pkgs"}
-          tone={publintPackages > 0 ? "warning" : "ok"}
-          title={`${publintPackages} package(s) with publishing (publint) issues. Click to filter.`}
-          onClick={() => onFilterChange(toggleFilter(activeFilter, "publint"))}
-          isActive={activeFilter === "publint"}
-        />
-        <SummaryChip
-          icon={<Repeat size={13} />}
-          value={circularPackages}
-          label={circularPackages === 1 ? "circular pkg" : "circular pkgs"}
-          tone={circularPackages > 0 ? "warning" : "ok"}
-          title={`${circularPackages} package(s) with circular dependencies. Click to filter.`}
-          onClick={() => onFilterChange(toggleFilter(activeFilter, "circular"))}
-          isActive={activeFilter === "circular"}
-        />
-        <SummaryChip
-          icon={<Package size={13} />}
-          value={totals.packageCount}
-          label={totals.packageCount === 1 ? "package" : "packages"}
-          title="Number of package.json files analyzed."
-        />
-        <SummaryChip
-          icon={<FileBadge size={13} />}
-          value={totals.uniqueDependencyCount}
-          label="deps"
-          title="Distinct dependency versions analyzed across all package.json files."
-        />
+        {isDependencies ? (
+          <>
+            <SummaryChip
+              icon={<ShieldAlert size={13} />}
+              value={vulnPackages}
+              label={vulnPackages === 1 ? "vuln pkg" : "vuln pkgs"}
+              tone={vulnPackages > 0 ? "danger" : "ok"}
+              title={`${vulnPackages} package(s) with vulnerabilities. Click to filter.`}
+              onClick={() => onFilterChange(toggleFilter(activeFilter, "vuln"))}
+              isActive={activeFilter === "vuln"}
+            />
+            <SummaryChip
+              icon={<Scale size={13} />}
+              value={licensePackages}
+              label={licensePackages === 1 ? "license pkg" : "license pkgs"}
+              tone={licensePackages > 0 ? "danger" : "ok"}
+              title={`${licensePackages} package(s) with license issues. Click to filter.`}
+              onClick={() =>
+                onFilterChange(toggleFilter(activeFilter, "license"))
+              }
+              isActive={activeFilter === "license"}
+            />
+            <SummaryChip
+              icon={<Package size={13} />}
+              value={totals.packageCount}
+              label={totals.packageCount === 1 ? "package" : "packages"}
+              title="Number of package.json files analyzed."
+            />
+            <SummaryChip
+              icon={<FileBadge size={13} />}
+              value={totals.uniqueDependencyCount}
+              label="deps"
+              title="Distinct dependency versions analyzed across all package.json files."
+            />
+          </>
+        ) : (
+          <>
+            <SummaryChip
+              icon={<ShieldCheck size={13} />}
+              value={publintPackages}
+              label={
+                publintPackages === 1 ? "publishing pkg" : "publishing pkgs"
+              }
+              tone={publintPackages > 0 ? "warning" : "ok"}
+              title={`${publintPackages} package(s) with publishing (publint) issues. Click to filter.`}
+              onClick={() =>
+                onFilterChange(toggleFilter(activeFilter, "publint"))
+              }
+              isActive={activeFilter === "publint"}
+            />
+            <SummaryChip
+              icon={<Repeat size={13} />}
+              value={circularPackages}
+              label={circularPackages === 1 ? "circular pkg" : "circular pkgs"}
+              tone={circularPackages > 0 ? "warning" : "ok"}
+              title={`${circularPackages} package(s) with circular dependencies. Click to filter.`}
+              onClick={() =>
+                onFilterChange(toggleFilter(activeFilter, "circular"))
+              }
+              isActive={activeFilter === "circular"}
+            />
+            <SummaryChip
+              icon={<Recycle size={13} />}
+              value={replaceablePackages}
+              label={
+                replaceablePackages === 1
+                  ? "replaceable pkg"
+                  : "replaceable pkgs"
+              }
+              tone={replaceablePackages > 0 ? "info" : "neutral"}
+              title={`${replaceablePackages} package(s) with replacement suggestions. Click to filter.`}
+              onClick={() =>
+                onFilterChange(toggleFilter(activeFilter, "replaceable"))
+              }
+              isActive={activeFilter === "replaceable"}
+            />
+            <SummaryChip
+              icon={<Package size={13} />}
+              value={totals.packageCount}
+              label={totals.packageCount === 1 ? "package" : "packages"}
+              title="Number of package.json files analyzed."
+            />
+          </>
+        )}
       </div>
-      {hasVulnerabilities ? (
+      {isDependencies && hasVulnerabilities ? (
         <SeverityBreakdown
           critical={vulnerabilities.critical}
           high={vulnerabilities.high}

@@ -16,6 +16,8 @@ import { useSuppression } from "./suppressionContext";
 import type { PackageHealthEntry } from "../../projectHealth/types";
 
 interface PackageHealthListProps {
+  /** Which sub-tab the list belongs to, threaded down to each row. */
+  scope: "dependencies" | "project";
   packages: PackageHealthEntry[];
   filter: ListFilter;
   onClearFilter: () => void;
@@ -23,12 +25,13 @@ interface PackageHealthListProps {
 }
 
 /**
- * The workspace roll-up list. Sorts packages by total finding count
- * descending (the noisiest manifests float to the top), breaking ties by
- * relative path, then narrows to the active filter. Renders one
- * collapsible row per visible package.
+ * The workspace roll-up list for one sub-tab. Sorts packages by total
+ * finding count descending (the noisiest manifests float to the top),
+ * breaking ties by relative path, then narrows to the active filter.
+ * Renders one collapsible row per visible package.
  */
 export const PackageHealthList: FC<PackageHealthListProps> = ({
+  scope,
   packages,
   filter,
   onClearFilter,
@@ -95,6 +98,7 @@ export const PackageHealthList: FC<PackageHealthListProps> = ({
         {visible.map((entry) => (
           <PackageHealthRow
             key={entry.uri}
+            scope={scope}
             entry={entry}
             onOpenPackageJson={onOpenPackageJson}
           />
