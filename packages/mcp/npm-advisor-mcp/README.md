@@ -17,22 +17,23 @@ Four tools:
 
 Every tool returns plain JSON in the MCP `text` content slot so any AI client can parse it deterministically. The `analyze_package_json` and `get_package_stats` tools include rendering hints in their descriptions that instruct Claude to present results as a rich visual artifact (metric cards, score bar chart, tabbed sections) when the client supports it.
 
-## Quick install
+## Install
 
-The server runs as a Node binary. The recommended invocation is via `npx` so you don't have to manage a global install or path:
+This package is part of the `agentic-web-labs` monorepo and is **not published to npm** — you run it from a local build of `dist/server.js`. There are two ways to set it up:
 
-```sh
-npx -y @agentic-web-labs/npm-advisor-mcp
-```
+- **Easiest:** install the [NPM Advisor VSCode extension](../../extensions/vscode) and run its **"Set up MCP server"** command — it wires the built server path into Claude Code, Claude Desktop, Cursor, Windsurf, and Continue for you.
+- **Manual:** [build from source](#build-from-source) to produce `dist/server.js`, then point your AI client at it with `node`, as shown below.
 
 It speaks MCP over stdio by default. Configure your AI client to spawn it as below — or jump to [HTTP transport](#http-transport-host-it-on-localhost-or-a-remote-server) to run it as a long-lived local or remote server instead.
+
+> In every example below, replace `/absolute/path/to/dist/server.js` with the real path to this package's built server — e.g. `…/agentic-web-labs/packages/mcp/npm-advisor-mcp/dist/server.js`.
 
 ### Claude Code
 
 Add the server via the Claude Code CLI from your project root:
 
 ```sh
-claude mcp add npm-advisor -- npx -y @agentic-web-labs/npm-advisor-mcp
+claude mcp add npm-advisor -- node "/absolute/path/to/dist/server.js"
 ```
 
 This writes an entry to `~/.claude.json` (or `.mcp.json` if you want it scoped to the project). Restart any open Claude Code session and ask: *"List my dependencies and tell me which ones have security issues."*
@@ -45,8 +46,8 @@ Edit `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) o
 {
   "mcpServers": {
     "npm-advisor": {
-      "command": "npx",
-      "args": ["-y", "@agentic-web-labs/npm-advisor-mcp"]
+      "command": "node",
+      "args": ["/absolute/path/to/dist/server.js"]
     }
   }
 }
@@ -62,8 +63,8 @@ In Cursor's settings, open *MCP* → *Add new global MCP server* and paste:
 {
   "mcpServers": {
     "npm-advisor": {
-      "command": "npx",
-      "args": ["-y", "@agentic-web-labs/npm-advisor-mcp"]
+      "command": "node",
+      "args": ["/absolute/path/to/dist/server.js"]
     }
   }
 }
@@ -79,8 +80,8 @@ Add to your workspace's `.vscode/mcp.json` (or user-scope `mcp.json`):
 {
   "servers": {
     "npm-advisor": {
-      "command": "npx",
-      "args": ["-y", "@agentic-web-labs/npm-advisor-mcp"]
+      "command": "node",
+      "args": ["/absolute/path/to/dist/server.js"]
     }
   }
 }
@@ -99,8 +100,8 @@ In `~/.continue/config.json` (or the project-scoped `.continue/config.json`):
       {
         "transport": {
           "type": "stdio",
-          "command": "npx",
-          "args": ["-y", "@agentic-web-labs/npm-advisor-mcp"]
+          "command": "node",
+          "args": ["/absolute/path/to/dist/server.js"]
         }
       }
     ]
@@ -115,15 +116,15 @@ By default the binary speaks MCP over stdio so AI clients can spawn it as a subp
 ### Run locally
 
 ```sh
-npx -y @agentic-web-labs/npm-advisor-mcp --http
+node /absolute/path/to/dist/server.js --http
 ```
 
-This binds to `127.0.0.1:3845` (loopback only — not reachable from other machines) and serves MCP at `http://127.0.0.1:3845/mcp`.
+(Or, from the repo root during development: `pnpm start:npm-advisor-mcp:http`.) This binds to `127.0.0.1:3845` (loopback only — not reachable from other machines) and serves MCP at `http://127.0.0.1:3845/mcp`.
 
 Override the port and host with flags:
 
 ```sh
-npx -y @agentic-web-labs/npm-advisor-mcp --http --port 4000 --host 127.0.0.1
+node /absolute/path/to/dist/server.js --http --port 4000 --host 127.0.0.1
 ```
 
 Point any MCP-aware client at the URL. For example, Claude Desktop:
@@ -145,7 +146,7 @@ To accept connections from other machines, bind to a non-loopback address (`0.0.
 
 ```sh
 MCP_HTTP_TOKEN=your-long-random-token \
-  npx -y @agentic-web-labs/npm-advisor-mcp --http --host 0.0.0.0 --port 3845
+  node /absolute/path/to/dist/server.js --http --host 0.0.0.0 --port 3845
 ```
 
 When `MCP_HTTP_TOKEN` is set, every request must include:
@@ -199,8 +200,8 @@ A typical Claude Desktop entry with auth:
 {
   "mcpServers": {
     "npm-advisor": {
-      "command": "npx",
-      "args": ["-y", "@agentic-web-labs/npm-advisor-mcp"],
+      "command": "node",
+      "args": ["/absolute/path/to/dist/server.js"],
       "env": {
         "GITHUB_TOKEN": "ghp_…"
       }
