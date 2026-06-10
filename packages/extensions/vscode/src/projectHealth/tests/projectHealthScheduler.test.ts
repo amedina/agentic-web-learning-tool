@@ -54,7 +54,10 @@ describe("ProjectHealthScheduler", () => {
 
     scheduler.start();
 
-    expect(controller.run).toHaveBeenCalledWith({ notify: true });
+    expect(controller.run).toHaveBeenCalledWith({
+      scope: "dependencies",
+      notify: true,
+    });
   });
 
   it("does nothing when autoRun is off", () => {

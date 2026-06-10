@@ -7,6 +7,7 @@ import type * as vscode from "vscode";
  * Internal dependencies.
  */
 import type { ProjectHealthAutoRun } from "../diagnostics/settings";
+import type { ProjectHealthScope } from "./types";
 
 /**
  * Backstop interval while the editor window stays open (1 hour). The
@@ -19,7 +20,10 @@ const DEFAULT_INTERVAL_MS = 60 * 60 * 1000;
 export interface SchedulableController {
   readonly isRunning: boolean;
   isRunDue(dueAfterMs?: number): boolean;
-  run(options: { notify?: boolean }): Promise<unknown>;
+  run(options: {
+    scope?: ProjectHealthScope;
+    notify?: boolean;
+  }): Promise<unknown>;
 }
 
 export interface ProjectHealthSchedulerDeps {
@@ -34,12 +38,14 @@ export interface ProjectHealthSchedulerDeps {
 }
 
 /**
- * Drives the optional daily Project Health run. Uses the editor-friendly
- * "due on activation + interval while open" model rather than a wall
- * clock cron: it checks on start and once an hour while the window is
- * open, running only when the user opted into `daily`, no run is already
- * in flight, and the durable cache says a run is due (last completed run
- * is older than a day). Scheduled runs notify the user with a summary.
+ * Drives the optional daily dependency health check. Uses the
+ * editor-friendly "due on activation + interval while open" model rather
+ * than a wall clock cron: it checks on start and once an hour while the
+ * window is open, running only when the user opted into `daily`, no run is
+ * already in flight, and the durable cache says a run is due (last
+ * completed run is older than a day). Scheduled runs cover only the
+ * dependency scope (vulnerabilities + licenses) so the slow project
+ * analysis never runs unattended, and notify the user with a summary.
  */
 export class ProjectHealthScheduler implements vscode.Disposable {
   private readonly controller: SchedulableController;
@@ -91,7 +97,7 @@ export class ProjectHealthScheduler implements vscode.Disposable {
     if (!this.controller.isRunDue()) {
       return;
     }
-    void this.controller.run({ notify: true });
+    void this.controller.run({ scope: "dependencies", notify: true });
   }
 
   /** Clears the backstop interval. */
