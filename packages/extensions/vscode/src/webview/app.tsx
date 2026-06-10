@@ -114,8 +114,9 @@ export const App: FC<AppProps> = ({
   const [suppressions, setSuppressions] = useState<SuppressionEntry[]>([]);
   // Mirrors npmAdvisor.projectHealth.autoRun; drives the in-panel toggle
   // on the Dependencies tab. Seeded from the host on mount and kept in
-  // sync via `projectHealthSettings` messages.
-  const [autoRunDaily, setAutoRunDaily] = useState(false);
+  // sync via `projectHealthSettings` messages. Initialized to the "daily"
+  // default so the collapsed toggle reads "On" before the host replies.
+  const [autoRunDaily, setAutoRunDaily] = useState(true);
   const [activeTab, setActiveTab] = useState<ActiveTab>("dependencies");
   const [initState, setInitState] = useState<{
     activeFile: PackageJsonFile | null;

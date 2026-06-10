@@ -44,7 +44,7 @@ export function readSettings(): NpmAdvisorSettings {
     outdatedMajorThreshold: config.get<number>("outdatedMajorThreshold", 2),
     projectHealthAutoRun: config.get<ProjectHealthAutoRun>(
       "projectHealth.autoRun",
-      "off",
+      "daily",
     ),
   };
 }

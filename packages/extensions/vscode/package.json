@@ -174,8 +174,8 @@
             "Never run automatically. You can still run a check from the Project Health view.",
             "Run a dependency health check (vulnerabilities + licenses across every package.json) once per day and notify you with a summary."
           ],
-          "default": "off",
-          "description": "Automatically run the workspace-wide dependency health check (vulnerabilities and license compatibility across every package.json) once a day and notify you of the result. The slower project analysis is never run unattended. You can also toggle this from the Project Health > Dependencies view."
+          "default": "daily",
+          "description": "Automatically run the workspace-wide dependency health check (vulnerabilities and license compatibility across every package.json) once a day and notify you of the result. On by default; the slower project analysis is never run unattended. You can also toggle this from the Project Health > Dependencies view, or turn it off from the daily notification."
         }
       }
     }
