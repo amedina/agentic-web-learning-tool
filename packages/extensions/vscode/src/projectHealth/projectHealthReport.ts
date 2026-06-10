@@ -156,6 +156,7 @@ export function replacementsFromAnalysis(
       const data = (finding.data ?? {}) as {
         packageName?: unknown;
         replacements?: unknown;
+        documentationUrl?: unknown;
       };
       const replacements = Array.isArray(data.replacements)
         ? data.replacements.filter(
@@ -166,6 +167,10 @@ export function replacementsFromAnalysis(
         packageName:
           typeof data.packageName === "string" ? data.packageName : "",
         replacements,
+        documentationUrl:
+          typeof data.documentationUrl === "string"
+            ? data.documentationUrl
+            : null,
         message: finding.message,
       };
     });

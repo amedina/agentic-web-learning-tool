@@ -13,6 +13,7 @@ import {
   deriveAdvisoryId,
   licenseFindingFromStats,
   normalizeSeverity,
+  replacementsFromAnalysis,
   summarizeProjectAnalysis,
   vulnerabilitiesFromStats,
 } from "../projectHealthReport";
@@ -174,6 +175,48 @@ describe("summarizeProjectAnalysis", () => {
       circularCount: 1,
       replaceableCount: 2,
     });
+  });
+});
+
+describe("replacementsFromAnalysis", () => {
+  it("extracts replacement findings with their suggestions and doc url", () => {
+    const analysis = {
+      findings: [
+        {
+          source: "replacements",
+          message: "rimraf has lighter alternatives.",
+          data: {
+            packageName: "rimraf",
+            replacements: ["native fs.promises.rm"],
+            documentationUrl: "https://e18e.dev/guide/replacements/rimraf.html",
+          },
+        },
+        { source: "publint", message: "p", data: {} },
+      ],
+    } as unknown as ProjectAnalysis;
+
+    const result = replacementsFromAnalysis(analysis);
+
+    expect(result).toHaveLength(1);
+    expect(result[0]).toMatchObject({
+      packageName: "rimraf",
+      replacements: ["native fs.promises.rm"],
+      documentationUrl: "https://e18e.dev/guide/replacements/rimraf.html",
+    });
+  });
+
+  it("tolerates findings without replacement data", () => {
+    const analysis = {
+      findings: [{ source: "replacements", message: "x", data: undefined }],
+    } as unknown as ProjectAnalysis;
+    expect(replacementsFromAnalysis(analysis)).toEqual([
+      {
+        packageName: "",
+        replacements: [],
+        documentationUrl: null,
+        message: "x",
+      },
+    ]);
   });
 });
 

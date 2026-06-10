@@ -164,7 +164,13 @@ export const App: FC<AppProps> = ({
         // every time its file is reactivated (because the second effect
         // re-runs on each new packageJsonDependencies object reference).
         setFocusPackageName(data.focusPackageName ?? null);
+        // A focus request (e.g. "Show full insights" from the hover) only
+        // makes sense in the per-package view, so switch back to it.
+        if (data.focusPackageName) {
+          setViewMode("package");
+        }
       } else if (data.type === "focusPackage") {
+        setViewMode("package");
         setFocusPackageName(data.packageName);
       } else if (data.type === "projectHealth") {
         // Streamed progress + the terminal snapshot for a workspace run.

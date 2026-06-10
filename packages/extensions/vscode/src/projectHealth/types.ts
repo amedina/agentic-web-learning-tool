@@ -89,6 +89,12 @@ export interface ReplaceableSuggestion {
   packageName: string;
   /** Suggested lighter replacements (package or approach names). */
   replacements: string[];
+  /**
+   * Documentation link (e.g. an e18e.dev guide) for the replacement, used
+   * when a suggestion is an approach rather than an installable package.
+   * Null when the manifest provides no link.
+   */
+  documentationUrl: string | null;
   /** Full human-readable message from the analyzer. */
   message: string;
 }

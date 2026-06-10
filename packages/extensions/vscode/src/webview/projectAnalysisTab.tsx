@@ -31,6 +31,12 @@ interface ProjectAnalysisTabProps {
   hideFixWithAi?: boolean;
   /** Hides the replacements card (set when embedded in a Project Health row). */
   hideReplacements?: boolean;
+  /**
+   * Hides the run controls (header, re-run, about, stale banner). Set when
+   * embedded in a Project Health row, which is read-only: re-running an
+   * individual package is done by opening its package.json instead.
+   */
+  hideHeader?: boolean;
 }
 
 /**
@@ -48,6 +54,7 @@ export const ProjectAnalysisTab: FC<ProjectAnalysisTabProps> = ({
   postSetupMcp,
   hideFixWithAi = false,
   hideReplacements = false,
+  hideHeader = false,
 }) => {
   const [status, setStatus] = useState<Status>({ kind: "idle" });
   const [stale, setStale] = useState<StaleState | null>(null);
@@ -175,17 +182,19 @@ export const ProjectAnalysisTab: FC<ProjectAnalysisTabProps> = ({
 
   return (
     <div className="flex flex-col gap-3 p-4">
-      <Header
-        status={status}
-        onRun={handleRun}
-        disabled={status.kind === "running"}
-        showAbout={showAbout}
-        onToggleAbout={() => setShowAbout((value) => !value)}
-      />
-      {showAbout && status.kind === "ready" && (
+      {!hideHeader && (
+        <Header
+          status={status}
+          onRun={handleRun}
+          disabled={status.kind === "running"}
+          showAbout={showAbout}
+          onToggleAbout={() => setShowAbout((value) => !value)}
+        />
+      )}
+      {!hideHeader && showAbout && status.kind === "ready" && (
         <AboutPanel onClose={() => setShowAbout(false)} />
       )}
-      {stale && status.kind === "ready" && (
+      {!hideHeader && stale && status.kind === "ready" && (
         <StaleBanner
           changedFileDisplayPath={stale.changedFileDisplayPath}
           onRerun={handleRun}

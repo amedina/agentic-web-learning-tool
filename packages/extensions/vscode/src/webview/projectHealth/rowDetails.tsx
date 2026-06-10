@@ -129,6 +129,16 @@ export const RowDetails: FC<RowDetailsProps> = ({
                             >
                               {replacement}
                             </a>
+                          ) : suggestion.documentationUrl ? (
+                            <a
+                              href={suggestion.documentationUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-sky-700 hover:underline dark:text-sky-300"
+                              title="Open the replacement documentation"
+                            >
+                              {replacement}
+                            </a>
                           ) : (
                             <span>{replacement}</span>
                           )}
@@ -157,6 +167,7 @@ export const RowDetails: FC<RowDetailsProps> = ({
           postSetupMcp={actions.postSetupMcp}
           hideFixWithAi
           hideReplacements
+          hideHeader
         />
       </section>
 
