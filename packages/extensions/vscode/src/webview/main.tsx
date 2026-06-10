@@ -74,6 +74,12 @@ if (container) {
       onUnmuteFinding={(target) =>
         vscodeApi.postMessage({ type: "unmuteFinding", target })
       }
+      onGetProjectHealthSettings={() =>
+        vscodeApi.postMessage({ type: "getProjectHealthSettings" })
+      }
+      onSetProjectHealthAutoRun={(enabled) =>
+        vscodeApi.postMessage({ type: "setProjectHealthAutoRun", enabled })
+      }
     />,
   );
 }

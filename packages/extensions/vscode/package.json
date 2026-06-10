@@ -117,6 +117,11 @@
         "command": "npmAdvisor.runProjectHealth",
         "title": "NPM Advisor: Run full Project Health analysis (all package.json files)",
         "category": "NPM Advisor"
+      },
+      {
+        "command": "npmAdvisor.runDailyHealthCheck",
+        "title": "NPM Advisor: Run daily dependency health check now (vulnerabilities + licenses, with notification)",
+        "category": "NPM Advisor"
       }
     ],
     "chatParticipants": [
@@ -166,11 +171,11 @@
             "daily"
           ],
           "enumDescriptions": [
-            "Never run automatically. You can still run a full analysis from the Project Health view.",
-            "Run a full Project Health analysis once per day and notify you with a summary of any vulnerabilities or license issues."
+            "Never run automatically. You can still run a check from the Project Health view.",
+            "Run a dependency health check (vulnerabilities + licenses across every package.json) once per day and notify you with a summary."
           ],
           "default": "off",
-          "description": "Automatically run the workspace-wide Project Health analysis (vulnerabilities, licenses, and publishing checks across every package.json) on a daily schedule and notify you of the result."
+          "description": "Automatically run the workspace-wide dependency health check (vulnerabilities and license compatibility across every package.json) once a day and notify you of the result. The slower project analysis is never run unattended. You can also toggle this from the Project Health > Dependencies view."
         }
       }
     }

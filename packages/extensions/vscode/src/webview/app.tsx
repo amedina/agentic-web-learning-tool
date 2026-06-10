@@ -65,6 +65,8 @@ interface AppProps {
   onGetSuppressions: () => void;
   onMuteFinding: (target: MuteTarget, reason?: string) => void;
   onUnmuteFinding: (target: MuteTarget) => void;
+  onGetProjectHealthSettings: () => void;
+  onSetProjectHealthAutoRun: (enabled: boolean) => void;
 }
 
 const EMPTY_DEPS: PackageJsonDependenciesPayload = {
@@ -98,6 +100,8 @@ export const App: FC<AppProps> = ({
   onGetSuppressions,
   onMuteFinding,
   onUnmuteFinding,
+  onGetProjectHealthSettings,
+  onSetProjectHealthAutoRun,
 }) => {
   const [viewMode, setViewMode] = useState<ViewMode>("package");
   const [projectHealthReport, setProjectHealthReport] =
@@ -108,6 +112,10 @@ export const App: FC<AppProps> = ({
     null,
   );
   const [suppressions, setSuppressions] = useState<SuppressionEntry[]>([]);
+  // Mirrors npmAdvisor.projectHealth.autoRun; drives the in-panel toggle
+  // on the Dependencies tab. Seeded from the host on mount and kept in
+  // sync via `projectHealthSettings` messages.
+  const [autoRunDaily, setAutoRunDaily] = useState(false);
   const [activeTab, setActiveTab] = useState<ActiveTab>("dependencies");
   const [initState, setInitState] = useState<{
     activeFile: PackageJsonFile | null;
@@ -137,6 +145,8 @@ export const App: FC<AppProps> = ({
   onGetCachedProjectHealthRef.current = onGetCachedProjectHealth;
   const onGetSuppressionsRef = useRef(onGetSuppressions);
   onGetSuppressionsRef.current = onGetSuppressions;
+  const onGetProjectHealthSettingsRef = useRef(onGetProjectHealthSettings);
+  onGetProjectHealthSettingsRef.current = onGetProjectHealthSettings;
   const pendingHealthCacheRequestIdRef = useRef<string | null>(null);
   // Tracks the refreshKey from the previous init so we can detect a host-side
   // cache wipe and drop useDependencyStats's module-level cache before the
@@ -202,6 +212,8 @@ export const App: FC<AppProps> = ({
         }
       } else if (data.type === "suppressions") {
         setSuppressions(data.entries);
+      } else if (data.type === "projectHealthSettings") {
+        setAutoRunDaily(data.autoRunDaily);
       }
     };
     window.addEventListener("message", handle);
@@ -213,6 +225,8 @@ export const App: FC<AppProps> = ({
     pendingHealthCacheRequestIdRef.current = healthRequestId;
     onGetCachedProjectHealthRef.current(healthRequestId);
     onGetSuppressionsRef.current();
+    // Seed the auto-run toggle from the persisted setting.
+    onGetProjectHealthSettingsRef.current();
     return () => window.removeEventListener("message", handle);
   }, []);
 
@@ -329,6 +343,8 @@ export const App: FC<AppProps> = ({
               suppressions={suppressions}
               onMute={onMuteFinding}
               onUnmute={onUnmuteFinding}
+              autoRunDaily={autoRunDaily}
+              onSetAutoRunDaily={onSetProjectHealthAutoRun}
               projectAnalysisActions={{
                 postRunRequest: onRunProjectAnalysis,
                 postCacheRequest: onGetCachedProjectAnalysis,

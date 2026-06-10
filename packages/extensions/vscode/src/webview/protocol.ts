@@ -151,6 +151,22 @@ export type WebviewRequest =
   | {
       /** Asks the host to (re)broadcast the current suppression list. */
       type: "getSuppressions";
+    }
+  | {
+      /**
+       * Asks the host for the current Project Health auto-run setting so
+       * the in-panel toggle can reflect `npmAdvisor.projectHealth.autoRun`.
+       */
+      type: "getProjectHealthSettings";
+    }
+  | {
+      /**
+       * Sets the daily dependency auto-run on or off. The host writes
+       * `npmAdvisor.projectHealth.autoRun` (`daily` / `off`) and echoes the
+       * new value back via a `projectHealthSettings` message.
+       */
+      type: "setProjectHealthAutoRun";
+      enabled: boolean;
     };
 
 export type ExtensionMessage =
@@ -271,6 +287,16 @@ export type ExtensionMessage =
        */
       type: "suppressions";
       entries: SuppressionEntry[];
+    }
+  | {
+      /**
+       * The current Project Health auto-run setting, broadcast in reply to
+       * `getProjectHealthSettings` and again whenever
+       * `npmAdvisor.projectHealth.autoRun` changes (from the in-panel
+       * toggle or the Settings UI) so the toggle stays in sync.
+       */
+      type: "projectHealthSettings";
+      autoRunDaily: boolean;
     };
 
 export interface PackageJsonDependenciesPayload {

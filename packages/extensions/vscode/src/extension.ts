@@ -142,6 +142,19 @@ export function activate(context: vscode.ExtensionContext): void {
       await vscode.commands.executeCommand(`${WEBVIEW_VIEW_ID}.focus`);
       void projectHealthController.run();
     }),
+    // Simulates the scheduled daily run on demand: a dependency-scope pass
+    // with the summary notification. Lets a developer (or any user) test
+    // the auto-run flow without flipping the setting or waiting a day.
+    vscode.commands.registerCommand(
+      "npmAdvisor.runDailyHealthCheck",
+      async () => {
+        await vscode.commands.executeCommand(`${WEBVIEW_VIEW_ID}.focus`);
+        void projectHealthController.run({
+          scope: "dependencies",
+          notify: true,
+        });
+      },
+    ),
   );
 
   const bridge = new WebviewBridge({
@@ -278,8 +291,11 @@ export function activate(context: vscode.ExtensionContext): void {
       }
       void runner.refreshOpenPackageJsons();
       // Re-evaluate the schedule immediately when the user flips
-      // projectHealth.autoRun, rather than waiting for the next tick.
+      // projectHealth.autoRun, rather than waiting for the next tick, and
+      // re-broadcast the value so the in-panel toggle stays in sync with
+      // changes made from the Settings UI.
       projectHealthScheduler.checkNow();
+      bridge.notifyProjectHealthSettings();
     }),
     cache.onDidChange((change) => {
       void runner.refreshOpenPackageJsons();

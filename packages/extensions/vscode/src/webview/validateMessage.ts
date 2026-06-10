@@ -35,6 +35,8 @@ const ALLOWED_TYPES: ReadonlySet<WebviewRequest["type"]> = new Set([
   "muteFinding",
   "unmuteFinding",
   "getSuppressions",
+  "getProjectHealthSettings",
+  "setProjectHealthAutoRun",
 ] as const);
 
 /**
@@ -94,7 +96,18 @@ export function validateWebviewMessage(
     case "setupMcp":
     case "cancelProjectHealth":
     case "getSuppressions":
+    case "getProjectHealthSettings":
       return { ok: true, message: message as WebviewRequest };
+
+    case "setProjectHealthAutoRun": {
+      if (typeof message.enabled !== "boolean") {
+        return {
+          ok: false,
+          reason: "setProjectHealthAutoRun missing boolean enabled",
+        };
+      }
+      return { ok: true, message: message as WebviewRequest };
+    }
 
     case "runProjectHealth": {
       const scope = message.scope;

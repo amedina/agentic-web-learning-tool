@@ -7,6 +7,7 @@ import { useState, type FC } from "react";
  * Internal dependencies.
  */
 import { AggregateFixCallout } from "./aggregateFixCallout";
+import { AutoRunToggle } from "./autoRunToggle";
 import { PackageHealthList } from "./packageHealthList";
 import {
   ProjectAnalysisActionsProvider,
@@ -43,6 +44,10 @@ interface ProjectHealthViewProps {
   onMute: (target: MuteTarget, reason?: string) => void;
   /** Remove an existing mute so the finding is shown again. */
   onUnmute: (target: MuteTarget) => void;
+  /** True when the daily dependency auto-run is enabled. */
+  autoRunDaily: boolean;
+  /** Enable or disable the daily dependency auto-run. */
+  onSetAutoRunDaily: (enabled: boolean) => void;
   /** Callbacks for the per-package project analysis embedded in each row. */
   projectAnalysisActions: ProjectAnalysisActions;
 }
@@ -66,6 +71,8 @@ export const ProjectHealthView: FC<ProjectHealthViewProps> = ({
   suppressions,
   onMute,
   onUnmute,
+  autoRunDaily,
+  onSetAutoRunDaily,
   projectAnalysisActions,
 }) => {
   const [activeTab, setActiveTab] =
@@ -98,6 +105,12 @@ export const ProjectHealthView: FC<ProjectHealthViewProps> = ({
             activeTab={activeTab}
             onChange={handleTabChange}
           />
+          {isDependencies ? (
+            <AutoRunToggle
+              enabled={autoRunDaily}
+              onChange={onSetAutoRunDaily}
+            />
+          ) : null}
           <ProjectHealthHeader
             scope={activeTab}
             report={report}

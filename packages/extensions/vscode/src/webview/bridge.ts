@@ -381,6 +381,26 @@ export class WebviewBridge implements vscode.Disposable {
         this.postSuppressions();
         return;
       }
+      case "getProjectHealthSettings": {
+        this.notifyProjectHealthSettings();
+        return;
+      }
+      case "setProjectHealthAutoRun": {
+        // Write the user setting globally so the choice follows the user
+        // rather than dirtying the workspace's .vscode/settings.json. The
+        // host's onDidChangeConfiguration listener re-arms the scheduler
+        // and re-broadcasts the setting; we also echo it back immediately
+        // so the toggle reflects the change without waiting on that event.
+        await vscode.workspace
+          .getConfiguration("npmAdvisor")
+          .update(
+            "projectHealth.autoRun",
+            message.enabled ? "daily" : "off",
+            vscode.ConfigurationTarget.Global,
+          );
+        this.notifyProjectHealthSettings();
+        return;
+      }
       case "revealFinding": {
         try {
           const uri = vscode.Uri.file(message.filePath);
@@ -440,6 +460,20 @@ export class WebviewBridge implements vscode.Disposable {
     this.post({
       type: "suppressions",
       entries: this.projectHealthController.suppressions(),
+    });
+  }
+
+  /**
+   * Posts the current Project Health auto-run setting to the webview so
+   * the in-panel toggle reflects `npmAdvisor.projectHealth.autoRun`.
+   * Public so the host can re-broadcast it when the setting changes from
+   * the Settings UI (via onDidChangeConfiguration), keeping the toggle in
+   * sync with edits made outside the panel.
+   */
+  notifyProjectHealthSettings(): void {
+    this.post({
+      type: "projectHealthSettings",
+      autoRunDaily: this.settingsProvider().projectHealthAutoRun === "daily",
     });
   }
 
