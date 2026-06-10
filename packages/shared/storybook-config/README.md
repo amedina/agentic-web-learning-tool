@@ -1,69 +1,35 @@
-# React + TypeScript + Vite
+# Storybook Config (`@agentic-web-labs/storybook-config`)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> Centralized Storybook host that aggregates stories from design-system and the awl extension.
 
-Currently, two official plugins are available:
+## Overview
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+This package is the single Storybook host for the monorepo. It owns `.storybook/main.ts` and `.storybook/preview.ts` and discovers stories from two source trees: `packages/shared/design-system/src/components/**` and `extensions/awl/src/view/**`. It defines the shared global CSS baseline (Tailwind + design-system styles) that all rendered stories inherit. The package is `private: true` and exports no module — other packages contribute stories via the glob patterns in `main.ts` rather than by importing anything from this package.
 
-## Expanding the ESLint configuration
+## Running Storybook
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
+```sh
+pnpm --filter @agentic-web-labs/storybook-config storybook
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Storybook runs on port **6006**. Stories are auto-discovered — adding a `*.stories.tsx` file anywhere under `packages/shared/design-system/src/components/` or `extensions/awl/src/view/` makes it appear automatically without any additional configuration.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x';
-import reactDom from 'eslint-plugin-react-dom';
+## Scripts
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
-```
+| Script | Command |
+|---|---|
+| `storybook` | `storybook dev -p 6006` |
+| `build` | `storybook build` |
+| `format` | `prettier . --write` |
+
+Note: Vitest unit tests run via `@storybook/addon-vitest` on port 6007. There is no standalone test or lint script.
+
+## Dependencies
+
+- **Internal:** `@agentic-web-labs/design-system` (component stories and `styles.css`), `@agentic-web-labs/shared-config` (shared Tailwind base)
+- **Key external:** `storybook` ^9.1.3, `@storybook/react-vite` ^9.1.3, `@storybook/addon-a11y`, `@storybook/addon-docs`, `@storybook/addon-onboarding`, `@storybook/addon-vitest`, `@chromatic-com/storybook` ^4.1.1 (Chromatic visual regression), `vite` ^7.3.2, `@vitejs/plugin-react`, `@tailwindcss/vite`, `vite-plugin-svgr`
+
+## Notes
+
+- Path aliases in `viteFinal` resolve workspace source directories directly, bypassing built dist and enabling live cross-package editing without rebuilds.
+- `src/index.css` uses `@source` directives to scan the design-system, extension, and table packages for Tailwind class discovery.
