@@ -20,6 +20,7 @@ import { VIEW_PACKAGE_COMMAND } from "../commands/viewPackage";
 import type { ProjectAnalysisCache } from "../diagnostics/projectAnalysisCache";
 import { runProjectAnalysis } from "../diagnostics/projectAnalysisRunner";
 import type { NpmAdvisorSettings } from "../diagnostics/settings";
+import type { ProjectHealthController } from "../projectHealth/projectHealthController";
 import type { GithubAuthService } from "../services/githubAuthService";
 import type { ExtensionMessage, WebviewRequest } from "./protocol";
 import { validateWebviewMessage } from "./validateMessage";
@@ -45,6 +46,12 @@ export interface WebviewBridgeDeps {
    * without re-running the analyzer.
    */
   projectAnalysisCache: ProjectAnalysisCache;
+  /**
+   * Controller for the workspace-wide Project Health run. The bridge
+   * triggers / cancels runs on its behalf and forwards every progress
+   * snapshot it emits to the webview.
+   */
+  projectHealthController: ProjectHealthController;
 }
 
 /**
@@ -60,6 +67,8 @@ export class WebviewBridge implements vscode.Disposable {
   private readonly githubAuth: GithubAuthService;
   private readonly projectAnalysisCollection: vscode.DiagnosticCollection;
   private readonly projectAnalysisCache: ProjectAnalysisCache;
+  private readonly projectHealthController: ProjectHealthController;
+  private readonly projectHealthSubscription: vscode.Disposable;
   private webview: vscode.Webview | null = null;
   private webviewSubscription: vscode.Disposable | null = null;
   private isReady = false;
@@ -70,7 +79,9 @@ export class WebviewBridge implements vscode.Disposable {
   /**
    * Stores the cache, settings provider, GitHub auth service, and the
    * project-analysis DiagnosticCollection so handlers don't need to
-   * pass them through individually.
+   * pass them through individually. Also subscribes to the Project
+   * Health controller so every run snapshot it emits is posted to the
+   * webview as a `projectHealth` message.
    */
   constructor(deps: WebviewBridgeDeps) {
     this.cache = deps.cache;
@@ -78,6 +89,10 @@ export class WebviewBridge implements vscode.Disposable {
     this.githubAuth = deps.githubAuth;
     this.projectAnalysisCollection = deps.projectAnalysisCollection;
     this.projectAnalysisCache = deps.projectAnalysisCache;
+    this.projectHealthController = deps.projectHealthController;
+    this.projectHealthSubscription = this.projectHealthController.onDidUpdate(
+      (report) => this.post({ type: "projectHealth", report }),
+    );
   }
 
   /**
@@ -120,6 +135,7 @@ export class WebviewBridge implements vscode.Disposable {
   dispose(): void {
     this.webviewSubscription?.dispose();
     this.webviewSubscription = null;
+    this.projectHealthSubscription.dispose();
     this.webview = null;
     this.onReadyListeners.clear();
     this.pendingOutbound = [];
@@ -327,6 +343,24 @@ export class WebviewBridge implements vscode.Disposable {
             data: null,
           });
         }
+        return;
+      }
+      case "runProjectHealth": {
+        // Fire-and-forget: progress + the terminal report stream back as
+        // `projectHealth` messages via the controller's onDidUpdate.
+        void this.projectHealthController.run();
+        return;
+      }
+      case "cancelProjectHealth": {
+        this.projectHealthController.cancel();
+        return;
+      }
+      case "getCachedProjectHealth": {
+        this.post({
+          type: "cachedProjectHealth",
+          requestId: message.requestId,
+          report: this.projectHealthController.getCached(),
+        });
         return;
       }
       case "revealFinding": {

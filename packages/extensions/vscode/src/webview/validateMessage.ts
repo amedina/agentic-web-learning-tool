@@ -29,6 +29,9 @@ const ALLOWED_TYPES: ReadonlySet<WebviewRequest["type"]> = new Set([
   "revealFinding",
   "notify",
   "copyToClipboard",
+  "runProjectHealth",
+  "cancelProjectHealth",
+  "getCachedProjectHealth",
 ] as const);
 
 /**
@@ -86,7 +89,19 @@ export function validateWebviewMessage(
     case "ready":
     case "refreshStats":
     case "setupMcp":
+    case "runProjectHealth":
+    case "cancelProjectHealth":
       return { ok: true, message: message as WebviewRequest };
+
+    case "getCachedProjectHealth": {
+      if (!isNonEmptyString(message.requestId)) {
+        return {
+          ok: false,
+          reason: "getCachedProjectHealth missing requestId",
+        };
+      }
+      return { ok: true, message: message as WebviewRequest };
+    }
 
     case "getLightStats": {
       const fieldsOk =

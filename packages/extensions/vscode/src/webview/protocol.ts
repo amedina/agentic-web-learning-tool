@@ -10,6 +10,11 @@ import type { ProjectAnalysis } from "@agentic-web-labs/project-analyzer-core";
 import type { BundleData } from "@agentic-web-labs/package-analyzer-ui";
 
 /**
+ * Internal dependencies.
+ */
+import type { ProjectHealthReport } from "../projectHealth/types";
+
+/**
  * Wire format for messages exchanged between the WebviewView (browser
  * sandbox) and the extension host (Node). All messages are JSON-cloned
  * across the boundary, so payloads must be plain data.
@@ -102,6 +107,28 @@ export type WebviewRequest =
       text: string;
       /** Optional confirmation toast shown after the copy succeeds. */
       toast?: string;
+    }
+  | {
+      /**
+       * Starts (or no-ops, when one is already in flight) a full
+       * Project Health run across every package.json in the workspace.
+       * Results stream back as `projectHealth` messages rather than a
+       * single response, since a run produces many progress snapshots.
+       */
+      type: "runProjectHealth";
+    }
+  | {
+      /** Cancels the in-flight Project Health run, if any. */
+      type: "cancelProjectHealth";
+    }
+  | {
+      /**
+       * Asks the host for the most recently persisted Project Health
+       * report so the webview can restore the Project Health view after
+       * a tab switch or webview re-mount without re-running the analysis.
+       */
+      type: "getCachedProjectHealth";
+      requestId: string;
     };
 
 export type ExtensionMessage =
@@ -194,6 +221,25 @@ export type ExtensionMessage =
       packageJsonUri: string;
       /** Workspace-relative display path of the file that triggered staleness. */
       changedFileDisplayPath: string;
+    }
+  | {
+      /**
+       * A Project Health snapshot pushed by the host. Fired repeatedly
+       * as a run progresses (the `report.phase` and `report.progress`
+       * fields drive the UI) and once more with a terminal phase when
+       * the run finishes.
+       */
+      type: "projectHealth";
+      report: ProjectHealthReport;
+    }
+  | {
+      /**
+       * Reply to `getCachedProjectHealth`: the persisted report, or
+       * `null` when none has ever been produced for this workspace.
+       */
+      type: "cachedProjectHealth";
+      requestId: string;
+      report: ProjectHealthReport | null;
     };
 
 export interface PackageJsonDependenciesPayload {

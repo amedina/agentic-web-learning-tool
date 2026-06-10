@@ -15,13 +15,20 @@ import {
  * Internal dependencies.
  */
 import { PackageJsonSwitcher } from "./packageJsonSwitcher";
+import { newRequestId } from "./projectAnalysis/helpers";
 import { ProjectAnalysisTab } from "./projectAnalysisTab";
+import { ProjectHealthView } from "./projectHealth/projectHealthView";
 import { TabBar, type ActiveTab } from "./tabBar";
+import { ViewModeToggle, type ViewMode } from "./viewModeToggle";
 import type {
   ExtensionMessage,
   PackageJsonDependenciesPayload,
   PackageJsonFile,
 } from "./protocol";
+import {
+  isTerminalPhase,
+  type ProjectHealthReport,
+} from "../projectHealth/types";
 
 interface AppProps {
   client: StatsClient;
@@ -49,6 +56,9 @@ interface AppProps {
       endColumn: number;
     },
   ) => void;
+  onRunProjectHealth: () => void;
+  onCancelProjectHealth: () => void;
+  onGetCachedProjectHealth: (requestId: string) => void;
 }
 
 const EMPTY_DEPS: PackageJsonDependenciesPayload = {
@@ -76,7 +86,14 @@ export const App: FC<AppProps> = ({
   onRunProjectAnalysis,
   onGetCachedProjectAnalysis,
   onRevealFinding,
+  onRunProjectHealth,
+  onCancelProjectHealth,
+  onGetCachedProjectHealth,
 }) => {
+  const [viewMode, setViewMode] = useState<ViewMode>("package");
+  const [projectHealthReport, setProjectHealthReport] =
+    useState<ProjectHealthReport | null>(null);
+  const [isProjectHealthRunning, setIsProjectHealthRunning] = useState(false);
   const [activeTab, setActiveTab] = useState<ActiveTab>("dependencies");
   const [initState, setInitState] = useState<{
     activeFile: PackageJsonFile | null;
@@ -98,6 +115,9 @@ export const App: FC<AppProps> = ({
   const noopAddRef = useRef<(name: string) => void>(() => undefined);
   const onReadyRef = useRef(onReady);
   onReadyRef.current = onReady;
+  const onGetCachedProjectHealthRef = useRef(onGetCachedProjectHealth);
+  onGetCachedProjectHealthRef.current = onGetCachedProjectHealth;
+  const pendingHealthCacheRequestIdRef = useRef<string | null>(null);
   // Tracks the refreshKey from the previous init so we can detect a host-side
   // cache wipe and drop useDependencyStats's module-level cache before the
   // key-bumped DependenciesTab remounts. Without this, the remount re-seeds
@@ -135,10 +155,29 @@ export const App: FC<AppProps> = ({
         setFocusPackageName(data.focusPackageName ?? null);
       } else if (data.type === "focusPackage") {
         setFocusPackageName(data.packageName);
+      } else if (data.type === "projectHealth") {
+        // Streamed progress + the terminal snapshot for a workspace run.
+        setProjectHealthReport(data.report);
+        setIsProjectHealthRunning(!isTerminalPhase(data.report.phase));
+      } else if (data.type === "cachedProjectHealth") {
+        if (data.requestId !== pendingHealthCacheRequestIdRef.current) {
+          return;
+        }
+        pendingHealthCacheRequestIdRef.current = null;
+        if (data.report) {
+          setProjectHealthReport(data.report);
+          setIsProjectHealthRunning(!isTerminalPhase(data.report.phase));
+        }
       }
     };
     window.addEventListener("message", handle);
     onReadyRef.current();
+    // Ask the host for any persisted Project Health report so switching
+    // to the Project Health view shows the last run instead of an empty
+    // state. The reply is matched by requestId in the handler above.
+    const healthRequestId = newRequestId();
+    pendingHealthCacheRequestIdRef.current = healthRequestId;
+    onGetCachedProjectHealthRef.current(healthRequestId);
     return () => window.removeEventListener("message", handle);
   }, []);
 
@@ -191,6 +230,18 @@ export const App: FC<AppProps> = ({
     );
   }, [onNotify]);
 
+  // Optimistically flip the running flag so the header shows progress
+  // immediately, before the first host snapshot lands. It is cleared
+  // when a terminal `projectHealth` snapshot arrives.
+  const handleRunProjectHealth = useCallback(() => {
+    setIsProjectHealthRunning(true);
+    onRunProjectHealth();
+  }, [onRunProjectHealth]);
+
+  const handleCancelProjectHealth = useCallback(() => {
+    onCancelProjectHealth();
+  }, [onCancelProjectHealth]);
+
   if (!initState) {
     return (
       <div className="flex flex-col items-center justify-center gap-2 p-8 text-slate-500 dark:text-slate-400 text-sm h-full">
@@ -216,59 +267,74 @@ export const App: FC<AppProps> = ({
   return (
     <StatsClientProvider client={client}>
       <div className="flex flex-col h-full">
-        <PackageJsonSwitcher
-          activeFile={activeFile}
-          availableFiles={availableFiles}
-          onSelect={handleSelectFile}
-          onRefresh={handleRefresh}
-          onSetupMcp={onSetupMcp}
-          isRefreshing={isRefreshing}
-        />
-        <TabBar activeTab={activeTab} onChange={setActiveTab} />
-        <div className="flex-1 min-h-0 overflow-y-auto">
-          {/*
-           * Both tab panels stay mounted and toggle via CSS so that
-           * switching tabs doesn't blow away each tab's component-local
-           * state (e.g. the in-progress / ready status of a project
-           * analysis run). Host-side caching backstops state across
-           * full webview re-mounts; this just makes intra-mount tab
-           * switches feel instant and stateful.
-           */}
-          <div className={activeTab === "dependencies" ? "" : "hidden"}>
-            {activeFile ? (
-              hasDependencies ? (
-                <DependenciesTab
-                  key={`${activeFile.uri}#${refreshKey}#${localRefreshTick}`}
-                  packageJsonDependencies={
-                    packageJsonDependencies ?? EMPTY_DEPS
-                  }
-                  onAddRecommendationToCompare={handleAddRecommendation}
-                  comparisonBucketNames={EMPTY_SET}
-                  addingRecommendations={EMPTY_SET}
-                  hideCompare
-                  showFitness
-                  forceVisiblePackageName={focusPackageName ?? undefined}
-                  onRateLimited={handleRateLimited}
-                  initialStatsByName={prefetchedStats}
-                />
-              ) : (
-                <div className="text-slate-500 dark:text-slate-400 p-4 text-sm">
-                  No dependencies found in this package.json.
-                </div>
-              )
-            ) : null}
-          </div>
-          <div className={activeTab === "project" ? "" : "hidden"}>
-            <ProjectAnalysisTab
-              activeFile={activeFile}
-              postRunRequest={onRunProjectAnalysis}
-              postCacheRequest={onGetCachedProjectAnalysis}
-              postReveal={onRevealFinding}
-              postCopyPrompt={onCopyToClipboard}
-              postSetupMcp={onSetupMcp}
+        <ViewModeToggle mode={viewMode} onChange={setViewMode} />
+        {viewMode === "project" ? (
+          <div className="flex-1 min-h-0 overflow-y-auto">
+            <ProjectHealthView
+              report={projectHealthReport}
+              isRunning={isProjectHealthRunning}
+              onRun={handleRunProjectHealth}
+              onCancel={handleCancelProjectHealth}
+              onOpenPackageJson={onOpenPackageJson}
             />
           </div>
-        </div>
+        ) : (
+          <>
+            <PackageJsonSwitcher
+              activeFile={activeFile}
+              availableFiles={availableFiles}
+              onSelect={handleSelectFile}
+              onRefresh={handleRefresh}
+              onSetupMcp={onSetupMcp}
+              isRefreshing={isRefreshing}
+            />
+            <TabBar activeTab={activeTab} onChange={setActiveTab} />
+            <div className="flex-1 min-h-0 overflow-y-auto">
+              {/*
+               * Both tab panels stay mounted and toggle via CSS so that
+               * switching tabs doesn't blow away each tab's component-local
+               * state (e.g. the in-progress / ready status of a project
+               * analysis run). Host-side caching backstops state across
+               * full webview re-mounts; this just makes intra-mount tab
+               * switches feel instant and stateful.
+               */}
+              <div className={activeTab === "dependencies" ? "" : "hidden"}>
+                {activeFile ? (
+                  hasDependencies ? (
+                    <DependenciesTab
+                      key={`${activeFile.uri}#${refreshKey}#${localRefreshTick}`}
+                      packageJsonDependencies={
+                        packageJsonDependencies ?? EMPTY_DEPS
+                      }
+                      onAddRecommendationToCompare={handleAddRecommendation}
+                      comparisonBucketNames={EMPTY_SET}
+                      addingRecommendations={EMPTY_SET}
+                      hideCompare
+                      showFitness
+                      forceVisiblePackageName={focusPackageName ?? undefined}
+                      onRateLimited={handleRateLimited}
+                      initialStatsByName={prefetchedStats}
+                    />
+                  ) : (
+                    <div className="text-slate-500 dark:text-slate-400 p-4 text-sm">
+                      No dependencies found in this package.json.
+                    </div>
+                  )
+                ) : null}
+              </div>
+              <div className={activeTab === "project" ? "" : "hidden"}>
+                <ProjectAnalysisTab
+                  activeFile={activeFile}
+                  postRunRequest={onRunProjectAnalysis}
+                  postCacheRequest={onGetCachedProjectAnalysis}
+                  postReveal={onRevealFinding}
+                  postCopyPrompt={onCopyToClipboard}
+                  postSetupMcp={onSetupMcp}
+                />
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </StatsClientProvider>
   );

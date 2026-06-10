@@ -56,6 +56,15 @@ if (container) {
       onRevealFinding={(filePath, range) =>
         vscodeApi.postMessage({ type: "revealFinding", filePath, range })
       }
+      onRunProjectHealth={() =>
+        vscodeApi.postMessage({ type: "runProjectHealth" })
+      }
+      onCancelProjectHealth={() =>
+        vscodeApi.postMessage({ type: "cancelProjectHealth" })
+      }
+      onGetCachedProjectHealth={(requestId) =>
+        vscodeApi.postMessage({ type: "getCachedProjectHealth", requestId })
+      }
     />,
   );
 }

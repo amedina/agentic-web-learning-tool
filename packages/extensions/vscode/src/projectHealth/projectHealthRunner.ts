@@ -1,7 +1,6 @@
 /**
  * External dependencies.
  */
-import type { PackageStats } from "@agentic-web-labs/package-analyzer-core";
 import type { ProjectAnalysis } from "@agentic-web-labs/project-analyzer-core";
 
 /**
@@ -13,13 +12,12 @@ import {
   type ParsedManifest,
   type VersionKeyResolver,
 } from "./dependencyClosure";
+import type { LicenseFetcher, VulnerabilityFetcher } from "./findingSources";
 import {
   computeTotals,
   createInitialReport,
   emptyVulnerabilityTotals,
-  licenseFindingFromStats,
   summarizeProjectAnalysis,
-  vulnerabilitiesFromStats,
   type SuppressionPredicates,
 } from "./projectHealthReport";
 import {
@@ -33,8 +31,8 @@ import {
   type VulnerabilityFinding,
 } from "./types";
 
-/** Default number of dependencies analyzed concurrently in the backfill pass. */
-const DEFAULT_CONCURRENCY = 5;
+/** Default number of dependencies / manifests processed concurrently. */
+const DEFAULT_CONCURRENCY = 6;
 
 /** Default minimum gap between throttled progress emissions. */
 const DEFAULT_EMIT_INTERVAL_MS = 300;
@@ -43,15 +41,19 @@ const DEFAULT_EMIT_INTERVAL_MS = 300;
  * The injectable collaborators the orchestrator needs. Keeping these as
  * plain functions (rather than concrete vscode-coupled classes) lets the
  * runner be unit-tested with fakes and keeps this module free of any
- * `vscode` import so it can also be reasoned about in isolation.
+ * `vscode` import. The fast pass uses `fetchVulnerabilities` (one OSV
+ * batch) plus `fetchLicenseIssue` (light registry reads); the backfill
+ * uses `analyzeManifest` (publint + circular dependencies).
  */
 export interface ProjectHealthRunnerDeps {
   /** Discovers and parses every package.json in the workspace. */
   listManifests: () => Promise<ParsedManifest[]>;
   /** Resolves the cache/version key for one manifest dependency. */
   resolveVersionKey: VersionKeyResolver;
-  /** Fetches (or cache-reads) PackageStats for one (name, versionKey). */
-  getStats: (name: string, versionKey: string) => Promise<PackageStats | null>;
+  /** Batched vulnerability lookup across the whole dependency closure. */
+  fetchVulnerabilities: VulnerabilityFetcher;
+  /** Per-dependency license-issue lookup. */
+  fetchLicenseIssue: LicenseFetcher;
   /** Runs project-level analysis (publint + circular) for one manifest. */
   analyzeManifest: (
     manifest: ParsedManifest,
@@ -82,9 +84,10 @@ interface EntryResult {
 
 /**
  * Runs a full Project Health analysis: discover every package.json,
- * dedup the dependency closure, analyze each unique (name, version) once
- * for vulnerabilities + license issues, run project-level analysis per
- * manifest, then fan results back onto each package. Emits throttled
+ * dedup the dependency closure, run a fast pass (batched OSV
+ * vulnerabilities + light license checks) over each unique (name,
+ * version) once, then a backfill pass of project-level analysis per
+ * manifest, fanning results back onto each package. Emits throttled
  * progress snapshots via `onProgress` and supports cancellation through
  * `signal`. Returns the final report (phase "complete" or "cancelled").
  */
@@ -99,6 +102,8 @@ export async function runProjectHealth(
   const startedAt = clock();
 
   let lastEmitAt = 0;
+  let fastPassCompletedAt: number | null = null;
+  let backfillCompletedAt: number | null = null;
   const entryResults = new Map<string, EntryResult>();
   const analysisByUri = new Map<
     string,
@@ -143,8 +148,8 @@ export async function runProjectHealth(
       ),
       progress,
       warnings: [],
-      fastPassCompletedAt: null,
-      backfillCompletedAt: phase === "complete" ? clock() : null,
+      fastPassCompletedAt,
+      backfillCompletedAt,
     };
   };
 
@@ -174,10 +179,12 @@ export async function runProjectHealth(
     phase: HealthRunPhase,
     total: number,
   ): ProjectHealthReport => {
+    if (phase === "complete") {
+      backfillCompletedAt = clock();
+    }
     const label =
       phase === "cancelled" ? "Analysis cancelled" : "Analysis complete";
-    const progress = progressFor(phase, total, total, label);
-    const report = snapshot(phase, progress);
+    const report = snapshot(phase, progressFor(phase, total, total, label));
     options.onProgress?.(report);
     return report;
   };
@@ -190,52 +197,69 @@ export async function runProjectHealth(
   manifests = await deps.listManifests();
   closure = await buildDependencyClosure(manifests, deps.resolveVersionKey);
 
+  // Fast pass: one batched OSV vulnerability lookup, then a concurrent
+  // sweep of light license checks. Produces the vuln + license findings
+  // (the critical daily signal) before the slower project analysis.
   emit(
-    "backfill",
-    progressFor("backfill", 0, closure.uniqueCount, "Analyzing dependencies…"),
+    "fast-pass",
+    progressFor("fast-pass", 0, closure.uniqueCount, "Checking dependencies…"),
     true,
   );
-
-  let completedEntries = 0;
-  await mapWithConcurrency(
-    closure.entries,
-    concurrency,
-    async (entry) => {
-      const stats = await deps.getStats(entry.name, entry.versionKey);
-      entryResults.set(`${entry.name}@${entry.versionKey}`, {
-        vulnerabilities: vulnerabilitiesFromStats(
-          entry.name,
-          entry.versionKey,
-          stats,
-        ),
-        licenseIssue: licenseFindingFromStats(
-          entry.name,
-          entry.versionKey,
-          stats,
-        ),
-      });
-    },
+  const vulnerabilitiesByEntry = await deps.fetchVulnerabilities(
+    closure.entries.map((entry) => ({
+      name: entry.name,
+      versionKey: entry.versionKey,
+    })),
     options.signal,
-    () => {
-      completedEntries += 1;
-      emit(
-        "backfill",
-        progressFor(
-          "backfill",
-          completedEntries,
-          closure.uniqueCount,
-          `Analyzing dependencies (${completedEntries}/${closure.uniqueCount})`,
-        ),
-        false,
-      );
-    },
   );
 
   if (isAborted(options.signal)) {
     return terminal("cancelled", closure.uniqueCount);
   }
 
+  let completedEntries = 0;
+  await mapWithConcurrency(
+    closure.entries,
+    concurrency,
+    async (entry) => {
+      const key = `${entry.name}@${entry.versionKey}`;
+      const licenseIssue = await deps.fetchLicenseIssue(
+        entry.name,
+        entry.versionKey,
+        options.signal,
+      );
+      entryResults.set(key, {
+        vulnerabilities: vulnerabilitiesByEntry.get(key) ?? [],
+        licenseIssue,
+      });
+    },
+    options.signal,
+    () => {
+      completedEntries += 1;
+      emit(
+        "fast-pass",
+        progressFor(
+          "fast-pass",
+          completedEntries,
+          closure.uniqueCount,
+          `Checking dependencies (${completedEntries}/${closure.uniqueCount})`,
+        ),
+        false,
+      );
+    },
+  );
+  fastPassCompletedAt = clock();
+
+  if (isAborted(options.signal)) {
+    return terminal("cancelled", closure.uniqueCount);
+  }
+
   if (includeProjectAnalysis) {
+    emit(
+      "backfill",
+      progressFor("backfill", 0, manifests.length, "Analyzing projects…"),
+      true,
+    );
     let completedManifests = 0;
     await mapWithConcurrency(
       manifests,

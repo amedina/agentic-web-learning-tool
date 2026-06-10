@@ -30,6 +30,8 @@ import { registerViewPackageCommand } from "./commands/viewPackage";
 import { ProjectAnalysisCache } from "./diagnostics/projectAnalysisCache";
 import { DiagnosticsRunner } from "./diagnostics/runner";
 import { readSettings } from "./diagnostics/settings";
+import { ProjectHealthCache } from "./projectHealth/projectHealthCache";
+import { ProjectHealthController } from "./projectHealth/projectHealthController";
 import { PackageJsonHoverProvider } from "./providers/hoverProvider";
 import {
   NpmAdvisorWebviewProvider,
@@ -106,17 +108,29 @@ export function activate(context: vscode.ExtensionContext): void {
 
   const projectAnalysisCache = new ProjectAnalysisCache();
 
+  const scanner = new PackageJsonScanner();
+  context.subscriptions.push(scanner);
+
+  // Durable, globalState-backed store for the workspace-wide Project
+  // Health report (daily freshness + diff-on-notify + restore on reload).
+  const projectHealthCache = new ProjectHealthCache(context.globalState);
+  const projectHealthController = new ProjectHealthController({
+    scanner,
+    lockfileResolver,
+    settingsProvider: readSettings,
+    reportCache: projectHealthCache,
+  });
+  context.subscriptions.push(projectHealthController);
+
   const bridge = new WebviewBridge({
     cache,
     settingsProvider: readSettings,
     githubAuth,
     projectAnalysisCollection,
     projectAnalysisCache,
+    projectHealthController,
   });
   context.subscriptions.push(bridge);
-
-  const scanner = new PackageJsonScanner();
-  context.subscriptions.push(scanner);
 
   const tracker = new ActivePackageJsonTracker();
   context.subscriptions.push(tracker);
