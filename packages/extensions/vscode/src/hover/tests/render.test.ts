@@ -7,7 +7,7 @@ import type { PackageStats } from "@agentic-web-labs/package-analyzer-core";
 /**
  * Internal dependencies.
  */
-import { renderHover } from "../render";
+import { renderHover, renderLocalPackageHover } from "../render";
 
 /**
  * Builds a PackageStats stub with everything nulled so each test can
@@ -239,5 +239,49 @@ describe("renderHover", () => {
       }),
     );
     expect(output).not.toContain("No lockfile found");
+  });
+});
+
+describe("renderLocalPackageHover", () => {
+  it("prefixes the hover with the NPM Advisor brand line", () => {
+    const output = renderLocalPackageHover(
+      "@scope/table",
+      "workspace:*",
+      "workspace",
+    );
+    expect(output.split("\n")[0]).toBe(
+      "$(extensions-view-icon) **NPM Advisor**",
+    );
+  });
+
+  it("labels the package as local and names the workspace source", () => {
+    const output = renderLocalPackageHover(
+      "@scope/table",
+      "workspace:*",
+      "workspace",
+    );
+    expect(output).toContain("**@scope/table** — Local package");
+    expect(output).toContain("another package in this workspace");
+    expect(output).toContain("`workspace:*`");
+    expect(output).toContain("not the npm registry");
+  });
+
+  it("describes file/link/portal specs as a local path on disk", () => {
+    for (const kind of ["file", "link", "portal"] as const) {
+      const output = renderLocalPackageHover(
+        "@scope/table",
+        `${kind}:../table`,
+        kind,
+      );
+      expect(output).toContain("a local path on disk");
+      expect(output).toContain(`\`${kind}:../table\``);
+    }
+  });
+
+  it("does not render registry-only affordances", () => {
+    const output = renderLocalPackageHover("@scope/table", "file:../t", "file");
+    expect(output).not.toContain("View on npm");
+    expect(output).not.toContain("Show full insights");
+    expect(output).not.toContain("Loading");
   });
 });
