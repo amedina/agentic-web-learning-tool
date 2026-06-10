@@ -39,6 +39,8 @@
   ],
   "host_permissions": [
     "*://registry.npmjs.org/*",
+    "*://registry.yarnpkg.com/*",
+    "*://registry.npmmirror.com/*",
     "*://api.github.com/*",
     "*://bundlephobia.com/*",
     "*://raw.githubusercontent.com/*",
