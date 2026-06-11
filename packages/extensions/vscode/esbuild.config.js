@@ -149,6 +149,17 @@ const VSIX_OUT_DIR = path.resolve(
   "../../../dist/vscode-npm-advisor",
 );
 
+// vsce rewrites relative README links and images to absolute URLs when
+// packaging, but it derives the base from `repository.url` and ignores the
+// monorepo `repository.directory`, so it would point at the repo root and
+// 404. Pin the base URLs to this package's path on the default branch so the
+// packaged README resolves images on the Marketplace. The source README keeps
+// relative paths, which render against the working tree locally and on GitHub.
+const README_IMAGES_BASE =
+  "https://github.com/amedina/agentic-web-learning-tool/raw/HEAD/packages/extensions/vscode";
+const README_CONTENT_BASE =
+  "https://github.com/amedina/agentic-web-learning-tool/blob/HEAD/packages/extensions/vscode";
+
 function buildWebviewCss() {
   const sheets = [
     { input: "src/webview/index.css", output: "dist/webview.css" },
@@ -173,7 +184,16 @@ function packageExtension() {
   mkdirSync(VSIX_OUT_DIR, { recursive: true });
   const result = spawnSync(
     "vsce",
-    ["package", "--no-dependencies", "--out", VSIX_OUT_DIR],
+    [
+      "package",
+      "--no-dependencies",
+      "--baseContentUrl",
+      README_CONTENT_BASE,
+      "--baseImagesUrl",
+      README_IMAGES_BASE,
+      "--out",
+      VSIX_OUT_DIR,
+    ],
     { stdio: "inherit", shell: true },
   );
   if (result.status !== 0) {

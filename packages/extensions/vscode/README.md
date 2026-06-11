@@ -2,7 +2,7 @@
 
 Package intelligence, security insights, and dependency analysis for npm packages, directly inside VSCode.
 
-![NPM Advisor side panel showing the dependency health overview next to a package.json](https://github.com/amedina/agentic-web-learning-tool/raw/HEAD/packages/extensions/vscode/media/1.png)
+![NPM Advisor side panel showing the dependency health overview next to a package.json](media/1.png)
 
 ## What you get
 
@@ -25,7 +25,7 @@ Advisory coverage pulls from both **GitHub Security Advisories** and **OSV** (Op
 
 The first lookup of any package takes a few seconds while NPM Advisor fetches from npm, GitHub, OSV, and Bundlephobia. Subsequent lookups are instant because results are cached for 24 hours per package and shared with the side panel.
 
-![NPM Advisor Project Health view: a workspace-wide roll-up of vulnerabilities and license issues across every package.json, with an optional daily check](https://github.com/amedina/agentic-web-learning-tool/raw/HEAD/packages/extensions/vscode/media/2.png)
+![NPM Advisor Project Health view: a workspace-wide roll-up of vulnerabilities and license issues across every package.json, with an optional daily check](media/2.png)
 
 ## Settings
 
