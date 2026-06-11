@@ -75,12 +75,22 @@ const sampleStats: PackageStats = {
  * Returns a stand-in for GithubAuthService that the bridge can call
  * without touching VSCode's real authentication provider. By default
  * reports no active session; pass `{ signedIn: true }` to flip the
- * `hasActiveSession` branch the rate-limit toast checks.
+ * `hasActiveSession` branch the rate-limit toast checks. `getAuthStatus`
+ * defaults to match `signedIn` (`authorized` / `signedOut`); pass an
+ * explicit `status` to test the `needsAuthorization` banner case.
  */
-function makeFakeAuth(options: { signedIn?: boolean } = {}): never {
+function makeFakeAuth(
+  options: {
+    signedIn?: boolean;
+    status?: "authorized" | "needsAuthorization" | "signedOut";
+  } = {},
+): never {
+  const status =
+    options.status ?? (options.signedIn ? "authorized" : "signedOut");
   return {
     getToken: vi.fn().mockResolvedValue(options.signedIn ? "tok" : null),
     hasActiveSession: () => Boolean(options.signedIn),
+    getAuthStatus: vi.fn().mockResolvedValue(status),
     signIn: vi.fn().mockResolvedValue(true),
     signOut: vi.fn().mockReturnValue(false),
     onDidChange: vi.fn().mockReturnValue({ dispose: () => undefined }),
@@ -375,7 +385,7 @@ describe("WebviewBridge", () => {
     showWarningSpy.mockRestore();
   });
 
-  it("posts githubAuthState=false when no GitHub session is available", async () => {
+  it("posts githubAuthState signedOut when no GitHub account is available", async () => {
     const bridge = new WebviewBridge({
       cache: { get: vi.fn() } as unknown as never,
       settingsProvider: () => ({ targetLicense: "MIT" }) as never,
@@ -390,11 +400,11 @@ describe("WebviewBridge", () => {
     fakeWebview.dispatch({ type: "getGithubAuthState" });
     await flushAsync();
     expect(fakeWebview.posted).toEqual([
-      { type: "githubAuthState", signedIn: false },
+      { type: "githubAuthState", status: "signedOut" },
     ]);
   });
 
-  it("posts githubAuthState=true when a GitHub session exists", async () => {
+  it("posts githubAuthState authorized when a GitHub session exists", async () => {
     const bridge = new WebviewBridge({
       cache: { get: vi.fn() } as unknown as never,
       settingsProvider: () => ({ targetLicense: "MIT" }) as never,
@@ -409,7 +419,7 @@ describe("WebviewBridge", () => {
     fakeWebview.dispatch({ type: "getGithubAuthState" });
     await flushAsync();
     expect(fakeWebview.posted).toEqual([
-      { type: "githubAuthState", signedIn: true },
+      { type: "githubAuthState", status: "authorized" },
     ]);
   });
 
@@ -428,6 +438,25 @@ describe("WebviewBridge", () => {
     fakeWebview.dispatch({ type: "signInToGitHub" });
     await flushAsync();
     expect(executeCommandSpy).toHaveBeenCalledWith("npmAdvisor.signInToGitHub");
+  });
+
+  it("posts githubAuthState needsAuthorization when an account exists but NPM Advisor is not authorized", async () => {
+    const bridge = new WebviewBridge({
+      cache: { get: vi.fn() } as unknown as never,
+      settingsProvider: () => ({ targetLicense: "MIT" }) as never,
+      githubAuth: makeFakeAuth({ status: "needsAuthorization" }),
+      projectAnalysisCollection: makeFakeDiagnosticCollection(),
+      projectAnalysisCache: makeFakeProjectAnalysisCache(),
+      projectHealthController: makeFakeProjectHealthController(),
+    });
+    const fakeWebview = new FakeWebview();
+    bridge.attach(fakeWebview as unknown as vscode.Webview);
+    fakeWebview.dispatch({ type: "ready" });
+    fakeWebview.dispatch({ type: "getGithubAuthState" });
+    await flushAsync();
+    expect(fakeWebview.posted).toEqual([
+      { type: "githubAuthState", status: "needsAuthorization" },
+    ]);
   });
 
   it("dedupes notify messages by key within a session", async () => {

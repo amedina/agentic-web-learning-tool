@@ -504,8 +504,8 @@ export class WebviewBridge implements vscode.Disposable {
    * so the host can re-broadcast on session changes.
    */
   async notifyGithubAuthState(): Promise<void> {
-    const signedIn = (await this.githubAuth.getToken()) !== null;
-    this.post({ type: "githubAuthState", signedIn });
+    const status = await this.githubAuth.getAuthStatus();
+    this.post({ type: "githubAuthState", status });
   }
 
   /**

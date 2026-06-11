@@ -10,6 +10,18 @@ const PROVIDER_ID = "github";
 const SCOPES: readonly string[] = [];
 
 /**
+ * High-level GitHub auth state that drives the side panel banner:
+ * - `authorized`: a GitHub session is available to this extension.
+ * - `needsAuthorization`: the user has a GitHub account in VSCode but has
+ *   not authorized NPM Advisor to use it yet.
+ * - `signedOut`: no GitHub account is available in VSCode at all.
+ */
+export type GithubAuthStatus =
+  | "authorized"
+  | "needsAuthorization"
+  | "signedOut";
+
+/**
  * Wraps vscode.authentication.getSession so analyzer-core can pull a
  * GitHub token without knowing about VSCode. The service caches the
  * session reference, listens for external sign-in / sign-out events
@@ -69,6 +81,25 @@ export class GithubAuthService implements vscode.Disposable {
    */
   hasActiveSession(): boolean {
     return this.session !== null;
+  }
+
+  /**
+   * Resolves the high-level auth state that drives the side panel banner.
+   * A silent session means we're authorized; otherwise `getAccounts` tells
+   * "no GitHub account in VSCode at all" (`signedOut`) apart from "an
+   * account exists but NPM Advisor has not been authorized to use it"
+   * (`needsAuthorization`). Never prompts.
+   */
+  async getAuthStatus(): Promise<GithubAuthStatus> {
+    if (await this.getToken()) {
+      return "authorized";
+    }
+    try {
+      const accounts = await vscode.authentication.getAccounts(PROVIDER_ID);
+      return accounts.length > 0 ? "needsAuthorization" : "signedOut";
+    } catch {
+      return "signedOut";
+    }
   }
 
   /**

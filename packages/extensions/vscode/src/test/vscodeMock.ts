@@ -337,6 +337,7 @@ export const _watchersForTests = {
  */
 export const authentication = {
   getSession: async (..._args: unknown[]): Promise<unknown> => undefined,
+  getAccounts: async (..._args: unknown[]): Promise<unknown[]> => [],
   onDidChangeSessions: (_listener: (event: unknown) => void): Disposable => ({
     dispose: () => undefined,
   }),

@@ -316,13 +316,14 @@ export type ExtensionMessage =
     }
   | {
       /**
-       * The current GitHub sign-in state, broadcast in reply to
+       * The current GitHub auth state, broadcast in reply to
        * `getGithubAuthState` and again whenever the GitHub session changes
-       * (sign-in, sign-out, or the Accounts menu). `signedIn: false` drives
-       * the side panel's sign-in banner.
+       * (sign-in, authorization, sign-out, or the Accounts menu). Any value
+       * other than `authorized` drives the side panel banner: `signedOut`
+       * offers sign-in, `needsAuthorization` offers authorizing NPM Advisor.
        */
       type: "githubAuthState";
-      signedIn: boolean;
+      status: "authorized" | "needsAuthorization" | "signedOut";
     }
   | {
       /**

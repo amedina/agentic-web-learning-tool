@@ -122,10 +122,12 @@ export const App: FC<AppProps> = ({
   // sync via `projectHealthSettings` messages. Initialized to the "daily"
   // default so the collapsed toggle reads "On" before the host replies.
   const [autoRunDaily, setAutoRunDaily] = useState(true);
-  // GitHub sign-in state, used to show the rate-limit sign-in banner. null
-  // until the host replies; the banner only renders when this is explicitly
-  // false, so there is no flash before the state is known.
-  const [githubSignedIn, setGithubSignedIn] = useState<boolean | null>(null);
+  // GitHub auth state, used to show the rate-limit banner. null until the
+  // host replies; the banner renders only for a non-authorized state, so
+  // there is no flash before the state is known.
+  const [githubAuthStatus, setGithubAuthStatus] = useState<
+    "authorized" | "needsAuthorization" | "signedOut" | null
+  >(null);
   const [activeTab, setActiveTab] = useState<ActiveTab>("dependencies");
   // Bumped on every `navigateToProjectHealth` request (e.g. the daily
   // notification's "Show Project Health" action) and used as part of
@@ -233,7 +235,7 @@ export const App: FC<AppProps> = ({
       } else if (data.type === "projectHealthSettings") {
         setAutoRunDaily(data.autoRunDaily);
       } else if (data.type === "githubAuthState") {
-        setGithubSignedIn(data.signedIn);
+        setGithubAuthStatus(data.status);
       } else if (data.type === "navigateToProjectHealth") {
         // Switch to the workspace-wide Project Health view and bump the
         // nav seq so ProjectHealthView remounts on its default
@@ -359,8 +361,11 @@ export const App: FC<AppProps> = ({
   return (
     <StatsClientProvider client={client}>
       <div className="flex flex-col h-full">
-        {githubSignedIn === false ? (
-          <GithubSignInBanner onSignIn={onSignInToGitHub} />
+        {githubAuthStatus && githubAuthStatus !== "authorized" ? (
+          <GithubSignInBanner
+            status={githubAuthStatus}
+            onSignIn={onSignInToGitHub}
+          />
         ) : null}
         <ViewModeToggle mode={viewMode} onChange={setViewMode} />
         {viewMode === "project" ? (
