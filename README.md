@@ -119,8 +119,8 @@ AWL unifies tools from multiple sources under a single MCP-based interface, givi
 ### **1\. Clone and set up Node**
 
 ```shell
-git clone https://github.com/amedina/agentic-web-learning-tool.git
-cd agentic-web-learning-tool
+git clone https://github.com/amedina/agentic-web-labs.git
+cd agentic-web-labs
 
 nvm install
 nvm use
@@ -145,7 +145,7 @@ pnpm build
 1. Navigate to `chrome://extensions`  
 2. Enable **Developer mode** (toggle in the top-right corner)  
 3. Click **Load unpacked**  
-4. Select the `dist/extension` directory
+4. Select the `dist/awl` directory
 
 ### **5\. Development mode (optional)**
 
@@ -153,7 +153,7 @@ pnpm build
 pnpm dev
 ```
 
-Starts the build in watch mode — changes are reflected in `dist/extension` automatically. Reload the extension in Chrome to pick them up.
+Starts the build in watch mode — changes are reflected in `dist/awl` automatically. Reload the extension in Chrome to pick them up.
 
 **Note:** Some features (like custom WebMCP tools) require the **User Scripts** permission. After loading the extension, go to `chrome://extensions`, find AWL, and enable "User Scripts" in its details page.
 
@@ -189,6 +189,194 @@ Click the AWL icon in the Chrome toolbar to open the side panel. Use the **Optio
 
 ---
 
+## **Repository Structure**
+
+AWL is a [pnpm workspace](https://pnpm.io/workspaces) monorepo. All code lives under `packages/`, grouped by role, with reusable libraries in `packages/shared/` and shippable products in `packages/extensions/` and `packages/mcp/`.
+
+```
+agentic-web-labs/
+├── packages/
+│   ├── awl/                        # Building blocks specific to the AWL extension
+│   │   ├── engine-core/            # Environment-agnostic workflow execution engine
+│   │   ├── engine-extension/       # Chrome-extension runtime adapter for the engine
+│   │   ├── engine-web/             # Plain-web-page runtime adapter for the engine
+│   │   ├── workflow-ui/            # Visual drag-and-drop workflow editor (React Flow)
+│   │   └── chrome-ai-playground/   # React UI for testing Chrome's Built-in AI APIs
+│   ├── extensions/                 # Shippable browser / editor extensions
+│   │   ├── awl/                    # 🦉 Flagship Agentic Web Labs Chrome extension
+│   │   ├── npm-advisor/            # npm package-intelligence Chrome extension
+│   │   └── vscode/                 # NPM Advisor VS Code extension
+│   ├── mcp/                        # Model Context Protocol packages
+│   │   ├── awl-mcp-inspector/      # Embeddable React MCP inspector UI
+│   │   └── npm-advisor-mcp/        # MCP server exposing npm package intelligence
+│   └── shared/                     # Reusable libraries shared across packages
+│       ├── common/                 # Foundational utils, types, React context helpers
+│       ├── design-system/          # React component library (Radix UI + Tailwind)
+│       ├── table/                  # Feature-rich data table component
+│       ├── chatbot/                # Multi-provider AI chat UI with MCP tool calling
+│       ├── package-analyzer-core/  # npm fitness / security / license / bundle analysis
+│       ├── package-analyzer-ui/    # React UI for package analysis
+│       ├── project-analyzer-core/  # publint + replacement + circular-dependency analysis
+│       ├── shared-config/          # Centralized ESLint / Jest / Prettier / TS / Tailwind config
+│       └── storybook-config/       # Centralized Storybook host
+├── skills/                         # Agent skills (chrome-ai, web-compat-audit, webmcp-builder)
+├── bin/                            # Shell scripts (install, local deploy, Chrome launcher)
+├── patches/                        # pnpm patches applied to upstream dependencies
+└── docs/                           # Repository documentation
+```
+
+---
+
+## **Packages**
+
+Every package is namespaced `@agentic-web-labs/*` (the VS Code extension is published as `vscode-npm-advisor`). Click a package name for its own README.
+
+### Shared libraries — `packages/shared/`
+
+The reusable foundation other packages build on.
+
+| Package | Kind | Description |
+| :---- | :---- | :---- |
+| [common](packages/shared/common/README.md) | Library | Foundational utilities, shared types, constants, and a re-render-suppressing React context selector |
+| [design-system](packages/shared/design-system/README.md) | UI kit | React component library built on Radix UI + Tailwind, plus agentic/MCP-specific components |
+| [table](packages/shared/table/README.md) | UI kit | Data table with sorting, filtering, search, column resizing, and persistent settings |
+| [chatbot](packages/shared/chatbot/README.md) | UI kit | Embeddable chat UI with multi-provider AI (Anthropic/OpenAI/Gemini/Gemini Nano) and MCP tool calling |
+| [package-analyzer-core](packages/shared/package-analyzer-core/README.md) | Library | Fetches and scores npm package fitness, security advisories, license, and bundle size |
+| [package-analyzer-ui](packages/shared/package-analyzer-ui/README.md) | UI kit | React UI for package analysis, decoupled from any host via a `StatsClient` adapter |
+| [project-analyzer-core](packages/shared/project-analyzer-core/README.md) | Library | Runs publint, replacement-opportunity, and circular-dependency analyses over a project |
+| [shared-config](packages/shared/shared-config/README.md) | Config | Centralized ESLint, Jest, Playwright, Prettier, Tailwind, and TypeScript configurations |
+| [storybook-config](packages/shared/storybook-config/README.md) | Config | Single Storybook host aggregating stories across packages |
+
+### AWL building blocks — `packages/awl/`
+
+| Package | Kind | Description |
+| :---- | :---- | :---- |
+| [engine-core](packages/awl/engine-core/README.md) | Library | Environment-agnostic engine that parses, validates, and executes node-graph workflows |
+| [engine-extension](packages/awl/engine-extension/README.md) | Library | Chrome-extension runtime adapter wiring the engine to service worker, content script, and UI |
+| [engine-web](packages/awl/engine-web/README.md) | Library | Browser-native runtime adapter for running workflows in plain web pages |
+| [workflow-ui](packages/awl/workflow-ui/README.md) | UI kit | Visual drag-and-drop workflow editor built on React Flow |
+| [chrome-ai-playground](packages/awl/chrome-ai-playground/README.md) | UI kit | Status dashboard and interactive playgrounds for Chrome's Built-in AI APIs |
+
+### Extensions — `packages/extensions/`
+
+| Package | Kind | Description |
+| :---- | :---- | :---- |
+| [awl](packages/extensions/awl/README.md) | Chrome extension | 🦉 The flagship AWL extension — WebMCP discovery, per-tab MCP server, AI chatbot side panel, workflows, MCP inspector |
+| [npm-advisor](packages/extensions/npm-advisor/README.md) | Chrome extension | Scores and AI-chats npm packages while browsing npmjs.com and GitHub |
+| [vscode](packages/extensions/vscode/README.md) | VS Code extension | Inline npm package insights, diagnostics, a Copilot chat participant, and MCP setup |
+
+### MCP — `packages/mcp/`
+
+| Package | Kind | Description |
+| :---- | :---- | :---- |
+| [awl-mcp-inspector](packages/mcp/awl-mcp-inspector/README.md) | UI kit | Embeddable React UI for inspecting, debugging, and interacting with MCP servers |
+| [npm-advisor-mcp](packages/mcp/npm-advisor-mcp/README.md) | MCP server | Exposes npm package fitness, security, license, and replacement intelligence to AI clients |
+
+---
+
+## **Architecture**
+
+The dependency graph flows from a shared foundation up through subsystems to four shippable products. Two product families share that foundation: **AWL** (the agentic-web learning extension) and **NPM Advisor** (package intelligence delivered as a Chrome extension, a VS Code extension, and an MCP server).
+
+```mermaid
+graph TD
+    subgraph products["Products"]
+        AWL["awl<br/>(Chrome ext)"]
+        NPM["npm-advisor<br/>(Chrome ext)"]
+        VSC["vscode-npm-advisor<br/>(VS Code ext)"]
+        MCP["npm-advisor-mcp<br/>(MCP server)"]
+    end
+
+    subgraph engine["Workflow engine · packages/awl/"]
+        EC[engine-core]
+        EE[engine-extension]
+        EW[engine-web]
+        WUI[workflow-ui]
+    end
+
+    subgraph analyzers["Package intelligence · packages/shared/"]
+        PAC[package-analyzer-core]
+        PAU[package-analyzer-ui]
+        PRC[project-analyzer-core]
+    end
+
+    subgraph blocks["AI & MCP UI building blocks"]
+        CB[chatbot]
+        CAP[chrome-ai-playground]
+        INS[awl-mcp-inspector]
+    end
+
+    subgraph foundation["Foundation · packages/shared/"]
+        DS[design-system]
+        TBL[table]
+        CMN[common]
+    end
+
+    EE --> EC
+    EW --> EC
+    WUI --> EC & EE & DS & CMN
+
+    PAU --> PAC & DS
+    PRC --> PAC
+
+    CB --> DS & CMN
+    CAP --> DS
+    INS --> DS & CMN
+
+    DS --> CMN & TBL
+    TBL --> CMN
+
+    AWL --> CB & CAP & INS & WUI & EC & EE & EW & DS & TBL & CMN
+    NPM --> CB & PAC & PAU & DS & CMN
+    VSC --> PAC & PAU & PRC & TBL & DS
+    MCP --> PAC & PRC
+```
+
+> Every package also depends on `shared-config` for its tooling; those edges are omitted above for readability.
+
+- **`engine-core`** holds the runtime-agnostic workflow logic; **`engine-extension`** and **`engine-web`** adapt it to the Chrome-extension and plain-web environments respectively, and **`workflow-ui`** is the visual editor on top.
+- **`package-analyzer-core`** is the single source of npm package data, reused by its UI (`package-analyzer-ui`), the project-level analyzer (`project-analyzer-core`), and all three NPM Advisor products.
+- **`chatbot`**, **`design-system`**, **`common`**, and **`table`** are the cross-cutting UI/utility foundation shared widely across the tree.
+
+---
+
+## **Skills**
+
+The [`skills/`](skills/README.md) directory contains three **agent skills** — self-contained knowledge packs (a `SKILL.md` guide plus reference docs, evaluation cases, and helper scripts) that teach AI agents how to build modern, AI-enhanced web experiences.
+
+| Skill | Directory | What it covers |
+| :---- | :---- | :---- |
+| **Chrome Built-in AI** | [`skills/chrome-ai/`](skills/README.md) | Six sub-skills — one per Chrome on-device (Gemini Nano) API: Prompt (`LanguageModel`), Summarizer, Writer, Rewriter, Proofreader, and Translator (+ `LanguageDetector`). Each follows the *availability → create → use → destroy* lifecycle. |
+| **Web Compatibility Audit** | [`skills/web-compat-audit/`](skills/web-compat-audit/SKILL.md) | A five-stage, non-invasive pipeline auditing a project for cross-browser issues (ESLint `eslint-plugin-compat`, stylelint, `@e18e/cli`, Lighthouse) and rendering a unified HTML report with remediation steps. |
+| **WebMCP Builder** | [`skills/webmcp-builder/`](skills/webmcp-builder/SKILL.md) | A guide to building **WebMCP tools** — client-side JS interfaces that expose web-app functionality to AI agents via `navigator.modelContext`, including tool contracts, side-effect annotations, human-in-the-loop gating, and a scaffold script. |
+
+See [`skills/README.md`](skills/README.md) for the full breakdown.
+
+---
+
+## **Monorepo Conventions**
+
+- **Package manager:** [pnpm](https://pnpm.io) `>= 10` is enforced (`preinstall` runs `only-allow pnpm`). Node version is pinned via `.nvmrc` (`v22.19.0`).
+- **Workspaces:** declared in `pnpm-workspace.yaml` as `packages/**`. Internal dependencies use the `workspace:*` protocol.
+- **Build order:** the root `build` script builds packages in dependency order (`common` → `table` → `chrome-ai-playground` → `awl-mcp-inspector` → `design-system` → `chatbot` → `npm-advisor` → `awl` → `npm-advisor-mcp` → `vscode`). Most libraries compile with `tsc`; the extensions use Vite or esbuild.
+- **Shared tooling:** ESLint, Prettier, Jest/Playwright, Tailwind, and TypeScript configs all come from [`shared-config`](packages/shared/shared-config/README.md) — packages extend them rather than maintaining their own.
+- **Patches:** upstream dependencies are patched via pnpm `patchedDependencies` (see `patches/`), covering `zod`, `ajv`, the `@mcp-b/*` transports, and `@assistant-ui/react`.
+- **Git hooks:** a Husky `pre-commit` hook runs on commit (`prepare: husky`).
+
+### Common root scripts
+
+| Script | What it does |
+| :---- | :---- |
+| `pnpm build` | Build every package in dependency order |
+| `pnpm dev` | Run the AWL extension in watch mode (alias for `dev:awl`) |
+| `pnpm lint` / `pnpm format` | Lint / format across packages |
+| `pnpm test:*` | Per-package test runners (e.g. `test:awl`, `test:design-system`, `test:engine`) |
+| `pnpm test:e2e` | Playwright end-to-end tests for the AWL extension |
+| `pnpm storybook` | Launch the shared Storybook host |
+| `pnpm start:npm-advisor-mcp` | Run the npm-advisor MCP server (stdio) |
+
+---
+
 ## **Contributing**
 
 Contributions are welcome\! To get started:
@@ -198,9 +386,9 @@ Contributions are welcome\! To get started:
 3. Make your changes and verify with `pnpm build`  
 4. Open a Pull Request against the `develop` branch
 
-## **License**
+## **License & Privacy**
 
-[Apache 2.0](LICENSE)
+Licensed under [Apache 2.0](LICENSE). See the [Privacy Policy](PRIVACY_POLICY.md) for how the extensions handle data.
 
 ---
 
