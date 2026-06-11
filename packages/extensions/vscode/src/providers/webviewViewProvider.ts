@@ -43,6 +43,7 @@ export class NpmAdvisorWebviewProvider implements vscode.WebviewViewProvider {
   private readonly cache: StatsCache;
   private webviewView: vscode.WebviewView | null = null;
   private pendingFocusPackageName: string | null = null;
+  private pendingNavigateToProjectHealth = false;
   private onReadySubscription: vscode.Disposable | null = null;
   private refreshKey = 0;
 
@@ -81,7 +82,12 @@ export class NpmAdvisorWebviewProvider implements vscode.WebviewViewProvider {
     this.onReadySubscription = this.bridge.onReady(() => {
       const focusPackageName = this.pendingFocusPackageName ?? undefined;
       this.pendingFocusPackageName = null;
+      const navigateToProjectHealth = this.pendingNavigateToProjectHealth;
+      this.pendingNavigateToProjectHealth = false;
       void this.sendInitMessage(focusPackageName);
+      if (navigateToProjectHealth) {
+        this.bridge.post({ type: "navigateToProjectHealth" });
+      }
     });
     webviewView.onDidDispose(() => {
       this.onReadySubscription?.dispose();
@@ -146,6 +152,22 @@ export class NpmAdvisorWebviewProvider implements vscode.WebviewViewProvider {
       this.bridge.post({ type: "focusPackage", packageName });
     } else {
       this.pendingFocusPackageName = packageName;
+    }
+  }
+
+  /**
+   * Reveals the npm-advisor side panel and asks the webview to switch to
+   * the workspace-wide Project Health view's Dependencies sub-tab. If the
+   * webview hasn't mounted yet (cold start), the request is queued and
+   * applied once init fires. Used by the daily summary notification's
+   * "Show Project Health" action.
+   */
+  async revealProjectHealthDependencies(): Promise<void> {
+    await vscode.commands.executeCommand(`${WEBVIEW_VIEW_ID}.focus`);
+    if (this.webviewView) {
+      this.bridge.post({ type: "navigateToProjectHealth" });
+    } else {
+      this.pendingNavigateToProjectHealth = true;
     }
   }
 

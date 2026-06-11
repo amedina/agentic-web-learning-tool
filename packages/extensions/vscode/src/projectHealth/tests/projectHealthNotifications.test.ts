@@ -1,12 +1,17 @@
 /**
  * External dependencies.
  */
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import * as vscode from "vscode";
 
 /**
  * Internal dependencies.
  */
-import { formatReportSummary } from "../projectHealthNotifications";
+import { SHOW_PROJECT_HEALTH_DEPENDENCIES_COMMAND } from "../../commands/showProjectHealth";
+import {
+  formatReportSummary,
+  notifyReportSummary,
+} from "../projectHealthNotifications";
 import { createInitialReport } from "../projectHealthReport";
 import type { ProjectHealthReport, VulnerabilityTotals } from "../types";
 
@@ -66,5 +71,58 @@ describe("formatReportSummary", () => {
     expect(summary.hasIssues).toBe(true);
     expect(summary.message).toContain("1 license issue");
     expect(summary.message).toContain("(2 suppressed)");
+  });
+});
+
+describe("notifyReportSummary", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("navigates to Project Health > Dependencies when the show action is clicked on a report with issues", async () => {
+    // The first action passed to the message is "Show Project Health";
+    // returning it from the spy simulates the user clicking that button.
+    vi.spyOn(vscode.window, "showWarningMessage").mockImplementation(
+      (async (...args: unknown[]) => args[1]) as never,
+    );
+    const executeCommand = vi
+      .spyOn(vscode.commands, "executeCommand")
+      .mockResolvedValue(undefined);
+
+    await notifyReportSummary(
+      report({ vulnerabilities: { critical: 1, total: 1 } }),
+    );
+
+    expect(executeCommand).toHaveBeenCalledWith(
+      SHOW_PROJECT_HEALTH_DEPENDENCIES_COMMAND,
+    );
+  });
+
+  it("navigates to Project Health > Dependencies when the show action is clicked on a clean report", async () => {
+    vi.spyOn(vscode.window, "showInformationMessage").mockImplementation(
+      (async (...args: unknown[]) => args[1]) as never,
+    );
+    const executeCommand = vi
+      .spyOn(vscode.commands, "executeCommand")
+      .mockResolvedValue(undefined);
+
+    await notifyReportSummary(report({}));
+
+    expect(executeCommand).toHaveBeenCalledWith(
+      SHOW_PROJECT_HEALTH_DEPENDENCIES_COMMAND,
+    );
+  });
+
+  it("does nothing when the notification is dismissed", async () => {
+    vi.spyOn(vscode.window, "showWarningMessage").mockResolvedValue(undefined);
+    const executeCommand = vi
+      .spyOn(vscode.commands, "executeCommand")
+      .mockResolvedValue(undefined);
+
+    await notifyReportSummary(
+      report({ vulnerabilities: { critical: 1, total: 1 } }),
+    );
+
+    expect(executeCommand).not.toHaveBeenCalled();
   });
 });
