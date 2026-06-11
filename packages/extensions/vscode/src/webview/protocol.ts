@@ -167,6 +167,22 @@ export type WebviewRequest =
        */
       type: "setProjectHealthAutoRun";
       enabled: boolean;
+    }
+  | {
+      /**
+       * Asks the host for the current GitHub sign-in state so the side
+       * panel can show or hide the "sign in to lift the rate limit"
+       * banner. The host replies with a `githubAuthState` message.
+       */
+      type: "getGithubAuthState";
+    }
+  | {
+      /**
+       * Triggers the interactive GitHub sign-in flow (the same one the
+       * "Sign in to GitHub" command runs). On success the auth service's
+       * onDidChange re-broadcasts `githubAuthState`, which hides the banner.
+       */
+      type: "signInToGitHub";
     };
 
 export type ExtensionMessage =
@@ -297,6 +313,16 @@ export type ExtensionMessage =
        */
       type: "projectHealthSettings";
       autoRunDaily: boolean;
+    }
+  | {
+      /**
+       * The current GitHub sign-in state, broadcast in reply to
+       * `getGithubAuthState` and again whenever the GitHub session changes
+       * (sign-in, sign-out, or the Accounts menu). `signedIn: false` drives
+       * the side panel's sign-in banner.
+       */
+      type: "githubAuthState";
+      signedIn: boolean;
     };
 
 export interface PackageJsonDependenciesPayload {

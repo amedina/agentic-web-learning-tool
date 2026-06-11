@@ -80,6 +80,10 @@ if (container) {
       onSetProjectHealthAutoRun={(enabled) =>
         vscodeApi.postMessage({ type: "setProjectHealthAutoRun", enabled })
       }
+      onGetGithubAuthState={() =>
+        vscodeApi.postMessage({ type: "getGithubAuthState" })
+      }
+      onSignInToGitHub={() => vscodeApi.postMessage({ type: "signInToGitHub" })}
     />,
   );
 }

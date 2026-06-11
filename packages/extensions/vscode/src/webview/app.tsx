@@ -14,6 +14,7 @@ import {
 /**
  * Internal dependencies.
  */
+import { GithubSignInBanner } from "./githubSignInBanner";
 import { PackageJsonSwitcher } from "./packageJsonSwitcher";
 import { newRequestId } from "./projectAnalysis/helpers";
 import { ProjectAnalysisTab } from "./projectAnalysisTab";
@@ -67,6 +68,8 @@ interface AppProps {
   onUnmuteFinding: (target: MuteTarget) => void;
   onGetProjectHealthSettings: () => void;
   onSetProjectHealthAutoRun: (enabled: boolean) => void;
+  onGetGithubAuthState: () => void;
+  onSignInToGitHub: () => void;
 }
 
 const EMPTY_DEPS: PackageJsonDependenciesPayload = {
@@ -102,6 +105,8 @@ export const App: FC<AppProps> = ({
   onUnmuteFinding,
   onGetProjectHealthSettings,
   onSetProjectHealthAutoRun,
+  onGetGithubAuthState,
+  onSignInToGitHub,
 }) => {
   const [viewMode, setViewMode] = useState<ViewMode>("package");
   const [projectHealthReport, setProjectHealthReport] =
@@ -117,6 +122,10 @@ export const App: FC<AppProps> = ({
   // sync via `projectHealthSettings` messages. Initialized to the "daily"
   // default so the collapsed toggle reads "On" before the host replies.
   const [autoRunDaily, setAutoRunDaily] = useState(true);
+  // GitHub sign-in state, used to show the rate-limit sign-in banner. null
+  // until the host replies; the banner only renders when this is explicitly
+  // false, so there is no flash before the state is known.
+  const [githubSignedIn, setGithubSignedIn] = useState<boolean | null>(null);
   const [activeTab, setActiveTab] = useState<ActiveTab>("dependencies");
   const [initState, setInitState] = useState<{
     activeFile: PackageJsonFile | null;
@@ -148,6 +157,8 @@ export const App: FC<AppProps> = ({
   onGetSuppressionsRef.current = onGetSuppressions;
   const onGetProjectHealthSettingsRef = useRef(onGetProjectHealthSettings);
   onGetProjectHealthSettingsRef.current = onGetProjectHealthSettings;
+  const onGetGithubAuthStateRef = useRef(onGetGithubAuthState);
+  onGetGithubAuthStateRef.current = onGetGithubAuthState;
   const pendingHealthCacheRequestIdRef = useRef<string | null>(null);
   // Tracks the refreshKey from the previous init so we can detect a host-side
   // cache wipe and drop useDependencyStats's module-level cache before the
@@ -215,6 +226,8 @@ export const App: FC<AppProps> = ({
         setSuppressions(data.entries);
       } else if (data.type === "projectHealthSettings") {
         setAutoRunDaily(data.autoRunDaily);
+      } else if (data.type === "githubAuthState") {
+        setGithubSignedIn(data.signedIn);
       }
     };
     window.addEventListener("message", handle);
@@ -228,6 +241,8 @@ export const App: FC<AppProps> = ({
     onGetSuppressionsRef.current();
     // Seed the auto-run toggle from the persisted setting.
     onGetProjectHealthSettingsRef.current();
+    // Seed the GitHub sign-in banner state.
+    onGetGithubAuthStateRef.current();
     return () => window.removeEventListener("message", handle);
   }, []);
 
@@ -332,6 +347,9 @@ export const App: FC<AppProps> = ({
   return (
     <StatsClientProvider client={client}>
       <div className="flex flex-col h-full">
+        {githubSignedIn === false ? (
+          <GithubSignInBanner onSignIn={onSignInToGitHub} />
+        ) : null}
         <ViewModeToggle mode={viewMode} onChange={setViewMode} />
         {viewMode === "project" ? (
           <div className="flex-1 min-h-0 overflow-y-auto">

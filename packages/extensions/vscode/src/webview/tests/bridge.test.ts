@@ -375,6 +375,61 @@ describe("WebviewBridge", () => {
     showWarningSpy.mockRestore();
   });
 
+  it("posts githubAuthState=false when no GitHub session is available", async () => {
+    const bridge = new WebviewBridge({
+      cache: { get: vi.fn() } as unknown as never,
+      settingsProvider: () => ({ targetLicense: "MIT" }) as never,
+      githubAuth: makeFakeAuth(),
+      projectAnalysisCollection: makeFakeDiagnosticCollection(),
+      projectAnalysisCache: makeFakeProjectAnalysisCache(),
+      projectHealthController: makeFakeProjectHealthController(),
+    });
+    const fakeWebview = new FakeWebview();
+    bridge.attach(fakeWebview as unknown as vscode.Webview);
+    fakeWebview.dispatch({ type: "ready" });
+    fakeWebview.dispatch({ type: "getGithubAuthState" });
+    await flushAsync();
+    expect(fakeWebview.posted).toEqual([
+      { type: "githubAuthState", signedIn: false },
+    ]);
+  });
+
+  it("posts githubAuthState=true when a GitHub session exists", async () => {
+    const bridge = new WebviewBridge({
+      cache: { get: vi.fn() } as unknown as never,
+      settingsProvider: () => ({ targetLicense: "MIT" }) as never,
+      githubAuth: makeFakeAuth({ signedIn: true }),
+      projectAnalysisCollection: makeFakeDiagnosticCollection(),
+      projectAnalysisCache: makeFakeProjectAnalysisCache(),
+      projectHealthController: makeFakeProjectHealthController(),
+    });
+    const fakeWebview = new FakeWebview();
+    bridge.attach(fakeWebview as unknown as vscode.Webview);
+    fakeWebview.dispatch({ type: "ready" });
+    fakeWebview.dispatch({ type: "getGithubAuthState" });
+    await flushAsync();
+    expect(fakeWebview.posted).toEqual([
+      { type: "githubAuthState", signedIn: true },
+    ]);
+  });
+
+  it("runs the GitHub sign-in command on signInToGitHub", async () => {
+    const bridge = new WebviewBridge({
+      cache: { get: vi.fn() } as unknown as never,
+      settingsProvider: () => ({ targetLicense: "MIT" }) as never,
+      githubAuth: makeFakeAuth(),
+      projectAnalysisCollection: makeFakeDiagnosticCollection(),
+      projectAnalysisCache: makeFakeProjectAnalysisCache(),
+      projectHealthController: makeFakeProjectHealthController(),
+    });
+    const fakeWebview = new FakeWebview();
+    bridge.attach(fakeWebview as unknown as vscode.Webview);
+    fakeWebview.dispatch({ type: "ready" });
+    fakeWebview.dispatch({ type: "signInToGitHub" });
+    await flushAsync();
+    expect(executeCommandSpy).toHaveBeenCalledWith("npmAdvisor.signInToGitHub");
+  });
+
   it("dedupes notify messages by key within a session", async () => {
     const showWarningSpy = vi
       .spyOn(vscode.window, "showWarningMessage")
