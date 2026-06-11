@@ -14,6 +14,7 @@ import {
 /**
  * Internal dependencies.
  */
+import { GithubSignInBanner } from "./githubSignInBanner";
 import { PackageJsonSwitcher } from "./packageJsonSwitcher";
 import { newRequestId } from "./projectAnalysis/helpers";
 import { ProjectAnalysisTab } from "./projectAnalysisTab";
@@ -67,6 +68,8 @@ interface AppProps {
   onUnmuteFinding: (target: MuteTarget) => void;
   onGetProjectHealthSettings: () => void;
   onSetProjectHealthAutoRun: (enabled: boolean) => void;
+  onGetGithubAuthState: () => void;
+  onSignInToGitHub: () => void;
 }
 
 const EMPTY_DEPS: PackageJsonDependenciesPayload = {
@@ -102,6 +105,8 @@ export const App: FC<AppProps> = ({
   onUnmuteFinding,
   onGetProjectHealthSettings,
   onSetProjectHealthAutoRun,
+  onGetGithubAuthState,
+  onSignInToGitHub,
 }) => {
   const [viewMode, setViewMode] = useState<ViewMode>("package");
   const [projectHealthReport, setProjectHealthReport] =
@@ -117,6 +122,12 @@ export const App: FC<AppProps> = ({
   // sync via `projectHealthSettings` messages. Initialized to the "daily"
   // default so the collapsed toggle reads "On" before the host replies.
   const [autoRunDaily, setAutoRunDaily] = useState(true);
+  // GitHub auth state, used to show the rate-limit banner. null until the
+  // host replies; the banner renders only for a non-authorized state, so
+  // there is no flash before the state is known.
+  const [githubAuthStatus, setGithubAuthStatus] = useState<
+    "authorized" | "needsAuthorization" | "signedOut" | null
+  >(null);
   const [activeTab, setActiveTab] = useState<ActiveTab>("dependencies");
   // Bumped on every `navigateToProjectHealth` request (e.g. the daily
   // notification's "Show Project Health" action) and used as part of
@@ -154,6 +165,8 @@ export const App: FC<AppProps> = ({
   onGetSuppressionsRef.current = onGetSuppressions;
   const onGetProjectHealthSettingsRef = useRef(onGetProjectHealthSettings);
   onGetProjectHealthSettingsRef.current = onGetProjectHealthSettings;
+  const onGetGithubAuthStateRef = useRef(onGetGithubAuthState);
+  onGetGithubAuthStateRef.current = onGetGithubAuthState;
   const pendingHealthCacheRequestIdRef = useRef<string | null>(null);
   // Tracks the refreshKey from the previous init so we can detect a host-side
   // cache wipe and drop useDependencyStats's module-level cache before the
@@ -221,6 +234,8 @@ export const App: FC<AppProps> = ({
         setSuppressions(data.entries);
       } else if (data.type === "projectHealthSettings") {
         setAutoRunDaily(data.autoRunDaily);
+      } else if (data.type === "githubAuthState") {
+        setGithubAuthStatus(data.status);
       } else if (data.type === "navigateToProjectHealth") {
         // Switch to the workspace-wide Project Health view and bump the
         // nav seq so ProjectHealthView remounts on its default
@@ -240,6 +255,8 @@ export const App: FC<AppProps> = ({
     onGetSuppressionsRef.current();
     // Seed the auto-run toggle from the persisted setting.
     onGetProjectHealthSettingsRef.current();
+    // Seed the GitHub sign-in banner state.
+    onGetGithubAuthStateRef.current();
     return () => window.removeEventListener("message", handle);
   }, []);
 
@@ -344,6 +361,12 @@ export const App: FC<AppProps> = ({
   return (
     <StatsClientProvider client={client}>
       <div className="flex flex-col h-full">
+        {githubAuthStatus && githubAuthStatus !== "authorized" ? (
+          <GithubSignInBanner
+            status={githubAuthStatus}
+            onSignIn={onSignInToGitHub}
+          />
+        ) : null}
         <ViewModeToggle mode={viewMode} onChange={setViewMode} />
         {viewMode === "project" ? (
           <div className="flex-1 min-h-0 overflow-y-auto">

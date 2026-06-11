@@ -69,6 +69,7 @@ export class WebviewBridge implements vscode.Disposable {
   private readonly projectAnalysisCache: ProjectAnalysisCache;
   private readonly projectHealthController: ProjectHealthController;
   private readonly projectHealthSubscription: vscode.Disposable;
+  private readonly githubAuthSubscription: vscode.Disposable;
   private webview: vscode.Webview | null = null;
   private webviewSubscription: vscode.Disposable | null = null;
   private isReady = false;
@@ -93,6 +94,12 @@ export class WebviewBridge implements vscode.Disposable {
     this.projectHealthSubscription = this.projectHealthController.onDidUpdate(
       (report) => this.post({ type: "projectHealth", report }),
     );
+    // Re-broadcast the sign-in state on any GitHub session change (the
+    // Sign-in command, the banner button, or the Accounts menu) so the
+    // side panel's sign-in banner appears and disappears in step.
+    this.githubAuthSubscription = this.githubAuth.onDidChange(() => {
+      void this.notifyGithubAuthState();
+    });
   }
 
   /**
@@ -136,6 +143,7 @@ export class WebviewBridge implements vscode.Disposable {
     this.webviewSubscription?.dispose();
     this.webviewSubscription = null;
     this.projectHealthSubscription.dispose();
+    this.githubAuthSubscription.dispose();
     this.webview = null;
     this.onReadyListeners.clear();
     this.pendingOutbound = [];
@@ -401,6 +409,17 @@ export class WebviewBridge implements vscode.Disposable {
         this.notifyProjectHealthSettings();
         return;
       }
+      case "getGithubAuthState": {
+        await this.notifyGithubAuthState();
+        return;
+      }
+      case "signInToGitHub": {
+        // Runs the same interactive flow as the Sign-in command. The auth
+        // service's onDidChange (fired by signIn) re-broadcasts the new
+        // githubAuthState, so the banner hides without an explicit notify here.
+        await vscode.commands.executeCommand(SIGN_IN_GITHUB_COMMAND);
+        return;
+      }
       case "revealFinding": {
         try {
           const uri = vscode.Uri.file(message.filePath);
@@ -475,6 +494,18 @@ export class WebviewBridge implements vscode.Disposable {
       type: "projectHealthSettings",
       autoRunDaily: this.settingsProvider().projectHealthAutoRun === "daily",
     });
+  }
+
+  /**
+   * Posts the current GitHub sign-in state to the webview so the side
+   * panel shows the sign-in banner only when the user is signed out.
+   * `getToken` does a silent session lookup, so a null result reliably
+   * means no GitHub session is available (the rate-limited case). Public
+   * so the host can re-broadcast on session changes.
+   */
+  async notifyGithubAuthState(): Promise<void> {
+    const status = await this.githubAuth.getAuthStatus();
+    this.post({ type: "githubAuthState", status });
   }
 
   /**

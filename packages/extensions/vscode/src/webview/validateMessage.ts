@@ -37,6 +37,8 @@ const ALLOWED_TYPES: ReadonlySet<WebviewRequest["type"]> = new Set([
   "getSuppressions",
   "getProjectHealthSettings",
   "setProjectHealthAutoRun",
+  "getGithubAuthState",
+  "signInToGitHub",
 ] as const);
 
 /**
@@ -97,6 +99,8 @@ export function validateWebviewMessage(
     case "cancelProjectHealth":
     case "getSuppressions":
     case "getProjectHealthSettings":
+    case "getGithubAuthState":
+    case "signInToGitHub":
       return { ok: true, message: message as WebviewRequest };
 
     case "setProjectHealthAutoRun": {
