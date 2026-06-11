@@ -1,0 +1,234 @@
+/**
+ * External dependencies
+ */
+import {
+  convertToModelMessages,
+  createUIMessageStream,
+  streamText,
+  type ChatRequestOptions,
+  type ChatTransport,
+  type UIDataTypes,
+  type UIMessage,
+  type UIMessageChunk,
+  type UITools,
+} from 'ai';
+import { type LanguageModelV2 } from '@ai-sdk/provider';
+import type { AssistantRuntime } from '@assistant-ui/react';
+import { getToolNameWithoutPrefix } from '@agentic-web-labs/design-system';
+import { logger } from '@agentic-web-labs/common';
+/**
+ * Internal dependencies
+ */
+import ChromeAILanguageModel from './chromeAILanguageModel';
+import {
+  SYSTEM_PROMPT_START,
+  jsonSchemaToZod,
+  createTransportErrorSurfacer,
+  getProviderErrorMessage,
+} from '../../utils';
+import replaceSlashCommands from '../replaceSlashCommands';
+
+type SendMessagesParams = {
+  /** The type of message submission - either new message or regeneration */
+  trigger: 'submit-message' | 'regenerate-message';
+  /** Unique identifier for the chat session */
+  chatId: string;
+  /** ID of the message to regenerate, or undefined for new messages */
+  messageId: string | undefined;
+  /** Array of UI messages representing the conversation history */
+  messages: UIMessage[];
+  /** Signal to abort the request if needed */
+  abortSignal: AbortSignal | undefined;
+} & ChatRequestOptions;
+
+/**
+ * A custom ChatTransport for interfacing with the on-device
+ * Gemini Nano API (window.languageModel).
+ *
+ * This transport does not make any network requests. It calls
+ * the browser's built-in LanguageModel API directly.
+ */
+export class GeminiNanoChatTransport implements ChatTransport<
+  UIMessage<unknown, UIDataTypes, UITools>
+> {
+  private model: LanguageModelV2 | null = null;
+  private isInitializing: boolean = false;
+  private runtime: AssistantRuntime | null = null;
+  formattedTools: any[] = [];
+  private isNPMAdvisor: boolean = false;
+
+  constructor() {}
+
+  setRuntime(runtime: AssistantRuntime) {
+    this.runtime = runtime;
+  }
+
+  /**
+   * Updates the system prompt on the underlying on-device model so the next
+   * message uses it, without recreating the transport (which would reset the
+   * chat thread). No-op until the session has been initialized.
+   */
+  setSystemPrompt(systemPrompt: string) {
+    if (this.model) {
+      (this.model as unknown as ChromeAILanguageModel).setSystemPrompt(
+        systemPrompt
+      );
+    }
+  }
+
+  /**
+   * Initializes the on-device model session.
+   * This checks for API availability and creates a session.
+   */
+  async initializeSession(
+    isNPMAdvisor: boolean = false,
+    systemPrompt = ''
+  ): Promise<void> {
+    if (this.model || this.isInitializing) {
+      return;
+    }
+
+    this.isInitializing = true;
+    this.isNPMAdvisor = isNPMAdvisor;
+    try {
+      const lm = LanguageModel;
+      if (!lm) {
+        throw new Error(
+          'Gemini Nano API (window.ai.languageModel) is not available.'
+        );
+      }
+
+      const availability = await lm.availability({
+        expectedInputs: [
+          {
+            type: 'text',
+            languages: ['en'],
+          },
+        ],
+        expectedOutputs: [{ type: 'text', languages: ['en'] }],
+      });
+
+      if (availability === 'unavailable') {
+        throw new Error('On-device Gemini Nano model is unavailable.');
+      }
+
+      this.model = new ChromeAILanguageModel(crypto.randomUUID(), {
+        isNPMAdvisor: this.isNPMAdvisor,
+        systemPrompt: systemPrompt,
+      }) as unknown as LanguageModelV2;
+      if (this.model) {
+        //@ts-expect-error -- Mismatch in versions being used by library
+        this.model.setRuntime(this.runtime);
+      }
+    } catch (error) {
+      logger(['error'], ['Failed to initialize Gemini Nano session: ', error]);
+      this.model = null; // Ensure model is null on failure
+    } finally {
+      this.isInitializing = false;
+    }
+  }
+
+  /**
+   * The core method that implements the ChatTransport interface.
+   * This is called by `useChat` when a new message is sent.
+   */
+  async sendMessages(
+    params: SendMessagesParams
+  ): Promise<ReadableStream<UIMessageChunk<unknown, UIDataTypes>>> {
+    //@ts-expect-error -- the command is being set from the chatbot
+    const _command = window.command;
+
+    if (!this.runtime) {
+      return new ReadableStream();
+    }
+
+    if (_command) {
+      return replaceSlashCommands(_command, this.runtime);
+    }
+    const { messages, abortSignal } = params;
+
+    const { tools } = this.runtime.thread.getModelContext();
+
+    this.formattedTools = Object.entries(tools ?? []).map(([key, value]) => [
+      key,
+      {
+        description: value.description,
+        execute: value.execute,
+        inputSchema: jsonSchemaToZod(value.parameters),
+        parameters: value.parameters,
+        name: getToolNameWithoutPrefix(key),
+        type: 'function',
+      },
+    ]);
+
+    return createUIMessageStream({
+      execute: async ({ writer }) => {
+        const surfaceError = createTransportErrorSurfacer(writer, 'browser-ai');
+
+        if (!this.model) {
+          surfaceError(
+            new Error('Browser AI model is not initialized'),
+            'Browser AI (on-device Gemini Nano) is unavailable on this device. Switch to another provider in Settings, then try again.'
+          );
+          return;
+        }
+
+        try {
+          const result = streamText({
+            model: this.model as unknown as LanguageModelV2,
+            messages: convertToModelMessages(messages),
+            tools: Object.fromEntries(this.formattedTools),
+            abortSignal,
+            providerOptions: {
+              'built-in-ai': {
+                parallelToolExecution: false,
+              },
+            },
+            stopWhen: ({ steps }) => steps.length === 10,
+            system: SYSTEM_PROMPT_START,
+            onError: (err) => {
+              surfaceError(err.error);
+            },
+            onAbort: (res) => {
+              logger(
+                ['warn'],
+                [`Stream aborted after ${res.steps.length} steps [chatId=]`]
+              );
+            },
+            onStepFinish: (res) => {
+              logger(
+                ['debug'],
+                [
+                  `Step finished: `,
+                  JSON.stringify(
+                    {
+                      finishReason: res.finishReason,
+                      toolCalls: res.toolCalls?.length,
+                      tokens: res.usage.totalTokens,
+                    },
+                    null,
+                    2
+                  ),
+                ]
+              );
+            },
+          });
+          writer.merge(
+            result.toUIMessageStream({
+              onError: (error) => {
+                surfaceError(error);
+                return getProviderErrorMessage(error, 'browser-ai');
+              },
+            })
+          );
+        } catch (executionError) {
+          surfaceError(executionError);
+        }
+      },
+    });
+  }
+
+  reconnectToStream(_options: { chatId: string } & ChatRequestOptions) {
+    return Promise.resolve(new ReadableStream());
+  }
+}

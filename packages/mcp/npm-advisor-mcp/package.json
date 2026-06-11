@@ -1,0 +1,46 @@
+{
+  "name": "@agentic-web-labs/npm-advisor-mcp",
+  "version": "0.3.0",
+  "description": "MCP server exposing npm package intelligence (security, license, scoring, recommendations) to MCP-aware AI clients like Claude Code, Claude Desktop, and Cursor.",
+  "private": true,
+  "type": "module",
+  "publisher": "agentic-web-labs",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "main": "./dist/server.js",
+  "bin": {
+    "npm-advisor-mcp": "./dist/server.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "prebuild": "rimraf dist",
+    "build": "node esbuild.config.js --production",
+    "dev": "node esbuild.config.js --watch",
+    "start": "node dist/server.js",
+    "start:http": "node dist/server.js --http",
+    "cli": "node dist/cli.js",
+    "check-types": "tsc --noEmit",
+    "format": "prettier . --write",
+    "test": "vitest run --root . --silent"
+  },
+  "dependencies": {
+    "@agentic-web-labs/package-analyzer-core": "workspace:*",
+    "@agentic-web-labs/project-analyzer-core": "workspace:*",
+    "@modelcontextprotocol/sdk": "^1.25.2",
+    "zod": "4.3.5"
+  },
+  "devDependencies": {
+    "@agentic-web-labs/shared-config": "workspace:*",
+    "@types/node": "^24.3.0",
+    "esbuild": "^0.25.0",
+    "rimraf": "^5.0.5",
+    "typescript": "~5.8.3",
+    "vitest": "^4.1.0"
+  }
+}

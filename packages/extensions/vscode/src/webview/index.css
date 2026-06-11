@@ -1,0 +1,26 @@
+@import "@agentic-web-labs/shared-config/tailwind";
+
+@source "../../../../shared/design-system";
+@source "../../../../shared/package-analyzer-ui";
+@source "./";
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+}
+
+/**
+ * Floor the side-panel layout at 420px. VSCode lets users drag the panel
+ * arbitrarily narrow, and the dashboard's pie-chart row + 2-column matrix
+ * start to crowd / clip below that threshold. Below 420px the webview
+ * overflows horizontally and VSCode shows a horizontal scrollbar instead
+ * of squeezing the layout into something unreadable.
+ */
+body {
+  color: var(--vscode-foreground);
+  font-family: var(--vscode-font-family);
+  font-size: var(--vscode-font-size);
+  min-width: 420px;
+}

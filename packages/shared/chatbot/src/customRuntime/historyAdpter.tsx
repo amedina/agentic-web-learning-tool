@@ -1,0 +1,104 @@
+/**
+ * External dependencies
+ */
+import { useMemo, useCallback, type PropsWithChildren } from 'react';
+import { RuntimeAdapterProvider, useAssistantApi } from '@assistant-ui/react';
+/**
+ * Internal dependencies
+ */
+import { chatStorage } from './chatStorage';
+import { repairParentChain } from './messageHistory';
+import type {
+  LoadFunctionOutputType,
+  ExportedMessageRepositoryItem,
+} from './types';
+
+export const HistoryAdapter = () => {
+  return useCallback(function Provider({ children }: PropsWithChildren) {
+    const api = useAssistantApi();
+
+    const load = useCallback(async () => {
+      const { remoteId } = await api.threadListItem().initialize();
+
+      if (!remoteId) {
+        return { messages: [] };
+      }
+
+      const messages = await chatStorage.messages.findByThreadId(remoteId);
+      return {
+        // Re-derive the parent chain from stored order so a corrupted or
+        // incomplete history can never make MessageRepository.import throw
+        // "Parent message not found" and collapse the thread to an empty chat.
+        messages: repairParentChain(messages),
+        unstable_resume: false,
+      } as LoadFunctionOutputType;
+    }, [api]);
+
+    api.on('thread.initialize', ({ threadId }) => {
+      chrome.tabs
+        .query({ active: true, currentWindow: true })
+        .then(async ([tab]) => {
+          if (!tab?.id) {
+            return;
+          }
+
+          chatStorage.threads.setLastActiveThreadId(threadId, tab.id);
+        });
+    });
+
+    const append = useCallback(
+      async (message: ExportedMessageRepositoryItem) => {
+        const { remoteId } = await api.threadListItem().initialize();
+
+        if (!remoteId) {
+          return;
+        }
+
+        const messages = await chatStorage.messages.findByThreadId(remoteId);
+
+        if (message.message.role === 'user' && messages.length === 0) {
+          //@ts-expect-error -- We are sure that the first message will have text part.
+          const messageTitle = message.message.parts
+            //@ts-expect-error -- We are sure that the first message will have text part.
+            .filter((part) => part.type === 'text')[0]
+            .text.substring(0, 30);
+
+          // Rename through the runtime (not a raw storage write) so the live
+          // thread list reflects the title immediately; the adapter's rename
+          // also persists it. A raw chatStorage write only lands on disk and
+          // the in-memory thread keeps the "New Chat" fallback until reload.
+          await api.threadListItem().rename(messageTitle);
+        }
+
+        await chatStorage.messages.create({
+          ...message,
+          threadId: remoteId,
+        });
+      },
+      [api]
+    );
+
+    const history = useMemo(
+      () => ({
+        load,
+        append,
+        withFormat(_formatAdapter: any) {
+          return {
+            load,
+            append,
+          };
+        },
+      }),
+      [load, append]
+    );
+
+    const adapters = useMemo(() => ({ history }), [history]);
+
+    return (
+      //@ts-expect-error -- Both functions return same format since we are storing the data in chrome local storage.
+      <RuntimeAdapterProvider adapters={adapters}>
+        {children}
+      </RuntimeAdapterProvider>
+    );
+  }, []);
+};

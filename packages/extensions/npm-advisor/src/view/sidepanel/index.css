@@ -1,0 +1,10 @@
+@import "@agentic-web-labs/shared-config/tailwind";
+
+@source "../../../../../shared/design-system";
+@source "../../../../../shared/chatbot";
+@source "../../../../../shared/package-analyzer-ui";
+
+html, body, #root {
+  height: 100%;
+  overflow: hidden;
+}

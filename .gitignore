@@ -11,6 +11,11 @@ node_modules
 dist
 dist-ssr
 *.local
+*.tsbuildinfo
+
+# Environment files — never commit. Templates live as .env.example next to each package.
+.env
+.env.local
 
 # Editor directories and files
 .vscode/*
@@ -35,4 +40,5 @@ test-results/
 
 .claude
 awl-builds/
+TASK_STATUS.md
 

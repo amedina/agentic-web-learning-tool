@@ -1,0 +1,124 @@
+@import "@agentic-web-labs/shared-config/tailwind";
+
+@source "../../../../../shared/design-system";
+@source "./";
+
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+}
+
+body {
+  color: var(--vscode-foreground);
+  background-color: var(--vscode-editor-background);
+  font-family: var(--vscode-font-family);
+  font-size: var(--vscode-font-size);
+}
+
+/*
+ * Button styles use VSCode's CSS variables so the wizard matches the
+ * user's theme (button-background tracks the editor accent). Hover
+ * states need a real CSS rule because React inline styles can't
+ * express :hover.
+ */
+.mcp-button-primary {
+  background-color: var(--vscode-button-background);
+  color: var(--vscode-button-foreground);
+  border: 1px solid transparent;
+}
+
+.mcp-button-primary:hover:not(:disabled) {
+  background-color: var(--vscode-button-hoverBackground, var(--vscode-button-background));
+}
+
+.mcp-button-secondary {
+  background-color: var(--vscode-button-secondaryBackground, transparent);
+  color: var(--vscode-button-secondaryForeground, var(--vscode-foreground));
+  border: 1px solid var(--vscode-widget-border, var(--vscode-panel-border, var(--vscode-input-border, transparent)));
+}
+
+.mcp-button-secondary:hover:not(:disabled) {
+  background-color: var(--vscode-button-secondaryHoverBackground, var(--vscode-toolbar-hoverBackground, var(--vscode-button-secondaryBackground)));
+}
+
+.mcp-button-danger {
+  background-color: transparent;
+  color: var(--vscode-errorForeground, var(--vscode-editorError-foreground));
+  border: 1px solid color-mix(in srgb, var(--vscode-errorForeground, var(--vscode-editorError-foreground)) 50%, transparent);
+}
+
+.mcp-button-danger:hover:not(:disabled) {
+  background-color: color-mix(in srgb, var(--vscode-errorForeground, var(--vscode-editorError-foreground)) 12%, transparent);
+}
+
+/*
+ * Three-dots overflow trigger in the card header. Borderless, picks
+ * up a subtle hover background so it hints at being clickable
+ * without competing with the primary action buttons below.
+ */
+.mcp-overflow-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: 6px;
+  background-color: transparent;
+  color: var(--vscode-foreground);
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.1s ease;
+}
+
+.mcp-overflow-trigger:hover:not(:disabled),
+.mcp-overflow-trigger[aria-expanded="true"] {
+  background-color: var(--vscode-toolbar-hoverBackground, color-mix(in srgb, var(--vscode-foreground) 10%, transparent));
+}
+
+.mcp-overflow-trigger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/*
+ * Menu items inside the overflow dropdown. Use VSCode's menu
+ * selection variables so the hover highlight matches whatever
+ * theme is active.
+ */
+.mcp-overflow-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.375rem 0.75rem;
+  font-size: 12px;
+  text-align: left;
+  background: transparent;
+  color: inherit;
+  border: none;
+  cursor: pointer;
+}
+
+.mcp-overflow-item:hover:not(:disabled),
+.mcp-overflow-item:focus-visible:not(:disabled) {
+  background-color: var(--vscode-menu-selectionBackground, var(--vscode-list-hoverBackground));
+  color: var(--vscode-menu-selectionForeground, var(--vscode-foreground));
+  outline: none;
+}
+
+.mcp-overflow-item:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.mcp-overflow-item-danger {
+  color: var(--vscode-errorForeground, var(--vscode-editorError-foreground));
+}
+
+.mcp-overflow-item-danger:hover:not(:disabled),
+.mcp-overflow-item-danger:focus-visible:not(:disabled) {
+  background-color: color-mix(in srgb, var(--vscode-errorForeground, var(--vscode-editorError-foreground)) 18%, transparent);
+  color: var(--vscode-errorForeground, var(--vscode-editorError-foreground));
+}

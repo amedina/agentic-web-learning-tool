@@ -1,0 +1,230 @@
+{
+  "name": "vscode-npm-advisor",
+  "displayName": "NPM Advisor",
+  "description": "Package intelligence, security insights, dependency analysis, and AI-powered evaluation for npm packages, directly inside VSCode.",
+  "version": "0.3.0",
+  "private": true,
+  "publisher": "AgenticWebLabs",
+  "license": "Apache-2.0",
+  "engines": {
+    "vscode": "^1.96.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Linters",
+    "Chat",
+    "Other"
+  ],
+  "keywords": [
+    "npm",
+    "package.json",
+    "security",
+    "advisories",
+    "vulnerabilities",
+    "audit",
+    "dependencies",
+    "lockfile",
+    "license",
+    "bundle-size",
+    "publint",
+    "e18e",
+    "mcp"
+  ],
+  "homepage": "https://github.com/amedina/agentic-web-learning-tool/tree/develop/packages/extensions/vscode#readme",
+  "bugs": {
+    "url": "https://github.com/amedina/agentic-web-learning-tool/issues"
+  },
+  "qna": "https://github.com/amedina/agentic-web-learning-tool/discussions",
+  "icon": "media/icon-128-color.png",
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "workspaceContains:**/package.json",
+    "onChatParticipant:agentic-web-labs.npm-advisor"
+  ],
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "npm-advisor",
+          "title": "NPM Advisor",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "npm-advisor": [
+        {
+          "id": "npmAdvisor.welcome",
+          "name": "NPM Advisor",
+          "type": "webview"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "npmAdvisor.viewPackage",
+        "title": "NPM Advisor: View package on npm",
+        "category": "NPM Advisor"
+      },
+      {
+        "command": "npmAdvisor.clearCache",
+        "title": "NPM Advisor: Clear cached package stats",
+        "category": "NPM Advisor"
+      },
+      {
+        "command": "npmAdvisor.showInsights",
+        "title": "NPM Advisor: Show full insights for a package",
+        "category": "NPM Advisor"
+      },
+      {
+        "command": "npmAdvisor.signInToGitHub",
+        "title": "NPM Advisor: Sign in to GitHub (lifts API rate limit)",
+        "category": "NPM Advisor"
+      },
+      {
+        "command": "npmAdvisor.signOutFromGitHub",
+        "title": "NPM Advisor: Disconnect GitHub session",
+        "category": "NPM Advisor"
+      },
+      {
+        "command": "npmAdvisor.setupMcp",
+        "title": "NPM Advisor: Set up MCP server for AI clients (Claude Code, Cursor, …)",
+        "category": "NPM Advisor"
+      },
+      {
+        "command": "npmAdvisor.uninstallMcp",
+        "title": "NPM Advisor: Remove MCP server from AI clients",
+        "category": "NPM Advisor"
+      },
+      {
+        "command": "npmAdvisor.runProjectAnalysis",
+        "title": "NPM Advisor: Run project analysis (publint + replacement opportunities)",
+        "category": "NPM Advisor"
+      },
+      {
+        "command": "npmAdvisor.clearProjectAnalysis",
+        "title": "NPM Advisor: Clear project-analysis diagnostics",
+        "category": "NPM Advisor"
+      },
+      {
+        "command": "npmAdvisor.runMigrationWizard",
+        "title": "NPM Advisor: Run migration wizard (replace deps with lighter alternatives)",
+        "category": "NPM Advisor"
+      },
+      {
+        "command": "npmAdvisor.runProjectHealth",
+        "title": "NPM Advisor: Run full Project Health analysis (all package.json files)",
+        "category": "NPM Advisor"
+      },
+      {
+        "command": "npmAdvisor.runDailyHealthCheck",
+        "title": "NPM Advisor: Run daily dependency health check now (vulnerabilities + licenses, with notification)",
+        "category": "NPM Advisor"
+      }
+    ],
+    "chatParticipants": [
+      {
+        "id": "agentic-web-labs.npm-advisor",
+        "name": "npm-advisor",
+        "fullName": "NPM Advisor",
+        "description": "Ask about your npm dependencies: security, licenses, alternatives, scores.",
+        "isSticky": true
+      }
+    ],
+    "configuration": {
+      "title": "NPM Advisor",
+      "properties": {
+        "npmAdvisor.targetLicense": {
+          "type": "string",
+          "default": "MIT",
+          "description": "Project license used to evaluate dependency license compatibility (e.g. MIT, Apache-2.0, GPL-3.0)."
+        },
+        "npmAdvisor.unmaintainedThresholdDays": {
+          "type": "number",
+          "default": 730,
+          "minimum": 1,
+          "description": "Number of days since the last commit to a dependency's GitHub repo before NPM Advisor flags it as unmaintained."
+        },
+        "npmAdvisor.advisorySeverityFloor": {
+          "type": "string",
+          "enum": [
+            "critical",
+            "high",
+            "moderate",
+            "low"
+          ],
+          "default": "high",
+          "description": "Lowest GitHub Security Advisory severity that produces a Problems-panel diagnostic. Lower-severity advisories are ignored."
+        },
+        "npmAdvisor.outdatedMajorThreshold": {
+          "type": "number",
+          "default": 2,
+          "minimum": 1,
+          "description": "Number of major versions a dependency can be behind the latest published release before NPM Advisor flags it as outdated."
+        },
+        "npmAdvisor.projectHealth.autoRun": {
+          "type": "string",
+          "enum": [
+            "off",
+            "daily"
+          ],
+          "enumDescriptions": [
+            "Never run automatically. You can still run a check from the Project Health view.",
+            "Run a dependency health check (vulnerabilities + licenses across every package.json) once per day and notify you with a summary."
+          ],
+          "default": "daily",
+          "description": "Automatically run the workspace-wide dependency health check (vulnerabilities and license compatibility across every package.json) once a day and notify you of the result. On by default; the slower project analysis is never run unattended. You can also toggle this from the Project Health > Dependencies view, or turn it off from the daily notification."
+        }
+      }
+    }
+  },
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": false
+    },
+    "virtualWorkspaces": {
+      "supported": false,
+      "description": "NPM Advisor reads package.json and lockfiles from disk, runs dependency and security analysis, and can apply a migration codemod that rewrites files, none of which work over a virtual file system."
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/amedina/agentic-web-learning-tool.git",
+    "directory": "packages/extensions/vscode"
+  },
+  "scripts": {
+    "prebuild": "rimraf ../../../dist/vscode-npm-advisor dist",
+    "build": "node esbuild.config.js --production",
+    "apply:identity": "node scripts/applyPublishIdentity.mjs",
+    "dev": "node esbuild.config.js --watch",
+    "check-types": "tsc --noEmit",
+    "format": "prettier . --write",
+    "test": "vitest run --root . --silent"
+  },
+  "dependencies": {
+    "@agentic-web-labs/design-system": "workspace:*",
+    "@agentic-web-labs/package-analyzer-ui": "workspace:*",
+    "@agentic-web-labs/table": "workspace:*",
+    "lucide-react": "^0.468.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  },
+  "devDependencies": {
+    "@agentic-web-labs/package-analyzer-core": "workspace:*",
+    "@agentic-web-labs/project-analyzer-core": "workspace:*",
+    "@agentic-web-labs/shared-config": "workspace:*",
+    "@tailwindcss/cli": "^4.1.13",
+    "@types/d3": "^7.4.3",
+    "@types/node": "^24.3.0",
+    "@types/react": "^19.1.10",
+    "@types/react-dom": "^19.1.7",
+    "@types/vscode": "^1.96.0",
+    "@vscode/vsce": "^3.2.1",
+    "esbuild": "^0.25.0",
+    "jsonc-parser": "^3.3.1",
+    "rimraf": "^5.0.5",
+    "tailwindcss": "^4.1.13",
+    "typescript": "~5.8.3",
+    "vitest": "^4.1.0"
+  }
+}

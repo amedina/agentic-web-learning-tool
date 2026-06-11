@@ -1,4 +1,4 @@
-# **🦉 Agentic Web Learning Tool (AWL)**
+# **🦉 Agentic Web Labs (AWL)**
 
 **An open-source Chrome Extension for learning, exploring, and experimenting with the technologies of the Agentic Web.**
 

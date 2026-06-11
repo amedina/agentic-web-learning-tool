@@ -1,0 +1,5 @@
+@import "@agentic-web-labs/shared-config/tailwind";
+@import "@agentic-web-labs/table/styles.css";
+
+@source "../../../../../shared/design-system";
+@source "../../../../../shared/table";

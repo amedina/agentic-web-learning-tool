@@ -1,0 +1,515 @@
+/**
+ * External dependencies.
+ */
+import React from "react";
+import {
+  Github,
+  Star,
+  Users,
+  Clock,
+  Activity,
+  Info,
+  ShieldAlert,
+} from "lucide-react";
+import { Tooltip } from "@agentic-web-labs/design-system";
+import { type ScoreBreakdownItem } from "@agentic-web-labs/package-analyzer-core";
+
+/**
+ * Internal dependencies.
+ */
+import { DEPENDENCIES_COLORS, BRAND_PRIMARY_COLOR } from "../../theme/colors";
+import { useCountUp } from "../../hooks/useCountUp";
+import { SkeletonValue } from "./skeletonValue";
+import { RateLimitedValue } from "./rateLimitedValue";
+
+/**
+ * Picks a Fitness Score color based on the score's percentage of the
+ * available max. Percentage-based (rather than raw-number) because
+ * `scoreMaxPoints` varies — when an axis like Responsiveness is
+ * unavailable it's excluded from the denominator, so a raw 50 means
+ * "50 / 100" in some contexts and "50 / 70" in others.
+ *
+ * Thresholds:
+ *   - >= 70%   → green  (good)
+ *   - 40 – 69% → orange (moderate)
+ *   - <  40%   → red    (low)
+ *
+ * Low uses the extension brand red rather than the palette's `vulnerable`
+ * token, which is reserved for security-advisory signals so the two reds
+ * aren't conflated. Moderate uses a saturated darker orange (not the
+ * palette's lighter yellow-amber) so the three bands are visually distinct.
+ *
+ * Falls back to a muted slate when there's no score to color (N/A or no
+ * scored axes available) so the value doesn't read as "low" by accident.
+ */
+const FITNESS_COLOR_MODERATE = "#EA580C";
+const FITNESS_COLOR_NEUTRAL = DEPENDENCIES_COLORS.unanalysed;
+
+const getFitnessColor = (
+  score: number | null,
+  maxPoints: number | undefined,
+): string => {
+  if (score === null || !maxPoints || maxPoints <= 0) {
+    return FITNESS_COLOR_NEUTRAL;
+  }
+  const percentage = (score / maxPoints) * 100;
+  if (percentage >= 70) {
+    return DEPENDENCIES_COLORS.dev;
+  }
+  if (percentage >= 40) {
+    return FITNESS_COLOR_MODERATE;
+  }
+  return BRAND_PRIMARY_COLOR;
+};
+
+export interface HeaderProps {
+  packageName: string;
+  /**
+   * The package's one-line description (the npm `description` field).
+   * Rendered as a short blurb below the name/license row when present, and
+   * silently omitted when null/undefined so packages without a description
+   * don't leave an empty line.
+   */
+  description?: string | null;
+  /**
+   * The package version to display next to the name. On GitHub
+   * `package.json` pages and in VSCode this is the lockfile-resolved
+   * (installed) version; on npm pages it's the latest published version.
+   * Hidden when null/undefined (e.g. while the per-package fetch is still
+   * in flight).
+   */
+  version?: string | null;
+  /**
+   * True when `version` is the version actually installed in the user's
+   * project (resolved from a lockfile). Drives the "Installed" label so a
+   * lockfile-derived version reads differently from a bare npm version,
+   * which is shown without any qualifier.
+   */
+  isInstalledVersion?: boolean;
+  githubUrl: string | null;
+  stars: number | null;
+  collaboratorsCount: number | null;
+  lastCommitDate: string | null;
+  license: string | null;
+  onAddToCompare: () => void;
+  isAddedToCompare: boolean;
+  score: number | null;
+  scoreBreakdown?: ScoreBreakdownItem[];
+  scoreMaxPoints?: number;
+  /**
+   * Severity-bucketed advisory counts. When `critical > 0` the Fitness
+   * value renders a small red ShieldAlert badge next to the number so the
+   * presence of a critical vulnerability is visible at a glance,
+   * independent of how much the score itself was nudged down. Lower
+   * severities don't trigger the badge — they're surfaced in the
+   * Security Advisories widget below the header.
+   */
+  securityAdvisories?: {
+    critical: number;
+    high: number;
+    moderate: number;
+    low: number;
+  } | null;
+  /** True when a GitHub rate-limit prevented stars / lastCommit from loading. */
+  githubRateLimited?: boolean;
+  /**
+   * Hide the Fitness column. Used by the Dependencies tab accordion rows where
+   * the Responsiveness signal is intentionally not loaded (Search API
+   * quota), so the Fitness composite would be misleading.
+   */
+  hideFitness?: boolean;
+  /**
+   * Hide the Compare / View Comparison affordance entirely. Consumers
+   * (e.g. the VSCode side panel) that don't ship a comparison view set
+   * this so the inline button never appears.
+   */
+  hideCompare?: boolean;
+  /**
+   * Renders skeleton bars in place of the stat values (stars / collabs /
+   * last-commit / fitness / license) so the header keeps its full size
+   * while the per-package fetch is still in flight.
+   */
+  isLoading?: boolean;
+  /**
+   * Called when the user clicks "View Comparison" after adding a package.
+   * Consumers provide this to navigate to the comparison tab/view.
+   */
+  onNavigateToComparison?: () => void;
+}
+
+export const Header: React.FC<HeaderProps> = ({
+  packageName,
+  description,
+  version,
+  isInstalledVersion = false,
+  githubUrl,
+  stars,
+  collaboratorsCount,
+  lastCommitDate,
+  license,
+  onAddToCompare,
+  isAddedToCompare,
+  score,
+  scoreBreakdown,
+  scoreMaxPoints,
+  securityAdvisories,
+  githubRateLimited = false,
+  hideFitness = false,
+  hideCompare = false,
+  isLoading = false,
+  onNavigateToComparison,
+}) => {
+  const animatedScore = useCountUp(score ?? 0);
+  const animatedStars = useCountUp(stars ?? 0);
+  const animatedCollabs = useCountUp(collaboratorsCount ?? 0);
+
+  // Only critical advisories trigger the inline shield. Lower severities
+  // are visible in the Security Advisories widget further down the page,
+  // and over-flagging the header would dilute the signal — the goal is
+  // to draw the eye when something truly urgent is open.
+  const criticalCount = securityAdvisories?.critical ?? 0;
+  const showCriticalBadge = criticalCount > 0;
+
+  const formatDate = (dateString: string) => {
+    const d = new Date(dateString);
+    const day = d.getDate();
+    const month = d.toLocaleString("en-US", { month: "short" });
+    const year = d.getFullYear();
+    return `${day} ${month}, ${year}`;
+  };
+
+  return (
+    <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
+      <div className="flex items-start justify-between">
+        <div>
+          <div className="flex items-center space-x-2">
+            <h1
+              className="text-xl font-bold text-slate-900 dark:text-slate-100 truncate max-w-[200px]"
+              title={packageName}
+            >
+              {packageName}
+            </h1>
+            {version ? (
+              isInstalledVersion ? (
+                <Tooltip
+                  placement="bottom"
+                  delayDuration={0}
+                  contentClassName="max-w-xs p-2 text-left font-normal normal-case tracking-normal bg-slate-800 text-white shadow-lg"
+                  body={
+                    <div className="text-xs leading-snug">
+                      <p className="font-semibold mb-0.5">Installed version</p>
+                      <p className="mt-1 text-[11px] text-slate-400">
+                        Resolved from the lockfile in this project, so it
+                        reflects the exact version installed, not necessarily
+                        npm&rsquo;s latest release.
+                      </p>
+                    </div>
+                  }
+                >
+                  <span
+                    className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-mono bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600 cursor-help whitespace-nowrap"
+                    aria-label={`Installed version ${version}`}
+                  >
+                    Installed v{version}
+                  </span>
+                </Tooltip>
+              ) : (
+                <Tooltip
+                  placement="bottom"
+                  delayDuration={0}
+                  contentClassName="max-w-xs p-2 text-left font-normal normal-case tracking-normal bg-slate-800 text-white shadow-lg"
+                  body={
+                    <div className="text-xs leading-snug">
+                      <p className="font-semibold mb-0.5">
+                        Latest published version
+                      </p>
+                      <p className="mt-1 text-[11px] text-slate-400">
+                        npm&rsquo;s <span className="font-mono">latest</span>{" "}
+                        release. An exact version is shown only when a lockfile
+                        pins one; without a lockfile the version range in
+                        package.json can&rsquo;t be resolved, so the latest
+                        release is shown instead.
+                      </p>
+                    </div>
+                  }
+                >
+                  <span
+                    className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-mono bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600 cursor-help whitespace-nowrap"
+                    aria-label={`Version ${version}`}
+                  >
+                    v{version}
+                  </span>
+                </Tooltip>
+              )
+            ) : null}
+            {hideCompare ? null : isAddedToCompare ? (
+              <button
+                onClick={() => onNavigateToComparison?.()}
+                className={`px-2 py-1 text-xs font-semibold rounded-md border transition-colors bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800 hover:bg-green-100 dark:hover:bg-green-900/40 flex items-center space-x-1 cursor-pointer`}
+              >
+                <span>View Comparison</span>
+              </button>
+            ) : (
+              <button
+                onClick={onAddToCompare}
+                className={`px-2 py-1 text-xs font-semibold rounded-md border transition-colors bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer`}
+              >
+                + Compare
+              </button>
+            )}
+          </div>
+          {githubUrl ? (
+            <a
+              href={githubUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 flex items-center mt-1 transition-colors cursor-pointer"
+              title={githubUrl}
+            >
+              <Github size={14} className="mr-1" /> View Source
+            </a>
+          ) : isLoading ? (
+            <div className="mt-1">
+              <SkeletonValue width="w-24" />
+            </div>
+          ) : (
+            <p className="text-sm text-slate-400 dark:text-slate-500 mt-1">
+              No repository linked
+            </p>
+          )}
+        </div>
+        <div className="text-right">
+          {isLoading && !license ? (
+            <SkeletonValue width="w-16" />
+          ) : (
+            <span
+              className="inline-flex items-center px-2 py-1 rounded text-xs font-mono bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-600 truncate max-w-[150px]"
+              title={license ?? "Unknown"}
+            >
+              {license ?? "Unknown"}
+            </span>
+          )}
+        </div>
+      </div>
+
+      {description ? (
+        <p className="mt-2 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+          {description}
+        </p>
+      ) : null}
+
+      <div className="flex items-start justify-between mt-4 pt-4 border-t border-slate-100 dark:border-slate-700">
+        {!hideFitness && (
+          <div className="flex flex-col items-center space-y-1">
+            <div className="flex items-center text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold whitespace-nowrap">
+              <Activity size={12} className="mr-1 shadow-sm" /> Fitness
+              <Tooltip
+                placement="bottom"
+                delayDuration={0}
+                contentClassName="w-72 p-3 text-left font-normal normal-case tracking-normal bg-slate-800 text-white shadow-lg"
+                body={
+                  scoreBreakdown && scoreBreakdown.length > 0 ? (
+                    <div>
+                      <p className="font-semibold text-sm">
+                        Fitness {score ?? 0}{" "}
+                        <span className="text-slate-400">
+                          / {scoreMaxPoints ?? 0}
+                        </span>
+                      </p>
+                      <p className="text-[11px] text-slate-400 mb-2 leading-snug">
+                        Fitness score compares similar packages. Server-side and
+                        dev-only packages score low by design, so cross-category
+                        comparisons aren&rsquo;t meaningful.
+                      </p>
+                      <ul className="space-y-2">
+                        {scoreBreakdown.map((item) => {
+                          const isUnavailable = item.status === "unavailable";
+                          const isPenalty = item.status === "penalty";
+                          return (
+                            <li
+                              key={item.label}
+                              className="flex items-start justify-between gap-2"
+                            >
+                              <div className="flex-1 min-w-0">
+                                <span
+                                  className={`text-xs font-medium ${
+                                    isUnavailable
+                                      ? "text-slate-400"
+                                      : isPenalty
+                                        ? "text-red-300"
+                                        : ""
+                                  }`}
+                                >
+                                  {item.label}
+                                </span>
+                                <span
+                                  className={`block text-[11px] leading-snug ${
+                                    isUnavailable
+                                      ? "italic text-slate-500"
+                                      : isPenalty
+                                        ? "text-red-200/80"
+                                        : "text-slate-300"
+                                  }`}
+                                >
+                                  {item.reason}
+                                </span>
+                              </div>
+                              <span
+                                className={`shrink-0 tabular-nums text-xs ${
+                                  isUnavailable
+                                    ? "text-slate-500"
+                                    : isPenalty
+                                      ? "text-red-300"
+                                      : ""
+                                }`}
+                              >
+                                {isUnavailable ? (
+                                  "—"
+                                ) : isPenalty ? (
+                                  `${item.points}`
+                                ) : (
+                                  <>
+                                    +{item.points}{" "}
+                                    <span className="text-slate-400">
+                                      / {item.maxPoints}
+                                    </span>
+                                  </>
+                                )}
+                              </span>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                      {scoreBreakdown.some(
+                        (i) => i.status === "unavailable",
+                      ) && (
+                        <p className="mt-2 pt-2 border-t border-slate-700 text-[11px] text-slate-400 leading-snug">
+                          Axes marked — were excluded because the required data
+                          wasn&rsquo;t available.
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-xs">
+                      Calculated based on Bundle Size, Dependencies, and Modern
+                      Replacements.
+                    </p>
+                  )
+                }
+              >
+                <button
+                  type="button"
+                  aria-label="How is this score calculated?"
+                  className="ml-1 flex items-center cursor-help focus:outline-none"
+                >
+                  <Info
+                    size={12}
+                    className="text-slate-400 dark:text-slate-500"
+                  />
+                </button>
+              </Tooltip>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span
+                className="font-bold text-lg leading-none text-center"
+                style={{
+                  color: getFitnessColor(
+                    score === null ? null : animatedScore,
+                    scoreMaxPoints,
+                  ),
+                }}
+              >
+                {score !== null ? (
+                  animatedScore
+                ) : isLoading ? (
+                  <SkeletonValue width="w-8" />
+                ) : (
+                  "N/A"
+                )}
+              </span>
+              {showCriticalBadge && (
+                <Tooltip
+                  placement="bottom"
+                  delayDuration={0}
+                  contentClassName="max-w-xs p-2 text-left font-normal normal-case tracking-normal bg-slate-800 text-white shadow-lg"
+                  body={
+                    <div className="text-xs leading-snug">
+                      <p className="font-semibold mb-0.5">
+                        {criticalCount} critical{" "}
+                        {criticalCount === 1 ? "advisory" : "advisories"}
+                      </p>
+                      <p className="mt-1 text-[11px] text-slate-400">
+                        Advisories are typically resolved by upstream patches,
+                        so they only nudge the score down. Check the Security
+                        Advisories section for fixed versions.
+                      </p>
+                    </div>
+                  }
+                >
+                  <span
+                    aria-label={`${criticalCount} critical security ${criticalCount === 1 ? "advisory" : "advisories"}`}
+                    className="inline-flex items-center text-red-600 dark:text-red-400 cursor-help"
+                  >
+                    <ShieldAlert size={16} />
+                  </span>
+                </Tooltip>
+              )}
+            </div>
+          </div>
+        )}
+        <div className="flex flex-col items-center space-y-1">
+          <div className="flex items-center text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold whitespace-nowrap">
+            <Star size={12} className="mr-1 shadow-sm" /> Stars
+          </div>
+          <span className="font-medium text-slate-800 dark:text-slate-200">
+            {stars !== null ? (
+              animatedStars.toLocaleString()
+            ) : githubRateLimited ? (
+              <RateLimitedValue />
+            ) : isLoading ? (
+              <SkeletonValue width="w-12" />
+            ) : (
+              "N/A"
+            )}
+          </span>
+        </div>
+        <div className="flex flex-col items-center space-y-1">
+          <div
+            className="flex items-center text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold whitespace-nowrap"
+            title="NPM Maintainers"
+          >
+            <Users size={12} className="mr-1" /> Collabs
+          </div>
+          <span className="font-medium text-slate-800 dark:text-slate-200">
+            {collaboratorsCount !== null && collaboratorsCount !== undefined ? (
+              animatedCollabs
+            ) : isLoading ? (
+              <SkeletonValue width="w-8" />
+            ) : (
+              "N/A"
+            )}
+          </span>
+        </div>
+        <div className="flex flex-col items-center space-y-1">
+          <div className="flex items-center text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold whitespace-nowrap">
+            <Clock size={12} className="mr-1" /> Last Commit
+          </div>
+          <span
+            className="font-medium text-slate-800 dark:text-slate-200 text-center whitespace-nowrap"
+            title={lastCommitDate || "N/A"}
+          >
+            {lastCommitDate ? (
+              formatDate(lastCommitDate)
+            ) : githubRateLimited ? (
+              <RateLimitedValue />
+            ) : isLoading ? (
+              <SkeletonValue width="w-20" />
+            ) : (
+              "N/A"
+            )}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+};

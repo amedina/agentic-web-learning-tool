@@ -1,0 +1,42 @@
+/**
+ * External dependencies
+ */
+import { createContext, noop } from '@agentic-web-labs/common';
+import type { WebMCPTool } from '@agentic-web-labs/design-system';
+import type { Dispatch, SetStateAction } from 'react';
+
+export interface ToolProviderStoreContext {
+  state: {
+    userTools: WebMCPTool[];
+    builtInTools: WebMCPTool[];
+    chromeAPIBuiltInToolsState: {
+      [key: string]: {
+        enabled: boolean;
+      };
+    };
+  };
+  actions: {
+    setUserTools: Dispatch<SetStateAction<WebMCPTool[]>>;
+    setBuiltInTools: Dispatch<SetStateAction<WebMCPTool[]>>;
+    saveBuiltInState: (tools: WebMCPTool[]) => void;
+    saveUserTools: (tools: WebMCPTool[], updatedTool?: WebMCPTool) => void;
+    saveExtensionToolsState: (toolName: string, value: boolean) => void;
+  };
+}
+
+const initialState: ToolProviderStoreContext = {
+  state: {
+    userTools: [],
+    builtInTools: [],
+    chromeAPIBuiltInToolsState: {},
+  },
+  actions: {
+    setBuiltInTools: noop,
+    setUserTools: noop,
+    saveBuiltInState: noop,
+    saveUserTools: noop,
+    saveExtensionToolsState: noop,
+  },
+};
+
+export default createContext<ToolProviderStoreContext>(initialState);

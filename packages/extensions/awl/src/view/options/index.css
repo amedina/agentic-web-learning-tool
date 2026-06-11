@@ -1,0 +1,5 @@
+@import "@agentic-web-labs/shared-config/tailwind";
+
+@source "../../../../../shared/design-system";
+@source "../../utils/constants.ts";
+@source "../../../../../awl/workflow-ui";

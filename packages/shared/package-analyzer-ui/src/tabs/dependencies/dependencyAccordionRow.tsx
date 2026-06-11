@@ -1,0 +1,201 @@
+/**
+ * External dependencies.
+ */
+import React, { useEffect, useMemo, useState } from "react";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@agentic-web-labs/design-system";
+import { ChevronDown, Loader2 } from "lucide-react";
+
+/**
+ * Internal dependencies.
+ */
+import { type DependencyStatsState } from "../../hooks/useDependencyStats";
+import {
+  type PackageStats,
+  type DependencyTree,
+} from "@agentic-web-labs/package-analyzer-core";
+import { PackageInsightsBody } from "../insights/packageInsightsBody";
+import { useStatsClient } from "../../context/statsClientContext";
+import { type BundleData } from "../../types/statsClient";
+import { StatusSummary } from "./statusSummary";
+
+/**
+ * Module-scoped caches so reopening the same row doesn't re-fetch, and the
+ * same package opened from different categories shares the result.
+ */
+const bundleCache = new Map<string, BundleData | null>();
+const dependencyTreeCache = new Map<string, DependencyTree | null>();
+
+interface DependencyAccordionRowProps {
+  packageName: string;
+  state: DependencyStatsState;
+  onAddRecommendationToCompare: (packageName: string) => void;
+  comparisonBucketNames: Set<string>;
+  addingRecommendations: Set<string>;
+  onNavigateToComparison?: () => void;
+  /**
+   * Hide every Compare affordance inside the expanded body — the
+   * inline header button and the per-recommendation badges. Used by
+   * consumers without a comparison view.
+   */
+  hideCompare?: boolean;
+  /**
+   * When true, the embedded Header inside the expanded row renders the
+   * Fitness column. Defaults to false because the chrome extension's
+   * Dependencies-tab fetcher skips the Responsiveness signal (Search
+   * API quota), which makes the composite Fitness misleading there.
+   * Consumers (e.g. the VSCode side panel) whose fetcher returns the
+   * full PackageStats can opt in.
+   */
+  showFitness?: boolean;
+}
+
+export const DependencyAccordionRow: React.FC<DependencyAccordionRowProps> = ({
+  packageName,
+  state,
+  onAddRecommendationToCompare,
+  comparisonBucketNames,
+  addingRecommendations,
+  onNavigateToComparison,
+  hideCompare = false,
+  showFitness = false,
+}) => {
+  const statsClient = useStatsClient();
+  const [open, setOpen] = useState(false);
+  const [bundleData, setBundleData] = useState<BundleData | null>(() =>
+    bundleCache.has(packageName) ? bundleCache.get(packageName)! : null,
+  );
+  const [bundleLoading, setBundleLoading] = useState(false);
+  const [depTreeData, setDepTreeData] = useState<DependencyTree | null>(() =>
+    dependencyTreeCache.has(packageName)
+      ? dependencyTreeCache.get(packageName)!
+      : null,
+  );
+  const [depTreeLoading, setDepTreeLoading] = useState(false);
+
+  const stats = state.status === "loaded" ? state.stats : null;
+
+  // Lazy-load bundlephobia data the first time the user expands the row.
+  // The light-stats fetch deliberately skips this to keep the initial scan
+  // cheap when most rows are never opened.
+  useEffect(() => {
+    if (!open || !stats || stats.bundle || bundleData || bundleLoading) {
+      return;
+    }
+    if (bundleCache.has(packageName)) {
+      setBundleData(bundleCache.get(packageName)!);
+      return;
+    }
+
+    setBundleLoading(true);
+    void statsClient.getBundleData(packageName).then((fetched) => {
+      setBundleLoading(false);
+      bundleCache.set(packageName, fetched);
+      if (fetched) {
+        setBundleData(fetched);
+      }
+    });
+  }, [open, packageName, stats, bundleData, bundleLoading, statsClient]);
+
+  // Lazy-load the transitive dependency tree on first expand. Light stats
+  // skip this because resolving the tree fans out into recursive npm
+  // fetches that we don't want to pay for unless the row is actually
+  // opened.
+  useEffect(() => {
+    if (
+      !open ||
+      !stats ||
+      stats.dependencyTree ||
+      depTreeData ||
+      depTreeLoading
+    ) {
+      return;
+    }
+    if (dependencyTreeCache.has(packageName)) {
+      setDepTreeData(dependencyTreeCache.get(packageName)!);
+      return;
+    }
+
+    setDepTreeLoading(true);
+    void statsClient.getDependencyTree(packageName).then((tree) => {
+      setDepTreeLoading(false);
+      const resolved = tree ?? null;
+      dependencyTreeCache.set(packageName, resolved);
+      setDepTreeData(resolved);
+    });
+  }, [open, packageName, stats, depTreeData, depTreeLoading, statsClient]);
+
+  // Merge any lazily-fetched bundle and dep tree into the rendered stats.
+  // The score breakdown isn't recomputed — the dashboard's aggregate
+  // scoring stays consistent with what was shown at scan time, and the
+  // user can always see the actual data inside the widgets.
+  const renderedStats = useMemo(() => {
+    if (!stats) return stats;
+    const needsBundle = !stats.bundle && bundleData;
+    const needsTree = !stats.dependencyTree && depTreeData;
+    if (!needsBundle && !needsTree) return stats;
+    return {
+      ...stats,
+      bundle: needsBundle ? bundleData : stats.bundle,
+      dependencyTree: needsTree ? depTreeData : stats.dependencyTree,
+    };
+  }, [stats, bundleData, depTreeData]);
+
+  return (
+    <Collapsible
+      open={open}
+      onOpenChange={setOpen}
+      className="border-b border-slate-200 dark:border-slate-700 last:border-b-0"
+    >
+      <CollapsibleTrigger className="group w-full flex items-center justify-between gap-3 px-3 py-2.5 text-left hover:bg-slate-50 dark:hover:bg-slate-700/40 transition-colors outline-none">
+        <div className="flex items-center gap-2 min-w-0">
+          <ChevronDown
+            size={14}
+            className="shrink-0 text-slate-400 transition-transform group-data-[state=open]:rotate-180"
+          />
+          <span
+            className="text-sm font-medium text-slate-800 dark:text-slate-200 truncate"
+            title={packageName}
+          >
+            {packageName}
+          </span>
+        </div>
+        <StatusSummary state={state} />
+      </CollapsibleTrigger>
+      <CollapsibleContent className="px-3 pb-3 pt-1">
+        {state.status === "loaded" && renderedStats ? (
+          <PackageInsightsBody
+            stats={renderedStats as PackageStats}
+            onAddRecommendationToCompare={onAddRecommendationToCompare}
+            comparisonBucketNames={comparisonBucketNames}
+            addingRecommendations={addingRecommendations}
+            onNavigateToComparison={onNavigateToComparison}
+            showHeader
+            showDependencyTree
+            bundleLoading={bundleLoading}
+            dependencyTreeLoading={depTreeLoading}
+            hideResponsiveness
+            hideFitness={!showFitness}
+            hideCompare={hideCompare}
+          />
+        ) : state.status === "not_found" ? (
+          <p className="text-xs text-slate-500 dark:text-slate-400 italic">
+            This package was not found on npmjs.com. It may not be published.
+          </p>
+        ) : state.status === "error" ? (
+          <p className="text-xs text-red-600 dark:text-red-400">
+            {state.error}
+          </p>
+        ) : (
+          <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 py-2">
+            <Loader2 size={12} className="animate-spin" />
+            Fetching stats…
+          </div>
+        )}
+      </CollapsibleContent>
+    </Collapsible>
+  );
+};

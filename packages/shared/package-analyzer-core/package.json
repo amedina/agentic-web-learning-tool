@@ -1,0 +1,26 @@
+{
+  "name": "@agentic-web-labs/package-analyzer-core",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit",
+    "test": "vitest run --root . --silent"
+  },
+  "dependencies": {
+    "js-yaml": "^4.1.1",
+    "semver": "^7.7.4"
+  },
+  "devDependencies": {
+    "@agentic-web-labs/shared-config": "workspace:*",
+    "@types/js-yaml": "^4.0.9",
+    "@types/semver": "^7.5.8",
+    "typescript": "~5.8.3",
+    "vitest": "^4.1.0"
+  }
+}

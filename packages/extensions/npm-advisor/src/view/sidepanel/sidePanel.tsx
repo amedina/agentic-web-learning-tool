@@ -1,0 +1,345 @@
+/**
+ * External dependencies
+ */
+import { PropProvider, SidepanelChatbot } from "@agentic-web-labs/chatbot";
+import { SidebarProvider, Toaster } from "@agentic-web-labs/design-system";
+import { StatsClientProvider } from "@agentic-web-labs/package-analyzer-ui";
+/**
+ * Internal dependencies
+ */
+import {
+  ErrorState,
+  NoticeState,
+  NavigationMessage,
+  InsightsTab,
+  DependenciesTab,
+  ComparisonTab,
+  AssistantMessage,
+  UserMessage,
+  GlobalHeader,
+  ErrorBoundary,
+} from "./tabs";
+import { usePackageStats } from "./hooks/usePackageStats";
+import { deriveDependencyPanelState } from "./utils/deriveDependencyPanelState";
+import { chromeStatsClient } from "./services/chromeStatsClient";
+import { getSystemPrompt } from "./tabs/askAI/getSystemPrompt";
+import { ThemeProvider } from "./context/themeContext";
+import { downloadMarkdownFile } from "../../utils";
+import OptionsPageSidePanel from "./optionsPageSidePanel";
+import ComparisonPageSidePanel from "./comparisonPageSidePanel";
+
+const SidePanel = () => {
+  const {
+    stats,
+    loading,
+    error,
+    notice,
+    isNavigationMessage,
+    isOptionsPage,
+    isComparisonPage,
+    comparisonBucket,
+    isAddedToCompare,
+    handleAddToCompare,
+    handleAddRecommendationToCompare,
+    comparisonBucketNames,
+    addingRecommendations,
+    currentTabUrl,
+    packageJsonDependencies,
+    pendingPackageName,
+    refresh,
+    refreshKey,
+    isRefreshing,
+  } = usePackageStats();
+
+  const hasAnalysableDependencies =
+    !!packageJsonDependencies &&
+    (packageJsonDependencies.dependencies.length > 0 ||
+      packageJsonDependencies.devDependencies.length > 0 ||
+      packageJsonDependencies.peerDependencies.length > 0);
+
+  // "Dependencies-only" covers any package.json that declares dependencies
+  // but has no published package to score: a monorepo root with no `name`
+  // (e.g. vuejs/core/package.json), or a named package that simply isn't
+  // published on npm (e.g. an app repo like opencode). In both cases the panel
+  // renders the tab strip — Insights shows an explanatory card and
+  // Dependencies does the actual analysis — instead of a "not found" notice.
+  const { showNoticeTakeover, isDependenciesOnly, unpublishedPackageName } =
+    deriveDependencyPanelState({
+      loading,
+      hasStats: !!stats,
+      hasError: !!error,
+      notice,
+      isNavigationMessage,
+      isOptionsPage,
+      hasAnalysableDependencies,
+      pendingPackageName,
+    });
+
+  // Options / comparison / navigation / hard error messages stay as full
+  // takeovers — they don't have meaningful tabs/skeletons to show.
+  if (isNavigationMessage) {
+    return (
+      <>
+        <Toaster position="bottom-center" />
+        <NavigationMessage url={currentTabUrl} />
+      </>
+    );
+  }
+
+  if (isOptionsPage) {
+    if (isComparisonPage) {
+      return (
+        <>
+          <Toaster position="bottom-center" />
+          <ComparisonPageSidePanel comparisonBucket={comparisonBucket} />
+        </>
+      );
+    }
+    return (
+      <>
+        <Toaster position="bottom-center" />
+        <OptionsPageSidePanel />
+      </>
+    );
+  }
+
+  // Only take over the whole panel with the notice when there's genuinely
+  // nothing else to show. A package.json that isn't published on npm but
+  // declares dependencies still has a Dependencies tab worth rendering, so
+  // fall through to the tab shell and surface the notice in the Insights card.
+  if (showNoticeTakeover && notice) {
+    return (
+      <>
+        <Toaster position="bottom-center" />
+        <NoticeState message={notice} />
+      </>
+    );
+  }
+
+  if (error) {
+    return (
+      <>
+        <Toaster position="bottom-center" />
+        <ErrorState error={error} />
+      </>
+    );
+  }
+
+  // We're on a relevant npm/github page — render the full shell (tabs +
+  // chatbot + suggestions + Ask AI) immediately. Per-widget skeletons fill
+  // in until `stats` resolves so the panel never feels blocked.
+  const isStatsLoading = loading || !stats;
+  const headerPackageName = stats?.packageName ?? pendingPackageName ?? "";
+
+  return (
+    <ErrorBoundary>
+      <Toaster position="bottom-center" />
+      <StatsClientProvider client={chromeStatsClient}>
+        <ThemeProvider>
+          <PropProvider
+            allowToolCalling={false}
+            view="npm-advisor"
+            exportChatCallback={downloadMarkdownFile}
+            prefixTabs={[
+              {
+                value: "insights",
+                label: "Insights",
+                content: (
+                  <InsightsTab
+                    stats={stats}
+                    pendingPackageName={pendingPackageName}
+                    isLoading={isStatsLoading && !isDependenciesOnly}
+                    isDependenciesOnly={isDependenciesOnly}
+                    unpublishedPackageName={unpublishedPackageName}
+                    onAddToCompare={handleAddToCompare}
+                    isAddedToCompare={isAddedToCompare}
+                    onAddRecommendationToCompare={
+                      handleAddRecommendationToCompare
+                    }
+                    comparisonBucketNames={comparisonBucketNames}
+                    addingRecommendations={addingRecommendations}
+                  />
+                ),
+              },
+              ...(hasAnalysableDependencies && packageJsonDependencies
+                ? [
+                    {
+                      value: "dependencies",
+                      label: "Dependencies",
+                      content: (
+                        <DependenciesTab
+                          key={`deps-${refreshKey}`}
+                          packageJsonDependencies={packageJsonDependencies}
+                          onAddRecommendationToCompare={
+                            handleAddRecommendationToCompare
+                          }
+                          comparisonBucketNames={comparisonBucketNames}
+                          addingRecommendations={addingRecommendations}
+                        />
+                      ),
+                    },
+                  ]
+                : []),
+            ]}
+            suffixTabs={
+              comparisonBucket.length > 0
+                ? [
+                    {
+                      value: "comparison",
+                      label: (
+                        <span className="flex items-center gap-1.5">
+                          Comparison
+                          <span className="inline-flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full bg-[#c94137] text-white text-[10px] font-bold leading-none">
+                            {comparisonBucket.length}
+                          </span>
+                        </span>
+                      ),
+                      content: <ComparisonTab />,
+                    },
+                  ]
+                : []
+            }
+            customIcon={
+              <img
+                src="/icons/icon.png"
+                alt="NPM Advisor Logo"
+                className="w-[42px] h-[42px] rounded shrink-0 object-contain shadow-sm bg-white p-1"
+              />
+            }
+            footerNode={<></>}
+            subHeaderNode={
+              <GlobalHeader onRefresh={refresh} isRefreshing={isRefreshing} />
+            }
+            assistantMessage={AssistantMessage}
+            userMessage={UserMessage}
+            getCustomSystemPrompt={() => {
+              // Dependencies-only pages have no package stats to ground the
+              // assistant on, but they do declare dependencies. Feed those
+              // in instead so the AI can reason about the dep list directly.
+              if (isDependenciesOnly && packageJsonDependencies) {
+                const dependenciesPayload = JSON.stringify(
+                  {
+                    workspaceRoot: !unpublishedPackageName,
+                    packageName: unpublishedPackageName ?? undefined,
+                    note: unpublishedPackageName
+                      ? `This package.json names "${unpublishedPackageName}", which isn't published on npm, so there are no package stats. Reason about its declared dependencies.`
+                      : "This package.json is a workspace/monorepo root with no published package name. Reason about its declared dependencies.",
+                    dependencies: packageJsonDependencies.dependencies,
+                    devDependencies: packageJsonDependencies.devDependencies,
+                    peerDependencies: packageJsonDependencies.peerDependencies,
+                  },
+                  null,
+                  2,
+                );
+                return getSystemPrompt(
+                  dependenciesPayload,
+                  comparisonBucket.length > 0
+                    ? JSON.stringify(comparisonBucket, null, 2)
+                    : undefined,
+                );
+              }
+              // While stats are still loading, fall back to whatever package
+              // name we know from the URL so the assistant has at least some
+              // grounding context. Once stats resolve, the full payload is
+              // serialized in.
+              const statsPayload = stats
+                ? JSON.stringify(stats, null, 2)
+                : JSON.stringify({ packageName: headerPackageName }, null, 2);
+              return getSystemPrompt(
+                statsPayload,
+                comparisonBucket.length > 0
+                  ? JSON.stringify(comparisonBucket, null, 2)
+                  : undefined,
+              );
+            }}
+            suggestions={
+              isDependenciesOnly
+                ? [
+                    ...(comparisonBucket.length > 0
+                      ? [
+                          {
+                            text: "Compare all packages",
+                            prompt: "Compare all of these packages.",
+                          },
+                        ]
+                      : []),
+                    {
+                      text: "Audit these dependencies",
+                      prompt:
+                        "Audit the dependencies declared in this package.json — flag anything unmaintained, oversized, or risky.",
+                    },
+                    {
+                      text: "Which deps are heaviest?",
+                      prompt:
+                        "Which of the declared dependencies contribute the most to bundle size?",
+                    },
+                    {
+                      text: "Suggest leaner alternatives",
+                      prompt:
+                        "Suggest leaner or more actively maintained alternatives for any concerning entries in this dependency list.",
+                    },
+                  ]
+                : stats
+                  ? [
+                      ...(comparisonBucket.length > 0
+                        ? [
+                            {
+                              text: "Compare all packages",
+                              prompt: "Compare all of these packages.",
+                            },
+                          ]
+                        : []),
+                      {
+                        text: "Suggest better alternatives",
+                        prompt: `Suggest better alternatives to ${stats.packageName}`,
+                      },
+                      {
+                        text: "Compare with [Popular Library]",
+                        prompt: `Compare ${stats.packageName} with a popular alternative library`,
+                      },
+                      {
+                        text: "Is there a native JS way?",
+                        prompt: `Is there a native vanilla JavaScript way to do what ${stats.packageName} does?`,
+                      },
+                      {
+                        text: `Why use this over [X]?`,
+                        prompt: `Why should I use ${stats.packageName} over other options?`,
+                      },
+                    ]
+                  : []
+            }
+            helperTextSet={{
+              title: () => {
+                if (isDependenciesOnly) {
+                  return "Ask AI about these dependencies";
+                }
+                return headerPackageName
+                  ? `Ask AI about ${headerPackageName}`
+                  : "Ask AI";
+              },
+              description: () => {
+                if (isDependenciesOnly) {
+                  return "This package.json doesn't publish a package, but I can help you reason about its declared dependencies.";
+                }
+                return headerPackageName
+                  ? `Hello! I can help you with questions about ${headerPackageName}. What would you like to know?`
+                  : "Hello! What would you like to know?";
+              },
+            }}
+          >
+            <SidebarProvider
+              defaultOpen={false}
+              className="flex flex-col h-full w-full overflow-hidden"
+            >
+              <div className="flex-1 min-h-0 overflow-hidden">
+                <SidepanelChatbot />
+              </div>
+            </SidebarProvider>
+          </PropProvider>
+        </ThemeProvider>
+      </StatsClientProvider>
+    </ErrorBoundary>
+  );
+};
+
+export default SidePanel;

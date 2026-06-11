@@ -1,0 +1,52 @@
+{
+  "name": "NPM Advisor",
+  "description": "Evaluate npm packages on npmjs.com and GitHub, with an AI chat for follow-ups.",
+  "version": "0.3.0",
+  "manifest_version": 3,
+  "action": {
+    "default_title": "Click to open sidepanel"
+  },
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "background": {
+    "service_worker": "serviceWorker/serviceWorker.js",
+    "type": "module"
+  },
+  "options_ui": {
+    "page": "options/options.html",
+    "open_in_tab": true
+  },
+  "content_scripts": [
+    {
+      "js": ["contentScript/contentScript.js"],
+      "matches": [
+        "*://www.npmjs.com/*",
+        "*://github.com/*/*/blob/*/package.json"
+      ]
+    }
+  ],
+  "permissions": [
+    "storage",
+    "activeTab",
+    "unlimitedStorage",
+    "sidePanel",
+    "webNavigation",
+    "management"
+  ],
+  "host_permissions": [
+    "*://registry.npmjs.org/*",
+    "*://registry.yarnpkg.com/*",
+    "*://registry.npmmirror.com/*",
+    "*://api.github.com/*",
+    "*://bundlephobia.com/*",
+    "*://raw.githubusercontent.com/*",
+    "*://www.npmjs.com/*",
+    "*://api.anthropic.com/*",
+    "*://api.openai.com/*",
+    "*://generativelanguage.googleapis.com/*"
+  ]
+}
