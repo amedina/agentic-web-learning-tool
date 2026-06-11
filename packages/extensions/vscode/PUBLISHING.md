@@ -33,16 +33,11 @@ pnpm build:vscode   # bundles + packages the .vsix
 
 The `.vsix` lands in `dist/vscode-npm-advisor/` as `vscode-npm-advisor-<version>.vsix`.
 
-## One-time account setup
+## Create a publisher
 
-1. Sign in to Azure DevOps (https://dev.azure.com) and create an organization.
-2. Create a Personal Access Token (PAT):
-   - User settings > Personal access tokens > New token.
-   - Organization: "All accessible organizations".
-   - Scopes: "Marketplace > Manage".
-   - Copy the token now (shown only once).
-3. Create your publisher at https://marketplace.visualstudio.com/manage. The
-   publisher id you choose there is what goes into `package.json`.
+Sign in at https://marketplace.visualstudio.com/manage with a Microsoft account
+and create a publisher. The publisher id you choose there is what goes into
+`package.json`, and it is **case-sensitive**.
 
 ## Set your publisher
 
@@ -56,47 +51,19 @@ pnpm --filter vscode-npm-advisor apply:identity
 This writes the publisher into `package.json` (vsce has no `--publisher` flag).
 You can also just edit `package.json` directly.
 
-## Build, test locally, publish
+## Build, test locally, and upload
 
 ```bash
 pnpm build:vscode
 
-# install the packaged .vsix locally to smoke-test before publishing
+# optional: install the packaged .vsix locally to smoke-test first
 code --install-extension dist/vscode-npm-advisor/vscode-npm-advisor-0.3.0.vsix
-
-# publish from the CLI (recommended; clear error messages)
-cd packages/extensions/vscode
-npx vsce publish -p "$VSCE_PAT" --no-dependencies \
-  --packagePath ../../../dist/vscode-npm-advisor/vscode-npm-advisor-0.3.0.vsix
 ```
 
-Or upload the `.vsix` at https://marketplace.visualstudio.com/manage. To remove
-a listing: `npx vsce unpublish <publisher>.vscode-npm-advisor`.
-
-## Troubleshooting
-
-### "Value cannot be null. Parameter name: v1" on the web upload
-
-The web uploader throws this useless message for several unrelated reasons.
-In order of likelihood:
-
-1. **Wrong upload type.** A VS Code `.vsix` must be uploaded as a "Visual Studio
-   Code Extension", NOT a "Visual Studio Extension". The "New Visual Studio
-   Extension" flow rejects a VS Code package with this error. Use the VS Code
-   extension upload flow.
-2. **Publisher id casing.** The `publisher` in the manifest must match your
-   registered publisher id exactly; the lookup is case-sensitive. The manage
-   page URL may show it lowercased even when the real id is mixed-case.
-3. **Browser extension interference.** A browser extension that injects content
-   scripts and hooks `fetch`/`FormData` (for example a WebMCP or AWL extension)
-   can corrupt the multipart upload so the server receives a null payload. Retry
-   in an Incognito window with extensions disabled, or publish from the CLI,
-   which bypasses the browser entirely.
-4. **Stuck draft.** Delete any half-created draft of the same extension on the
-   manage page before retrying.
-
-The `vsce` CLI reports all of these with clear messages, so prefer it when the
-web uploader misbehaves.
+Then upload the `.vsix` from `dist/vscode-npm-advisor/` at
+https://marketplace.visualstudio.com/manage. Use the "New extension > Visual
+Studio Code" flow (a VS Code `.vsix` is not a "Visual Studio Extension"). The
+listing goes live a few minutes after upload.
 
 ## Known limitation: migration wizard in a packaged build
 
