@@ -7,6 +7,10 @@ tsconfig.json
 .gitignore
 CONTRIBUTING.md
 vitest.config.ts
+.env
+.env.example
+scripts/**
+PUBLISHING.md
 **/*.map
 **/*.ts
 !dist/**
