@@ -11,6 +11,8 @@ vitest.config.ts
 .env.example
 scripts/**
 PUBLISHING.md
+media/1.png
+media/2.png
 **/*.map
 **/*.ts
 !dist/**
