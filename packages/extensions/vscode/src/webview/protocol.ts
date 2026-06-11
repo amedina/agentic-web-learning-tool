@@ -323,6 +323,16 @@ export type ExtensionMessage =
        */
       type: "githubAuthState";
       signedIn: boolean;
+    }
+  | {
+      /**
+       * Asks the webview to switch to the workspace-wide Project Health
+       * view and show its Dependencies sub-tab. Sent when the user clicks
+       * "Show Project Health" on the daily summary notification so the
+       * panel lands on the dependency check rather than wherever it was
+       * last left.
+       */
+      type: "navigateToProjectHealth";
     };
 
 export interface PackageJsonDependenciesPayload {

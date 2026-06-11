@@ -127,6 +127,12 @@ export const App: FC<AppProps> = ({
   // false, so there is no flash before the state is known.
   const [githubSignedIn, setGithubSignedIn] = useState<boolean | null>(null);
   const [activeTab, setActiveTab] = useState<ActiveTab>("dependencies");
+  // Bumped on every `navigateToProjectHealth` request (e.g. the daily
+  // notification's "Show Project Health" action) and used as part of
+  // ProjectHealthView's `key` so it remounts on its default Dependencies
+  // sub-tab. This guarantees the panel lands on Dependencies even when it
+  // was already open on the "Project Analysis" sub-tab.
+  const [projectHealthNavSeq, setProjectHealthNavSeq] = useState(0);
   const [initState, setInitState] = useState<{
     activeFile: PackageJsonFile | null;
     availableFiles: PackageJsonFile[];
@@ -228,6 +234,12 @@ export const App: FC<AppProps> = ({
         setAutoRunDaily(data.autoRunDaily);
       } else if (data.type === "githubAuthState") {
         setGithubSignedIn(data.signedIn);
+      } else if (data.type === "navigateToProjectHealth") {
+        // Switch to the workspace-wide Project Health view and bump the
+        // nav seq so ProjectHealthView remounts on its default
+        // Dependencies sub-tab, regardless of the sub-tab it last showed.
+        setViewMode("project");
+        setProjectHealthNavSeq((seq) => seq + 1);
       }
     };
     window.addEventListener("message", handle);
@@ -354,6 +366,7 @@ export const App: FC<AppProps> = ({
         {viewMode === "project" ? (
           <div className="flex-1 min-h-0 overflow-y-auto">
             <ProjectHealthView
+              key={`project-health-${projectHealthNavSeq}`}
               report={projectHealthReport}
               runningScope={runningScope}
               onRun={handleRunProjectHealth}

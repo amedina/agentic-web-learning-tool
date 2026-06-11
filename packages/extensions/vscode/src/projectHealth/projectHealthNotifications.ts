@@ -6,7 +6,7 @@ import * as vscode from "vscode";
 /**
  * Internal dependencies.
  */
-import { WEBVIEW_VIEW_ID } from "../providers/webviewViewProvider";
+import { SHOW_PROJECT_HEALTH_DEPENDENCIES_COMMAND } from "../commands/showProjectHealth";
 import type { ProjectHealthReport } from "./types";
 
 /** Label of the notification action that reveals the panel. */
@@ -69,7 +69,8 @@ export function formatReportSummary(
 /**
  * Shows the report summary as a VSCode notification. Issues surface as a
  * warning, a clean run as an information message. The "Show Project
- * Health" action reveals the npm-advisor panel; "Turn off daily checks"
+ * Health" action reveals the npm-advisor panel and switches it to the
+ * Project Health view's Dependencies sub-tab; "Turn off daily checks"
  * disables the daily auto-run (since this notification fires every day)
  * by writing `npmAdvisor.projectHealth.autoRun` to `off`. Fire-and-forget.
  */
@@ -89,7 +90,9 @@ export async function notifyReportSummary(
         TURN_OFF_ACTION_LABEL,
       );
   if (choice === SHOW_ACTION_LABEL) {
-    await vscode.commands.executeCommand(`${WEBVIEW_VIEW_ID}.focus`);
+    await vscode.commands.executeCommand(
+      SHOW_PROJECT_HEALTH_DEPENDENCIES_COMMAND,
+    );
   } else if (choice === TURN_OFF_ACTION_LABEL) {
     await vscode.workspace
       .getConfiguration("npmAdvisor")
