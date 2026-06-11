@@ -1,14 +1,13 @@
 {
   "name": "vscode-npm-advisor",
   "displayName": "NPM Advisor",
-  "description": "Package intelligence, security insights, dependency analysis, and AI-powered evaluation for npm packages — directly inside VSCode.",
+  "description": "Package intelligence, security insights, dependency analysis, and AI-powered evaluation for npm packages, directly inside VSCode.",
   "version": "0.3.0",
   "private": true,
   "publisher": "agentic-web-labs",
   "license": "Apache-2.0",
   "engines": {
-    "vscode": "^1.96.0",
-    "node": ">=20"
+    "vscode": "^1.96.0"
   },
   "categories": [
     "Programming Languages",
@@ -33,8 +32,7 @@
   ],
   "homepage": "https://github.com/amedina/agentic-web-learning-tool/tree/develop/packages/extensions/vscode#readme",
   "bugs": {
-    "url": "https://github.com/amedina/agentic-web-learning-tool/issues",
-    "email": ""
+    "url": "https://github.com/amedina/agentic-web-learning-tool/issues"
   },
   "qna": "https://github.com/amedina/agentic-web-learning-tool/discussions",
   "icon": "media/icon-128-color.png",
@@ -129,7 +127,7 @@
         "id": "agentic-web-labs.npm-advisor",
         "name": "npm-advisor",
         "fullName": "NPM Advisor",
-        "description": "Ask about your npm dependencies — security, licenses, alternatives, scores.",
+        "description": "Ask about your npm dependencies: security, licenses, alternatives, scores.",
         "isSticky": true
       }
     ],
@@ -180,6 +178,15 @@
       }
     }
   },
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": false
+    },
+    "virtualWorkspaces": {
+      "supported": false,
+      "description": "NPM Advisor reads package.json and lockfiles from disk, runs dependency and security analysis, and can apply a migration codemod that rewrites files, none of which work over a virtual file system."
+    }
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/amedina/agentic-web-learning-tool.git",
@@ -188,6 +195,7 @@
   "scripts": {
     "prebuild": "rimraf ../../../dist/vscode-npm-advisor dist",
     "build": "node esbuild.config.js --production",
+    "apply:identity": "node scripts/applyPublishIdentity.mjs",
     "dev": "node esbuild.config.js --watch",
     "check-types": "tsc --noEmit",
     "format": "prettier . --write",
