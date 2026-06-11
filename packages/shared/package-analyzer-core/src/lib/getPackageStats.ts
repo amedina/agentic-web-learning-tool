@@ -86,13 +86,15 @@ export async function getPackageStats(
     osvAdvisoriesRaw,
   ] = await Promise.all([
     // The npm registry is the one upstream we can't degrade gracefully around:
-    // with no packument there are no stats to show. Translate a 429 into a
-    // clear, user-facing message so the side panel's error screen tells the
-    // user the registry is rate-limiting rather than printing a raw URL.
+    // with no packument there are no stats to show. `fetchNpmPackage` already
+    // falls back across registry mirrors, so reaching this catch means every
+    // registry was rate-limited or unreachable. Translate a 429 into a clear,
+    // user-facing message so the side panel's error screen tells the user the
+    // registry is rate-limiting rather than printing a raw URL.
     fetchNpmPackage(packageName, signal).catch((error) => {
       if (error instanceof UpstreamFetchError && error.isRateLimited) {
         throw new Error(
-          "The npm registry is rate-limiting requests right now. Please wait a minute and refresh.",
+          "The npm registry and its fallback mirrors are all rate-limiting or unavailable right now. Please wait a minute and refresh.",
         );
       }
       throw error;

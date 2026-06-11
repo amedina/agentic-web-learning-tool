@@ -1,4 +1,5 @@
 export * from "./fetchWithCache";
+export * from "./registryFetch";
 export * from "./fetchNpmPackage";
 export * from "./fetchGithubRepo";
 export * from "./fetchGithubIssues";

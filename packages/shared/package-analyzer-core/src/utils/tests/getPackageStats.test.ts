@@ -446,7 +446,7 @@ describe("getPackageStats", () => {
       vi.mocked(fetchModuleReplacements).mockResolvedValue(null);
 
       await expect(getPackageStats("test")).rejects.toThrowError(
-        /npm registry is rate-limiting/i,
+        /rate-limiting or unavailable/i,
       );
     });
   });
