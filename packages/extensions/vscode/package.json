@@ -4,7 +4,7 @@
   "description": "Package intelligence, security insights, dependency analysis, and AI-powered evaluation for npm packages, directly inside VSCode.",
   "version": "0.3.0",
   "private": true,
-  "publisher": "agentic-web-labs",
+  "publisher": "AgenticWebLabs",
   "license": "Apache-2.0",
   "engines": {
     "vscode": "^1.96.0"
