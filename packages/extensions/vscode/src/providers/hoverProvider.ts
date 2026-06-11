@@ -7,8 +7,9 @@ import * as vscode from "vscode";
  * Internal dependencies.
  */
 import type { StatsCache } from "../cache/statsCache";
-import { renderHover } from "../hover/render";
+import { renderHover, renderLocalPackageHover } from "../hover/render";
 import { parseDependencies } from "../packageJson/parse";
+import { classifyLocalPackageSpec } from "../packageJson/localSpec";
 import type { NpmAdvisorSettings } from "../diagnostics/settings";
 import type { LockfileResolver } from "../workspace/lockfileResolver";
 
@@ -57,6 +58,18 @@ export class PackageJsonHoverProvider implements vscode.HoverProvider {
       return undefined;
     }
 
+    // Local packages (workspace:/file:/link:/portal:) are never on the
+    // registry, so resolve them to a static note up front rather than
+    // firing a doomed fetch — that fetch is what leaves VSCode showing a
+    // flickering "Loading…" before the hover vanishes.
+    const localKind = classifyLocalPackageSpec(dependency.version);
+    if (localKind) {
+      return this.toHover(
+        renderLocalPackageHover(dependency.name, dependency.version, localKind),
+        dependency.fullRange,
+      );
+    }
+
     const installedVersion = await this.lockfileResolver.resolveVersion(
       document.uri,
       dependency.name,
@@ -68,16 +81,27 @@ export class PackageJsonHoverProvider implements vscode.HoverProvider {
     }
 
     const settings = this.settingsProvider();
-    const markdown = new vscode.MarkdownString(
+    return this.toHover(
       renderHover(stats, {
         targetLicense: settings.targetLicense,
         declaredRange: dependency.version,
         installedVersion,
       }),
+      dependency.fullRange,
     );
+  }
+
+  /**
+   * Wraps rendered hover markdown in a trusted, theme-icon-enabled
+   * MarkdownString and Hover scoped to the dependency's range. Trust is
+   * required for the `command:` link in the full-stats hover; theme icons
+   * render the leading `$(extensions-view-icon)` brand glyph.
+   */
+  private toHover(markdownText: string, range: vscode.Range): vscode.Hover {
+    const markdown = new vscode.MarkdownString(markdownText);
     markdown.isTrusted = true;
     markdown.supportHtml = false;
     markdown.supportThemeIcons = true;
-    return new vscode.Hover(markdown, dependency.fullRange);
+    return new vscode.Hover(markdown, range);
   }
 }

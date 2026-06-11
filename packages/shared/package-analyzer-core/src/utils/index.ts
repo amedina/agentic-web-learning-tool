@@ -11,3 +11,4 @@ export * from "./extractGithubUrlFromReadme";
 export * from "./githubFetch";
 export * from "./parseLockfile";
 export * from "./fetchOsvAdvisories";
+export * from "./fetchOsvAdvisoriesBatch";

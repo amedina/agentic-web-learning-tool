@@ -3,6 +3,11 @@
  */
 import type { PackageStats } from "@agentic-web-labs/package-analyzer-core";
 
+/**
+ * Internal dependencies.
+ */
+import type { LocalPackageKind } from "../packageJson/localSpec";
+
 export interface RenderHoverOptions {
   targetLicense?: string;
   now?: () => Date;
@@ -107,6 +112,31 @@ export function renderHover(
   lines.push(linkParts.join(" · "));
 
   return lines.join("\n");
+}
+
+/**
+ * Builds the markdown for a hover over a local (non-registry) dependency:
+ * one resolved via `workspace:`, `file:`, `link:`, or `portal:`. These
+ * have no published stats, so instead of firing a doomed registry fetch
+ * (which leaves VSCode showing a flickering "Loading…") the provider
+ * returns this static note explaining where the package comes from.
+ */
+export function renderLocalPackageHover(
+  packageName: string,
+  spec: string,
+  kind: LocalPackageKind,
+): string {
+  const source =
+    kind === "workspace"
+      ? "another package in this workspace"
+      : "a local path on disk";
+  return [
+    `$(extensions-view-icon) **NPM Advisor**`,
+    "",
+    `**${packageName}** — Local package`,
+    "",
+    `This dependency resolves to ${source} (\`${spec}\`), not the npm registry, so there are no published stats to show.`,
+  ].join("\n");
 }
 
 /**

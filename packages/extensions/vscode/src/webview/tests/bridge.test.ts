@@ -121,6 +121,29 @@ function makeFakeProjectAnalysisCache(): never {
   } as unknown as never;
 }
 
+/**
+ * Returns an inert stand-in for `ProjectHealthController`. The bridge
+ * constructor subscribes to `onDidUpdate`, so that must return a
+ * disposable; the run/cancel/getCached paths are no-ops unless a test
+ * exercises them.
+ */
+function makeFakeProjectHealthController(): never {
+  return {
+    onDidUpdate: vi.fn().mockReturnValue({ dispose: () => undefined }),
+    run: vi.fn().mockResolvedValue(undefined),
+    cancel: vi.fn(),
+    getCached: vi.fn().mockReturnValue(null),
+    isRunDue: vi.fn().mockReturnValue(true),
+    isRunning: false,
+    workspaceKey: vi.fn().mockReturnValue("ws"),
+    workspaceName: vi.fn().mockReturnValue(null),
+    suppressions: vi.fn().mockReturnValue([]),
+    mute: vi.fn().mockResolvedValue(undefined),
+    unmute: vi.fn().mockResolvedValue(undefined),
+    dispose: vi.fn(),
+  } as unknown as never;
+}
+
 describe("WebviewBridge", () => {
   let executeCommandSpy: ReturnType<typeof vi.spyOn>;
 
@@ -144,6 +167,7 @@ describe("WebviewBridge", () => {
       githubAuth: makeFakeAuth(),
       projectAnalysisCollection: makeFakeDiagnosticCollection(),
       projectAnalysisCache: makeFakeProjectAnalysisCache(),
+      projectHealthController: makeFakeProjectHealthController(),
     });
     const fakeWebview = new FakeWebview();
     bridge.attach(fakeWebview as unknown as vscode.Webview);
@@ -171,6 +195,7 @@ describe("WebviewBridge", () => {
       githubAuth: makeFakeAuth(),
       projectAnalysisCollection: makeFakeDiagnosticCollection(),
       projectAnalysisCache: makeFakeProjectAnalysisCache(),
+      projectHealthController: makeFakeProjectHealthController(),
     });
     const fakeWebview = new FakeWebview();
     bridge.attach(fakeWebview as unknown as vscode.Webview);
@@ -197,6 +222,7 @@ describe("WebviewBridge", () => {
       githubAuth: makeFakeAuth(),
       projectAnalysisCollection: makeFakeDiagnosticCollection(),
       projectAnalysisCache: makeFakeProjectAnalysisCache(),
+      projectHealthController: makeFakeProjectHealthController(),
     });
     const fakeWebview = new FakeWebview();
     bridge.attach(fakeWebview as unknown as vscode.Webview);
@@ -225,6 +251,7 @@ describe("WebviewBridge", () => {
       githubAuth: makeFakeAuth(),
       projectAnalysisCollection: makeFakeDiagnosticCollection(),
       projectAnalysisCache: makeFakeProjectAnalysisCache(),
+      projectHealthController: makeFakeProjectHealthController(),
     });
     const fakeWebview = new FakeWebview();
     bridge.attach(fakeWebview as unknown as vscode.Webview);
@@ -244,6 +271,7 @@ describe("WebviewBridge", () => {
       githubAuth: makeFakeAuth(),
       projectAnalysisCollection: makeFakeDiagnosticCollection(),
       projectAnalysisCache: makeFakeProjectAnalysisCache(),
+      projectHealthController: makeFakeProjectHealthController(),
     });
     const fakeWebview = new FakeWebview();
     bridge.attach(fakeWebview as unknown as vscode.Webview);
@@ -271,6 +299,7 @@ describe("WebviewBridge", () => {
       githubAuth: makeFakeAuth(),
       projectAnalysisCollection: makeFakeDiagnosticCollection(),
       projectAnalysisCache: makeFakeProjectAnalysisCache(),
+      projectHealthController: makeFakeProjectHealthController(),
     });
     const fakeWebview = new FakeWebview();
     bridge.attach(fakeWebview as unknown as vscode.Webview);
@@ -297,6 +326,7 @@ describe("WebviewBridge", () => {
       githubAuth: makeFakeAuth({ signedIn: false }),
       projectAnalysisCollection: makeFakeDiagnosticCollection(),
       projectAnalysisCache: makeFakeProjectAnalysisCache(),
+      projectHealthController: makeFakeProjectHealthController(),
     });
     const fakeWebview = new FakeWebview();
     bridge.attach(fakeWebview as unknown as vscode.Webview);
@@ -326,6 +356,7 @@ describe("WebviewBridge", () => {
       githubAuth: makeFakeAuth({ signedIn: true }),
       projectAnalysisCollection: makeFakeDiagnosticCollection(),
       projectAnalysisCache: makeFakeProjectAnalysisCache(),
+      projectHealthController: makeFakeProjectHealthController(),
     });
     const fakeWebview = new FakeWebview();
     bridge.attach(fakeWebview as unknown as vscode.Webview);
@@ -354,6 +385,7 @@ describe("WebviewBridge", () => {
       githubAuth: makeFakeAuth(),
       projectAnalysisCollection: makeFakeDiagnosticCollection(),
       projectAnalysisCache: makeFakeProjectAnalysisCache(),
+      projectHealthController: makeFakeProjectHealthController(),
     });
     const fakeWebview = new FakeWebview();
     bridge.attach(fakeWebview as unknown as vscode.Webview);
@@ -392,6 +424,7 @@ describe("WebviewBridge", () => {
       githubAuth: makeFakeAuth(),
       projectAnalysisCollection: makeFakeDiagnosticCollection(),
       projectAnalysisCache: makeFakeProjectAnalysisCache(),
+      projectHealthController: makeFakeProjectHealthController(),
     });
     bridge.attach(webview1 as unknown as vscode.Webview);
     expect(dispose1).not.toHaveBeenCalled();
@@ -411,6 +444,7 @@ describe("WebviewBridge", () => {
       githubAuth: makeFakeAuth(),
       projectAnalysisCollection: makeFakeDiagnosticCollection(),
       projectAnalysisCache: makeFakeProjectAnalysisCache(),
+      projectHealthController: makeFakeProjectHealthController(),
     });
     const fakeWebview = new FakeWebview();
     bridge.attach(fakeWebview as unknown as vscode.Webview);
@@ -438,6 +472,7 @@ describe("WebviewBridge", () => {
       githubAuth: makeFakeAuth(),
       projectAnalysisCollection: makeFakeDiagnosticCollection(),
       projectAnalysisCache: makeFakeProjectAnalysisCache(),
+      projectHealthController: makeFakeProjectHealthController(),
     });
     const fakeWebview = new FakeWebview();
     bridge.attach(fakeWebview as unknown as vscode.Webview);
@@ -460,6 +495,7 @@ describe("WebviewBridge", () => {
       githubAuth: makeFakeAuth(),
       projectAnalysisCollection: makeFakeDiagnosticCollection(),
       projectAnalysisCache: makeFakeProjectAnalysisCache(),
+      projectHealthController: makeFakeProjectHealthController(),
     });
     const fakeWebview = new FakeWebview();
     bridge.attach(fakeWebview as unknown as vscode.Webview);
@@ -478,6 +514,7 @@ describe("WebviewBridge", () => {
       githubAuth: makeFakeAuth(),
       projectAnalysisCollection: makeFakeDiagnosticCollection(),
       projectAnalysisCache: makeFakeProjectAnalysisCache(),
+      projectHealthController: makeFakeProjectHealthController(),
     });
     const fakeWebview = new FakeWebview();
     bridge.attach(fakeWebview as unknown as vscode.Webview);
@@ -500,6 +537,7 @@ describe("WebviewBridge", () => {
       githubAuth: makeFakeAuth(),
       projectAnalysisCollection: makeFakeDiagnosticCollection(),
       projectAnalysisCache: makeFakeProjectAnalysisCache(),
+      projectHealthController: makeFakeProjectHealthController(),
     });
     const fakeWebview = new FakeWebview();
     bridge.attach(fakeWebview as unknown as vscode.Webview);
@@ -516,6 +554,7 @@ describe("WebviewBridge", () => {
       githubAuth: makeFakeAuth(),
       projectAnalysisCollection: makeFakeDiagnosticCollection(),
       projectAnalysisCache: makeFakeProjectAnalysisCache(),
+      projectHealthController: makeFakeProjectHealthController(),
     });
     const fakeWebview = new FakeWebview();
     bridge.attach(fakeWebview as unknown as vscode.Webview);

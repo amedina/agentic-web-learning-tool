@@ -10,6 +10,16 @@ import type { ProjectAnalysis } from "@agentic-web-labs/project-analyzer-core";
 import type { BundleData } from "@agentic-web-labs/package-analyzer-ui";
 
 /**
+ * Internal dependencies.
+ */
+import type {
+  MuteTarget,
+  ProjectHealthReport,
+  ProjectHealthScope,
+  SuppressionEntry,
+} from "../projectHealth/types";
+
+/**
  * Wire format for messages exchanged between the WebviewView (browser
  * sandbox) and the extension host (Node). All messages are JSON-cloned
  * across the boundary, so payloads must be plain data.
@@ -102,6 +112,61 @@ export type WebviewRequest =
       text: string;
       /** Optional confirmation toast shown after the copy succeeds. */
       toast?: string;
+    }
+  | {
+      /**
+       * Starts (or no-ops, when one is already in flight) a Project
+       * Health run across every package.json in the workspace. `scope`
+       * narrows the run to the fast dependency pass or the slower project
+       * analysis; omitted means both. Results stream back as
+       * `projectHealth` messages rather than a single response.
+       */
+      type: "runProjectHealth";
+      scope?: ProjectHealthScope;
+    }
+  | {
+      /** Cancels the in-flight Project Health run, if any. */
+      type: "cancelProjectHealth";
+    }
+  | {
+      /**
+       * Asks the host for the most recently persisted Project Health
+       * report so the webview can restore the Project Health view after
+       * a tab switch or webview re-mount without re-running the analysis.
+       */
+      type: "getCachedProjectHealth";
+      requestId: string;
+    }
+  | {
+      /** Mutes a vulnerability or license finding (suppression). */
+      type: "muteFinding";
+      target: MuteTarget;
+      reason?: string;
+    }
+  | {
+      /** Removes a previously created suppression. */
+      type: "unmuteFinding";
+      target: MuteTarget;
+    }
+  | {
+      /** Asks the host to (re)broadcast the current suppression list. */
+      type: "getSuppressions";
+    }
+  | {
+      /**
+       * Asks the host for the current Project Health auto-run setting so
+       * the in-panel toggle can reflect `npmAdvisor.projectHealth.autoRun`.
+       */
+      type: "getProjectHealthSettings";
+    }
+  | {
+      /**
+       * Sets the daily dependency auto-run on or off. The host writes
+       * `npmAdvisor.projectHealth.autoRun` (`daily` / `off`) and echoes the
+       * new value back via a `projectHealthSettings` message.
+       */
+      type: "setProjectHealthAutoRun";
+      enabled: boolean;
     };
 
 export type ExtensionMessage =
@@ -194,6 +259,44 @@ export type ExtensionMessage =
       packageJsonUri: string;
       /** Workspace-relative display path of the file that triggered staleness. */
       changedFileDisplayPath: string;
+    }
+  | {
+      /**
+       * A Project Health snapshot pushed by the host. Fired repeatedly
+       * as a run progresses (the `report.phase` and `report.progress`
+       * fields drive the UI) and once more with a terminal phase when
+       * the run finishes.
+       */
+      type: "projectHealth";
+      report: ProjectHealthReport;
+    }
+  | {
+      /**
+       * Reply to `getCachedProjectHealth`: the persisted report, or
+       * `null` when none has ever been produced for this workspace.
+       */
+      type: "cachedProjectHealth";
+      requestId: string;
+      report: ProjectHealthReport | null;
+    }
+  | {
+      /**
+       * The current suppression list, broadcast in reply to
+       * `getSuppressions` and again after every mute / unmute so the
+       * webview can re-render muted findings without a round-trip.
+       */
+      type: "suppressions";
+      entries: SuppressionEntry[];
+    }
+  | {
+      /**
+       * The current Project Health auto-run setting, broadcast in reply to
+       * `getProjectHealthSettings` and again whenever
+       * `npmAdvisor.projectHealth.autoRun` changes (from the in-panel
+       * toggle or the Settings UI) so the toggle stays in sync.
+       */
+      type: "projectHealthSettings";
+      autoRunDaily: boolean;
     };
 
 export interface PackageJsonDependenciesPayload {

@@ -15,13 +15,23 @@ import {
  * Internal dependencies.
  */
 import { PackageJsonSwitcher } from "./packageJsonSwitcher";
+import { newRequestId } from "./projectAnalysis/helpers";
 import { ProjectAnalysisTab } from "./projectAnalysisTab";
+import { ProjectHealthView } from "./projectHealth/projectHealthView";
 import { TabBar, type ActiveTab } from "./tabBar";
+import { ViewModeToggle, type ViewMode } from "./viewModeToggle";
 import type {
   ExtensionMessage,
   PackageJsonDependenciesPayload,
   PackageJsonFile,
 } from "./protocol";
+import {
+  isTerminalPhase,
+  type MuteTarget,
+  type ProjectHealthReport,
+  type ProjectHealthScope,
+  type SuppressionEntry,
+} from "../projectHealth/types";
 
 interface AppProps {
   client: StatsClient;
@@ -49,6 +59,14 @@ interface AppProps {
       endColumn: number;
     },
   ) => void;
+  onRunProjectHealth: (scope: ProjectHealthScope) => void;
+  onCancelProjectHealth: () => void;
+  onGetCachedProjectHealth: (requestId: string) => void;
+  onGetSuppressions: () => void;
+  onMuteFinding: (target: MuteTarget, reason?: string) => void;
+  onUnmuteFinding: (target: MuteTarget) => void;
+  onGetProjectHealthSettings: () => void;
+  onSetProjectHealthAutoRun: (enabled: boolean) => void;
 }
 
 const EMPTY_DEPS: PackageJsonDependenciesPayload = {
@@ -76,7 +94,29 @@ export const App: FC<AppProps> = ({
   onRunProjectAnalysis,
   onGetCachedProjectAnalysis,
   onRevealFinding,
+  onRunProjectHealth,
+  onCancelProjectHealth,
+  onGetCachedProjectHealth,
+  onGetSuppressions,
+  onMuteFinding,
+  onUnmuteFinding,
+  onGetProjectHealthSettings,
+  onSetProjectHealthAutoRun,
 }) => {
+  const [viewMode, setViewMode] = useState<ViewMode>("package");
+  const [projectHealthReport, setProjectHealthReport] =
+    useState<ProjectHealthReport | null>(null);
+  // The scope currently running (set optimistically on click, cleared
+  // when a terminal report arrives), or null when idle.
+  const [runningScope, setRunningScope] = useState<ProjectHealthScope | null>(
+    null,
+  );
+  const [suppressions, setSuppressions] = useState<SuppressionEntry[]>([]);
+  // Mirrors npmAdvisor.projectHealth.autoRun; drives the in-panel toggle
+  // on the Dependencies tab. Seeded from the host on mount and kept in
+  // sync via `projectHealthSettings` messages. Initialized to the "daily"
+  // default so the collapsed toggle reads "On" before the host replies.
+  const [autoRunDaily, setAutoRunDaily] = useState(true);
   const [activeTab, setActiveTab] = useState<ActiveTab>("dependencies");
   const [initState, setInitState] = useState<{
     activeFile: PackageJsonFile | null;
@@ -86,6 +126,10 @@ export const App: FC<AppProps> = ({
     prefetchedStats: Record<string, PackageStats | null>;
   } | null>(null);
   const [focusPackageName, setFocusPackageName] = useState<string | null>(null);
+  // Bumped on every focus request so re-triggering "Show full insights"
+  // for the same package re-runs the scroll effect (a repeat name alone
+  // would not change state and the effect would not re-fire).
+  const [focusTick, setFocusTick] = useState(0);
   // Drives the refresh-button spinner. Set true on click, cleared when the
   // host responds with a new init (i.e. cache.clearAll has completed and
   // the new dependency payload is in hand).
@@ -98,6 +142,13 @@ export const App: FC<AppProps> = ({
   const noopAddRef = useRef<(name: string) => void>(() => undefined);
   const onReadyRef = useRef(onReady);
   onReadyRef.current = onReady;
+  const onGetCachedProjectHealthRef = useRef(onGetCachedProjectHealth);
+  onGetCachedProjectHealthRef.current = onGetCachedProjectHealth;
+  const onGetSuppressionsRef = useRef(onGetSuppressions);
+  onGetSuppressionsRef.current = onGetSuppressions;
+  const onGetProjectHealthSettingsRef = useRef(onGetProjectHealthSettings);
+  onGetProjectHealthSettingsRef.current = onGetProjectHealthSettings;
+  const pendingHealthCacheRequestIdRef = useRef<string | null>(null);
   // Tracks the refreshKey from the previous init so we can detect a host-side
   // cache wipe and drop useDependencyStats's module-level cache before the
   // key-bumped DependenciesTab remounts. Without this, the remount re-seeds
@@ -133,12 +184,50 @@ export const App: FC<AppProps> = ({
         // every time its file is reactivated (because the second effect
         // re-runs on each new packageJsonDependencies object reference).
         setFocusPackageName(data.focusPackageName ?? null);
+        // A focus request (e.g. "Show full insights" from the hover) only
+        // makes sense in the per-package Dependencies view, so switch
+        // both the mode and the inner tab back to it before scrolling.
+        if (data.focusPackageName) {
+          setViewMode("package");
+          setActiveTab("dependencies");
+          setFocusTick((tick) => tick + 1);
+        }
       } else if (data.type === "focusPackage") {
+        setViewMode("package");
+        setActiveTab("dependencies");
         setFocusPackageName(data.packageName);
+        setFocusTick((tick) => tick + 1);
+      } else if (data.type === "projectHealth") {
+        // Streamed progress + the terminal snapshot for a workspace run.
+        setProjectHealthReport(data.report);
+        if (isTerminalPhase(data.report.phase)) {
+          setRunningScope(null);
+        }
+      } else if (data.type === "cachedProjectHealth") {
+        if (data.requestId !== pendingHealthCacheRequestIdRef.current) {
+          return;
+        }
+        pendingHealthCacheRequestIdRef.current = null;
+        if (data.report) {
+          setProjectHealthReport(data.report);
+        }
+      } else if (data.type === "suppressions") {
+        setSuppressions(data.entries);
+      } else if (data.type === "projectHealthSettings") {
+        setAutoRunDaily(data.autoRunDaily);
       }
     };
     window.addEventListener("message", handle);
     onReadyRef.current();
+    // Ask the host for any persisted Project Health report so switching
+    // to the Project Health view shows the last run instead of an empty
+    // state. The reply is matched by requestId in the handler above.
+    const healthRequestId = newRequestId();
+    pendingHealthCacheRequestIdRef.current = healthRequestId;
+    onGetCachedProjectHealthRef.current(healthRequestId);
+    onGetSuppressionsRef.current();
+    // Seed the auto-run toggle from the persisted setting.
+    onGetProjectHealthSettingsRef.current();
     return () => window.removeEventListener("message", handle);
   }, []);
 
@@ -146,15 +235,27 @@ export const App: FC<AppProps> = ({
     if (!focusPackageName) {
       return;
     }
-    // Two rAF ticks so the row has time to mount after deps arrive.
-    const rafA = requestAnimationFrame(() => {
-      const rafB = requestAnimationFrame(() => {
-        focusRow(focusPackageName);
-        cancelAnimationFrame(rafB);
-      });
-      cancelAnimationFrame(rafA);
-    });
-  }, [focusPackageName, initState?.packageJsonDependencies]);
+    // Retry across a few frames so the scroll lands even when switching
+    // from the Project Health view (DependenciesTab mounts a render or
+    // two later, after the mode switch). Stops as soon as the row is
+    // found, or after a short budget.
+    let attempts = 0;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const tryFocus = (): void => {
+      attempts += 1;
+      const found = focusRow(focusPackageName);
+      if (!found && attempts < 10) {
+        timer = setTimeout(tryFocus, 120);
+      }
+    };
+    const raf = requestAnimationFrame(tryFocus);
+    return () => {
+      cancelAnimationFrame(raf);
+      if (timer !== undefined) {
+        clearTimeout(timer);
+      }
+    };
+  }, [focusPackageName, focusTick, initState?.packageJsonDependencies]);
 
   const handleAddRecommendation = useCallback((name: string) => {
     noopAddRef.current(name);
@@ -191,6 +292,21 @@ export const App: FC<AppProps> = ({
     );
   }, [onNotify]);
 
+  // Optimistically mark the scope as running so the header shows progress
+  // immediately, before the first host snapshot lands. It is cleared
+  // when a terminal `projectHealth` snapshot arrives.
+  const handleRunProjectHealth = useCallback(
+    (scope: ProjectHealthScope) => {
+      setRunningScope(scope);
+      onRunProjectHealth(scope);
+    },
+    [onRunProjectHealth],
+  );
+
+  const handleCancelProjectHealth = useCallback(() => {
+    onCancelProjectHealth();
+  }, [onCancelProjectHealth]);
+
   if (!initState) {
     return (
       <div className="flex flex-col items-center justify-center gap-2 p-8 text-slate-500 dark:text-slate-400 text-sm h-full">
@@ -216,59 +332,86 @@ export const App: FC<AppProps> = ({
   return (
     <StatsClientProvider client={client}>
       <div className="flex flex-col h-full">
-        <PackageJsonSwitcher
-          activeFile={activeFile}
-          availableFiles={availableFiles}
-          onSelect={handleSelectFile}
-          onRefresh={handleRefresh}
-          onSetupMcp={onSetupMcp}
-          isRefreshing={isRefreshing}
-        />
-        <TabBar activeTab={activeTab} onChange={setActiveTab} />
-        <div className="flex-1 min-h-0 overflow-y-auto">
-          {/*
-           * Both tab panels stay mounted and toggle via CSS so that
-           * switching tabs doesn't blow away each tab's component-local
-           * state (e.g. the in-progress / ready status of a project
-           * analysis run). Host-side caching backstops state across
-           * full webview re-mounts; this just makes intra-mount tab
-           * switches feel instant and stateful.
-           */}
-          <div className={activeTab === "dependencies" ? "" : "hidden"}>
-            {activeFile ? (
-              hasDependencies ? (
-                <DependenciesTab
-                  key={`${activeFile.uri}#${refreshKey}#${localRefreshTick}`}
-                  packageJsonDependencies={
-                    packageJsonDependencies ?? EMPTY_DEPS
-                  }
-                  onAddRecommendationToCompare={handleAddRecommendation}
-                  comparisonBucketNames={EMPTY_SET}
-                  addingRecommendations={EMPTY_SET}
-                  hideCompare
-                  showFitness
-                  forceVisiblePackageName={focusPackageName ?? undefined}
-                  onRateLimited={handleRateLimited}
-                  initialStatsByName={prefetchedStats}
-                />
-              ) : (
-                <div className="text-slate-500 dark:text-slate-400 p-4 text-sm">
-                  No dependencies found in this package.json.
-                </div>
-              )
-            ) : null}
-          </div>
-          <div className={activeTab === "project" ? "" : "hidden"}>
-            <ProjectAnalysisTab
-              activeFile={activeFile}
-              postRunRequest={onRunProjectAnalysis}
-              postCacheRequest={onGetCachedProjectAnalysis}
-              postReveal={onRevealFinding}
-              postCopyPrompt={onCopyToClipboard}
-              postSetupMcp={onSetupMcp}
+        <ViewModeToggle mode={viewMode} onChange={setViewMode} />
+        {viewMode === "project" ? (
+          <div className="flex-1 min-h-0 overflow-y-auto">
+            <ProjectHealthView
+              report={projectHealthReport}
+              runningScope={runningScope}
+              onRun={handleRunProjectHealth}
+              onCancel={handleCancelProjectHealth}
+              onOpenPackageJson={onOpenPackageJson}
+              suppressions={suppressions}
+              onMute={onMuteFinding}
+              onUnmute={onUnmuteFinding}
+              autoRunDaily={autoRunDaily}
+              onSetAutoRunDaily={onSetProjectHealthAutoRun}
+              projectAnalysisActions={{
+                postRunRequest: onRunProjectAnalysis,
+                postCacheRequest: onGetCachedProjectAnalysis,
+                postReveal: onRevealFinding,
+                postCopyPrompt: onCopyToClipboard,
+                postSetupMcp: onSetupMcp,
+              }}
             />
           </div>
-        </div>
+        ) : (
+          <>
+            <PackageJsonSwitcher
+              activeFile={activeFile}
+              availableFiles={availableFiles}
+              onSelect={handleSelectFile}
+              onRefresh={handleRefresh}
+              onSetupMcp={onSetupMcp}
+              isRefreshing={isRefreshing}
+            />
+            <TabBar activeTab={activeTab} onChange={setActiveTab} />
+            <div className="flex-1 min-h-0 overflow-y-auto">
+              {/*
+               * Both tab panels stay mounted and toggle via CSS so that
+               * switching tabs doesn't blow away each tab's component-local
+               * state (e.g. the in-progress / ready status of a project
+               * analysis run). Host-side caching backstops state across
+               * full webview re-mounts; this just makes intra-mount tab
+               * switches feel instant and stateful.
+               */}
+              <div className={activeTab === "dependencies" ? "" : "hidden"}>
+                {activeFile ? (
+                  hasDependencies ? (
+                    <DependenciesTab
+                      key={`${activeFile.uri}#${refreshKey}#${localRefreshTick}`}
+                      packageJsonDependencies={
+                        packageJsonDependencies ?? EMPTY_DEPS
+                      }
+                      onAddRecommendationToCompare={handleAddRecommendation}
+                      comparisonBucketNames={EMPTY_SET}
+                      addingRecommendations={EMPTY_SET}
+                      hideCompare
+                      showFitness
+                      forceVisiblePackageName={focusPackageName ?? undefined}
+                      onRateLimited={handleRateLimited}
+                      initialStatsByName={prefetchedStats}
+                    />
+                  ) : (
+                    <div className="text-slate-500 dark:text-slate-400 p-4 text-sm">
+                      No dependencies found in this package.json.
+                    </div>
+                  )
+                ) : null}
+              </div>
+              <div className={activeTab === "project" ? "" : "hidden"}>
+                <ProjectAnalysisTab
+                  activeFile={activeFile}
+                  postRunRequest={onRunProjectAnalysis}
+                  postCacheRequest={onGetCachedProjectAnalysis}
+                  postReveal={onRevealFinding}
+                  postCopyPrompt={onCopyToClipboard}
+                  postSetupMcp={onSetupMcp}
+                />
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </StatsClientProvider>
   );
@@ -277,19 +420,27 @@ export const App: FC<AppProps> = ({
 /**
  * Locates the accordion trigger for the named package via its title
  * attribute, scrolls it into view, and clicks it open if it isn't
- * already. Falls back to a no-op if analyzer-ui's row markup ever
- * stops emitting the title attribute we rely on.
+ * already. Returns true when the row was found (so the caller can stop
+ * retrying), false otherwise (e.g. the row has not mounted yet).
  */
-function focusRow(packageName: string): void {
+function focusRow(packageName: string): boolean {
   const trigger = Array.from(
     document.querySelectorAll<HTMLElement>("[title]"),
   ).find((node) => node.getAttribute("title") === packageName);
   if (!trigger) {
-    return;
+    return false;
+  }
+  // `offsetParent` is null when the element is not actually rendered
+  // (e.g. it lives in the inactive, display:none tab). Scrolling then is a
+  // no-op, so report "not found" and let the caller retry once the tab the
+  // row belongs to has switched in.
+  if (trigger.offsetParent === null) {
+    return false;
   }
   trigger.scrollIntoView({ behavior: "smooth", block: "start" });
   const button = trigger.closest<HTMLElement>("button[data-state]");
   if (button && button.getAttribute("data-state") === "closed") {
     button.click();
   }
+  return true;
 }

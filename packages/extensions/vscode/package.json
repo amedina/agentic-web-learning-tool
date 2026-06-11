@@ -112,6 +112,16 @@
         "command": "npmAdvisor.runMigrationWizard",
         "title": "NPM Advisor: Run migration wizard (replace deps with lighter alternatives)",
         "category": "NPM Advisor"
+      },
+      {
+        "command": "npmAdvisor.runProjectHealth",
+        "title": "NPM Advisor: Run full Project Health analysis (all package.json files)",
+        "category": "NPM Advisor"
+      },
+      {
+        "command": "npmAdvisor.runDailyHealthCheck",
+        "title": "NPM Advisor: Run daily dependency health check now (vulnerabilities + licenses, with notification)",
+        "category": "NPM Advisor"
       }
     ],
     "chatParticipants": [
@@ -153,6 +163,19 @@
           "default": 2,
           "minimum": 1,
           "description": "Number of major versions a dependency can be behind the latest published release before NPM Advisor flags it as outdated."
+        },
+        "npmAdvisor.projectHealth.autoRun": {
+          "type": "string",
+          "enum": [
+            "off",
+            "daily"
+          ],
+          "enumDescriptions": [
+            "Never run automatically. You can still run a check from the Project Health view.",
+            "Run a dependency health check (vulnerabilities + licenses across every package.json) once per day and notify you with a summary."
+          ],
+          "default": "daily",
+          "description": "Automatically run the workspace-wide dependency health check (vulnerabilities and license compatibility across every package.json) once a day and notify you of the result. On by default; the slower project analysis is never run unattended. You can also toggle this from the Project Health > Dependencies view, or turn it off from the daily notification."
         }
       }
     }

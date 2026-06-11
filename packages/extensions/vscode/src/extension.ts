@@ -30,6 +30,10 @@ import { registerViewPackageCommand } from "./commands/viewPackage";
 import { ProjectAnalysisCache } from "./diagnostics/projectAnalysisCache";
 import { DiagnosticsRunner } from "./diagnostics/runner";
 import { readSettings } from "./diagnostics/settings";
+import { ProjectHealthCache } from "./projectHealth/projectHealthCache";
+import { ProjectHealthController } from "./projectHealth/projectHealthController";
+import { ProjectHealthScheduler } from "./projectHealth/projectHealthScheduler";
+import { SuppressionStore } from "./projectHealth/suppressionStore";
 import { PackageJsonHoverProvider } from "./providers/hoverProvider";
 import {
   NpmAdvisorWebviewProvider,
@@ -106,17 +110,62 @@ export function activate(context: vscode.ExtensionContext): void {
 
   const projectAnalysisCache = new ProjectAnalysisCache();
 
+  const scanner = new PackageJsonScanner();
+  context.subscriptions.push(scanner);
+
+  // Durable, globalState-backed store for the workspace-wide Project
+  // Health report (daily freshness + diff-on-notify + restore on reload).
+  const projectHealthCache = new ProjectHealthCache(context.globalState);
+  // Suppressions are workspace-scoped: an issue the user accepts in this
+  // project should not be silenced in a different one.
+  const suppressionStore = new SuppressionStore(context.workspaceState);
+  const projectHealthController = new ProjectHealthController({
+    scanner,
+    lockfileResolver,
+    settingsProvider: readSettings,
+    reportCache: projectHealthCache,
+    suppressionStore,
+    projectAnalysisCache,
+  });
+  context.subscriptions.push(projectHealthController);
+
+  // Optional daily auto-run: checks on activation and once an hour while
+  // the window is open, running only when the user opted into "daily".
+  const projectHealthScheduler = new ProjectHealthScheduler({
+    controller: projectHealthController,
+    settingsProvider: readSettings,
+  });
+  context.subscriptions.push(projectHealthScheduler);
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand("npmAdvisor.runProjectHealth", async () => {
+      await vscode.commands.executeCommand(`${WEBVIEW_VIEW_ID}.focus`);
+      void projectHealthController.run();
+    }),
+    // Simulates the scheduled daily run on demand: a dependency-scope pass
+    // with the summary notification. Lets a developer (or any user) test
+    // the auto-run flow without flipping the setting or waiting a day.
+    vscode.commands.registerCommand(
+      "npmAdvisor.runDailyHealthCheck",
+      async () => {
+        await vscode.commands.executeCommand(`${WEBVIEW_VIEW_ID}.focus`);
+        void projectHealthController.run({
+          scope: "dependencies",
+          notify: true,
+        });
+      },
+    ),
+  );
+
   const bridge = new WebviewBridge({
     cache,
     settingsProvider: readSettings,
     githubAuth,
     projectAnalysisCollection,
     projectAnalysisCache,
+    projectHealthController,
   });
   context.subscriptions.push(bridge);
-
-  const scanner = new PackageJsonScanner();
-  context.subscriptions.push(scanner);
 
   const tracker = new ActivePackageJsonTracker();
   context.subscriptions.push(tracker);
@@ -241,6 +290,12 @@ export function activate(context: vscode.ExtensionContext): void {
         return;
       }
       void runner.refreshOpenPackageJsons();
+      // Re-evaluate the schedule immediately when the user flips
+      // projectHealth.autoRun, rather than waiting for the next tick, and
+      // re-broadcast the value so the in-panel toggle stays in sync with
+      // changes made from the Settings UI.
+      projectHealthScheduler.checkNow();
+      bridge.notifyProjectHealthSettings();
     }),
     cache.onDidChange((change) => {
       void runner.refreshOpenPackageJsons();
@@ -265,6 +320,9 @@ export function activate(context: vscode.ExtensionContext): void {
 
   // Seed diagnostics for any package.json the user already has open.
   void runner.refreshOpenPackageJsons();
+
+  // Arm the daily Project Health schedule (no-op unless autoRun is "daily").
+  projectHealthScheduler.start();
 }
 
 /**
