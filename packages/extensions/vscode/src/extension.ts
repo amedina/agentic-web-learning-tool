@@ -25,6 +25,7 @@ import {
 } from "./commands/runProjectAnalysis";
 import { registerSetupMcpCommand } from "./commands/setupMcp";
 import { registerShowInsightsCommand } from "./commands/showInsights";
+import { registerShowProjectHealthDependenciesCommand } from "./commands/showProjectHealth";
 import { registerUninstallMcpCommand } from "./commands/uninstallMcp";
 import { registerViewPackageCommand } from "./commands/viewPackage";
 import { ProjectAnalysisCache } from "./diagnostics/projectAnalysisCache";
@@ -213,6 +214,9 @@ export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(registerViewPackageCommand());
   context.subscriptions.push(registerClearCacheCommand(cache));
   context.subscriptions.push(registerShowInsightsCommand(webviewProvider));
+  context.subscriptions.push(
+    registerShowProjectHealthDependenciesCommand(webviewProvider),
+  );
   context.subscriptions.push(registerSignInToGithubCommand(githubAuth));
   context.subscriptions.push(registerSignOutFromGithubCommand(githubAuth));
   context.subscriptions.push(
