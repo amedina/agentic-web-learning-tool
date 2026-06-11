@@ -1,7 +1,7 @@
 {
   "name": "vscode-npm-advisor",
   "displayName": "NPM Advisor",
-  "description": "Package intelligence, security insights, dependency analysis, and AI-powered evaluation for npm packages — directly inside VSCode.",
+  "description": "Package intelligence, security insights, dependency analysis, and AI-powered evaluation for npm packages, directly inside VSCode.",
   "version": "0.3.0",
   "private": true,
   "publisher": "agentic-web-labs",
@@ -127,7 +127,7 @@
         "id": "agentic-web-labs.npm-advisor",
         "name": "npm-advisor",
         "fullName": "NPM Advisor",
-        "description": "Ask about your npm dependencies — security, licenses, alternatives, scores.",
+        "description": "Ask about your npm dependencies: security, licenses, alternatives, scores.",
         "isSticky": true
       }
     ],
