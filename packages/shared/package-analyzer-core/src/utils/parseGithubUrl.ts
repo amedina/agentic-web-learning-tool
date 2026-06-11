@@ -6,8 +6,15 @@ export function parseGithubUrl(
 ): { owner: string; repo: string } | null {
   if (!url) return null;
   try {
-    // Handle formats like: git+https://github.com/axios/axios.git, https://github.com/axios/axios, git://github.com/...
-    let cleanUrl = url.replace(/^git\+/, "").replace(/^git:\/\//, "https://");
+    // Normalise the repository.url shapes npm allows into something `URL` can
+    // parse: git+https://github.com/axios/axios.git, git://github.com/...,
+    // git+ssh://git@github.com/owner/repo.git, and the SCP-style SSH shorthand
+    // git@github.com:owner/repo.git (no scheme, colon before the path), which
+    // `new URL()` rejects outright.
+    let cleanUrl = url
+      .replace(/^git\+/, "")
+      .replace(/^git:\/\//, "https://")
+      .replace(/^git@([^/:]+):/, "https://$1/");
     const parsed = new URL(cleanUrl);
     if (parsed.hostname === "github.com") {
       const pathParts = parsed.pathname.split("/").filter((p) => p && p !== "");
@@ -20,7 +27,9 @@ export function parseGithubUrl(
       }
     }
   } catch (e) {
-    console.error("Failed to parse Github URL", url, e);
+    // A repository.url we still can't parse is benign — the package just
+    // loses its GitHub-derived data — so warn rather than error.
+    console.warn("Failed to parse Github URL", url, e);
   }
   return null;
 }

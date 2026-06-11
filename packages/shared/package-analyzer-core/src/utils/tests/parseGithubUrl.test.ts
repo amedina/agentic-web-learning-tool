@@ -34,12 +34,28 @@ describe("parseGithubUrl", () => {
     });
   });
 
+  it("should parse the scp-style ssh shorthand", () => {
+    expect(parseGithubUrl("git@github.com:facebook/hermes.git")).toEqual({
+      owner: "facebook",
+      repo: "hermes",
+    });
+  });
+
+  it("should parse git+ssh urls", () => {
+    expect(
+      parseGithubUrl("git+ssh://git@github.com/facebook/hermes.git"),
+    ).toEqual({
+      owner: "facebook",
+      repo: "hermes",
+    });
+  });
+
   it("should return null for non-github urls", () => {
     expect(parseGithubUrl("https://gitlab.com/facebook/react")).toBeNull();
   });
 
-  it("should catch errors on unparseable URLs and return null", () => {
-    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+  it("should warn on unparseable URLs and return null", () => {
+    const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     expect(parseGithubUrl("not-a-valid-url")).toBeNull();
     expect(consoleSpy).toHaveBeenCalled();
     consoleSpy.mockRestore();
