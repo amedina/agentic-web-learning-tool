@@ -1,7 +1,7 @@
 /**
  * External dependencies.
  */
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 
 /**
  * Internal dependencies.
@@ -40,6 +40,15 @@ export const DependencySection: React.FC<DependencySectionProps> = ({
   hideCompare = false,
   showFitness = false,
 }) => {
+  // Only one row per category stays expanded at a time. Tracking the open
+  // package name here (rather than per-row) means opening a row collapses any
+  // other open row in the same section, keeping the list from growing tall.
+  const [openName, setOpenName] = useState<string | null>(null);
+
+  const handleOpenChange = useCallback((name: string, isOpen: boolean) => {
+    setOpenName(isOpen ? name : null);
+  }, []);
+
   const visibleNames = useMemo(
     () =>
       packageNames.filter((name) =>
@@ -76,6 +85,8 @@ export const DependencySection: React.FC<DependencySectionProps> = ({
             onNavigateToComparison={onNavigateToComparison}
             hideCompare={hideCompare}
             showFitness={showFitness}
+            open={openName === name}
+            onOpenChange={(isOpen) => handleOpenChange(name, isOpen)}
           />
         ))}
       </div>
