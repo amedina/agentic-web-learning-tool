@@ -1,6 +1,6 @@
 {
   "name": "@agentic-web-labs/chrome-ai-playground",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "Chrome AI Playground for build-in AI and API status",
   "type": "module",
   "main": "dist/index.js",
