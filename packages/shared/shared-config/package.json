@@ -1,6 +1,6 @@
 {
   "name": "@agentic-web-labs/shared-config",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "type": "module",
   "private": true,
   "exports": {
