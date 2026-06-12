@@ -16,7 +16,7 @@ interface ProjectHealthSubTabBarProps {
 /**
  * Two-tab strip inside the Project Health mode. Splits the fast
  * dependency check ("Dependencies") from the slower publint + circular +
- * replacement pass ("Project Analysis") so each can be run on its own.
+ * replacement pass ("Analysis") so each can be run on its own.
  * Mirrors the top-level {@link TabBar} styling (border-bottom strip with
  * an active underline) for visual consistency.
  */
@@ -46,7 +46,7 @@ export const ProjectHealthSubTabBar: FC<ProjectHealthSubTabBarProps> = ({
         }`}
         onClick={() => onChange("project")}
       >
-        Project Analysis
+        Analysis
       </button>
     </div>
   );

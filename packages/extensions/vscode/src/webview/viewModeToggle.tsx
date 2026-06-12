@@ -32,19 +32,19 @@ export const ViewModeToggle: FC<ViewModeToggleProps> = ({ mode, onChange }) => {
     <div className="flex gap-1 p-2 border-b border-slate-200 dark:border-slate-800">
       <button
         type="button"
-        className={buttonClass(mode === "package")}
-        onClick={() => onChange("package")}
-      >
-        <Package size={13} />
-        This package
-      </button>
-      <button
-        type="button"
         className={buttonClass(mode === "project")}
         onClick={() => onChange("project")}
       >
         <FolderGit2 size={13} />
         Project Health
+      </button>
+      <button
+        type="button"
+        className={buttonClass(mode === "package")}
+        onClick={() => onChange("package")}
+      >
+        <Package size={13} />
+        This package
       </button>
     </div>
   );
