@@ -225,13 +225,35 @@ describe("buildAggregateFixPrompt", () => {
       { kind: "vuln", packageName: "lodash", id: "GHSA-1", mutedAt: 0 },
     ]);
 
-    // Package a still lists its publint + replaceable lines.
+    // Package a still lists its publint line.
     expect(prompt).toContain("## packages/a/package.json (@scope/a)");
     expect(prompt).toContain("Publishing (publint) issues: 1");
-    expect(prompt).toContain("Replaceable dependencies");
+    // Replaceable suggestions are not issues, so they never reach the prompt.
+    expect(prompt).not.toContain("Replaceable dependencies");
     // The suppressed vulnerability is excluded, so package b (vuln-only)
     // drops out entirely.
     expect(prompt).not.toContain("packages/b/package.json");
     expect(prompt).not.toContain("GHSA-1");
+  });
+
+  it("ignores a package whose only finding is replaceable", () => {
+    const packages = [
+      entry({
+        relativePath: "packages/c/package.json",
+        replaceable: [
+          {
+            packageName: "lodash",
+            replacements: ["es-toolkit"],
+            documentationUrl: null,
+            message: "lodash has lighter alternatives",
+          },
+        ],
+      }),
+    ];
+
+    expect(reportHasActionableFindings(report(packages), [])).toBe(false);
+    expect(buildAggregateFixPrompt(report(packages), [])).not.toContain(
+      "packages/c/package.json",
+    );
   });
 });
