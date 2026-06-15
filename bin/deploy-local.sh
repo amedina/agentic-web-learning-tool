@@ -8,6 +8,12 @@
 #   pnpm deploy:local <name>     # deploy the worktree matching <name>
 #                                #   (worktree folder name or branch name)
 #
+# Optional VS Code reinstall:
+#   Set DEPLOY_LOCAL_VSIX_PATH in <repo-root>/.env to the absolute path of the
+#   .vsix to (re)install after deploying. When set, this script runs
+#   `code --install-extension <path> --force` so the extension picks up the new
+#   build (reload the VS Code window afterwards). See .env.example.
+#
 set -euo pipefail
 
 MAIN="$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)")"
@@ -82,3 +88,41 @@ fi
 
 rsync -a "$target/dist/" "$MAIN/dist/"
 echo "deploy:local: $target/dist -> $MAIN/dist"
+
+# Optionally reinstall the packaged extension into VS Code. Opt-in: only runs
+# when DEPLOY_LOCAL_VSIX_PATH is set in <repo-root>/.env. The value is read by
+# matching the key line rather than sourcing .env, so we never execute its
+# contents.
+env_file="$MAIN/.env"
+vsix_path=""
+if [ -f "$env_file" ]; then
+  vsix_line="$(grep -E '^[[:space:]]*DEPLOY_LOCAL_VSIX_PATH[[:space:]]*=' "$env_file" | tail -n1 || true)"
+  if [ -n "$vsix_line" ]; then
+    vsix_path="${vsix_line#*=}"
+    # Trim surrounding whitespace and a single pair of quotes.
+    vsix_path="$(printf '%s' "$vsix_path" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' -e 's/^"\(.*\)"$/\1/' -e "s/^'\(.*\)'$/\1/")"
+  fi
+fi
+
+if [ -n "$vsix_path" ]; then
+  # If the exact file is gone (e.g. the version bumped), fall back to the single
+  # .vsix sitting in its directory so the install survives version changes.
+  if [ ! -f "$vsix_path" ]; then
+    vsix_dir="$(dirname "$vsix_path")"
+    candidates=("$vsix_dir"/*.vsix)
+    if [ -f "${candidates[0]}" ] && [ "${#candidates[@]}" -eq 1 ]; then
+      echo "deploy:local: $vsix_path not found; using ${candidates[0]}"
+      vsix_path="${candidates[0]}"
+    fi
+  fi
+
+  if [ ! -f "$vsix_path" ]; then
+    echo "deploy:local: DEPLOY_LOCAL_VSIX_PATH is set but no .vsix found at $vsix_path. Skipping install."
+  elif ! command -v code >/dev/null 2>&1; then
+    echo "deploy:local: 'code' CLI not on PATH. Skipping extension install. (In VS Code: Cmd+Shift+P > 'Shell Command: Install code command in PATH')"
+  else
+    echo "deploy:local: installing $vsix_path"
+    code --install-extension "$vsix_path" --force
+    echo "deploy:local: installed. Reload VS Code (Cmd+Shift+P > 'Developer: Reload Window') to view changes."
+  fi
+fi
