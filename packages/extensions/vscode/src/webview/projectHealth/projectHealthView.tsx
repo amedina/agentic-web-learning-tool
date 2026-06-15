@@ -1,7 +1,7 @@
 /**
  * External dependencies.
  */
-import { useState, type FC } from "react";
+import { useMemo, useState, type FC } from "react";
 
 /**
  * Internal dependencies.
@@ -18,8 +18,11 @@ import {
   ProjectHealthSubTabBar,
   type ProjectHealthSubTab,
 } from "./projectHealthSubTabBar";
+import { SeverityFilterToggle } from "./severityFilterToggle";
 import { reportHasActionableFindings, type ListFilter } from "./helpers";
+import { filterReportBySeverityFloor } from "../../projectHealth/projectHealthReport";
 import type {
+  AdvisorySeverityFloor,
   ProjectHealthReport,
   ProjectHealthScope,
 } from "../../projectHealth/types";
@@ -39,6 +42,11 @@ interface ProjectHealthViewProps {
   autoRunDaily: boolean;
   /** Enable or disable the daily dependency auto-run. */
   onSetAutoRunDaily: (enabled: boolean) => void;
+  /**
+   * The configured `npmAdvisor.advisorySeverityFloor`. The Dependencies tab
+   * hides advisories below it by default until the user shows all severities.
+   */
+  advisorySeverityFloor: AdvisorySeverityFloor;
   /** Callbacks for the per-package project analysis embedded in each row. */
   projectAnalysisActions: ProjectAnalysisActions;
 }
@@ -61,11 +69,13 @@ export const ProjectHealthView: FC<ProjectHealthViewProps> = ({
   onOpenPackageJson,
   autoRunDaily,
   onSetAutoRunDaily,
+  advisorySeverityFloor,
   projectAnalysisActions,
 }) => {
   const [activeTab, setActiveTab] =
     useState<ProjectHealthSubTab>("dependencies");
   const [filter, setFilter] = useState<ListFilter>("all");
+  const [showAllSeverities, setShowAllSeverities] = useState(false);
 
   const handleTabChange = (tab: ProjectHealthSubTab): void => {
     setActiveTab(tab);
@@ -73,6 +83,27 @@ export const ProjectHealthView: FC<ProjectHealthViewProps> = ({
   };
 
   const isDependencies = activeTab === "dependencies";
+
+  // Narrow the report to the configured severity floor on the Dependencies
+  // tab. Computed once and reused for the header, callout, and list so every
+  // count stays consistent with the rendered rows. The Project Analysis tab
+  // keeps the full report so its issue-count sort is never perturbed.
+  const filteredReport = useMemo(() => {
+    if (report === null || !isDependencies) {
+      return report;
+    }
+    return filterReportBySeverityFloor(report, advisorySeverityFloor);
+  }, [report, isDependencies, advisorySeverityFloor]);
+
+  const visibleReport = showAllSeverities ? report : filteredReport;
+
+  // Active vulnerabilities hidden by the floor, used to label the toggle.
+  const hiddenVulnerabilityCount =
+    report !== null && filteredReport !== null
+      ? report.totals.vulnerabilities.total -
+        filteredReport.totals.vulnerabilities.total
+      : 0;
+
   const isRunning =
     runningScope === "all" ||
     runningScope === (isDependencies ? "dependencies" : "project");
@@ -82,8 +113,13 @@ export const ProjectHealthView: FC<ProjectHealthViewProps> = ({
   const showList = !isRunning && hasCompletedRun && report !== null;
   const showCallout =
     showList &&
+    visibleReport !== null &&
+    reportHasActionableFindings(visibleReport, activeTab);
+  const showSeverityToggle =
+    showList &&
+    isDependencies &&
     report !== null &&
-    reportHasActionableFindings(report, activeTab);
+    report.totals.vulnerabilities.total > 0;
 
   return (
     <ProjectAnalysisActionsProvider value={projectAnalysisActions}>
@@ -97,7 +133,7 @@ export const ProjectHealthView: FC<ProjectHealthViewProps> = ({
         ) : null}
         <ProjectHealthHeader
           scope={activeTab}
-          report={report}
+          report={visibleReport}
           isRunning={isRunning}
           hasCompletedRun={hasCompletedRun}
           onRun={() => onRun(activeTab)}
@@ -105,18 +141,26 @@ export const ProjectHealthView: FC<ProjectHealthViewProps> = ({
           activeFilter={filter}
           onFilterChange={setFilter}
         />
-        {showCallout && report ? (
+        {showSeverityToggle ? (
+          <SeverityFilterToggle
+            showAll={showAllSeverities}
+            floor={advisorySeverityFloor}
+            hiddenCount={hiddenVulnerabilityCount}
+            onChange={setShowAllSeverities}
+          />
+        ) : null}
+        {showCallout && visibleReport ? (
           <AggregateFixCallout
             scope={activeTab}
-            report={report}
+            report={visibleReport}
             postCopyPrompt={projectAnalysisActions.postCopyPrompt}
             postSetupMcp={projectAnalysisActions.postSetupMcp}
           />
         ) : null}
-        {showList ? (
+        {showList && visibleReport ? (
           <PackageHealthList
             scope={activeTab}
-            packages={report.packages}
+            packages={visibleReport.packages}
             filter={filter}
             onClearFilter={() => setFilter("all")}
             onOpenPackageJson={onOpenPackageJson}

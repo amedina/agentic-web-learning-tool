@@ -457,16 +457,20 @@ export class WebviewBridge implements vscode.Disposable {
   }
 
   /**
-   * Posts the current Project Health auto-run setting to the webview so
-   * the in-panel toggle reflects `npmAdvisor.projectHealth.autoRun`.
-   * Public so the host can re-broadcast it when the setting changes from
-   * the Settings UI (via onDidChangeConfiguration), keeping the toggle in
-   * sync with edits made outside the panel.
+   * Posts the current Project Health settings to the webview so the
+   * in-panel controls reflect `npmAdvisor.projectHealth.autoRun` (daily
+   * check) and `npmAdvisor.advisorySeverityFloor` (default vulnerability
+   * filter for the Dependencies view). Public so the host can re-broadcast
+   * it when either setting changes from the Settings UI (via
+   * onDidChangeConfiguration), keeping the panel in sync with edits made
+   * outside it.
    */
   notifyProjectHealthSettings(): void {
+    const settings = this.settingsProvider();
     this.post({
       type: "projectHealthSettings",
-      autoRunDaily: this.settingsProvider().projectHealthAutoRun === "daily",
+      autoRunDaily: settings.projectHealthAutoRun === "daily",
+      advisorySeverityFloor: settings.advisorySeverityFloor,
     });
   }
 

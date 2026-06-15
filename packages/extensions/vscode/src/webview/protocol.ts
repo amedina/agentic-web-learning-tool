@@ -13,6 +13,7 @@ import type { BundleData } from "@agentic-web-labs/package-analyzer-ui";
  * Internal dependencies.
  */
 import type {
+  AdvisorySeverityFloor,
   ProjectHealthReport,
   ProjectHealthScope,
 } from "../projectHealth/types";
@@ -280,13 +281,20 @@ export type ExtensionMessage =
     }
   | {
       /**
-       * The current Project Health auto-run setting, broadcast in reply to
-       * `getProjectHealthSettings` and again whenever
-       * `npmAdvisor.projectHealth.autoRun` changes (from the in-panel
-       * toggle or the Settings UI) so the toggle stays in sync.
+       * The current Project Health settings, broadcast in reply to
+       * `getProjectHealthSettings` and again whenever the underlying
+       * `npmAdvisor` configuration changes (from an in-panel control or the
+       * Settings UI) so the panel stays in sync.
        */
       type: "projectHealthSettings";
+      /** Mirrors `npmAdvisor.projectHealth.autoRun`; drives the daily-check toggle. */
       autoRunDaily: boolean;
+      /**
+       * Mirrors `npmAdvisor.advisorySeverityFloor`. The Dependencies view
+       * uses it as the default vulnerability filter, hiding advisories below
+       * the floor until the user opts into "Show all severity levels".
+       */
+      advisorySeverityFloor: AdvisorySeverityFloor;
     }
   | {
       /**
