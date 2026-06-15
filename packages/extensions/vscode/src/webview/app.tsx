@@ -455,9 +455,16 @@ export const App: FC<AppProps> = ({
 
 /**
  * Locates the accordion trigger for the named package via its title
- * attribute, scrolls it into view, and clicks it open if it isn't
- * already. Returns true when the row was found (so the caller can stop
- * retrying), false otherwise (e.g. the row has not mounted yet).
+ * attribute, opens it if needed, then scrolls it into view. Returns true
+ * when the row was found (so the caller can stop retrying), false otherwise
+ * (e.g. the row has not mounted yet).
+ *
+ * The open happens before the scroll on purpose: with single-open-per-category
+ * behaviour, expanding the target collapses whichever sibling row was
+ * previously open in the same section. When that sibling sits above the
+ * target, the collapse shifts the target upward, so scrolling first would land
+ * on the row's stale position. Deferring the scroll to the next frame lets the
+ * open/collapse layout change commit so the row lands at the top accurately.
  */
 function focusRow(packageName: string): boolean {
   const trigger = Array.from(
@@ -473,10 +480,12 @@ function focusRow(packageName: string): boolean {
   if (trigger.offsetParent === null) {
     return false;
   }
-  trigger.scrollIntoView({ behavior: "smooth", block: "start" });
   const button = trigger.closest<HTMLElement>("button[data-state]");
   if (button && button.getAttribute("data-state") === "closed") {
     button.click();
   }
+  requestAnimationFrame(() => {
+    trigger.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
   return true;
 }

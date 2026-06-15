@@ -51,6 +51,16 @@ interface DependencyAccordionRowProps {
    * full PackageStats can opt in.
    */
   showFitness?: boolean;
+  /**
+   * Whether this row is expanded. Controlled by the parent section so that
+   * only one row per category stays open at a time.
+   */
+  open: boolean;
+  /**
+   * Called when the user toggles this row's trigger. Receives the row's next
+   * open state; the parent decides which single row in the category is open.
+   */
+  onOpenChange: (open: boolean) => void;
 }
 
 export const DependencyAccordionRow: React.FC<DependencyAccordionRowProps> = ({
@@ -62,9 +72,10 @@ export const DependencyAccordionRow: React.FC<DependencyAccordionRowProps> = ({
   onNavigateToComparison,
   hideCompare = false,
   showFitness = false,
+  open,
+  onOpenChange,
 }) => {
   const statsClient = useStatsClient();
-  const [open, setOpen] = useState(false);
   const [bundleData, setBundleData] = useState<BundleData | null>(() =>
     bundleCache.has(packageName) ? bundleCache.get(packageName)! : null,
   );
@@ -147,7 +158,7 @@ export const DependencyAccordionRow: React.FC<DependencyAccordionRowProps> = ({
   return (
     <Collapsible
       open={open}
-      onOpenChange={setOpen}
+      onOpenChange={onOpenChange}
       className="border-b border-slate-200 dark:border-slate-700 last:border-b-0"
     >
       <CollapsibleTrigger className="group w-full flex items-center justify-between gap-3 px-3 py-2.5 text-left hover:bg-slate-50 dark:hover:bg-slate-700/40 transition-colors outline-none">
