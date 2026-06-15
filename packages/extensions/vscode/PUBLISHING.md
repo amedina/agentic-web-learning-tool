@@ -57,7 +57,7 @@ You can also just edit `package.json` directly.
 pnpm build:vscode
 
 # optional: install the packaged .vsix locally to smoke-test first
-code --install-extension dist/vscode-npm-advisor/vscode-npm-advisor-0.3.0.vsix
+code --install-extension dist/vscode-npm-advisor/vscode-npm-advisor-0.4.0.vsix
 ```
 
 Then upload the `.vsix` from `dist/vscode-npm-advisor/` at

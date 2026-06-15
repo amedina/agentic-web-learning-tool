@@ -1,6 +1,6 @@
 {
   "name": "@agentic-web-labs/design-system",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "private": true,
   "type": "module",
   "sideEffects": [
