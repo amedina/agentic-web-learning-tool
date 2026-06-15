@@ -9,10 +9,11 @@
 #                                #   (worktree folder name or branch name)
 #
 # Optional VS Code reinstall:
-#   Set DEPLOY_LOCAL_VSIX_PATH in packages/extensions/vscode/.env to the
-#   absolute path of the .vsix to (re)install after deploying. When set, this
-#   script runs `code --install-extension <path> --force` so the extension
-#   picks up the new build (reload the VS Code window afterwards).
+#   Set DEPLOY_LOCAL_VSIX_PATH in packages/extensions/vscode/.env to opt in. It
+#   can be the dist/vscode-npm-advisor directory, or any .vsix path inside it
+#   (the version in the filename is ignored). The script installs the NEWEST
+#   .vsix in that directory via `code --install-extension <path> --force`, so a
+#   version bump never needs an .env edit (reload the VS Code window afterwards).
 #   See packages/extensions/vscode/.env.example.
 #
 set -euo pipefail
@@ -106,24 +107,39 @@ if [ -f "$env_file" ]; then
 fi
 
 if [ -n "$vsix_path" ]; then
-  # If the exact file is gone (e.g. the version bumped), fall back to the single
-  # .vsix sitting in its directory so the install survives version changes.
-  if [ ! -f "$vsix_path" ]; then
+  # Resolve a directory to install from: accept either the dist directory or a
+  # (possibly versioned) .vsix path for backward compatibility, then always
+  # install the NEWEST .vsix in it. This way a version bump never requires an
+  # .env edit, and stale .vsix files from earlier builds are ignored.
+  if [ -d "$vsix_path" ]; then
+    vsix_dir="$vsix_path"
+  else
     vsix_dir="$(dirname "$vsix_path")"
-    candidates=("$vsix_dir"/*.vsix)
-    if [ -f "${candidates[0]}" ] && [ "${#candidates[@]}" -eq 1 ]; then
-      echo "deploy:local: $vsix_path not found; using ${candidates[0]}"
-      vsix_path="${candidates[0]}"
-    fi
   fi
 
-  if [ ! -f "$vsix_path" ]; then
-    echo "deploy:local: DEPLOY_LOCAL_VSIX_PATH is set but no .vsix found at $vsix_path. Skipping install."
+  newest_vsix="$(ls -t "$vsix_dir"/*.vsix 2>/dev/null | head -n1 || true)"
+
+  if [ -z "$newest_vsix" ]; then
+    echo "deploy:local: DEPLOY_LOCAL_VSIX_PATH is set but no .vsix found in $vsix_dir. Skipping install."
   elif ! command -v code >/dev/null 2>&1; then
     echo "deploy:local: 'code' CLI not on PATH. Skipping extension install. (In VS Code: Cmd+Shift+P > 'Shell Command: Install code command in PATH')"
   else
-    echo "deploy:local: installing $vsix_path"
-    code --install-extension "$vsix_path" --force
+    echo "deploy:local: installing $newest_vsix"
+    # VS Code's own `code --install-extension` CLI prints a Node DEP0169
+    # url.parse() deprecation warning on stderr. Capture stderr, drop just those
+    # lines, and re-emit the rest, so the output stays clean without hiding real
+    # errors or losing the exit status.
+    vsix_err="$(mktemp)"
+    set +e
+    code --install-extension "$newest_vsix" --force 2>"$vsix_err"
+    code_status=$?
+    set -e
+    grep -vE 'DEP0169|DeprecationWarning|trace-deprecation' "$vsix_err" >&2 || true
+    rm -f "$vsix_err"
+    if [ "$code_status" -ne 0 ]; then
+      echo "deploy:local: 'code --install-extension' failed (exit $code_status)." >&2
+      exit "$code_status"
+    fi
     echo "deploy:local: installed. Reload VS Code (Cmd+Shift+P > 'Developer: Reload Window') to view changes."
   fi
 fi

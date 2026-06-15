@@ -39,18 +39,18 @@ Then **fully quit** VSCode (`⌘Q` on macOS — closing the window is not enough
 
 When you build inside a git worktree, run `pnpm deploy:local <branch-or-worktree-name>` from the repository root to copy that worktree's `dist/` into the main checkout's root `dist/`.
 
-To reinstall the extension in the same step, set `DEPLOY_LOCAL_VSIX_PATH` in `packages/extensions/vscode/.env` (see [`.env.example`](.env.example)) to the absolute path of the built `.vsix`:
+To reinstall the extension in the same step, set `DEPLOY_LOCAL_VSIX_PATH` in `packages/extensions/vscode/.env` (see [`.env.example`](.env.example)) to opt in. Point it at the `dist/vscode-npm-advisor` directory (or any `.vsix` path inside it — the version in the filename is ignored):
 
 ```sh
-DEPLOY_LOCAL_VSIX_PATH=/absolute/path/to/dist/vscode-npm-advisor/vscode-npm-advisor-<version>.vsix
+DEPLOY_LOCAL_VSIX_PATH=/absolute/path/to/dist/vscode-npm-advisor
 ```
 
-With it set, `deploy:local` runs `code --install-extension <path> --force` after copying the build. **Reload the VSCode window** (`⌘⇧P` / `Ctrl+Shift+P`, then `Developer: Reload Window`) to view the changes. Leave the variable unset to skip the install entirely.
+With it set, `deploy:local` installs the **newest** `.vsix` in that directory via `code --install-extension <path> --force` after copying the build, so you never have to update this after a version bump. **Reload the VSCode window** (`⌘⇧P` / `Ctrl+Shift+P`, then `Developer: Reload Window`) to view the changes. Leave the variable unset to skip the install entirely.
 
 Notes:
 
 - On a first install a window reload is not enough. Fully quit and reopen VSCode as in [Install the `.vsix` locally](#install-the-vsix-locally) so the activity bar icon appears.
-- If the exact `.vsix` is missing (e.g. the version bumped), `deploy:local` falls back to the single `.vsix` in that directory.
+- `deploy:local` always installs the newest `.vsix` in the directory, so stale `.vsix` files from earlier builds are ignored and version bumps need no `.env` edit.
 - `deploy:local` skips the install gracefully when the `code` CLI is not on `PATH`.
 
 ## Develop with F5

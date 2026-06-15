@@ -35,7 +35,7 @@ interface RowDetailsProps {
  * boxes (with mute / unmute). On the Project Analysis sub-tab it shows the
  * replaceable-dependencies box (with npm / doc links) and the full
  * per-package project analysis (publint + circular dependency graph)
- * reused from the standalone Project Analysis tab. Both end with an
+ * reused from the standalone Project Analysis tab. Both begin with an
  * "Open package.json" link.
  */
 export const RowDetails: FC<RowDetailsProps> = ({
@@ -52,6 +52,15 @@ export const RowDetails: FC<RowDetailsProps> = ({
 
   return (
     <div className="flex flex-col gap-2 border-t border-slate-100 px-3 py-2 dark:border-slate-800">
+      <button
+        type="button"
+        className="inline-flex items-center gap-1 self-start text-[11px] text-slate-500 hover:text-slate-700 hover:underline dark:text-slate-400 dark:hover:text-slate-200"
+        onClick={() => onOpenPackageJson(entry.uri)}
+      >
+        <FileJson size={12} />
+        Open package.json
+      </button>
+
       {scope === "dependencies" ? (
         <div className="grid grid-cols-1 gap-2">
           <FindingSummaryBox
@@ -176,15 +185,6 @@ export const RowDetails: FC<RowDetailsProps> = ({
           />
         </section>
       )}
-
-      <button
-        type="button"
-        className="inline-flex items-center gap-1 self-start text-[11px] text-slate-500 hover:text-slate-700 hover:underline dark:text-slate-400 dark:hover:text-slate-200"
-        onClick={() => onOpenPackageJson(entry.uri)}
-      >
-        <FileJson size={12} />
-        Open package.json
-      </button>
     </div>
   );
 };

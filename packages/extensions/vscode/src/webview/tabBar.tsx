@@ -28,7 +28,7 @@ export const TabBar: FC<TabBarProps> = ({ activeTab, onChange }) => {
         onClick={() => onChange("dependencies")}
       />
       <TabButton
-        label="Project Analysis"
+        label="Analysis"
         isActive={activeTab === "project"}
         onClick={() => onChange("project")}
       />

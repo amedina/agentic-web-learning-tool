@@ -125,7 +125,7 @@ export const SummaryHeader: FC<SummaryHeaderProps> = ({
             <SummaryChip
               icon={<ShieldAlert size={13} />}
               value={vulnPackages}
-              label={vulnPackages === 1 ? "vuln pkg" : "vuln pkgs"}
+              label="vulnerabilities"
               tone={vulnPackages > 0 ? "danger" : "ok"}
               title={`${vulnPackages} package(s) with vulnerabilities. Click to filter.`}
               onClick={() => onFilterChange(toggleFilter(activeFilter, "vuln"))}
@@ -134,7 +134,7 @@ export const SummaryHeader: FC<SummaryHeaderProps> = ({
             <SummaryChip
               icon={<Scale size={13} />}
               value={licensePackages}
-              label={licensePackages === 1 ? "license pkg" : "license pkgs"}
+              label="license issues"
               tone={licensePackages > 0 ? "danger" : "ok"}
               title={`${licensePackages} package(s) with license issues. Click to filter.`}
               onClick={() =>
@@ -145,11 +145,7 @@ export const SummaryHeader: FC<SummaryHeaderProps> = ({
             <SummaryChip
               icon={<Recycle size={13} />}
               value={replaceablePackages}
-              label={
-                replaceablePackages === 1
-                  ? "replaceable pkg"
-                  : "replaceable pkgs"
-              }
+              label="replaceable"
               tone={replaceablePackages > 0 ? "info" : "neutral"}
               title={`${replaceablePackages} package(s) with replacement suggestions. Click to filter.`}
               onClick={() =>
