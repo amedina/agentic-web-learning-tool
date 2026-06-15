@@ -90,6 +90,8 @@
     "cli:npm-advisor-mcp": "pnpm --filter @agentic-web-labs/npm-advisor-mcp cli",
     "test:npm-advisor-mcp": "pnpm --filter @agentic-web-labs/npm-advisor-mcp test",
     "format:npm-advisor-mcp": "pnpm --filter @agentic-web-labs/npm-advisor-mcp format",
+    "publish:npm-advisor-mcp": "pnpm --filter @agentic-web-labs/npm-advisor-mcp publish --access public --no-git-checks",
+    "publish:npm-advisor-mcp:dry": "pnpm --filter @agentic-web-labs/npm-advisor-mcp publish --access public --no-git-checks --dry-run",
     "build:design-system": "pnpm --filter design-system build",
     "build:common": "pnpm --filter common build",
     "build": "pnpm run build:common && pnpm run build:table && pnpm run build:chrome-ai-playground && pnpm run build:awl-mcp-inspector && pnpm run build:design-system && pnpm run build:chatbot && pnpm run build:npm-advisor && pnpm run build:awl && pnpm run build:npm-advisor-mcp && pnpm run build:vscode",
