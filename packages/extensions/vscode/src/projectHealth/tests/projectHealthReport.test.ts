@@ -250,7 +250,7 @@ describe("computeTotals", () => {
     expect(totals.uniqueDependencyCount).toBe(1);
   });
 
-  it("excludes suppressed findings and counts them", () => {
+  it("counts vulnerabilities and license issues across packages", () => {
     const vuln = {
       packageName: "lodash",
       version: "4.17.20",
@@ -269,13 +269,11 @@ describe("computeTotals", () => {
       entry({ vulnerabilities: [vuln], licenseIssues: [license] }),
     ];
 
-    const totals = computeTotals(packages, 2, {
-      isVulnerabilitySuppressed: (finding) => finding.id === "GHSA-1",
-    });
+    const totals = computeTotals(packages, 2);
 
-    expect(totals.vulnerabilities.total).toBe(0);
+    expect(totals.vulnerabilities.total).toBe(1);
+    expect(totals.vulnerabilities.high).toBe(1);
     expect(totals.licenseIssueCount).toBe(1);
-    expect(totals.suppressedCount).toBe(1);
   });
 });
 

@@ -19,7 +19,6 @@ import type { ProjectHealthReport, VulnerabilityTotals } from "../types";
 function report(totals: {
   vulnerabilities?: Partial<VulnerabilityTotals>;
   licenseIssueCount?: number;
-  suppressedCount?: number;
   packageCount?: number;
 }): ProjectHealthReport {
   const base = createInitialReport("ws", "ws", 1000);
@@ -40,7 +39,6 @@ function report(totals: {
       },
       licenseIssueCount: totals.licenseIssueCount ?? 0,
       replaceableCount: 0,
-      suppressedCount: totals.suppressedCount ?? 0,
     },
   };
 }
@@ -64,13 +62,10 @@ describe("formatReportSummary", () => {
     expect(summary.message).toContain("2 critical, 1 high");
   });
 
-  it("summarizes license issues and notes suppressed findings", () => {
-    const summary = formatReportSummary(
-      report({ licenseIssueCount: 1, suppressedCount: 2 }),
-    );
+  it("summarizes license issues", () => {
+    const summary = formatReportSummary(report({ licenseIssueCount: 1 }));
     expect(summary.hasIssues).toBe(true);
     expect(summary.message).toContain("1 license issue");
-    expect(summary.message).toContain("(2 suppressed)");
   });
 });
 

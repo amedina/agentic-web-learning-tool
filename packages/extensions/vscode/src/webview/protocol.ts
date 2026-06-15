@@ -14,10 +14,8 @@ import type { BundleData } from "@agentic-web-labs/package-analyzer-ui";
  */
 import type {
   AdvisorySeverityFloor,
-  MuteTarget,
   ProjectHealthReport,
   ProjectHealthScope,
-  SuppressionEntry,
 } from "../projectHealth/types";
 
 /**
@@ -137,21 +135,6 @@ export type WebviewRequest =
        */
       type: "getCachedProjectHealth";
       requestId: string;
-    }
-  | {
-      /** Mutes a vulnerability or license finding (suppression). */
-      type: "muteFinding";
-      target: MuteTarget;
-      reason?: string;
-    }
-  | {
-      /** Removes a previously created suppression. */
-      type: "unmuteFinding";
-      target: MuteTarget;
-    }
-  | {
-      /** Asks the host to (re)broadcast the current suppression list. */
-      type: "getSuppressions";
     }
   | {
       /**
@@ -295,15 +278,6 @@ export type ExtensionMessage =
       type: "cachedProjectHealth";
       requestId: string;
       report: ProjectHealthReport | null;
-    }
-  | {
-      /**
-       * The current suppression list, broadcast in reply to
-       * `getSuppressions` and again after every mute / unmute so the
-       * webview can re-render muted findings without a round-trip.
-       */
-      type: "suppressions";
-      entries: SuppressionEntry[];
     }
   | {
       /**

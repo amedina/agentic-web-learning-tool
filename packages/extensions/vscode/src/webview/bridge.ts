@@ -371,24 +371,6 @@ export class WebviewBridge implements vscode.Disposable {
         });
         return;
       }
-      case "muteFinding": {
-        await this.projectHealthController.mute({
-          ...message.target,
-          reason: message.reason,
-          mutedAt: Date.now(),
-        });
-        this.postSuppressions();
-        return;
-      }
-      case "unmuteFinding": {
-        await this.projectHealthController.unmute(message.target);
-        this.postSuppressions();
-        return;
-      }
-      case "getSuppressions": {
-        this.postSuppressions();
-        return;
-      }
       case "getProjectHealthSettings": {
         this.notifyProjectHealthSettings();
         return;
@@ -472,14 +454,6 @@ export class WebviewBridge implements vscode.Disposable {
         return;
       }
     }
-  }
-
-  /** Posts the current suppression list to the webview. */
-  private postSuppressions(): void {
-    this.post({
-      type: "suppressions",
-      entries: this.projectHealthController.suppressions(),
-    });
   }
 
   /**

@@ -25,17 +25,6 @@ import {
   type VulnerabilityTotals,
 } from "./types";
 
-/**
- * Predicates the totals calculation uses to decide whether a finding is
- * suppressed (muted by the user). Suppressed findings stay in the report
- * for the "muted" view but are excluded from active totals and counted
- * under `suppressedCount`. Phase 1 passes none, so nothing is suppressed.
- */
-export interface SuppressionPredicates {
-  isVulnerabilitySuppressed?: (finding: VulnerabilityFinding) => boolean;
-  isLicenseSuppressed?: (finding: LicenseFinding) => boolean;
-}
-
 /** Returns a zeroed vulnerability tally. */
 export function emptyVulnerabilityTotals(): VulnerabilityTotals {
   return { critical: 0, high: 0, moderate: 0, low: 0, unknown: 0, total: 0 };
@@ -67,7 +56,7 @@ export function normalizeSeverity(value: string | null): VulnerabilitySeverity {
  * Derives a stable advisory id from an advisory URL (preferred) or its
  * summary (fallback). GitHub advisory URLs embed the GHSA id and OSV
  * links embed GHSA/CVE ids, so extracting it yields the same id the
- * OSV fast pass reports, keeping suppression keys consistent across the
+ * OSV fast pass reports, keeping the dedup key consistent across the
  * fast and backfill passes. Falls back to the trimmed summary when no
  * recognizable id is present.
  */
@@ -86,8 +75,8 @@ export function deriveAdvisoryId(url: string, summary: string): string {
 /**
  * Extracts vulnerability findings for one (package, version) from its
  * PackageStats. Reads `securityAdvisories.issues`, mapping each to a
- * VulnerabilityFinding with a stable suppression id. Returns an empty
- * array when stats are missing or carry no advisories.
+ * VulnerabilityFinding with a stable id. Returns an empty array when
+ * stats are missing or carry no advisories.
  */
 export function vulnerabilitiesFromStats(
   packageName: string,
@@ -197,20 +186,17 @@ export function replacementsFromFindings(
  * are deduped across packages by a stable key (package + version +
  * advisory id for vulnerabilities; package + version for licenses) so a
  * single vulnerable dependency shared by many manifests counts once in
- * the header. Suppressed findings are excluded from the active tallies
- * and counted under `suppressedCount`.
+ * the header.
  */
 export function computeTotals(
   packages: PackageHealthEntry[],
   uniqueDependencyCount: number,
-  predicates: SuppressionPredicates = {},
 ): ProjectHealthTotals {
   const vulnerabilities = emptyVulnerabilityTotals();
   const seenVulns = new Set<string>();
   const seenLicenses = new Set<string>();
   let licenseIssueCount = 0;
   let replaceableCount = 0;
-  let suppressedCount = 0;
 
   for (const entry of packages) {
     replaceableCount += entry.replaceable.length;
@@ -220,10 +206,6 @@ export function computeTotals(
         continue;
       }
       seenVulns.add(key);
-      if (predicates.isVulnerabilitySuppressed?.(vulnerability)) {
-        suppressedCount += 1;
-        continue;
-      }
       vulnerabilities[vulnerability.severity] += 1;
       vulnerabilities.total += 1;
     }
@@ -234,10 +216,6 @@ export function computeTotals(
         continue;
       }
       seenLicenses.add(key);
-      if (predicates.isLicenseSuppressed?.(license)) {
-        suppressedCount += 1;
-        continue;
-      }
       licenseIssueCount += 1;
     }
   }
@@ -248,7 +226,6 @@ export function computeTotals(
     vulnerabilities,
     licenseIssueCount,
     replaceableCount,
-    suppressedCount,
   };
 }
 
@@ -265,7 +242,6 @@ export function computeTotals(
 export function filterReportBySeverityFloor(
   report: ProjectHealthReport,
   floor: AdvisorySeverityFloor,
-  predicates: SuppressionPredicates = {},
 ): ProjectHealthReport {
   const packages = report.packages.map((entry) => {
     const visible = entry.vulnerabilities.filter((finding) =>
@@ -279,11 +255,7 @@ export function filterReportBySeverityFloor(
   return {
     ...report,
     packages,
-    totals: computeTotals(
-      packages,
-      report.totals.uniqueDependencyCount,
-      predicates,
-    ),
+    totals: computeTotals(packages, report.totals.uniqueDependencyCount),
   };
 }
 
@@ -311,7 +283,6 @@ export function createInitialReport(
       vulnerabilities: emptyVulnerabilityTotals(),
       licenseIssueCount: 0,
       replaceableCount: 0,
-      suppressedCount: 0,
     },
     progress: {
       phase: "scanning",

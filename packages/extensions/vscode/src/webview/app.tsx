@@ -29,10 +29,8 @@ import type {
 import {
   isTerminalPhase,
   type AdvisorySeverityFloor,
-  type MuteTarget,
   type ProjectHealthReport,
   type ProjectHealthScope,
-  type SuppressionEntry,
 } from "../projectHealth/types";
 
 interface AppProps {
@@ -64,9 +62,6 @@ interface AppProps {
   onRunProjectHealth: (scope: ProjectHealthScope) => void;
   onCancelProjectHealth: () => void;
   onGetCachedProjectHealth: (requestId: string) => void;
-  onGetSuppressions: () => void;
-  onMuteFinding: (target: MuteTarget, reason?: string) => void;
-  onUnmuteFinding: (target: MuteTarget) => void;
   onGetProjectHealthSettings: () => void;
   onSetProjectHealthAutoRun: (enabled: boolean) => void;
   onGetGithubAuthState: () => void;
@@ -101,9 +96,6 @@ export const App: FC<AppProps> = ({
   onRunProjectHealth,
   onCancelProjectHealth,
   onGetCachedProjectHealth,
-  onGetSuppressions,
-  onMuteFinding,
-  onUnmuteFinding,
   onGetProjectHealthSettings,
   onSetProjectHealthAutoRun,
   onGetGithubAuthState,
@@ -117,7 +109,6 @@ export const App: FC<AppProps> = ({
   const [runningScope, setRunningScope] = useState<ProjectHealthScope | null>(
     null,
   );
-  const [suppressions, setSuppressions] = useState<SuppressionEntry[]>([]);
   // Mirrors npmAdvisor.projectHealth.autoRun; drives the in-panel toggle
   // on the Dependencies tab. Seeded from the host on mount and kept in
   // sync via `projectHealthSettings` messages. Initialized to the "daily"
@@ -168,8 +159,6 @@ export const App: FC<AppProps> = ({
   onReadyRef.current = onReady;
   const onGetCachedProjectHealthRef = useRef(onGetCachedProjectHealth);
   onGetCachedProjectHealthRef.current = onGetCachedProjectHealth;
-  const onGetSuppressionsRef = useRef(onGetSuppressions);
-  onGetSuppressionsRef.current = onGetSuppressions;
   const onGetProjectHealthSettingsRef = useRef(onGetProjectHealthSettings);
   onGetProjectHealthSettingsRef.current = onGetProjectHealthSettings;
   const onGetGithubAuthStateRef = useRef(onGetGithubAuthState);
@@ -237,8 +226,6 @@ export const App: FC<AppProps> = ({
         if (data.report) {
           setProjectHealthReport(data.report);
         }
-      } else if (data.type === "suppressions") {
-        setSuppressions(data.entries);
       } else if (data.type === "projectHealthSettings") {
         setAutoRunDaily(data.autoRunDaily);
         setAdvisorySeverityFloor(data.advisorySeverityFloor);
@@ -260,7 +247,6 @@ export const App: FC<AppProps> = ({
     const healthRequestId = newRequestId();
     pendingHealthCacheRequestIdRef.current = healthRequestId;
     onGetCachedProjectHealthRef.current(healthRequestId);
-    onGetSuppressionsRef.current();
     // Seed the auto-run toggle from the persisted setting.
     onGetProjectHealthSettingsRef.current();
     // Seed the GitHub sign-in banner state.
@@ -385,9 +371,6 @@ export const App: FC<AppProps> = ({
               onRun={handleRunProjectHealth}
               onCancel={handleCancelProjectHealth}
               onOpenPackageJson={onOpenPackageJson}
-              suppressions={suppressions}
-              onMute={onMuteFinding}
-              onUnmute={onUnmuteFinding}
               autoRunDaily={autoRunDaily}
               onSetAutoRunDaily={onSetProjectHealthAutoRun}
               advisorySeverityFloor={advisorySeverityFloor}

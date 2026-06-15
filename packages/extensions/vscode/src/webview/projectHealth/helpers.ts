@@ -1,15 +1,10 @@
 /**
  * Internal dependencies.
  */
-import {
-  isLicenseSuppressed,
-  isVulnerabilitySuppressed,
-} from "../../projectHealth/suppressionMatching";
 import type {
   PackageHealthEntry,
   ProjectHealthReport,
   ProjectHealthScope,
-  SuppressionEntry,
   VulnerabilitySeverity,
 } from "../../projectHealth/types";
 
@@ -84,8 +79,7 @@ export type ListFilter =
   | "license"
   | "publint"
   | "circular"
-  | "replaceable"
-  | "suppressed";
+  | "replaceable";
 
 /** Returns `filter` unless it is already active, in which case `all` (a toggle). */
 export function toggleFilter(
@@ -149,24 +143,14 @@ export function packageIssueCount(entry: PackageHealthEntry): number {
   );
 }
 
-/** True when a package has at least one non-suppressed vulnerability. */
-export function entryHasActiveVulnerability(
-  entry: PackageHealthEntry,
-  suppressions: SuppressionEntry[],
-): boolean {
-  return entry.vulnerabilities.some(
-    (finding) => !isVulnerabilitySuppressed(suppressions, finding),
-  );
+/** True when a package has at least one vulnerability. */
+export function entryHasVulnerability(entry: PackageHealthEntry): boolean {
+  return entry.vulnerabilities.length > 0;
 }
 
-/** True when a package has at least one non-suppressed license issue. */
-export function entryHasActiveLicenseIssue(
-  entry: PackageHealthEntry,
-  suppressions: SuppressionEntry[],
-): boolean {
-  return entry.licenseIssues.some(
-    (finding) => !isLicenseSuppressed(suppressions, finding),
-  );
+/** True when a package has at least one license issue. */
+export function entryHasLicenseIssue(entry: PackageHealthEntry): boolean {
+  return entry.licenseIssues.length > 0;
 }
 
 /** True when a package has at least one replacement suggestion. */
@@ -184,21 +168,6 @@ export function entryHasCircular(entry: PackageHealthEntry): boolean {
   return (entry.projectAnalysis?.circularCount ?? 0) > 0;
 }
 
-/** True when a package carries at least one currently-suppressed finding. */
-export function entryHasSuppressed(
-  entry: PackageHealthEntry,
-  suppressions: SuppressionEntry[],
-): boolean {
-  return (
-    entry.vulnerabilities.some((finding) =>
-      isVulnerabilitySuppressed(suppressions, finding),
-    ) ||
-    entry.licenseIssues.some((finding) =>
-      isLicenseSuppressed(suppressions, finding),
-    )
-  );
-}
-
 /**
  * The single source of truth for "does this package match the active
  * filter?", used by both the header chip counts and the list filtering
@@ -207,21 +176,18 @@ export function entryHasSuppressed(
 export function entryMatchesFilter(
   entry: PackageHealthEntry,
   filter: ListFilter,
-  suppressions: SuppressionEntry[],
 ): boolean {
   switch (filter) {
     case "vuln":
-      return entryHasActiveVulnerability(entry, suppressions);
+      return entryHasVulnerability(entry);
     case "license":
-      return entryHasActiveLicenseIssue(entry, suppressions);
+      return entryHasLicenseIssue(entry);
     case "publint":
       return entryHasPublint(entry);
     case "circular":
       return entryHasCircular(entry);
     case "replaceable":
       return entryHasReplaceable(entry);
-    case "suppressed":
-      return entryHasSuppressed(entry, suppressions);
     case "all":
     default:
       return true;
@@ -229,14 +195,14 @@ export function entryMatchesFilter(
 }
 
 /**
- * True when the report has at least one actionable, non-suppressed
- * finding within the given scope worth assembling into a fix prompt.
- * "dependencies" covers vulnerabilities + license issues; "project"
- * covers publint + circular + replacement findings; "all" covers both.
+ * True when the report has at least one actionable finding within the
+ * given scope worth assembling into a fix prompt. "dependencies" covers
+ * vulnerabilities + license issues; "project" covers publint + circular
+ * findings; "all" covers both. Replaceable suggestions are informational,
+ * not issues, so they never count here.
  */
 export function reportHasActionableFindings(
   report: ProjectHealthReport,
-  suppressions: SuppressionEntry[],
   scope: ProjectHealthScope = "all",
 ): boolean {
   const includeDependencies = scope !== "project";
@@ -244,9 +210,7 @@ export function reportHasActionableFindings(
   return report.packages.some((entry) => {
     if (
       includeDependencies &&
-      (entryHasActiveVulnerability(entry, suppressions) ||
-        entryHasActiveLicenseIssue(entry, suppressions) ||
-        entryHasReplaceable(entry))
+      (entryHasVulnerability(entry) || entryHasLicenseIssue(entry))
     ) {
       return true;
     }
@@ -259,20 +223,18 @@ export function reportHasActionableFindings(
 
 /**
  * Assembles a ready-to-paste prompt covering the actionable findings in
- * the given scope, grouped by package. Suppressed vulnerabilities and
- * license issues are excluded. The assistant is pointed at the
+ * the given scope, grouped by package. The assistant is pointed at the
  * npm-advisor MCP tools for deeper detail.
  */
 export function buildAggregateFixPrompt(
   report: ProjectHealthReport,
-  suppressions: SuppressionEntry[],
   scope: ProjectHealthScope = "all",
 ): string {
   const includeDependencies = scope !== "project";
   const includeProject = scope !== "dependencies";
   const subject =
     scope === "dependencies"
-      ? "dependency vulnerabilities, license issues, and replacement opportunities"
+      ? "dependency vulnerabilities and license issues"
       : scope === "project"
         ? "publishing and circular-dependency issues"
         : "issues";
@@ -284,24 +246,14 @@ export function buildAggregateFixPrompt(
   lines.push("");
 
   for (const entry of report.packages) {
-    const vulnerabilities = includeDependencies
-      ? entry.vulnerabilities.filter(
-          (finding) => !isVulnerabilitySuppressed(suppressions, finding),
-        )
-      : [];
-    const licenseIssues = includeDependencies
-      ? entry.licenseIssues.filter(
-          (finding) => !isLicenseSuppressed(suppressions, finding),
-        )
-      : [];
-    const replaceable = includeDependencies ? entry.replaceable : [];
+    const vulnerabilities = includeDependencies ? entry.vulnerabilities : [];
+    const licenseIssues = includeDependencies ? entry.licenseIssues : [];
     const analysis = includeProject ? entry.projectAnalysis : null;
     const hasProjectFindings =
       analysis !== null && analysis.publintCount + analysis.circularCount > 0;
     if (
       vulnerabilities.length === 0 &&
       licenseIssues.length === 0 &&
-      replaceable.length === 0 &&
       !hasProjectFindings
     ) {
       continue;
@@ -324,18 +276,6 @@ export function buildAggregateFixPrompt(
         const reason = finding.explanation ? ` (${finding.explanation})` : "";
         lines.push(
           `  - ${finding.packageName}@${finding.version}: ${finding.license ?? "unknown"}${reason}`,
-        );
-      }
-    }
-    if (replaceable.length > 0) {
-      lines.push(`- Replaceable dependencies (${replaceable.length}):`);
-      for (const suggestion of replaceable.slice(0, 10)) {
-        const alternatives =
-          suggestion.replacements.length > 0
-            ? suggestion.replacements.join(", ")
-            : "see documentation";
-        lines.push(
-          `  - ${suggestion.packageName || "dependency"} -> ${alternatives}`,
         );
       }
     }

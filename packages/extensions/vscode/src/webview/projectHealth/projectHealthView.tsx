@@ -19,16 +19,12 @@ import {
   type ProjectHealthSubTab,
 } from "./projectHealthSubTabBar";
 import { SeverityFilterToggle } from "./severityFilterToggle";
-import { SuppressionProvider } from "./suppressionContext";
 import { reportHasActionableFindings, type ListFilter } from "./helpers";
 import { filterReportBySeverityFloor } from "../../projectHealth/projectHealthReport";
-import { buildSuppressionPredicates } from "../../projectHealth/suppressionMatching";
 import type {
   AdvisorySeverityFloor,
-  MuteTarget,
   ProjectHealthReport,
   ProjectHealthScope,
-  SuppressionEntry,
 } from "../../projectHealth/types";
 
 interface ProjectHealthViewProps {
@@ -42,12 +38,6 @@ interface ProjectHealthViewProps {
   onCancel: () => void;
   /** Drill into a manifest by its `vscode.Uri.toString()`. */
   onOpenPackageJson: (uri: string) => void;
-  /** The persisted mutes for this workspace. */
-  suppressions: SuppressionEntry[];
-  /** Mute a finding, optionally recording why it was accepted. */
-  onMute: (target: MuteTarget, reason?: string) => void;
-  /** Remove an existing mute so the finding is shown again. */
-  onUnmute: (target: MuteTarget) => void;
   /** True when the daily dependency auto-run is enabled. */
   autoRunDaily: boolean;
   /** Enable or disable the daily dependency auto-run. */
@@ -77,9 +67,6 @@ export const ProjectHealthView: FC<ProjectHealthViewProps> = ({
   onRun,
   onCancel,
   onOpenPackageJson,
-  suppressions,
-  onMute,
-  onUnmute,
   autoRunDaily,
   onSetAutoRunDaily,
   advisorySeverityFloor,
@@ -105,12 +92,8 @@ export const ProjectHealthView: FC<ProjectHealthViewProps> = ({
     if (report === null || !isDependencies) {
       return report;
     }
-    return filterReportBySeverityFloor(
-      report,
-      advisorySeverityFloor,
-      buildSuppressionPredicates(suppressions),
-    );
-  }, [report, isDependencies, advisorySeverityFloor, suppressions]);
+    return filterReportBySeverityFloor(report, advisorySeverityFloor);
+  }, [report, isDependencies, advisorySeverityFloor]);
 
   const visibleReport = showAllSeverities ? report : filteredReport;
 
@@ -131,7 +114,7 @@ export const ProjectHealthView: FC<ProjectHealthViewProps> = ({
   const showCallout =
     showList &&
     visibleReport !== null &&
-    reportHasActionableFindings(visibleReport, suppressions, activeTab);
+    reportHasActionableFindings(visibleReport, activeTab);
   const showSeverityToggle =
     showList &&
     isDependencies &&
@@ -139,57 +122,51 @@ export const ProjectHealthView: FC<ProjectHealthViewProps> = ({
     report.totals.vulnerabilities.total > 0;
 
   return (
-    <SuppressionProvider value={{ suppressions, onMute, onUnmute }}>
-      <ProjectAnalysisActionsProvider value={projectAnalysisActions}>
-        <div className="flex flex-col gap-3 p-4">
-          <ProjectHealthSubTabBar
-            activeTab={activeTab}
-            onChange={handleTabChange}
+    <ProjectAnalysisActionsProvider value={projectAnalysisActions}>
+      <div className="flex flex-col gap-3 p-4">
+        <ProjectHealthSubTabBar
+          activeTab={activeTab}
+          onChange={handleTabChange}
+        />
+        {isDependencies ? (
+          <AutoRunToggle enabled={autoRunDaily} onChange={onSetAutoRunDaily} />
+        ) : null}
+        <ProjectHealthHeader
+          scope={activeTab}
+          report={visibleReport}
+          isRunning={isRunning}
+          hasCompletedRun={hasCompletedRun}
+          onRun={() => onRun(activeTab)}
+          onCancel={onCancel}
+          activeFilter={filter}
+          onFilterChange={setFilter}
+        />
+        {showSeverityToggle ? (
+          <SeverityFilterToggle
+            showAll={showAllSeverities}
+            floor={advisorySeverityFloor}
+            hiddenCount={hiddenVulnerabilityCount}
+            onChange={setShowAllSeverities}
           />
-          {isDependencies ? (
-            <AutoRunToggle
-              enabled={autoRunDaily}
-              onChange={onSetAutoRunDaily}
-            />
-          ) : null}
-          <ProjectHealthHeader
+        ) : null}
+        {showCallout && visibleReport ? (
+          <AggregateFixCallout
             scope={activeTab}
             report={visibleReport}
-            isRunning={isRunning}
-            hasCompletedRun={hasCompletedRun}
-            onRun={() => onRun(activeTab)}
-            onCancel={onCancel}
-            activeFilter={filter}
-            onFilterChange={setFilter}
+            postCopyPrompt={projectAnalysisActions.postCopyPrompt}
+            postSetupMcp={projectAnalysisActions.postSetupMcp}
           />
-          {showSeverityToggle ? (
-            <SeverityFilterToggle
-              showAll={showAllSeverities}
-              floor={advisorySeverityFloor}
-              hiddenCount={hiddenVulnerabilityCount}
-              onChange={setShowAllSeverities}
-            />
-          ) : null}
-          {showCallout && visibleReport ? (
-            <AggregateFixCallout
-              scope={activeTab}
-              report={visibleReport}
-              suppressions={suppressions}
-              postCopyPrompt={projectAnalysisActions.postCopyPrompt}
-              postSetupMcp={projectAnalysisActions.postSetupMcp}
-            />
-          ) : null}
-          {showList && visibleReport ? (
-            <PackageHealthList
-              scope={activeTab}
-              packages={visibleReport.packages}
-              filter={filter}
-              onClearFilter={() => setFilter("all")}
-              onOpenPackageJson={onOpenPackageJson}
-            />
-          ) : null}
-        </div>
-      </ProjectAnalysisActionsProvider>
-    </SuppressionProvider>
+        ) : null}
+        {showList && visibleReport ? (
+          <PackageHealthList
+            scope={activeTab}
+            packages={visibleReport.packages}
+            filter={filter}
+            onClearFilter={() => setFilter("all")}
+            onOpenPackageJson={onOpenPackageJson}
+          />
+        ) : null}
+      </div>
+    </ProjectAnalysisActionsProvider>
   );
 };
