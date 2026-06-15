@@ -44,7 +44,7 @@ export const ViewModeToggle: FC<ViewModeToggleProps> = ({ mode, onChange }) => {
         onClick={() => onChange("project")}
       >
         <FolderGit2 size={13} />
-        Project Health
+        All packages
       </button>
     </div>
   );
