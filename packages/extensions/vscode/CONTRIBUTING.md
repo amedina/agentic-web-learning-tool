@@ -35,6 +35,24 @@ code --install-extension /absolute/path/to/dist/vscode-npm-advisor/vscode-npm-ad
 
 Then **fully quit** VSCode (`⌘Q` on macOS — closing the window is not enough) and reopen. The activity bar icon appears once VSCode picks up the new install.
 
+## Deploy a worktree build and reinstall
+
+When you build inside a git worktree, run `pnpm deploy:local <branch-or-worktree-name>` from the repository root to copy that worktree's `dist/` into the main checkout's root `dist/`.
+
+To reinstall the extension in the same step, set `DEPLOY_LOCAL_VSIX_PATH` in `packages/extensions/vscode/.env` (see [`.env.example`](.env.example)) to the absolute path of the built `.vsix`:
+
+```sh
+DEPLOY_LOCAL_VSIX_PATH=/absolute/path/to/dist/vscode-npm-advisor/vscode-npm-advisor-<version>.vsix
+```
+
+With it set, `deploy:local` runs `code --install-extension <path> --force` after copying the build. **Reload the VSCode window** (`⌘⇧P` / `Ctrl+Shift+P`, then `Developer: Reload Window`) to view the changes. Leave the variable unset to skip the install entirely.
+
+Notes:
+
+- On a first install a window reload is not enough. Fully quit and reopen VSCode as in [Install the `.vsix` locally](#install-the-vsix-locally) so the activity bar icon appears.
+- If the exact `.vsix` is missing (e.g. the version bumped), `deploy:local` falls back to the single `.vsix` in that directory.
+- `deploy:local` skips the install gracefully when the `code` CLI is not on `PATH`.
+
 ## Develop with F5
 
 From the repository root, start the esbuild watcher:
