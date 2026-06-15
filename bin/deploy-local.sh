@@ -9,10 +9,11 @@
 #                                #   (worktree folder name or branch name)
 #
 # Optional VS Code reinstall:
-#   Set DEPLOY_LOCAL_VSIX_PATH in <repo-root>/.env to the absolute path of the
-#   .vsix to (re)install after deploying. When set, this script runs
-#   `code --install-extension <path> --force` so the extension picks up the new
-#   build (reload the VS Code window afterwards). See .env.example.
+#   Set DEPLOY_LOCAL_VSIX_PATH in packages/extensions/vscode/.env to the
+#   absolute path of the .vsix to (re)install after deploying. When set, this
+#   script runs `code --install-extension <path> --force` so the extension
+#   picks up the new build (reload the VS Code window afterwards).
+#   See packages/extensions/vscode/.env.example.
 #
 set -euo pipefail
 
@@ -90,10 +91,10 @@ rsync -a "$target/dist/" "$MAIN/dist/"
 echo "deploy:local: $target/dist -> $MAIN/dist"
 
 # Optionally reinstall the packaged extension into VS Code. Opt-in: only runs
-# when DEPLOY_LOCAL_VSIX_PATH is set in <repo-root>/.env. The value is read by
-# matching the key line rather than sourcing .env, so we never execute its
-# contents.
-env_file="$MAIN/.env"
+# when DEPLOY_LOCAL_VSIX_PATH is set in packages/extensions/vscode/.env. The
+# value is read by matching the key line rather than sourcing .env, so we never
+# execute its contents.
+env_file="$MAIN/packages/extensions/vscode/.env"
 vsix_path=""
 if [ -f "$env_file" ]; then
   vsix_line="$(grep -E '^[[:space:]]*DEPLOY_LOCAL_VSIX_PATH[[:space:]]*=' "$env_file" | tail -n1 || true)"
