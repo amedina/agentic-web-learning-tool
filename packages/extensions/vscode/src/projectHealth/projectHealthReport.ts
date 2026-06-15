@@ -196,7 +196,10 @@ export function replacementsFromFindings(
  * advisory id for vulnerabilities; package + version for licenses) so a
  * single vulnerable dependency shared by many manifests counts once in
  * the header. Suppressed findings are excluded from the active tallies
- * and counted under `suppressedCount`.
+ * and counted under `suppressedCount`. `vulnerablePackageCount` and
+ * `licenseIssuePackageCount` instead count the number of affected
+ * package.json files (one per manifest, not deduped findings), mirroring
+ * the panel chips so the daily notification and the panel agree.
  */
 export function computeTotals(
   packages: PackageHealthEntry[],
@@ -209,9 +212,26 @@ export function computeTotals(
   let licenseIssueCount = 0;
   let replaceableCount = 0;
   let suppressedCount = 0;
+  let vulnerablePackageCount = 0;
+  let licenseIssuePackageCount = 0;
 
   for (const entry of packages) {
     replaceableCount += entry.replaceable.length;
+    if (
+      entry.vulnerabilities.some(
+        (vulnerability) =>
+          !(predicates.isVulnerabilitySuppressed?.(vulnerability) ?? false),
+      )
+    ) {
+      vulnerablePackageCount += 1;
+    }
+    if (
+      entry.licenseIssues.some(
+        (license) => !(predicates.isLicenseSuppressed?.(license) ?? false),
+      )
+    ) {
+      licenseIssuePackageCount += 1;
+    }
     for (const vulnerability of entry.vulnerabilities) {
       const key = `${vulnerability.packageName}@${vulnerability.version}::${vulnerability.id}`;
       if (seenVulns.has(key)) {
@@ -244,7 +264,9 @@ export function computeTotals(
     packageCount: packages.length,
     uniqueDependencyCount,
     vulnerabilities,
+    vulnerablePackageCount,
     licenseIssueCount,
+    licenseIssuePackageCount,
     replaceableCount,
     suppressedCount,
   };
@@ -272,7 +294,9 @@ export function createInitialReport(
       packageCount: 0,
       uniqueDependencyCount: 0,
       vulnerabilities: emptyVulnerabilityTotals(),
+      vulnerablePackageCount: 0,
       licenseIssueCount: 0,
+      licenseIssuePackageCount: 0,
       replaceableCount: 0,
       suppressedCount: 0,
     },

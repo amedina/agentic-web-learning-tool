@@ -148,7 +148,19 @@ export interface ProjectHealthTotals {
   /** Distinct (name, version) pairs across every manifest. */
   uniqueDependencyCount: number;
   vulnerabilities: VulnerabilityTotals;
+  /**
+   * Count of package.json files with at least one active (non-suppressed)
+   * vulnerability. Matches the panel's vulnerability chip, which counts
+   * affected manifests rather than distinct advisories.
+   */
+  vulnerablePackageCount: number;
   licenseIssueCount: number;
+  /**
+   * Count of package.json files with at least one active (non-suppressed)
+   * license issue. Matches the panel's license chip, which counts affected
+   * manifests rather than distinct license findings.
+   */
+  licenseIssuePackageCount: number;
   /** Total e18e replacement opportunities across every manifest. Informational. */
   replaceableCount: number;
   /** Findings hidden by the suppression system (counted, not listed). */
