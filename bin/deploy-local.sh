@@ -125,7 +125,21 @@ if [ -n "$vsix_path" ]; then
     echo "deploy:local: 'code' CLI not on PATH. Skipping extension install. (In VS Code: Cmd+Shift+P > 'Shell Command: Install code command in PATH')"
   else
     echo "deploy:local: installing $newest_vsix"
-    code --install-extension "$newest_vsix" --force
+    # VS Code's own `code --install-extension` CLI prints a Node DEP0169
+    # url.parse() deprecation warning on stderr. Capture stderr, drop just those
+    # lines, and re-emit the rest, so the output stays clean without hiding real
+    # errors or losing the exit status.
+    vsix_err="$(mktemp)"
+    set +e
+    code --install-extension "$newest_vsix" --force 2>"$vsix_err"
+    code_status=$?
+    set -e
+    grep -vE 'DEP0169|DeprecationWarning|trace-deprecation' "$vsix_err" >&2 || true
+    rm -f "$vsix_err"
+    if [ "$code_status" -ne 0 ]; then
+      echo "deploy:local: 'code --install-extension' failed (exit $code_status)." >&2
+      exit "$code_status"
+    fi
     echo "deploy:local: installed. Reload VS Code (Cmd+Shift+P > 'Developer: Reload Window') to view changes."
   fi
 fi
