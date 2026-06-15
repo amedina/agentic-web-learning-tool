@@ -12,14 +12,12 @@ import type { PostCopyPrompt, PostSetupMcp } from "../projectAnalysis/types";
 import type {
   ProjectHealthReport,
   ProjectHealthScope,
-  SuppressionEntry,
 } from "../../projectHealth/types";
 
 interface AggregateFixCalloutProps {
   /** Which sub-tab's findings the prompt covers. */
   scope: ProjectHealthScope;
   report: ProjectHealthReport;
-  suppressions: SuppressionEntry[];
   postCopyPrompt: PostCopyPrompt;
   postSetupMcp: PostSetupMcp;
 }
@@ -55,13 +53,12 @@ const SCOPE_COPY: Record<
 /**
  * A collapsible "fix with AI" callout for one sub-tab. Collapsed by
  * default to save space; expanding reveals a short explanation plus
- * "Copy prompt" (which assembles that sub-tab's non-suppressed findings
- * into one prompt) and "Set up MCP".
+ * "Copy prompt" (which assembles that sub-tab's findings into one prompt)
+ * and "Set up MCP".
  */
 export const AggregateFixCallout: FC<AggregateFixCalloutProps> = ({
   scope,
   report,
-  suppressions,
   postCopyPrompt,
   postSetupMcp,
 }) => {
@@ -69,11 +66,8 @@ export const AggregateFixCallout: FC<AggregateFixCalloutProps> = ({
   const copy = SCOPE_COPY[scope];
 
   const handleCopy = useCallback(() => {
-    postCopyPrompt(
-      buildAggregateFixPrompt(report, suppressions, scope),
-      copy.toast,
-    );
-  }, [report, suppressions, scope, copy.toast, postCopyPrompt]);
+    postCopyPrompt(buildAggregateFixPrompt(report, scope), copy.toast);
+  }, [report, scope, copy.toast, postCopyPrompt]);
 
   return (
     <div className="rounded border border-violet-200 dark:border-violet-900 bg-violet-50/60 dark:bg-violet-950/40 text-xs text-slate-700 dark:text-slate-200">
