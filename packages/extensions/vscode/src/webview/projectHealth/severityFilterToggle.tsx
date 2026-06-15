@@ -55,11 +55,13 @@ export const SeverityFilterToggle: FC<SeverityFilterToggleProps> = ({
         size={14}
         className="shrink-0 text-slate-500 dark:text-slate-400"
       />
-      <span className="font-medium text-slate-800 dark:text-slate-100">
-        Show all severity levels
-      </span>
-      <span className="ml-auto text-[11px] text-slate-500 dark:text-slate-400">
-        {status}
+      <span className="flex flex-col">
+        <span className="font-medium text-slate-800 dark:text-slate-100">
+          Show all severity levels
+        </span>
+        <span className="text-[11px] text-slate-500 dark:text-slate-400">
+          {status}
+        </span>
       </span>
     </label>
   );
