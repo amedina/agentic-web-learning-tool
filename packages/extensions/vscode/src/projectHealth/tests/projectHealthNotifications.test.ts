@@ -18,7 +18,9 @@ import type { ProjectHealthReport, VulnerabilityTotals } from "../types";
 /** Builds a completed report with the supplied totals. */
 function report(totals: {
   vulnerabilities?: Partial<VulnerabilityTotals>;
+  vulnerablePackageCount?: number;
   licenseIssueCount?: number;
+  licenseIssuePackageCount?: number;
   packageCount?: number;
 }): ProjectHealthReport {
   const base = createInitialReport("ws", "ws", 1000);
@@ -37,7 +39,9 @@ function report(totals: {
         total: 0,
         ...totals.vulnerabilities,
       },
+      vulnerablePackageCount: totals.vulnerablePackageCount ?? 0,
       licenseIssueCount: totals.licenseIssueCount ?? 0,
+      licenseIssuePackageCount: totals.licenseIssuePackageCount ?? 0,
       replaceableCount: 0,
     },
   };
@@ -51,21 +55,41 @@ describe("formatReportSummary", () => {
     expect(summary.message).toContain("3 package(s)");
   });
 
-  it("summarizes vulnerabilities with a severity note", () => {
+  it("counts affected packages, not findings, with a finding-level severity note", () => {
+    // Two distinct advisories (2 critical, 1 high totals across the run)
+    // but only two affected package.json files: the headline is the
+    // affected-package count, the severity note stays finding-level.
     const summary = formatReportSummary(
       report({
-        vulnerabilities: { critical: 2, high: 1, total: 4 },
+        vulnerabilities: { critical: 2, high: 1, total: 3 },
+        vulnerablePackageCount: 2,
       }),
     );
     expect(summary.hasIssues).toBe(true);
-    expect(summary.message).toContain("4 vulnerabilities");
+    expect(summary.message).toContain("2 vulnerabilities");
+    expect(summary.message).not.toContain("3 vulnerabilities");
     expect(summary.message).toContain("2 critical, 1 high");
   });
 
-  it("summarizes license issues", () => {
-    const summary = formatReportSummary(report({ licenseIssueCount: 1 }));
+  it("uses the singular form for a single affected package", () => {
+    const summary = formatReportSummary(
+      report({
+        vulnerabilities: { critical: 1, high: 1, total: 2 },
+        vulnerablePackageCount: 1,
+      }),
+    );
+    expect(summary.message).toContain("1 vulnerability (1 critical, 1 high)");
+  });
+
+  it("summarizes license issues by affected package", () => {
+    const summary = formatReportSummary(
+      report({
+        licenseIssueCount: 3,
+        licenseIssuePackageCount: 2,
+      }),
+    );
     expect(summary.hasIssues).toBe(true);
-    expect(summary.message).toContain("1 license issue");
+    expect(summary.message).toContain("2 license issues");
   });
 });
 
@@ -85,7 +109,10 @@ describe("notifyReportSummary", () => {
       .mockResolvedValue(undefined);
 
     await notifyReportSummary(
-      report({ vulnerabilities: { critical: 1, total: 1 } }),
+      report({
+        vulnerabilities: { critical: 1, total: 1 },
+        vulnerablePackageCount: 1,
+      }),
     );
 
     expect(executeCommand).toHaveBeenCalledWith(
@@ -115,7 +142,10 @@ describe("notifyReportSummary", () => {
       .mockResolvedValue(undefined);
 
     await notifyReportSummary(
-      report({ vulnerabilities: { critical: 1, total: 1 } }),
+      report({
+        vulnerabilities: { critical: 1, total: 1 },
+        vulnerablePackageCount: 1,
+      }),
     );
 
     expect(executeCommand).not.toHaveBeenCalled();

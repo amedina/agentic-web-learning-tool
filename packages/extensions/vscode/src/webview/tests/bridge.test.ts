@@ -137,12 +137,14 @@ function makeFakeProjectAnalysisCache(): never {
  * disposable; the run/cancel/getCached paths are no-ops unless a test
  * exercises them.
  */
-function makeFakeProjectHealthController(): never {
+function makeFakeProjectHealthController(
+  options: { cached?: unknown } = {},
+): never {
   return {
     onDidUpdate: vi.fn().mockReturnValue({ dispose: () => undefined }),
     run: vi.fn().mockResolvedValue(undefined),
     cancel: vi.fn(),
-    getCached: vi.fn().mockReturnValue(null),
+    getCached: vi.fn().mockReturnValue(options.cached ?? null),
     isRunDue: vi.fn().mockReturnValue(true),
     isRunning: false,
     workspaceKey: vi.fn().mockReturnValue("ws"),
@@ -653,6 +655,43 @@ describe("WebviewBridge", () => {
     expect(remountedWebview.posted).toEqual([
       { type: "focusPackage", packageName: "vue" },
     ]);
+  });
+
+  it("pushes the cached Project Health report as a projectHealth message", () => {
+    const cachedReport = { phase: "complete" };
+    const bridge = new WebviewBridge({
+      cache: { get: vi.fn() } as unknown as never,
+      settingsProvider: () => ({ targetLicense: "MIT" }) as never,
+      githubAuth: makeFakeAuth(),
+      projectAnalysisCollection: makeFakeDiagnosticCollection(),
+      projectAnalysisCache: makeFakeProjectAnalysisCache(),
+      projectHealthController: makeFakeProjectHealthController({
+        cached: cachedReport,
+      }),
+    });
+    const fakeWebview = new FakeWebview();
+    bridge.attach(fakeWebview as unknown as vscode.Webview);
+    fakeWebview.dispatch({ type: "ready" });
+    bridge.pushCachedProjectHealth();
+    expect(fakeWebview.posted).toEqual([
+      { type: "projectHealth", report: cachedReport },
+    ]);
+  });
+
+  it("pushes nothing when no Project Health report is cached", () => {
+    const bridge = new WebviewBridge({
+      cache: { get: vi.fn() } as unknown as never,
+      settingsProvider: () => ({ targetLicense: "MIT" }) as never,
+      githubAuth: makeFakeAuth(),
+      projectAnalysisCollection: makeFakeDiagnosticCollection(),
+      projectAnalysisCache: makeFakeProjectAnalysisCache(),
+      projectHealthController: makeFakeProjectHealthController(),
+    });
+    const fakeWebview = new FakeWebview();
+    bridge.attach(fakeWebview as unknown as vscode.Webview);
+    fakeWebview.dispatch({ type: "ready" });
+    bridge.pushCachedProjectHealth();
+    expect(fakeWebview.posted).toEqual([]);
   });
 });
 

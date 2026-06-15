@@ -248,6 +248,45 @@ describe("computeTotals", () => {
     expect(totals.vulnerabilities.total).toBe(1);
     expect(totals.packageCount).toBe(2);
     expect(totals.uniqueDependencyCount).toBe(1);
+    // The finding dedups to one, but both manifests are affected, so the
+    // package count (what the panel chip and notification show) is two.
+    expect(totals.vulnerablePackageCount).toBe(2);
+  });
+
+  it("counts affected packages, not findings, for the package tallies", () => {
+    const critical = {
+      packageName: "lodash",
+      version: "4.17.20",
+      severity: "critical" as const,
+      summary: "x",
+      url: "u",
+      id: "GHSA-1",
+    };
+    const high = {
+      packageName: "lodash",
+      version: "4.17.20",
+      severity: "high" as const,
+      summary: "y",
+      url: "u2",
+      id: "GHSA-2",
+    };
+    const license = {
+      packageName: "gpl-pkg",
+      version: "1.0.0",
+      license: "GPL-3.0",
+      explanation: null,
+    };
+    // One manifest carries two distinct advisories and a license issue.
+    const packages = [
+      entry({ vulnerabilities: [critical, high], licenseIssues: [license] }),
+    ];
+
+    const totals = computeTotals(packages, 1);
+
+    expect(totals.vulnerabilities.total).toBe(2);
+    expect(totals.vulnerablePackageCount).toBe(1);
+    expect(totals.licenseIssueCount).toBe(1);
+    expect(totals.licenseIssuePackageCount).toBe(1);
   });
 
   it("counts vulnerabilities and license issues across packages", () => {
@@ -274,6 +313,8 @@ describe("computeTotals", () => {
     expect(totals.vulnerabilities.total).toBe(1);
     expect(totals.vulnerabilities.high).toBe(1);
     expect(totals.licenseIssueCount).toBe(1);
+    expect(totals.vulnerablePackageCount).toBe(1);
+    expect(totals.licenseIssuePackageCount).toBe(1);
   });
 });
 

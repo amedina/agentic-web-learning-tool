@@ -24,13 +24,23 @@ export interface NotificationSummary {
 
 /**
  * Formats a completed Project Health report into a one-line summary for
- * a VSCode notification. Pure and unit-tested.
+ * a VSCode notification. The headline counts are the number of affected
+ * package.json files (`vulnerablePackageCount` / `licenseIssuePackageCount`),
+ * matching the panel's vulnerability / license chips so the notification
+ * and the panel agree. The parenthetical severity note stays finding-level
+ * (distinct critical / high advisories), mirroring the panel's severity
+ * breakdown. Pure and unit-tested.
  */
 export function formatReportSummary(
   report: ProjectHealthReport,
 ): NotificationSummary {
-  const { vulnerabilities, licenseIssueCount, packageCount } = report.totals;
-  const hasIssues = vulnerabilities.total > 0 || licenseIssueCount > 0;
+  const {
+    vulnerabilities,
+    vulnerablePackageCount,
+    licenseIssuePackageCount,
+    packageCount,
+  } = report.totals;
+  const hasIssues = vulnerablePackageCount > 0 || licenseIssuePackageCount > 0;
 
   if (!hasIssues) {
     return {
@@ -40,18 +50,18 @@ export function formatReportSummary(
   }
 
   const parts: string[] = [];
-  if (vulnerabilities.total > 0) {
+  if (vulnerablePackageCount > 0) {
     const severityNote =
       vulnerabilities.critical > 0 || vulnerabilities.high > 0
         ? ` (${vulnerabilities.critical} critical, ${vulnerabilities.high} high)`
         : "";
     parts.push(
-      `${vulnerabilities.total} vulnerabilit${vulnerabilities.total === 1 ? "y" : "ies"}${severityNote}`,
+      `${vulnerablePackageCount} vulnerabilit${vulnerablePackageCount === 1 ? "y" : "ies"}${severityNote}`,
     );
   }
-  if (licenseIssueCount > 0) {
+  if (licenseIssuePackageCount > 0) {
     parts.push(
-      `${licenseIssueCount} license issue${licenseIssueCount === 1 ? "" : "s"}`,
+      `${licenseIssuePackageCount} license issue${licenseIssuePackageCount === 1 ? "" : "s"}`,
     );
   }
   return {
