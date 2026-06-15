@@ -18,13 +18,10 @@ import {
   ProjectHealthSubTabBar,
   type ProjectHealthSubTab,
 } from "./projectHealthSubTabBar";
-import { SuppressionProvider } from "./suppressionContext";
 import { reportHasActionableFindings, type ListFilter } from "./helpers";
 import type {
-  MuteTarget,
   ProjectHealthReport,
   ProjectHealthScope,
-  SuppressionEntry,
 } from "../../projectHealth/types";
 
 interface ProjectHealthViewProps {
@@ -38,12 +35,6 @@ interface ProjectHealthViewProps {
   onCancel: () => void;
   /** Drill into a manifest by its `vscode.Uri.toString()`. */
   onOpenPackageJson: (uri: string) => void;
-  /** The persisted mutes for this workspace. */
-  suppressions: SuppressionEntry[];
-  /** Mute a finding, optionally recording why it was accepted. */
-  onMute: (target: MuteTarget, reason?: string) => void;
-  /** Remove an existing mute so the finding is shown again. */
-  onUnmute: (target: MuteTarget) => void;
   /** True when the daily dependency auto-run is enabled. */
   autoRunDaily: boolean;
   /** Enable or disable the daily dependency auto-run. */
@@ -68,9 +59,6 @@ export const ProjectHealthView: FC<ProjectHealthViewProps> = ({
   onRun,
   onCancel,
   onOpenPackageJson,
-  suppressions,
-  onMute,
-  onUnmute,
   autoRunDaily,
   onSetAutoRunDaily,
   projectAnalysisActions,
@@ -95,52 +83,46 @@ export const ProjectHealthView: FC<ProjectHealthViewProps> = ({
   const showCallout =
     showList &&
     report !== null &&
-    reportHasActionableFindings(report, suppressions, activeTab);
+    reportHasActionableFindings(report, activeTab);
 
   return (
-    <SuppressionProvider value={{ suppressions, onMute, onUnmute }}>
-      <ProjectAnalysisActionsProvider value={projectAnalysisActions}>
-        <div className="flex flex-col gap-3 p-4">
-          <ProjectHealthSubTabBar
-            activeTab={activeTab}
-            onChange={handleTabChange}
-          />
-          {isDependencies ? (
-            <AutoRunToggle
-              enabled={autoRunDaily}
-              onChange={onSetAutoRunDaily}
-            />
-          ) : null}
-          <ProjectHealthHeader
+    <ProjectAnalysisActionsProvider value={projectAnalysisActions}>
+      <div className="flex flex-col gap-3 p-4">
+        <ProjectHealthSubTabBar
+          activeTab={activeTab}
+          onChange={handleTabChange}
+        />
+        {isDependencies ? (
+          <AutoRunToggle enabled={autoRunDaily} onChange={onSetAutoRunDaily} />
+        ) : null}
+        <ProjectHealthHeader
+          scope={activeTab}
+          report={report}
+          isRunning={isRunning}
+          hasCompletedRun={hasCompletedRun}
+          onRun={() => onRun(activeTab)}
+          onCancel={onCancel}
+          activeFilter={filter}
+          onFilterChange={setFilter}
+        />
+        {showCallout && report ? (
+          <AggregateFixCallout
             scope={activeTab}
             report={report}
-            isRunning={isRunning}
-            hasCompletedRun={hasCompletedRun}
-            onRun={() => onRun(activeTab)}
-            onCancel={onCancel}
-            activeFilter={filter}
-            onFilterChange={setFilter}
+            postCopyPrompt={projectAnalysisActions.postCopyPrompt}
+            postSetupMcp={projectAnalysisActions.postSetupMcp}
           />
-          {showCallout && report ? (
-            <AggregateFixCallout
-              scope={activeTab}
-              report={report}
-              suppressions={suppressions}
-              postCopyPrompt={projectAnalysisActions.postCopyPrompt}
-              postSetupMcp={projectAnalysisActions.postSetupMcp}
-            />
-          ) : null}
-          {showList ? (
-            <PackageHealthList
-              scope={activeTab}
-              packages={report.packages}
-              filter={filter}
-              onClearFilter={() => setFilter("all")}
-              onOpenPackageJson={onOpenPackageJson}
-            />
-          ) : null}
-        </div>
-      </ProjectAnalysisActionsProvider>
-    </SuppressionProvider>
+        ) : null}
+        {showList ? (
+          <PackageHealthList
+            scope={activeTab}
+            packages={report.packages}
+            filter={filter}
+            onClearFilter={() => setFilter("all")}
+            onOpenPackageJson={onOpenPackageJson}
+          />
+        ) : null}
+      </div>
+    </ProjectAnalysisActionsProvider>
   );
 };

@@ -39,9 +39,8 @@ export const PROJECT_HEALTH_SCHEMA_VERSION = 1;
 
 /**
  * A single vulnerability affecting one (package, version). `id` is the
- * stable advisory identifier (GHSA, falling back to a CVE or OSV id) and
- * is what the suppression system keys on, so muting one advisory never
- * hides a different one for the same package.
+ * stable advisory identifier (GHSA, falling back to a CVE or OSV id),
+ * used to dedupe the same advisory across manifests in the totals.
  */
 export interface VulnerabilityFinding {
   packageName: string;
@@ -151,8 +150,6 @@ export interface ProjectHealthTotals {
   licenseIssueCount: number;
   /** Total e18e replacement opportunities across every manifest. Informational. */
   replaceableCount: number;
-  /** Findings hidden by the suppression system (counted, not listed). */
-  suppressedCount: number;
 }
 
 /** Progress for the active run, surfaced as a determinate bar in the UI. */
@@ -192,30 +189,4 @@ export interface ProjectHealthReport {
 /** True when the phase represents a finished run (no further updates expected). */
 export function isTerminalPhase(phase: HealthRunPhase): boolean {
   return phase === "complete" || phase === "error" || phase === "cancelled";
-}
-
-/** The kinds of finding that can be muted. */
-export type SuppressionKind = "vuln" | "license";
-
-/**
- * Identifies what to mute. For a vulnerability it is the (package,
- * advisory id) pair, so muting one advisory never hides a different one
- * for the same package. For a license it is just the package.
- */
-export interface MuteTarget {
-  kind: SuppressionKind;
-  packageName: string;
-  /** Advisory id for `vuln` targets; omitted for `license`. */
-  id?: string;
-}
-
-/**
- * A persisted mute. Stored per workspace so a suppression accepted in
- * one project does not silence the same issue in another.
- */
-export interface SuppressionEntry extends MuteTarget {
-  /** Optional free-text reason the user gave when muting. */
-  reason?: string;
-  /** `Date.now()` when the mute was created. */
-  mutedAt: number;
 }

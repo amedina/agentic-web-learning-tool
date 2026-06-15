@@ -17,29 +17,25 @@ const TURN_OFF_ACTION_LABEL = "Turn off daily checks";
 
 /** A formatted notification summary for a completed run. */
 export interface NotificationSummary {
-  /** True when the run surfaced any active (non-suppressed) issue. */
+  /** True when the run surfaced any issue. */
   hasIssues: boolean;
   message: string;
 }
 
 /**
  * Formats a completed Project Health report into a one-line summary for
- * a VSCode notification. Counts reflect active (non-suppressed) issues;
- * suppressed findings are noted parenthetically. Pure and unit-tested.
+ * a VSCode notification. Pure and unit-tested.
  */
 export function formatReportSummary(
   report: ProjectHealthReport,
 ): NotificationSummary {
-  const { vulnerabilities, licenseIssueCount, suppressedCount, packageCount } =
-    report.totals;
+  const { vulnerabilities, licenseIssueCount, packageCount } = report.totals;
   const hasIssues = vulnerabilities.total > 0 || licenseIssueCount > 0;
 
   if (!hasIssues) {
-    const suffix =
-      suppressedCount > 0 ? ` (${suppressedCount} suppressed)` : "";
     return {
       hasIssues: false,
-      message: `NPM Advisor: Project Health clean. No vulnerabilities or license issues across ${packageCount} package(s).${suffix}`,
+      message: `NPM Advisor: Project Health clean. No vulnerabilities or license issues across ${packageCount} package(s).`,
     };
   }
 
@@ -58,11 +54,9 @@ export function formatReportSummary(
       `${licenseIssueCount} license issue${licenseIssueCount === 1 ? "" : "s"}`,
     );
   }
-  const suppressedNote =
-    suppressedCount > 0 ? ` (${suppressedCount} suppressed)` : "";
   return {
     hasIssues: true,
-    message: `NPM Advisor: Project Health found ${parts.join(" and ")} across ${packageCount} package(s).${suppressedNote}`,
+    message: `NPM Advisor: Project Health found ${parts.join(" and ")} across ${packageCount} package(s).`,
   };
 }
 

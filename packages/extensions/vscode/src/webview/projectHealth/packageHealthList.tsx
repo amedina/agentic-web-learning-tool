@@ -12,7 +12,6 @@ import {
   packageIssueCount,
   type ListFilter,
 } from "./helpers";
-import { useSuppression } from "./suppressionContext";
 import type { PackageHealthEntry } from "../../projectHealth/types";
 
 interface PackageHealthListProps {
@@ -37,8 +36,6 @@ export const PackageHealthList: FC<PackageHealthListProps> = ({
   onClearFilter,
   onOpenPackageJson,
 }) => {
-  const { suppressions } = useSuppression();
-
   const sorted = useMemo(() => {
     return [...packages].sort((first, second) => {
       const issueDelta = packageIssueCount(second) - packageIssueCount(first);
@@ -50,9 +47,8 @@ export const PackageHealthList: FC<PackageHealthListProps> = ({
   }, [packages]);
 
   const visible = useMemo(
-    () =>
-      sorted.filter((entry) => entryMatchesFilter(entry, filter, suppressions)),
-    [sorted, filter, suppressions],
+    () => sorted.filter((entry) => entryMatchesFilter(entry, filter)),
+    [sorted, filter],
   );
 
   if (packages.length === 0) {
