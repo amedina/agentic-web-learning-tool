@@ -149,9 +149,6 @@ function makeFakeProjectHealthController(
     isRunning: false,
     workspaceKey: vi.fn().mockReturnValue("ws"),
     workspaceName: vi.fn().mockReturnValue(null),
-    suppressions: vi.fn().mockReturnValue([]),
-    mute: vi.fn().mockResolvedValue(undefined),
-    unmute: vi.fn().mockResolvedValue(undefined),
     dispose: vi.fn(),
   } as unknown as never;
 }

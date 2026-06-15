@@ -1,31 +1,32 @@
-# NPM Advisor — MCP server
+# NPM Advisor MCP server
 
 An MCP (Model Context Protocol) server that exposes npm package intelligence to MCP-aware AI clients like **Claude Code**, **Claude Desktop**, **Cursor**, **Continue**, and any future MCP-aware editor or agent.
 
-It's the same analysis pipeline that powers the [NPM Advisor VSCode extension](../../extensions/vscode) and the [NPM Advisor Chrome extension](../../extensions/npm-advisor) — Fitness scoring, GitHub Security Advisories, license compatibility against your project's target license, bundle size, last-commit / stars, and replacement recommendations from [e18e](https://github.com/e18e/community).
+It's the same analysis pipeline that powers the [NPM Advisor VSCode extension](https://github.com/amedina/agentic-web-labs/tree/develop/packages/extensions/vscode) and the [NPM Advisor Chrome extension](https://github.com/amedina/agentic-web-labs/tree/develop/packages/extensions/npm-advisor): Fitness scoring, GitHub Security Advisories, license compatibility against your project's target license, bundle size, last-commit / stars, and replacement recommendations from [e18e](https://github.com/e18e/community).
 
 ## What it gives your AI
 
-Four tools:
+Five tools:
 
-| Tool | What it returns | When the model calls it |
-| --- | --- | --- |
-| `get_package_stats` | Full `PackageStats` for one package: Fitness score, security advisories, license + compatibility verdict, bundle size, GitHub stars + last commit, replacement recommendations. | "Tell me about lodash." "Is express maintained?" "Compare lodash and underscore." |
-| `list_known_projects` | Every VSCode workspace the npm-advisor extension has tracked, with open/closed status and last-opened time. | "Which project should I look at?" "What do I have open in VSCode?" |
-| `list_workspace_dependencies` | Every `package.json` in the workspace with its `name` and dep counts. No network. | "What does this project look like?" "Where do my dependencies live?" |
-| `analyze_package_json` | Per-dep stats for one `package.json` plus a roll-up summary (vulnerable / license-incompatible / replaceable counts). | "Audit this project." "Which dependencies should I worry about?" |
+| Tool                          | What it returns                                                                                                                                                                                                | When the model calls it                                                              |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `get_package_stats`           | Full `PackageStats` for one package: Fitness score, security advisories, license + compatibility verdict, bundle size, GitHub stars + last commit, replacement recommendations.                                | "Tell me about lodash." "Is express maintained?" "Compare lodash and underscore."    |
+| `list_known_projects`         | Every VSCode workspace the npm-advisor extension has tracked, each with its absolute path, parsed `name`, open/closed status, and last-opened time. Call this first to resolve "my project" or "this project". | "Which project should I look at?" "What do I have open in VSCode?"                   |
+| `list_workspace_dependencies` | Every `package.json` in the workspace with its `name` and dep counts. No network calls; auto-ascends to the surrounding monorepo root.                                                                         | "What does this project look like?" "Where do my dependencies live?"                 |
+| `analyze_package_json`        | Per-dep stats for one `package.json` plus a roll-up summary (vulnerable / license-incompatible / replaceable counts).                                                                                          | "Audit this project." "Which dependencies should I worry about?"                     |
+| `analyze_project`             | Project-level [publint](https://publint.dev) publish-readiness findings plus e18e replacement opportunities for the project's top-level deps, returned as one tagged findings list. Read-only.                 | "Is my package.json ready to publish?" "Which of my deps have lighter alternatives?" |
 
-Every tool returns plain JSON in the MCP `text` content slot so any AI client can parse it deterministically. The `analyze_package_json` and `get_package_stats` tools include rendering hints in their descriptions that instruct Claude to present results as a rich visual artifact (metric cards, score bar chart, tabbed sections) when the client supports it.
+Every tool returns plain JSON in the MCP `text` content slot so any AI client can parse it deterministically. The `get_package_stats`, `analyze_package_json`, and `analyze_project` tools include rendering hints in their descriptions that instruct Claude to present results as a rich visual artifact (metric cards, score bar chart, tabbed sections) when the client supports it.
 
 ## Quick install
 
-The server runs as a Node binary. The recommended invocation is via `npx` so you don't have to manage a global install or path:
+The server runs as a Node binary. The recommended invocation is via `npx` so you don't have to manage a global install or a path:
 
 ```sh
 npx -y @agentic-web-labs/npm-advisor-mcp
 ```
 
-It speaks MCP over stdio by default. Configure your AI client to spawn it as below — or jump to [HTTP transport](#http-transport-host-it-on-localhost-or-a-remote-server) to run it as a long-lived local or remote server instead.
+It speaks MCP over stdio by default. Configure your AI client to spawn it as shown below, or jump to [HTTP transport](#http-transport-host-it-on-localhost-or-a-remote-server) to run it as a long-lived local or remote server instead.
 
 ### Claude Code
 
@@ -35,7 +36,7 @@ Add the server via the Claude Code CLI from your project root:
 claude mcp add npm-advisor -- npx -y @agentic-web-labs/npm-advisor-mcp
 ```
 
-This writes an entry to `~/.claude.json` (or `.mcp.json` if you want it scoped to the project). Restart any open Claude Code session and ask: *"List my dependencies and tell me which ones have security issues."*
+This writes an entry to `~/.claude.json` (or `.mcp.json` if you want it scoped to the project). Restart any open Claude Code session and ask: _"List my dependencies and tell me which ones have security issues."_
 
 ### Claude Desktop
 
@@ -52,11 +53,11 @@ Edit `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) o
 }
 ```
 
-Restart Claude Desktop. The four tools appear under the connector icon in the chat composer.
+Restart Claude Desktop. The tools appear under the connector icon in the chat composer.
 
 ### Cursor
 
-In Cursor's settings, open *MCP* → *Add new global MCP server* and paste:
+In Cursor's settings, open _MCP_ → _Add new global MCP server_ and paste:
 
 ```json
 {
@@ -110,7 +111,7 @@ In `~/.continue/config.json` (or the project-scoped `.continue/config.json`):
 
 ## HTTP transport (host it on localhost or a remote server)
 
-By default the binary speaks MCP over stdio so AI clients can spawn it as a subprocess. Pass `--http` to instead start a Streamable HTTP server — useful when you want one running instance shared between several clients on your machine, or when you want to host npm-advisor on a remote server and connect to it over the network.
+By default the binary speaks MCP over stdio so AI clients can spawn it as a subprocess. Pass `--http` to instead start a Streamable HTTP server. This is useful when you want one running instance shared between several clients on your machine, or when you want to host npm-advisor on a remote server and connect to it over the network.
 
 ### Run locally
 
@@ -118,7 +119,7 @@ By default the binary speaks MCP over stdio so AI clients can spawn it as a subp
 npx -y @agentic-web-labs/npm-advisor-mcp --http
 ```
 
-This binds to `127.0.0.1:3845` (loopback only — not reachable from other machines) and serves MCP at `http://127.0.0.1:3845/mcp`.
+This binds to `127.0.0.1:3845` (loopback only, not reachable from other machines) and serves MCP at `http://127.0.0.1:3845/mcp`.
 
 Override the port and host with flags:
 
@@ -154,7 +155,7 @@ When `MCP_HTTP_TOKEN` is set, every request must include:
 Authorization: Bearer your-long-random-token
 ```
 
-The server prints a warning to stderr if you bind to a non-loopback address without a token. Public deployments should also sit behind a reverse proxy that terminates TLS (`https://`) — the server itself only speaks plain HTTP.
+The server prints a warning to stderr if you bind to a non-loopback address without a token. Public deployments should also sit behind a reverse proxy that terminates TLS (`https://`); the server itself only speaks plain HTTP.
 
 A typical Claude Desktop entry pointing at a hosted instance:
 
@@ -174,24 +175,24 @@ A typical Claude Desktop entry pointing at a hosted instance:
 
 ### CLI flags
 
-| Flag | Default | Description |
-| --- | --- | --- |
-| `--http` | (off — stdio mode) | Switch to the Streamable HTTP transport. |
-| `--port <n>` | `3845` | TCP port to listen on. |
-| `--host <addr>` | `127.0.0.1` | Bind address. Use `0.0.0.0` to expose on all interfaces. |
-| `--transport stdio\|http` | `stdio` | Long form of `--http` / `--stdio`. |
+| Flag                      | Default           | Description                                              |
+| ------------------------- | ----------------- | -------------------------------------------------------- |
+| `--http`                  | (off, stdio mode) | Switch to the Streamable HTTP transport.                 |
+| `--port <n>`              | `3845`            | TCP port to listen on.                                   |
+| `--host <addr>`           | `127.0.0.1`       | Bind address. Use `0.0.0.0` to expose on all interfaces. |
+| `--transport stdio\|http` | `stdio`           | Long form of `--http` / `--stdio`.                       |
 
 `--port`, `--host`, and `--transport` also accept the `--name=value` form.
 
 ## GitHub authentication (optional but recommended)
 
-Without a token GitHub rate-limits the server's API calls to **60 requests / hour / IP** — easy to exhaust during a workspace audit. Set a personal-access token in the environment your AI client launches the server in:
+Without a token GitHub rate-limits the server's API calls to **60 requests / hour / IP**, which is easy to exhaust during a workspace audit. Set a personal-access token in the environment your AI client launches the server in:
 
 ```sh
 export GITHUB_TOKEN=ghp_…
 ```
 
-Or `GH_TOKEN`, which is also recognized. With a token the rate limit jumps to **5 000 requests / hour**.
+Or `GH_TOKEN`, which is also recognized. With a token the rate limit jumps to **5,000 requests / hour**.
 
 A typical Claude Desktop entry with auth:
 
@@ -209,9 +210,9 @@ A typical Claude Desktop entry with auth:
 }
 ```
 
-The token only needs **public read** scopes — the server never touches private repositories.
+The token only needs **public read** scopes; the server never touches private repositories.
 
-A ready-to-copy template lives at [`.env.example`](./.env.example) in this package — `cp .env.example .env`, fill in the values you need, and paste them into your MCP client's `env` block (or `source` the file before running the binary directly).
+A ready-to-copy template lives at [`.env.example`](https://github.com/amedina/agentic-web-labs/blob/develop/packages/mcp/npm-advisor-mcp/.env.example) in the source repo. Copy the keys you need into your MCP client's `env` block, or `source` the file before running the binary directly.
 
 On startup the server prints one line to stderr indicating whether a token was detected, so you can confirm your client actually forwarded the env var:
 
@@ -241,8 +242,10 @@ npm-advisor-mcp: GitHub auth = unauthenticated; rate limit 60 req/hr (set $GITHU
             │   │ McpServer (modelcontextprotocol)    │ │
             │   │   tools:                            │ │
             │   │   • get_package_stats               │ │
+            │   │   • list_known_projects             │ │
             │   │   • list_workspace_dependencies     │ │
             │   │   • analyze_package_json            │ │
+            │   │   • analyze_project                 │ │
             │   └─────────────────────────────────────┘ │
             │   ┌─────────────────────────────────────┐ │
             │   │ @agentic-web-labs/                  │ │
@@ -262,16 +265,20 @@ The AI client either spawns this process as a subprocess (stdio mode, default) o
 
 ## Privacy
 
-All API calls go to public endpoints: `registry.npmjs.org`, `bundlephobia.com`, `api.github.com`, and the OSADL license matrix bundled with `@agentic-web-labs/package-analyzer-core`. This server doesn't phone home anywhere else, and reads only files under the workspace path you ask `list_workspace_dependencies` / `analyze_package_json` to scan.
+All API calls go to public endpoints: `registry.npmjs.org`, `bundlephobia.com`, `api.github.com`, and the OSADL license matrix bundled with `@agentic-web-labs/package-analyzer-core`. This server doesn't phone home anywhere else, and reads only files under the workspace path you ask `list_workspace_dependencies`, `analyze_package_json`, or `analyze_project` to scan.
 
 ## Build from source
 
+The package lives in the [agentic-web-labs](https://github.com/amedina/agentic-web-labs) monorepo. To build it yourself:
+
 ```sh
+git clone https://github.com/amedina/agentic-web-labs.git
+cd agentic-web-labs
 pnpm install
 pnpm build:npm-advisor-mcp
 ```
 
-Produces `packages/mcp/npm-advisor-mcp/dist/server.js` with a shebang and the executable bit set, so you can also point your AI client straight at it during development:
+This produces `packages/mcp/npm-advisor-mcp/dist/server.js` with a shebang and the executable bit set, so you can also point your AI client straight at it during development:
 
 ```json
 {
@@ -284,7 +291,7 @@ Produces `packages/mcp/npm-advisor-mcp/dist/server.js` with a shebang and the ex
 }
 ```
 
-To run the built server directly from the repo root for local testing (e.g. against the [MCP Inspector](https://github.com/modelcontextprotocol/inspector)):
+To run the built server directly from the repo root for local testing (for example, against the [MCP Inspector](https://github.com/modelcontextprotocol/inspector)):
 
 ```sh
 # stdio mode
@@ -296,7 +303,7 @@ pnpm start:npm-advisor-mcp:http
 
 ### Built-in CLI for the HTTP transport
 
-The package ships a tiny client CLI at `dist/cli.js` that talks to a running HTTP server using the same MCP SDK clients like Claude Desktop use — handy for invoking tools and inspecting responses without setting up the MCP Inspector or hand-rolling `curl` JSON-RPC calls.
+The package ships a small client CLI at `dist/cli.js` that talks to a running HTTP server using the same MCP SDK clients that Claude Desktop uses. It is handy for invoking tools and inspecting responses without setting up the MCP Inspector or hand-rolling `curl` JSON-RPC calls.
 
 Start the server in one terminal, then from the repo root:
 
@@ -304,7 +311,7 @@ Start the server in one terminal, then from the repo root:
 # List every tool the server advertises
 pnpm cli:npm-advisor-mcp list
 
-# Call a tool — pass arguments as a single JSON object
+# Call a tool, passing arguments as a single JSON object
 pnpm cli:npm-advisor-mcp call get_package_stats '{"name":"lodash"}'
 pnpm cli:npm-advisor-mcp call list_known_projects
 ```
@@ -318,8 +325,12 @@ pnpm cli:npm-advisor-mcp --token your-token call list_known_projects
 
 `MCP_HTTP_TOKEN` is also read from the environment if `--token` is omitted. Run `pnpm cli:npm-advisor-mcp help` for the full usage block.
 
+## License
+
+[Apache-2.0](./LICENSE)
+
 ## Related packages
 
-- [`@agentic-web-labs/package-analyzer-core`](../package-analyzer-core) — the analysis engine
-- [NPM Advisor Chrome extension](../../extensions/npm-advisor)
-- [NPM Advisor VSCode extension](../../extensions/vscode) — also exposes these tools through `@npm-advisor` in Copilot Chat
+- [`@agentic-web-labs/package-analyzer-core`](https://github.com/amedina/agentic-web-labs/tree/develop/packages/shared/package-analyzer-core), the analysis engine
+- [NPM Advisor Chrome extension](https://github.com/amedina/agentic-web-labs/tree/develop/packages/extensions/npm-advisor)
+- [NPM Advisor VSCode extension](https://github.com/amedina/agentic-web-labs/tree/develop/packages/extensions/vscode), which also exposes these tools through `@npm-advisor` in Copilot Chat

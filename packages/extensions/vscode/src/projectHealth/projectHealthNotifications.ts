@@ -17,7 +17,7 @@ const TURN_OFF_ACTION_LABEL = "Turn off daily checks";
 
 /** A formatted notification summary for a completed run. */
 export interface NotificationSummary {
-  /** True when the run surfaced any active (non-suppressed) issue. */
+  /** True when the run surfaced any issue. */
   hasIssues: boolean;
   message: string;
 }
@@ -29,8 +29,7 @@ export interface NotificationSummary {
  * matching the panel's vulnerability / license chips so the notification
  * and the panel agree. The parenthetical severity note stays finding-level
  * (distinct critical / high advisories), mirroring the panel's severity
- * breakdown. Suppressed findings are excluded and noted parenthetically.
- * Pure and unit-tested.
+ * breakdown. Pure and unit-tested.
  */
 export function formatReportSummary(
   report: ProjectHealthReport,
@@ -39,17 +38,14 @@ export function formatReportSummary(
     vulnerabilities,
     vulnerablePackageCount,
     licenseIssuePackageCount,
-    suppressedCount,
     packageCount,
   } = report.totals;
   const hasIssues = vulnerablePackageCount > 0 || licenseIssuePackageCount > 0;
 
   if (!hasIssues) {
-    const suffix =
-      suppressedCount > 0 ? ` (${suppressedCount} suppressed)` : "";
     return {
       hasIssues: false,
-      message: `NPM Advisor: Project Health clean. No vulnerabilities or license issues across ${packageCount} package(s).${suffix}`,
+      message: `NPM Advisor: Project Health clean. No vulnerabilities or license issues across ${packageCount} package(s).`,
     };
   }
 
@@ -68,11 +64,9 @@ export function formatReportSummary(
       `${licenseIssuePackageCount} license issue${licenseIssuePackageCount === 1 ? "" : "s"}`,
     );
   }
-  const suppressedNote =
-    suppressedCount > 0 ? ` (${suppressedCount} suppressed)` : "";
   return {
     hasIssues: true,
-    message: `NPM Advisor: Project Health found ${parts.join(" and ")} across ${packageCount} package(s).${suppressedNote}`,
+    message: `NPM Advisor: Project Health found ${parts.join(" and ")} across ${packageCount} package(s).`,
   };
 }
 

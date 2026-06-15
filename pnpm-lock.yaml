@@ -796,23 +796,19 @@ importers:
         version: 5.9.3
 
   packages/mcp/npm-advisor-mcp:
-    dependencies:
+    devDependencies:
       '@agentic-web-labs/package-analyzer-core':
         specifier: workspace:*
         version: link:../../shared/package-analyzer-core
       '@agentic-web-labs/project-analyzer-core':
         specifier: workspace:*
         version: link:../../shared/project-analyzer-core
-      '@modelcontextprotocol/sdk':
-        specifier: 1.29.0
-        version: 1.29.0(@cfworker/json-schema@4.1.1)(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))
-      zod:
-        specifier: 4.3.5
-        version: 4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)
-    devDependencies:
       '@agentic-web-labs/shared-config':
         specifier: workspace:*
         version: link:../../shared/shared-config
+      '@modelcontextprotocol/sdk':
+        specifier: 1.29.0
+        version: 1.29.0(@cfworker/json-schema@4.1.1)(zod@4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d))
       '@types/node':
         specifier: ^24.3.0
         version: 24.12.0
@@ -828,6 +824,9 @@ importers:
       vitest:
         specifier: ^4.1.0
         version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@24.12.0)(@vitest/coverage-v8@4.1.8)(jsdom@20.0.3)(vite@7.3.5(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(yaml@2.8.3))
+      zod:
+        specifier: 4.3.5
+        version: 4.3.5(patch_hash=83453ea79d042319387c1ef497df3c49660b2bab6d4292d86aa94dd39519836d)
 
   packages/shared/chatbot:
     dependencies:

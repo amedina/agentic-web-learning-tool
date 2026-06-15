@@ -18,13 +18,12 @@ import {
  */
 import { SeverityBreakdown } from "./severityBreakdown";
 import { SummaryChip } from "./summaryChip";
-import { useSuppression } from "./suppressionContext";
 import {
-  entryHasActiveLicenseIssue,
-  entryHasActiveVulnerability,
   entryHasCircular,
+  entryHasLicenseIssue,
   entryHasPublint,
   entryHasReplaceable,
+  entryHasVulnerability,
   formatRelativeTime,
   toggleFilter,
   type ListFilter,
@@ -45,8 +44,8 @@ interface SummaryHeaderProps {
  * Terminal state for one sub-tab: a row of clickable summary chips that
  * double as filters, the relative "Last run" time, and a re-run button.
  * The Dependencies tab shows vulnerability + license chips (plus the
- * static package / dependency counts and the suppressed note); the
- * Project Analysis tab shows publint + circular + replaceable chips. Each
+ * static package / dependency counts); the Project Analysis tab shows
+ * publint + circular + replaceable chips. Each
  * finding chip counts the number of affected packages (not deduped
  * findings) so the chip value always equals the rows shown when clicked.
  */
@@ -57,7 +56,6 @@ export const SummaryHeader: FC<SummaryHeaderProps> = ({
   activeFilter,
   onFilterChange,
 }) => {
-  const { suppressions } = useSuppression();
   const { totals } = report;
   const { vulnerabilities } = totals;
   const isDependencies = scope === "dependencies";
@@ -67,10 +65,10 @@ export const SummaryHeader: FC<SummaryHeaderProps> = ({
     : (report.backfillCompletedAt ?? report.generatedAt);
 
   const vulnPackages = report.packages.filter((entry) =>
-    entryHasActiveVulnerability(entry, suppressions),
+    entryHasVulnerability(entry),
   ).length;
   const licensePackages = report.packages.filter((entry) =>
-    entryHasActiveLicenseIssue(entry, suppressions),
+    entryHasLicenseIssue(entry),
   ).length;
   const replaceablePackages = report.packages.filter((entry) =>
     entryHasReplaceable(entry),
@@ -88,26 +86,6 @@ export const SummaryHeader: FC<SummaryHeaderProps> = ({
         <div className="flex flex-col">
           <span className="text-[11px] text-slate-500 dark:text-slate-400">
             Last run {formatRelativeTime(lastRunEpoch)}
-            {isDependencies && totals.suppressedCount > 0 ? (
-              <>
-                {" ("}
-                <button
-                  type="button"
-                  className={`underline-offset-2 hover:underline ${
-                    activeFilter === "suppressed"
-                      ? "font-semibold text-sky-600 dark:text-sky-400"
-                      : ""
-                  }`}
-                  onClick={() =>
-                    onFilterChange(toggleFilter(activeFilter, "suppressed"))
-                  }
-                  title="Show only packages with a suppressed finding"
-                >
-                  {totals.suppressedCount} suppressed
-                </button>
-                {")"}
-              </>
-            ) : null}
           </span>
         </div>
         <button

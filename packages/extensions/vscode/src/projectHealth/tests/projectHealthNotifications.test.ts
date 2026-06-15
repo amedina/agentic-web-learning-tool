@@ -21,7 +21,6 @@ function report(totals: {
   vulnerablePackageCount?: number;
   licenseIssueCount?: number;
   licenseIssuePackageCount?: number;
-  suppressedCount?: number;
   packageCount?: number;
 }): ProjectHealthReport {
   const base = createInitialReport("ws", "ws", 1000);
@@ -44,7 +43,6 @@ function report(totals: {
       licenseIssueCount: totals.licenseIssueCount ?? 0,
       licenseIssuePackageCount: totals.licenseIssuePackageCount ?? 0,
       replaceableCount: 0,
-      suppressedCount: totals.suppressedCount ?? 0,
     },
   };
 }
@@ -83,17 +81,15 @@ describe("formatReportSummary", () => {
     expect(summary.message).toContain("1 vulnerability (1 critical, 1 high)");
   });
 
-  it("summarizes license issues by affected package and notes suppressed findings", () => {
+  it("summarizes license issues by affected package", () => {
     const summary = formatReportSummary(
       report({
         licenseIssueCount: 3,
         licenseIssuePackageCount: 2,
-        suppressedCount: 2,
       }),
     );
     expect(summary.hasIssues).toBe(true);
     expect(summary.message).toContain("2 license issues");
-    expect(summary.message).toContain("(2 suppressed)");
   });
 });
 

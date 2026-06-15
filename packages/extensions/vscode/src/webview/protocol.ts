@@ -13,10 +13,9 @@ import type { BundleData } from "@agentic-web-labs/package-analyzer-ui";
  * Internal dependencies.
  */
 import type {
-  MuteTarget,
+  AdvisorySeverityFloor,
   ProjectHealthReport,
   ProjectHealthScope,
-  SuppressionEntry,
 } from "../projectHealth/types";
 
 /**
@@ -136,21 +135,6 @@ export type WebviewRequest =
        */
       type: "getCachedProjectHealth";
       requestId: string;
-    }
-  | {
-      /** Mutes a vulnerability or license finding (suppression). */
-      type: "muteFinding";
-      target: MuteTarget;
-      reason?: string;
-    }
-  | {
-      /** Removes a previously created suppression. */
-      type: "unmuteFinding";
-      target: MuteTarget;
-    }
-  | {
-      /** Asks the host to (re)broadcast the current suppression list. */
-      type: "getSuppressions";
     }
   | {
       /**
@@ -297,22 +281,20 @@ export type ExtensionMessage =
     }
   | {
       /**
-       * The current suppression list, broadcast in reply to
-       * `getSuppressions` and again after every mute / unmute so the
-       * webview can re-render muted findings without a round-trip.
-       */
-      type: "suppressions";
-      entries: SuppressionEntry[];
-    }
-  | {
-      /**
-       * The current Project Health auto-run setting, broadcast in reply to
-       * `getProjectHealthSettings` and again whenever
-       * `npmAdvisor.projectHealth.autoRun` changes (from the in-panel
-       * toggle or the Settings UI) so the toggle stays in sync.
+       * The current Project Health settings, broadcast in reply to
+       * `getProjectHealthSettings` and again whenever the underlying
+       * `npmAdvisor` configuration changes (from an in-panel control or the
+       * Settings UI) so the panel stays in sync.
        */
       type: "projectHealthSettings";
+      /** Mirrors `npmAdvisor.projectHealth.autoRun`; drives the daily-check toggle. */
       autoRunDaily: boolean;
+      /**
+       * Mirrors `npmAdvisor.advisorySeverityFloor`. The Dependencies view
+       * uses it as the default vulnerability filter, hiding advisories below
+       * the floor until the user opts into "Show all severity levels".
+       */
+      advisorySeverityFloor: AdvisorySeverityFloor;
     }
   | {
       /**

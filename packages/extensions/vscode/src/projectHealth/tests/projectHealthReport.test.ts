@@ -11,13 +11,20 @@ import type { ProjectAnalysis } from "@agentic-web-labs/project-analyzer-core";
 import {
   computeTotals,
   deriveAdvisoryId,
+  filterReportBySeverityFloor,
   licenseFindingFromStats,
   normalizeSeverity,
   replacementsFromAnalysis,
   summarizeProjectAnalysis,
   vulnerabilitiesFromStats,
 } from "../projectHealthReport";
-import type { PackageHealthEntry } from "../types";
+import { isSeverityVisibleAtFloor } from "../types";
+import type {
+  PackageHealthEntry,
+  ProjectHealthReport,
+  VulnerabilityFinding,
+  VulnerabilitySeverity,
+} from "../types";
 
 /** Minimal PackageStats stub carrying only the fields under test. */
 function stats(partial: Partial<PackageStats>): PackageStats {
@@ -282,7 +289,7 @@ describe("computeTotals", () => {
     expect(totals.licenseIssuePackageCount).toBe(1);
   });
 
-  it("excludes suppressed findings and counts them", () => {
+  it("counts vulnerabilities and license issues across packages", () => {
     const vuln = {
       packageName: "lodash",
       version: "4.17.20",
@@ -301,16 +308,133 @@ describe("computeTotals", () => {
       entry({ vulnerabilities: [vuln], licenseIssues: [license] }),
     ];
 
-    const totals = computeTotals(packages, 2, {
-      isVulnerabilitySuppressed: (finding) => finding.id === "GHSA-1",
-    });
+    const totals = computeTotals(packages, 2);
 
-    expect(totals.vulnerabilities.total).toBe(0);
+    expect(totals.vulnerabilities.total).toBe(1);
+    expect(totals.vulnerabilities.high).toBe(1);
     expect(totals.licenseIssueCount).toBe(1);
-    expect(totals.suppressedCount).toBe(1);
-    // The package's only vulnerability is suppressed, so it is no longer an
-    // affected package; the license issue still counts.
-    expect(totals.vulnerablePackageCount).toBe(0);
+    expect(totals.vulnerablePackageCount).toBe(1);
     expect(totals.licenseIssuePackageCount).toBe(1);
+  });
+});
+
+describe("isSeverityVisibleAtFloor", () => {
+  it("keeps severities at or above the floor", () => {
+    expect(isSeverityVisibleAtFloor("critical", "high")).toBe(true);
+    expect(isSeverityVisibleAtFloor("high", "high")).toBe(true);
+    expect(isSeverityVisibleAtFloor("moderate", "high")).toBe(false);
+    expect(isSeverityVisibleAtFloor("low", "high")).toBe(false);
+  });
+
+  it("includes lower tiers once the floor is lowered", () => {
+    expect(isSeverityVisibleAtFloor("moderate", "moderate")).toBe(true);
+    expect(isSeverityVisibleAtFloor("low", "low")).toBe(true);
+    expect(isSeverityVisibleAtFloor("low", "moderate")).toBe(false);
+  });
+
+  it("always keeps unknown-severity advisories", () => {
+    expect(isSeverityVisibleAtFloor("unknown", "critical")).toBe(true);
+    expect(isSeverityVisibleAtFloor("unknown", "low")).toBe(true);
+  });
+});
+
+describe("filterReportBySeverityFloor", () => {
+  /** Builds a VulnerabilityFinding for one severity tier. */
+  function vuln(severity: VulnerabilitySeverity): VulnerabilityFinding {
+    return {
+      packageName: `pkg-${severity}`,
+      version: "1.0.0",
+      severity,
+      summary: severity,
+      url: `https://x/${severity}`,
+      id: `ID-${severity}`,
+    };
+  }
+
+  /** Wraps the given packages in a completed report shell. */
+  function report(packages: PackageHealthEntry[]): ProjectHealthReport {
+    return {
+      schemaVersion: 1,
+      workspaceKey: "ws",
+      workspaceName: null,
+      generatedAt: 0,
+      startedAt: 0,
+      phase: "complete",
+      packages,
+      totals: computeTotals(packages, packages.length),
+      progress: { phase: "complete", completed: 0, total: 0, label: "" },
+      warnings: [],
+      fastPassCompletedAt: 1,
+      backfillCompletedAt: null,
+    };
+  }
+
+  it("drops advisories below the floor and recomputes totals", () => {
+    const source = report([
+      entry({
+        vulnerabilities: [
+          vuln("critical"),
+          vuln("high"),
+          vuln("moderate"),
+          vuln("low"),
+        ],
+      }),
+    ]);
+
+    const filtered = filterReportBySeverityFloor(source, "high");
+
+    expect(filtered.packages[0].vulnerabilities.map((v) => v.severity)).toEqual(
+      ["critical", "high"],
+    );
+    expect(filtered.totals.vulnerabilities.total).toBe(2);
+    expect(filtered.totals.vulnerabilities.moderate).toBe(0);
+    expect(filtered.totals.vulnerabilities.low).toBe(0);
+  });
+
+  it("keeps unknown-severity advisories regardless of the floor", () => {
+    const source = report([
+      entry({ vulnerabilities: [vuln("low"), vuln("unknown")] }),
+    ]);
+
+    const filtered = filterReportBySeverityFloor(source, "critical");
+
+    expect(filtered.packages[0].vulnerabilities.map((v) => v.severity)).toEqual(
+      ["unknown"],
+    );
+    expect(filtered.totals.vulnerabilities.unknown).toBe(1);
+    expect(filtered.totals.vulnerabilities.total).toBe(1);
+  });
+
+  it("returns untouched packages by reference", () => {
+    const original = entry({
+      uri: "keep",
+      vulnerabilities: [vuln("critical")],
+    });
+    const source = report([original]);
+
+    const filtered = filterReportBySeverityFloor(source, "high");
+
+    expect(filtered.packages[0]).toBe(original);
+  });
+
+  it("leaves license issues and replaceable counts intact", () => {
+    const source = report([
+      entry({
+        vulnerabilities: [vuln("low")],
+        licenseIssues: [
+          {
+            packageName: "gpl",
+            version: "1.0.0",
+            license: "GPL-3.0",
+            explanation: null,
+          },
+        ],
+      }),
+    ]);
+
+    const filtered = filterReportBySeverityFloor(source, "high");
+
+    expect(filtered.totals.vulnerabilities.total).toBe(0);
+    expect(filtered.totals.licenseIssueCount).toBe(1);
   });
 });

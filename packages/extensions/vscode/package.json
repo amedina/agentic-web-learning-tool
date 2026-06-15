@@ -154,7 +154,7 @@
             "low"
           ],
           "default": "high",
-          "description": "Lowest GitHub Security Advisory severity that produces a Problems-panel diagnostic. Lower-severity advisories are ignored."
+          "description": "Lowest GitHub Security Advisory severity that produces a Problems-panel diagnostic, and the default severity floor for the All packages dependency view (use 'Show all severity levels' there to include lower-severity advisories). Lower-severity advisories are ignored."
         },
         "npmAdvisor.outdatedMajorThreshold": {
           "type": "number",

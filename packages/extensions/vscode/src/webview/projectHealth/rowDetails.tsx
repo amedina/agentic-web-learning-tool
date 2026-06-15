@@ -32,7 +32,7 @@ interface RowDetailsProps {
 /**
  * Expanded body of a row, scoped to the active sub-tab. On the
  * Dependencies sub-tab it shows the vulnerabilities and license-issue
- * boxes (with mute / unmute). On the Project Analysis sub-tab it shows the
+ * boxes. On the Project Analysis sub-tab it shows the
  * replaceable-dependencies box (with npm / doc links) and the full
  * per-package project analysis (publint + circular dependency graph)
  * reused from the standalone Project Analysis tab. Both begin with an

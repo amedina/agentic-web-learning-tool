@@ -18,6 +18,38 @@ export type VulnerabilitySeverity =
   | "unknown";
 
 /**
+ * The configurable advisory severity floor, mirroring the value space of
+ * the `npmAdvisor.advisorySeverityFloor` setting. "unknown" is never a
+ * valid floor, so it is excluded here.
+ */
+export type AdvisorySeverityFloor = "critical" | "high" | "moderate" | "low";
+
+/** Numeric rank for each severity tier; a higher rank is more urgent. */
+const SEVERITY_RANK: Record<VulnerabilitySeverity, number> = {
+  critical: 4,
+  high: 3,
+  moderate: 2,
+  low: 1,
+  unknown: 0,
+};
+
+/**
+ * True when a vulnerability of `severity` should remain visible under the
+ * given severity `floor`. Findings of "unknown" severity are always kept,
+ * since a missing severity must never be silently hidden behind a floor;
+ * every ranked tier must meet or exceed the floor to remain.
+ */
+export function isSeverityVisibleAtFloor(
+  severity: VulnerabilitySeverity,
+  floor: AdvisorySeverityFloor,
+): boolean {
+  if (severity === "unknown") {
+    return true;
+  }
+  return SEVERITY_RANK[severity] >= SEVERITY_RANK[floor];
+}
+
+/**
  * Which analyses a run performs. `dependencies` is the fast pass (OSV
  * vulnerabilities + licenses); `project` is the slower publint + circular
  * + replacement pass; `all` runs both.
@@ -39,9 +71,8 @@ export const PROJECT_HEALTH_SCHEMA_VERSION = 1;
 
 /**
  * A single vulnerability affecting one (package, version). `id` is the
- * stable advisory identifier (GHSA, falling back to a CVE or OSV id) and
- * is what the suppression system keys on, so muting one advisory never
- * hides a different one for the same package.
+ * stable advisory identifier (GHSA, falling back to a CVE or OSV id),
+ * used to dedupe the same advisory across manifests in the totals.
  */
 export interface VulnerabilityFinding {
   packageName: string;
@@ -149,22 +180,20 @@ export interface ProjectHealthTotals {
   uniqueDependencyCount: number;
   vulnerabilities: VulnerabilityTotals;
   /**
-   * Count of package.json files with at least one active (non-suppressed)
-   * vulnerability. Matches the panel's vulnerability chip, which counts
-   * affected manifests rather than distinct advisories.
+   * Count of package.json files with at least one vulnerability. Matches
+   * the panel's vulnerability chip, which counts affected manifests rather
+   * than distinct advisories.
    */
   vulnerablePackageCount: number;
   licenseIssueCount: number;
   /**
-   * Count of package.json files with at least one active (non-suppressed)
-   * license issue. Matches the panel's license chip, which counts affected
-   * manifests rather than distinct license findings.
+   * Count of package.json files with at least one license issue. Matches
+   * the panel's license chip, which counts affected manifests rather than
+   * distinct license findings.
    */
   licenseIssuePackageCount: number;
   /** Total e18e replacement opportunities across every manifest. Informational. */
   replaceableCount: number;
-  /** Findings hidden by the suppression system (counted, not listed). */
-  suppressedCount: number;
 }
 
 /** Progress for the active run, surfaced as a determinate bar in the UI. */
@@ -204,30 +233,4 @@ export interface ProjectHealthReport {
 /** True when the phase represents a finished run (no further updates expected). */
 export function isTerminalPhase(phase: HealthRunPhase): boolean {
   return phase === "complete" || phase === "error" || phase === "cancelled";
-}
-
-/** The kinds of finding that can be muted. */
-export type SuppressionKind = "vuln" | "license";
-
-/**
- * Identifies what to mute. For a vulnerability it is the (package,
- * advisory id) pair, so muting one advisory never hides a different one
- * for the same package. For a license it is just the package.
- */
-export interface MuteTarget {
-  kind: SuppressionKind;
-  packageName: string;
-  /** Advisory id for `vuln` targets; omitted for `license`. */
-  id?: string;
-}
-
-/**
- * A persisted mute. Stored per workspace so a suppression accepted in
- * one project does not silence the same issue in another.
- */
-export interface SuppressionEntry extends MuteTarget {
-  /** Optional free-text reason the user gave when muting. */
-  reason?: string;
-  /** `Date.now()` when the mute was created. */
-  mutedAt: number;
 }
