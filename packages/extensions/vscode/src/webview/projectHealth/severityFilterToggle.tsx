@@ -2,7 +2,6 @@
  * External dependencies.
  */
 import { type FC } from "react";
-import { ShieldAlert } from "lucide-react";
 
 /**
  * Internal dependencies.
@@ -42,21 +41,17 @@ export const SeverityFilterToggle: FC<SeverityFilterToggleProps> = ({
 
   return (
     <label
-      className="flex cursor-pointer items-center gap-2 rounded border border-slate-200 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-900/40 px-3 py-2 text-xs text-slate-700 dark:text-slate-200"
+      className="flex cursor-pointer items-start gap-2 px-1 text-xs text-slate-600 dark:text-slate-400"
       title="By default only advisories at or above your Advisory Severity Floor are shown. Check to include every severity."
     >
       <input
         type="checkbox"
         checked={showAll}
         onChange={(event) => onChange(event.target.checked)}
-        className="h-3.5 w-3.5 shrink-0 accent-violet-500"
-      />
-      <ShieldAlert
-        size={14}
-        className="shrink-0 text-slate-500 dark:text-slate-400"
+        className="mt-0.5 h-3.5 w-3.5 shrink-0 accent-violet-500"
       />
       <span className="flex flex-col">
-        <span className="font-medium text-slate-800 dark:text-slate-100">
+        <span className="text-slate-700 dark:text-slate-300">
           Show all severity levels
         </span>
         <span className="text-[11px] text-slate-500 dark:text-slate-400">
