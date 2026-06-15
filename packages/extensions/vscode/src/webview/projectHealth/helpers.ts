@@ -197,8 +197,9 @@ export function entryMatchesFilter(
 /**
  * True when the report has at least one actionable finding within the
  * given scope worth assembling into a fix prompt. "dependencies" covers
- * vulnerabilities + license issues; "project" covers publint + circular +
- * replacement findings; "all" covers both.
+ * vulnerabilities + license issues; "project" covers publint + circular
+ * findings; "all" covers both. Replaceable suggestions are informational,
+ * not issues, so they never count here.
  */
 export function reportHasActionableFindings(
   report: ProjectHealthReport,
@@ -209,9 +210,7 @@ export function reportHasActionableFindings(
   return report.packages.some((entry) => {
     if (
       includeDependencies &&
-      (entryHasVulnerability(entry) ||
-        entryHasLicenseIssue(entry) ||
-        entryHasReplaceable(entry))
+      (entryHasVulnerability(entry) || entryHasLicenseIssue(entry))
     ) {
       return true;
     }
@@ -235,7 +234,7 @@ export function buildAggregateFixPrompt(
   const includeProject = scope !== "dependencies";
   const subject =
     scope === "dependencies"
-      ? "dependency vulnerabilities, license issues, and replacement opportunities"
+      ? "dependency vulnerabilities and license issues"
       : scope === "project"
         ? "publishing and circular-dependency issues"
         : "issues";
@@ -249,14 +248,12 @@ export function buildAggregateFixPrompt(
   for (const entry of report.packages) {
     const vulnerabilities = includeDependencies ? entry.vulnerabilities : [];
     const licenseIssues = includeDependencies ? entry.licenseIssues : [];
-    const replaceable = includeDependencies ? entry.replaceable : [];
     const analysis = includeProject ? entry.projectAnalysis : null;
     const hasProjectFindings =
       analysis !== null && analysis.publintCount + analysis.circularCount > 0;
     if (
       vulnerabilities.length === 0 &&
       licenseIssues.length === 0 &&
-      replaceable.length === 0 &&
       !hasProjectFindings
     ) {
       continue;
@@ -279,18 +276,6 @@ export function buildAggregateFixPrompt(
         const reason = finding.explanation ? ` (${finding.explanation})` : "";
         lines.push(
           `  - ${finding.packageName}@${finding.version}: ${finding.license ?? "unknown"}${reason}`,
-        );
-      }
-    }
-    if (replaceable.length > 0) {
-      lines.push(`- Replaceable dependencies (${replaceable.length}):`);
-      for (const suggestion of replaceable.slice(0, 10)) {
-        const alternatives =
-          suggestion.replacements.length > 0
-            ? suggestion.replacements.join(", ")
-            : "see documentation";
-        lines.push(
-          `  - ${suggestion.packageName || "dependency"} -> ${alternatives}`,
         );
       }
     }
