@@ -28,6 +28,7 @@ import type {
 } from "./protocol";
 import {
   isTerminalPhase,
+  type AdvisorySeverityFloor,
   type MuteTarget,
   type ProjectHealthReport,
   type ProjectHealthScope,
@@ -122,6 +123,12 @@ export const App: FC<AppProps> = ({
   // sync via `projectHealthSettings` messages. Initialized to the "daily"
   // default so the collapsed toggle reads "On" before the host replies.
   const [autoRunDaily, setAutoRunDaily] = useState(true);
+  // Mirrors npmAdvisor.advisorySeverityFloor; the Dependencies view hides
+  // advisories below this floor by default until the user opts into showing
+  // all severities. Seeded from the host and kept in sync via
+  // `projectHealthSettings`. Initialized to the setting's own "high" default.
+  const [advisorySeverityFloor, setAdvisorySeverityFloor] =
+    useState<AdvisorySeverityFloor>("high");
   // GitHub auth state, used to show the rate-limit banner. null until the
   // host replies; the banner renders only for a non-authorized state, so
   // there is no flash before the state is known.
@@ -234,6 +241,7 @@ export const App: FC<AppProps> = ({
         setSuppressions(data.entries);
       } else if (data.type === "projectHealthSettings") {
         setAutoRunDaily(data.autoRunDaily);
+        setAdvisorySeverityFloor(data.advisorySeverityFloor);
       } else if (data.type === "githubAuthState") {
         setGithubAuthStatus(data.status);
       } else if (data.type === "navigateToProjectHealth") {
@@ -382,6 +390,7 @@ export const App: FC<AppProps> = ({
               onUnmute={onUnmuteFinding}
               autoRunDaily={autoRunDaily}
               onSetAutoRunDaily={onSetProjectHealthAutoRun}
+              advisorySeverityFloor={advisorySeverityFloor}
               projectAnalysisActions={{
                 postRunRequest: onRunProjectAnalysis,
                 postCacheRequest: onGetCachedProjectAnalysis,

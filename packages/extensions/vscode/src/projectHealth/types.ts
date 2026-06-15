@@ -18,6 +18,38 @@ export type VulnerabilitySeverity =
   | "unknown";
 
 /**
+ * The configurable advisory severity floor, mirroring the value space of
+ * the `npmAdvisor.advisorySeverityFloor` setting. "unknown" is never a
+ * valid floor, so it is excluded here.
+ */
+export type AdvisorySeverityFloor = "critical" | "high" | "moderate" | "low";
+
+/** Numeric rank for each severity tier; a higher rank is more urgent. */
+const SEVERITY_RANK: Record<VulnerabilitySeverity, number> = {
+  critical: 4,
+  high: 3,
+  moderate: 2,
+  low: 1,
+  unknown: 0,
+};
+
+/**
+ * True when a vulnerability of `severity` should remain visible under the
+ * given severity `floor`. Findings of "unknown" severity are always kept,
+ * since a missing severity must never be silently hidden behind a floor;
+ * every ranked tier must meet or exceed the floor to remain.
+ */
+export function isSeverityVisibleAtFloor(
+  severity: VulnerabilitySeverity,
+  floor: AdvisorySeverityFloor,
+): boolean {
+  if (severity === "unknown") {
+    return true;
+  }
+  return SEVERITY_RANK[severity] >= SEVERITY_RANK[floor];
+}
+
+/**
  * Which analyses a run performs. `dependencies` is the fast pass (OSV
  * vulnerabilities + licenses); `project` is the slower publint + circular
  * + replacement pass; `all` runs both.

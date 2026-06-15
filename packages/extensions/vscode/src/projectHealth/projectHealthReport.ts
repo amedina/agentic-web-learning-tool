@@ -12,6 +12,8 @@ import type {
  */
 import {
   PROJECT_HEALTH_SCHEMA_VERSION,
+  isSeverityVisibleAtFloor,
+  type AdvisorySeverityFloor,
   type LicenseFinding,
   type PackageHealthEntry,
   type PackageProjectAnalysisSummary,
@@ -247,6 +249,41 @@ export function computeTotals(
     licenseIssueCount,
     replaceableCount,
     suppressedCount,
+  };
+}
+
+/**
+ * Returns a copy of `report` with every package's vulnerabilities narrowed
+ * to those at or above `floor` (advisories of unknown severity are always
+ * kept) and the workspace totals recomputed from the narrowed set, so the
+ * header chips, severity breakdown, row badges, and fix prompt all stay
+ * consistent with the filtered list. The "All packages" Dependencies view
+ * applies this by default so it mirrors `npmAdvisor.advisorySeverityFloor`;
+ * a "Show all severity levels" toggle bypasses it. Packages with nothing
+ * removed are reused by reference to avoid needless re-renders.
+ */
+export function filterReportBySeverityFloor(
+  report: ProjectHealthReport,
+  floor: AdvisorySeverityFloor,
+  predicates: SuppressionPredicates = {},
+): ProjectHealthReport {
+  const packages = report.packages.map((entry) => {
+    const visible = entry.vulnerabilities.filter((finding) =>
+      isSeverityVisibleAtFloor(finding.severity, floor),
+    );
+    if (visible.length === entry.vulnerabilities.length) {
+      return entry;
+    }
+    return { ...entry, vulnerabilities: visible };
+  });
+  return {
+    ...report,
+    packages,
+    totals: computeTotals(
+      packages,
+      report.totals.uniqueDependencyCount,
+      predicates,
+    ),
   };
 }
 
