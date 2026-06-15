@@ -16,7 +16,6 @@ import {
 import type {
   PackageHealthEntry,
   ProjectHealthReport,
-  SuppressionEntry,
 } from "../../../projectHealth/types";
 
 /** Builds a package entry with the supplied findings. */
@@ -59,7 +58,6 @@ function report(packages: PackageHealthEntry[]): ProjectHealthReport {
       },
       licenseIssueCount: 0,
       replaceableCount: 0,
-      suppressedCount: 0,
     },
     progress: { phase: "complete", completed: 1, total: 1, label: "done" },
     warnings: [],
@@ -78,18 +76,9 @@ const VULN = {
 };
 
 describe("entryMatchesFilter", () => {
-  it("excludes a package whose only vulnerability is suppressed", () => {
+  it("matches a vulnerability", () => {
     const pkg = entry({ vulnerabilities: [VULN] });
-    const suppressions: SuppressionEntry[] = [
-      { kind: "vuln", packageName: "lodash", id: "GHSA-1", mutedAt: 0 },
-    ];
-    expect(entryMatchesFilter(pkg, "vuln", suppressions)).toBe(false);
-    expect(entryMatchesFilter(pkg, "suppressed", suppressions)).toBe(true);
-  });
-
-  it("matches an active vulnerability", () => {
-    const pkg = entry({ vulnerabilities: [VULN] });
-    expect(entryMatchesFilter(pkg, "vuln", [])).toBe(true);
+    expect(entryMatchesFilter(pkg, "vuln")).toBe(true);
   });
 
   it("matches publint and circular filters from the analysis summary", () => {
@@ -103,9 +92,9 @@ describe("entryMatchesFilter", () => {
         replaceableCount: 0,
       },
     });
-    expect(entryMatchesFilter(pkg, "publint", [])).toBe(true);
-    expect(entryMatchesFilter(pkg, "circular", [])).toBe(true);
-    expect(entryMatchesFilter(pkg, "replaceable", [])).toBe(false);
+    expect(entryMatchesFilter(pkg, "publint")).toBe(true);
+    expect(entryMatchesFilter(pkg, "circular")).toBe(true);
+    expect(entryMatchesFilter(pkg, "replaceable")).toBe(false);
   });
 });
 
@@ -125,15 +114,12 @@ describe("npm helpers", () => {
 
 describe("reportHasActionableFindings", () => {
   it("is false for a clean workspace", () => {
-    expect(reportHasActionableFindings(report([entry({})]), [])).toBe(false);
+    expect(reportHasActionableFindings(report([entry({})]))).toBe(false);
   });
 
-  it("is true when a package has an active vulnerability", () => {
+  it("is true when a package has a vulnerability", () => {
     expect(
-      reportHasActionableFindings(
-        report([entry({ vulnerabilities: [VULN] })]),
-        [],
-      ),
+      reportHasActionableFindings(report([entry({ vulnerabilities: [VULN] })])),
     ).toBe(true);
   });
 });
@@ -154,17 +140,13 @@ describe("scoped fix prompt + actionable findings", () => {
   ];
 
   it("dependency scope keeps vulnerabilities and drops project lines", () => {
-    const prompt = buildAggregateFixPrompt(
-      report(packages),
-      [],
-      "dependencies",
-    );
+    const prompt = buildAggregateFixPrompt(report(packages), "dependencies");
     expect(prompt).toContain("Vulnerabilities");
     expect(prompt).not.toContain("Publishing (publint)");
   });
 
   it("project scope keeps project lines and drops vulnerabilities", () => {
-    const prompt = buildAggregateFixPrompt(report(packages), [], "project");
+    const prompt = buildAggregateFixPrompt(report(packages), "project");
     expect(prompt).toContain("Publishing (publint)");
     expect(prompt).not.toContain("Vulnerabilities");
   });
@@ -182,15 +164,15 @@ describe("scoped fix prompt + actionable findings", () => {
         },
       }),
     ]);
-    expect(reportHasActionableFindings(onlyProject, [], "dependencies")).toBe(
+    expect(reportHasActionableFindings(onlyProject, "dependencies")).toBe(
       false,
     );
-    expect(reportHasActionableFindings(onlyProject, [], "project")).toBe(true);
+    expect(reportHasActionableFindings(onlyProject, "project")).toBe(true);
   });
 });
 
 describe("buildAggregateFixPrompt", () => {
-  it("groups findings by package and excludes suppressed ones", () => {
+  it("groups findings by package", () => {
     const packages = [
       entry({
         uri: "a",
@@ -221,17 +203,14 @@ describe("buildAggregateFixPrompt", () => {
       }),
     ];
 
-    const prompt = buildAggregateFixPrompt(report(packages), [
-      { kind: "vuln", packageName: "lodash", id: "GHSA-1", mutedAt: 0 },
-    ]);
+    const prompt = buildAggregateFixPrompt(report(packages));
 
-    // Package a still lists its publint + replaceable lines.
+    // Package a lists its vulnerability + publint + replaceable lines.
     expect(prompt).toContain("## packages/a/package.json (@scope/a)");
     expect(prompt).toContain("Publishing (publint) issues: 1");
     expect(prompt).toContain("Replaceable dependencies");
-    // The suppressed vulnerability is excluded, so package b (vuln-only)
-    // drops out entirely.
-    expect(prompt).not.toContain("packages/b/package.json");
-    expect(prompt).not.toContain("GHSA-1");
+    expect(prompt).toContain("GHSA-1");
+    // Package b (vuln-only) is grouped in too.
+    expect(prompt).toContain("packages/b/package.json");
   });
 });

@@ -18,7 +18,6 @@ import {
   createInitialReport,
   emptyVulnerabilityTotals,
   summarizeProjectAnalysis,
-  type SuppressionPredicates,
 } from "./projectHealthReport";
 import {
   PROJECT_HEALTH_SCHEMA_VERSION,
@@ -82,8 +81,6 @@ export interface RunProjectHealthOptions {
   /** When false, skips the publint/circular pass (vuln + license only). */
   includeProjectAnalysis?: boolean;
   emitIntervalMs?: number;
-  /** Suppression predicates applied to the totals (Phase 4 wires these). */
-  suppression?: SuppressionPredicates;
   /**
    * Previous report whose findings seed the scopes this run skips, so a
    * dependencies-only or project-only run preserves the other scope's
@@ -172,11 +169,7 @@ export async function runProjectHealth(
       startedAt,
       phase,
       packages,
-      totals: computeTotals(
-        packages,
-        closure.uniqueCount,
-        options.suppression ?? {},
-      ),
+      totals: computeTotals(packages, closure.uniqueCount),
       progress,
       warnings: [],
       fastPassCompletedAt,
