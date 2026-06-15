@@ -87,6 +87,7 @@ export class NpmAdvisorWebviewProvider implements vscode.WebviewViewProvider {
       void this.sendInitMessage(focusPackageName);
       if (navigateToProjectHealth) {
         this.bridge.post({ type: "navigateToProjectHealth" });
+        this.bridge.pushCachedProjectHealth();
       }
     });
     webviewView.onDidDispose(() => {
@@ -160,12 +161,16 @@ export class NpmAdvisorWebviewProvider implements vscode.WebviewViewProvider {
    * the workspace-wide Project Health view's Dependencies sub-tab. If the
    * webview hasn't mounted yet (cold start), the request is queued and
    * applied once init fires. Used by the daily summary notification's
-   * "Show Project Health" action.
+   * "Show Project Health" action. The latest cached report is pushed
+   * alongside the navigation so the Dependencies sub-tab shows the last
+   * completed run instead of the empty "run analysis" state when the
+   * webview's in-memory report is missing or stale.
    */
   async revealProjectHealthDependencies(): Promise<void> {
     await vscode.commands.executeCommand(`${WEBVIEW_VIEW_ID}.focus`);
     if (this.webviewView) {
       this.bridge.post({ type: "navigateToProjectHealth" });
+      this.bridge.pushCachedProjectHealth();
     } else {
       this.pendingNavigateToProjectHealth = true;
     }

@@ -483,6 +483,24 @@ export class WebviewBridge implements vscode.Disposable {
   }
 
   /**
+   * Re-broadcasts the most recent cached Project Health report to the
+   * webview as a `projectHealth` message, when one exists. Lets the panel
+   * show the last completed run immediately when it is revealed from the
+   * daily notification, rather than the empty "run analysis" state that
+   * appears when the webview's in-memory report is missing or stale (e.g.
+   * a cold start where the run finished while the panel was closed, or a
+   * navigation that races the mount-time cache fetch). The cache only ever
+   * holds a terminal report, so the webview clears any optimistic running
+   * state on receipt. No-op when nothing has been cached yet.
+   */
+  pushCachedProjectHealth(): void {
+    const report = this.projectHealthController.getCached();
+    if (report) {
+      this.post({ type: "projectHealth", report });
+    }
+  }
+
+  /**
    * Posts the current Project Health auto-run setting to the webview so
    * the in-panel toggle reflects `npmAdvisor.projectHealth.autoRun`.
    * Public so the host can re-broadcast it when the setting changes from
