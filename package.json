@@ -91,7 +91,7 @@
     "format:npm-advisor-mcp": "pnpm --filter @agentic-web-labs/npm-advisor-mcp format",
     "publish:npm-advisor-mcp": "pnpm --filter @agentic-web-labs/npm-advisor-mcp publish --access public --no-git-checks",
     "publish:npm-advisor-mcp:dry": "pnpm --filter @agentic-web-labs/npm-advisor-mcp publish --access public --no-git-checks --dry-run",
-    "publish:npm-advisor-mcp:local": "pnpm --filter @agentic-web-labs/npm-advisor-mcp publish --registry http://localhost:4873 --no-git-checks --force",
+    "publish:npm-advisor-mcp:local": "pnpm run unpublish:npm-advisor-mcp:local || true && pnpm --filter @agentic-web-labs/npm-advisor-mcp publish --registry http://localhost:4873 --no-git-checks --force",
     "unpublish:npm-advisor-mcp:local": "pnpm --filter @agentic-web-labs/npm-advisor-mcp exec npm unpublish --registry http://localhost:4873 --force",
     "local-registry:start": "bash ./bin/setup-local-registry.sh",
     "local-registry:stop": "bash ./bin/stop-local-registry.sh",
