@@ -1,0 +1,42 @@
+# Throwaway local npm registry config for publish testing (Verdaccio).
+#
+# Used by bin/setup-local-registry.sh (`pnpm local-registry:start`). Packages
+# are kept in memory via the verdaccio-memory plugin, so nothing persists
+# between runs; only the htpasswd auth file is written next to this config.
+
+# Verdaccio requires a storage path even when a store plugin overrides it;
+# with verdaccio-memory below, package data stays in memory and this dir is
+# only a placeholder (gitignored).
+storage: ./storage
+
+store:
+  memory:
+    limit: 1000
+
+auth:
+  htpasswd:
+    file: ./htpasswd
+    # Let the setup script's npm-cli-login register the admin user on first run.
+    max_users: 1000
+
+uplinks:
+  npmjs:
+    url: https://registry.npmjs.org/
+
+packages:
+  "@agentic-web-labs/*":
+    access: $all
+    publish: $authenticated
+    unpublish: $authenticated
+  "@*/*":
+    access: $all
+    publish: $authenticated
+    unpublish: $authenticated
+    proxy: npmjs
+  "**":
+    access: $all
+    publish: $authenticated
+    unpublish: $authenticated
+    proxy: npmjs
+
+log: { type: stdout, format: pretty, level: warn }

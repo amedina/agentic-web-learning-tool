@@ -42,3 +42,8 @@ test-results/
 awl-builds/
 TASK_STATUS.md
 
+
+# Local Verdaccio registry artifacts (bin/setup-local-registry.sh)
+bin/htpasswd
+bin/storage/
+bin/.verdaccio-db.json
