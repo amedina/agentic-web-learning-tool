@@ -301,30 +301,6 @@ pnpm start:npm-advisor-mcp
 pnpm start:npm-advisor-mcp:http
 ```
 
-### Built-in CLI for the HTTP transport
-
-The package ships a small client CLI at `dist/cli.js` that talks to a running HTTP server using the same MCP SDK clients that Claude Desktop uses. It is handy for invoking tools and inspecting responses without setting up the MCP Inspector or hand-rolling `curl` JSON-RPC calls.
-
-Start the server in one terminal, then from the repo root:
-
-```sh
-# List every tool the server advertises
-pnpm cli:npm-advisor-mcp list
-
-# Call a tool, passing arguments as a single JSON object
-pnpm cli:npm-advisor-mcp call get_package_stats '{"name":"lodash"}'
-pnpm cli:npm-advisor-mcp call list_known_projects
-```
-
-By default the CLI connects to `http://127.0.0.1:3845/mcp`. Override the URL or pass a bearer token (for servers started with `MCP_HTTP_TOKEN`) with global flags before the command:
-
-```sh
-pnpm cli:npm-advisor-mcp --url http://127.0.0.1:4000/mcp list
-pnpm cli:npm-advisor-mcp --token your-token call list_known_projects
-```
-
-`MCP_HTTP_TOKEN` is also read from the environment if `--token` is omitted. Run `pnpm cli:npm-advisor-mcp help` for the full usage block.
-
 ## License
 
 [Apache-2.0](./LICENSE)

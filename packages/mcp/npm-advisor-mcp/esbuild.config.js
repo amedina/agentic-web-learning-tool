@@ -124,10 +124,6 @@ const entries = [
     in: resolve(__dirname, "src/server.ts"),
     out: resolve(__dirname, "dist/server.js"),
   },
-  {
-    in: resolve(__dirname, "src/cli/index.ts"),
-    out: resolve(__dirname, "dist/cli.js"),
-  },
 ];
 
 function buildOptionsFor(entry) {
