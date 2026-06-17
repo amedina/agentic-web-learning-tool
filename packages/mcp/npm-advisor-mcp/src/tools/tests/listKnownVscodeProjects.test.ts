@@ -9,7 +9,7 @@ import { join } from "node:path";
 /**
  * Internal dependencies.
  */
-import { runListKnownProjects } from "../listKnownProjects";
+import { runListKnownVscodeProjects } from "../listKnownVscodeProjects";
 
 /**
  * Re-roots the npm-advisor registry at a temp dir for the test, so
@@ -66,7 +66,7 @@ function withTempRegistry<T>(
   }
 }
 
-describe("runListKnownProjects", () => {
+describe("runListKnownVscodeProjects", () => {
   let originalCwd: string;
 
   beforeEach(() => {
@@ -79,7 +79,7 @@ describe("runListKnownProjects", () => {
 
   it("returns an empty list and hasOpenProjects=false when the registry file is missing", () => {
     withTempRegistry(() => {
-      const result = runListKnownProjects();
+      const result = runListKnownVscodeProjects();
       expect(result.projects).toEqual([]);
       expect(result.hasOpenProjects).toBe(false);
       expect(result.registryFileExists).toBe(false);
@@ -90,7 +90,7 @@ describe("runListKnownProjects", () => {
   it("reports registryFileExists=true when the file is present but contains no projects", () => {
     withTempRegistry((write) => {
       write({ version: 1, projects: [] });
-      const result = runListKnownProjects();
+      const result = runListKnownVscodeProjects();
       expect(result.projects).toEqual([]);
       expect(result.hasOpenProjects).toBe(false);
       expect(result.registryFileExists).toBe(true);
@@ -116,7 +116,7 @@ describe("runListKnownProjects", () => {
           },
         ],
       });
-      const result = runListKnownProjects();
+      const result = runListKnownVscodeProjects();
       expect(result.projects.map((entry) => entry.absolutePath)).toEqual([
         "/Users/me/projects/active",
         "/Users/me/projects/old",
@@ -151,7 +151,7 @@ describe("runListKnownProjects", () => {
           },
         ],
       });
-      const result = runListKnownProjects();
+      const result = runListKnownVscodeProjects();
       expect(result.projects.map((entry) => entry.absolutePath)).toEqual([
         "/b",
         "/c",
@@ -163,7 +163,7 @@ describe("runListKnownProjects", () => {
   it("tolerates a malformed registry by returning an empty list", () => {
     withTempRegistry((write) => {
       write({ this: "is", not: "a", registry: "file" });
-      const result = runListKnownProjects();
+      const result = runListKnownVscodeProjects();
       expect(result.projects).toEqual([]);
       expect(result.hasOpenProjects).toBe(false);
     });

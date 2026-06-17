@@ -25,7 +25,7 @@ import { registerResources } from "./resources";
 import { runAnalyzePackageJson } from "./tools/analyzePackageJson";
 import { runAnalyzeProject } from "./tools/analyzeProject";
 import { runGetPackageStats } from "./tools/getPackageStats";
-import { runListKnownProjects } from "./tools/listKnownProjects";
+import { runListKnownVscodeProjects } from "./tools/listKnownVscodeProjects";
 import { runListWorkspaceDependencies } from "./tools/listWorkspaceDependencies";
 import { startHttpServer } from "./transports/httpTransport";
 import { PACKAGE_NAME, SERVER_NAME, SERVER_VERSION } from "./version";
@@ -128,7 +128,7 @@ export async function createServer(): Promise<McpServer> {
   );
 
   server.registerTool(
-    "list_known_projects",
+    "list_known_vscode_projects",
     {
       title: "List projects the user has opened in VSCode",
       description:
@@ -136,7 +136,7 @@ export async function createServer(): Promise<McpServer> {
       inputSchema: {},
     },
     async () => {
-      return runTool(async () => runListKnownProjects());
+      return runTool(async () => runListKnownVscodeProjects());
     },
   );
 
@@ -145,7 +145,7 @@ export async function createServer(): Promise<McpServer> {
     {
       title: "List package.json files in a workspace",
       description:
-        "Walks a directory looking for every package.json (skipping node_modules, dist, build, .git, etc.) and returns each file's name + dependency counts. Lightweight — no network calls. Use this to map a project's layout before drilling into specific packages. When `workspacePath` is omitted, the tool auto-ascends from the server's current working directory to the surrounding monorepo workspace root (via pnpm-workspace.yaml or `package.json#workspaces`), so a single call returns every package the monorepo declares — not just the sub-package the server happened to be launched from. If the result contains a non-null `workspaceRoot`, the scanned path is a sub-package and the AI should re-call with `workspacePath` set to that value to widen the scan. If the user hasn't given any path context, call list_known_projects first to find out which projects they've opened in VSCode.",
+        "Walks a directory looking for every package.json (skipping node_modules, dist, build, .git, etc.) and returns each file's name + dependency counts. Lightweight — no network calls. Use this to map a project's layout before drilling into specific packages. When `workspacePath` is omitted, the tool auto-ascends from the server's current working directory to the surrounding monorepo workspace root (via pnpm-workspace.yaml or `package.json#workspaces`), so a single call returns every package the monorepo declares — not just the sub-package the server happened to be launched from. If the result contains a non-null `workspaceRoot`, the scanned path is a sub-package and the AI should re-call with `workspacePath` set to that value to widen the scan. If the user hasn't given any path context, call list_known_vscode_projects first to find out which projects they've opened in VSCode.",
       inputSchema: {
         workspacePath: z
           .string()
@@ -169,7 +169,7 @@ export async function createServer(): Promise<McpServer> {
     {
       title: "Analyze every dependency in a package.json",
       description:
-        "Reads a package.json and fetches stats for every dep, devDep, and peerDep (concurrent + rate-aware). Returns per-package stats plus a roll-up summary (counts of vulnerable, license-incompatible, and replaceable packages). Use this when the user asks about the project as a whole — e.g. 'audit my dependencies' or 'which packages should I worry about'. If the user hasn't given an explicit path, call list_known_projects first to discover which projects they have open in VSCode. When presenting results, render a rich visual artifact (HTML or React) with: metric cards for the summary counts (total deps, vulnerable, license issues, replaceable), a bar chart of package scores color-coded by health (green ≥ 70, amber 40–69, red < 40), and tabbed sections for vulnerabilities, license issues, and replacement recommendations.",
+        "Reads a package.json and fetches stats for every dep, devDep, and peerDep (concurrent + rate-aware). Returns per-package stats plus a roll-up summary (counts of vulnerable, license-incompatible, and replaceable packages). Use this when the user asks about the project as a whole — e.g. 'audit my dependencies' or 'which packages should I worry about'. If the user hasn't given an explicit path, call list_known_vscode_projects first to discover which projects they have open in VSCode. When presenting results, render a rich visual artifact (HTML or React) with: metric cards for the summary counts (total deps, vulnerable, license issues, replaceable), a bar chart of package scores color-coded by health (green ≥ 70, amber 40–69, red < 40), and tabbed sections for vulnerabilities, license issues, and replacement recommendations.",
       inputSchema: {
         packageJsonPath: z
           .string()
@@ -207,7 +207,7 @@ export async function createServer(): Promise<McpServer> {
     {
       title: "Run project-level publint + replacement scan (e18e-style)",
       description:
-        "Runs publint against the project at rootPath and scans its top-level dependencies against the e18e preferred-replacements manifest. Returns a unified ProjectAnalysis with one findings array (each entry tagged with source: 'publint' | 'replacements', a severity, a code, a message, the file it refers to, and rule-specific data) and a summary of counts. Read-only — never modifies files. Use this when the user asks about publishing hygiene ('is my package.json correctly configured to publish?', 'will my exports/types/files work?') or about cross-cutting dependency replacements at the project level ('which of my deps have lighter alternatives?'). For per-package fitness scores use get_package_stats; for a full per-dep audit with security/licenses use analyze_package_json. If the user hasn't given an explicit path, call list_known_projects first. When presenting results, group findings by source (publint findings as a publishing-readiness checklist, replacement findings as a recommendations list with the suggested alternatives and the e18e link).",
+        "Runs publint against the project at rootPath and scans its top-level dependencies against the e18e preferred-replacements manifest. Returns a unified ProjectAnalysis with one findings array (each entry tagged with source: 'publint' | 'replacements', a severity, a code, a message, the file it refers to, and rule-specific data) and a summary of counts. Read-only — never modifies files. Use this when the user asks about publishing hygiene ('is my package.json correctly configured to publish?', 'will my exports/types/files work?') or about cross-cutting dependency replacements at the project level ('which of my deps have lighter alternatives?'). For per-package fitness scores use get_package_stats; for a full per-dep audit with security/licenses use analyze_package_json. If the user hasn't given an explicit path, call list_known_vscode_projects first. When presenting results, group findings by source (publint findings as a publishing-readiness checklist, replacement findings as a recommendations list with the suggested alternatives and the e18e link).",
       inputSchema: {
         rootPath: z
           .string()

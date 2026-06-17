@@ -55,7 +55,7 @@ In Copilot Chat (or any GitHub Models chat surface in VSCode), invoke `@npm-advi
 
 ## MCP server (Claude Code / Cursor / Claude Desktop / Windsurf / Continue)
 
-The same analyzer the extension uses ships as an MCP server (`@agentic-web-labs/npm-advisor-mcp`). Run the setup command above and pick which clients to register. The wizard knows which configuration file each one wants and writes only the entries the user opts in to. The MCP server exposes `get_package_stats`, `analyze_package_json`, `analyze_project`, `list_known_projects`, and `list_workspace_dependencies` tools.
+The same analyzer the extension uses ships as an MCP server (`@agentic-web-labs/npm-advisor-mcp`). Run the setup command above and pick which clients to register. The wizard knows which configuration file each one wants and writes only the entries the user opts in to. The MCP server exposes `get_package_stats`, `analyze_package_json`, `analyze_project`, `list_known_vscode_projects`, and `list_workspace_dependencies` tools.
 
 ## Migration wizard packaging
 
