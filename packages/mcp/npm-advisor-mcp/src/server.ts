@@ -19,6 +19,7 @@ import { z } from "zod";
  */
 import { parseCliArgs } from "./lib/parseCliArgs";
 import { runTool } from "./lib/toolRunner";
+import { buildTtyHint, buildUsageText } from "./lib/usage";
 import { registerPrompts } from "./prompts";
 import { registerResources } from "./resources";
 import { runAnalyzePackageJson } from "./tools/analyzePackageJson";
@@ -27,7 +28,7 @@ import { runGetPackageStats } from "./tools/getPackageStats";
 import { runListKnownProjects } from "./tools/listKnownProjects";
 import { runListWorkspaceDependencies } from "./tools/listWorkspaceDependencies";
 import { startHttpServer } from "./transports/httpTransport";
-import { SERVER_NAME, SERVER_VERSION } from "./version";
+import { PACKAGE_NAME, SERVER_NAME, SERVER_VERSION } from "./version";
 
 /**
  * Wires analyzer-core's githubFetch to a $GITHUB_TOKEN env var when
@@ -271,9 +272,27 @@ export async function createServer(): Promise<McpServer> {
  * When the HTTP transport is bound to a non-loopback host, set the
  * `MCP_HTTP_TOKEN` env var so requests must present
  * `Authorization: Bearer <token>`.
+ *
+ * `--help` / `-h` and `--version` / `-v` print to stdout and exit before
+ * any transport starts. In stdio mode, when the process is launched
+ * directly in a terminal (stdin is a TTY) rather than spawned by an MCP
+ * client, a short hint is printed to stderr so the wait-on-stdin does not
+ * read as a silent hang.
  */
 async function main(): Promise<void> {
-  const args = parseCliArgs(process.argv.slice(2));
+  const argv = process.argv.slice(2);
+
+  if (argv.includes("--help") || argv.includes("-h")) {
+    process.stdout.write(buildUsageText(PACKAGE_NAME, SERVER_VERSION));
+    return;
+  }
+
+  if (argv.includes("--version") || argv.includes("-v")) {
+    process.stdout.write(`${PACKAGE_NAME} ${SERVER_VERSION}\n`);
+    return;
+  }
+
+  const args = parseCliArgs(argv);
 
   if (args.transport === "http") {
     await startHttpServer({
@@ -283,6 +302,10 @@ async function main(): Promise<void> {
       createMcpServer: createServer,
     });
     return;
+  }
+
+  if (process.stdin.isTTY) {
+    process.stderr.write(buildTtyHint(PACKAGE_NAME));
   }
 
   const server = await createServer();

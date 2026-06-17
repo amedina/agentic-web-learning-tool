@@ -33,7 +33,8 @@ export type CliArgs =
  *
  * Throws if a flag value is missing or unparseable. Any unknown flag
  * is also a hard error so users notice typos rather than silently
- * falling back to defaults.
+ * falling back to defaults. `--help` / `--version` are intercepted by
+ * the entry point before this runs, so they never reach here.
  */
 export function parseCliArgs(argv: readonly string[]): CliArgs {
   let transport: "stdio" | "http" = "stdio";
@@ -89,7 +90,7 @@ export function parseCliArgs(argv: readonly string[]): CliArgs {
       continue;
     }
 
-    throw new Error(`Unknown argument '${token}'.`);
+    throw new Error(`Unknown argument '${token}'. Run with --help for usage.`);
   }
 
   if (transport === "stdio") {
