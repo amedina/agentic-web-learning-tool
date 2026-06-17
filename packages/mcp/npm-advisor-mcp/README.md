@@ -272,8 +272,8 @@ npm-advisor-mcp: GitHub auth = unauthenticated; rate limit 60 req/hr (set $GITHU
             │   │   • analyze_project                 │ │
             │   └─────────────────────────────────────┘ │
             │   ┌─────────────────────────────────────┐ │
-            │   │ @agentic-web-labs/                  │ │
-            │   │   package-analyzer-core             │ │
+            │   │ Analysis engine (bundled)           │ │
+            │   │   data sources:                     │ │
             │   │   - npm registry                    │ │
             │   │   - GitHub GraphQL (advisories,     │ │
             │   │     stars, last commit)             │ │
@@ -289,7 +289,7 @@ The AI client either spawns this process as a subprocess (stdio mode, default) o
 
 ## Privacy
 
-All API calls go to public endpoints: `registry.npmjs.org`, `bundlephobia.com`, `api.github.com`, and the OSADL license matrix bundled with `@agentic-web-labs/package-analyzer-core`. This server doesn't phone home anywhere else, and reads only files under the workspace path you ask `list_workspace_dependencies`, `analyze_package_json`, or `analyze_project` to scan.
+All API calls go to public endpoints: `registry.npmjs.org`, `bundlephobia.com`, `api.github.com`, and the OSADL license matrix bundled into the server. This server doesn't phone home anywhere else, and reads only files under the workspace path you ask `list_workspace_dependencies`, `analyze_package_json`, or `analyze_project` to scan.
 
 ## Build from source
 
@@ -334,6 +334,5 @@ pnpm start:npm-advisor-mcp:http
 
 ## Related packages
 
-- [`@agentic-web-labs/package-analyzer-core`](https://github.com/amedina/agentic-web-labs/tree/develop/packages/shared/package-analyzer-core), the analysis engine
 - [NPM Advisor Chrome extension](https://chromewebstore.google.com/detail/npm-advisor/iheaipmbkihiebidhfigbpliililcifh)
 - [NPM Advisor VSCode extension](https://marketplace.visualstudio.com/items?itemName=AgenticWebLabs.vscode-npm-advisor), which also exposes these tools through `@npm-advisor` in Copilot Chat
