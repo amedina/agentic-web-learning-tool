@@ -31,16 +31,9 @@ export function registerFixPublishingIssuesPrompt(server: McpServer): void {
           .describe(
             "Absolute path to the project root (the directory containing package.json) whose publishing-hygiene issues should be fixed.",
           ),
-        publintMode: z
-          .enum(["source", "pack"])
-          .optional()
-          .describe(
-            "publint mode: 'source' (fast, default) lints the working tree; 'pack' lints an actual npm tarball for the most accurate result.",
-          ),
       },
     },
     (args) => {
-      const mode = args.publintMode ?? "source";
       const text = `You are fixing the publishing-hygiene issues of the project rooted at:
 
     ${args.rootPath}
@@ -58,7 +51,6 @@ Run this exact workflow:
    \`\`\`json
    {
      "rootPath": "${args.rootPath}",
-     "publintMode": "${mode}",
      "skipReplacements": true
    }
    \`\`\`

@@ -205,9 +205,10 @@ export async function createServer(): Promise<McpServer> {
   server.registerTool(
     "analyze_project",
     {
-      title: "Run project-level publint + replacement scan (e18e-style)",
+      title:
+        "Analyze a single package (publint + circular deps + e18e replacements)",
       description:
-        "Runs publint against the project at rootPath and scans its top-level dependencies against the e18e preferred-replacements manifest. Returns a unified ProjectAnalysis with one findings array (each entry tagged with source: 'publint' | 'replacements', a severity, a code, a message, the file it refers to, and rule-specific data) and a summary of counts. Read-only — never modifies files. Use this when the user asks about publishing hygiene ('is my package.json correctly configured to publish?', 'will my exports/types/files work?') or about cross-cutting dependency replacements at the project level ('which of my deps have lighter alternatives?'). For per-package fitness scores use get_package_stats; for a full per-dep audit with security/licenses use analyze_package_json. If the user hasn't given an explicit path, call list_known_vscode_projects first. When presenting results, group findings by source (publint findings as a publishing-readiness checklist, replacement findings as a recommendations list with the suggested alternatives and the e18e link).",
+        "Analyzes ONE package — the single package.json at rootPath, not the whole workspace — and returns a unified ProjectAnalysis. Runs three read-only checks on that package: (1) publint for npm publish-readiness, (2) an e18e preferred-replacements match against the package's own declared dependencies (the dependencies/devDependencies/peerDependencies it lists, not its resolved dependency tree), and (3) a circular-dependency scan of its source. Findings come back as one array, each tagged with source: 'publint' | 'replacements' | 'circular-deps', plus a severity, code, message, the file it refers to, and rule-specific data, alongside a summary of counts. This is the MCP equivalent of the VSCode extension's single-package 'project analysis'; it is NOT a workspace-wide scan over every package.json — to cover a monorepo, enumerate packages with list_workspace_dependencies and call this once per package. Read-only — never modifies files. Use it when the user asks about publishing hygiene ('is my package.json correctly configured to publish?', 'will my exports/types/files work?'), import cycles, or project-level replacement opportunities ('which of my deps have lighter alternatives?'). For per-package fitness scores use get_package_stats; for a full per-dependency audit with security/licenses use analyze_package_json. If the user hasn't given an explicit path, call list_known_vscode_projects first. When presenting results, group findings by source (publint as a publishing-readiness checklist, circular-deps as cycles to break, replacements as a recommendations list with the suggested alternatives and the e18e link).",
       inputSchema: {
         rootPath: z
           .string()
@@ -215,23 +216,17 @@ export async function createServer(): Promise<McpServer> {
           .describe(
             "Absolute or cwd-relative path to the project root (the directory containing package.json). Use list_workspace_dependencies first to discover candidates.",
           ),
-        publintMode: z
-          .enum(["source", "pack"])
-          .optional()
-          .describe(
-            "'source' (default) lints the source directory directly — fast, suitable for repeated runs. 'pack' runs the project's package manager to produce a tarball first and lints that — slower but matches what publint.dev / e18e-cli report. Use 'pack' only when the user explicitly wants a pre-publish check.",
-          ),
         skipPublint: z
           .boolean()
           .optional()
           .describe(
-            "If true, skip the publint pass and only return replacement-opportunity findings. Default false.",
+            "If true, skip the publint pass. The result then carries only replacement and circular-dependency findings. Default false.",
           ),
         skipReplacements: z
           .boolean()
           .optional()
           .describe(
-            "If true, skip the replacement-opportunities pass and only return publint findings. Default false.",
+            "If true, skip the replacement-opportunities pass. The result then carries only publint and circular-dependency findings. Default false.",
           ),
       },
     },
@@ -239,7 +234,6 @@ export async function createServer(): Promise<McpServer> {
       return runTool(() =>
         runAnalyzeProject({
           rootPath: input.rootPath,
-          publintMode: input.publintMode,
           skipPublint: input.skipPublint,
           skipReplacements: input.skipReplacements,
         }),

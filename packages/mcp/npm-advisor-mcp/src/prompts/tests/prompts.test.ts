@@ -105,7 +105,7 @@ describe("registerPrompts", () => {
     expect(text).toContain("MIT");
   });
 
-  it("fix-publishing-issues interpolates rootPath, references the playbook, and defaults publintMode", async () => {
+  it("fix-publishing-issues interpolates rootPath and references the playbook", async () => {
     const server = new McpServer({
       name: "npm-advisor-test",
       version: "0.0.0",
@@ -118,21 +118,8 @@ describe("registerPrompts", () => {
     expect(text).toContain("analyze_project");
     expect(text).toContain("npm-advisor://publishing-hygiene-playbook");
     expect(text).toContain("node_modules");
-    expect(text).toContain('"publintMode": "source"');
-  });
-
-  it("fix-publishing-issues honours an explicit publintMode", async () => {
-    const server = new McpServer({
-      name: "npm-advisor-test",
-      version: "0.0.0",
-    });
-    registerPrompts(server);
-    const prompt = registeredPrompts(server)["fix-publishing-issues"];
-    const result = await prompt.callback({
-      rootPath: "/tmp/demo",
-      publintMode: "pack",
-    });
-    expect(result.messages[0].content.text).toContain('"publintMode": "pack"');
+    expect(text).toContain('"skipReplacements": true');
+    expect(text).not.toContain("publintMode");
   });
 
   it("fix-circular-dependencies interpolates rootPath and targets circular findings", async () => {
