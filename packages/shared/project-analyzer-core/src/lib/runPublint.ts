@@ -270,6 +270,72 @@ function refersToNonPublishedFile(message: Message): boolean {
 }
 
 /**
+ * publint codes whose verdict depends on the *content* publint read for the
+ * referenced file rather than on the `package.json` field itself. In `"source"`
+ * mode {@link collectPackageFiles} records files under {@link BUILD_OUTPUT_DIRS}
+ * name-only (empty content), so publint lints an empty string for them. An
+ * empty file reads as an `"unknown"` format (so the format checks skip), which
+ * leaves `BIN_FILE_NOT_EXECUTABLE` as the only content check that still fires:
+ * its shebang test (`/^#!\s*\/usr\/bin\/env/`) fails on `""`. The real built
+ * artifact does carry its shebang (and `"pack"` mode verifies it), so the
+ * finding is a false positive that must be dropped for build-output targets.
+ *
+ * Unlike publint's format findings, `BIN_FILE_NOT_EXECUTABLE` carries no
+ * `actualFilePath`, so {@link refersToNonPublishedFile} cannot catch it — it
+ * references the file only through the `package.json` `bin` path. Resolving
+ * that path against the manifest is the only way to know the target lives in
+ * build output.
+ */
+const CONTENT_DERIVED_CODES = new Set(["BIN_FILE_NOT_EXECUTABLE"]);
+
+/**
+ * Resolves the string a publint message's `path` points to within the manifest,
+ * e.g. `["bin", "cli"]` → `pkg.bin.cli` and `["bin"]` → `pkg.bin`. Returns
+ * `undefined` when the path does not resolve to a string (the field is absent
+ * or is an object/array).
+ */
+function resolveManifestFieldValue(
+  pkg: Record<string, unknown>,
+  messagePath: string[],
+): string | undefined {
+  let current: unknown = pkg;
+  for (const key of messagePath) {
+    if (current == null || typeof current !== "object") {
+      return undefined;
+    }
+    current = (current as Record<string, unknown>)[key];
+  }
+  return typeof current === "string" ? current : undefined;
+}
+
+/**
+ * Whether a content-derived finding (see {@link CONTENT_DERIVED_CODES}) targets
+ * a file inside a build-output directory. Such findings are unreliable in
+ * `"source"` mode because build-output files are collected name-only, so
+ * publint linted empty content. Dropping them avoids false positives such as
+ * `BIN_FILE_NOT_EXECUTABLE` on a `bin` that resolves into `dist/` but does
+ * carry a shebang in the real build. A `bin` pointing at a source file (outside
+ * build output) is still linted against real content, so genuine
+ * missing-shebang errors there are preserved.
+ */
+function isContentFindingOnBuildOutput(
+  message: Message,
+  pkg: Record<string, unknown>,
+): boolean {
+  if (!CONTENT_DERIVED_CODES.has(message.code)) {
+    return false;
+  }
+  const target = resolveManifestFieldValue(pkg, message.path);
+  if (!target) {
+    return false;
+  }
+  const segments = target
+    .split("/")
+    .filter((segment) => segment.length > 0 && segment !== ".");
+  return segments.some((segment) => BUILD_OUTPUT_DIRS.has(segment));
+}
+
+/**
  * Maps publint's `MessageType` to the severity vocabulary used by
  * `ProjectFinding`. Suggestions surface as `"info"` rather than `"hint"`
  * so they remain visible in editor diagnostic UIs.
@@ -359,7 +425,9 @@ export async function runPublint(
 
   const packageJsonPath = path.join(pkgDir, "package.json");
   const publishableMessages = result.messages.filter(
-    (message) => !refersToNonPublishedFile(message),
+    (message) =>
+      !refersToNonPublishedFile(message) &&
+      !isContentFindingOnBuildOutput(message, result.pkg),
   );
   const findings: ProjectFinding[] = publishableMessages.map((message) => ({
     source: "publint",

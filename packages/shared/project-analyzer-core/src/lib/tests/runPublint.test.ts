@@ -192,6 +192,184 @@ describe("runPublint (source mode)", () => {
     expect(codes).toContain("FILE_DOES_NOT_EXIST");
   });
 
+  it("does not flag BIN_FILE_NOT_EXECUTABLE for a bin that resolves into a build-output directory", async () => {
+    await writePackageJson(tempDir, {
+      name: "fixture-dist-bin",
+      version: "1.0.0",
+      type: "module",
+      license: "MIT",
+      bin: {
+        "fixture-cli": "./dist/cli.js",
+      },
+      files: ["dist/"],
+    });
+    await fs.mkdir(path.join(tempDir, "dist"), { recursive: true });
+    // The real build emits a shebang, but the source-mode scan records
+    // build-output files name-only, so publint lints empty content and would
+    // otherwise raise a spurious BIN_FILE_NOT_EXECUTABLE.
+    await fs.writeFile(
+      path.join(tempDir, "dist", "cli.js"),
+      "#!/usr/bin/env node\nexport const run = () => {};\n",
+      "utf8",
+    );
+
+    const { findings } = await runPublint({ pkgDir: tempDir, mode: "source" });
+
+    const codes = findings.map((finding) => finding.code);
+    expect(codes).not.toContain("BIN_FILE_NOT_EXECUTABLE");
+  });
+
+  it("still flags a bin whose source-file target lacks a shebang", async () => {
+    await writePackageJson(tempDir, {
+      name: "fixture-source-bin",
+      version: "1.0.0",
+      type: "module",
+      license: "MIT",
+      bin: {
+        "fixture-cli": "./cli.js",
+      },
+      files: ["cli.js"],
+    });
+    // A real source file (outside build output) is linted against its actual
+    // content, so a genuinely missing shebang must still be reported.
+    await fs.writeFile(
+      path.join(tempDir, "cli.js"),
+      "export const run = () => {};\n",
+      "utf8",
+    );
+
+    const { findings } = await runPublint({ pkgDir: tempDir, mode: "source" });
+
+    const codes = findings.map((finding) => finding.code);
+    expect(codes).toContain("BIN_FILE_NOT_EXECUTABLE");
+  });
+
+  // The source-mode scan records files under any build-output directory
+  // (dist/build/out) name-only, so the BIN_FILE_NOT_EXECUTABLE false positive
+  // can surface for a bin that resolves into any of them, at any depth. All of
+  // these shapes must be dropped regardless of the project's folder layout.
+  it.each([
+    { label: "build/", binPath: "./build/cli.js" },
+    { label: "out/", binPath: "./out/cli.js" },
+    { label: "a nested build-output path", binPath: "./dist/bin/cli.js" },
+  ])(
+    "does not flag BIN_FILE_NOT_EXECUTABLE for a bin in $label",
+    async ({ binPath }) => {
+      const relativePath = binPath.replace(/^\.\//, "");
+      const topDirectory = relativePath.split("/")[0];
+      await writePackageJson(tempDir, {
+        name: "fixture-build-bin",
+        version: "1.0.0",
+        type: "module",
+        license: "MIT",
+        bin: {
+          "fixture-cli": binPath,
+        },
+        files: [`${topDirectory}/`],
+      });
+      const absolutePath = path.join(tempDir, relativePath);
+      await fs.mkdir(path.dirname(absolutePath), { recursive: true });
+      await fs.writeFile(
+        absolutePath,
+        "#!/usr/bin/env node\nexport const run = () => {};\n",
+        "utf8",
+      );
+
+      const { findings } = await runPublint({
+        pkgDir: tempDir,
+        mode: "source",
+      });
+
+      const codes = findings.map((finding) => finding.code);
+      expect(codes).not.toContain("BIN_FILE_NOT_EXECUTABLE");
+    },
+  );
+
+  it("does not flag BIN_FILE_NOT_EXECUTABLE for a string-form bin in build output", async () => {
+    await writePackageJson(tempDir, {
+      name: "fixture-string-bin",
+      version: "1.0.0",
+      type: "module",
+      license: "MIT",
+      bin: "./dist/cli.js",
+      files: ["dist/"],
+    });
+    await fs.mkdir(path.join(tempDir, "dist"), { recursive: true });
+    await fs.writeFile(
+      path.join(tempDir, "dist", "cli.js"),
+      "#!/usr/bin/env node\nexport const run = () => {};\n",
+      "utf8",
+    );
+
+    const { findings } = await runPublint({ pkgDir: tempDir, mode: "source" });
+
+    expect(findings.map((finding) => finding.code)).not.toContain(
+      "BIN_FILE_NOT_EXECUTABLE",
+    );
+  });
+
+  it("drops only the build-output bins when a package mixes build-output and source bins", async () => {
+    await writePackageJson(tempDir, {
+      name: "fixture-mixed-bins",
+      version: "1.0.0",
+      type: "module",
+      license: "MIT",
+      bin: {
+        "built-cli": "./dist/cli.js",
+        "source-cli": "./cli.js",
+      },
+      files: ["dist/", "cli.js"],
+    });
+    await fs.mkdir(path.join(tempDir, "dist"), { recursive: true });
+    await fs.writeFile(
+      path.join(tempDir, "dist", "cli.js"),
+      "#!/usr/bin/env node\nexport const run = () => {};\n",
+      "utf8",
+    );
+    // The source bin genuinely lacks a shebang, so it must still be flagged
+    // while the build-output bin's false positive is dropped.
+    await fs.writeFile(
+      path.join(tempDir, "cli.js"),
+      "export const run = () => {};\n",
+      "utf8",
+    );
+
+    const { findings } = await runPublint({ pkgDir: tempDir, mode: "source" });
+
+    const binFindings = findings.filter(
+      (finding) => finding.code === "BIN_FILE_NOT_EXECUTABLE",
+    );
+    expect(binFindings).toHaveLength(1);
+    expect(binFindings[0]?.data?.publintPath).toEqual(["bin", "source-cli"]);
+  });
+
+  it("still flags a bin in a non-build-output subdirectory that lacks a shebang", async () => {
+    await writePackageJson(tempDir, {
+      name: "fixture-lib-bin",
+      version: "1.0.0",
+      type: "module",
+      license: "MIT",
+      bin: {
+        "fixture-cli": "./lib/cli.js",
+      },
+      files: ["lib/"],
+    });
+    await fs.mkdir(path.join(tempDir, "lib"), { recursive: true });
+    // `lib/` is not a name-only build-output dir, so publint reads its real
+    // content; a genuinely missing shebang must still surface there.
+    await fs.writeFile(
+      path.join(tempDir, "lib", "cli.js"),
+      "export const run = () => {};\n",
+      "utf8",
+    );
+
+    const { findings } = await runPublint({ pkgDir: tempDir, mode: "source" });
+
+    expect(findings.map((finding) => finding.code)).toContain(
+      "BIN_FILE_NOT_EXECUTABLE",
+    );
+  });
+
   it("resolves build-output entry points for a package nested under packages/", async () => {
     const packageDir = path.join(tempDir, "packages", "nested");
     await fs.mkdir(path.join(packageDir, "dist"), { recursive: true });
@@ -221,7 +399,10 @@ describe("runPublint (source mode)", () => {
       "utf8",
     );
 
-    const { findings } = await runPublint({ pkgDir: packageDir, mode: "source" });
+    const { findings } = await runPublint({
+      pkgDir: packageDir,
+      mode: "source",
+    });
 
     const codes = findings.map((finding) => finding.code);
     expect(codes).not.toContain("FILE_DOES_NOT_EXIST");
