@@ -87,7 +87,6 @@
     "dev:npm-advisor-mcp": "pnpm --filter @agentic-web-labs/npm-advisor-mcp dev",
     "start:npm-advisor-mcp": "pnpm --filter @agentic-web-labs/npm-advisor-mcp start",
     "start:npm-advisor-mcp:http": "pnpm --filter @agentic-web-labs/npm-advisor-mcp start:http",
-    "cli:npm-advisor-mcp": "pnpm --filter @agentic-web-labs/npm-advisor-mcp cli",
     "test:npm-advisor-mcp": "pnpm --filter @agentic-web-labs/npm-advisor-mcp test",
     "format:npm-advisor-mcp": "pnpm --filter @agentic-web-labs/npm-advisor-mcp format",
     "publish:npm-advisor-mcp": "pnpm --filter @agentic-web-labs/npm-advisor-mcp publish --access public --no-git-checks",
