@@ -10,6 +10,7 @@ import type { ProjectAnalysis } from "@agentic-web-labs/project-analyzer-core";
  */
 import { CircularDependenciesCard } from "./circularDependenciesCard";
 import { FixWithAiCallout } from "./fixWithAiCallout";
+import { hasFixableFindings } from "./helpers";
 import { OverallSummary } from "./overallSummary";
 import { PublintCard } from "./publintCard";
 import { ReplacementsCard } from "./replacementsCard";
@@ -81,7 +82,7 @@ export const Results: FC<ResultsProps> = ({
 
   return (
     <div className="flex flex-col gap-3">
-      {!hideFixWithAi && totalSurfaced > 0 && (
+      {!hideFixWithAi && hasFixableFindings(analysis.findings) && (
         <FixWithAiCallout
           rootPath={analysis.rootPath}
           publintCount={publintFindings.length}

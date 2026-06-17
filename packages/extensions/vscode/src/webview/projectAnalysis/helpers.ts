@@ -57,6 +57,20 @@ export function buildFixPrompt(
 }
 
 /**
+ * Whether the per-project "Fix with AI" callout has anything actionable to
+ * offer. The callout's prompt only addresses publishing-hygiene and
+ * circular-dependency findings; replaceable-dependency suggestions are not
+ * treated as issues and are absent from the prompt, so they do not on their
+ * own justify showing the callout.
+ */
+export function hasFixableFindings(findings: ProjectFinding[]): boolean {
+  return findings.some(
+    (finding) =>
+      finding.source === "publint" || finding.source === "circular-deps",
+  );
+}
+
+/**
  * Tally of how many publint findings there are at each severity tier.
  */
 export function summariseSeverity(findings: ProjectFinding[]): PublintSummary {
