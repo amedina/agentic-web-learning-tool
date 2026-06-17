@@ -210,6 +210,16 @@ export GITHUB_TOKEN=ghp_…
 
 Or `GH_TOKEN`, which is also recognized. With a token the rate limit jumps to **5,000 requests / hour**.
 
+### Create a token
+
+1. Open [github.com/settings/tokens](https://github.com/settings/tokens) and choose **Generate new token → Generate new token (classic)**.
+2. Give it a name (for example `npm-advisor-mcp`) and an expiration.
+3. Leave every scope unchecked. The server reads only public data and never touches private repositories, so no scopes are required (the token still raises the rate limit).
+4. Click **Generate token** and copy the `ghp_…` value. GitHub shows it only once.
+5. Set it as `GITHUB_TOKEN` (or `GH_TOKEN`) in your MCP client's `env` block using one of the configs above, or `export` it in the shell that launches the server.
+
+Prefer a [fine-grained token](https://github.com/settings/personal-access-tokens/new)? Create one with read-only **Public Repositories** access and no account permissions.
+
 A typical Claude Desktop entry with auth:
 
 ```json
@@ -225,8 +235,6 @@ A typical Claude Desktop entry with auth:
   }
 }
 ```
-
-The token only needs **public read** scopes; the server never touches private repositories.
 
 A ready-to-copy template lives at [`.env.example`](https://github.com/amedina/agentic-web-labs/blob/develop/packages/mcp/npm-advisor-mcp/.env.example) in the source repo. Copy the keys you need into your MCP client's `env` block, or `source` the file before running the binary directly.
 
