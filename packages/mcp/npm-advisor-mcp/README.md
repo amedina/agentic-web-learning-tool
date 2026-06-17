@@ -28,12 +28,14 @@ npx -y @agentic-web-labs/npm-advisor-mcp
 
 It speaks MCP over stdio by default. Configure your AI client to spawn it as shown below, or jump to [HTTP transport](#http-transport-host-it-on-localhost-or-a-remote-server) to run it as a long-lived local or remote server instead.
 
+> The examples throughout this README include an optional `GITHUB_TOKEN`. It is **not required** (the server runs fine without it), but a public-read token raises the GitHub API rate limit from 60 to 5,000 requests per hour, which the analysis relies on for advisories, stars, and last-commit data. Omit it to stay unauthenticated, or see [GitHub authentication](#github-authentication-optional-but-recommended) for the details and required scopes.
+
 ### Claude Code
 
 Add the server via the Claude Code CLI from your project root:
 
 ```sh
-claude mcp add npm-advisor -- npx -y @agentic-web-labs/npm-advisor-mcp
+claude mcp add npm-advisor --env GITHUB_TOKEN=ghp_… -- npx -y @agentic-web-labs/npm-advisor-mcp
 ```
 
 This writes an entry to `~/.claude.json` (or `.mcp.json` if you want it scoped to the project). Restart any open Claude Code session and ask: _"List my dependencies and tell me which ones have security issues."_
@@ -47,7 +49,10 @@ Edit `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) o
   "mcpServers": {
     "npm-advisor": {
       "command": "npx",
-      "args": ["-y", "@agentic-web-labs/npm-advisor-mcp"]
+      "args": ["-y", "@agentic-web-labs/npm-advisor-mcp"],
+      "env": {
+        "GITHUB_TOKEN": "ghp_…"
+      }
     }
   }
 }
@@ -64,7 +69,10 @@ In Cursor's settings, open _MCP_ → _Add new global MCP server_ and paste:
   "mcpServers": {
     "npm-advisor": {
       "command": "npx",
-      "args": ["-y", "@agentic-web-labs/npm-advisor-mcp"]
+      "args": ["-y", "@agentic-web-labs/npm-advisor-mcp"],
+      "env": {
+        "GITHUB_TOKEN": "ghp_…"
+      }
     }
   }
 }
@@ -81,7 +89,10 @@ Add to your workspace's `.vscode/mcp.json` (or user-scope `mcp.json`):
   "servers": {
     "npm-advisor": {
       "command": "npx",
-      "args": ["-y", "@agentic-web-labs/npm-advisor-mcp"]
+      "args": ["-y", "@agentic-web-labs/npm-advisor-mcp"],
+      "env": {
+        "GITHUB_TOKEN": "ghp_…"
+      }
     }
   }
 }
@@ -101,7 +112,10 @@ In `~/.continue/config.json` (or the project-scoped `.continue/config.json`):
         "transport": {
           "type": "stdio",
           "command": "npx",
-          "args": ["-y", "@agentic-web-labs/npm-advisor-mcp"]
+          "args": ["-y", "@agentic-web-labs/npm-advisor-mcp"],
+          "env": {
+            "GITHUB_TOKEN": "ghp_…"
+          }
         }
       }
     ]
@@ -116,7 +130,7 @@ By default the binary speaks MCP over stdio so AI clients can spawn it as a subp
 ### Run locally
 
 ```sh
-npx -y @agentic-web-labs/npm-advisor-mcp --http
+GITHUB_TOKEN=ghp_… npx -y @agentic-web-labs/npm-advisor-mcp --http
 ```
 
 This binds to `127.0.0.1:3845` (loopback only, not reachable from other machines) and serves MCP at `http://127.0.0.1:3845/mcp`.
@@ -140,12 +154,14 @@ Point any MCP-aware client at the URL. For example, Claude Desktop:
 }
 ```
 
+In HTTP mode the optional `GITHUB_TOKEN` is set where the server is launched (shown above), not in the client config, since the client only connects to the URL.
+
 ### Host it remotely
 
 To accept connections from other machines, bind to a non-loopback address (`0.0.0.0` for all interfaces, or a specific interface IP):
 
 ```sh
-MCP_HTTP_TOKEN=your-long-random-token \
+GITHUB_TOKEN=ghp_… MCP_HTTP_TOKEN=your-long-random-token \
   npx -y @agentic-web-labs/npm-advisor-mcp --http --host 0.0.0.0 --port 3845
 ```
 
@@ -285,7 +301,10 @@ This produces `packages/mcp/npm-advisor-mcp/dist/server.js` with a shebang and t
   "mcpServers": {
     "npm-advisor-dev": {
       "command": "node",
-      "args": ["/absolute/path/to/dist/server.js"]
+      "args": ["/absolute/path/to/dist/server.js"],
+      "env": {
+        "GITHUB_TOKEN": "ghp_…"
+      }
     }
   }
 }
