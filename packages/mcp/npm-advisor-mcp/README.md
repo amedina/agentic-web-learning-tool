@@ -2,7 +2,7 @@
 
 An MCP (Model Context Protocol) server that exposes npm package intelligence to MCP-aware AI clients like **Claude Code**, **Claude Desktop**, **Cursor**, **Continue**, and any future MCP-aware editor or agent.
 
-It's the same analysis pipeline that powers the [NPM Advisor VSCode extension](https://github.com/amedina/agentic-web-labs/tree/develop/packages/extensions/vscode) and the [NPM Advisor Chrome extension](https://github.com/amedina/agentic-web-labs/tree/develop/packages/extensions/npm-advisor): Fitness scoring, GitHub Security Advisories, license compatibility against your project's target license, bundle size, last-commit / stars, and replacement recommendations from [e18e](https://github.com/e18e/community).
+It's the same analysis pipeline that powers the [NPM Advisor VSCode extension](https://marketplace.visualstudio.com/items?itemName=AgenticWebLabs.vscode-npm-advisor) and the [NPM Advisor Chrome extension](https://chromewebstore.google.com/detail/npm-advisor/iheaipmbkihiebidhfigbpliililcifh): Fitness scoring, GitHub Security Advisories, license compatibility against your project's target license, bundle size, last-commit / stars, and replacement recommendations from [e18e](https://github.com/e18e/module-replacements).
 
 ## What it gives your AI
 
@@ -308,5 +308,5 @@ pnpm start:npm-advisor-mcp:http
 ## Related packages
 
 - [`@agentic-web-labs/package-analyzer-core`](https://github.com/amedina/agentic-web-labs/tree/develop/packages/shared/package-analyzer-core), the analysis engine
-- [NPM Advisor Chrome extension](https://github.com/amedina/agentic-web-labs/tree/develop/packages/extensions/npm-advisor)
-- [NPM Advisor VSCode extension](https://github.com/amedina/agentic-web-labs/tree/develop/packages/extensions/vscode), which also exposes these tools through `@npm-advisor` in Copilot Chat
+- [NPM Advisor Chrome extension](https://chromewebstore.google.com/detail/npm-advisor/iheaipmbkihiebidhfigbpliililcifh)
+- [NPM Advisor VSCode extension](https://marketplace.visualstudio.com/items?itemName=AgenticWebLabs.vscode-npm-advisor), which also exposes these tools through `@npm-advisor` in Copilot Chat
