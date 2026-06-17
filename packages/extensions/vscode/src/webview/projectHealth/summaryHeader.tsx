@@ -43,11 +43,14 @@ interface SummaryHeaderProps {
 /**
  * Terminal state for one sub-tab: a row of clickable summary chips that
  * double as filters, the relative "Last run" time, and a re-run button.
- * The Dependencies tab shows vulnerability + license chips (plus the
- * static package / dependency counts); the Project Analysis tab shows
- * publint + circular + replaceable chips. Each
- * finding chip counts the number of affected packages (not deduped
- * findings) so the chip value always equals the rows shown when clicked.
+ * The Dependencies tab shows vulnerability + license + replaceable chips
+ * (plus the static package / dependency counts); the Project Analysis tab
+ * shows publint + circular chips. The Dependencies finding chips show the
+ * total number of findings (vulnerabilities and license issues are deduped
+ * across manifests), so the vulnerability chip matches the severity
+ * breakdown below it; each tooltip notes how many packages are affected,
+ * which is what clicking the chip filters the list down to. The Project
+ * Analysis chips count affected packages, mirrored by their "pkg(s)" labels.
  */
 export const SummaryHeader: FC<SummaryHeaderProps> = ({
   scope,
@@ -102,19 +105,19 @@ export const SummaryHeader: FC<SummaryHeaderProps> = ({
           <>
             <SummaryChip
               icon={<ShieldAlert size={13} />}
-              value={vulnPackages}
+              value={vulnerabilities.total}
               label="vulnerabilities"
-              tone={vulnPackages > 0 ? "danger" : "ok"}
-              title={`${vulnPackages} package(s) with vulnerabilities. Click to filter.`}
+              tone={vulnerabilities.total > 0 ? "danger" : "ok"}
+              title={`${vulnerabilities.total} vulnerabilit${vulnerabilities.total === 1 ? "y" : "ies"} across ${vulnPackages} package(s). Click to filter.`}
               onClick={() => onFilterChange(toggleFilter(activeFilter, "vuln"))}
               isActive={activeFilter === "vuln"}
             />
             <SummaryChip
               icon={<Scale size={13} />}
-              value={licensePackages}
+              value={totals.licenseIssueCount}
               label="license issues"
-              tone={licensePackages > 0 ? "danger" : "ok"}
-              title={`${licensePackages} package(s) with license issues. Click to filter.`}
+              tone={totals.licenseIssueCount > 0 ? "danger" : "ok"}
+              title={`${totals.licenseIssueCount} license issue${totals.licenseIssueCount === 1 ? "" : "s"} across ${licensePackages} package(s). Click to filter.`}
               onClick={() =>
                 onFilterChange(toggleFilter(activeFilter, "license"))
               }
@@ -122,10 +125,10 @@ export const SummaryHeader: FC<SummaryHeaderProps> = ({
             />
             <SummaryChip
               icon={<Recycle size={13} />}
-              value={replaceablePackages}
+              value={totals.replaceableCount}
               label="replaceable"
-              tone={replaceablePackages > 0 ? "info" : "neutral"}
-              title={`${replaceablePackages} package(s) with replacement suggestions. Click to filter.`}
+              tone={totals.replaceableCount > 0 ? "info" : "neutral"}
+              title={`${totals.replaceableCount} replacement suggestion${totals.replaceableCount === 1 ? "" : "s"} across ${replaceablePackages} package(s). Click to filter.`}
               onClick={() =>
                 onFilterChange(toggleFilter(activeFilter, "replaceable"))
               }

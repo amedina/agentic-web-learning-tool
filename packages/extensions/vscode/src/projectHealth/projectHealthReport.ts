@@ -186,10 +186,10 @@ export function replacementsFromFindings(
  * are deduped across packages by a stable key (package + version +
  * advisory id for vulnerabilities; package + version for licenses) so a
  * single vulnerable dependency shared by many manifests counts once in
- * the header. `vulnerablePackageCount` and `licenseIssuePackageCount`
- * instead count the number of affected package.json files (one per
- * manifest, not deduped findings), mirroring the panel chips so the daily
- * notification and the panel agree.
+ * the header; these deduped totals drive the panel finding chips.
+ * `vulnerablePackageCount` and `licenseIssuePackageCount` instead count
+ * the number of affected package.json files (one per manifest, not deduped
+ * findings) and drive the daily notification summary.
  */
 export function computeTotals(
   packages: PackageHealthEntry[],
