@@ -28,12 +28,14 @@ npx -y @agentic-web-labs/npm-advisor-mcp
 
 It speaks MCP over stdio by default. Configure your AI client to spawn it as shown below, or jump to [HTTP transport](#http-transport-host-it-on-localhost-or-a-remote-server) to run it as a long-lived local or remote server instead.
 
+> The examples throughout this README include an optional `GITHUB_TOKEN`. It is **not required** (the server runs fine without it), but a public-read token raises the GitHub API rate limit from 60 to 5,000 requests per hour, which the analysis relies on for advisories, stars, and last-commit data. Omit it to stay unauthenticated, or see [GitHub authentication](#github-authentication-optional-but-recommended) for the details and required scopes.
+
 ### Claude Code
 
 Add the server via the Claude Code CLI from your project root:
 
 ```sh
-claude mcp add npm-advisor -- npx -y @agentic-web-labs/npm-advisor-mcp
+claude mcp add npm-advisor --env GITHUB_TOKEN=ghp_… -- npx -y @agentic-web-labs/npm-advisor-mcp
 ```
 
 This writes an entry to `~/.claude.json` (or `.mcp.json` if you want it scoped to the project). Restart any open Claude Code session and ask: _"List my dependencies and tell me which ones have security issues."_
@@ -47,7 +49,10 @@ Edit `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) o
   "mcpServers": {
     "npm-advisor": {
       "command": "npx",
-      "args": ["-y", "@agentic-web-labs/npm-advisor-mcp"]
+      "args": ["-y", "@agentic-web-labs/npm-advisor-mcp"],
+      "env": {
+        "GITHUB_TOKEN": "ghp_…"
+      }
     }
   }
 }
@@ -64,7 +69,10 @@ In Cursor's settings, open _MCP_ → _Add new global MCP server_ and paste:
   "mcpServers": {
     "npm-advisor": {
       "command": "npx",
-      "args": ["-y", "@agentic-web-labs/npm-advisor-mcp"]
+      "args": ["-y", "@agentic-web-labs/npm-advisor-mcp"],
+      "env": {
+        "GITHUB_TOKEN": "ghp_…"
+      }
     }
   }
 }
@@ -81,7 +89,10 @@ Add to your workspace's `.vscode/mcp.json` (or user-scope `mcp.json`):
   "servers": {
     "npm-advisor": {
       "command": "npx",
-      "args": ["-y", "@agentic-web-labs/npm-advisor-mcp"]
+      "args": ["-y", "@agentic-web-labs/npm-advisor-mcp"],
+      "env": {
+        "GITHUB_TOKEN": "ghp_…"
+      }
     }
   }
 }
@@ -101,7 +112,10 @@ In `~/.continue/config.json` (or the project-scoped `.continue/config.json`):
         "transport": {
           "type": "stdio",
           "command": "npx",
-          "args": ["-y", "@agentic-web-labs/npm-advisor-mcp"]
+          "args": ["-y", "@agentic-web-labs/npm-advisor-mcp"],
+          "env": {
+            "GITHUB_TOKEN": "ghp_…"
+          }
         }
       }
     ]
@@ -116,7 +130,7 @@ By default the binary speaks MCP over stdio so AI clients can spawn it as a subp
 ### Run locally
 
 ```sh
-npx -y @agentic-web-labs/npm-advisor-mcp --http
+GITHUB_TOKEN=ghp_… npx -y @agentic-web-labs/npm-advisor-mcp --http
 ```
 
 This binds to `127.0.0.1:3845` (loopback only, not reachable from other machines) and serves MCP at `http://127.0.0.1:3845/mcp`.
@@ -140,12 +154,14 @@ Point any MCP-aware client at the URL. For example, Claude Desktop:
 }
 ```
 
+In HTTP mode the optional `GITHUB_TOKEN` is set where the server is launched (shown above), not in the client config, since the client only connects to the URL.
+
 ### Host it remotely
 
 To accept connections from other machines, bind to a non-loopback address (`0.0.0.0` for all interfaces, or a specific interface IP):
 
 ```sh
-MCP_HTTP_TOKEN=your-long-random-token \
+GITHUB_TOKEN=ghp_… MCP_HTTP_TOKEN=your-long-random-token \
   npx -y @agentic-web-labs/npm-advisor-mcp --http --host 0.0.0.0 --port 3845
 ```
 
@@ -194,6 +210,16 @@ export GITHUB_TOKEN=ghp_…
 
 Or `GH_TOKEN`, which is also recognized. With a token the rate limit jumps to **5,000 requests / hour**.
 
+### Create a token
+
+1. Open [github.com/settings/tokens](https://github.com/settings/tokens) and choose **Generate new token → Generate new token (classic)**.
+2. Give it a name (for example `npm-advisor-mcp`) and an expiration.
+3. Leave every scope unchecked. The server reads only public data and never touches private repositories, so no scopes are required (the token still raises the rate limit).
+4. Click **Generate token** and copy the `ghp_…` value. GitHub shows it only once.
+5. Set it as `GITHUB_TOKEN` (or `GH_TOKEN`) in your MCP client's `env` block using one of the configs above, or `export` it in the shell that launches the server.
+
+Prefer a [fine-grained token](https://github.com/settings/personal-access-tokens/new)? Create one with read-only **Public Repositories** access and no account permissions.
+
 A typical Claude Desktop entry with auth:
 
 ```json
@@ -209,8 +235,6 @@ A typical Claude Desktop entry with auth:
   }
 }
 ```
-
-The token only needs **public read** scopes; the server never touches private repositories.
 
 A ready-to-copy template lives at [`.env.example`](https://github.com/amedina/agentic-web-labs/blob/develop/packages/mcp/npm-advisor-mcp/.env.example) in the source repo. Copy the keys you need into your MCP client's `env` block, or `source` the file before running the binary directly.
 
@@ -248,8 +272,8 @@ npm-advisor-mcp: GitHub auth = unauthenticated; rate limit 60 req/hr (set $GITHU
             │   │   • analyze_project                 │ │
             │   └─────────────────────────────────────┘ │
             │   ┌─────────────────────────────────────┐ │
-            │   │ @agentic-web-labs/                  │ │
-            │   │   package-analyzer-core             │ │
+            │   │ Analysis engine (bundled)           │ │
+            │   │   data sources:                     │ │
             │   │   - npm registry                    │ │
             │   │   - GitHub GraphQL (advisories,     │ │
             │   │     stars, last commit)             │ │
@@ -265,7 +289,7 @@ The AI client either spawns this process as a subprocess (stdio mode, default) o
 
 ## Privacy
 
-All API calls go to public endpoints: `registry.npmjs.org`, `bundlephobia.com`, `api.github.com`, and the OSADL license matrix bundled with `@agentic-web-labs/package-analyzer-core`. This server doesn't phone home anywhere else, and reads only files under the workspace path you ask `list_workspace_dependencies`, `analyze_package_json`, or `analyze_project` to scan.
+All API calls go to public endpoints: `registry.npmjs.org`, `bundlephobia.com`, `api.github.com`, and the OSADL license matrix bundled into the server. This server doesn't phone home anywhere else, and reads only files under the workspace path you ask `list_workspace_dependencies`, `analyze_package_json`, or `analyze_project` to scan.
 
 ## Build from source
 
@@ -285,7 +309,10 @@ This produces `packages/mcp/npm-advisor-mcp/dist/server.js` with a shebang and t
   "mcpServers": {
     "npm-advisor-dev": {
       "command": "node",
-      "args": ["/absolute/path/to/dist/server.js"]
+      "args": ["/absolute/path/to/dist/server.js"],
+      "env": {
+        "GITHUB_TOKEN": "ghp_…"
+      }
     }
   }
 }
@@ -307,6 +334,5 @@ pnpm start:npm-advisor-mcp:http
 
 ## Related packages
 
-- [`@agentic-web-labs/package-analyzer-core`](https://github.com/amedina/agentic-web-labs/tree/develop/packages/shared/package-analyzer-core), the analysis engine
 - [NPM Advisor Chrome extension](https://chromewebstore.google.com/detail/npm-advisor/iheaipmbkihiebidhfigbpliililcifh)
 - [NPM Advisor VSCode extension](https://marketplace.visualstudio.com/items?itemName=AgenticWebLabs.vscode-npm-advisor), which also exposes these tools through `@npm-advisor` in Copilot Chat
