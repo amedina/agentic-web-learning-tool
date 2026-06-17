@@ -180,16 +180,17 @@ export interface ProjectHealthTotals {
   uniqueDependencyCount: number;
   vulnerabilities: VulnerabilityTotals;
   /**
-   * Count of package.json files with at least one vulnerability. Matches
-   * the panel's vulnerability chip, which counts affected manifests rather
-   * than distinct advisories.
+   * Count of package.json files with at least one vulnerability. Drives the
+   * daily notification summary; the panel's vulnerability chip instead shows
+   * the total advisory count (`vulnerabilities.total`).
    */
   vulnerablePackageCount: number;
+  /** Total distinct license findings across every manifest. Shown by the panel's license chip. */
   licenseIssueCount: number;
   /**
-   * Count of package.json files with at least one license issue. Matches
-   * the panel's license chip, which counts affected manifests rather than
-   * distinct license findings.
+   * Count of package.json files with at least one license issue. Drives the
+   * daily notification summary; the panel's license chip instead shows the
+   * total license-finding count (`licenseIssueCount`).
    */
   licenseIssuePackageCount: number;
   /** Total e18e replacement opportunities across every manifest. Informational. */
