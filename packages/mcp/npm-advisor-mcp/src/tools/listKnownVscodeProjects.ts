@@ -8,7 +8,7 @@ import {
   type RecentProjectEntry,
 } from "../lib/recentProjectsRegistry";
 
-export interface ListKnownProjectsOutput {
+export interface ListKnownVscodeProjectsOutput {
   /**
    * Absolute path of the file the registry was loaded from. Surfaces
    * up to MCP clients in case the user wants to inspect or hand-edit
@@ -35,14 +35,14 @@ export interface ListKnownProjectsOutput {
 }
 
 /**
- * Tool handler for `list_known_projects`. Reads the shared
+ * Tool handler for `list_known_vscode_projects`. Reads the shared
  * recent-projects registry that the VSCode extension keeps in sync
  * and returns its contents to the MCP client. Currently-open
  * projects float to the top so an AI client can confidently say
  * "you have one project open in VSCode — let's look at that" or
  * "you have three; which one?".
  */
-export function runListKnownProjects(): ListKnownProjectsOutput {
+export function runListKnownVscodeProjects(): ListKnownVscodeProjectsOutput {
   const projects = readRegistry();
   const sorted = [...projects].sort((a, b) => {
     if (a.isCurrentlyOpen !== b.isCurrentlyOpen) {

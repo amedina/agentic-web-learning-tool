@@ -65,7 +65,7 @@ describe("MCP tool schemas - snapshot", () => {
         "analyze_package_json",
         "analyze_project",
         "get_package_stats",
-        "list_known_projects",
+        "list_known_vscode_projects",
         "list_workspace_dependencies",
       ]
     `);
