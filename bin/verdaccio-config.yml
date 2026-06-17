@@ -1,17 +1,16 @@
 # Throwaway local npm registry config for publish testing (Verdaccio).
 #
 # Used by bin/setup-local-registry.sh (`pnpm local-registry:start`). Packages
-# are kept in memory via the verdaccio-memory plugin, so nothing persists
-# between runs; only the htpasswd auth file is written next to this config.
-
-# Verdaccio requires a storage path even when a store plugin overrides it;
-# with verdaccio-memory below, package data stays in memory and this dir is
-# only a placeholder (gitignored).
+# are written to the on-disk ./storage dir (next to this config, gitignored),
+# which the setup script wipes on every start, so nothing persists between
+# `local-registry:start` runs.
+#
+# The default on-disk storage is used deliberately instead of the in-memory
+# store: the verdaccio-memory plugin's removePackage is a no-op, so unpublish
+# never takes effect and re-publishing the same version returns 409 for the
+# life of the registry. On-disk storage honors unpublish, which lets
+# `publish:npm-advisor-mcp:local` unpublish-then-publish the same version.
 storage: ./storage
-
-store:
-  memory:
-    limit: 1000
 
 auth:
   htpasswd:
