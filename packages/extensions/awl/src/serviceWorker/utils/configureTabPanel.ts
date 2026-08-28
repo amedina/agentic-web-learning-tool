@@ -10,7 +10,7 @@ import { logger } from '@agentic-web-labs/common';
 async function configureTabPanel(tabId: number): Promise<void> {
   const path = `sidePanel/sidePanel.html#tab=${tabId}`;
   try {
-    chrome.sidePanel.setOptions({
+    await chrome.sidePanel.setOptions({
       tabId,
       path,
       enabled: true,
