@@ -10,20 +10,12 @@ import { logger } from '@agentic-web-labs/common';
 async function configureTabPanel(tabId: number): Promise<void> {
   const path = `sidePanel/sidePanel.html#tab=${tabId}`;
   try {
-    chrome.sidePanel.setOptions({
+    await chrome.sidePanel.setOptions({
       tabId,
       path,
       enabled: true,
     });
     logger(['debug'], [`Side panel configured for tab ${tabId}`]);
-
-    // Store sidebar binding in session storage for persistence
-    chrome.storage.session.set({
-      [`sidebar_tab_${tabId}`]: {
-        tabId,
-        timestamp: Date.now(),
-      },
-    });
   } catch (error) {
     logger(
       ['error'],
@@ -31,6 +23,23 @@ async function configureTabPanel(tabId: number): Promise<void> {
     );
     throw error;
   }
+
+  // Store sidebar binding in session storage for persistence. This is
+  // bookkeeping: the panel is already configured, so a failed write must not
+  // report the configuration itself as failed.
+  chrome.storage.session
+    .set({
+      [`sidebar_tab_${tabId}`]: {
+        tabId,
+        timestamp: Date.now(),
+      },
+    })
+    .catch((error) => {
+      logger(
+        ['debug'],
+        [`Failed to store sidebar key for tab ${tabId}:`, error]
+      );
+    });
 }
 
 export default configureTabPanel;
