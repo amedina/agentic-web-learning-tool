@@ -16,6 +16,15 @@ import { configureTabPanel } from '../utils';
 
 const openedTabs = new Set<number>();
 
+// Bookkeeping for a tab that no longer has a panel. Fire-and-forget: nothing
+// downstream depends on the write, but an unhandled rejection here would
+// surface in the service worker.
+const forgetSidebarTab = (tabId: number) => {
+  chrome.storage.session.remove(`sidebar_tab_${tabId}`).catch((error) => {
+    logger(['debug'], ['Failed to clear sidebar key for tab:', tabId, error]);
+  });
+};
+
 // Chrome reports when the panel actually opens or closes - including closes we
 // never initiated, like the user hitting the panel's own close button. Without
 // this the toggle state goes stale and the next action click tries to close a
@@ -24,7 +33,7 @@ if ('onClosed' in chrome.sidePanel) {
   chrome.sidePanel.onClosed.addListener(({ tabId }) => {
     if (tabId) {
       openedTabs.delete(tabId);
-      chrome.storage.session.remove(`sidebar_tab_${tabId}`);
+      forgetSidebarTab(tabId);
     }
   });
 }
@@ -57,7 +66,9 @@ if ('onOpened' in chrome.sidePanel) {
       }
     })
   );
-})();
+})().catch((error) => {
+  logger(['error'], ['Failed to pre-configure panels on startup:', error]);
+});
 
 chrome.storage.sync.onChanged.addListener(syncStorageChangeCallback);
 chrome.runtime.onInstalled.addListener(onInstalledCallback);
@@ -68,4 +79,7 @@ chrome.action.onClicked.addListener((event) =>
 );
 chrome.webNavigation.onCompleted.addListener(onCompletedCallback);
 chrome.tabs.onRemoved.addListener(tabOnClosedCallback);
-chrome.tabs.onRemoved.addListener((tabId) => openedTabs.delete(tabId));
+chrome.tabs.onRemoved.addListener((tabId) => {
+  openedTabs.delete(tabId);
+  forgetSidebarTab(tabId);
+});

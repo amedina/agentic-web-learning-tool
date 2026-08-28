@@ -22,7 +22,9 @@ const onActionClickedCallback = (
     // Drop the tab first: whatever close() reports, the panel is not open
     // after this click.
     openedTabs.delete(tabId);
-    chrome.storage.session.remove(sidebarKey);
+    chrome.storage.session.remove(sidebarKey).catch((error) => {
+      logger(['debug'], ['Failed to clear sidebar key for tab:', tabId, error]);
+    });
     chrome.sidePanel.close({ tabId }).catch((error) => {
       // Panel was already gone - closed from its own UI, or replaced by
       // another extension's panel.
@@ -44,12 +46,22 @@ const onActionClickedCallback = (
   chrome.sidePanel
     .open({ tabId })
     .then(() => {
-      chrome.storage.session.set({
-        [sidebarKey]: {
-          tabId,
-          timestamp: Date.now(),
-        },
-      });
+      // Bookkeeping, kept off the open/close path: a failed write must not
+      // reach the rollback below, or a healthy panel would be recorded as
+      // closed.
+      chrome.storage.session
+        .set({
+          [sidebarKey]: {
+            tabId,
+            timestamp: Date.now(),
+          },
+        })
+        .catch((error) => {
+          logger(
+            ['debug'],
+            ['Failed to store sidebar key for tab:', tabId, error]
+          );
+        });
       logger(['debug'], ['Panel opened for tab:', tabId]);
     })
     .catch((error) => {
